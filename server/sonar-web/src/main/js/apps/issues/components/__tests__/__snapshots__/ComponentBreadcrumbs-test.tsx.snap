@@ -5,136 +5,18 @@ exports[`renders 1`] = `
   className="component-name text-ellipsis"
 >
   <Connect(Organization)
-    link={true}
-    linkClassName="link-no-underline"
+    link={false}
     organizationKey="org"
   />
   <span
     title="proj-name"
   >
-    <Link
-      className="link-no-underline"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "branch": undefined,
-            "id": "proj",
-          },
-        }
-      }
-    >
-      proj-name
-    </Link>
+    proj-name
     <span
       className="slash-separator"
     />
   </span>
-  <Link
-    className="link-no-underline"
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to={
-      Object {
-        "pathname": "/code",
-        "query": Object {
-          "id": "proj",
-          "line": undefined,
-          "selected": "comp",
-        },
-      }
-    }
-  >
-    <span
-      title="comp-name"
-    >
-      comp-name
-    </span>
-  </Link>
-</div>
-`;
-
-exports[`renders with branch 1`] = `
-<div
-  className="component-name text-ellipsis"
->
-  <Connect(Organization)
-    link={true}
-    linkClassName="link-no-underline"
-    organizationKey="org"
-  />
-  <span
-    title="proj-name"
-  >
-    <Link
-      className="link-no-underline"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "branch": "feature",
-            "id": "proj",
-            "resolved": "false",
-          },
-        }
-      }
-    >
-      proj-name
-    </Link>
-    <span
-      className="slash-separator"
-    />
-  </span>
-  <span
-    title="sub-proj-name"
-  >
-    <Link
-      className="link-no-underline"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "branch": "feature",
-            "id": "sub-proj",
-            "resolved": "false",
-          },
-        }
-      }
-    >
-      sub-proj-name
-    </Link>
-    <span
-      className="slash-separator"
-    />
-  </span>
-  <Link
-    className="link-no-underline"
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to={
-      Object {
-        "pathname": "/code",
-        "query": Object {
-          "branch": "feature",
-          "id": "proj",
-          "line": undefined,
-          "selected": "comp",
-        },
-      }
-    }
-  >
-    <span
-      title="comp-name"
-    >
-      comp-name
-    </span>
-  </Link>
+  comp-name
 </div>
 `;
 
@@ -143,29 +25,13 @@ exports[`renders with sub-project 1`] = `
   className="component-name text-ellipsis"
 >
   <Connect(Organization)
-    link={true}
-    linkClassName="link-no-underline"
+    link={false}
     organizationKey="org"
   />
   <span
     title="proj-name"
   >
-    <Link
-      className="link-no-underline"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "branch": undefined,
-            "id": "proj",
-          },
-        }
-      }
-    >
-      proj-name
-    </Link>
+    proj-name
     <span
       className="slash-separator"
     />
@@ -173,46 +39,11 @@ exports[`renders with sub-project 1`] = `
   <span
     title="sub-proj-name"
   >
-    <Link
-      className="link-no-underline"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "branch": undefined,
-            "id": "sub-proj",
-          },
-        }
-      }
-    >
-      sub-proj-name
-    </Link>
+    sub-proj-name
     <span
       className="slash-separator"
     />
   </span>
-  <Link
-    className="link-no-underline"
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to={
-      Object {
-        "pathname": "/code",
-        "query": Object {
-          "id": "proj",
-          "line": undefined,
-          "selected": "comp",
-        },
-      }
-    }
-  >
-    <span
-      title="comp-name"
-    >
-      comp-name
-    </span>
-  </Link>
+  comp-name
 </div>
 `;

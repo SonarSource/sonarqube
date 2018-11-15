@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Dispatch } from 'redux';
+import { InjectedRouter } from 'react-router';
+import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { addGlobalErrorMessage } from './globalMessages';
 import { receiveLanguages } from './languages';
 import { receiveMetrics } from './metrics';
@@ -83,4 +85,10 @@ export function doLogout() {
         return Promise.reject();
       }
     );
+}
+
+export function requireAuthorization(router: Pick<InjectedRouter, 'replace'>) {
+  const returnTo = window.location.pathname + window.location.search + window.location.hash;
+  router.replace({ pathname: '/sessions/new', query: { return_to: returnTo } });
+  return requireAuthorizationAction();
 }

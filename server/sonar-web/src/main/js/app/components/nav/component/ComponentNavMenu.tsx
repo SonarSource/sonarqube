@@ -182,11 +182,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderSecurityReports() {
-    const { branchLike, component } = this.props;
-
-    if (component.qualifier === 'BRC' || component.qualifier === 'DIR') {
-      return null;
-    }
+    const { branchLike } = this.props;
 
     if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
       return null;

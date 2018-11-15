@@ -26,7 +26,6 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { isShortLivingBranch } from '../../../helpers/branches';
 import {
   getShortLivingBranchUrl,
-  getCodeUrl,
   getProjectUrl,
   getBaseUrl,
   getPathUrlAsString
@@ -53,10 +52,6 @@ export class App extends React.PureComponent<Props> {
         pathname: '/portfolio',
         query: { id: component.key }
       });
-    } else if (this.isFile()) {
-      this.props.router.replace(
-        getCodeUrl(component.breadcrumbs[0].key, branchLike, component.key)
-      );
     } else if (isShortLivingBranch(branchLike)) {
       this.props.router.replace(getShortLivingBranchUrl(component.key, branchLike.name));
     }
@@ -64,12 +59,10 @@ export class App extends React.PureComponent<Props> {
 
   isPortfolio = () => ['VW', 'SVW'].includes(this.props.component.qualifier);
 
-  isFile = () => ['FIL', 'UTS'].includes(this.props.component.qualifier);
-
   render() {
     const { branchLike, branchLikes, component } = this.props;
 
-    if (this.isPortfolio() || this.isFile() || isShortLivingBranch(branchLike)) {
+    if (this.isPortfolio() || isShortLivingBranch(branchLike)) {
       return null;
     }
 

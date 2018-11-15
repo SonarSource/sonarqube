@@ -39,25 +39,10 @@ exports[`should render source file 1`] = `
           className="big-spacer-left little-spacer-right"
           qualifier="BRC"
         />
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/issues",
-              "query": Object {
-                "branch": "feature",
-                "id": "sub-project-key",
-                "resolved": "false",
-              },
-            }
-          }
-        >
-          Sub-Project Name
-        </Link>
+        Sub-Project Name
       </div>
       <div
-        className="source-viewer-header-component-name"
+        className="source-viewer-header-component-name display-flex-center little-spacer-top"
       >
         <QualifierIcon
           className="little-spacer-right"
@@ -414,25 +399,10 @@ exports[`should render source file 2`] = `
           className="big-spacer-left little-spacer-right"
           qualifier="BRC"
         />
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/issues",
-              "query": Object {
-                "branch": "feature",
-                "id": "sub-project-key",
-                "resolved": "false",
-              },
-            }
-          }
-        >
-          Sub-Project Name
-        </Link>
+        Sub-Project Name
       </div>
       <div
-        className="source-viewer-header-component-name"
+        className="source-viewer-header-component-name display-flex-center little-spacer-top"
       >
         <QualifierIcon
           className="little-spacer-right"
@@ -1395,25 +1365,10 @@ exports[`should render test file 1`] = `
           className="big-spacer-left little-spacer-right"
           qualifier="BRC"
         />
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
-              "pathname": "/project/issues",
-              "query": Object {
-                "branch": "feature",
-                "id": "sub-project-key",
-                "resolved": "false",
-              },
-            }
-          }
-        >
-          Sub-Project Name
-        </Link>
+        Sub-Project Name
       </div>
       <div
-        className="source-viewer-header-component-name"
+        className="source-viewer-header-component-name display-flex-center little-spacer-top"
       >
         <QualifierIcon
           className="little-spacer-right"

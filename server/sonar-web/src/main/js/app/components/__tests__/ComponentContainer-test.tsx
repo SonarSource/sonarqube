@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
+import { Location } from 'history';
 import { ComponentContainer } from '../ComponentContainer';
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getTasksForComponent } from '../../../api/ce';
@@ -27,6 +28,7 @@ import { getComponentNavigation } from '../../../api/nav';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getMeasures } from '../../../api/measures';
+import { isSonarCloud } from '../../../helpers/system';
 
 jest.mock('../../../api/branches', () => ({
   getBranches: jest.fn().mockResolvedValue([]),
@@ -58,12 +60,18 @@ jest.mock('../../../api/nav', () => ({
   })
 }));
 
+jest.mock('../../../helpers/system', () => ({
+  isSonarCloud: jest.fn()
+}));
+
 // mock this, because some of its children are using redux store
 jest.mock('../nav/component/ComponentNav', () => ({
   default: () => null
 }));
 
 const Inner = () => <div />;
+
+const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
 beforeEach(() => {
   (getBranches as jest.Mock).mockClear();
@@ -72,18 +80,11 @@ beforeEach(() => {
   (getComponentNavigation as jest.Mock).mockClear();
   (getTasksForComponent as jest.Mock).mockClear();
   (getMeasures as jest.Mock).mockClear();
+  (isSonarCloud as jest.Mock).mockReturnValue(false).mockClear();
 });
 
 it('changes component', () => {
-  const wrapper = shallow<ComponentContainer>(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'foo' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-  wrapper.instance().mounted = true;
+  const wrapper = shallowRender();
   wrapper.setState({
     branchLikes: [{ isMain: true, name: 'master' }],
     component: { qualifier: 'TRK', visibility: 'public' } as T.Component,
@@ -94,40 +95,8 @@ it('changes component', () => {
   expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
 });
 
-it("loads branches for module's project", async () => {
-  (getComponentNavigation as jest.Mock<any>).mockResolvedValueOnce({
-    breadcrumbs: [
-      { key: 'projectKey', name: 'project', qualifier: 'TRK' },
-      { key: 'moduleKey', name: 'module', qualifier: 'BRC' }
-    ]
-  });
-
-  mount(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'moduleKey' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-
-  await new Promise(setImmediate);
-  expect(getBranches).toBeCalledWith('projectKey');
-  expect(getPullRequests).toBeCalledWith('projectKey');
-  expect(getComponentData).toBeCalledWith({ component: 'moduleKey', branch: undefined });
-  expect(getComponentNavigation).toBeCalledWith({ component: 'moduleKey', branch: undefined });
-});
-
 it("doesn't load branches portfolio", async () => {
-  const wrapper = mount(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'portfolioKey' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-
+  const wrapper = shallowRender({ location: { query: { id: 'portfolioKey' } } as Location });
   await new Promise(setImmediate);
   expect(getBranches).not.toBeCalled();
   expect(getPullRequests).not.toBeCalled();
@@ -138,21 +107,15 @@ it("doesn't load branches portfolio", async () => {
 });
 
 it('updates branches on change', () => {
-  const wrapper = shallow(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'portfolioKey' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-  (wrapper.instance() as ComponentContainer).mounted = true;
+  const wrapper = shallowRender({ location: { query: { id: 'portfolioKey' } } as Location });
   wrapper.setState({
-    branches: [{ isMain: true }],
-    component: { breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }] },
+    branchLikes: [mainBranch],
+    component: {
+      breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }]
+    } as T.Component,
     loading: false
   });
-  (wrapper.find(Inner).prop('onBranchesChange') as Function)();
+  wrapper.find(Inner).prop<Function>('onBranchesChange')();
   expect(getBranches).toBeCalledWith('projectKey');
   expect(getPullRequests).toBeCalledWith('projectKey');
 });
@@ -166,18 +129,12 @@ it('updates the branch measures', async () => {
     { isMain: false, mergeBranch: 'master', name: 'feature', type: 'SHORT' }
   ]);
   (getPullRequests as jest.Mock<any>).mockResolvedValueOnce([]);
-  const wrapper = shallow(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'foo', branch: 'feature' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-  (wrapper.instance() as ComponentContainer).mounted = true;
+  const wrapper = shallowRender({
+    location: { query: { id: 'foo', branch: 'feature' } } as Location
+  });
   wrapper.setState({
-    branches: [{ isMain: true }],
-    component: { breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: 'TRK' }] },
+    branchLikes: [mainBranch],
+    component: { breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: 'TRK' }] } as T.Component,
     loading: false
   });
 
@@ -193,18 +150,11 @@ it('updates the branch measures', async () => {
 });
 
 it('loads organization', async () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
 
   const fetchOrganization = jest.fn();
-  mount(
-    <ComponentContainer
-      appState={{ organizationsEnabled: true }}
-      fetchOrganization={fetchOrganization}
-      location={{ query: { id: 'foo' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-
+  shallowRender({ fetchOrganization });
   await new Promise(setImmediate);
   expect(fetchOrganization).toBeCalledWith('org');
 });
@@ -212,30 +162,14 @@ it('loads organization', async () => {
 it('fetches status', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
 
-  mount(
-    <ComponentContainer
-      appState={{ organizationsEnabled: true }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'foo' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-
+  shallowRender();
   await new Promise(setImmediate);
   expect(getTasksForComponent).toBeCalledWith('portfolioKey');
 });
 
 it('filters correctly the pending tasks for a main branch', () => {
-  const wrapper = shallow(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'foo' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
-
-  const component = wrapper.instance() as ComponentContainer;
+  const wrapper = shallowRender();
+  const component = wrapper.instance();
   const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
   const shortBranch: T.ShortLivingBranch = {
     isMain: false,
@@ -294,14 +228,7 @@ it('reload component after task progress finished', async () => {
   jest.useFakeTimers();
   const inProgressTask = { id: 'foo', status: STATUSES.IN_PROGRESS } as T.Task;
   (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({ queue: [inProgressTask] });
-  const wrapper = shallow(
-    <ComponentContainer
-      appState={{ organizationsEnabled: false }}
-      fetchOrganization={jest.fn()}
-      location={{ query: { id: 'foo' } }}>
-      <Inner />
-    </ComponentContainer>
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(getComponentNavigation).toHaveBeenCalledTimes(1);
   expect(getTasksForComponent).toHaveBeenCalledTimes(1);
@@ -317,3 +244,16 @@ it('reload component after task progress finished', async () => {
   expect(getComponentNavigation).toHaveBeenCalledTimes(2);
   expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 });
+
+function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
+  return shallow<ComponentContainer>(
+    <ComponentContainer
+      fetchOrganization={jest.fn()}
+      location={{ query: { id: 'foo' } }}
+      requireAuthorization={jest.fn()}
+      router={{ replace: jest.fn() }}
+      {...props}>
+      <Inner />
+    </ComponentContainer>
+  );
+}

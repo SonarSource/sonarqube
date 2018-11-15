@@ -18,14 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import { getSelectedLocation } from '../utils';
 import Organization from '../../../components/shared/Organization';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-import { getBranchLikeUrl, getCodeUrl } from '../../../helpers/urls';
 
 interface Props {
-  branchLike?: T.BranchLike;
   component?: T.Component;
   issue: Pick<
     T.Issue,
@@ -46,9 +43,7 @@ interface Props {
 }
 
 export default function ComponentBreadcrumbs({
-  branchLike,
   component,
-  link = true,
   issue,
   organization,
   selectedFlowIndex,
@@ -60,28 +55,15 @@ export default function ComponentBreadcrumbs({
   const displaySubProject = !component || !['BRC', 'DIR'].includes(component.qualifier);
 
   const selectedLocation = getSelectedLocation(issue, selectedFlowIndex, selectedLocationIndex);
-  const componentKey = selectedLocation ? selectedLocation.component : issue.component;
   const componentName = selectedLocation ? selectedLocation.componentName : issue.componentLongName;
 
   return (
     <div className="component-name text-ellipsis">
-      {displayOrganization && (
-        <Organization
-          link={link}
-          linkClassName="link-no-underline"
-          organizationKey={issue.organization}
-        />
-      )}
+      {displayOrganization && <Organization link={false} organizationKey={issue.organization} />}
 
       {displayProject && (
         <span title={issue.projectName}>
-          {link ? (
-            <Link className="link-no-underline" to={getBranchLikeUrl(issue.project, branchLike)}>
-              {limitComponentName(issue.projectName)}
-            </Link>
-          ) : (
-            limitComponentName(issue.projectName)
-          )}
+          {limitComponentName(issue.projectName)}
           <span className="slash-separator" />
         </span>
       )}
@@ -90,28 +72,12 @@ export default function ComponentBreadcrumbs({
         issue.subProject !== undefined &&
         issue.subProjectName !== undefined && (
           <span title={issue.subProjectName}>
-            {link ? (
-              <Link
-                className="link-no-underline"
-                to={getBranchLikeUrl(issue.subProject, branchLike)}>
-                {limitComponentName(issue.subProjectName)}
-              </Link>
-            ) : (
-              limitComponentName(issue.subProjectName)
-            )}
+            {limitComponentName(issue.subProjectName)}
             <span className="slash-separator" />
           </span>
         )}
 
-      {link ? (
-        <Link
-          className="link-no-underline"
-          to={getCodeUrl(issue.project, branchLike, componentKey)}>
-          <span title={componentName}>{collapsePath(componentName || '')}</span>
-        </Link>
-      ) : (
-        collapsePath(componentName || '')
-      )}
+      {collapsePath(componentName || '')}
     </div>
   );
 }

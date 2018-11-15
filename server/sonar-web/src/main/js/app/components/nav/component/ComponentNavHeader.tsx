@@ -27,7 +27,6 @@ import OrganizationAvatar from '../../../../components/common/OrganizationAvatar
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { sanitizeAlmId } from '../../../../helpers/almIntegrations';
-import { collapsePath } from '../../../../helpers/path';
 import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isSonarCloud } from '../../../../helpers/system';
 import { isMainBranch } from '../../../../helpers/branches';
@@ -102,9 +101,6 @@ export function ComponentNavHeader(props: Props) {
 function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[], shouldLinkLast: boolean) {
   const lastItem = breadcrumbs[breadcrumbs.length - 1];
   return breadcrumbs.map((item, index) => {
-    const isPath = item.qualifier === 'DIR';
-    const itemName = isPath ? collapsePath(item.name, 15) : item.name;
-
     return (
       <React.Fragment key={item.key}>
         {index === 0 && <QualifierIcon className="spacer-right" qualifier={lastItem.qualifier} />}
@@ -113,11 +109,11 @@ function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[], shouldLinkLast: boolean)
             className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
             title={item.name}
             to={getProjectUrl(item.key)}>
-            {itemName}
+            {item.name}
           </Link>
         ) : (
           <span className="navbar-context-header-breadcrumb-link" title={item.name}>
-            {itemName}
+            {item.name}
           </span>
         )}
         {index < breadcrumbs.length - 1 && <span className="slash-separator" />}

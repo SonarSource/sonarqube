@@ -24,7 +24,7 @@ import FavoriteIcon from '../../../components/icons-components/FavoriteIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import ClockIcon from '../../../components/icons-components/ClockIcon';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
 
 interface Props {
   appState: Pick<T.AppState, 'organizationsEnabled'>;
@@ -111,6 +111,11 @@ export default class SearchResult extends React.PureComponent<Props, State> {
   render() {
     const { component } = this.props;
 
+    const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
+    const to = isFile
+      ? getCodeUrl(component.project!, undefined, component.key)
+      : getProjectUrl(component.key);
+
     return (
       <li
         className={this.props.selected ? 'active' : undefined}
@@ -121,10 +126,7 @@ export default class SearchResult extends React.PureComponent<Props, State> {
           overlay={component.key}
           placement="left"
           visible={this.state.tooltipVisible}>
-          <Link
-            data-key={component.key}
-            onClick={this.props.onClose}
-            to={getProjectUrl(component.key)}>
+          <Link data-key={component.key} onClick={this.props.onClose} to={to}>
             <span className="navbar-search-item-link" onMouseEnter={this.handleMouseEnter}>
               <span className="navbar-search-item-icons little-spacer-right">
                 {component.isFavorite && <FavoriteIcon favorite={true} size={12} />}

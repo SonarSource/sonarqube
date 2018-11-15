@@ -34,12 +34,7 @@ const baseIssue = {
 it('renders', () => {
   expect(
     shallow(
-      <ComponentBreadcrumbs
-        branchLike={undefined}
-        component={undefined}
-        issue={baseIssue}
-        organization={undefined}
-      />
+      <ComponentBreadcrumbs component={undefined} issue={baseIssue} organization={undefined} />
     )
   ).toMatchSnapshot();
 });
@@ -47,33 +42,6 @@ it('renders', () => {
 it('renders with sub-project', () => {
   const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
   expect(
-    shallow(
-      <ComponentBreadcrumbs
-        branchLike={undefined}
-        component={undefined}
-        issue={issue}
-        organization={undefined}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('renders with branch', () => {
-  const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
-  const shortBranch: T.ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: '',
-    name: 'feature',
-    type: 'SHORT'
-  };
-  expect(
-    shallow(
-      <ComponentBreadcrumbs
-        branchLike={shortBranch}
-        component={undefined}
-        issue={issue}
-        organization={undefined}
-      />
-    )
+    shallow(<ComponentBreadcrumbs component={undefined} issue={issue} organization={undefined} />)
   ).toMatchSnapshot();
 });

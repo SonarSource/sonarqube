@@ -1110,7 +1110,6 @@ export class App extends React.PureComponent<Props, State> {
                 {openIssue ? (
                   <div className="pull-left width-60">
                     <ComponentBreadcrumbs
-                      branchLike={this.props.branchLike}
                       component={component}
                       issue={openIssue}
                       organization={this.props.organization}

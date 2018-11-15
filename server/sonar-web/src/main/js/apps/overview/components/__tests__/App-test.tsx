@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import { App } from '../App';
 import { isSonarCloud } from '../../../../helpers/system';
 
@@ -64,33 +64,7 @@ it('should render SonarCloudEmptyOverview', () => {
   ).toBeTruthy();
 });
 
-it('redirects on Code page for files', () => {
-  const branch: T.LongLivingBranch = { isMain: false, name: 'b', type: 'LONG' };
-  const newComponent = {
-    ...component,
-    breadcrumbs: [
-      { key: 'project', name: 'Project', qualifier: 'TRK' },
-      { key: 'foo', name: 'Foo', qualifier: 'DIR' }
-    ],
-    qualifier: 'FIL'
-  };
-  const replace = jest.fn();
-  mount(
-    <App
-      branchLike={branch}
-      branchLikes={[branch]}
-      component={newComponent}
-      onComponentChange={jest.fn()}
-      router={{ replace }}
-    />
-  );
-  expect(replace).toBeCalledWith({
-    pathname: '/code',
-    query: { branch: 'b', id: 'project', selected: 'foo' }
-  });
-});
-
-function getWrapper(props: Partial<App['props']> = {}) {
+function getWrapper(props = {}) {
   return shallow(
     <App
       branchLikes={[]}

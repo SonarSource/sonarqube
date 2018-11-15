@@ -105,10 +105,8 @@ export default class ListItem extends React.PureComponent<Props, State> {
         {displayComponent && (
           <div className="issues-workspace-list-component note">
             <ComponentBreadcrumbs
-              branchLike={branchLike}
               component={component}
               issue={this.props.issue}
-              link={false}
               organization={this.props.organization}
             />
           </div>

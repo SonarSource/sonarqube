@@ -33,7 +33,7 @@ import { lazyLoad } from '../../../components/lazyLoad';
 import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
 import './Search.css';
 
 const SearchResults = lazyLoad(() => import('./SearchResults'));
@@ -162,13 +162,21 @@ export class Search extends React.PureComponent<Props, State> {
       return next;
     }, []);
 
-  mergeWithRecentlyBrowsed = (components: ComponentResult[]) => {
-    const recentlyBrowsed = RecentHistory.get().map(component => ({
-      ...component,
-      isRecentlyBrowsed: true,
-      qualifier: component.icon.toUpperCase()
-    }));
-    return uniqBy([...components, ...recentlyBrowsed], 'key');
+  findFile = (key: string) => {
+    const findInResults = (results: ComponentResult[] | undefined) =>
+      results && results.find(r => r.key === key);
+
+    const file = findInResults(this.state.results['FIL']);
+    if (file) {
+      return file;
+    }
+
+    const test = findInResults(this.state.results['UTS']);
+    if (test) {
+      return test;
+    }
+
+    return undefined;
   };
 
   stopLoading = () => {
@@ -268,11 +276,17 @@ export class Search extends React.PureComponent<Props, State> {
 
   openSelected = () => {
     const { selected } = this.state;
+
     if (selected) {
       if (selected.startsWith('qualifier###')) {
         this.searchMore(selected.substr(12));
       } else {
-        this.props.router.push(getProjectUrl(selected));
+        const file = this.findFile(selected);
+        if (file) {
+          this.props.router.push(getCodeUrl(file.project!, undefined, file.key));
+        } else {
+          this.props.router.push(getProjectUrl(selected));
+        }
         this.closeSearch();
       }
     }

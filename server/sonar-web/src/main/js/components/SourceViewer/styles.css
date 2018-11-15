@@ -290,12 +290,11 @@
 }
 
 .source-viewer-header-component-project {
-  color: var(--secondFontColor);
   font-size: var(--smallFontSize);
 }
 
 .source-viewer-header-component-name {
-  font-weight: 600;
+  font-size: var(--smallFontSize);
 }
 
 .source-viewer-header-favorite {

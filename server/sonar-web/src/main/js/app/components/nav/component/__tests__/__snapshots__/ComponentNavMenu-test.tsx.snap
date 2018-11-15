@@ -226,127 +226,6 @@ exports[`should work for all qualifiers 2`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/dashboard",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      overview.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      className=""
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/issues",
-          "query": Object {
-            "id": "foo",
-            "resolved": "false",
-          },
-        }
-      }
-    >
-      issues.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/component_measures",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      layout.measures
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/code",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      code.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/activity",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      project_activity.page
-    </Link>
-  </li>
-  <Dropdown
-    data-test="administration"
-    overlay={
-      <ul
-        className="menu"
-      >
-        <li>
-          <Link
-            activeClassName="active"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/project/settings",
-                "query": Object {
-                  "id": "foo",
-                },
-              }
-            }
-          >
-            project_settings.page
-          </Link>
-        </li>
-      </ul>
-    }
-    tagName="li"
-  >
-    <Component />
-  </Dropdown>
-</NavBarTabs>
-`;
-
-exports[`should work for all qualifiers 3`] = `
-<NavBarTabs>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
           "pathname": "/portfolio",
           "query": Object {
             "id": "foo",
@@ -504,7 +383,7 @@ exports[`should work for all qualifiers 3`] = `
 </NavBarTabs>
 `;
 
-exports[`should work for all qualifiers 4`] = `
+exports[`should work for all qualifiers 3`] = `
 <NavBarTabs>
   <li>
     <Link
@@ -641,7 +520,7 @@ exports[`should work for all qualifiers 4`] = `
 </NavBarTabs>
 `;
 
-exports[`should work for all qualifiers 5`] = `
+exports[`should work for all qualifiers 4`] = `
 <NavBarTabs>
   <li>
     <Link

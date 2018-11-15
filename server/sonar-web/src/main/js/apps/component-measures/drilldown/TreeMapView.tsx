@@ -28,7 +28,6 @@ import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
-import { getBranchLikeUrl } from '../../../helpers/urls';
 import { isDefined } from '../../../helpers/types';
 
 interface Props {
@@ -54,13 +53,13 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     this.state = { treemapItems: this.getTreemapComponents(props) };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.components !== this.props.components || nextProps.metric !== this.props.metric) {
-      this.setState({ treemapItems: this.getTreemapComponents(nextProps) });
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.components !== this.props.components || prevProps.metric !== this.props.metric) {
+      this.setState({ treemapItems: this.getTreemapComponents(this.props) });
     }
   }
 
-  getTreemapComponents = ({ branchLike, components, metric }: Props) => {
+  getTreemapComponents = ({ components, metric }: Props) => {
     const colorScale = this.getColorScale(metric);
     return components
       .map(component => {
@@ -85,7 +84,6 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
           icon: <QualifierIcon fill={theme.baseFontColor} qualifier={component.qualifier} />,
           key: component.refKey || component.key,
           label: component.name,
-          link: getBranchLikeUrl(component.refKey || component.key, branchLike),
           size: sizeValue,
           tooltip: this.getTooltip({
             colorMetric: metric,

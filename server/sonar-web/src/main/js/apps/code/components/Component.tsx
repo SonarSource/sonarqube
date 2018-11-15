@@ -21,7 +21,6 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
-import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
 import { WorkspaceContext } from '../../../components/workspace/context';
 
@@ -85,34 +84,25 @@ export default class Component extends React.PureComponent<Props> {
       selected = false
     } = this.props;
 
-    let componentAction = null;
-
-    if (!component.refKey || component.qualifier === 'SVW') {
-      switch (component.qualifier) {
-        case 'FIL':
-        case 'UTS':
-          componentAction = (
-            <WorkspaceContext.Consumer>
-              {({ openComponent }) => (
-                <ComponentPin
-                  branchLike={branchLike}
-                  component={component}
-                  openComponent={openComponent}
-                />
-              )}
-            </WorkspaceContext.Consumer>
-          );
-          break;
-        default:
-          componentAction = <ComponentLink branchLike={branchLike} component={component} />;
-      }
-    }
+    const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
 
     return (
       <tr className={classNames({ selected })} ref={node => (this.node = node)}>
         <td className="blank" />
         <td className="thin nowrap">
-          <span className="spacer-right">{componentAction}</span>
+          <span className="spacer-right">
+            {isFile && (
+              <WorkspaceContext.Consumer>
+                {({ openComponent }) => (
+                  <ComponentPin
+                    branchLike={branchLike}
+                    component={component}
+                    openComponent={openComponent}
+                  />
+                )}
+              </WorkspaceContext.Consumer>
+            )}
+          </span>
         </td>
         <td className="code-name-cell">
           <ComponentName

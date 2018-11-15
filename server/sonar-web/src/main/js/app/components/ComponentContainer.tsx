@@ -23,13 +23,12 @@ import { differenceBy } from 'lodash';
 import { ComponentContext } from './ComponentContext';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
-import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getTasksForComponent, getAnalysisStatus } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getMeasures } from '../../api/measures';
 import { getComponentNavigation } from '../../api/nav';
-import { fetchOrganization } from '../../store/rootActions';
+import { fetchOrganization, requireAuthorization } from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
 import {
   isPullRequest,
@@ -39,15 +38,15 @@ import {
   isShortLivingBranch,
   getBranchLikeQuery
 } from '../../helpers/branches';
-import { Store, getAppState } from '../../store/rootReducer';
+import { isSonarCloud } from '../../helpers/system';
+import { withRouter, Router, Location } from '../../components/hoc/withRouter';
 
 interface Props {
-  appState: Pick<T.AppState, 'organizationsEnabled'>;
-  children: any;
+  children: React.ReactElement<any>;
   fetchOrganization: (organization: string) => void;
-  location: {
-    query: { branch?: string; id: string; pullRequest?: string };
-  };
+  location: Pick<Location, 'query'>;
+  requireAuthorization: (router: Pick<Router, 'replace'>) => void;
+  router: Pick<Router, 'replace'>;
 }
 
 interface State {
@@ -74,13 +73,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     this.fetchComponent();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (
-      nextProps.location.query.id !== this.props.location.query.id ||
-      nextProps.location.query.branch !== this.props.location.query.branch ||
-      nextProps.location.query.pullRequest !== this.props.location.query.pullRequest
+      prevProps.location.query.id !== this.props.location.query.id ||
+      prevProps.location.query.branch !== this.props.location.query.branch ||
+      prevProps.location.query.pullRequest !== this.props.location.query.pullRequest
     ) {
-      this.fetchComponent(nextProps);
+      this.fetchComponent();
     }
   }
 
@@ -94,16 +93,16 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
   });
 
-  fetchComponent(props = this.props) {
-    const { branch, id: key, pullRequest } = props.location.query;
+  fetchComponent() {
+    const { branch, id: key, pullRequest } = this.props.location.query;
     this.setState({ loading: true });
 
     const onError = (response?: Response) => {
       if (this.mounted) {
         if (response && response.status === 403) {
-          handleRequiredAuthorization();
+          this.props.requireAuthorization(this.props.router);
         } else {
-          this.setState({ loading: false });
+          this.setState({ component: undefined, loading: false });
         }
       }
     };
@@ -115,7 +114,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       .then(([nav, data]) => {
         const component = this.addQualifier({ ...nav, ...data });
 
-        if (this.props.appState.organizationsEnabled) {
+        if (isSonarCloud()) {
           this.props.fetchOrganization(component.organization);
         }
         return component;
@@ -375,13 +374,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  appState: getAppState(state)
-});
+const mapDispatchToProps = { fetchOrganization, requireAuthorization };
 
-const mapDispatchToProps = { fetchOrganization };
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ComponentContainer);
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps
+  )(ComponentContainer)
+);
