@@ -22,43 +22,38 @@ package org.sonar.scanner.scan.filesystem;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.scanner.scan.ScanProperties;
 
 public class InputFileBuilder {
-  private final String moduleKey;
-  private final Path moduleBaseDir;
+  private final DefaultInputModule module;
   private final ScannerComponentIdGenerator idGenerator;
   private final MetadataGenerator metadataGenerator;
   private final boolean preloadMetadata;
-  private final ModuleFileSystemInitializer moduleFileSystemInitializer;
   private final Path projectBaseDir;
   private final SensorStrategy sensorStrategy;
 
-  public InputFileBuilder(InputModule module, MetadataGenerator metadataGenerator,
-                          ScannerComponentIdGenerator idGenerator, ScanProperties properties, ModuleFileSystemInitializer moduleFileSystemInitializer, InputModuleHierarchy hierarchy,
+  public InputFileBuilder(DefaultInputProject project, DefaultInputModule module, MetadataGenerator metadataGenerator,
+                          ScannerComponentIdGenerator idGenerator, ScanProperties properties,
                           SensorStrategy sensorStrategy) {
     this.sensorStrategy = sensorStrategy;
-    this.projectBaseDir = hierarchy.root().getBaseDir();
-    this.moduleFileSystemInitializer = moduleFileSystemInitializer;
-    this.moduleKey = module.key();
-    this.moduleBaseDir = ((AbstractProjectOrModule) module).getBaseDir();
+    this.projectBaseDir = project.getBaseDir();
+    this.module = module;
     this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
     this.preloadMetadata = properties.preloadFileMetadata();
   }
 
   DefaultInputFile create(InputFile.Type type, Path absolutePath, @Nullable String language) {
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, moduleKey,
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, module.key(),
       projectBaseDir.relativize(absolutePath).toString(),
-      moduleBaseDir.relativize(absolutePath).toString(),
+      module.getBaseDir().relativize(absolutePath).toString(),
       type, language, idGenerator.getAsInt(), sensorStrategy);
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, moduleFileSystemInitializer.defaultEncoding()));
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, module.getEncoding()));
     if (language != null) {
       inputFile.setPublished(true);
     }

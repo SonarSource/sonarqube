@@ -21,6 +21,7 @@ package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -28,10 +29,17 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 @Immutable
 public abstract class AbstractProjectOrModule extends DefaultInputComponent {
+
+  private static final Logger LOG = Loggers.get(AbstractProjectOrModule.class);
+
   private final Path baseDir;
   private final Path workDir;
   private final String name;
@@ -45,13 +53,7 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
 
   private final String key;
   private final ProjectDefinition definition;
-
-  /**
-   * For testing only!
-   */
-  public AbstractProjectOrModule(ProjectDefinition definition) {
-    this(definition, TestInputFileBuilder.nextBatchId());
-  }
+  private final Charset encoding;
 
   public AbstractProjectOrModule(ProjectDefinition definition, int scannerComponentId) {
     super(scannerComponentId);
@@ -68,6 +70,18 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
 
     this.definition = definition;
     this.key = definition.getKey();
+    this.encoding = initEncoding(definition);
+  }
+
+  private static Charset initEncoding(ProjectDefinition module) {
+    String encodingStr = module.properties().get(CoreProperties.ENCODING_PROPERTY);
+    Charset result;
+    if (StringUtils.isNotEmpty(encodingStr)) {
+      result = Charset.forName(StringUtils.trim(encodingStr));
+    } else {
+      result = Charset.defaultCharset();
+    }
+    return result;
   }
 
   private static Path initBaseDir(ProjectDefinition module) {
@@ -144,5 +158,8 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
   public String getDescription() {
     return description;
   }
-  
+
+  public Charset getEncoding() {
+    return encoding;
+  }
 }

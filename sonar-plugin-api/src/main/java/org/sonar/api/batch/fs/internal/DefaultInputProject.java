@@ -26,8 +26,11 @@ import org.sonar.api.scanner.fs.InputProject;
 @Immutable
 public class DefaultInputProject extends AbstractProjectOrModule implements InputProject {
 
+  /**
+   * For testing only!
+   */
   public DefaultInputProject(ProjectDefinition definition) {
-    super(definition);
+    super(definition, 0);
   }
 
   public DefaultInputProject(ProjectDefinition definition, int scannerComponentId) {

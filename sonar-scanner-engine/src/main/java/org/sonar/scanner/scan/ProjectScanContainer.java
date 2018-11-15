@@ -93,6 +93,7 @@ import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
+import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
@@ -163,6 +164,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ScannerComponentIdGenerator.class,
       new ScmChangedFilesProvider(),
       StatusDetection.class,
+      LanguageDetection.class,
 
       // rules
       new ActiveRulesProvider(),

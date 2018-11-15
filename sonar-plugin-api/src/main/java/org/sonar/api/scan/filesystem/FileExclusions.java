@@ -32,7 +32,9 @@ import org.sonar.api.config.Configuration;
  * runtime.
  *
  * @since 3.5
+ * @deprecated since 7.6
  */
+@Deprecated
 @ScannerSide
 public class FileExclusions {
   private final Configuration settings;

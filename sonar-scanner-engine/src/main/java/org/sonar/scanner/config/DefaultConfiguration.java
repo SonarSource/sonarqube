@@ -36,7 +36,7 @@ import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
-import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 @Immutable
 public abstract class DefaultConfiguration implements Configuration {

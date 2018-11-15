@@ -19,18 +19,60 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 @Immutable
 public class DefaultInputModule extends AbstractProjectOrModule implements InputModule {
 
+  private static final Logger LOG = Loggers.get(DefaultInputModule.class);
+  private final List<Path> sourceDirsOrFiles;
+  private final List<Path> testDirsOrFiles;
+
+  /**
+   * For testing only!
+   */
   public DefaultInputModule(ProjectDefinition definition) {
-    super(definition);
+    this(definition, 0);
   }
 
   public DefaultInputModule(ProjectDefinition definition, int scannerComponentId) {
     super(definition, scannerComponentId);
+
+    this.sourceDirsOrFiles = initSources(definition, ProjectDefinition.SOURCES_PROPERTY);
+    this.testDirsOrFiles = initSources(definition, ProjectDefinition.TESTS_PROPERTY);
+  }
+
+  private List<Path> initSources(ProjectDefinition module, String propertyKey) {
+    List<Path> result = new ArrayList<>();
+    PathResolver pathResolver = new PathResolver();
+    String srcPropValue = module.properties().get(propertyKey);
+    if (srcPropValue != null) {
+      for (String sourcePath : parseAsCsv(propertyKey, srcPropValue)) {
+        File dirOrFile = pathResolver.relativeFile(getBaseDir().toFile(), sourcePath);
+        if (dirOrFile.exists()) {
+          result.add(dirOrFile.toPath());
+        }
+      }
+    }
+    return result;
+  }
+
+  public List<Path> getSourceDirsOrFiles() {
+    return sourceDirsOrFiles;
+  }
+
+  public List<Path> getTestDirsOrFiles() {
+    return testDirsOrFiles;
   }
 }

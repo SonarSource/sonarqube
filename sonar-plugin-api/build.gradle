@@ -14,6 +14,7 @@ dependencies {
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
   compile 'com.google.guava:guava'
+  compile 'org.apache.commons:commons-csv'
 
   // shaded, but not relocated
   compile project(':sonar-check-api')

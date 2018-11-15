@@ -21,26 +21,26 @@ package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 public class DefaultModuleFileSystem extends DefaultFileSystem {
 
-  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, AbstractProjectOrModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module, DefaultAnalysisMode mode,
                                  StatusDetection statusDetection) {
     super(module.getBaseDir(), moduleInputFileCache);
-    setFields(module, initializer, mode, statusDetection);
+    setFields(module, mode, statusDetection);
   }
 
   @VisibleForTesting
-  public DefaultModuleFileSystem(AbstractProjectOrModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
+  public DefaultModuleFileSystem(DefaultInputModule module, DefaultAnalysisMode mode, StatusDetection statusDetection) {
     super(module.getBaseDir());
-    setFields(module, initializer, mode, statusDetection);
+    setFields(module, mode, statusDetection);
   }
 
-  private void setFields(AbstractProjectOrModule module, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode, StatusDetection statusDetection) {
+  private void setFields(DefaultInputModule module, DefaultAnalysisMode mode, StatusDetection statusDetection) {
     setWorkDir(module.getWorkDir());
-    setEncoding(initializer.defaultEncoding());
+    setEncoding(module.getEncoding());
 
     // filter the files sensors have access to
     if (!mode.scanAllFiles()) {

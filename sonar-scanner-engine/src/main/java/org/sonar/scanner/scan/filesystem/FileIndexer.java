@@ -44,10 +44,9 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.scan.DefaultComponentTree;
@@ -64,10 +63,9 @@ public class FileIndexer {
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilder inputFileBuilder;
   private final DefaultComponentTree componentTree;
-  private final AbstractProjectOrModule module;
+  private final DefaultInputModule module;
   private final ScannerComponentIdGenerator scannerComponentIdGenerator;
   private final InputComponentStore componentStore;
-  private final ModuleFileSystemInitializer moduleFileSystemInitializer;
   private ExecutorService executorService;
   private final List<Future<Void>> tasks;
   private final DefaultModuleFileSystem defaultModuleFileSystem;
@@ -75,16 +73,15 @@ public class FileIndexer {
 
   private ProgressReport progressReport;
 
-  public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, InputModule module, ExclusionFilters exclusionFilters,
-                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
+  public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
+                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, DefaultModuleFileSystem defaultModuleFileSystem,
                      LanguageDetection languageDetection,
                      InputFileFilter[] filters) {
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
-    this.module = (AbstractProjectOrModule) module;
+    this.module = module;
     this.componentTree = componentTree;
     this.inputFileBuilder = inputFileBuilder;
-    this.moduleFileSystemInitializer = initializer;
     this.defaultModuleFileSystem = defaultModuleFileSystem;
     this.langDetection = languageDetection;
     this.filters = filters;
@@ -92,10 +89,10 @@ public class FileIndexer {
     this.tasks = new ArrayList<>();
   }
 
-  public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, InputModule module, ExclusionFilters exclusionFilters,
-                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ModuleFileSystemInitializer initializer, DefaultModuleFileSystem defaultModuleFileSystem,
+  public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
+                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, DefaultModuleFileSystem defaultModuleFileSystem,
                      LanguageDetection languageDetection) {
-    this(scannerComponentIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, initializer, defaultModuleFileSystem, languageDetection,
+    this(scannerComponentIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, defaultModuleFileSystem, languageDetection,
       new InputFileFilter[0]);
   }
 
@@ -112,8 +109,8 @@ public class FileIndexer {
 
     Progress progress = new Progress();
 
-    indexFiles(moduleFileSystemInitializer.sources(), InputFile.Type.MAIN, progress);
-    indexFiles(moduleFileSystemInitializer.tests(), InputFile.Type.TEST, progress);
+    indexFiles(module.getSourceDirsOrFiles(), InputFile.Type.MAIN, progress);
+    indexFiles(module.getTestDirsOrFiles(), InputFile.Type.TEST, progress);
 
     waitForTasksToComplete(progressReport);
 

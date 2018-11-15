@@ -45,7 +45,8 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.util.ScannerUtils;
 
-import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
+
 
 /**
  * Class that creates a project definition based on a set of properties.

@@ -19,12 +19,18 @@
  */
 package org.sonar.scanner.scan;
 
+import java.util.Locale;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 
 public class InputProjectProvider extends ProviderAdapter {
+
+  private static final Logger LOG = Loggers.get(DefaultInputModule.class);
 
   private DefaultInputProject project = null;
 
@@ -37,8 +43,12 @@ public class InputProjectProvider extends ProviderAdapter {
       // 2 Validate final reactor
       validator.validate(projectReactor);
 
-      // 3 Create modules and the hierarchy
+      // 3 Create project
       project = new DefaultInputProject(projectReactor.getRoot(), scannerComponentIdGenerator.getAsInt());
+
+      LOG.info("Base dir: {}", project.getBaseDir().toAbsolutePath().toString());
+      LOG.info("Working dir: {}", project.getWorkDir().toAbsolutePath().toString());
+      LOG.debug("Project global encoding: {}, default locale: {}", project.getEncoding().displayName(), Locale.getDefault());
     }
     return project;
   }

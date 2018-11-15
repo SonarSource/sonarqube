@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.api.config.internal;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -31,8 +31,8 @@ import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
-import static org.sonar.core.config.MultivalueProperty.trimFieldsAndRemoveEmptyFields;
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
+import static org.sonar.api.config.internal.MultivalueProperty.trimFieldsAndRemoveEmptyFields;
 
 @RunWith(DataProviderRunner.class)
 public class MultivaluePropertyTest {

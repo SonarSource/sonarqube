@@ -27,17 +27,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 import org.sonar.scanner.scan.ScanProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class InputFileBuilderTest {
   @Rule
@@ -59,6 +59,11 @@ public class InputFileBuilderTest {
       .setKey("root"), 0);
     Path moduleBaseDir = baseDir.resolve("module1");
     Files.createDirectories(moduleBaseDir);
+    DefaultInputProject project = new DefaultInputProject(ProjectDefinition.create()
+      .setBaseDir(baseDir.toFile())
+      .setWorkDir(workDir.toFile())
+      .setProperty(CoreProperties.ENCODING_PROPERTY, StandardCharsets.UTF_8.name())
+      .setKey("module1"), 0);
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(workDir.toFile())
@@ -67,10 +72,8 @@ public class InputFileBuilderTest {
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     ScannerComponentIdGenerator idGenerator = new ScannerComponentIdGenerator();
     ScanProperties properties = mock(ScanProperties.class);
-    ModuleFileSystemInitializer moduleFileSystemInitializer = mock(ModuleFileSystemInitializer.class);
-    when(moduleFileSystemInitializer.defaultEncoding()).thenReturn(StandardCharsets.UTF_8);
     sensorStrategy = new SensorStrategy();
-    builder = new InputFileBuilder(module, metadataGenerator, idGenerator, properties, moduleFileSystemInitializer, new DefaultInputModuleHierarchy(root),
+    builder = new InputFileBuilder(project, module, metadataGenerator, idGenerator, properties,
       sensorStrategy);
   }
 
