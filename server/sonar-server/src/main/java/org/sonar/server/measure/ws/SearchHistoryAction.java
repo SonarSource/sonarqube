@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -88,6 +89,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
         "Requires the following permission: 'Browse' on the specified component")
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
+      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT)

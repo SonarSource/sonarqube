@@ -28,7 +28,6 @@ public enum SuggestionCategory {
   SUBVIEW(Qualifiers.SUBVIEW),
   APP(Qualifiers.APP),
   PROJECT(Qualifiers.PROJECT),
-  MODULE(Qualifiers.MODULE),
   FILE(Qualifiers.FILE),
   UNIT_TEST_FILE(Qualifiers.UNIT_TEST_FILE),;
 

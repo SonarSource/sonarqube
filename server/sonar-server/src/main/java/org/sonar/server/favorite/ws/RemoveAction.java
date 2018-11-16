@@ -20,6 +20,7 @@
 package org.sonar.server.favorite.ws;
 
 import java.util.function.Consumer;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -52,10 +53,11 @@ public class RemoveAction implements FavoritesWsAction {
       .setDescription("Remove a component (project, directory, file etc.) as favorite for the authenticated user.<br>" +
         "Requires authentication.")
       .setSince("6.3")
+      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setPost(true)
       .setHandler(this);
 
-    action.createParam("component")
+    action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setRequired(true)
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);

@@ -74,13 +74,11 @@ public class AnalysisStatusAction implements CeWsAction {
 
     action.createParam(PARAM_BRANCH)
       .setDescription("Branch key")
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true);
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
     action.createParam(PARAM_PULL_REQUEST)
       .setDescription("Pull request id")
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setInternal(true);
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
   @Override

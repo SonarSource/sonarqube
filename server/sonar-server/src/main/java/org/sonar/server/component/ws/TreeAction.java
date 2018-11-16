@@ -31,9 +31,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
@@ -120,7 +122,8 @@ public class TreeAction implements ComponentsWsAction {
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setChangelog(
-        new Change("6.4", "The field 'id' is deprecated in the response"))
+        new Change("6.4", "The field 'id' is deprecated in the response"),
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE);
 
@@ -185,7 +188,10 @@ public class TreeAction implements ComponentsWsAction {
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, baseComponent);
 
       ComponentTreeQuery query = toComponentTreeQuery(treeRequest, baseComponent);
-      List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
+      List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query)
+        .stream()
+        .filter(c -> !c.qualifier().equals(Qualifiers.MODULE))
+        .collect(Collectors.toList());
       int total = components.size();
       components = sortComponents(components, treeRequest);
       components = paginateComponents(components, treeRequest);

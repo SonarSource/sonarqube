@@ -45,7 +45,6 @@ import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -56,6 +55,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.BillingValidations;
@@ -387,18 +387,6 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void return_breadcrumbs_on_module() {
-    ComponentDto project = insertOrganizationAndProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
-    userSession.anonymous()
-      .addProjectPermission(UserRole.USER, project)
-      .addProjectPermission(UserRole.ADMIN, project);
-    init();
-
-    executeAndVerify(module.getDbKey(), "return_breadcrumbs_on_module.json");
-  }
-
-  @Test
   public void return_configuration_for_quality_profile_admin() {
     ComponentDto project = insertOrganizationAndProject();
     userSession.logIn()
@@ -467,21 +455,6 @@ public class ComponentActionTest {
       .addProjectPermission(UserRole.ADMIN, project)
       .addPermission(OrganizationPermission.ADMINISTER, org);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"public\"}");
-  }
-
-  @Test
-  public void should_not_return_private_flag_for_module() {
-    OrganizationDto org = db.organizations().insert();
-    db.qualityGates().createDefaultQualityGate(org);
-    ComponentDto project = db.components().insertPrivateProject(org);
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    init();
-
-    userSession.logIn()
-      .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER, org);
-    String json = execute(module.getDbKey());
-    assertThat(json).doesNotContain("visibility");
   }
 
   @Test
@@ -588,7 +561,8 @@ public class ComponentActionTest {
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The 'visibility' field is added"),
-      tuple("7.3", "The 'almRepoUrl' and 'almId' fields are added"));
+      tuple("7.3", "The 'almRepoUrl' and 'almId' fields are added"),
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
 
     WebService.Param componentId = action.param(PARAM_COMPONENT);
     assertThat(componentId.isRequired()).isFalse();
@@ -621,27 +595,24 @@ public class ComponentActionTest {
       "}\n");
   }
 
-  @Test
-  public void return_alm_info_on_module() {
+  @Test(expected = BadRequestException.class)
+  public void fail_on_module_key_as_param() {
     ComponentDto project = insertOrganizationAndProject();
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
-    dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
-    db.getSession().commit();
+    init();
+
+    execute(module.getKey());
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void fail_on_directory_key_as_param() {
+    ComponentDto project = insertOrganizationAndProject();
+    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
+    ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    String json = execute(module.getKey());
-
-    assertJson(json).isSimilarTo("{\n" +
-      "  \"organization\": \"my-org\",\n" +
-      "  \"key\": \"palap\",\n" +
-      "  \"id\": \"bcde\",\n" +
-      "  \"name\": \"Palap\",\n" +
-      "  \"alm\": {\n" +
-      "     \"key\": \"bitbucketcloud\",\n" +
-      "     \"url\": \"http://bitbucket.org/foo/bar\"\n" +
-      "  }\n" +
-      "}\n");
+    execute(directory.getDbKey());
   }
 
   @Test

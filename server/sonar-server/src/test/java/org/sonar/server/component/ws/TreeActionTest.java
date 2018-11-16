@@ -100,7 +100,8 @@ public class TreeActionTest {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("6.4", "The field 'id' is deprecated in the response"));
+      tuple("6.4", "The field 'id' is deprecated in the response"),
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
     assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest", "qualifiers", "strategy",
       "q", "s", "p", "asc", "ps");
 
@@ -258,7 +259,9 @@ public class TreeActionTest {
       .setParam(Param.SORT, "qualifier, name")
       .setParam(PARAM_COMPONENT_ID, "project-uuid").executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("module-uuid-1", "path/directory/", "file-uuid-1", "file-uuid-2");
+    assertThat(response.getComponentsList()).extracting("id")
+      .containsExactly("path/directory/", "file-uuid-1", "file-uuid-2")
+      .doesNotContain("module-uuid-1");
   }
 
   @Test

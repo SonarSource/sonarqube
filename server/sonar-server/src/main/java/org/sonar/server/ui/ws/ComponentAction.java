@@ -76,6 +76,7 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkComponentNotAModuleAndNotADirectory;
 
 public class ComponentAction implements NavigationWsAction {
 
@@ -121,8 +122,9 @@ public class ComponentAction implements NavigationWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.2")
       .setChangelog(
-        new Change("6.4", "The 'visibility' field is added"),
-        new Change("7.3", "The 'almRepoUrl' and 'almId' fields are added"));
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
+        new Change("7.3", "The 'almRepoUrl' and 'almId' fields are added"),
+        new Change("6.4", "The 'visibility' field is added"));
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
@@ -132,13 +134,11 @@ public class ComponentAction implements NavigationWsAction {
     action
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
-      .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
     action
       .createParam(PARAM_PULL_REQUEST)
       .setDescription("Pull request id")
-      .setInternal(true)
       .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
   }
 
@@ -149,6 +149,7 @@ public class ComponentAction implements NavigationWsAction {
       String branch = request.param(PARAM_BRANCH);
       String pullRequest = request.param(PARAM_PULL_REQUEST);
       ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, componentKey, branch, pullRequest);
+      checkComponentNotAModuleAndNotADirectory(component);
       ComponentDto rootProjectOrBranch = getRootProjectOrBranch(component, session);
       ComponentDto rootProject = rootProjectOrBranch.getMainBranchProjectUuid() == null ? rootProjectOrBranch
         : componentFinder.getByUuid(session, rootProjectOrBranch.getMainBranchProjectUuid());

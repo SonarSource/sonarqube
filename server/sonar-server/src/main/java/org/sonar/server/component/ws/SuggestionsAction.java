@@ -85,7 +85,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private static final int MAXIMUM_RECENTLY_BROWSED = 50;
 
   private static final int EXTENDED_LIMIT = 20;
-  private static final Set<String> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT = Stream.of(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE).collect(Collectors.toSet());
+  private static final Set<String> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT = Stream.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE).collect(Collectors.toSet());
 
   private final ComponentIndex index;
   private final FavoriteFinder favoriteFinder;
@@ -255,7 +255,10 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private List<String> getQualifiers(@Nullable String more) {
-    Set<String> availableQualifiers = resourceTypes.getAll().stream().map(ResourceType::getQualifier).collect(MoreCollectors.toSet());
+    Set<String> availableQualifiers = resourceTypes.getAll().stream()
+      .map(ResourceType::getQualifier)
+      .filter(q -> !q.equals(Qualifiers.MODULE))
+      .collect(MoreCollectors.toSet());
     if (more == null) {
       return stream(SuggestionCategory.values())
         .map(SuggestionCategory::getQualifier)

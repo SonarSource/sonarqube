@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -71,14 +72,15 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setDescription("List settings definitions.<br>" +
         "Requires 'Browse' permission when a component is specified<br/>" +
         "To access licensed settings, authentication is required<br/>" +
-          "To access secured settings, one of the following permissions is required: " +
-          "<ul>" +
-          "<li>'Execute Analysis'</li>" +
-          "<li>'Administer System'</li>" +
-          "<li>'Administer' rights on the specified component</li>" +
-          "</ul>")
+        "To access secured settings, one of the following permissions is required: " +
+        "<ul>" +
+        "<li>'Execute Analysis'</li>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified component</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
       .setSince("6.3")
+      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")

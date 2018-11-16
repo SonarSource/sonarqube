@@ -185,6 +185,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.2", "field 'bestValue' is added to the response"),
         new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)),
         new Change("6.6", "the response field id is deprecated. Use key instead."),

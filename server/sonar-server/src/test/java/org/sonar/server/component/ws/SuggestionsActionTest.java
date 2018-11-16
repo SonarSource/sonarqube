@@ -347,7 +347,8 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
-      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("APP", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("APP", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("FIL", 0), tuple("UTS", 0))
+      .doesNotContain(tuple("BRC", 0));
   }
 
   @Test
@@ -364,7 +365,7 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ)
-      .containsExactlyInAnyOrder(PROJECT, MODULE, FILE);
+      .containsExactlyInAnyOrder(PROJECT, FILE).doesNotContain(MODULE);
   }
 
   @Test
@@ -503,8 +504,8 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_contain_project_names() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+  public void should_not_return_modules() {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("ProjectWithModules"));
     db.components().insertComponent(newModuleDto(project).setName("Module1"));
     db.components().insertComponent(newModuleDto(project).setName("Module2"));
     componentIndexer.indexOnAnalysis(project.projectUuid());
@@ -517,18 +518,13 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
-      .extracting(Suggestion::getProject)
+      .extracting(Suggestion::getKey)
       .containsOnly(project.getDbKey());
-
-    assertThat(response.getProjectsList())
-      .extracting(Project::getKey, Project::getName)
-      .containsExactlyInAnyOrder(
-        tuple(project.getDbKey(), project.longName()));
   }
 
   @Test
   public void should_mark_recently_browsed_items() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("ProjectModule"));
     ComponentDto module1 = newModuleDto(project).setName("Module1");
     db.components().insertComponent(module1);
     ComponentDto module2 = newModuleDto(project).setName("Module2");
@@ -539,36 +535,34 @@ public class SuggestionsActionTest {
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Module")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getDbKey()).collect(joining(",")))
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getDbKey(), project.getDbKey()).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getIsRecentlyBrowsed)
-      .containsExactly(true, false);
+      .containsExactly(true);
   }
 
   @Test
   public void should_mark_favorite_items() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
-    ComponentDto favorite = newModuleDto(project).setName("Module1");
-    db.components().insertComponent(favorite);
-    doReturn(singletonList(favorite)).when(favoriteFinder).list();
+    ComponentDto favouriteProject = db.components().insertComponent(newPrivateProjectDto(organization).setName("Project1"));
+    ComponentDto nonFavouriteProject = db.components().insertComponent(newPublicProjectDto(organization).setName("Project2"));
 
-    ComponentDto nonFavorite = newModuleDto(project).setName("Module2");
-    db.components().insertComponent(nonFavorite);
-    componentIndexer.indexOnAnalysis(project.projectUuid());
-    authorizationIndexerTester.allowOnlyAnyone(project);
+    doReturn(singletonList(favouriteProject)).when(favoriteFinder).list();
+    componentIndexer.indexOnAnalysis(favouriteProject.projectUuid());
+    componentIndexer.indexOnAnalysis(nonFavouriteProject.projectUuid());
+    authorizationIndexerTester.allowOnlyAnyone(favouriteProject, nonFavouriteProject);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, "Module")
+      .setParam(PARAM_QUERY, "Project")
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
-      .containsExactly(tuple(favorite.getDbKey(), true), tuple(nonFavorite.getDbKey(), false));
+      .containsExactly(tuple(favouriteProject.getDbKey(), true), tuple(nonFavouriteProject.getDbKey(), false));
   }
 
   @Test
@@ -584,7 +578,7 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
-      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("APP", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("APP", 0), tuple("TRK", 1), tuple("FIL", 0), tuple("UTS", 0));
   }
 
   @Test
@@ -615,7 +609,6 @@ public class SuggestionsActionTest {
         tuple(SuggestionCategory.VIEW.getName(), false),
         tuple(SuggestionCategory.SUBVIEW.getName(), false),
         tuple(SuggestionCategory.PROJECT.getName(), false),
-        tuple(SuggestionCategory.MODULE.getName(), true),
         tuple(SuggestionCategory.FILE.getName(), true),
         tuple(SuggestionCategory.UNIT_TEST_FILE.getName(), true));
   }
@@ -737,7 +730,7 @@ public class SuggestionsActionTest {
   }
 
   private void check_proposal_to_show_more_results(int numberOfProjects, int expectedNumberOfResults, long expectedNumberOfMoreResults, @Nullable SuggestionCategory more,
-                                                   boolean useQuery) {
+    boolean useQuery) {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)

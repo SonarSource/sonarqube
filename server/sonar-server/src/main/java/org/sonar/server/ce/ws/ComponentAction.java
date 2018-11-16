@@ -70,7 +70,8 @@ public class ComponentAction implements CeWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
-        new Change("6.6", "fields \"branch\" and \"branchType\" added"))
+        new Change("6.6", "fields \"branch\" and \"branchType\" added"),
+        new Change("7.6", String.format("The use of module keys in parameter \"%s\" is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)

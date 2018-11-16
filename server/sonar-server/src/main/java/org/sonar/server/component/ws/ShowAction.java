@@ -80,7 +80,8 @@ public class ShowAction implements ComponentsWsAction {
         new Change("6.4", "The 'visibility' field is added to the response"),
         new Change("6.5", "Leak period date is added to the response"),
         new Change("6.6", "'branch' is added to the response"),
-        new Change("6.6", "'version' is added to the response"))
+        new Change("6.6", "'version' is added to the response"),
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -136,7 +137,7 @@ public class ShowAction implements ComponentsWsAction {
     if (branch == null && pullRequest == null) {
       return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_COMPONENT);
     }
-    checkRequest(componentKey!=null, "The '%s' parameter is missing", PARAM_COMPONENT);
+    checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 

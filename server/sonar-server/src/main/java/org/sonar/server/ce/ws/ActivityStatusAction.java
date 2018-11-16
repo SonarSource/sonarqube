@@ -35,10 +35,10 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
 
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.ce.ws.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityStatusAction implements CeWsAction {
   private final UserSession userSession;
@@ -66,6 +66,7 @@ public class ActivityStatusAction implements CeWsAction {
       .setDescription("Id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(DEPRECATED_PARAM_COMPONENT_KEY)
+      .setDeprecatedSince("6.6")
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 

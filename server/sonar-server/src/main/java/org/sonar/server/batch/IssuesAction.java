@@ -20,15 +20,14 @@
 package org.sonar.server.batch;
 
 import com.google.common.base.Splitter;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -74,6 +73,7 @@ public class IssuesAction implements BatchWsAction {
       .setDescription("Return open issues")
       .setResponseExample(getClass().getResource("issues-example.proto"))
       .setSince("5.1")
+      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)))
       .setInternal(true)
       .setHandler(this);
 

@@ -266,7 +266,7 @@ public class SearchActionTest {
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
-      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(PROJECT, MODULE, DIRECTORY, FILE))
+      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(PROJECT, DIRECTORY, FILE))
       .execute().getInput();
     assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
   }

@@ -81,7 +81,8 @@ public class ShowActionTest {
       tuple("6.4", "The 'visibility' field is added to the response"),
       tuple("6.5", "Leak period date is added to the response"),
       tuple("6.6", "'branch' is added to the response"),
-      tuple("6.6", "'version' is added to the response"));
+      tuple("6.6", "'version' is added to the response"),
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
     assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest");
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);

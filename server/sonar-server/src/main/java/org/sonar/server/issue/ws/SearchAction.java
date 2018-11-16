@@ -73,12 +73,12 @@ import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
+import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
+import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.issue.index.SecurityStandardHelper.UNKNOWN_STANDARD;
-import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
-import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -190,6 +190,7 @@ public class SearchAction implements IssuesWsAction, Startable {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
       .setChangelog(
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT_KEYS)),
         new Change("7.4", "The facet 'projectUuids' is dropped in favour of the new facet 'projects'. " +
           "Note that they are not strictly identical, the latter returns the project keys."),
         new Change("7.4", format("Parameter '%s' does not accept anymore deprecated value 'debt'", FACET_MODE)),
@@ -340,6 +341,7 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setInternal(true)
+      .setDeprecatedSince("7.6")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(PARAM_DIRECTORIES)

@@ -22,6 +22,7 @@ package org.sonar.server.batch;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -56,6 +57,8 @@ public class ProjectAction implements BatchWsAction {
       .setDescription("Return project repository")
       .setResponseExample(getClass().getResource("project-example.json"))
       .setSince("4.5")
+      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)))
+      .setChangelog(new Change("7.6", "Stop returning settings"))
       .setInternal(true)
       .setHandler(this);
 

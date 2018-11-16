@@ -23,10 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -70,7 +72,7 @@ public class SearchAction implements ComponentsWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, Languages languages,
-                      DefaultOrganizationProvider defaultOrganizationProvider) {
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.componentIndex = componentIndex;
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
@@ -146,7 +148,11 @@ public class SearchAction implements ComponentsWsAction {
     Set<String> projectUuidsToSearch = components.stream()
       .map(ComponentDto::projectUuid)
       .collect(toHashSet());
-    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuidsToSearch);
+    List<ComponentDto> projects = dbClient.componentDao()
+      .selectByUuids(dbSession, projectUuidsToSearch)
+      .stream()
+      .filter(c -> !c.qualifier().equals(Qualifiers.MODULE))
+      .collect(Collectors.toList());
     return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getDbKey));
   }
 
@@ -266,6 +272,5 @@ public class SearchAction implements ComponentsWsAction {
       return this;
     }
   }
-
 
 }

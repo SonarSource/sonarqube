@@ -20,16 +20,20 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -39,6 +43,8 @@ import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class WsUtils {
+
+  private static final Set<String> MODULE_OR_DIR_QUALIFIERS = ImmutableSet.of(Qualifiers.MODULE, Qualifiers.DIRECTORY);
 
   private WsUtils() {
     // only statics
@@ -116,5 +122,9 @@ public class WsUtils {
     }
 
     return value.get();
+  }
+
+  public static void checkComponentNotAModuleAndNotADirectory(ComponentDto component) {
+    checkRequest(!MODULE_OR_DIR_QUALIFIERS.contains(component.qualifier()), "Operation not supported for module or directory components");
   }
 }

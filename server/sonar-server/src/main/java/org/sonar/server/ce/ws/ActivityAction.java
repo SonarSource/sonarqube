@@ -56,6 +56,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -103,7 +104,8 @@ public class ActivityAction implements CeWsAction {
         new Change("5.5", "it's no more possible to specify the page parameter."),
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
-        new Change("7.1", "field \"pullRequest\" added"))
+        new Change("7.1", "field \"pullRequest\" added"),
+        new Change("7.6", String.format("The use of module keys in parameters '%s' and '%s' is deprecated", TEXT_QUERY, PARAM_COMPONENT_QUERY)))
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT_ID)
@@ -115,10 +117,10 @@ public class ActivityAction implements CeWsAction {
         "<li>component keys that are exactly the same as the supplied string</li>" +
         "</ul>" +
         "Must not be set together with %s.<br />" +
-        "Deprecated and replaced by '%s'", PARAM_COMPONENT_ID, Param.TEXT_QUERY))
+        "Deprecated and replaced by '%s'", PARAM_COMPONENT_ID, TEXT_QUERY))
       .setExampleValue("Apache")
       .setDeprecatedSince("5.5");
-    action.createParam(Param.TEXT_QUERY)
+    action.createParam(TEXT_QUERY)
       .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
@@ -288,7 +290,7 @@ public class ActivityAction implements CeWsAction {
   private static Request toSearchWsRequest(org.sonar.api.server.ws.Request request) {
     Request activityWsRequest = new Request()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setQ(defaultString(request.param(Param.TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
+      .setQ(defaultString(request.param(TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
       .setType(request.param(PARAM_TYPE))
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))

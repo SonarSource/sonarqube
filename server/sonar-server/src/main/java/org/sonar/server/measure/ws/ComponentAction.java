@@ -105,6 +105,7 @@ public class ComponentAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("6.6", "the response field id is deprecated. Use key instead."),
         new Change("6.6", "the response field refId is deprecated. Use refKey instead."))
       .setHandler(this);

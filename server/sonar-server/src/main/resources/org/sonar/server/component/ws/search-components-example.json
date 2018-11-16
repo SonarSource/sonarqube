@@ -2,7 +2,7 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,
-    "total": 4
+    "total": 3
   },
   "components": [
     {
@@ -20,14 +20,6 @@
       "qualifier": "FIL",
       "name": "File Name",
       "language": "java",
-      "project": "project-key"
-    },
-    {
-      "organization": "my-org-1",
-      "id": "module-uuid",
-      "key": "module-key",
-      "qualifier": "BRC",
-      "name": "Module Name",
       "project": "project-key"
     },
     {
