@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.base.Function;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkState;
 

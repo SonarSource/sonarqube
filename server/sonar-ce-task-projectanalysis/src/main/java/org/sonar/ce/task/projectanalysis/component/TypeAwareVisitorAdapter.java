@@ -53,14 +53,6 @@ public abstract class TypeAwareVisitorAdapter implements TypeAwareVisitor {
   }
 
   /**
-   * Called when encountering a Component of type {@link Component.Type#MODULE}
-   */
-  @Override
-  public void visitModule(Component module) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  /**
    * Called when encountering a Component of type {@link Component.Type#DIRECTORY}
    */
   @Override

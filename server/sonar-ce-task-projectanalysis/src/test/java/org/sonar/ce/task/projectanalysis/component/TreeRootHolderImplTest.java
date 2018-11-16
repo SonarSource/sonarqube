@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
@@ -35,13 +34,10 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_P
 public class TreeRootHolderImplTest {
 
   private static final ReportComponent SOME_REPORT_COMPONENT_TREE = ReportComponent.builder(PROJECT, 1)
-    .addChildren(
-      ReportComponent.builder(MODULE, 2)
-        .addChildren(ReportComponent.builder(DIRECTORY, 3)
-          .addChildren(
-            ReportComponent.builder(FILE, 4).build())
-          .build())
-        .build())
+    .addChildren(ReportComponent.builder(DIRECTORY, 2)
+      .addChildren(
+        ReportComponent.builder(FILE, 3).build())
+      .build())
     .build();
   private static final ViewsComponent SOME_VIEWS_COMPONENT_TREE = ViewsComponent.builder(VIEW, 1)
     .addChildren(
@@ -99,7 +95,7 @@ public class TreeRootHolderImplTest {
   public void getComponentByRef_returns_any_report_component_in_the_tree() {
     underTest.setRoots(SOME_REPORT_COMPONENT_TREE, DUMB_PROJECT);
 
-    for (int i = 1; i <= 4; i++) {
+    for (int i = 1; i <= 3; i++) {
       assertThat(underTest.getComponentByRef(i).getReportAttributes().getRef()).isEqualTo(i);
     }
   }
@@ -108,7 +104,7 @@ public class TreeRootHolderImplTest {
   public void getOptionalComponentByRef_returns_any_report_component_in_the_tree() {
     underTest.setRoots(SOME_REPORT_COMPONENT_TREE, DUMB_PROJECT);
 
-    for (int i = 1; i <= 4; i++) {
+    for (int i = 1; i <= 3; i++) {
       assertThat(underTest.getOptionalComponentByRef(i).get().getReportAttributes().getRef()).isEqualTo(i);
     }
   }
@@ -162,7 +158,7 @@ public class TreeRootHolderImplTest {
   @Test
   public void getSize_counts_number_of_components() {
     underTest.setRoots(SOME_REPORT_COMPONENT_TREE, DUMB_PROJECT);
-    assertThat(underTest.getSize()).isEqualTo(4);
+    assertThat(underTest.getSize()).isEqualTo(3);
   }
 
   private void expectNotInitialized_ISE() {

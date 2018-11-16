@@ -96,11 +96,6 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   }
 
   @Override
-  public void visitModule(Component module, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    process(module, path);
-  }
-
-  @Override
   public void visitDirectory(Component directory, Path<FormulaExecutorComponentVisitor.Counters> path) {
     process(directory, path);
   }

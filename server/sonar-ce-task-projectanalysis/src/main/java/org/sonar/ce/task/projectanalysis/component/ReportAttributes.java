@@ -29,7 +29,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class ReportAttributes {
-  private final int ref;
+  @CheckForNull
+  private final Integer ref;
   @CheckForNull
   private final String path;
   @CheckForNull
@@ -41,18 +42,19 @@ public class ReportAttributes {
     this.scmPath = builder.scmPath;
   }
 
-  public static Builder newBuilder(int ref) {
+  public static Builder newBuilder(@Nullable Integer ref) {
     return new Builder(ref);
   }
 
   public static class Builder {
-    private final int ref;
+    @CheckForNull
+    private final Integer ref;
     @CheckForNull
     private String path;
     @CheckForNull
     private String scmPath;
 
-    private Builder(int ref) {
+    private Builder(@Nullable Integer ref) {
       this.ref = ref;
     }
 
@@ -73,13 +75,15 @@ public class ReportAttributes {
 
   /**
    * The component ref in the batch report.
+   * Will be null for directories.
    */
-  public int getRef() {
+  @CheckForNull
+  public Integer getRef() {
     return ref;
   }
 
   /**
-   * The path of the report component, must be non null for module, directories and files.
+   * The path of the report component, must be non null for directories and files.
    */
   @CheckForNull
   public String getPath() {

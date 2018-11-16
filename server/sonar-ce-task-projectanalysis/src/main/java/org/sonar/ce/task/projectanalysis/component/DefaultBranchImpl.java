@@ -22,11 +22,11 @@ package org.sonar.ce.task.projectanalysis.component;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -91,14 +91,14 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
-  public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
-    String moduleWithBranch = module.getKey();
+  public String generateKey(ScannerReport.Component project, @Nullable String fileOrDirPath) {
+    String projectWithBranch = project.getKey();
     if (isLegacyBranch) {
-      moduleWithBranch = ComponentKeys.createKey(module.getKey(), branchName);
+      projectWithBranch = ComponentKeys.createKey(project.getKey(), branchName);
     }
-    if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
-      return moduleWithBranch;
+    if (isEmpty(fileOrDirPath)) {
+      return projectWithBranch;
     }
-    return ComponentKeys.createEffectiveKey(moduleWithBranch, trimToNull(fileOrDir.getPath()));
+    return ComponentKeys.createEffectiveKey(projectWithBranch, trimToNull(fileOrDirPath));
   }
 }

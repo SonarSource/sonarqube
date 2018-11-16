@@ -69,9 +69,6 @@ public final class DepthTraversalTypeAwareCrawler implements ComponentCrawler {
       case PROJECT:
         this.visitor.visitProject(component);
         break;
-      case MODULE:
-        this.visitor.visitModule(component);
-        break;
       case DIRECTORY:
         this.visitor.visitDirectory(component);
         break;

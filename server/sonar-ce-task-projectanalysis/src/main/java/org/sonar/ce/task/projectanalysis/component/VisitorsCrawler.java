@@ -60,7 +60,7 @@ public class VisitorsCrawler implements ComponentCrawler {
   public Map<ComponentVisitor, Long> getCumulativeDurations() {
     if (computeDuration) {
       return ImmutableMap.copyOf(
-          Maps.transformValues(this.visitorCumulativeDurations, VisitorDurationToDuration.INSTANCE)
+        Maps.transformValues(this.visitorCumulativeDurations, VisitorDurationToDuration.INSTANCE)
       );
     }
     return Collections.emptyMap();
@@ -118,9 +118,6 @@ public class VisitorsCrawler implements ComponentCrawler {
     switch (component.getType()) {
       case PROJECT:
         visitor.visitProject(component);
-        break;
-      case MODULE:
-        visitor.visitModule(component);
         break;
       case DIRECTORY:
         visitor.visitDirectory(component);

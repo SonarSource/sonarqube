@@ -19,14 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toReportRef;
+import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;
 
 /**
  * Cache of persisted component (component id and snapshot id) that can be used in the persistence steps
  */
 public class DbIdsRepositoryImpl implements MutableDbIdsRepository {
 
-  private final MapBasedDbIdsRepository<Integer> delegate = new MapBasedDbIdsRepository<>(toReportRef());
+  private final MapBasedDbIdsRepository<String> delegate = new MapBasedDbIdsRepository<>(toComponentUuid());
 
   @Override
   public DbIdsRepository setComponentId(Component component, long componentId) {

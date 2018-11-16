@@ -95,9 +95,6 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
       case PROJECT:
         this.visitor.visitProject(component, stack);
         break;
-      case MODULE:
-        this.visitor.visitModule(component, stack);
-        break;
       case DIRECTORY:
         this.visitor.visitDirectory(component, stack);
         break;
@@ -122,8 +119,6 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
     switch (component.getType()) {
       case PROJECT:
         return this.visitor.getFactory().createForProject(component);
-      case MODULE:
-        return this.visitor.getFactory().createForModule(component);
       case DIRECTORY:
         return this.visitor.getFactory().createForDirectory(component);
       case FILE:

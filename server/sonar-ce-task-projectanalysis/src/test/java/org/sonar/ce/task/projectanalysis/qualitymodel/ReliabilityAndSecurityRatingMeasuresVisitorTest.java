@@ -55,7 +55,6 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -72,20 +71,16 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   static final String LANGUAGE_KEY_1 = "lKey1";
 
   static final int PROJECT_REF = 1;
-  static final int MODULE_REF = 12;
   static final int DIRECTORY_REF = 123;
   static final int FILE_1_REF = 1231;
   static final int FILE_2_REF = 1232;
 
   static final Component ROOT_PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project")
     .addChildren(
-      builder(MODULE, MODULE_REF).setKey("module")
+      builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
         .addChildren(
-          builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
-            .addChildren(
-              builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
-              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
-            .build())
+          builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
+          builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
         .build())
     .build();
 
@@ -131,14 +126,13 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newBugIssue(2L, CRITICAL), newBugIssue(3L, MINOR),
       // Should not be taken into account
       newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED));
-    fillComponentIssuesVisitorRule.setIssues(MODULE_REF, newBugIssue(7L, BLOCKER));
+    fillComponentIssuesVisitorRule.setIssues(PROJECT_REF, newBugIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
     verifyAddedRawMeasure(FILE_1_REF, RELIABILITY_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_2_REF, RELIABILITY_RATING_KEY, D);
     verifyAddedRawMeasure(DIRECTORY_REF, RELIABILITY_RATING_KEY, D);
-    verifyAddedRawMeasure(MODULE_REF, RELIABILITY_RATING_KEY, E);
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, E);
   }
 
@@ -151,14 +145,13 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(3L, MINOR),
       // Should not be taken into account
       newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED));
-    fillComponentIssuesVisitorRule.setIssues(MODULE_REF, newVulnerabilityIssue(7L, BLOCKER));
+    fillComponentIssuesVisitorRule.setIssues(PROJECT_REF, newVulnerabilityIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
     verifyAddedRawMeasure(FILE_1_REF, SECURITY_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_2_REF, SECURITY_RATING_KEY, D);
     verifyAddedRawMeasure(DIRECTORY_REF, SECURITY_RATING_KEY, D);
-    verifyAddedRawMeasure(MODULE_REF, SECURITY_RATING_KEY, E);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, E);
   }
 

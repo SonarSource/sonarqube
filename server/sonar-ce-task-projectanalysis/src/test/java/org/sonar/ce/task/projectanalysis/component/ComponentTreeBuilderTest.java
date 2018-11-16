@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.component;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -30,8 +31,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
-import org.mockito.Mockito;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -41,23 +42,24 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 
 public class ComponentTreeBuilderTest {
 
-  private static final ComponentKeyGenerator KEY_GENERATOR = (module, component) -> "generated_"
-    + ComponentKeys.createEffectiveKey(module.getKey(), component != null ? component.getPath() : null);
-  private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (module, component) -> "public_"
-    + ComponentKeys.createEffectiveKey(module.getKey(), component != null ? component.getPath() : null);
+  private static final ComponentKeyGenerator KEY_GENERATOR = (project, path) -> "generated_"
+    + ComponentKeys.createEffectiveKey(project.getKey(), path);
+  private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (project, path) -> "public_"
+    + ComponentKeys.createEffectiveKey(project.getKey(), path);
   private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
   private static final String NO_SCM_BASE_PATH = "";
@@ -71,7 +73,35 @@ public class ComponentTreeBuilderTest {
   private Project projectInDb = Project.from(newPrivateProjectDto(newOrganizationDto(), UUID_SUPPLIER.apply("K1")).setDbKey("K1").setDescription(null));
 
   @Test
-  public void build_throws_IAE_for_all_types_but_PROJECT_MODULE_DIRECTORY_FILE() {
+  public void build_throws_IAE_for_all_types_except_PROJECT_MODULE_DIRECTORY_FILE() {
+    Arrays.stream(ScannerReport.Component.ComponentType.values())
+      .filter((type) -> type != UNRECOGNIZED)
+      .filter((type) -> !REPORT_TYPES.contains(type))
+      .forEach(
+        (type) -> {
+          ScannerReport.Component project = newBuilder()
+            .setType(PROJECT)
+            .setKey(projectInDb.getKey())
+            .setRef(1)
+            .addChildRef(2)
+            .setProjectRelativePath("root")
+            .build();
+          scannerComponentProvider.add(newBuilder()
+            .setRef(2)
+            .setType(type)
+            .setProjectRelativePath("src")
+            .setLines(1));
+          try {
+            call(project);
+            fail("Should have thrown a IllegalArgumentException");
+          } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessage("Unsupported component type '" + type + "'");
+          }
+        });
+  }
+
+  @Test
+  public void build_throws_IAE_if_root_is_not_PROJECT() {
     Arrays.stream(ScannerReport.Component.ComponentType.values())
       .filter((type) -> type != UNRECOGNIZED)
       .filter((type) -> !REPORT_TYPES.contains(type))
@@ -82,7 +112,7 @@ public class ComponentTreeBuilderTest {
             call(component);
             fail("Should have thrown a IllegalArgumentException");
           } catch (IllegalArgumentException e) {
-            assertThat(e).hasMessage("Unsupported component type '" + type + "'");
+            assertThat(e).hasMessage("Expected root component of type 'PROJECT'");
           }
         });
   }
@@ -223,105 +253,48 @@ public class ComponentTreeBuilderTest {
 
   @Test
   public void any_component_with_projectRelativePath_has_this_value_as_scmPath_if_scmBasePath_is_empty() {
-    String[] projectRelativePaths = {
-      randomAlphabetic(4),
-      randomAlphabetic(5),
-      randomAlphabetic(6),
-      randomAlphabetic(7)
-    };
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
       .setRef(1)
       .addChildRef(2)
-      .setProjectRelativePath(projectRelativePaths[0])
+      .setProjectRelativePath("root")
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setKey("M")
-      .setProjectRelativePath(projectRelativePaths[1])
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setPath("src/js")
-      .setProjectRelativePath(projectRelativePaths[2])
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
-      .setProjectRelativePath(projectRelativePaths[3])
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project, NO_SCM_BASE_PATH);
 
     assertThat(root.getReportAttributes().getScmPath())
-      .contains(projectRelativePaths[0]);
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getReportAttributes().getScmPath())
-      .contains(projectRelativePaths[1]);
-    Component directory = module.getChildren().iterator().next();
+      .contains("root");
+    Component directory = root.getChildren().iterator().next();
     assertThat(directory.getReportAttributes().getScmPath())
-      .contains(projectRelativePaths[2]);
+      .contains("src/js");
     Component file = directory.getChildren().iterator().next();
     assertThat(file.getReportAttributes().getScmPath())
-      .contains(projectRelativePaths[3]);
+      .contains("src/js/Foo.js");
   }
 
   @Test
   public void any_component_with_projectRelativePath_has_this_value_appended_to_scmBasePath_and_a_slash_as_scmPath_if_scmBasePath_is_not_empty() {
-    String[] projectRelativePaths = {
-      randomAlphabetic(4),
-      randomAlphabetic(5),
-      randomAlphabetic(6),
-      randomAlphabetic(7)
-    };
-    ScannerReport.Component project = newBuilder()
-      .setType(PROJECT)
-      .setKey(projectInDb.getKey())
-      .setRef(1)
-      .addChildRef(2)
-      .setProjectRelativePath(projectRelativePaths[0])
-      .build();
-    scannerComponentProvider.add(newBuilder()
-      .setRef(2)
-      .setType(MODULE)
-      .setKey("M")
-      .setProjectRelativePath(projectRelativePaths[1])
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setPath("src/js")
-      .setProjectRelativePath(projectRelativePaths[2])
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
-      .setType(FILE)
-      .setPath("src/js/Foo.js")
-      .setProjectRelativePath(projectRelativePaths[3])
-      .setLines(1));
+    ScannerReport.Component project = createProject();
     String scmBasePath = randomAlphabetic(10);
 
     Component root = call(project, scmBasePath);
-
     assertThat(root.getReportAttributes().getScmPath())
-      .contains(scmBasePath + "/" + projectRelativePaths[0]);
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getReportAttributes().getScmPath())
-      .contains(scmBasePath + "/" + projectRelativePaths[1]);
-    Component directory = module.getChildren().iterator().next();
+      .contains(scmBasePath);
+    Component directory = root.getChildren().iterator().next();
     assertThat(directory.getReportAttributes().getScmPath())
-      .contains(scmBasePath + "/" + projectRelativePaths[2]);
+      .contains(scmBasePath + "/src/js");
     Component file = directory.getChildren().iterator().next();
     assertThat(file.getReportAttributes().getScmPath())
-      .contains(scmBasePath + "/" + projectRelativePaths[3]);
+      .contains(scmBasePath + "/src/js/Foo.js");
   }
 
-  @Test
-  public void keys_of_module_directory_and_file_are_generated() {
+  private ScannerReport.Component createProject() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -330,43 +303,34 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setKey("M")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setPath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
+    return project;
+  }
+
+  @Test
+  public void keys_of_directory_and_file_are_generated() {
+    ScannerReport.Component project = createProject();
 
     Component root = call(project);
     assertThat(root.getDbKey()).isEqualTo("generated_" + projectInDb.getKey());
     assertThat(root.getKey()).isEqualTo("public_" + projectInDb.getKey());
     assertThat(root.getChildren()).hasSize(1);
 
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getDbKey()).isEqualTo("generated_M");
-    assertThat(module.getKey()).isEqualTo("public_M");
-    assertThat(module.getChildren()).hasSize(1);
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getDbKey()).isEqualTo("generated_M:src/js");
-    assertThat(directory.getKey()).isEqualTo("public_M:src/js");
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getDbKey()).isEqualTo("generated_" + projectInDb.getKey() + ":src/js");
+    assertThat(directory.getKey()).isEqualTo("public_" + projectInDb.getKey() + ":src/js");
     assertThat(directory.getChildren()).hasSize(1);
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getDbKey()).isEqualTo("generated_M:src/js/Foo.js");
-    assertThat(file.getKey()).isEqualTo("public_M:src/js/Foo.js");
+    assertThat(file.getDbKey()).isEqualTo("generated_" + projectInDb.getKey() + ":src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("public_" + projectInDb.getKey() + ":src/js/Foo.js");
     assertThat(file.getChildren()).isEmpty();
   }
 
   @Test
-  public void names_of_module_directory_and_file_are_public_keys_if_names_are_absent_from_report() {
+  public void modules_are_not_created() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -381,28 +345,65 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(3)
       .setType(DIRECTORY)
-      .setPath("src/js")
+      .setProjectRelativePath("src/js")
       .addChildRef(4));
     scannerComponentProvider.add(newBuilder()
       .setRef(4)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project);
 
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getName()).isEqualTo("public_M");
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("public_M:src/js");
-
-    Component file = directory.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("public_M:src/js/Foo.js");
+    List<Component> components = root.getChildren();
+    assertThat(components).extracting("type").containsOnly(Component.Type.DIRECTORY);
   }
 
   @Test
-  public void names_of_module_directory_and_file_are_public_keys_if_names_are_empty_in_report() {
+  public void folder_hierarchy_is_created() {
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey(projectInDb.getKey())
+      .setRef(1)
+      .addChildRef(2)
+      .addChildRef(3)
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(DIRECTORY)
+      .setProjectRelativePath("src/main/xoo")
+      .addChildRef(4));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(3)
+      .setType(DIRECTORY)
+      .setProjectRelativePath("src/test/xoo/org/sonar")
+      .addChildRef(5));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(4)
+      .setType(FILE)
+      .setProjectRelativePath("src/main/xoo/Foo1.js")
+      .setLines(1));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(5)
+      .setType(FILE)
+      .setProjectRelativePath("src/test/xoo/org/sonar/Foo2.js")
+      .setLines(1));
+
+    Component root = call(project);
+
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getName()).isEqualTo("public_K1:src");
+
+    // folders are collapsed and they only contain one directory
+    Component d1 = directory.getChildren().get(0);
+    assertThat(d1.getName()).isEqualTo("public_K1:src/main/xoo");
+
+    Component d2 = directory.getChildren().get(1);
+    assertThat(d2.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+  }
+
+  @Test
+  public void directories_are_collapsed() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -411,33 +412,89 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setKey("M")
+      .setType(DIRECTORY)
+      .setPath("/")
+      .addChildRef(3));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(3)
+      .setType(FILE)
+      .setProjectRelativePath("src/js/Foo.js")
+      .setLines(1));
+
+    Component root = call(project);
+
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getName()).isEqualTo("public_K1:src/js");
+
+    Component file = directory.getChildren().iterator().next();
+    assertThat(file.getName()).isEqualTo("public_K1:src/js/Foo.js");
+  }
+
+  @Test
+  public void names_of_directory_and_file_are_public_keys_if_names_are_empty_in_report() {
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey(projectInDb.getKey())
+      .setRef(1)
+      .addChildRef(2)
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(DIRECTORY)
+      .setProjectRelativePath("src/js")
       .setName("")
       .addChildRef(3));
     scannerComponentProvider.add(newBuilder()
       .setRef(3)
-      .setType(DIRECTORY)
-      .setPath("src/js")
-      .setName("")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setName("")
       .setLines(1));
 
     Component root = call(project);
 
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getName()).isEqualTo("public_M");
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("public_M:src/js");
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getName()).isEqualTo("public_K1:src/js");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("public_M:src/js/Foo.js");
+    assertThat(file.getName()).isEqualTo("public_K1:src/js/Foo.js");
+  }
+
+  @Test
+  public void create_full_hierarchy_of_directories() {
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey(projectInDb.getKey())
+      .setRef(1)
+      .addChildRef(2)
+      .addChildRef(3)
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(FILE)
+      .setProjectRelativePath("src/java/Bar.java")
+      .setName("")
+      .setLines(2));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(3)
+      .setType(FILE)
+      .setProjectRelativePath("src/js/Foo.js")
+      .setName("")
+      .setLines(1));
+
+    Component root = call(project);
+
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getName()).isEqualTo("public_K1:src");
+
+    Component directoryJava = directory.getChildren().get(0);
+    assertThat(directoryJava.getName()).isEqualTo("public_K1:src/java");
+
+    Component directoryJs = directory.getChildren().get(1);
+    assertThat(directoryJs.getName()).isEqualTo("public_K1:src/js");
+
+    Component file = directoryJs.getChildren().iterator().next();
+    assertThat(file.getName()).isEqualTo("public_K1:src/js/Foo.js");
   }
 
   private void assertThatFileAttributesAreNotSet(Component root) {
@@ -450,7 +507,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void keys_of_module_directory_and_files_includes_name_of_closest_module() {
+  public void keys_of_directory_and_files_includes_always_root_project() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey("project 1")
@@ -459,51 +516,24 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder().setRef(11).setType(MODULE).setKey("module 1").addChildRef(12).addChildRef(22).addChildRef(32));
     scannerComponentProvider.add(newBuilder().setRef(12).setType(MODULE).setKey("module 2").addChildRef(13).addChildRef(23).addChildRef(33));
     scannerComponentProvider.add(newBuilder().setRef(13).setType(MODULE).setKey("module 3").addChildRef(24).addChildRef(34));
-    scannerComponentProvider.add(newBuilder().setRef(21).setType(DIRECTORY).setPath("directory in project").addChildRef(35));
-    scannerComponentProvider.add(newBuilder().setRef(22).setType(DIRECTORY).setPath("directory in module 1").addChildRef(36));
-    scannerComponentProvider.add(newBuilder().setRef(23).setType(DIRECTORY).setPath("directory in module 2").addChildRef(37));
-    scannerComponentProvider.add(newBuilder().setRef(24).setType(DIRECTORY).setPath("directory in module 3").addChildRef(38));
-    scannerComponentProvider.add(newBuilder().setRef(31).setType(FILE).setPath("file in project").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(32).setType(FILE).setPath("file in module 1").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(33).setType(FILE).setPath("file in module 2").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(34).setType(FILE).setPath("file in module 3").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(35).setType(FILE).setPath("file in directory in project").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(36).setType(FILE).setPath("file in directory in module 1").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(37).setType(FILE).setPath("file in directory in module 2").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(38).setType(FILE).setPath("file in directory in module 3").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(21).setType(DIRECTORY).setProjectRelativePath("directory in project").addChildRef(35));
+    scannerComponentProvider.add(newBuilder().setRef(22).setType(DIRECTORY).setProjectRelativePath("directory in module 1").addChildRef(36));
+    scannerComponentProvider.add(newBuilder().setRef(23).setType(DIRECTORY).setProjectRelativePath("directory in module 2").addChildRef(37));
+    scannerComponentProvider.add(newBuilder().setRef(24).setType(DIRECTORY).setProjectRelativePath("directory in module 3").addChildRef(38));
+    scannerComponentProvider.add(newBuilder().setRef(31).setType(FILE).setProjectRelativePath("file in project").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(32).setType(FILE).setProjectRelativePath("file in module 1").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(33).setType(FILE).setProjectRelativePath("file in module 2").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(34).setType(FILE).setProjectRelativePath("file in module 3").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(35).setType(FILE).setProjectRelativePath("file in directory in project").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(36).setType(FILE).setProjectRelativePath("file in directory in module 1").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(37).setType(FILE).setProjectRelativePath("file in directory in module 2").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(38).setType(FILE).setProjectRelativePath("file in directory in module 3").setLines(1));
 
     Component root = call(project);
-    Map<Integer, Component> componentsByRef = indexComponentByRef(root);
-    assertThat(componentsByRef.get(11).getDbKey()).isEqualTo("generated_module 1");
-    assertThat(componentsByRef.get(11).getKey()).isEqualTo("public_module 1");
-    assertThat(componentsByRef.get(12).getDbKey()).isEqualTo("generated_module 2");
-    assertThat(componentsByRef.get(12).getKey()).isEqualTo("public_module 2");
-    assertThat(componentsByRef.get(13).getDbKey()).isEqualTo("generated_module 3");
-    assertThat(componentsByRef.get(13).getKey()).isEqualTo("public_module 3");
-    assertThat(componentsByRef.get(21).getDbKey()).startsWith("generated_project 1:");
-    assertThat(componentsByRef.get(21).getKey()).startsWith("public_project 1:");
-    assertThat(componentsByRef.get(22).getDbKey()).startsWith("generated_module 1:");
-    assertThat(componentsByRef.get(22).getKey()).startsWith("public_module 1:");
-    assertThat(componentsByRef.get(23).getDbKey()).startsWith("generated_module 2:");
-    assertThat(componentsByRef.get(23).getKey()).startsWith("public_module 2:");
-    assertThat(componentsByRef.get(24).getDbKey()).startsWith("generated_module 3:");
-    assertThat(componentsByRef.get(24).getKey()).startsWith("public_module 3:");
-    assertThat(componentsByRef.get(31).getDbKey()).startsWith("generated_project 1:");
-    assertThat(componentsByRef.get(31).getKey()).startsWith("public_project 1:");
-    assertThat(componentsByRef.get(32).getDbKey()).startsWith("generated_module 1:");
-    assertThat(componentsByRef.get(32).getKey()).startsWith("public_module 1:");
-    assertThat(componentsByRef.get(33).getDbKey()).startsWith("generated_module 2:");
-    assertThat(componentsByRef.get(33).getKey()).startsWith("public_module 2:");
-    assertThat(componentsByRef.get(34).getDbKey()).startsWith("generated_module 3:");
-    assertThat(componentsByRef.get(34).getKey()).startsWith("public_module 3:");
-    assertThat(componentsByRef.get(35).getDbKey()).startsWith("generated_project 1:");
-    assertThat(componentsByRef.get(35).getKey()).startsWith("public_project 1:");
-    assertThat(componentsByRef.get(36).getDbKey()).startsWith("generated_module 1:");
-    assertThat(componentsByRef.get(36).getKey()).startsWith("public_module 1:");
-    assertThat(componentsByRef.get(37).getDbKey()).startsWith("generated_module 2:");
-    assertThat(componentsByRef.get(37).getKey()).startsWith("public_module 2:");
-    assertThat(componentsByRef.get(38).getDbKey()).startsWith("generated_module 3:");
-    assertThat(componentsByRef.get(38).getKey()).startsWith("public_module 3:");
+    Map<String, Component> componentsByKey = indexComponentByKey(root);
+
+    assertThat(componentsByKey.values()).extracting("key").startsWith("public_project 1");
+    assertThat(componentsByKey.values()).extracting("dbKey").startsWith("generated_project 1");
   }
 
   @Test
@@ -522,25 +552,22 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(3)
       .setType(DIRECTORY)
-      .setPath("src/js")
+      .setProjectRelativePath("src/js")
       .addChildRef(4));
     scannerComponentProvider.add(newBuilder()
       .setRef(4)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project);
     assertThat(root.getUuid()).isEqualTo("generated_c1_uuid");
 
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getUuid()).isEqualTo("generated_c2_uuid");
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getUuid()).isEqualTo("generated_c2:src/js_uuid");
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getUuid()).isEqualTo("generated_c1:src/js_uuid");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getUuid()).isEqualTo("generated_c2:src/js/Foo.js_uuid");
+    assertThat(file.getUuid()).isEqualTo("generated_c1:src/js/Foo.js_uuid");
   }
 
   @Test
@@ -557,20 +584,17 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(3)
       .setType(DIRECTORY)
-      .setPath("src/js")
+      .setProjectRelativePath("src/js")
       .addChildRef(4));
     scannerComponentProvider.add(newBuilder()
       .setRef(4)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project);
 
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getDescription()).isNull();
-
-    Component directory = module.getChildren().iterator().next();
+    Component directory = root.getChildren().iterator().next();
     assertThat(directory.getDescription()).isNull();
 
     Component file = directory.getChildren().iterator().next();
@@ -594,21 +618,18 @@ public class ComponentTreeBuilderTest {
       .setRef(3)
       .setType(DIRECTORY)
       .setDescription("")
-      .setPath("src/js")
+      .setProjectRelativePath("src/js")
       .addChildRef(4));
     scannerComponentProvider.add(newBuilder()
       .setRef(4)
       .setType(FILE)
       .setDescription("")
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project);
 
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getDescription()).isNull();
-
-    Component directory = module.getChildren().iterator().next();
+    Component directory = root.getChildren().iterator().next();
     assertThat(directory.getDescription()).isNull();
 
     Component file = directory.getChildren().iterator().next();
@@ -624,29 +645,20 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setDescription("b")
+      .setType(DIRECTORY)
+      .setDescription("c")
+      .setProjectRelativePath("src/js")
       .addChildRef(3));
     scannerComponentProvider.add(newBuilder()
       .setRef(3)
-      .setType(DIRECTORY)
-      .setDescription("c")
-      .setPath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
       .setDescription("d")
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project);
-
-    Component module = root.getChildren().iterator().next();
-    assertThat(module.getDescription()).isEqualTo("b");
-
-    Component directory = module.getChildren().iterator().next();
-    assertThat(directory.getDescription()).isEqualTo("c");
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getDescription()).isNull();
 
     Component file = directory.getChildren().iterator().next();
     assertThat(file.getDescription()).isEqualTo("d");
@@ -662,11 +674,12 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
     Component root = call(project);
-    Component file = root.getChildren().iterator().next();
+    Component dir = root.getChildren().iterator().next();
+    Component file = dir.getChildren().iterator().next();
     assertThat(file.getFileAttributes().getLines()).isEqualTo(1);
     assertThat(file.getFileAttributes().getLanguageKey()).isNull();
     assertThat(file.getFileAttributes().isUnitTest()).isFalse();
@@ -682,12 +695,14 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1)
       .setLanguage(""));
 
     Component root = call(project);
-    Component file = root.getChildren().iterator().next();
+    Component dir2 = root.getChildren().iterator().next();
+
+    Component file = dir2.getChildren().iterator().next();
     assertThat(file.getFileAttributes().getLanguageKey()).isNull();
   }
 
@@ -701,13 +716,14 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(1)
       .setLanguage("js")
       .setIsTest(true));
 
     Component root = call(project);
-    Component file = root.getChildren().iterator().next();
+    Component dir = root.getChildren().iterator().next();
+    Component file = dir.getChildren().iterator().next();
     assertThat(file.getFileAttributes().getLines()).isEqualTo(1);
     assertThat(file.getFileAttributes().getLanguageKey()).isEqualTo("js");
     assertThat(file.getFileAttributes().isUnitTest()).isTrue();
@@ -723,7 +739,7 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(FILE)
-      .setPath("src/js/Foo.js"));
+      .setProjectRelativePath("src/js/Foo.js"));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("File 'src/js/Foo.js' has no line");
@@ -741,7 +757,7 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(0));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -760,7 +776,7 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(FILE)
-      .setPath("src/js/Foo.js")
+      .setProjectRelativePath("src/js/Foo.js")
       .setLines(-10));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -807,9 +823,10 @@ public class ComponentTreeBuilderTest {
   }
 
   private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis, boolean mainBranch) {
-    Branch branch = Mockito.mock(Branch.class);
+    Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(mainBranch);
-    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, branch, baseAnalysis);
+    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, branch, baseAnalysis,
+      mock(IssueRelocationToRoot.class));
   }
 
   private static Map<Integer, Component> indexComponentByRef(Component root) {
@@ -822,5 +839,17 @@ public class ComponentTreeBuilderTest {
         }
       }).visit(root);
     return componentsByRef;
+  }
+
+  private static Map<String, Component> indexComponentByKey(Component root) {
+    Map<String, Component> componentsByKey = new HashMap<>();
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, PRE_ORDER) {
+        @Override
+        public void visitAny(Component any) {
+          componentsByKey.put(any.getDbKey(), any);
+        }
+      }).visit(root);
+    return componentsByKey;
   }
 }

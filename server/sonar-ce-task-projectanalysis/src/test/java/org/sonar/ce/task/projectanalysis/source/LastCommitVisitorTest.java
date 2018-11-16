@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LAST_COMMIT_DATE_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -51,7 +50,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 public class LastCommitVisitorTest {
 
   private static final int PROJECT_REF = 1;
-  private static final int MODULE_REF = 2;
+  private static final int DIR_REF = 2;
   private static final int FILE_1_REF = 1_111;
   private static final int FILE_2_REF = 1_112;
   private static final int FILE_3_REF = 1_121;
@@ -104,7 +103,7 @@ public class LastCommitVisitorTest {
     // project with 1 module, 2 directories and 3 files
     ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF)
       .addChildren(
-        ReportComponent.builder(MODULE, MODULE_REF)
+        ReportComponent.builder(DIRECTORY, DIR_REF)
           .addChildren(
             ReportComponent.builder(DIRECTORY, DIR_1_REF)
               .addChildren(
@@ -125,8 +124,7 @@ public class LastCommitVisitorTest {
     assertDate(DIR_1_REF, FILE_2_DATE);
     assertDate(DIR_2_REF, FILE_3_DATE);
 
-    // module = most recent commit date of directories
-    assertDate(MODULE_REF, FILE_3_DATE);
+    assertDate(DIR_REF, FILE_3_DATE);
 
     // project
     assertDate(PROJECT_REF, FILE_3_DATE);

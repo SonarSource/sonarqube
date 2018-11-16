@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -42,25 +41,17 @@ public class ComponentTest {
   @Test
   public void FILE_type_is_deeper_than_all_other_types() {
     assertThat(Component.Type.FILE.isDeeperThan(DIRECTORY)).isTrue();
-    assertThat(Component.Type.FILE.isDeeperThan(MODULE)).isTrue();
     assertThat(Component.Type.FILE.isDeeperThan(PROJECT)).isTrue();
   }
 
   @Test
-  public void DIRECTORY_type_is_deeper_than_MODULE_and_PROJECT() {
-    assertThat(Component.Type.DIRECTORY.isDeeperThan(MODULE)).isTrue();
+  public void DIRECTORY_type_is_deeper_than_PROJECT() {
     assertThat(Component.Type.DIRECTORY.isDeeperThan(PROJECT)).isTrue();
-  }
-
-  @Test
-  public void MODULE_type_is_deeper_than_PROJECT() {
-    assertThat(Component.Type.MODULE.isDeeperThan(PROJECT)).isTrue();
   }
 
   @Test
   public void FILE_type_is_higher_than_no_other_types() {
     assertThat(Component.Type.FILE.isHigherThan(DIRECTORY)).isFalse();
-    assertThat(Component.Type.FILE.isHigherThan(MODULE)).isFalse();
     assertThat(Component.Type.FILE.isHigherThan(PROJECT)).isFalse();
   }
 
@@ -70,29 +61,21 @@ public class ComponentTest {
   }
 
   @Test
-  public void MODULE_type_is_higher_than_FILE_AND_DIRECTORY() {
-    assertThat(Component.Type.MODULE.isHigherThan(FILE)).isTrue();
-    assertThat(Component.Type.MODULE.isHigherThan(DIRECTORY)).isTrue();
-  }
-
-  @Test
   public void PROJECT_type_is_higher_than_all_other_types() {
     assertThat(Component.Type.PROJECT.isHigherThan(FILE)).isTrue();
     assertThat(Component.Type.PROJECT.isHigherThan(DIRECTORY)).isTrue();
-    assertThat(Component.Type.PROJECT.isHigherThan(MODULE)).isTrue();
   }
 
   @Test
   public void any_type_is_not_higher_than_itself() {
     assertThat(Component.Type.FILE.isHigherThan(FILE)).isFalse();
     assertThat(Component.Type.DIRECTORY.isHigherThan(DIRECTORY)).isFalse();
-    assertThat(Component.Type.MODULE.isHigherThan(MODULE)).isFalse();
     assertThat(Component.Type.PROJECT.isHigherThan(PROJECT)).isFalse();
   }
 
   @Test
   public void PROJECT_MODULE_DIRECTORY_and_FILE_are_report_types_and_not_views_types() {
-    for (Component.Type type : ImmutableList.of(PROJECT, MODULE, DIRECTORY, FILE)) {
+    for (Component.Type type : Arrays.asList(PROJECT, DIRECTORY, FILE)) {
       assertThat(type.isReportType()).isTrue();
       assertThat(type.isViewsType()).isFalse();
     }
@@ -100,7 +83,7 @@ public class ComponentTest {
 
   @Test
   public void VIEW_SUBVIEW_and_PROJECT_VIEW_are_views_types_and_not_report_types() {
-    for (Component.Type type : ImmutableList.of(VIEW, SUBVIEW, PROJECT_VIEW)) {
+    for (Component.Type type : Arrays.asList(VIEW, SUBVIEW, PROJECT_VIEW)) {
       assertThat(type.isViewsType()).isTrue();
       assertThat(type.isReportType()).isFalse();
     }

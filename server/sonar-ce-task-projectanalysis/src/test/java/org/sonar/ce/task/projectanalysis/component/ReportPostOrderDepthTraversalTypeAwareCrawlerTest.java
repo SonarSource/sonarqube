@@ -24,7 +24,6 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -33,16 +32,12 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
   private static final Component FILE_5 = component(FILE, 5);
   private static final Component FILE_6 = component(FILE, 6);
   private static final Component DIRECTORY_4 = component(DIRECTORY, 4, FILE_5, FILE_6);
-  private static final Component MODULE_3 = component(MODULE, 3, DIRECTORY_4);
-  private static final Component MODULE_2 = component(MODULE, 2, MODULE_3);
-  private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
+  private static final Component COMPONENT_TREE = component(PROJECT, 1, DIRECTORY_4);
 
   private final CallRecorderTypeAwareVisitor projectVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.PROJECT, POST_ORDER);
-  private final CallRecorderTypeAwareVisitor moduleVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.MODULE, POST_ORDER);
   private final CallRecorderTypeAwareVisitor directoryVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.DIRECTORY, POST_ORDER);
   private final CallRecorderTypeAwareVisitor fileVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.FILE, POST_ORDER);
   private final DepthTraversalTypeAwareCrawler projectCrawler = new DepthTraversalTypeAwareCrawler(projectVisitor);
-  private final DepthTraversalTypeAwareCrawler moduleCrawler = new DepthTraversalTypeAwareCrawler(moduleVisitor);
   private final DepthTraversalTypeAwareCrawler directoryCrawler = new DepthTraversalTypeAwareCrawler(directoryVisitor);
   private final DepthTraversalTypeAwareCrawler fileCrawler = new DepthTraversalTypeAwareCrawler(fileVisitor);
 
@@ -59,16 +54,6 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
     assertThat(fileVisitor.callsRecords).containsExactly(
       reportCallRecord("visitAny", component),
       reportCallRecord("visitFile", component));
-  }
-
-  @Test
-  public void visit_module_with_depth_FILE_calls_visit_module() {
-    Component component = component(MODULE, 1);
-    fileCrawler.visit(component);
-
-    assertThat(fileVisitor.callsRecords).containsExactly(
-      reportCallRecord("visitAny", component),
-      reportCallRecord("visitModule", component));
   }
 
   @Test
@@ -110,16 +95,6 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
   }
 
   @Test
-  public void visit_module_with_depth_DIRECTORY_calls_visit_module() {
-    Component component = component(MODULE, 1);
-    directoryCrawler.visit(component);
-
-    assertThat(directoryVisitor.callsRecords).containsExactly(
-      reportCallRecord("visitAny", component),
-      reportCallRecord("visitModule", component));
-  }
-
-  @Test
   public void visit_project_with_depth_DIRECTORY_calls_visit_project() {
     Component component = component(PROJECT, 1);
     directoryCrawler.visit(component);
@@ -127,42 +102,6 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
     assertThat(directoryVisitor.callsRecords).containsExactly(
       reportCallRecord("visitAny", component),
       reportCallRecord("visitProject", component));
-  }
-
-  @Test
-  public void visit_file_with_depth_MODULE_does_not_call_visit_file_nor_visitAny() {
-    Component component = component(FILE, 1);
-    moduleCrawler.visit(component);
-
-    assertThat(moduleVisitor.callsRecords).isEmpty();
-  }
-
-  @Test
-  public void visit_directory_with_depth_MODULE_does_not_call_visit_directory_nor_visitAny() {
-    Component component = component(DIRECTORY, 1);
-    moduleCrawler.visit(component);
-
-    assertThat(moduleVisitor.callsRecords).isEmpty();
-  }
-
-  @Test
-  public void visit_module_with_depth_MODULE_calls_visit_module() {
-    Component component = component(MODULE, 1);
-    moduleCrawler.visit(component);
-
-    assertThat(moduleVisitor.callsRecords).containsExactly(
-      reportCallRecord("visitAny", component),
-      reportCallRecord("visitModule", component));
-  }
-
-  @Test
-  public void visit_project_with_depth_MODULE_calls_visit_project() {
-    Component component = component(MODULE, 1);
-    moduleCrawler.visit(component);
-
-    assertThat(moduleVisitor.callsRecords).containsExactly(
-      reportCallRecord("visitAny", component),
-      reportCallRecord("visitModule", component));
   }
 
   @Test
@@ -176,14 +115,6 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
   @Test
   public void visit_directory_with_depth_PROJECT_does_not_call_visit_directory_nor_visitAny() {
     Component component = component(DIRECTORY, 1);
-    projectCrawler.visit(component);
-
-    assertThat(projectVisitor.callsRecords).isEmpty();
-  }
-
-  @Test
-  public void visit_module_with_depth_PROJECT_does_not_call_visit_module_nor_visitAny() {
-    Component component = component(MODULE, 1);
     projectCrawler.visit(component);
 
     assertThat(projectVisitor.callsRecords).isEmpty();
@@ -210,10 +141,6 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
       reportCallRecord("visitFile", FILE_6),
       reportCallRecord("visitAny", DIRECTORY_4),
       reportCallRecord("visitDirectory", DIRECTORY_4),
-      reportCallRecord("visitAny", MODULE_3),
-      reportCallRecord("visitModule", MODULE_3),
-      reportCallRecord("visitAny", MODULE_2),
-      reportCallRecord("visitModule", MODULE_2),
       reportCallRecord("visitAny", COMPONENT_TREE),
       reportCallRecord("visitProject", COMPONENT_TREE));
   }
@@ -225,23 +152,6 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
     assertThat(directoryVisitor.callsRecords).containsExactly(
       reportCallRecord("visitAny", DIRECTORY_4),
       reportCallRecord("visitDirectory", DIRECTORY_4),
-      reportCallRecord("visitAny", MODULE_3),
-      reportCallRecord("visitModule", MODULE_3),
-      reportCallRecord("visitAny", MODULE_2),
-      reportCallRecord("visitModule", MODULE_2),
-      reportCallRecord("visitAny", COMPONENT_TREE),
-      reportCallRecord("visitProject", COMPONENT_TREE));
-  }
-
-  @Test
-  public void verify_visit_call_when_visit_tree_with_depth_MODULE() {
-    moduleCrawler.visit(COMPONENT_TREE);
-
-    assertThat(moduleVisitor.callsRecords).containsExactly(
-      reportCallRecord("visitAny", MODULE_3),
-      reportCallRecord("visitModule", MODULE_3),
-      reportCallRecord("visitAny", MODULE_2),
-      reportCallRecord("visitModule", MODULE_2),
       reportCallRecord("visitAny", COMPONENT_TREE),
       reportCallRecord("visitProject", COMPONENT_TREE));
   }

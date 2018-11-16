@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -63,7 +62,7 @@ public class DistributionFormulaExecutionTest {
   public void add_measures() {
     ReportComponent project = builder(PROJECT, 1)
       .addChildren(
-        builder(MODULE, 11)
+        builder(DIRECTORY, 11)
           .addChildren(
             builder(DIRECTORY, 111)
               .addChildren(
@@ -71,7 +70,7 @@ public class DistributionFormulaExecutionTest {
                 builder(Component.Type.FILE, 1112).build())
               .build())
           .build(),
-        builder(MODULE, 12)
+        builder(DIRECTORY, 12)
           .addChildren(
             builder(DIRECTORY, 121)
               .addChildren(
@@ -102,7 +101,7 @@ public class DistributionFormulaExecutionTest {
   public void not_add_measures_when_no_data_on_file() {
     ReportComponent project = builder(PROJECT, 1)
       .addChildren(
-        builder(MODULE, 11)
+        builder(DIRECTORY, 11)
           .addChildren(
             builder(DIRECTORY, 111)
               .addChildren(

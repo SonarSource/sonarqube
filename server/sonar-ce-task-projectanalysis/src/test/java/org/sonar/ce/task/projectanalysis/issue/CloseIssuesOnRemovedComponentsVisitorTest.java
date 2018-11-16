@@ -39,7 +39,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class CloseIssuesOnRemovedComponentsVisitorTest {
@@ -86,15 +85,6 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     when(componentsWithUnprocessedIssues.getUuids()).thenReturn(Collections.emptySet());
 
     underTest.visit(ReportComponent.builder(PROJECT, 1).build());
-
-    verifyZeroInteractions(issueLifecycle);
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
-    assertThat(issues.hasNext()).isFalse();
-  }
-
-  @Test
-  public void do_nothing_on_module() {
-    underTest.visit(ReportComponent.builder(MODULE, 1).build());
 
     verifyZeroInteractions(issueLifecycle);
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();

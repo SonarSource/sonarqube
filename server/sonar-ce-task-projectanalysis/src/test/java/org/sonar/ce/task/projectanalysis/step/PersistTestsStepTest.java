@@ -87,11 +87,10 @@ public class PersistTestsStepTest extends BaseStepTest {
     underTest = new PersistTestsStep(dbClient, system2, reportReader, treeRootHolder);
 
     root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE_UUID").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setFileAttributes(new FileAttributes(true, null, 1)).build(),
-        ReportComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null, 1)).build(),
-        ReportComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
-        ReportComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()).build())
+      ReportComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setFileAttributes(new FileAttributes(true, null, 1)).build(),
+      ReportComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null, 1)).build(),
+      ReportComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
+      ReportComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build())
       .build();
     treeRootHolder.setRoot(root);
   }

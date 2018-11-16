@@ -19,10 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Optional;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.junit.Before;
@@ -117,7 +117,7 @@ public class QualityGateMeasuresStepTest {
 
   @Test
   public void no_measure_if_tree_has_no_project() {
-    ReportComponent notAProjectComponent = ReportComponent.builder(Component.Type.MODULE, 1).build();
+    ReportComponent notAProjectComponent = ReportComponent.builder(Component.Type.DIRECTORY, 1).build();
 
     treeRootHolder.setRoot(notAProjectComponent);
 

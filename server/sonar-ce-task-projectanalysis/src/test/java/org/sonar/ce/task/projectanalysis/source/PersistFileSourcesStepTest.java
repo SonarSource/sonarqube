@@ -101,7 +101,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         DbFileSources.Line.newBuilder().setSource("line1").setLine(1).build(),
         DbFileSources.Line.newBuilder().setSource("line2").setLine(2).build()))
       .build();
-    when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(new FileSourceDataComputer.Data(fileSourceData, lineHashes, sourceHash, null));
+    when(fileSourceDataComputer.compute(fileComponent().build(), fileSourceDataWarnings))
+      .thenReturn(new FileSourceDataComputer.Data(fileSourceData, lineHashes, sourceHash, null));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -160,8 +161,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     verify(fileSourceDataWarnings).commitWarnings();
   }
 
-  private Component fileComponent() {
-    return ReportComponent.builder(Component.Type.FILE, FILE1_REF).build();
+  private ReportComponent.Builder fileComponent() {
+    return ReportComponent.builder(Component.Type.FILE, FILE1_REF).setUuid(FILE1_UUID).setKey("PROJECT_KEY" + ":src/Foo.java");
   }
 
   @Test
@@ -439,20 +440,17 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   private void setComputedData(DbFileSources.Data data, List<String> lineHashes, String sourceHash, Changeset latestChangeWithRevision) {
     FileSourceDataComputer.Data computedData = new FileSourceDataComputer.Data(data, lineHashes, sourceHash, latestChangeWithRevision);
-    when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(computedData);
+    when(fileSourceDataComputer.compute(fileComponent().build(), fileSourceDataWarnings)).thenReturn(computedData);
   }
 
   private void setComputedData(DbFileSources.Data data) {
     FileSourceDataComputer.Data computedData = new FileSourceDataComputer.Data(data, Collections.emptyList(), "", null);
-    when(fileSourceDataComputer.compute(fileComponent(), fileSourceDataWarnings)).thenReturn(computedData);
+    when(fileSourceDataComputer.compute(fileComponent().build(), fileSourceDataWarnings)).thenReturn(computedData);
   }
 
   private void initBasicReport(int numberOfLines) {
     ReportComponent root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.FILE, FILE1_REF).setUuid(FILE1_UUID).setKey("MODULE_KEY:src/Foo.java")
-          .setFileAttributes(new FileAttributes(false, null, numberOfLines)).build())
-        .build())
+      fileComponent().setFileAttributes(new FileAttributes(false, null, numberOfLines)).build())
       .build();
     treeRootHolder.setRoots(root, root);
   }

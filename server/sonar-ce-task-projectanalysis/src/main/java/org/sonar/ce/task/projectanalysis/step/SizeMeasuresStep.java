@@ -107,12 +107,6 @@ public class SizeMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void visitModule(Component module, Path<Counter> path) {
-      createMeasures(module, path.current());
-      path.parent().aggregate(path.current());
-    }
-
-    @Override
     public void visitDirectory(Component directory, Path<Counter> path) {
       int fileCount = path.current().files;
       if (fileCount > 0) {

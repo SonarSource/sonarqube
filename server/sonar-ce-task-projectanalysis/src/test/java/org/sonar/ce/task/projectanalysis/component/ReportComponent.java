@@ -166,12 +166,12 @@ public class ReportComponent implements Component {
       return false;
     }
     ReportComponent that = (ReportComponent) o;
-    return reportAttributes.getRef() == that.reportAttributes.getRef();
+    return uuid.equals(that.uuid);
   }
 
   @Override
   public int hashCode() {
-    return this.reportAttributes.getRef();
+    return uuid.hashCode();
   }
 
   @Override

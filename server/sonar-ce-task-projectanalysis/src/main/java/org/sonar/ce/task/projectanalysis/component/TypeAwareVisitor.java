@@ -29,11 +29,6 @@ public interface TypeAwareVisitor extends ComponentVisitor {
   void visitProject(Component project);
 
   /**
-   * Called when encountering a Component of type {@link Component.Type#MODULE}
-   */
-  void visitModule(Component module);
-
-  /**
    * Called when encountering a Component of type {@link Component.Type#DIRECTORY}
    */
   void visitDirectory(Component directory);

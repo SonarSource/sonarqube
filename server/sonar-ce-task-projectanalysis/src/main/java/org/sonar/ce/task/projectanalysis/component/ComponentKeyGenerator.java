@@ -25,6 +25,6 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 @FunctionalInterface
 public interface ComponentKeyGenerator {
 
-  String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir);
+  String generateKey(ScannerReport.Component project, @Nullable String fileOrDirPath);
 
 }

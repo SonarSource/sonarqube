@@ -32,7 +32,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -44,9 +43,7 @@ public class ReportVisitorsCrawlerTest {
 
   private static final Component FILE_5 = component(FILE, 5);
   private static final Component DIRECTORY_4 = component(DIRECTORY, 4, FILE_5);
-  private static final Component MODULE_3 = component(MODULE, 3, DIRECTORY_4);
-  private static final Component MODULE_2 = component(MODULE, 2, MODULE_3);
-  private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
+  private static final Component COMPONENT_TREE = component(PROJECT, 1, DIRECTORY_4);
 
   private final TypeAwareVisitor spyPreOrderTypeAwareVisitor = spy(new TestTypeAwareVisitor(CrawlerDepthLimit.FILE, PRE_ORDER));
   private final TypeAwareVisitor spyPostOrderTypeAwareVisitor = spy(new TestTypeAwareVisitor(CrawlerDepthLimit.FILE, POST_ORDER));
@@ -68,16 +65,6 @@ public class ReportVisitorsCrawlerTest {
     inOrder.verify(spyPathAwareVisitor).visitAny(eq(DIRECTORY_4), any(PathAwareVisitor.Path.class));
     inOrder.verify(spyPathAwareVisitor).visitDirectory(eq(DIRECTORY_4), any(PathAwareVisitor.Path.class));
 
-    inOrder.verify(spyPostOrderTypeAwareVisitor).visitAny(MODULE_3);
-    inOrder.verify(spyPostOrderTypeAwareVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyPathAwareVisitor).visitAny(eq(MODULE_3), any(PathAwareVisitor.Path.class));
-    inOrder.verify(spyPathAwareVisitor).visitModule(eq(MODULE_3), any(PathAwareVisitor.Path.class));
-
-    inOrder.verify(spyPostOrderTypeAwareVisitor).visitAny(MODULE_2);
-    inOrder.verify(spyPostOrderTypeAwareVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyPathAwareVisitor).visitAny(eq(MODULE_2), any(PathAwareVisitor.Path.class));
-    inOrder.verify(spyPathAwareVisitor).visitModule(eq(MODULE_2), any(PathAwareVisitor.Path.class));
-
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitProject(COMPONENT_TREE);
     inOrder.verify(spyPathAwareVisitor).visitAny(eq(COMPONENT_TREE), any(PathAwareVisitor.Path.class));
@@ -91,15 +78,11 @@ public class ReportVisitorsCrawlerTest {
     underTest.visit(COMPONENT_TREE);
 
     inOrder.verify(spyPreOrderTypeAwareVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verify(spyPreOrderTypeAwareVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyPreOrderTypeAwareVisitor).visitModule(MODULE_3);
     inOrder.verify(spyPreOrderTypeAwareVisitor).visitDirectory(DIRECTORY_4);
     inOrder.verify(spyPreOrderTypeAwareVisitor).visitFile(FILE_5);
 
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitFile(FILE_5);
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitDirectory(DIRECTORY_4);
-    inOrder.verify(spyPostOrderTypeAwareVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyPostOrderTypeAwareVisitor).visitModule(MODULE_2);
     inOrder.verify(spyPostOrderTypeAwareVisitor).visitProject(COMPONENT_TREE);
   }
 

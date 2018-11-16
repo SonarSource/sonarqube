@@ -36,7 +36,6 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
@@ -51,10 +50,8 @@ import static org.sonar.api.measures.CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_UNCOVERED_LINES_KEY;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -64,8 +61,6 @@ import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntri
 public class ReportNewCoverageMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 11;
-  private static final int SUB_MODULE_REF = 111;
   private static final int DIRECTORY_1_REF = 1111;
   private static final int FILE_1_REF = 11111;
   private static final int DIRECTORY_2_REF = 1112;
@@ -77,17 +72,11 @@ public class ReportNewCoverageMeasuresStepTest {
 
   private static final ReportComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
     .addChildren(
-      builder(MODULE, MODULE_REF)
-        .addChildren(
-          builder(MODULE, SUB_MODULE_REF)
-            .addChildren(
-              builder(DIRECTORY, DIRECTORY_1_REF)
-                .addChildren(FILE_1)
-                .build(),
-              builder(DIRECTORY, DIRECTORY_2_REF)
-                .addChildren(FILE_2, FILE_3)
-                .build())
-            .build())
+      builder(DIRECTORY, DIRECTORY_1_REF)
+        .addChildren(FILE_1)
+        .build(),
+      builder(DIRECTORY, DIRECTORY_2_REF)
+        .addChildren(FILE_2, FILE_3)
         .build())
     .build();
 
@@ -116,15 +105,6 @@ public class ReportNewCoverageMeasuresStepTest {
   @Test
   public void no_measure_for_PROJECT_component() {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(measureRepository.isEmpty()).isTrue();
-  }
-
-  @Test
-  public void no_measure_for_MODULE_component() {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.MODULE, MODULE_REF).build());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -174,12 +154,12 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Test
   public void zero_measures_for_FILE_component_without_CoverageData() {
-    treeRootHolder.setRoot(FILE_COMPONENT);
+    treeRootHolder.setRoot(FILE_1);
     setNewLines(FILE_1);
 
     underTest.execute(new TestComputationStepContext());
 
-    verify_only_zero_measures_on_new_lines_and_conditions_measures(FILE_COMPONENT);
+    verify_only_zero_measures_on_new_lines_and_conditions_measures(FILE_1);
   }
 
   @Test
@@ -278,15 +258,12 @@ public class ReportNewCoverageMeasuresStepTest {
       entryOf(metricKeys.newConditionsToCover, createMeasure(44d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(23d)));
     // submodule
-    MeasureRepoEntry[] repoEntriesFromSubModuleUp = {entryOf(metricKeys.newLinesToCover, createMeasure(15d)),
+    MeasureRepoEntry[] repoEntriesFromProject = {entryOf(metricKeys.newLinesToCover, createMeasure(15d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(9d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(51d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(27d))};
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(repoEntriesFromSubModuleUp);
-    // module
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(repoEntriesFromSubModuleUp);
     // project
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(repoEntriesFromSubModuleUp);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(repoEntriesFromProject);
   }
 
   @Test
@@ -342,8 +319,6 @@ public class ReportNewCoverageMeasuresStepTest {
       entryOf(branchCoverageKey, createMeasure(96.4d))
     };
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(modulesAndProjectEntries);
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(modulesAndProjectEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(modulesAndProjectEntries);
   }
 
@@ -356,9 +331,11 @@ public class ReportNewCoverageMeasuresStepTest {
   }
 
   private void defineNewLinesAndMeasures(Component c, MetricKeys metricKeys, MeasureValues line4, MeasureValues line6) {
-    setNewLines(c, 1, 2, 4,5,6,7);
-    measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=" + line4.lineHits + ";5=1;6=" + line6.lineHits + ";7=0"));
-    measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.conditionsByLine, newMeasureBuilder().create("4=" + line4.coveredConditions + ";6=" + line6.coveredConditions));
+    setNewLines(c, 1, 2, 4, 5, 6, 7);
+    measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.coverageLineHitsData,
+      newMeasureBuilder().create("2=0;3=2;4=" + line4.lineHits + ";5=1;6=" + line6.lineHits + ";7=0"));
+    measureRepository
+      .addRawMeasure(c.getReportAttributes().getRef(), metricKeys.conditionsByLine, newMeasureBuilder().create("4=" + line4.coveredConditions + ";6=" + line6.coveredConditions));
     measureRepository.addRawMeasure(c.getReportAttributes().getRef(), metricKeys.coveredConditionsByLine,
       newMeasureBuilder().create("4=" + line4.uncoveredConditions + ";6=" + line6.uncoveredConditions));
   }

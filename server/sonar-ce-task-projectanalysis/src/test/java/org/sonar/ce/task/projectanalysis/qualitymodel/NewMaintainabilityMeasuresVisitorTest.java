@@ -58,7 +58,6 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat;
@@ -280,18 +279,14 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, 11)
-            .addChildren(
-              builder(DIRECTORY, 111)
-                .addChildren(file)
-                .build())
+          builder(DIRECTORY, 111)
+            .addChildren(file)
             .build())
         .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(50);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
     measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150));
-    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250));
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
@@ -301,7 +296,6 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
     assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33);
     assertNewDebtRatioValues(111, 83.33);
-    assertNewDebtRatioValues(11, 83.33);
     assertNewDebtRatioValues(ROOT_REF, 83.33);
   }
 
@@ -312,18 +306,14 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, 11)
-            .addChildren(
-              builder(DIRECTORY, 111)
-                .addChildren(file)
-                .build())
+          builder(DIRECTORY, 111)
+            .addChildren(file)
             .build())
         .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(50);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
     measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150));
-    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250));
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
@@ -335,7 +325,6 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
     assertNewMaintainability(LANGUAGE_1_FILE_REF, D);
     assertNewMaintainability(111, D);
-    assertNewMaintainability(11, D);
     assertNewMaintainability(ROOT_REF, D);
   }
 
@@ -347,11 +336,8 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, 11)
-            .addChildren(
-              builder(DIRECTORY, 111)
-                .addChildren(file1, file2)
-                .build())
+          builder(DIRECTORY, 111)
+            .addChildren(file1, file2)
             .build())
         .build());
 
@@ -379,12 +365,9 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, 11)
+          builder(DIRECTORY, 111)
             .addChildren(
-              builder(DIRECTORY, 111)
-                .addChildren(
-                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
-                .build())
+              builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
             .build())
         .build());
 
@@ -392,7 +375,6 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
     assertNewMaintainability(LANGUAGE_1_FILE_REF, A);
     assertNewMaintainability(111, A);
-    assertNewMaintainability(11, A);
     assertNewMaintainability(ROOT_REF, A);
   }
 

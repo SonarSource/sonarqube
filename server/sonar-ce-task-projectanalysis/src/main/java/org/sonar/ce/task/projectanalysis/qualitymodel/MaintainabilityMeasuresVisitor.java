@@ -85,11 +85,6 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   }
 
   @Override
-  public void visitModule(Component module, Path<Counter> path) {
-    computeAndSaveMeasures(module, path);
-  }
-
-  @Override
   public void visitFile(Component file, Path<Counter> path) {
     path.current().addDevCosts(computeDevelopmentCost(file));
     computeAndSaveMeasures(file, path);

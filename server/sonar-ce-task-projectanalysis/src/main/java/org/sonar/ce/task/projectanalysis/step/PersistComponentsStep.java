@@ -205,12 +205,6 @@ public class PersistComponentsStep implements ComputationStep {
     }
 
     @Override
-    public void visitModule(Component module, Path<ComponentDtoHolder> path) {
-      ComponentDto dto = createForModule(module, path);
-      path.current().setDto(persistAndPopulateCache(module, dto));
-    }
-
-    @Override
     public void visitDirectory(Component directory, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForDirectory(directory, path);
       path.current().setDto(persistAndPopulateCache(directory, dto));
@@ -291,21 +285,6 @@ public class PersistComponentsStep implements ComputationStep {
       res.setRootUuid(res.uuid());
       res.setUuidPath(UUID_PATH_OF_ROOT);
       res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
-
-      return res;
-    }
-
-    public ComponentDto createForModule(Component module, PathAwareVisitor.Path<ComponentDtoHolder> path) {
-      ComponentDto res = createBase(module);
-
-      res.setScope(Scopes.PROJECT);
-      res.setQualifier(Qualifiers.MODULE);
-      res.setName(module.getName());
-      res.setLongName(res.name());
-      res.setPath(module.getReportAttributes().getPath());
-      res.setDescription(module.getDescription());
-
-      setRootAndParentModule(res, path);
 
       return res;
     }
@@ -477,8 +456,7 @@ public class PersistComponentsStep implements ComputationStep {
 
     @Override
     public boolean apply(@Nonnull PathAwareVisitor.PathElement<ComponentDtoHolder> input) {
-      return input.getComponent().getType() == Component.Type.MODULE
-        || input.getComponent().getType() == Component.Type.PROJECT;
+      return input.getComponent().getType() == Component.Type.PROJECT;
     }
   }
 

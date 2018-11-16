@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.Collections;
@@ -28,13 +26,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
@@ -115,7 +115,10 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (rawMeasures == null) {
       return Collections.emptySet();
     }
-    return from(rawMeasures.entrySet()).filter(new MatchMetric(metric)).transform(ToMeasure.INSTANCE).toSet();
+    return rawMeasures.entrySet().stream()
+      .filter(new MatchMetric(metric))
+      .map(ToMeasure.INSTANCE)
+      .collect(Collectors.toSet());
   }
 
   @Override
@@ -177,7 +180,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     }
 
     @Override
-    public boolean apply(@Nonnull Map.Entry<MeasureKey, Measure> input) {
+    public boolean test(@Nonnull Map.Entry<MeasureKey, Measure> input) {
       return input.getKey().getMetricKey().equals(metric.getKey());
     }
   }

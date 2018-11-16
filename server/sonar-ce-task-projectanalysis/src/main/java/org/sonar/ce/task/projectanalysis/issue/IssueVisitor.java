@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public abstract class IssueVisitor {
 

@@ -46,7 +46,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -98,7 +97,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
     // the computed measures
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
-    measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("module-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
@@ -106,12 +104,11 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     step().execute(context);
 
     // all measures are persisted, from project to file
-    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("live_measures")).isEqualTo(3);
     assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("project-value");
-    assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("module-value");
     assertThat(selectMeasure("dir-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("dir-value");
     assertThat(selectMeasure("file-uuid", STRING_METRIC).get().getDataAsString()).isEqualTo("file-value");
-    verifyStatistics(context, 4);
+    verifyStatistics(context, 3);
   }
 
   @Test
@@ -229,19 +226,16 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
   private void assertThatMeasureDoesNotExist(LiveMeasureDto template) {
     assertThat(dbClient.liveMeasureDao().selectMeasure(db.getSession(),
       template.getComponentUuid(), metricRepository.getById(template.getMetricId()).getKey()))
-        .isEmpty();
+      .isEmpty();
   }
 
   private void prepareProject() {
     // tree of components as defined by scanner report
     Component project = ReportComponent.builder(PROJECT, REF_1).setUuid("project-uuid")
       .addChildren(
-        ReportComponent.builder(MODULE, REF_2).setUuid("module-uuid")
+        ReportComponent.builder(DIRECTORY, REF_3).setUuid("dir-uuid")
           .addChildren(
-            ReportComponent.builder(DIRECTORY, REF_3).setUuid("dir-uuid")
-              .addChildren(
-                ReportComponent.builder(FILE, REF_4).setUuid("file-uuid")
-                  .build())
+            ReportComponent.builder(FILE, REF_4).setUuid("file-uuid")
               .build())
           .build())
       .build();
@@ -250,7 +244,6 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
     // components as persisted in db
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
-    ComponentDto moduleDto = insertComponent("module-key", "module-uuid");
     ComponentDto dirDto = insertComponent("dir-key", "dir-uuid");
     ComponentDto fileDto = insertComponent("file-key", "file-uuid");
   }

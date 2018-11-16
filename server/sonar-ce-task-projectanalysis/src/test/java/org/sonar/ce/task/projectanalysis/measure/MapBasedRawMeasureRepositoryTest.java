@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -28,8 +26,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +46,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -66,8 +61,14 @@ public class MapBasedRawMeasureRepositoryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private static final String FILE_COMPONENT_KEY = "file cpt key";
-  private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
-  private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
+  private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1)
+    .setKey(FILE_COMPONENT_KEY)
+    .setUuid("1")
+    .build();
+  private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2)
+    .setKey("some other key")
+    .setUuid("2")
+    .build();
 
   private static final String METRIC_KEY_1 = "metric 1";
   private static final String METRIC_KEY_2 = "metric 2";
@@ -82,13 +83,7 @@ public class MapBasedRawMeasureRepositoryTest {
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
   private MetricRepository metricRepository = mock(MetricRepository.class);
-  private MapBasedRawMeasureRepository<Integer> underTest = new MapBasedRawMeasureRepository<>(new Function<Component, Integer>() {
-    @Override
-    public Integer apply(Component component) {
-      return component.getReportAttributes().getRef();
-    }
-  });
-
+  private MapBasedRawMeasureRepository<Integer> underTest = new MapBasedRawMeasureRepository<>(component -> component.getReportAttributes().getRef());
   private DbClient mockedDbClient = mock(DbClient.class);
   private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
   private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, reportMetricValidator);
@@ -159,13 +154,9 @@ public class MapBasedRawMeasureRepositoryTest {
 
   @DataProvider
   public static Object[][] measures() {
-    return from(MEASURES).transform(new Function<Measure, Object[]>() {
-      @Nullable
-      @Override
-      public Object[] apply(Measure input) {
-        return new Measure[] {input};
-      }
-    }).toArray(Object[].class);
+    return MEASURES.stream()
+      .map(c -> new Measure[] {c})
+      .toArray(i -> new Object[i][]);
   }
 
   @Test
@@ -206,12 +197,9 @@ public class MapBasedRawMeasureRepositoryTest {
   }
 
   private Measure getSomeMeasureByValueType(final Metric.MetricType metricType) {
-    return from(MEASURES).filter(new Predicate<Measure>() {
-      @Override
-      public boolean apply(@Nonnull Measure input) {
-        return input.getValueType() == metricType.getValueType();
-      }
-    }).first().get();
+    return MEASURES.stream()
+      .filter(measure -> measure.getValueType() == metricType.getValueType())
+      .findFirst().get();
   }
 
   @Test

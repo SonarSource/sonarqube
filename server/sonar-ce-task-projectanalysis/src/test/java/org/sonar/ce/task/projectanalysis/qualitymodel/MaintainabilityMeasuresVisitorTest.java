@@ -52,7 +52,6 @@ import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -73,20 +72,16 @@ public class MaintainabilityMeasuresVisitorTest {
   static final long DEV_COST_LANGUAGE_2 = 42;
 
   static final int PROJECT_REF = 1;
-  static final int MODULE_REF = 12;
   static final int DIRECTORY_REF = 123;
   static final int FILE_1_REF = 1231;
   static final int FILE_2_REF = 1232;
 
   static final Component ROOT_PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project")
     .addChildren(
-      builder(MODULE, MODULE_REF).setKey("module")
+      builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
         .addChildren(
-          builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
-            .addChildren(
-              builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
-              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
-            .build())
+          builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
+          builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
         .build())
     .build();
 
@@ -139,37 +134,23 @@ public class MaintainabilityMeasuresVisitorTest {
 
   @Test
   public void compute_development_cost() {
-    ReportComponent root = builder(PROJECT, 1)
-      .addChildren(
-        builder(MODULE, 11)
-          .addChildren(
-            builder(DIRECTORY, 111)
-              .addChildren(
-                createFileComponent(LANGUAGE_KEY_1, 1111),
-                createFileComponent(LANGUAGE_KEY_2, 1112),
-                // Unit test should not be ignored
-                builder(FILE, 1113).setFileAttributes(new FileAttributes(true, LANGUAGE_KEY_1, 1)).build())
-              .build(),
-            builder(DIRECTORY, 112)
-              .addChildren(
-                createFileComponent(LANGUAGE_KEY_2, 1121))
-              .build())
-          .build(),
-        builder(MODULE, 12)
-          .addChildren(
-            builder(DIRECTORY, 121)
-              .addChildren(
-                createFileComponent(LANGUAGE_KEY_1, 1211))
-              .build(),
-            builder(DIRECTORY, 122).build())
-          .build(),
-        builder(MODULE, 13).build())
+    ReportComponent root = builder(PROJECT, 1).addChildren(
+      builder(DIRECTORY, 111).addChildren(
+        createFileComponent(LANGUAGE_KEY_1, 1111),
+        createFileComponent(LANGUAGE_KEY_2, 1112),
+        // Unit test should not be ignored
+        builder(FILE, 1113).setFileAttributes(new FileAttributes(true, LANGUAGE_KEY_1, 1)).build())
+        .build(),
+      builder(DIRECTORY, 112).addChildren(
+        createFileComponent(LANGUAGE_KEY_2, 1121))
+        .build(),
+      builder(DIRECTORY, 121).addChildren(
+        createFileComponent(LANGUAGE_KEY_1, 1211))
+        .build(),
+      builder(DIRECTORY, 122).build())
       .build();
 
     treeRootHolder.setRoot(root);
-
-    int ncloc1111 = 10;
-    addRawMeasure(NCLOC_KEY, 1111, ncloc1111);
 
     int ncloc1112 = 12;
     addRawMeasure(NCLOC_KEY, 1112, ncloc1112);
@@ -186,7 +167,6 @@ public class MaintainabilityMeasuresVisitorTest {
     underTest.visit(root);
 
     // verify measures on files
-    verifyAddedRawMeasure(1111, DEVELOPMENT_COST_KEY, Long.toString(ncloc1111 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(1112, DEVELOPMENT_COST_KEY, Long.toString(ncloc1112 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(1113, DEVELOPMENT_COST_KEY, Long.toString(ncloc1113 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(1121, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
@@ -197,23 +177,13 @@ public class MaintainabilityMeasuresVisitorTest {
 
     // directory has children => dev cost is aggregated
     verifyAddedRawMeasure(111, DEVELOPMENT_COST_KEY, Long.toString(
-      ncloc1111 * DEV_COST_LANGUAGE_1 +
-        ncloc1112 * DEV_COST_LANGUAGE_2 +
+      ncloc1112 * DEV_COST_LANGUAGE_2 +
         ncloc1113 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(112, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(121, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
 
-    // just for fun, we didn't define any debt on module => they must all have rating A
-    verifyAddedRawMeasure(11, DEVELOPMENT_COST_KEY, Long.toString(
-      ncloc1111 * DEV_COST_LANGUAGE_1 +
-        ncloc1112 * DEV_COST_LANGUAGE_2 +
-        ncloc1113 * DEV_COST_LANGUAGE_1 +
-        nclocValue1121 * DEV_COST_LANGUAGE_2));
-    verifyAddedRawMeasure(12, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
-    verifyAddedRawMeasure(13, DEVELOPMENT_COST_KEY, "0");
     verifyAddedRawMeasure(1, DEVELOPMENT_COST_KEY, Long.toString(
-      ncloc1111 * DEV_COST_LANGUAGE_1 +
-        ncloc1112 * DEV_COST_LANGUAGE_2 +
+      ncloc1112 * DEV_COST_LANGUAGE_2 +
         ncloc1113 * DEV_COST_LANGUAGE_1 +
         nclocValue1121 * DEV_COST_LANGUAGE_2 +
         ncloc1211 * DEV_COST_LANGUAGE_1));
@@ -236,9 +206,6 @@ public class MaintainabilityMeasuresVisitorTest {
     long directoryMaintainabilityCost = 100L;
     addRawMeasure(TECHNICAL_DEBT_KEY, DIRECTORY_REF, directoryMaintainabilityCost);
 
-    long moduleMaintainabilityCost = 100L;
-    addRawMeasure(TECHNICAL_DEBT_KEY, MODULE_REF, moduleMaintainabilityCost);
-
     long projectMaintainabilityCost = 1000L;
     addRawMeasure(TECHNICAL_DEBT_KEY, PROJECT_REF, projectMaintainabilityCost);
 
@@ -247,7 +214,6 @@ public class MaintainabilityMeasuresVisitorTest {
     verifyAddedRawMeasure(FILE_1_REF, SQALE_DEBT_RATIO_KEY, file1MaintainabilityCost * 1d / (file1Ncloc * DEV_COST_LANGUAGE_1) * 100);
     verifyAddedRawMeasure(FILE_2_REF, SQALE_DEBT_RATIO_KEY, file2MaintainabilityCost * 1d / (file2Ncloc * DEV_COST_LANGUAGE_1) * 100);
     verifyAddedRawMeasure(DIRECTORY_REF, SQALE_DEBT_RATIO_KEY, directoryMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1) * 100);
-    verifyAddedRawMeasure(MODULE_REF, SQALE_DEBT_RATIO_KEY, moduleMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1) * 100);
     verifyAddedRawMeasure(PROJECT_REF, SQALE_DEBT_RATIO_KEY, projectMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1) * 100);
   }
 
@@ -262,7 +228,6 @@ public class MaintainabilityMeasuresVisitorTest {
     addRawMeasure(TECHNICAL_DEBT_KEY, FILE_2_REF, 1L);
 
     addRawMeasure(TECHNICAL_DEBT_KEY, DIRECTORY_REF, 100L);
-    addRawMeasure(TECHNICAL_DEBT_KEY, MODULE_REF, 100L);
     addRawMeasure(TECHNICAL_DEBT_KEY, PROJECT_REF, 1000L);
 
     underTest.visit(ROOT_PROJECT);
@@ -270,7 +235,6 @@ public class MaintainabilityMeasuresVisitorTest {
     verifyAddedRawMeasure(FILE_1_REF, SQALE_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_2_REF, SQALE_RATING_KEY, A);
     verifyAddedRawMeasure(DIRECTORY_REF, SQALE_RATING_KEY, C);
-    verifyAddedRawMeasure(MODULE_REF, SQALE_RATING_KEY, C);
     verifyAddedRawMeasure(PROJECT_REF, SQALE_RATING_KEY, E);
   }
 
@@ -291,9 +255,6 @@ public class MaintainabilityMeasuresVisitorTest {
     long dirEffort = 120L;
     addRawMeasure(TECHNICAL_DEBT_KEY, DIRECTORY_REF, dirEffort);
 
-    long moduleEffort = 120L;
-    addRawMeasure(TECHNICAL_DEBT_KEY, MODULE_REF, moduleEffort);
-
     long projectEffort = 150L;
     addRawMeasure(TECHNICAL_DEBT_KEY, PROJECT_REF, projectEffort);
 
@@ -305,8 +266,6 @@ public class MaintainabilityMeasuresVisitorTest {
       (long) (file2Effort - RATING_GRID[0] * file2Ncloc * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
       (long) (dirEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
-    verifyAddedRawMeasure(MODULE_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
-      (long) (moduleEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
       (long) (projectEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
   }

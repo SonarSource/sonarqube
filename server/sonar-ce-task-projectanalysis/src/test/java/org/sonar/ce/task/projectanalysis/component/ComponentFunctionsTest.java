@@ -24,20 +24,14 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
-import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toReportRef;
+import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;
 
 public class ComponentFunctionsTest {
 
   private static final int SOME_INT = new Random().nextInt();
 
-  @Test(expected = IllegalStateException.class)
-  public void toReportRef_throws_ISE_if_Component_has_no_ReportAttributes() {
-    toReportRef().apply(ViewsComponent.builder(VIEW, 1).build());
-  }
-
   @Test
-  public void toReportRef_returns_the_ref_of_the_Component() {
-    assertThat(toReportRef().apply(ReportComponent.builder(PROJECT, SOME_INT).build())).isEqualTo(SOME_INT);
+  public void toComponentUuid_returns_the_ref_of_the_Component() {
+    assertThat(toComponentUuid().apply(ReportComponent.builder(PROJECT, SOME_INT).setUuid("uuid_" + SOME_INT).build())).isEqualTo("uuid_" + SOME_INT);
   }
 }

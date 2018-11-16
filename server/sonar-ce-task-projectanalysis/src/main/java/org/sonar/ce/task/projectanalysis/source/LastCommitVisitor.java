@@ -68,17 +68,12 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
   }
 
   @Override
-  public void visitModule(Component module, Path<LastCommit> path) {
-    saveAndAggregate(module, path);
-  }
-
-  @Override
   public void visitFile(Component file, Path<LastCommit> path) {
     // load SCM blame information from report. It can be absent when the file was not touched
     // since previous analysis (optimization to decrease execution of blame commands). In this case
     // the date is loaded from database, as it did not change from previous analysis.
 
-    java.util.Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
+    Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
     if (scmInfoOptional.isPresent()) {
       ScmInfo scmInfo = scmInfoOptional.get();
       path.current().addDate(scmInfo.getLatestChangeset().getDate());

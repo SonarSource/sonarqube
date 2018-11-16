@@ -40,16 +40,12 @@ import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class DuplicationMeasuresTest {
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
-  private static final int SUB_MODULE_1_REF = 123;
-  private static final int SUB_MODULE_2_REF = 126;
   private static final int DIRECTORY_REF = 1234;
   private static final int FILE_1_REF = 12341;
   private static final int FILE_2_REF = 12342;
@@ -67,22 +63,13 @@ public class DuplicationMeasuresTest {
     .setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, MODULE_REF)
+          builder(DIRECTORY, DIRECTORY_REF)
             .addChildren(
-              builder(MODULE, SUB_MODULE_1_REF)
-                .addChildren(
-                  builder(DIRECTORY, DIRECTORY_REF)
-                    .addChildren(
-                      builder(FILE, FILE_1_REF).setFileAttributes(FILE_1_ATTRS).build(),
-                      builder(FILE, FILE_2_REF).setFileAttributes(FILE_2_ATTRS).build())
-                    .build())
-                .build(),
-              builder(MODULE, SUB_MODULE_2_REF)
-                .addChildren(
-                  builder(FILE, FILE_3_REF).setFileAttributes(FILE_3_ATTRS).build(),
-                  builder(FILE, FILE_4_REF).setFileAttributes(FILE_4_ATTRS).build())
-                .build())
-            .build())
+              builder(FILE, FILE_1_REF).setFileAttributes(FILE_1_ATTRS).build(),
+              builder(FILE, FILE_2_REF).setFileAttributes(FILE_2_ATTRS).build())
+            .build(),
+          builder(FILE, FILE_3_REF).setFileAttributes(FILE_3_ATTRS).build(),
+          builder(FILE, FILE_4_REF).setFileAttributes(FILE_4_ATTRS).build())
         .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -148,9 +135,6 @@ public class DuplicationMeasuresTest {
     assertRawMeasureValue(FILE_3_REF, DUPLICATED_BLOCKS_KEY, 0);
     assertRawMeasureValue(FILE_4_REF, DUPLICATED_BLOCKS_KEY, 5);
     assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY, 50);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_BLOCKS_KEY, 50);
-    assertRawMeasureValue(SUB_MODULE_2_REF, DUPLICATED_BLOCKS_KEY, 5);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_BLOCKS_KEY, 55);
     assertRawMeasureValue(ROOT_REF, DUPLICATED_BLOCKS_KEY, 55);
   }
 
@@ -225,9 +209,6 @@ public class DuplicationMeasuresTest {
     assertRawMeasureValue(FILE_3_REF, DUPLICATED_FILES_KEY, 1);
     assertRawMeasureValue(FILE_4_REF, DUPLICATED_FILES_KEY, 1);
     assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_FILES_KEY, 1);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_FILES_KEY, 1);
-    assertRawMeasureValue(SUB_MODULE_2_REF, DUPLICATED_FILES_KEY, 2);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_FILES_KEY, 3);
     assertRawMeasureValue(ROOT_REF, DUPLICATED_FILES_KEY, 3);
   }
 
@@ -251,9 +232,6 @@ public class DuplicationMeasuresTest {
     assertRawMeasureValue(FILE_3_REF, DUPLICATED_LINES_KEY, 0);
     assertRawMeasureValue(FILE_4_REF, DUPLICATED_LINES_KEY, 7);
     assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_LINES_KEY, 19);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_LINES_KEY, 19);
-    assertRawMeasureValue(SUB_MODULE_2_REF, DUPLICATED_LINES_KEY, 7);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_LINES_KEY, 26);
     assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_KEY, 26);
   }
 
@@ -279,9 +257,6 @@ public class DuplicationMeasuresTest {
     assertNoRawMeasure(FILE_3_REF, DUPLICATED_LINES_DENSITY_KEY);
     assertNoRawMeasure(FILE_4_REF, DUPLICATED_LINES_DENSITY_KEY);
     assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
-    assertNoRawMeasure(SUB_MODULE_2_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
     assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 10d);
   }
 
@@ -297,9 +272,6 @@ public class DuplicationMeasuresTest {
     assertNoRawMeasure(FILE_3_REF, DUPLICATED_LINES_DENSITY_KEY);
     assertNoRawMeasure(FILE_4_REF, DUPLICATED_LINES_DENSITY_KEY);
     assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY, 0d);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 0d);
-    assertNoRawMeasure(SUB_MODULE_2_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY, 0d);
     assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 0d);
   }
 
@@ -326,9 +298,6 @@ public class DuplicationMeasuresTest {
     assertNoRawMeasure(FILE_3_REF, DUPLICATED_LINES_DENSITY_KEY);
     assertNoRawMeasure(FILE_4_REF, DUPLICATED_LINES_DENSITY_KEY);
     assertRawMeasureValue(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY, 100d);
-    assertRawMeasureValue(SUB_MODULE_1_REF, DUPLICATED_LINES_DENSITY_KEY, 100d);
-    assertNoRawMeasure(SUB_MODULE_2_REF, DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY, 100d);
     assertRawMeasureValue(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY, 100d);
   }
 
@@ -354,8 +323,6 @@ public class DuplicationMeasuresTest {
     assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metricKey)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metricKey)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_1_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF).get(metricKey)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
   }
 
@@ -377,9 +344,6 @@ public class DuplicationMeasuresTest {
     assertRawMeasureValue(FILE_3_REF, metricKey, 0);
     assertRawMeasureValue(FILE_4_REF, metricKey, 0);
     assertRawMeasureValue(DIRECTORY_REF, metricKey, 0);
-    assertRawMeasureValue(SUB_MODULE_1_REF, metricKey, 0);
-    assertRawMeasureValue(SUB_MODULE_2_REF, metricKey, 0);
-    assertRawMeasureValue(MODULE_REF, metricKey, 0);
     assertRawMeasureValue(ROOT_REF, metricKey, 0);
   }
 

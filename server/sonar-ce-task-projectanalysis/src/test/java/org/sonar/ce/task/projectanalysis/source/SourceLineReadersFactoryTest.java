@@ -69,7 +69,7 @@ public class SourceLineReadersFactoryTest {
 
   private void initBasicReport(int numberOfLines) {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
+      ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
         ReportComponent.builder(Component.Type.FILE, FILE1_REF).setUuid(FILE1_UUID).setKey("MODULE_KEY:src/Foo.java")
           .setFileAttributes(new FileAttributes(false, null, numberOfLines)).build())
         .build())

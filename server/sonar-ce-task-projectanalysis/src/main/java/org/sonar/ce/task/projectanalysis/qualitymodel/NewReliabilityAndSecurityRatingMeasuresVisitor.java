@@ -98,11 +98,6 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   @Override
-  public void visitModule(Component module, Path<Counter> path) {
-    computeAndSaveMeasures(module, path);
-  }
-
-  @Override
   public void visitFile(Component file, Path<Counter> path) {
     computeAndSaveMeasures(file, path);
   }

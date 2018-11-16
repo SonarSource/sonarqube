@@ -26,9 +26,9 @@ import javax.annotation.CheckForNull;
 
 public interface Component {
   enum Type {
-    PROJECT(0), MODULE(1), DIRECTORY(2), FILE(3), VIEW(0), SUBVIEW(1), PROJECT_VIEW(2);
+    PROJECT(0), DIRECTORY(2), FILE(3), VIEW(0), SUBVIEW(1), PROJECT_VIEW(2);
 
-    private static final Set<Type> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
+    private static final Set<Type> REPORT_TYPES = EnumSet.of(PROJECT, DIRECTORY, FILE);
     private static final Set<Type> VIEWS_TYPES = EnumSet.of(VIEW, SUBVIEW, PROJECT_VIEW);
 
     private final int depth;

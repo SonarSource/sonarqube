@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class LoadComponentUuidsHavingOpenIssuesVisitorTest {
@@ -53,7 +52,6 @@ public class LoadComponentUuidsHavingOpenIssuesVisitorTest {
   public void do_nothing_on_not_project_level() {
     when(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues()).thenReturn(newHashSet("FILE1", "FILE2"));
 
-    underTest.visit(ReportComponent.builder(MODULE, 1).build());
     underTest.visit(ReportComponent.builder(DIRECTORY, 1).build());
     underTest.visit(ReportComponent.builder(FILE, 1).build());
 

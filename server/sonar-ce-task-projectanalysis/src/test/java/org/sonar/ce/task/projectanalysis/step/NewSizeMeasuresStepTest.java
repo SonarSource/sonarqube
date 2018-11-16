@@ -49,7 +49,6 @@ import static org.sonar.api.measures.CoreMetrics.NEW_LINES;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
@@ -58,9 +57,6 @@ public class NewSizeMeasuresStepTest {
   private static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.1d);
 
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
-  private static final int SUB_MODULE_1_REF = 123;
-  private static final int SUB_MODULE_2_REF = 126;
   private static final int DIRECTORY_REF = 1234;
   private static final int DIRECTORY_2_REF = 1235;
   private static final int FILE_1_REF = 12341;
@@ -79,19 +75,11 @@ public class NewSizeMeasuresStepTest {
     .setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, MODULE_REF)
-            .addChildren(
-              builder(MODULE, SUB_MODULE_1_REF)
-                .addChildren(
-                  builder(DIRECTORY, DIRECTORY_REF)
-                    .addChildren(FILE_1, FILE_2)
-                    .build(),
-                  builder(DIRECTORY, DIRECTORY_2_REF).build())
-                .build(),
-              builder(MODULE, SUB_MODULE_2_REF)
-                .addChildren(FILE_3, FILE_4)
-                .build())
-            .build())
+          builder(DIRECTORY, DIRECTORY_REF)
+            .addChildren(FILE_1, FILE_2)
+            .build(),
+          builder(DIRECTORY, DIRECTORY_2_REF).build(),
+          FILE_3, FILE_4)
         .build());
 
   @Rule
@@ -121,9 +109,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_LINES_KEY, 11);
     assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_LINES_KEY, 22);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_LINES_KEY);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_LINES_KEY, 22);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_LINES_KEY, 11);
-    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_LINES_KEY, 33);
     assertRawMeasureValueOnPeriod(ROOT_REF, NEW_LINES_KEY, 33);
   }
 
@@ -139,9 +124,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_LINES_KEY, 2);
     assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_LINES_KEY, 4);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_LINES_KEY);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_LINES_KEY, 4);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_LINES_KEY, 2);
-    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_LINES_KEY, 6);
     assertRawMeasureValueOnPeriod(ROOT_REF, NEW_LINES_KEY, 6);
   }
 
@@ -222,9 +204,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_DUPLICATED_LINES_KEY, 11d);
     assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_KEY);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 20d);
-    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 22d);
     assertRawMeasureValueOnPeriod(ROOT_REF, NEW_DUPLICATED_LINES_KEY, 22d);
   }
 
@@ -244,9 +223,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_KEY);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 4d);
-    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 6d);
     assertRawMeasureValueOnPeriod(ROOT_REF, NEW_DUPLICATED_LINES_KEY, 6d);
   }
 
@@ -315,9 +291,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(FILE_3_REF, NEW_BLOCKS_DUPLICATED_KEY, 0);
     assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
     assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
-    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
     assertRawMeasureValueOnPeriod(ROOT_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
   }
 
@@ -345,9 +318,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValue(FILE_4_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d);
     assertRawMeasureValue(DIRECTORY_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d);
-    assertRawMeasureValue(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d);
-    assertRawMeasureValue(MODULE_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d);
     assertRawMeasureValue(ROOT_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d);
   }
 
@@ -403,9 +373,6 @@ public class NewSizeMeasuresStepTest {
     assertRawMeasureValueOnPeriod(FILE_3_REF, metricKey, 0);
     assertRawMeasureValueOnPeriod(FILE_4_REF, metricKey, 0);
     assertRawMeasureValueOnPeriod(DIRECTORY_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod(MODULE_REF, metricKey, 0);
     assertRawMeasureValueOnPeriod(ROOT_REF, metricKey, 0);
   }
 
@@ -419,9 +386,6 @@ public class NewSizeMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasures(FILE_3_REF).get(metricKey)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(FILE_4_REF).get(metricKey)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_1_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_2_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF).get(metricKey)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
   }
 }

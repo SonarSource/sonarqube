@@ -41,7 +41,6 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -55,23 +54,19 @@ public class ReportMeasureComputersVisitorTest {
 
   private static final org.sonar.api.measures.Metric<Integer> NEW_METRIC = new org.sonar.api.measures.Metric.Builder(NEW_METRIC_KEY, NEW_METRIC_NAME,
     org.sonar.api.measures.Metric.ValueType.INT)
-      .create();
+    .create();
 
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
   private static final int DIRECTORY_REF = 123;
   private static final int FILE_1_REF = 1231;
   private static final int FILE_2_REF = 1232;
 
   private static final Component ROOT = builder(PROJECT, ROOT_REF).setKey("project")
     .addChildren(
-      builder(MODULE, MODULE_REF).setKey("module")
+      builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
         .addChildren(
-          builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
-            .addChildren(
-              builder(FILE, FILE_1_REF).setKey("file1").build(),
-              builder(FILE, FILE_2_REF).setKey("file2").build())
-            .build())
+          builder(FILE, FILE_1_REF).setKey("file1").build(),
+          builder(FILE, FILE_2_REF).setKey("file2").build())
         .build())
     .build();
 
@@ -99,8 +94,6 @@ public class ReportMeasureComputersVisitorTest {
     addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 5);
     addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 50);
     addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 7);
-    addRawMeasure(MODULE_REF, NCLOC_KEY, 50);
-    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 7);
     addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
     addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 7);
 
@@ -134,7 +127,6 @@ public class ReportMeasureComputersVisitorTest {
     assertAddedRawMeasure(12, FILE_1_REF, NEW_METRIC_KEY);
     assertAddedRawMeasure(45, FILE_2_REF, NEW_METRIC_KEY);
     assertAddedRawMeasure(57, DIRECTORY_REF, NEW_METRIC_KEY);
-    assertAddedRawMeasure(57, MODULE_REF, NEW_METRIC_KEY);
     assertAddedRawMeasure(57, ROOT_REF, NEW_METRIC_KEY);
   }
 
@@ -146,8 +138,6 @@ public class ReportMeasureComputersVisitorTest {
     addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 5);
     addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 50);
     addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 7);
-    addRawMeasure(MODULE_REF, NCLOC_KEY, 50);
-    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 7);
     addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
     addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 7);
 
@@ -159,7 +149,6 @@ public class ReportMeasureComputersVisitorTest {
     assertNoAddedRawMeasure(FILE_1_REF);
     assertNoAddedRawMeasure(FILE_2_REF);
     assertNoAddedRawMeasure(DIRECTORY_REF);
-    assertNoAddedRawMeasure(MODULE_REF);
     assertNoAddedRawMeasure(ROOT_REF);
   }
 

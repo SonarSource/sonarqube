@@ -36,10 +36,10 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toReportRef;
+import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
-  private final MapBasedRawMeasureRepository<Integer> delegate = new MapBasedRawMeasureRepository<>(toReportRef());
+  private final MapBasedRawMeasureRepository<String> delegate = new MapBasedRawMeasureRepository<>(toComponentUuid());
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
   private final BatchMeasureToMeasure batchMeasureToMeasure;
@@ -47,7 +47,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final ReportMetricValidator reportMetricValidator;
 
   private MeasureDtoToMeasure measureTransformer = new MeasureDtoToMeasure();
-  private final Set<Integer> loadedComponents = new HashSet<>();
+  private final Set<String> loadedComponents = new HashSet<>();
 
   public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository,
     ReportMetricValidator reportMetricValidator) {
@@ -108,7 +108,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   private void loadBatchMeasuresForComponent(Component component) {
-    if (loadedComponents.contains(component.getReportAttributes().getRef())) {
+    if (component.getReportAttributes().getRef() == null || loadedComponents.contains(component.getUuid())) {
       return;
     }
 
@@ -122,7 +122,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
         }
       }
     }
-    loadedComponents.add(component.getReportAttributes().getRef());
+    loadedComponents.add(component.getUuid());
   }
 
 }

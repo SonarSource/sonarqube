@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -35,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawle
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -60,14 +58,11 @@ public class ValidateProjectStep implements ComputationStep {
   private static final Joiner MESSAGES_JOINER = Joiner.on("\n  o ");
 
   private final DbClient dbClient;
-  private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder,
-    AnalysisMetadataHolder analysisMetadataHolder) {
+  public ValidateProjectStep(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
-    this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
@@ -98,10 +93,8 @@ public class ValidateProjectStep implements ComputationStep {
     private final Map<String, ComponentDto> baseModulesByKey;
     private final List<String> validationMessages = new ArrayList<>();
 
-    private Component rawProject;
-
     public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, Map<String, ComponentDto> baseModulesByKey) {
-      super(CrawlerDepthLimit.MODULE, ComponentVisitor.Order.PRE_ORDER);
+      super(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
 
@@ -110,7 +103,6 @@ public class ValidateProjectStep implements ComputationStep {
 
     @Override
     public void visitProject(Component rawProject) {
-      this.rawProject = rawProject;
       String rawProjectKey = rawProject.getDbKey();
 
       Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
@@ -124,47 +116,9 @@ public class ValidateProjectStep implements ComputationStep {
         Long lastAnalysisDate = snapshotDto.map(SnapshotDto::getCreatedAt).orElse(null);
         if (lastAnalysisDate != null && currentAnalysisDate <= lastAnalysisDate) {
           validationMessages.add(format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
-            "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
+              "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
             formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
         }
-      }
-    }
-
-    @Override
-    public void visitModule(Component rawModule) {
-      String rawProjectKey = rawProject.getDbKey();
-      String rawModuleKey = rawModule.getDbKey();
-      validateBatchKey(rawModule);
-
-      Optional<ComponentDto> baseModule = loadBaseComponent(rawModuleKey);
-      if (!baseModule.isPresent()) {
-        return;
-      }
-      validateModuleIsNotAlreadyUsedAsProject(baseModule.get(), rawProjectKey, rawModuleKey);
-      validateModuleKeyIsNotAlreadyUsedInAnotherProject(baseModule.get(), rawModuleKey);
-    }
-
-    private void validateModuleIsNotAlreadyUsedAsProject(ComponentDto baseModule, String rawProjectKey, String rawModuleKey) {
-      if (baseModule.projectUuid().equals(baseModule.uuid())) {
-        // module is actually a project
-        validationMessages.add(format("The project \"%s\" is already defined in SonarQube but not as a module of project \"%s\". "
-          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
-          rawModuleKey, rawProjectKey, rawModuleKey, rawProjectKey));
-      }
-    }
-
-    private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey) {
-      if (!baseModule.projectUuid().equals(baseModule.uuid()) && !baseModule.projectUuid().equals(rawProject.getUuid())) {
-        ComponentDto projectModule = componentDao.selectOrFailByUuid(session, baseModule.projectUuid());
-        validationMessages.add(format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.getDbKey()));
-      }
-    }
-
-    private void validateBatchKey(Component rawComponent) {
-      String batchKey = reportReader.readComponent(rawComponent.getReportAttributes().getRef()).getKey();
-      if (!ComponentKeys.isValidModuleKey(batchKey)) {
-        validationMessages.add(format("\"%s\" is not a valid project or module key. "
-          + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", batchKey));
       }
     }
 

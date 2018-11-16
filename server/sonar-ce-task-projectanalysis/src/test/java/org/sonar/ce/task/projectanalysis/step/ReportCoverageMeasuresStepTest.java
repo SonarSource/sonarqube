@@ -34,7 +34,6 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -43,8 +42,6 @@ import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntri
 
 public class ReportCoverageMeasuresStepTest {
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
-  private static final int SUB_MODULE_REF = 123;
   private static final int DIRECTORY_REF = 1234;
   private static final int FILE_1_REF = 12341;
   private static final int UNIT_TEST_FILE_REF = 12342;
@@ -72,17 +69,11 @@ public class ReportCoverageMeasuresStepTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, MODULE_REF)
+          builder(DIRECTORY, DIRECTORY_REF)
             .addChildren(
-              builder(MODULE, SUB_MODULE_REF)
-                .addChildren(
-                  builder(DIRECTORY, DIRECTORY_REF)
-                    .addChildren(
-                      builder(FILE, FILE_1_REF).build(),
-                      builder(FILE, UNIT_TEST_FILE_REF).setFileAttributes(new FileAttributes(true, "some language", 1)).build(),
-                      builder(FILE, FILE_2_REF).build())
-                    .build())
-                .build())
+              builder(FILE, FILE_1_REF).build(),
+              builder(FILE, UNIT_TEST_FILE_REF).setFileAttributes(new FileAttributes(true, "some language", 1)).build(),
+              builder(FILE, FILE_2_REF).build())
             .build())
         .build());
   }
@@ -117,8 +108,6 @@ public class ReportCoverageMeasuresStepTest {
     };
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(nonFileRepoEntries);
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(nonFileRepoEntries);
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(nonFileRepoEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(nonFileRepoEntries);
   }
 
@@ -165,8 +154,6 @@ public class ReportCoverageMeasuresStepTest {
     };
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(nonFileRepoEntries);
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(nonFileRepoEntries);
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(nonFileRepoEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(nonFileRepoEntries);
   }
 

@@ -45,7 +45,6 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -56,8 +55,6 @@ public class ReportSizeMeasuresStepTest {
 
   private static final String LANGUAGE_DOES_NOT_MATTER_HERE = null;
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
-  private static final int SUB_MODULE_REF = 123;
   private static final int DIRECTORY_1_REF = 1234;
   private static final int DIRECTORY_2_REF = 1235;
   private static final int DIRECTORY_3_REF = 1236;
@@ -72,25 +69,19 @@ public class ReportSizeMeasuresStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(
     builder(PROJECT, ROOT_REF)
       .addChildren(
-        builder(MODULE, MODULE_REF)
+        builder(DIRECTORY, DIRECTORY_1_REF)
           .addChildren(
-            builder(MODULE, SUB_MODULE_REF)
-              .addChildren(
-                builder(DIRECTORY, DIRECTORY_1_REF)
-                  .addChildren(
-                    builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 1)).build(),
-                    builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 2)).build())
-                  .build(),
-                builder(DIRECTORY, DIRECTORY_2_REF)
-                  .addChildren(
-                    builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 7)).build(),
-                    builder(FILE, UNIT_TEST_1_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 4)).build())
-                  .build(),
-                builder(DIRECTORY, DIRECTORY_3_REF)
-                  .addChildren(
-                    builder(FILE, UNIT_TEST_2_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 10)).build())
-                  .build())
-              .build())
+            builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 1)).build(),
+            builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 2)).build())
+          .build(),
+        builder(DIRECTORY, DIRECTORY_2_REF)
+          .addChildren(
+            builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 7)).build(),
+            builder(FILE, UNIT_TEST_1_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 4)).build())
+          .build(),
+        builder(DIRECTORY, DIRECTORY_3_REF)
+          .addChildren(
+            builder(FILE, UNIT_TEST_2_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 10)).build())
           .build())
       .build());
   @Rule
@@ -121,8 +112,6 @@ public class ReportSizeMeasuresStepTest {
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 3, 2, 1);
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 7, 1, 1);
     verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 10, 3, 2);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 10, 3, 2);
     verifyMeasuresOnOtherComponent(ROOT_REF, 10, 3, 2);
   }
 
@@ -151,8 +140,6 @@ public class ReportSizeMeasuresStepTest {
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 3, 2, 1, entryOf(metricKey, newMeasureBuilder().create(16)));
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 7, 1, 1, entryOf(metricKey, newMeasureBuilder().create(3)));
     verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 10, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(MODULE_REF, 10, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
     verifyMeasuresOnOtherComponent(ROOT_REF, 10, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
   }
 
@@ -181,8 +168,6 @@ public class ReportSizeMeasuresStepTest {
       entryOf(metric2Key, newMeasureBuilder().create(100))
     };
     verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 10, 3, 2, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 10, 3, 2, subModuleAndAboveEntries);
     verifyMeasuresOnOtherComponent(ROOT_REF, 10, 3, 2, subModuleAndAboveEntries);
   }
 
@@ -218,7 +203,7 @@ public class ReportSizeMeasuresStepTest {
     return from(concat(
       asList(otherMeasures),
       from(asList(measureRepoEntries)).filter(notNull())))
-        .toArray(MeasureRepoEntry.class);
+      .toArray(MeasureRepoEntry.class);
   }
 
   private void verifyNoMeasure(int componentRef) {

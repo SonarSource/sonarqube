@@ -101,11 +101,6 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void visitModule(Component module) {
-      persistMeasures(module);
-    }
-
-    @Override
     public void visitDirectory(Component directory) {
       if (persistDirectories) {
         persistMeasures(directory);

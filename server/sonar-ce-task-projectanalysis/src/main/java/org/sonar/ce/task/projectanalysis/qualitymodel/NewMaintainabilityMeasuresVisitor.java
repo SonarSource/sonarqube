@@ -92,12 +92,6 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   @Override
-  public void visitModule(Component module, Path<Counter> path) {
-    computeAndSaveNewDebtRatioMeasure(module, path);
-    increaseNewDebtAndDevCostOfParent(path);
-  }
-
-  @Override
   public void visitDirectory(Component directory, Path<Counter> path) {
     computeAndSaveNewDebtRatioMeasure(directory, path);
     increaseNewDebtAndDevCostOfParent(path);

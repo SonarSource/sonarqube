@@ -28,16 +28,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class EventRepositoryImpl implements EventRepository {
-  private final Multimap<Integer, Event> events = HashMultimap.create();
+  private final Multimap<String, Event> events = HashMultimap.create();
 
   @Override
   public void add(Component component, Event event) {
     checkArgument(component.getType() == Component.Type.PROJECT, "Component must be of type PROJECT");
-    events.put(component.getReportAttributes().getRef(), requireNonNull(event));
+    events.put(component.getUuid(), requireNonNull(event));
   }
 
   @Override
   public Iterable<Event> getEvents(Component component) {
-    return this.events.get(component.getReportAttributes().getRef());
+    return this.events.get(component.getUuid());
   }
 }

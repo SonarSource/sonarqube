@@ -41,7 +41,6 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -51,30 +50,22 @@ import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class ReportFormulaExecutorComponentVisitorTest {
   private static final int ROOT_REF = 1;
-  private static final int MODULE_1_REF = 11;
   private static final int DIRECTORY_1_REF = 111;
   private static final int FILE_1_REF = 1111;
   private static final int FILE_2_REF = 1112;
-  private static final int MODULE_2_REF = 12;
   private static final int DIRECTORY_2_REF = 121;
   private static final int FILE_3_REF = 1211;
 
   private static final ReportComponent BALANCED_COMPONENT_TREE = ReportComponent.builder(PROJECT, ROOT_REF)
     .addChildren(
-      ReportComponent.builder(MODULE, MODULE_1_REF)
+      ReportComponent.builder(DIRECTORY, DIRECTORY_1_REF)
         .addChildren(
-          ReportComponent.builder(DIRECTORY, DIRECTORY_1_REF)
-            .addChildren(
-              builder(Component.Type.FILE, FILE_1_REF).build(),
-              builder(Component.Type.FILE, FILE_2_REF).build())
-            .build())
+          builder(Component.Type.FILE, FILE_1_REF).build(),
+          builder(Component.Type.FILE, FILE_2_REF).build())
         .build(),
-      ReportComponent.builder(MODULE, MODULE_2_REF)
+      ReportComponent.builder(DIRECTORY, DIRECTORY_2_REF)
         .addChildren(
-          ReportComponent.builder(DIRECTORY, DIRECTORY_2_REF)
-            .addChildren(
-              builder(Component.Type.FILE, FILE_3_REF).build())
-            .build())
+          builder(Component.Type.FILE, FILE_3_REF).build())
         .build())
     .build();
 
@@ -103,11 +94,9 @@ public class ReportFormulaExecutorComponentVisitorTest {
       .visit(BALANCED_COMPONENT_TREE);
 
     assertAddedRawMeasure(ROOT_REF, 20);
-    assertAddedRawMeasure(MODULE_1_REF, 18);
     assertAddedRawMeasure(111, 18);
     assertAddedRawMeasure(FILE_1_REF, 10);
     assertAddedRawMeasure(FILE_2_REF, 8);
-    assertAddedRawMeasure(MODULE_2_REF, 2);
     assertAddedRawMeasure(DIRECTORY_2_REF, 2);
     assertAddedRawMeasure(FILE_3_REF, 2);
   }
@@ -126,9 +115,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(30)),
       entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(120)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_1_REF))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
-      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(118)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
       entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(118)));
@@ -138,14 +124,11 @@ public class ReportFormulaExecutorComponentVisitorTest {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(18)),
       entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(108)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_2_REF))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
-      entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(102)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_2_REF))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
+      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
       entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(102)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_3_REF))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
+      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
       entryOf(NEW_COVERAGE_KEY, newMeasureBuilder().create(102)));
   }
 
@@ -161,11 +144,9 @@ public class ReportFormulaExecutorComponentVisitorTest {
       .visit(BALANCED_COMPONENT_TREE);
 
     assertAddedRawMeasureVariation(ROOT_REF, 20);
-    assertAddedRawMeasureVariation(MODULE_1_REF, 18);
     assertAddedRawMeasureVariation(DIRECTORY_1_REF, 18);
     assertAddedRawMeasureVariation(FILE_1_REF, 10);
     assertAddedRawMeasureVariation(FILE_2_REF, 8);
-    assertAddedRawMeasureVariation(MODULE_2_REF, 2);
     assertAddedRawMeasureVariation(DIRECTORY_2_REF, 2);
     assertAddedRawMeasureVariation(FILE_3_REF, 2);
   }
@@ -174,12 +155,9 @@ public class ReportFormulaExecutorComponentVisitorTest {
   public void measures_are_0_when_there_is_no_input_measure() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
-        ReportComponent.builder(MODULE, MODULE_1_REF)
+        ReportComponent.builder(DIRECTORY, DIRECTORY_1_REF)
           .addChildren(
-            ReportComponent.builder(DIRECTORY, DIRECTORY_1_REF)
-              .addChildren(
-                builder(Component.Type.FILE, FILE_1_REF).build())
-              .build())
+            builder(Component.Type.FILE, FILE_1_REF).build())
           .build())
       .build();
     treeRootHolder.setRoot(project);
@@ -188,7 +166,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
       .visit(project);
 
     assertAddedRawMeasure(ROOT_REF, 0);
-    assertAddedRawMeasure(MODULE_1_REF, 0);
     assertAddedRawMeasure(DIRECTORY_1_REF, 0);
     assertAddedRawMeasure(FILE_1_REF, 0);
   }
@@ -197,17 +174,13 @@ public class ReportFormulaExecutorComponentVisitorTest {
   public void add_measure_even_when_leaf_is_not_FILE() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
-        ReportComponent.builder(MODULE, MODULE_1_REF)
-          .addChildren(
-            ReportComponent.builder(DIRECTORY, 111).build())
-          .build())
+        ReportComponent.builder(DIRECTORY, 111).build())
       .build();
     treeRootHolder.setRoot(project);
 
     new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
       .visit(project);
 
-    assertAddedRawMeasure(MODULE_1_REF, 0);
     assertAddedRawMeasure(DIRECTORY_1_REF, 0);
   }
 
@@ -264,25 +237,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
 
     expectedException.expectCause(hasType(UnsupportedOperationException.class)
       .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
-
-    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
-      .visit(root);
-  }
-
-  @Test
-  public void fail_on_project_containing_module_without_children_already_having_computed_measure() {
-    ReportComponent root = builder(PROJECT, ROOT_REF)
-      .addChildren(
-        ReportComponent.builder(MODULE, MODULE_1_REF).build(),
-        builder(Component.Type.FILE, FILE_1_REF).build())
-      .build();
-    treeRootHolder.setRoot(root);
-    measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
-    // Ncloc is already computed on module
-    measureRepository.addRawMeasure(MODULE_1_REF, NCLOC_KEY, newMeasureBuilder().create(3));
-
-    expectedException.expectCause(hasType(UnsupportedOperationException.class)
-      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", MODULE_1_REF, NCLOC_KEY)));
 
     new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
       .visit(root);

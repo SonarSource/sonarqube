@@ -44,7 +44,6 @@ import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class ComputeQProfileMeasureStepTest {
@@ -56,8 +55,6 @@ public class ComputeQProfileMeasureStepTest {
 
   private static final String PROJECT_KEY = "PROJECT KEY";
   private static final int PROJECT_REF = 1;
-  private static final int MODULE_REF = 11;
-  private static final int SUB_MODULE_REF = 111;
   private static final int FOLDER_1_REF = 1111;
   private static final int FOLDER_2_REF = 1112;
   private static final int FILE_1_1_REF = 11111;
@@ -66,21 +63,15 @@ public class ComputeQProfileMeasureStepTest {
   private static final int FILE_2_2_REF = 11122;
 
   private static final Component MULTI_MODULE_PROJECT = ReportComponent.builder(PROJECT, PROJECT_REF).setKey(PROJECT_KEY)
-    .addChildren(
-      ReportComponent.builder(MODULE, MODULE_REF)
+    .addChildren(ReportComponent.builder(DIRECTORY, FOLDER_1_REF)
         .addChildren(
-          ReportComponent.builder(MODULE, SUB_MODULE_REF)
-            .addChildren(ReportComponent.builder(DIRECTORY, FOLDER_1_REF)
-              .addChildren(
-                ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build(),
-                ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build())
-              .build(),
-              ReportComponent.builder(DIRECTORY, FOLDER_2_REF)
-                .addChildren(
-                  ReportComponent.builder(FILE, FILE_2_1_REF).setFileAttributes(new FileAttributes(false, null, 1)).build(),
-                  ReportComponent.builder(FILE, FILE_2_2_REF).setFileAttributes(new FileAttributes(false, "php", 1)).build())
-                .build())
-            .build())
+          ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build(),
+          ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build())
+        .build(),
+      ReportComponent.builder(DIRECTORY, FOLDER_2_REF)
+        .addChildren(
+          ReportComponent.builder(FILE, FILE_2_1_REF).setFileAttributes(new FileAttributes(false, null, 1)).build(),
+          ReportComponent.builder(FILE, FILE_2_2_REF).setFileAttributes(new FileAttributes(false, "php", 1)).build())
         .build())
     .build();
 

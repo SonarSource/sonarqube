@@ -33,9 +33,8 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 
 public class MutableMovedFilesRepositoryImplTest {
   private static final Component SOME_FILE = builder(Component.Type.FILE, 1).build();
-  private static final Component[] COMPONENTS_BUT_FILE = {
+  private static final Component[] COMPONENTS_EXCEPT_FILE = {
     builder(Component.Type.PROJECT, 1).build(),
-    builder(Component.Type.MODULE, 1).build(),
     builder(Component.Type.DIRECTORY, 1).build(),
     ViewsComponent.builder(Component.Type.VIEW, 1).build(),
     ViewsComponent.builder(Component.Type.SUBVIEW, 1).build(),
@@ -66,7 +65,7 @@ public class MutableMovedFilesRepositoryImplTest {
 
   @Test
   public void setOriginalFile_throws_IAE_when_type_is_no_FILE() {
-    for (Component component : COMPONENTS_BUT_FILE) {
+    for (Component component : COMPONENTS_EXCEPT_FILE) {
       try {
         underTest.setOriginalFile(component, SOME_ORIGINAL_FILE);
         fail("should have raised a NPE");
@@ -115,7 +114,7 @@ public class MutableMovedFilesRepositoryImplTest {
   @Test
   public void getOriginalFile_returns_absent_for_any_component_type_when_empty() {
     assertThat(underTest.getOriginalFile(SOME_FILE)).isAbsent();
-    for (Component component : COMPONENTS_BUT_FILE) {
+    for (Component component : COMPONENTS_EXCEPT_FILE) {
       assertThat(underTest.getOriginalFile(component)).isAbsent();
     }
   }
@@ -124,7 +123,7 @@ public class MutableMovedFilesRepositoryImplTest {
   public void getOriginalFile_returns_absent_for_any_type_of_Component_but_file_when_non_empty() {
     underTest.setOriginalFile(SOME_FILE, SOME_ORIGINAL_FILE);
 
-    for (Component component : COMPONENTS_BUT_FILE) {
+    for (Component component : COMPONENTS_EXCEPT_FILE) {
       assertThat(underTest.getOriginalFile(component)).isAbsent();
     }
     assertThat(underTest.getOriginalFile(SOME_FILE)).contains(SOME_ORIGINAL_FILE);

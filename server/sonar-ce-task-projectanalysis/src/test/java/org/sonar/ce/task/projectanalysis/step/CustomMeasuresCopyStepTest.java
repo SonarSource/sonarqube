@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -56,17 +55,11 @@ import static org.sonar.ce.task.projectanalysis.step.CustomMeasuresCopyStep.dtoT
 public class CustomMeasuresCopyStepTest {
 
   private static final int PROJECT_REF = 1;
-  private static final int MODULE_REF = 11;
-  private static final int MODULE2_REF = 12;
-  private static final int SUB_MODULE_REF = 111;
   private static final int DIR_REF = 1111;
   private static final int FILE1_REF = 11111;
   private static final int FILE2_REF = 11112;
 
   private static final String PROJECT_UUID = "PROJECT";
-  private static final String MODULE_UUID = "MODULE";
-  private static final String MODULE2_UUID = "MODULE2";
-  private static final String SUB_MODULE_UUID = "SUB_MODULE";
   private static final String DIR_UUID = "DIR";
   private static final String FILE1_UUID = "FILE1";
   private static final String FILE2_UUID = "FILE2";
@@ -106,26 +99,17 @@ public class CustomMeasuresCopyStepTest {
   public void copy_custom_measures_on_report() {
     insertCustomMeasure(FILE1_UUID, FLOAT_METRIC, 3.14);
     insertCustomMeasure(DIR_UUID, FLOAT_METRIC, 123d);
-    insertCustomMeasure(SUB_MODULE_UUID, STRING_METRIC, "sub-module");
-    insertCustomMeasure(MODULE_UUID, STRING_METRIC, "module");
     insertCustomMeasure(PROJECT_UUID, STRING_METRIC, "project");
     // Module2 has no custom measure
 
     treeRootHolder.setRoot(
       builder(PROJECT, PROJECT_REF).setUuid(PROJECT_UUID)
         .addChildren(
-          ReportComponent.builder(MODULE, MODULE_REF).setUuid(MODULE_UUID)
+          ReportComponent.builder(DIRECTORY, DIR_REF).setUuid(DIR_UUID)
             .addChildren(
-              ReportComponent.builder(MODULE, SUB_MODULE_REF).setUuid(SUB_MODULE_UUID)
-                .addChildren(
-                  ReportComponent.builder(DIRECTORY, DIR_REF).setUuid(DIR_UUID)
-                    .addChildren(
-                      ReportComponent.builder(FILE, FILE1_REF).setUuid(FILE1_UUID).build(),
-                      ReportComponent.builder(FILE, FILE2_REF).setUuid(FILE2_UUID).build())
-                    .build())
-                .build())
-            .build(),
-          ReportComponent.builder(MODULE, MODULE2_REF).setUuid(MODULE2_UUID).build())
+              ReportComponent.builder(FILE, FILE1_REF).setUuid(FILE1_UUID).build(),
+              ReportComponent.builder(FILE, FILE2_REF).setUuid(FILE2_UUID).build())
+            .build())
         .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -133,10 +117,7 @@ public class CustomMeasuresCopyStepTest {
     assertNoRawMeasureValue(FILE1_REF);
     assertNoRawMeasureValue(FILE2_REF);
     assertNoRawMeasureValue(DIR_REF);
-    assertRawMeasureValue(SUB_MODULE_REF, STRING_METRIC.getKey(), "sub-module");
-    assertRawMeasureValue(MODULE_REF, STRING_METRIC.getKey(), "module");
     assertRawMeasureValue(PROJECT_REF, STRING_METRIC.getKey(), "project");
-    assertNoRawMeasureValue(MODULE2_REF);
 
   }
 

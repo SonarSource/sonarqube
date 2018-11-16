@@ -47,7 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.db.event.EventDto.CATEGORY_ALERT;
@@ -61,7 +60,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     .setUuid("ABCD")
     .setProjectVersion("version_1")
     .addChildren(
-      builder(MODULE, 2)
+      builder(DIRECTORY, 2)
         .setUuid("BCDE")
         .addChildren(
           builder(DIRECTORY, 3)
@@ -110,7 +109,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setUuid("ABCD")
       .setProjectVersion("1.0")
       .addChildren(
-        builder(MODULE, 2)
+        builder(DIRECTORY, 2)
           .setUuid("BCDE")
           .addChildren(
             builder(DIRECTORY, 3)
@@ -200,7 +199,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setUuid(projectDto.uuid())
       .setProjectVersion("1.5-SNAPSHOT")
       .addChildren(
-        builder(MODULE, 2)
+        builder(DIRECTORY, 2)
           .setUuid("BCDE")
           .addChildren(
             builder(DIRECTORY, 3)

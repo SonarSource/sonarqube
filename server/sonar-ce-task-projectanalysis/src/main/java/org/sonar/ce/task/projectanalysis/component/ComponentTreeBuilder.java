@@ -19,11 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
@@ -62,6 +68,9 @@ public class ComponentTreeBuilder {
   @Nullable
   private final SnapshotDto baseAnalysis;
 
+  private ScannerReport.Component rootComponent;
+  private String scmBasePath;
+
   public ComponentTreeBuilder(
     ComponentKeyGenerator keyGenerator,
     ComponentKeyGenerator publicKeyGenerator,
@@ -80,69 +89,147 @@ public class ComponentTreeBuilder {
   }
 
   public Component buildProject(ScannerReport.Component project, String scmBasePath) {
-    return buildComponent(project, project, trimToNull(scmBasePath));
+    this.rootComponent = project;
+    this.scmBasePath = trimToNull(scmBasePath);
+
+    Node root = buildFolderHierarchy(project);
+    return buildNode(root, "");
   }
 
-  private List<Component> buildChildren(ScannerReport.Component component, ScannerReport.Component parentModule,
-    String projectScmPath) {
-    return component.getChildRefList()
+  private Node buildFolderHierarchy(ScannerReport.Component rootComponent) {
+    Preconditions.checkArgument(rootComponent.getType() == ScannerReport.Component.ComponentType.PROJECT, "Expected root component of type 'PROJECT'");
+
+    LinkedList<ScannerReport.Component> queue = new LinkedList<>();
+    rootComponent.getChildRefList()
       .stream()
-      .map(scannerComponentSupplier::apply)
-      .map(c -> buildComponent(c, parentModule, projectScmPath))
-      .collect(MoreCollectors.toList(component.getChildRefCount()));
+      .map(scannerComponentSupplier)
+      .forEach(queue::addLast);
+
+    Node root = new Node();
+    root.reportComponent = rootComponent;
+
+    while (!queue.isEmpty()) {
+      ScannerReport.Component component = queue.removeFirst();
+      switch (component.getType()) {
+        case FILE:
+          addFileOrDirectory(root, component);
+          break;
+        case MODULE:
+
+          component.getChildRefList().stream()
+            .map(scannerComponentSupplier)
+            .forEach(queue::addLast);
+          break;
+        case DIRECTORY:
+          addFileOrDirectory(root, component);
+          component.getChildRefList().stream()
+            .map(scannerComponentSupplier)
+            .forEach(queue::addLast);
+          break;
+        default:
+          throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
+      }
+    }
+    return root;
   }
 
-  private ComponentImpl buildComponent(ScannerReport.Component component, ScannerReport.Component closestModule,
-    @Nullable String scmBasePath) {
-    switch (component.getType()) {
-      case PROJECT:
-        String projectKey = keyGenerator.generateKey(component, null);
-        String uuid = uuidSupplier.apply(projectKey);
-        String projectPublicKey = publicKeyGenerator.generateKey(component, null);
-        ComponentImpl.Builder builder = ComponentImpl.builder(Component.Type.PROJECT)
-          .setUuid(uuid)
-          .setDbKey(projectKey)
-          .setKey(projectPublicKey)
-          .setStatus(convertStatus(component.getStatus()))
-          .setProjectAttributes(new ProjectAttributes(createProjectVersion(component)))
-          .setReportAttributes(createAttributesBuilder(component, scmBasePath).build())
-          .addChildren(buildChildren(component, component, scmBasePath));
-        setNameAndDescription(component, builder);
-        return builder.build();
+  private static void addFileOrDirectory(Node root, ScannerReport.Component file) {
+    Preconditions.checkArgument(file.getType() != ScannerReport.Component.ComponentType.FILE || !StringUtils.isEmpty(file.getProjectRelativePath()),
+      "Files should have a relative path: " + file);
+    String[] split = StringUtils.split(file.getProjectRelativePath(), '/');
+    Node currentNode = root.children().computeIfAbsent("", k -> new Node());
 
-      case MODULE:
-        String moduleKey = keyGenerator.generateKey(component, null);
-        String modulePublicKey = publicKeyGenerator.generateKey(component, null);
-        return ComponentImpl.builder(Component.Type.MODULE)
-          .setUuid(uuidSupplier.apply(moduleKey))
-          .setDbKey(moduleKey)
-          .setKey(modulePublicKey)
-          .setName(nameOfOthers(component, modulePublicKey))
-          .setStatus(convertStatus(component.getStatus()))
-          .setDescription(trimToNull(component.getDescription()))
-          .setReportAttributes(createAttributesBuilder(component, scmBasePath).build())
-          .addChildren(buildChildren(component, component, scmBasePath))
-          .build();
-
-      case DIRECTORY:
-      case FILE:
-        String key = keyGenerator.generateKey(closestModule, component);
-        String publicKey = publicKeyGenerator.generateKey(closestModule, component);
-        return ComponentImpl.builder(convertDirOrFileType(component.getType()))
-          .setUuid(uuidSupplier.apply(key))
-          .setDbKey(key)
-          .setKey(publicKey)
-          .setName(nameOfOthers(component, publicKey))
-          .setStatus(convertStatus(component.getStatus()))
-          .setDescription(trimToNull(component.getDescription()))
-          .setReportAttributes(createAttributesBuilder(component, scmBasePath).build())
-          .setFileAttributes(createFileAttributes(component))
-          .addChildren(buildChildren(component, closestModule, scmBasePath))
-          .build();
-
-      default:
-        throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
+    for (int i = 0; i < split.length; i++) {
+      currentNode = currentNode.children().computeIfAbsent(split[i], k -> new Node());
     }
+    currentNode.reportComponent = file;
+  }
+
+  private Component buildNode(Node node, String currentPath) {
+    List<Component> childComponents = buildChildren(node, currentPath);
+    ScannerReport.Component component = node.reportComponent();
+
+    if (component != null) {
+      if (component.getType() == ScannerReport.Component.ComponentType.FILE) {
+        return buildFile(component);
+      } else if (component.getType() == ScannerReport.Component.ComponentType.PROJECT) {
+        return buildProject(childComponents);
+      }
+    }
+
+    return buildDirectory(currentPath, component, childComponents);
+  }
+
+  private List<Component> buildChildren(Node node, String currentPath) {
+    List<Component> children = new ArrayList<>();
+
+    for (Map.Entry<String, Node> e : node.children().entrySet()) {
+      String path = buildPath(currentPath, e.getKey());
+      Node n = e.getValue();
+
+      while (n.children().size() == 1 && n.children().values().iterator().next().children().size() > 0) {
+        Map.Entry<String, Node> childEntry = n.children().entrySet().iterator().next();
+        path = buildPath(path, childEntry.getKey());
+        n = childEntry.getValue();
+      }
+      children.add(buildNode(n, path));
+    }
+    return children;
+  }
+
+  private static String buildPath(String currentPath, String file) {
+    if (currentPath.isEmpty()) {
+      return file;
+    }
+    return currentPath + "/" + file;
+  }
+
+  private Component buildProject(List<Component> children) {
+    String projectKey = keyGenerator.generateKey(rootComponent, null);
+    String uuid = uuidSupplier.apply(projectKey);
+    String projectPublicKey = publicKeyGenerator.generateKey(rootComponent, null);
+    ComponentImpl.Builder builder = ComponentImpl.builder(Component.Type.PROJECT)
+      .setUuid(uuid)
+      .setDbKey(projectKey)
+      .setKey(projectPublicKey)
+      .setStatus(convertStatus(rootComponent.getStatus()))
+      .setProjectAttributes(new ProjectAttributes(createProjectVersion(rootComponent)))
+      .setReportAttributes(createAttributesBuilder(rootComponent.getRef(), rootComponent.getProjectRelativePath(), scmBasePath,
+        rootComponent.getProjectRelativePath()).build())
+      .addChildren(children);
+    setNameAndDescription(rootComponent, builder);
+    return builder.build();
+  }
+
+  private ComponentImpl buildFile(ScannerReport.Component component) {
+    String key = keyGenerator.generateKey(rootComponent, component.getProjectRelativePath());
+    String publicKey = publicKeyGenerator.generateKey(rootComponent, component.getProjectRelativePath());
+    return ComponentImpl.builder(Component.Type.FILE)
+      .setUuid(uuidSupplier.apply(key))
+      .setDbKey(key)
+      .setKey(publicKey)
+      .setName(nameOfOthers(component, publicKey))
+      .setStatus(convertStatus(component.getStatus()))
+      .setDescription(trimToNull(component.getDescription()))
+      .setReportAttributes(createAttributesBuilder(component.getRef(), component.getProjectRelativePath(), scmBasePath, component.getProjectRelativePath()).build())
+      .setFileAttributes(createFileAttributes(component))
+      .build();
+  }
+
+  private ComponentImpl buildDirectory(String path, @Nullable ScannerReport.Component scannerComponent, List<Component> children) {
+    String nonEmptyPath = path.isEmpty() ? "/" : path;
+    String key = keyGenerator.generateKey(rootComponent, nonEmptyPath);
+    String publicKey = publicKeyGenerator.generateKey(rootComponent, nonEmptyPath);
+    Integer ref = scannerComponent != null ? scannerComponent.getRef() : null;
+    return ComponentImpl.builder(Component.Type.DIRECTORY)
+      .setUuid(uuidSupplier.apply(key))
+      .setDbKey(key)
+      .setKey(publicKey)
+      .setName(publicKey)
+      .setStatus(convertStatus(FileStatus.UNAVAILABLE))
+      .setReportAttributes(createAttributesBuilder(ref, nonEmptyPath, scmBasePath, path).build())
+      .addChildren(children)
+      .build();
   }
 
   public Component buildChangedComponentTreeRoot(Component project) {
@@ -165,11 +252,8 @@ public class ComponentTreeBuilder {
     switch (component.getType()) {
       case PROJECT:
         return buildChangedProject(component);
-
-      case MODULE:
       case DIRECTORY:
         return buildChangedIntermediate(component);
-
       case FILE:
         return buildChangedFile(component);
 
@@ -266,10 +350,10 @@ public class ComponentTreeBuilder {
     return DEFAULT_PROJECT_VERSION;
   }
 
-  private static ReportAttributes.Builder createAttributesBuilder(ScannerReport.Component component, @Nullable String scmBasePath) {
-    return ReportAttributes.newBuilder(component.getRef())
-      .setPath(trimToNull(component.getPath()))
-      .setScmPath(computeScmPath(scmBasePath, component.getProjectRelativePath()));
+  private static ReportAttributes.Builder createAttributesBuilder(@Nullable Integer ref, String path, @Nullable String scmBasePath, String scmRelativePath) {
+    return ReportAttributes.newBuilder(ref)
+      .setPath(trimToNull(path))
+      .setScmPath(computeScmPath(scmBasePath, scmRelativePath));
   }
 
   @CheckForNull
@@ -280,30 +364,30 @@ public class ComponentTreeBuilder {
     if (scmBasePath == null) {
       return scmRelativePath;
     }
+
     return scmBasePath + '/' + scmRelativePath;
   }
 
-  @CheckForNull
   private static FileAttributes createFileAttributes(ScannerReport.Component component) {
-    if (component.getType() != ScannerReport.Component.ComponentType.FILE) {
-      return null;
-    }
-
-    checkArgument(component.getLines() > 0, "File '%s' has no line", component.getPath());
+    checkArgument(component.getType() == ScannerReport.Component.ComponentType.FILE);
+    checkArgument(component.getLines() > 0, "File '%s' has no line", component.getProjectRelativePath());
     return new FileAttributes(
       component.getIsTest(),
       trimToNull(component.getLanguage()),
       component.getLines());
   }
 
-  private static Component.Type convertDirOrFileType(ScannerReport.Component.ComponentType type) {
-    switch (type) {
-      case DIRECTORY:
-        return Component.Type.DIRECTORY;
-      case FILE:
-        return Component.Type.FILE;
-      default:
-        throw new IllegalArgumentException("Unsupported ComponentType value " + type);
+  private static class Node {
+    private final Map<String, Node> children = new LinkedHashMap<>();
+    private ScannerReport.Component reportComponent;
+
+    private Map<String, Node> children() {
+      return children;
+    }
+
+    @CheckForNull
+    private ScannerReport.Component reportComponent() {
+      return reportComponent;
     }
   }
 }

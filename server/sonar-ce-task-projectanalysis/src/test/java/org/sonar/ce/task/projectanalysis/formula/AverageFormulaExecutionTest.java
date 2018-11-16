@@ -38,7 +38,6 @@ import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -76,20 +75,14 @@ public class AverageFormulaExecutionTest {
   public void add_measures() {
     ReportComponent project = builder(PROJECT, 1)
       .addChildren(
-        builder(MODULE, 11)
+        builder(DIRECTORY, 111)
           .addChildren(
-            builder(DIRECTORY, 111)
-              .addChildren(
-                builder(Component.Type.FILE, 1111).build(),
-                builder(Component.Type.FILE, 1112).build())
-              .build())
+            builder(Component.Type.FILE, 1111).build(),
+            builder(Component.Type.FILE, 1112).build())
           .build(),
-        builder(MODULE, 12)
+        builder(DIRECTORY, 121)
           .addChildren(
-            builder(DIRECTORY, 121)
-              .addChildren(
-                builder(Component.Type.FILE, 1211).build())
-              .build())
+            builder(Component.Type.FILE, 1211).build())
           .build())
       .build();
 
@@ -107,11 +100,9 @@ public class AverageFormulaExecutionTest {
     new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(3d, 1)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2.5d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(1d, 1)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d, 1)));
   }
@@ -120,12 +111,9 @@ public class AverageFormulaExecutionTest {
   public void not_add_measures_when_no_data_on_file() {
     ReportComponent project = builder(PROJECT, 1)
       .addChildren(
-        builder(MODULE, 11)
+        builder(DIRECTORY, 111)
           .addChildren(
-            builder(DIRECTORY, 111)
-              .addChildren(
-                builder(Component.Type.FILE, 1111).build())
-              .build())
+            builder(Component.Type.FILE, 1111).build())
           .build())
       .build();
 
@@ -134,7 +122,6 @@ public class AverageFormulaExecutionTest {
     new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
   }

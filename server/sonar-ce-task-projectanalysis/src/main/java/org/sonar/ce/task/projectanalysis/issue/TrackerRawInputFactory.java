@@ -103,6 +103,11 @@ public class TrackerRawInputFactory {
           result.add(init(commonRuleIssue));
         }
       }
+
+      if (component.getReportAttributes().getRef() == null) {
+        return result;
+      }
+
       try (CloseableIterator<ScannerReport.Issue> reportIssues = reportReader.readComponentIssues(component.getReportAttributes().getRef())) {
         // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
         // as late as possible

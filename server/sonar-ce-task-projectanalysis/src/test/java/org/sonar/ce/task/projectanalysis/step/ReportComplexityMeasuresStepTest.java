@@ -57,7 +57,6 @@ import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTIO
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -67,8 +66,6 @@ import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntri
 public class ReportComplexityMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 11;
-  private static final int SUB_MODULE_REF = 111;
   private static final int DIRECTORY_REF = 1111;
   private static final int FILE_1_REF = 11111;
   private static final int FILE_2_REF = 11121;
@@ -79,16 +76,10 @@ public class ReportComplexityMeasuresStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(builder(PROJECT, ROOT_REF)
       .addChildren(
-        builder(MODULE, MODULE_REF)
+        builder(DIRECTORY, DIRECTORY_REF)
           .addChildren(
-            builder(MODULE, SUB_MODULE_REF)
-              .addChildren(
-                builder(DIRECTORY, DIRECTORY_REF)
-                  .addChildren(
-                    builder(FILE, FILE_1_REF).build(),
-                    builder(FILE, FILE_2_REF).build())
-                  .build())
-              .build())
+            builder(FILE, FILE_1_REF).build(),
+            builder(FILE, FILE_2_REF).build())
           .build())
       .build());
   @Rule
@@ -143,8 +134,6 @@ public class ReportComplexityMeasuresStepTest {
 
     int expectedNonFileValue = 50;
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
   }
 
@@ -174,8 +163,6 @@ public class ReportComplexityMeasuresStepTest {
 
     String expectedNonFileValue = "0.5=3;3.5=7;6.5=10";
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
   }
 
@@ -208,8 +195,6 @@ public class ReportComplexityMeasuresStepTest {
 
     double expectedNonFileValue = 2d;
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
   }
 

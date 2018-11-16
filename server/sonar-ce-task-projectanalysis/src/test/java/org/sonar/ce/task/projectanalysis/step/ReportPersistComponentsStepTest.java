@@ -70,7 +70,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final String PROJECT_KEY = "PROJECT_KEY";
-  private static final String MODULE_KEY = "MODULE_KEY";
   private static final String ORGANIZATION_UUID = "org1";
   private static final String QUALITY_GATE_UUID = "gg1";
 
@@ -109,62 +108,40 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_components() {
     ComponentDto projectDto = prepareProject();
-    Component file = builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+    Component file = builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
       .setPath("src/main/java/dir/Foo.java")
       .setFileAttributes(new FileAttributes(false, "java", 1))
       .build();
-    Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+    Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
       .setPath("src/main/java/dir")
       .addChildren(file)
       .build();
-    Component module = builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-      .setPath("module")
-      .setName("Module")
-      .setDescription("Module description")
-      .addChildren(directory)
-      .build();
     Component treeRoot = asTreeRoot(projectDto)
-      .addChildren(module)
+      .addChildren(directory)
       .build();
     treeRootHolder.setRoot(treeRoot);
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("projects")).isEqualTo(3);
 
-    ComponentDto moduleDto = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get();
-    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
-    assertThat(moduleDto.name()).isEqualTo("Module");
-    assertThat(moduleDto.description()).isEqualTo("Module description");
-    assertThat(moduleDto.path()).isEqualTo("module");
-    assertThat(moduleDto.uuid()).isEqualTo("BCDE");
-    assertThat(moduleDto.getUuidPath()).isEqualTo(projectDto.getUuidPath() + projectDto.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(moduleDto.moduleUuid()).isEqualTo(projectDto.uuid());
-    assertThat(moduleDto.moduleUuidPath()).isEqualTo(projectDto.moduleUuidPath() + moduleDto.uuid() + ".");
-    assertThat(moduleDto.getMainBranchProjectUuid()).isNull();
-    assertThat(moduleDto.projectUuid()).isEqualTo(projectDto.uuid());
-    assertThat(moduleDto.qualifier()).isEqualTo("BRC");
-    assertThat(moduleDto.scope()).isEqualTo("PRJ");
-    assertThat(moduleDto.getRootUuid()).isEqualTo(projectDto.uuid());
-    assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
-
-    ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.uuid()).isEqualTo("CDEF");
-    assertThat(directoryDto.getUuidPath()).isEqualTo(moduleDto.getUuidPath() + moduleDto.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(directoryDto.moduleUuid()).isEqualTo(moduleDto.uuid());
-    assertThat(directoryDto.moduleUuidPath()).isEqualTo(moduleDto.moduleUuidPath());
+    assertThat(directoryDto.getUuidPath()).isEqualTo(UUID_PATH_SEPARATOR + projectDto.uuid() + UUID_PATH_SEPARATOR);
+    assertThat(directoryDto.moduleUuid()).isEqualTo(projectDto.uuid());
+    assertThat(directoryDto.moduleUuidPath()).isEqualTo(projectDto.moduleUuidPath());
     assertThat(directoryDto.getMainBranchProjectUuid()).isNull();
     assertThat(directoryDto.projectUuid()).isEqualTo(projectDto.uuid());
     assertThat(directoryDto.qualifier()).isEqualTo("DIR");
     assertThat(directoryDto.scope()).isEqualTo("DIR");
-    assertThat(directoryDto.getRootUuid()).isEqualTo(moduleDto.uuid());
+    assertThat(directoryDto.getRootUuid()).isEqualTo(projectDto.uuid());
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
-    ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.description()).isNull();
@@ -172,16 +149,15 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(fileDto.language()).isEqualTo("java");
     assertThat(fileDto.uuid()).isEqualTo("DEFG");
     assertThat(fileDto.getUuidPath()).isEqualTo(directoryDto.getUuidPath() + directoryDto.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(fileDto.moduleUuid()).isEqualTo(moduleDto.uuid());
-    assertThat(fileDto.moduleUuidPath()).isEqualTo(moduleDto.moduleUuidPath());
+    assertThat(fileDto.moduleUuid()).isEqualTo(projectDto.uuid());
+    assertThat(fileDto.moduleUuidPath()).isEqualTo(projectDto.moduleUuidPath());
     assertThat(fileDto.getMainBranchProjectUuid()).isNull();
     assertThat(fileDto.projectUuid()).isEqualTo(projectDto.uuid());
     assertThat(fileDto.qualifier()).isEqualTo("FIL");
     assertThat(fileDto.scope()).isEqualTo("FIL");
-    assertThat(fileDto.getRootUuid()).isEqualTo(moduleDto.uuid());
+    assertThat(fileDto.getRootUuid()).isEqualTo(projectDto.uuid());
     assertThat(fileDto.getCreatedAt()).isEqualTo(now);
 
-    assertThat(dbIdsRepository.getComponentId(module)).isEqualTo(moduleDto.getId());
     assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
     assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());
   }
@@ -189,62 +165,40 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_components_of_existing_branch() {
     ComponentDto project = prepareBranch("feature/foo");
-    Component file = builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+    Component file = builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
       .setPath("src/main/java/dir/Foo.java")
       .setFileAttributes(new FileAttributes(false, "java", 1))
       .build();
-    Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+    Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
       .setPath("src/main/java/dir")
       .addChildren(file)
       .build();
-    Component module = builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-      .setPath("module")
-      .setName("Module")
-      .setDescription("Module description")
-      .addChildren(directory)
-      .build();
     Component treeRoot = asTreeRoot(project)
-      .addChildren(module)
+      .addChildren(directory)
       .build();
     treeRootHolder.setRoot(treeRoot);
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("projects")).isEqualTo(3);
 
-    ComponentDto moduleDto = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get();
-    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
-    assertThat(moduleDto.name()).isEqualTo("Module");
-    assertThat(moduleDto.description()).isEqualTo("Module description");
-    assertThat(moduleDto.path()).isEqualTo("module");
-    assertThat(moduleDto.uuid()).isEqualTo("BCDE");
-    assertThat(moduleDto.getUuidPath()).isEqualTo(project.getUuidPath() + project.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(moduleDto.moduleUuid()).isEqualTo(project.uuid());
-    assertThat(moduleDto.moduleUuidPath()).isEqualTo(project.moduleUuidPath() + moduleDto.uuid() + ".");
-    assertThat(moduleDto.getMainBranchProjectUuid()).isEqualTo(project.uuid());
-    assertThat(moduleDto.projectUuid()).isEqualTo(project.uuid());
-    assertThat(moduleDto.qualifier()).isEqualTo("BRC");
-    assertThat(moduleDto.scope()).isEqualTo("PRJ");
-    assertThat(moduleDto.getRootUuid()).isEqualTo(project.uuid());
-    assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
-
-    ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.uuid()).isEqualTo("CDEF");
-    assertThat(directoryDto.getUuidPath()).isEqualTo(moduleDto.getUuidPath() + moduleDto.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(directoryDto.moduleUuid()).isEqualTo(moduleDto.uuid());
-    assertThat(directoryDto.moduleUuidPath()).isEqualTo(moduleDto.moduleUuidPath());
+    assertThat(directoryDto.getUuidPath()).isEqualTo(UUID_PATH_SEPARATOR + project.uuid() + UUID_PATH_SEPARATOR);
+    assertThat(directoryDto.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(directoryDto.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
     assertThat(directoryDto.getMainBranchProjectUuid()).isEqualTo(project.uuid());
     assertThat(directoryDto.projectUuid()).isEqualTo(project.uuid());
     assertThat(directoryDto.qualifier()).isEqualTo("DIR");
     assertThat(directoryDto.scope()).isEqualTo("DIR");
-    assertThat(directoryDto.getRootUuid()).isEqualTo(moduleDto.uuid());
+    assertThat(directoryDto.getRootUuid()).isEqualTo(project.uuid());
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
-    ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.description()).isNull();
@@ -252,16 +206,15 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(fileDto.language()).isEqualTo("java");
     assertThat(fileDto.uuid()).isEqualTo("DEFG");
     assertThat(fileDto.getUuidPath()).isEqualTo(directoryDto.getUuidPath() + directoryDto.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(fileDto.moduleUuid()).isEqualTo(moduleDto.uuid());
-    assertThat(fileDto.moduleUuidPath()).isEqualTo(moduleDto.moduleUuidPath());
+    assertThat(fileDto.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(fileDto.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
     assertThat(fileDto.getMainBranchProjectUuid()).isEqualTo(project.uuid());
     assertThat(fileDto.projectUuid()).isEqualTo(project.uuid());
     assertThat(fileDto.qualifier()).isEqualTo("FIL");
     assertThat(fileDto.scope()).isEqualTo("FIL");
-    assertThat(fileDto.getRootUuid()).isEqualTo(moduleDto.uuid());
+    assertThat(fileDto.getRootUuid()).isEqualTo(project.uuid());
     assertThat(fileDto.getCreatedAt()).isEqualTo(now);
 
-    assertThat(dbIdsRepository.getComponentId(module)).isEqualTo(moduleDto.getId());
     assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
     assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());
   }
@@ -319,30 +272,24 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public void persist_only_new_components() {
     // Project and module already exists
     ComponentDto project = prepareProject();
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setDbKey(MODULE_KEY).setName("Module");
-    dbClient.componentDao().insert(db.getSession(), module);
     db.getSession().commit();
 
     treeRootHolder.setRoot(
       builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
         .setName("Project")
         .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-            .setName("Module")
+          builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
+            .setPath("src/main/java/dir")
             .addChildren(
-              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
-                .setPath("src/main/java/dir")
-                .addChildren(
-                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                    .setPath("src/main/java/dir/Foo.java")
-                    .build())
+              builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
+                .setPath("src/main/java/dir/Foo.java")
                 .build())
             .build())
         .build());
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("projects")).isEqualTo(3);
 
     ComponentDto projectReloaded = dbClient.componentDao().selectByKey(db.getSession(), project.getDbKey()).get();
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
@@ -350,127 +297,29 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectReloaded.getUuidPath()).isEqualTo(UUID_PATH_OF_ROOT);
     assertThat(projectReloaded.getMainBranchProjectUuid()).isNull();
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get();
-    assertThat(moduleReloaded.getId()).isEqualTo(module.getId());
-    assertThat(moduleReloaded.uuid()).isEqualTo(module.uuid());
-    assertThat(moduleReloaded.getUuidPath()).isEqualTo(module.getUuidPath());
-    assertThat(moduleReloaded.moduleUuid()).isEqualTo(module.moduleUuid());
-    assertThat(moduleReloaded.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
-    assertThat(moduleReloaded.projectUuid()).isEqualTo(module.projectUuid());
-    assertThat(moduleReloaded.getRootUuid()).isEqualTo(module.getRootUuid());
-    assertThat(moduleReloaded.getMainBranchProjectUuid()).isNull();
-
-    ComponentDto directory = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directory = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directory.getUuidPath()).isEqualTo(directory.getUuidPath());
-    assertThat(directory.moduleUuid()).isEqualTo(module.uuid());
-    assertThat(directory.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
+    assertThat(directory.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(directory.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
     assertThat(directory.projectUuid()).isEqualTo(project.uuid());
-    assertThat(directory.getRootUuid()).isEqualTo(module.uuid());
+    assertThat(directory.getRootUuid()).isEqualTo(project.uuid());
     assertThat(directory.getMainBranchProjectUuid()).isNull();
 
-    ComponentDto file = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto file = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(file.getUuidPath()).isEqualTo(file.getUuidPath());
-    assertThat(file.moduleUuid()).isEqualTo(module.uuid());
-    assertThat(file.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
+    assertThat(file.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(file.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
     assertThat(file.projectUuid()).isEqualTo(project.uuid());
-    assertThat(file.getRootUuid()).isEqualTo(module.uuid());
+    assertThat(file.getRootUuid()).isEqualTo(project.uuid());
     assertThat(file.getMainBranchProjectUuid()).isNull();
-  }
-
-  @Test
-  public void compute_root_uuid() {
-    ComponentDto project = prepareProject();
-    treeRootHolder.setRoot(
-      asTreeRoot(project)
-        .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-            .setName("Module")
-            .addChildren(
-              builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_1_KEY")
-                .setName("Sub Module 1")
-                .addChildren(
-                  builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY")
-                    .setName("Sub Module 2")
-                    .addChildren(
-                      builder(DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir")
-                        .setPath("src/main/java/dir")
-                        .build())
-                    .build())
-                .build())
-            .build())
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(5);
-
-    Optional<ComponentDto> module = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY);
-    assertThat(module).isPresent();
-    assertThat(module.get().getRootUuid()).isEqualTo(project.uuid());
-
-    Optional<ComponentDto> subModule1 = dbClient.componentDao().selectByKey(db.getSession(), "SUB_MODULE_1_KEY");
-    assertThat(subModule1).isPresent();
-    assertThat(subModule1.get().getRootUuid()).isEqualTo(project.uuid());
-
-    Optional<ComponentDto> subModule2 = dbClient.componentDao().selectByKey(db.getSession(), "SUB_MODULE_2_KEY");
-    assertThat(subModule2).isPresent();
-    assertThat(subModule2.get().getRootUuid()).isEqualTo(project.uuid());
-
-    Optional<ComponentDto> directory = dbClient.componentDao().selectByKey(db.getSession(), "SUB_MODULE_2_KEY:src/main/java/dir");
-    assertThat(directory).isPresent();
-    assertThat(directory.get().getRootUuid()).isEqualTo(subModule2.get().uuid());
-  }
-
-  @Test
-  public void persist_multi_modules() {
-    ComponentDto project = prepareProject();
-    treeRootHolder.setRoot(
-      asTreeRoot(project)
-        .setName("Project")
-        .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A")
-            .setName("Module A")
-            .addChildren(
-              builder(Component.Type.MODULE, 3).setUuid("DEFG").setKey("SUB_MODULE_A")
-                .setName("Sub Module A")
-                .build())
-            .build(),
-          builder(Component.Type.MODULE, 4).setUuid("CDEF").setKey("MODULE_B")
-            .setName("Module B")
-            .build())
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
-
-    ComponentDto moduleA = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_A").get();
-    assertThat(moduleA.getUuidPath()).isEqualTo(project.getUuidPath() + project.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(moduleA.moduleUuid()).isEqualTo(project.uuid());
-    assertThat(moduleA.moduleUuidPath()).isEqualTo(project.moduleUuidPath() + moduleA.uuid() + ".");
-    assertThat(moduleA.getRootUuid()).isEqualTo(project.uuid());
-
-    ComponentDto subModuleA = dbClient.componentDao().selectByKey(db.getSession(), "SUB_MODULE_A").get();
-    assertThat(subModuleA.getUuidPath()).isEqualTo(moduleA.getUuidPath() + moduleA.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(subModuleA.moduleUuid()).isEqualTo(moduleA.uuid());
-    assertThat(subModuleA.moduleUuidPath()).isEqualTo(moduleA.moduleUuidPath() + subModuleA.uuid() + ".");
-    assertThat(subModuleA.getRootUuid()).isEqualTo(project.uuid());
-
-    ComponentDto moduleB = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_B").get();
-    assertThat(moduleB.getUuidPath()).isEqualTo(project.getUuidPath() + project.uuid() + UUID_PATH_SEPARATOR);
-    assertThat(moduleB.moduleUuid()).isEqualTo(project.uuid());
-    assertThat(moduleB.moduleUuidPath()).isEqualTo(project.moduleUuidPath() + moduleB.uuid() + ".");
-    assertThat(moduleB.getRootUuid()).isEqualTo(project.uuid());
   }
 
   @Test
   public void nothing_to_persist() {
     ComponentDto project = prepareProject();
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setDbKey(MODULE_KEY).setName("Module");
-    dbClient.componentDao().insert(db.getSession(), module);
-    ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setDbKey("MODULE_KEY:src/main/java/dir");
-    ComponentDto file = ComponentTesting.newFileDto(module, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
-      .setDbKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto directory = ComponentTesting.newDirectory(project, "src/main/java/dir").setUuid("CDEF").setDbKey("PROJECT_KEY:src/main/java/dir");
+    ComponentDto file = ComponentTesting.newFileDto(project, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+      .setDbKey("PROJECT_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(db.getSession(), directory, file);
     db.getSession().commit();
 
@@ -478,26 +327,21 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
         .setName("Project")
         .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-            .setName("Module")
+          builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
+            .setPath("src/main/java/dir")
             .addChildren(
-              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
-                .setPath("src/main/java/dir")
-                .addChildren(
-                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                    .setPath("src/main/java/dir/Foo.java")
-                    .build())
+              builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
+                .setPath("src/main/java/dir/Foo.java")
                 .build())
             .build())
         .build());
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("projects")).isEqualTo(3);
     assertThat(dbClient.componentDao().selectByKey(db.getSession(), project.getDbKey()).get().getId()).isEqualTo(project.getId());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get().getId()).isEqualTo(module.getId());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get().getId()).isEqualTo(directory.getId());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(file.getId());
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get().getId()).isEqualTo(directory.getId());
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(file.getId());
 
     ComponentDto projectReloaded = dbClient.componentDao().selectByKey(db.getSession(), project.getDbKey()).get();
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
@@ -507,16 +351,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectReloaded.projectUuid()).isEqualTo(project.projectUuid());
     assertThat(projectReloaded.getRootUuid()).isEqualTo(project.getRootUuid());
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get();
-    assertThat(moduleReloaded.getId()).isEqualTo(module.getId());
-    assertThat(moduleReloaded.uuid()).isEqualTo(module.uuid());
-    assertThat(moduleReloaded.getUuidPath()).isEqualTo(module.getUuidPath());
-    assertThat(moduleReloaded.moduleUuid()).isEqualTo(module.moduleUuid());
-    assertThat(moduleReloaded.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
-    assertThat(moduleReloaded.projectUuid()).isEqualTo(module.projectUuid());
-    assertThat(moduleReloaded.getRootUuid()).isEqualTo(module.getRootUuid());
-
-    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryReloaded.uuid()).isEqualTo(directory.uuid());
     assertThat(directoryReloaded.getUuidPath()).isEqualTo(directory.getUuidPath());
     assertThat(directoryReloaded.moduleUuid()).isEqualTo(directory.moduleUuid());
@@ -526,7 +361,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryReloaded.name()).isEqualTo(directory.name());
     assertThat(directoryReloaded.path()).isEqualTo(directory.path());
 
-    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileReloaded.uuid()).isEqualTo(file.uuid());
     assertThat(fileReloaded.getUuidPath()).isEqualTo(file.getUuidPath());
     assertThat(fileReloaded.moduleUuid()).isEqualTo(file.moduleUuid());
@@ -538,84 +373,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void update_module_name_and_description() {
-    ComponentDto project = prepareProject(p -> p.setName("Project").setDescription("Project description"));
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setDbKey(MODULE_KEY).setName("Module");
-    dbClient.componentDao().insert(db.getSession(), module);
-    db.getSession().commit();
-
-    treeRootHolder.setRoot(
-      builder(PROJECT, 1)
-        .setUuid(project.uuid())
-        .setKey(project.getDbKey())
-        .setName("New Project")
-        .setDescription("New project description")
-        .addChildren(
-          builder(Component.Type.MODULE, 2)
-            .setUuid("BCDE")
-            .setKey(MODULE_KEY)
-            .setName("New Module")
-            .setDescription("New module description")
-            .build())
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    // functional transaction not finished, "A-fields" are not updated yet
-    assertNameAndDescription(project.getDbKey(), "Project", "Project description");
-    assertNameAndDescription(MODULE_KEY, "Module", null);
-
-    // commit functional transaction -> copies B-fields to A-fields
-    dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
-    assertNameAndDescription(project.getDbKey(), "New Project", "New project description");
-    assertNameAndDescription(MODULE_KEY, "New Module", "New module description");
-  }
-
-  private void assertNameAndDescription(String key, String expectedName, String expectedDescription) {
-    ComponentDto dto = dbClient.componentDao().selectByKey(db.getSession(), key).get();
-    assertThat(dto.name()).isEqualTo(expectedName);
-    assertThat(dto.description()).isEqualTo(expectedDescription);
-  }
-
-  @Test
-  public void update_module_path() {
-    ComponentDto project = prepareProject();
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setDbKey(MODULE_KEY).setName("Module").setPath("path");
-    dbClient.componentDao().insert(db.getSession(), module);
-    db.getSession().commit();
-
-    treeRootHolder.setRoot(
-      builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
-        .setName("Project")
-        .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-            .setName("Module")
-            .setPath("New path")
-            .build())
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get().path()).isEqualTo("path");
-
-    // commit the functional transaction
-    dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get().path()).isEqualTo("New path");
-  }
-
-  @Test
   public void update_module_uuid_when_moving_a_module() {
     ComponentDto project = prepareProject();
-    ComponentDto moduleA = ComponentTesting.newModuleDto("EDCB", project)
-      .setDbKey("MODULE_A")
-      .setName("Module A");
-    ComponentDto moduleB = ComponentTesting.newModuleDto("BCDE", project)
-      .setDbKey("MODULE_B")
-      .setName("Module B");
-    dbClient.componentDao().insert(db.getSession(), moduleA, moduleB);
-    ComponentDto directory = ComponentTesting.newDirectory(moduleB, "src/main/java/dir").setUuid("CDEF").setDbKey("MODULE_B:src/main/java/dir");
-    ComponentDto file = ComponentTesting.newFileDto(moduleB, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
-      .setDbKey("MODULE_B:src/main/java/dir/Foo.java");
+    ComponentDto directory = ComponentTesting.newDirectory(project, "src/main/java/dir").setUuid("CDEF").setDbKey("PROJECT_KEY:src/main/java/dir");
+    ComponentDto file = ComponentTesting.newFileDto(project, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+      .setDbKey("PROJECT_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(db.getSession(), directory, file);
     db.getSession().commit();
 
@@ -623,19 +385,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
         .setName("Project")
         .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("EDCB").setKey("MODULE_A")
-            .setName("Module A")
+          builder(DIRECTORY, 4).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
+            .setPath("src/main/java/dir")
             .addChildren(
-              builder(Component.Type.MODULE, 3).setUuid("BCDE").setKey("MODULE_B")
-                .setName("Module B")
-                .addChildren(
-                  builder(DIRECTORY, 4).setUuid("CDEF").setKey("MODULE_B:src/main/java/dir")
-                    .setPath("src/main/java/dir")
-                    .addChildren(
-                      builder(FILE, 5).setUuid("DEFG").setKey("MODULE_B:src/main/java/dir/Foo.java")
-                        .setPath("src/main/java/dir/Foo.java")
-                        .build())
-                    .build())
+              builder(FILE, 5).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
+                .setPath("src/main/java/dir/Foo.java")
                 .build())
             .build())
         .build());
@@ -646,44 +400,31 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
     db.commit();
 
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(5);
+    assertThat(db.countRowsOfTable("projects")).isEqualTo(3);
 
-    ComponentDto moduleAreloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_A").get();
-
-    ComponentDto moduleBReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_B").get();
-    assertThat(moduleBReloaded).isNotNull();
-    assertThat(moduleBReloaded.uuid()).isEqualTo(moduleB.uuid());
-    assertThat(moduleBReloaded.getUuidPath()).isEqualTo(moduleBReloaded.getUuidPath());
-    assertThat(moduleBReloaded.moduleUuid()).isEqualTo(moduleAreloaded.uuid());
-    assertThat(moduleBReloaded.moduleUuidPath()).isEqualTo(moduleAreloaded.moduleUuidPath() + moduleBReloaded.uuid() + ".");
-    assertThat(moduleBReloaded.projectUuid()).isEqualTo(project.uuid());
-    assertThat(moduleBReloaded.getRootUuid()).isEqualTo(project.uuid());
-
-    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_B:src/main/java/dir").get();
+    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryReloaded).isNotNull();
     assertThat(directoryReloaded.uuid()).isEqualTo(directory.uuid());
     assertThat(directoryReloaded.getUuidPath()).isEqualTo(directoryReloaded.getUuidPath());
-    assertThat(directoryReloaded.moduleUuid()).isEqualTo(moduleBReloaded.uuid());
-    assertThat(directoryReloaded.moduleUuidPath()).isEqualTo(moduleBReloaded.moduleUuidPath());
+    assertThat(directoryReloaded.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(directoryReloaded.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
     assertThat(directoryReloaded.projectUuid()).isEqualTo(project.uuid());
-    assertThat(directoryReloaded.getRootUuid()).isEqualTo(moduleBReloaded.uuid());
+    assertThat(directoryReloaded.getRootUuid()).isEqualTo(project.uuid());
 
-    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_B:src/main/java/dir/Foo.java").get();
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileReloaded).isNotNull();
     assertThat(fileReloaded.uuid()).isEqualTo(file.uuid());
     assertThat(fileReloaded.getUuidPath()).isEqualTo(fileReloaded.getUuidPath());
-    assertThat(fileReloaded.moduleUuid()).isEqualTo(moduleBReloaded.uuid());
-    assertThat(fileReloaded.moduleUuidPath()).isEqualTo(moduleBReloaded.moduleUuidPath());
+    assertThat(fileReloaded.moduleUuid()).isEqualTo(project.uuid());
+    assertThat(fileReloaded.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
     assertThat(fileReloaded.projectUuid()).isEqualTo(project.uuid());
-    assertThat(fileReloaded.getRootUuid()).isEqualTo(moduleBReloaded.uuid());
+    assertThat(fileReloaded.getRootUuid()).isEqualTo(project.uuid());
   }
 
   @Test
   public void do_not_update_created_at_on_existing_component() {
     Date oldDate = DateUtils.parseDate("2015-01-01");
     ComponentDto project = prepareProject(p -> p.setCreatedAt(oldDate));
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setDbKey(MODULE_KEY).setName("Module").setPath("path").setCreatedAt(oldDate);
-    dbClient.componentDao().insert(db.getSession(), module);
     db.getSession().commit();
 
     treeRootHolder.setRoot(
@@ -699,19 +440,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_components_that_were_previously_removed() {
     ComponentDto project = prepareProject();
-    ComponentDto removedModule = ComponentTesting.newModuleDto("BCDE", project)
-      .setDbKey(MODULE_KEY)
-      .setName("Module")
-      .setEnabled(false);
-    dbClient.componentDao().insert(db.getSession(), removedModule);
-    ComponentDto removedDirectory = ComponentTesting.newDirectory(removedModule, "src/main/java/dir")
+    ComponentDto removedDirectory = ComponentTesting.newDirectory(project, "src/main/java/dir")
       .setUuid("CDEF")
-      .setDbKey("MODULE_KEY:src/main/java/dir")
+      .setDbKey("PROJECT_KEY:src/main/java/dir")
       .setEnabled(false);
-    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, removedDirectory, "DEFG")
+    ComponentDto removedFile = ComponentTesting.newFileDto(project, removedDirectory, "DEFG")
       .setPath("src/main/java/dir/Foo.java")
       .setName("Foo.java")
-      .setDbKey("MODULE_KEY:src/main/java/dir/Foo.java")
+      .setDbKey("PROJECT_KEY:src/main/java/dir/Foo.java")
       .setEnabled(false);
     dbClient.componentDao().insert(db.getSession(), removedDirectory, removedFile);
     db.getSession().commit();
@@ -720,27 +456,22 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
         .setName("Project")
         .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-            .setName("Module")
+          builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
+            .setPath("src/main/java/dir")
             .addChildren(
-              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
-                .setPath("src/main/java/dir")
-                .addChildren(
-                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                    .setPath("src/main/java/dir/Foo.java")
-                    .build())
+              builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
+                .setPath("src/main/java/dir/Foo.java")
                 .build())
             .build())
         .build());
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(4);
+    assertThat(db.countRowsOfTable("projects")).isEqualTo(3);
     assertThat(dbClient.componentDao().selectByKey(db.getSession(), project.getDbKey()).get().getId()).isEqualTo(project.getId());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get().getId()).isEqualTo(removedModule.getId());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get().getId()).isEqualTo(removedDirectory.getId());
-    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(removedFile.getId());
-    assertExistButDisabled(removedModule.getDbKey(), removedDirectory.getDbKey(), removedFile.getDbKey());
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get().getId()).isEqualTo(removedDirectory.getId());
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(removedFile.getId());
+    assertExistButDisabled(removedDirectory.getDbKey(), removedFile.getDbKey());
 
     // commit the functional transaction
     dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
@@ -755,17 +486,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectReloaded.getRootUuid()).isEqualTo(project.getRootUuid());
     assertThat(projectReloaded.isEnabled()).isTrue();
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get();
-    assertThat(moduleReloaded.getId()).isEqualTo(removedModule.getId());
-    assertThat(moduleReloaded.uuid()).isEqualTo(removedModule.uuid());
-    assertThat(moduleReloaded.getUuidPath()).isEqualTo(removedModule.getUuidPath());
-    assertThat(moduleReloaded.moduleUuid()).isEqualTo(removedModule.moduleUuid());
-    assertThat(moduleReloaded.moduleUuidPath()).isEqualTo(removedModule.moduleUuidPath());
-    assertThat(moduleReloaded.projectUuid()).isEqualTo(removedModule.projectUuid());
-    assertThat(moduleReloaded.getRootUuid()).isEqualTo(removedModule.getRootUuid());
-    assertThat(moduleReloaded.isEnabled()).isTrue();
-
-    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryReloaded.getId()).isEqualTo(removedDirectory.getId());
     assertThat(directoryReloaded.uuid()).isEqualTo(removedDirectory.uuid());
     assertThat(directoryReloaded.getUuidPath()).isEqualTo(removedDirectory.getUuidPath());
@@ -777,7 +498,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryReloaded.path()).isEqualTo(removedDirectory.path());
     assertThat(directoryReloaded.isEnabled()).isTrue();
 
-    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileReloaded.getId()).isEqualTo(fileReloaded.getId());
     assertThat(fileReloaded.uuid()).isEqualTo(removedFile.uuid());
     assertThat(fileReloaded.getUuidPath()).isEqualTo(removedFile.getUuidPath());
@@ -795,59 +516,6 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       ComponentDto dto = dbClient.componentDao().selectByKey(db.getSession(), key).get();
       assertThat(dto.isEnabled()).isFalse();
     }
-  }
-
-  @Test
-  public void update_module_uuid_when_reactivating_removed_component() {
-    ComponentDto project = prepareProject();
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setDbKey(MODULE_KEY).setName("Module");
-    ComponentDto removedModule = ComponentTesting.newModuleDto("EDCD", project).setDbKey("REMOVED_MODULE_KEY").setName("Removed Module").setEnabled(false);
-    dbClient.componentDao().insert(db.getSession(), module, removedModule);
-    ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setDbKey("MODULE_KEY:src/main/java/dir");
-    // The file was attached to another module
-    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
-      .setDbKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
-    dbClient.componentDao().insert(db.getSession(), directory, removedFile);
-    db.getSession().commit();
-
-    treeRootHolder.setRoot(
-      builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey())
-        .setName("Project")
-        .addChildren(
-          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY)
-            .setName("Module")
-            .addChildren(
-              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
-                .setPath("src/main/java/dir")
-                .addChildren(
-                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                    .setPath("src/main/java/dir/Foo.java")
-                    .build())
-                .build())
-            .build())
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    // commit the functional transaction
-    dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
-    db.commit();
-
-    // Projects contains 4 components from the report + one removed module
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(5);
-
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(db.getSession(), MODULE_KEY).get();
-
-    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(db.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileReloaded.getId()).isEqualTo(removedFile.getId());
-    assertThat(fileReloaded.uuid()).isEqualTo(removedFile.uuid());
-    assertThat(fileReloaded.getUuidPath()).isEqualTo(fileReloaded.getUuidPath());
-    assertThat(fileReloaded.moduleUuid()).isEqualTo(moduleReloaded.uuid());
-    assertThat(fileReloaded.moduleUuidPath()).isEqualTo(moduleReloaded.moduleUuidPath());
-    assertThat(fileReloaded.projectUuid()).isEqualTo(moduleReloaded.projectUuid());
-    assertThat(fileReloaded.name()).isEqualTo(removedFile.name());
-    assertThat(fileReloaded.path()).isEqualTo(removedFile.path());
-    assertThat(fileReloaded.isEnabled()).isTrue();
   }
 
   @Test
@@ -874,15 +542,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     return builder(PROJECT, 1).setUuid(projectUuid).setKey(projectKey)
       .setName("Project")
       .addChildren(
-        builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE")
-          .setName("Module")
+        builder(Component.Type.DIRECTORY, 3).setUuid("DEFG").setKey("DIR")
+          .setPath("Directory")
           .addChildren(
-            builder(Component.Type.DIRECTORY, 3).setUuid("DEFG").setKey("DIR")
-              .setPath("Directory")
-              .addChildren(
-                builder(FILE, 4).setUuid("CDEF").setKey("FILE")
-                  .setPath("file")
-                  .build())
+            builder(FILE, 4).setUuid("CDEF").setKey("FILE")
+              .setPath("file")
               .build())
           .build())
       .build();
@@ -949,12 +613,12 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
-      String moduleKey = module.getKey();
-      if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
-        return moduleKey;
+    public String generateKey(ScannerReport.Component project, @Nullable String fileOrDirPath) {
+      String projectKey = project.getKey();
+      if (isEmpty(fileOrDirPath)) {
+        return projectKey;
       }
-      return ComponentKeys.createEffectiveKey(moduleKey, trimToNull(fileOrDir.getPath()));
+      return ComponentKeys.createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
     }
   }
 }

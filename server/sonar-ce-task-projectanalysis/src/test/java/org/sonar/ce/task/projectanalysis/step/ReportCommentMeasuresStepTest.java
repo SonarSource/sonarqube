@@ -46,7 +46,6 @@ import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -54,8 +53,6 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 public class ReportCommentMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
-  private static final int SUB_MODULE_REF = 123;
   private static final int DIRECTORY_REF = 1234;
   private static final int FILE_1_REF = 12341;
   private static final int FILE_2_REF = 12342;
@@ -83,16 +80,10 @@ public class ReportCommentMeasuresStepTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(MODULE, MODULE_REF)
+          builder(DIRECTORY, DIRECTORY_REF)
             .addChildren(
-              builder(MODULE, SUB_MODULE_REF)
-                .addChildren(
-                  builder(DIRECTORY, DIRECTORY_REF)
-                    .addChildren(
-                      builder(FILE, FILE_1_REF).build(),
-                      builder(FILE, FILE_2_REF).build())
-                    .build())
-                .build())
+              builder(FILE, FILE_1_REF).build(),
+              builder(FILE, FILE_2_REF).build())
             .build())
         .build());
   }
@@ -107,8 +98,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENTED_OUT_CODE_LINES_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENTED_OUT_CODE_LINES_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
   }
 
@@ -122,8 +111,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
   }
 
@@ -135,8 +122,6 @@ public class ReportCommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(50));
 
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(300));
 
     underTest.execute(new TestComputationStepContext());
@@ -144,8 +129,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(60d);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
   }
 
@@ -157,8 +140,6 @@ public class ReportCommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
 
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(300));
 
     underTest.execute(new TestComputationStepContext());
@@ -166,8 +147,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
   }
 
@@ -179,8 +158,6 @@ public class ReportCommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
 
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(0));
 
     underTest.execute(new TestComputationStepContext());
@@ -203,8 +180,6 @@ public class ReportCommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(100));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(100));
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(200));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(200));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(200));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(200));
 
     underTest.execute(new TestComputationStepContext());
@@ -222,8 +197,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_API_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_API_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
   }
 
@@ -237,8 +210,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isNotPresent();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
 
   }
@@ -256,8 +227,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(50d);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(75d);
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
   }
 
@@ -307,8 +276,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
   }
 
@@ -319,8 +286,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(ROOT_REF)).isEmpty();
   }
 
@@ -328,8 +293,6 @@ public class ReportCommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metric)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metric)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF).get(metric)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metric)).isEmpty();
   }
 }

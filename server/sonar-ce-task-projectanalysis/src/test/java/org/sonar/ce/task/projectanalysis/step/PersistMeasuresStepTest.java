@@ -44,7 +44,6 @@ import org.sonar.db.metric.MetricDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -91,19 +90,17 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     // the computed measures
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
-    measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("module-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
     TestComputationStepContext context = execute(true);
 
-    // project, module and dir measures are persisted, but not file measures
-    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(3);
+    // project and dir measures are persisted, but not file measures
+    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
     assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getData()).isEqualTo("project-value");
-    assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getData()).isEqualTo("module-value");
     assertThat(selectMeasure("dir-uuid", STRING_METRIC).get().getData()).isEqualTo("dir-value");
     assertThatMeasuresAreNotPersisted("file-uuid");
-    assertNbOfInserts(context, 3);
+    assertNbOfInserts(context, 2);
   }
 
   @Test
@@ -112,19 +109,17 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     // the computed measures
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
-    measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("module-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("dir-value"));
     measureRepository.addRawMeasure(REF_4, STRING_METRIC.getKey(), newMeasureBuilder().create("file-value"));
 
     TestComputationStepContext context = execute(false);
 
-    // project, module and dir measures are persisted, but not file measures
-    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
+    // project and dir measures are persisted, but not file measures
+    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(1);
     assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getData()).isEqualTo("project-value");
-    assertThat(selectMeasure("module-uuid", STRING_METRIC).get().getData()).isEqualTo("module-value");
     assertThatMeasuresAreNotPersisted("dir-uuid");
     assertThatMeasuresAreNotPersisted("file-uuid");
-    assertNbOfInserts(context, 2);
+    assertNbOfInserts(context, 1);
   }
 
   @Test
@@ -133,7 +128,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_1, STRING_METRIC.getKey(), newMeasureBuilder().createNoValue());
     measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().createNoValue());
 
-    TestComputationStepContext context =  execute(false);
+    TestComputationStepContext context = execute(false);
 
     assertThatMeasureIsNotPersisted("project-uuid", STRING_METRIC);
     assertThatMeasureIsNotPersisted("project-uuid", INT_METRIC);
@@ -162,7 +157,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(REF_2, STRING_METRIC.getKey(), newMeasureBuilder().create("subview-value"));
     measureRepository.addRawMeasure(REF_3, STRING_METRIC.getKey(), newMeasureBuilder().create("project-value"));
 
-    TestComputationStepContext context =  execute(true);
+    TestComputationStepContext context = execute(true);
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
     assertThat(selectMeasure("view-uuid", STRING_METRIC).get().getData()).isEqualTo("view-value");
@@ -174,12 +169,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     // tree of components as defined by scanner report
     Component project = ReportComponent.builder(PROJECT, REF_1).setUuid("project-uuid")
       .addChildren(
-        ReportComponent.builder(MODULE, REF_2).setUuid("module-uuid")
+        ReportComponent.builder(DIRECTORY, REF_3).setUuid("dir-uuid")
           .addChildren(
-            ReportComponent.builder(DIRECTORY, REF_3).setUuid("dir-uuid")
-              .addChildren(
-                ReportComponent.builder(FILE, REF_4).setUuid("file-uuid")
-                  .build())
+            ReportComponent.builder(FILE, REF_4).setUuid("file-uuid")
               .build())
           .build())
       .build();
@@ -187,7 +179,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     // components as persisted in db
     ComponentDto projectDto = insertComponent("project-key", "project-uuid");
-    ComponentDto moduleDto = insertComponent("module-key", "module-uuid");
     ComponentDto dirDto = insertComponent("dir-key", "dir-uuid");
     ComponentDto fileDto = insertComponent("file-key", "file-uuid");
     db.components().insertSnapshot(projectDto, s -> s.setUuid(ANALYSIS_UUID));

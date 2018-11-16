@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * A limit can be defined for a tree of Report components, a tree of Views components or both.
  *
- * Constants are provided for limits specific to a component tree (see {@link #PROJECT}, {@link #MODULE}, etc.).
+ * Constants are provided for limits specific to a component tree (see {@link #PROJECT}).
  *
  * Limits for both trees can be created using the {@link #reportMaxDepth(Component.Type)} static method.
  */
@@ -39,7 +39,6 @@ public class CrawlerDepthLimit {
   private static final String UNSUPPORTED_TYPE_UOE_MSG = "Specified type is neither a report type nor a views type";
 
   public static final CrawlerDepthLimit PROJECT = new CrawlerDepthLimit(Component.Type.PROJECT, null);
-  public static final CrawlerDepthLimit MODULE = new CrawlerDepthLimit(Component.Type.MODULE, null);
   public static final CrawlerDepthLimit DIRECTORY = new CrawlerDepthLimit(Component.Type.DIRECTORY, null);
   public static final CrawlerDepthLimit FILE = new CrawlerDepthLimit(Component.Type.FILE, null);
   public static final CrawlerDepthLimit VIEW = new CrawlerDepthLimit(null, Component.Type.VIEW);

@@ -62,7 +62,7 @@ public class QualityGateEventsStepTest {
     .setUuid("uuid 1")
     .setKey("key 1")
     .setProjectVersion("V1.9")
-    .addChildren(ReportComponent.builder(Component.Type.MODULE, 2).build())
+    .addChildren(ReportComponent.builder(Component.Type.DIRECTORY, 2).build())
     .build();
   private static final String INVALID_ALERT_STATUS = "trololo";
   private static final String ALERT_TEXT = "alert text";

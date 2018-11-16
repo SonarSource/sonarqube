@@ -46,13 +46,13 @@ public final class ComponentKeys {
     // only static stuff
   }
 
-  public static String createEffectiveKey(String moduleKey, InputPath inputPath) {
-    return createEffectiveKey(moduleKey, inputPath.relativePath());
+  public static String createEffectiveKey(String projectKey, InputPath inputPath) {
+    return createEffectiveKey(projectKey, inputPath.relativePath());
   }
 
-  public static String createEffectiveKey(String moduleKey, @Nullable String path) {
+  public static String createEffectiveKey(String projectKey, @Nullable String path) {
     StringBuilder sb = new StringBuilder(MAX_COMPONENT_KEY_LENGTH);
-    sb.append(moduleKey);
+    sb.append(projectKey);
     if (path != null) {
       sb.append(':').append(path);
     }

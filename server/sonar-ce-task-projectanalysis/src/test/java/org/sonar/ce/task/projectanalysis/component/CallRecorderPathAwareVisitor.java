@@ -46,11 +46,6 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   }
 
   @Override
-  public void visitModule(Component module, Path<Integer> path) {
-    callsRecords.add(reportCallRecord(module, path, "visitModule"));
-  }
-
-  @Override
   public void visitDirectory(Component directory, Path<Integer> path) {
     callsRecords.add(reportCallRecord(directory, path, "visitDirectory"));
   }

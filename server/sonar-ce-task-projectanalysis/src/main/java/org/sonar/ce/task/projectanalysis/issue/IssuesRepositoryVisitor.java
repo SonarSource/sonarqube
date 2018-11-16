@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
  * Saves issues in the ComponentIssuesRepository

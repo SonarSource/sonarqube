@@ -45,7 +45,6 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -55,7 +54,6 @@ public class ExecuteVisitorsStepTest {
   private static final String TEST_METRIC_KEY = "test";
 
   private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 12;
   private static final int DIRECTORY_REF = 123;
   private static final int FILE_1_REF = 1231;
   private static final int FILE_2_REF = 1232;
@@ -76,13 +74,10 @@ public class ExecuteVisitorsStepTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF).setKey("project")
         .addChildren(
-          builder(MODULE, MODULE_REF).setKey("module")
+          builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
             .addChildren(
-              builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
-                .addChildren(
-                  builder(FILE, FILE_1_REF).setKey("file1").build(),
-                  builder(FILE, FILE_2_REF).setKey("file2").build())
-                .build())
+              builder(FILE, FILE_1_REF).setKey("file1").build(),
+              builder(FILE, FILE_2_REF).setKey("file2").build())
             .build())
         .build());
   }
@@ -94,7 +89,6 @@ public class ExecuteVisitorsStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(2));
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(3));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(3));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(3));
 
     underStep.execute(new TestComputationStepContext());
@@ -102,7 +96,6 @@ public class ExecuteVisitorsStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(3);
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(4);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(4);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(4);
   }
 
@@ -118,7 +111,6 @@ public class ExecuteVisitorsStepTest {
     assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
   }
 
@@ -189,11 +181,6 @@ public class ExecuteVisitorsStepTest {
     @Override
     public void visitProject(Component project, Path<Counter> path) {
       computeAndSaveMeasures(project, path);
-    }
-
-    @Override
-    public void visitModule(Component module, Path<Counter> path) {
-      computeAndSaveMeasures(module, path);
     }
 
     @Override

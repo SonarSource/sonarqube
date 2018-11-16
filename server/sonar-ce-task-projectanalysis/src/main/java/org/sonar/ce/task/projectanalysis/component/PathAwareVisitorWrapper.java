@@ -52,11 +52,6 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
   }
 
   @Override
-  public void visitModule(Component tree) {
-    delegate.visitModule(tree, stack);
-  }
-
-  @Override
   public void visitDirectory(Component tree) {
     delegate.visitDirectory(tree, stack);
   }
@@ -100,8 +95,6 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
     switch (component.getType()) {
       case PROJECT:
         return delegate.getFactory().createForProject(component);
-      case MODULE:
-        return delegate.getFactory().createForModule(component);
       case DIRECTORY:
         return delegate.getFactory().createForDirectory(component);
       case FILE:

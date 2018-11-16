@@ -309,7 +309,7 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
 
       @Override
-      public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
+      public String generateKey(ScannerReport.Component project, @Nullable String fileOrDirPath) {
         throw new UnsupportedOperationException();
       }
     });

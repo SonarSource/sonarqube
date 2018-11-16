@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 public final class ComponentFunctions {
@@ -28,16 +28,16 @@ public final class ComponentFunctions {
     // prevents instantiation
   }
 
-  public static Function<Component, Integer> toReportRef() {
-    return ToReportRef.INSTANCE;
+  public static Function<Component, String> toComponentUuid() {
+    return ToComponentUuid.INSTANCE;
   }
 
-  private enum ToReportRef implements Function<Component, Integer> {
+  private enum ToComponentUuid implements Function<Component, String> {
     INSTANCE;
     @Override
     @Nonnull
-    public Integer apply(@Nonnull Component input) {
-      return input.getReportAttributes().getRef();
+    public String apply(@Nonnull Component input) {
+      return input.getUuid();
     }
 
   }

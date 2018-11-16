@@ -117,6 +117,7 @@ public class IntegrateIssuesVisitorTest {
   private ShortBranchIssueMerger issueStatusCopier = mock(ShortBranchIssueMerger.class);
   private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
+  private IssueRelocationToRoot issueRelocationToRoot = mock(IssueRelocationToRoot.class);
 
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
@@ -138,8 +139,8 @@ public class IntegrateIssuesVisitorTest {
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
 
     DbClient dbClient = dbTester.getDbClient();
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(), issueFilter, ruleRepositoryRule,
-      activeRulesHolder);
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(),
+      issueFilter, ruleRepositoryRule, activeRulesHolder, issueRelocationToRoot);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);

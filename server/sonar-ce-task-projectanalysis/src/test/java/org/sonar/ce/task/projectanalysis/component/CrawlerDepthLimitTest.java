@@ -92,31 +92,6 @@ public class CrawlerDepthLimitTest {
   }
 
   @Test
-  public void MODULE_isSameAs_only_MODULE_type() {
-    assertIsSameAs(CrawlerDepthLimit.MODULE, Type.MODULE);
-  }
-
-  @Test
-  public void MODULE_isDeeper_than_no_views_types() {
-    assertIsDeeperThanViewsType(CrawlerDepthLimit.MODULE);
-  }
-
-  @Test
-  public void MODULE_isDeeper_than_only_PROJECT_report_types() {
-    assertIsDeeperThanReportType(CrawlerDepthLimit.MODULE, Type.PROJECT);
-  }
-
-  @Test
-  public void MODULE_isHigher_than_no_views_types() {
-    assertIsHigherThanViewsType(CrawlerDepthLimit.MODULE);
-  }
-
-  @Test
-  public void MODULE_isHigher_than_only_DIRECTORY_and_FILE() {
-    assertIsHigherThanReportType(CrawlerDepthLimit.MODULE, Type.DIRECTORY, Type.FILE);
-  }
-
-  @Test
   public void DIRECTORY_isSameAs_only_DIRECTORY_type() {
     assertIsSameAs(CrawlerDepthLimit.DIRECTORY, Type.DIRECTORY);
   }
@@ -127,8 +102,8 @@ public class CrawlerDepthLimitTest {
   }
 
   @Test
-  public void DIRECTORY_isDeeper_than_only_PROJECT_and_MODULE_report_types() {
-    assertIsDeeperThanReportType(CrawlerDepthLimit.DIRECTORY, Type.PROJECT, Type.MODULE);
+  public void DIRECTORY_isDeeper_than_only_PROJECT_report_type() {
+    assertIsDeeperThanReportType(CrawlerDepthLimit.DIRECTORY, Type.PROJECT);
   }
 
   @Test
@@ -165,7 +140,7 @@ public class CrawlerDepthLimitTest {
 
   @Test
   public void FILE_isDeeper_than_only_PROJECT_MODULE_and_DIRECTORY_report_types() {
-    assertIsDeeperThanReportType(CrawlerDepthLimit.FILE, Type.PROJECT, Type.MODULE, Type.DIRECTORY);
+    assertIsDeeperThanReportType(CrawlerDepthLimit.FILE, Type.PROJECT, Type.DIRECTORY);
   }
 
   @Test
@@ -254,7 +229,7 @@ public class CrawlerDepthLimitTest {
 
   @Test
   public void LEAVES_isDeeper_than_PROJECT_MODULE_and_DIRECTORY_report_types() {
-    assertIsDeeperThanReportType(CrawlerDepthLimit.LEAVES, Type.PROJECT, Type.MODULE, Type.DIRECTORY);
+    assertIsDeeperThanReportType(CrawlerDepthLimit.LEAVES, Type.PROJECT, Type.DIRECTORY);
   }
 
   @Test

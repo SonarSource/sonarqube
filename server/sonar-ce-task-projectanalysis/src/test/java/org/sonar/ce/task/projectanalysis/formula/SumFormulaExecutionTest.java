@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.MODULE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumFormula;
@@ -64,20 +63,14 @@ public class SumFormulaExecutionTest {
   public void add_measures() {
     ReportComponent project = builder(PROJECT, 1)
       .addChildren(
-        builder(MODULE, 11)
+        builder(DIRECTORY, 111)
           .addChildren(
-            builder(DIRECTORY, 111)
-              .addChildren(
-                builder(Component.Type.FILE, 1111).build(),
-                builder(Component.Type.FILE, 1112).build())
-              .build())
+            builder(Component.Type.FILE, 1111).build(),
+            builder(Component.Type.FILE, 1112).build())
           .build(),
-        builder(MODULE, 12)
+        builder(DIRECTORY, 121)
           .addChildren(
-            builder(DIRECTORY, 121)
-              .addChildren(
-                builder(Component.Type.FILE, 1211).build())
-              .build())
+            builder(Component.Type.FILE, 1211).build())
           .build())
       .build();
 
@@ -90,11 +83,9 @@ public class SumFormulaExecutionTest {
     new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(20)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
     assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(1112)).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(2)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(2)));
     assertThat(measureRepository.getAddedRawMeasures(1211)).isEmpty();
   }
@@ -103,12 +94,9 @@ public class SumFormulaExecutionTest {
   public void not_add_measures_when_no_data_on_file() {
     ReportComponent project = builder(PROJECT, 1)
       .addChildren(
-        builder(MODULE, 11)
+        builder(DIRECTORY, 111)
           .addChildren(
-            builder(DIRECTORY, 111)
-              .addChildren(
-                builder(Component.Type.FILE, 1111).build())
-              .build())
+            builder(Component.Type.FILE, 1111).build())
           .build())
       .build();
 
@@ -117,7 +105,6 @@ public class SumFormulaExecutionTest {
     new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
   }

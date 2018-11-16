@@ -35,11 +35,6 @@ class CallRecorderTypeAwareVisitor extends TypeAwareVisitorAdapter {
   }
 
   @Override
-  public void visitModule(Component module) {
-    callsRecords.add(reportCallRecord(module, "visitModule"));
-  }
-
-  @Override
   public void visitDirectory(Component directory) {
     callsRecords.add(reportCallRecord(directory, "visitDirectory"));
   }

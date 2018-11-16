@@ -90,9 +90,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   @Test
   public void add_links_on_project() {
     mockBranch(true);
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
-      .build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     // project
     reportReader.putComponent(ScannerReport.Component.newBuilder()
@@ -140,9 +138,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   @Test
   public void do_not_add_links_on_module() {
     mockBranch(true);
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
-      .build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)

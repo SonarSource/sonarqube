@@ -39,7 +39,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
@@ -47,7 +46,6 @@ public class ValidateProjectStepTest {
 
   static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
   static final String PROJECT_KEY = "PROJECT_KEY";
-  static final String MODULE_KEY = "MODULE_KEY";
   static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
 
   @Rule
@@ -70,71 +68,6 @@ public class ValidateProjectStepTest {
   DbClient dbClient = dbTester.getDbClient();
 
   ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
-
-  @Test
-  public void fail_if_module_key_is_already_used_as_project_key() {
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(2)
-      .setType(ComponentType.MODULE)
-      .setKey(MODULE_KEY)
-      .build());
-
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(MODULE_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
-      .build());
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o The project \"" + MODULE_KEY + "\" is already defined in SonarQube but not as a module of project \"" + PROJECT_KEY + "\". " +
-      "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
-      + PROJECT_KEY + "\".");
-
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
-  public void fail_if_module_key_already_exists_in_another_project() {
-    String anotherProjectKey = "ANOTHER_PROJECT_KEY";
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(2)
-      .setType(ComponentType.MODULE)
-      .setKey(MODULE_KEY)
-      .build());
-
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY);
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(anotherProjectKey);
-    dbClient.componentDao().insert(dbTester.getSession(), project, anotherProject);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", anotherProject).setDbKey(MODULE_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), module);
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
-      .build());
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
-
-    underTest.execute(new TestComputationStepContext());
-  }
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {

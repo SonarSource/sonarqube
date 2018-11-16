@@ -23,12 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REMEDIATION_EFFORT_KEY;
@@ -43,12 +42,12 @@ import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 public class EffortAggregator extends IssueVisitor {
 
   private final MeasureRepository measureRepository;
+  private final Map<String, EffortCounter> effortsByComponentUuid = new HashMap<>();
 
   private final Metric maintainabilityEffortMetric;
   private final Metric reliabilityEffortMetric;
   private final Metric securityEffortMetric;
 
-  private final Map<Integer, EffortCounter> effortsByComponentRef = new HashMap<>();
   private EffortCounter effortCounter;
 
   public EffortAggregator(MetricRepository metricRepository, MeasureRepository measureRepository) {
@@ -61,12 +60,12 @@ public class EffortAggregator extends IssueVisitor {
   @Override
   public void beforeComponent(Component component) {
     effortCounter = new EffortCounter();
-    effortsByComponentRef.put(component.getReportAttributes().getRef(), effortCounter);
+    effortsByComponentUuid.put(component.getUuid(), effortCounter);
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
       // no need to keep the children in memory. They can be garbage-collected.
-      EffortCounter childEffortCounter = effortsByComponentRef.remove(child.getReportAttributes().getRef());
+      EffortCounter childEffortCounter = effortsByComponentUuid.remove(child.getUuid());
       if (childEffortCounter != null) {
         effortCounter.add(childEffortCounter);
       }
@@ -101,7 +100,7 @@ public class EffortAggregator extends IssueVisitor {
     measureRepository.add(component, securityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.securityEffort));
   }
 
-  private class EffortCounter {
+  private static class EffortCounter {
     private long maintainabilityEffort = 0L;
     private long reliabilityEffort = 0L;
     private long securityEffort = 0L;

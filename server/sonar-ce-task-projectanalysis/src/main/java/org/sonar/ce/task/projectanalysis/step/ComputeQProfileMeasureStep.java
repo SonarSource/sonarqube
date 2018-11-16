@@ -101,13 +101,6 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
       addMeasure(project, path.current());
     }
 
-    @Override
-    public void visitModule(Component module, Path<QProfiles> path) {
-      QProfiles qProfiles = path.current();
-      addMeasure(module, path.current());
-      path.parent().add(qProfiles);
-    }
-
     private void addMeasure(Component component, QProfiles qProfiles) {
       if (!qProfiles.profilesByKey.isEmpty()) {
         measureRepository.add(component, qProfilesMetric, qProfiles.createMeasure());

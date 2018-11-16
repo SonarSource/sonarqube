@@ -38,6 +38,7 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   @CheckForNull
   private Map<Integer, Component> extendedComponentsByRef;
 
+  private int size;
   private Component root;
   private Component extendedTreeRoot;
 
@@ -94,7 +95,7 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   public int getSize() {
     checkInitialized();
     ensureComponentByRefIsPopulated();
-    return componentsByRef.size();
+    return size;
   }
 
   private void ensureExtendedComponentByRefIsPopulated() {
@@ -107,7 +108,9 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
-          builder.put(component.getReportAttributes().getRef(), component);
+          if (component.getReportAttributes().getRef() != null) {
+            builder.put(component.getReportAttributes().getRef(), component);
+          }
         }
       }).visit(this.extendedTreeRoot);
     this.extendedComponentsByRef = builder.build();
@@ -123,7 +126,10 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
-          builder.put(component.getReportAttributes().getRef(), component);
+          size++;
+          if (component.getReportAttributes().getRef() != null) {
+            builder.put(component.getReportAttributes().getRef(), component);
+          }
         }
       }).visit(this.root);
     this.componentsByRef = builder.build();

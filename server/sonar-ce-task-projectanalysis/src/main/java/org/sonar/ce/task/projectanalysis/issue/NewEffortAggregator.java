@@ -44,7 +44,7 @@ import static org.sonar.api.utils.DateUtils.truncateToSeconds;
  * {@link CoreMetrics#NEW_SECURITY_REMEDIATION_EFFORT_KEY}
  */
 public class NewEffortAggregator extends IssueVisitor {
-
+  private final Map<String, NewEffortCounter> counterByComponentUuid = new HashMap<>();
   private final PeriodHolder periodHolder;
   private final MeasureRepository measureRepository;
 
@@ -52,7 +52,6 @@ public class NewEffortAggregator extends IssueVisitor {
   private final Metric newReliabilityEffortMetric;
   private final Metric newSecurityEffortMetric;
 
-  private Map<Integer, NewEffortCounter> counterByComponentRef = new HashMap<>();
   private NewEffortCounter counter = null;
 
   public NewEffortAggregator(PeriodHolder periodHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
@@ -67,9 +66,9 @@ public class NewEffortAggregator extends IssueVisitor {
   @Override
   public void beforeComponent(Component component) {
     counter = new NewEffortCounter();
-    counterByComponentRef.put(component.getReportAttributes().getRef(), counter);
+    counterByComponentUuid.put(component.getUuid(), counter);
     for (Component child : component.getChildren()) {
-      NewEffortCounter childSum = counterByComponentRef.remove(child.getReportAttributes().getRef());
+      NewEffortCounter childSum = counterByComponentUuid.remove(child.getUuid());
       if (childSum != null) {
         counter.add(childSum);
       }

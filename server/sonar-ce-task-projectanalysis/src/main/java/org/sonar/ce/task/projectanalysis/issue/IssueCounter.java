@@ -29,13 +29,13 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
@@ -106,8 +106,8 @@ public class IssueCounter extends IssueVisitor {
   private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
+  private final Map<String, Counters> countersByComponentUuid = new HashMap<>();
 
-  private final Map<Integer, Counters> countersByComponentRef = new HashMap<>();
   private Counters currentCounters;
 
   public IssueCounter(PeriodHolder periodHolder,
@@ -119,14 +119,13 @@ public class IssueCounter extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component) {
-    // TODO optimization no need to instantiate counter if no open issues
     currentCounters = new Counters();
-    countersByComponentRef.put(component.getReportAttributes().getRef(), currentCounters);
+    countersByComponentUuid.put(component.getUuid(), currentCounters);
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
       // no need to keep the children in memory. They can be garbage-collected.
-      Counters childCounters = countersByComponentRef.remove(child.getReportAttributes().getRef());
+      Counters childCounters = countersByComponentUuid.remove(child.getUuid());
       currentCounters.add(childCounters);
     }
   }

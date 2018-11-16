@@ -24,11 +24,6 @@ import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
@@ -40,7 +35,6 @@ import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
-import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
@@ -73,11 +67,6 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   @Override
   public void visitProject(Component project, Path<Counter> path) {
     computeAndSaveMeasures(project, path);
-  }
-
-  @Override
-  public void visitModule(Component module, Path<Counter> path) {
-    computeAndSaveMeasures(module, path);
   }
 
   @Override
