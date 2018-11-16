@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.RandomStringUtils;
 import java.util.Optional;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +41,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -372,7 +371,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_inserts_or_updates_row() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
 
     // insert
     LiveMeasureDto dto = newLiveMeasure();
@@ -393,7 +394,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_does_not_update_row_if_values_are_not_changed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
 
     LiveMeasureDto dto = newLiveMeasure();
     underTest.upsert(db.getSession(), dto);
@@ -407,7 +410,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_lob_data_is_changed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
 
     LiveMeasureDto dto = newLiveMeasure().setData(RandomStringUtils.random(10_000));
     underTest.upsert(db.getSession(), dto);
@@ -422,7 +427,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_does_not_update_row_if_lob_data_is_not_changed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setData(RandomStringUtils.random(10_000));
     underTest.upsert(db.getSession(), dto);
 
@@ -435,7 +442,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_lob_data_is_removed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
 
     LiveMeasureDto dto = newLiveMeasure().setData(RandomStringUtils.random(10_000));
     underTest.upsert(db.getSession(), dto);
@@ -450,7 +459,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_variation_is_changed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setVariation(40.0);
     underTest.upsert(db.getSession(), dto);
 
@@ -464,7 +475,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_variation_is_removed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setVariation(40.0);
     underTest.upsert(db.getSession(), dto);
 
@@ -478,7 +491,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_variation_is_added() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setVariation(null);
     underTest.upsert(db.getSession(), dto);
 
@@ -492,7 +507,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_value_is_changed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setValue(40.0);
     underTest.upsert(db.getSession(), dto);
 
@@ -506,7 +523,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_value_is_removed() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setValue(40.0);
     underTest.upsert(db.getSession(), dto);
 
@@ -520,7 +539,9 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void upsert_updates_row_if_value_is_added() {
-    assumeThat(db.getDbClient().getDatabase().getDialect().supportsUpsert()).isTrue();
+    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
+      return;
+    }
     LiveMeasureDto dto = newLiveMeasure().setValue(null);
     underTest.upsert(db.getSession(), dto);
 
