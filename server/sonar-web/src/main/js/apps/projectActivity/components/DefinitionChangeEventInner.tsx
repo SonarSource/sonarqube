@@ -30,10 +30,11 @@ import { getProjectUrl } from '../../../helpers/urls';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import { isMainBranch } from '../../../helpers/branches';
 
-export type DefinitionChangeEvent = AnalysisEvent & Required<Pick<AnalysisEvent, 'projects'>>;
+export type DefinitionChangeEvent = AnalysisEvent &
+  Required<Pick<AnalysisEvent, 'definitionChange'>>;
 
 export function isDefinitionChangeEvent(event: AnalysisEvent): event is DefinitionChangeEvent {
-  return event.category === 'DEFINITION_CHANGE' && event.projects !== undefined;
+  return event.category === 'DEFINITION_CHANGE' && event.definitionChange !== undefined;
 }
 
 interface Props {
@@ -155,7 +156,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
 
         {expanded && (
           <ul>
-            {event.projects.map(project => (
+            {event.definitionChange.projects.map(project => (
               <li className="display-flex-center little-spacer-top" key={project.key}>
                 {this.renderProjectChange(project)}
               </li>

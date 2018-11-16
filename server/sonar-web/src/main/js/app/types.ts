@@ -62,14 +62,16 @@ export interface AnalysisEvent {
     status: string;
     stillFailing: boolean;
   };
-  projects?: Array<{
-    branch?: string;
-    changeType: string;
-    key: string;
-    name: string;
-    newBranch?: string;
-    oldBranch?: string;
-  }>;
+  definitionChange?: {
+    projects: Array<{
+      branch?: string;
+      changeType: string;
+      key: string;
+      name: string;
+      newBranch?: string;
+      oldBranch?: string;
+    }>;
+  };
 }
 
 export interface AppState {

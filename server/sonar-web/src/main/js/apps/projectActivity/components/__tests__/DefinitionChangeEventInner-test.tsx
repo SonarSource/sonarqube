@@ -28,10 +28,12 @@ it('should render', () => {
     category: 'DEFINITION_CHANGE',
     key: 'foo1234',
     name: '',
-    projects: [
-      { changeType: 'ADDED', key: 'foo', name: 'Foo', branch: 'master' },
-      { changeType: 'REMOVED', key: 'bar', name: 'Bar', branch: 'master' }
-    ]
+    definitionChange: {
+      projects: [
+        { changeType: 'ADDED', key: 'foo', name: 'Foo', branch: 'master' },
+        { changeType: 'REMOVED', key: 'bar', name: 'Bar', branch: 'master' }
+      ]
+    }
   };
   const wrapper = shallow(<DefinitionChangeEventInner branchLike={undefined} event={event} />);
   expect(wrapper).toMatchSnapshot();
@@ -47,16 +49,18 @@ it('should render for a branch', () => {
     category: 'DEFINITION_CHANGE',
     key: 'foo1234',
     name: '',
-    projects: [
-      { changeType: 'ADDED', key: 'foo', name: 'Foo', branch: 'feature-x' },
-      {
-        changeType: 'BRANCH_CHANGED',
-        key: 'bar',
-        name: 'Bar',
-        oldBranch: 'master',
-        newBranch: 'feature-y'
-      }
-    ]
+    definitionChange: {
+      projects: [
+        { changeType: 'ADDED', key: 'foo', name: 'Foo', branch: 'feature-x' },
+        {
+          changeType: 'BRANCH_CHANGED',
+          key: 'bar',
+          name: 'Bar',
+          oldBranch: 'master',
+          newBranch: 'feature-y'
+        }
+      ]
+    }
   };
   const wrapper = shallow(<DefinitionChangeEventInner branchLike={branch} event={event} />);
   click(wrapper.find('.project-activity-event-inner-more-link'));
