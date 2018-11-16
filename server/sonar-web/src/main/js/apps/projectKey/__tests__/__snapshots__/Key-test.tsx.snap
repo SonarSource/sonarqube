@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render and change key 1`] = `
+<div
+  className="page page-limited"
+  id="project-key"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="update_key.page"
+  />
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      update_key.page
+    </h1>
+    <div
+      className="page-description"
+    >
+      update_key.page.description
+    </div>
+  </header>
+  <UpdateForm
+    component={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+    onKeyChange={[Function]}
+  />
+</div>
+`;

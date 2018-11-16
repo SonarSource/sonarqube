@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import UpdateKeyConfirm from './UpdateKeyConfirm';
-import { Button, SubmitButton } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import { Button, SubmitButton } from '../../components/ui/buttons';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import ConfirmButton from '../../components/controls/ConfirmButton';
 
 interface Props {
-  component: { key: string; name: string };
-  onKeyChange: (oldKey: string, newKey: string) => Promise<void>;
+  component: Pick<T.Component, 'key' | 'name'>;
+  onKeyChange: (newKey: string) => Promise<void>;
 }
 
 interface State {
@@ -50,7 +50,26 @@ export default class UpdateForm extends React.PureComponent<Props, State> {
     const hasChanged = value !== component.key;
 
     return (
-      <UpdateKeyConfirm component={component} newKey={newKey} onConfirm={this.props.onKeyChange}>
+      <ConfirmButton
+        confirmButtonText={translate('update_verb')}
+        confirmData={newKey}
+        modalBody={
+          <>
+            {translateWithParameters('update_key.are_you_sure_to_change_key', component.name)}
+            <div className="spacer-top">
+              {translate('update_key.old_key')}
+              {': '}
+              <strong>{component.key}</strong>
+            </div>
+            <div className="spacer-top">
+              {translate('update_key.new_key')}
+              {': '}
+              <strong>{newKey}</strong>
+            </div>
+          </>
+        }
+        modalHeader={translate('update_key.page')}
+        onConfirm={this.props.onKeyChange}>
         {({ onFormSubmit }) => (
           <form onSubmit={onFormSubmit}>
             <input
@@ -79,7 +98,7 @@ export default class UpdateForm extends React.PureComponent<Props, State> {
             </div>
           </form>
         )}
-      </UpdateKeyConfirm>
+      </ConfirmButton>
     );
   }
 }

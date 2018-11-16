@@ -17,8 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const reloadUpdateKeyPage = componentKey => {
-  setTimeout(() => {
-    window.location = window.baseUrl + '/project/key?id=' + encodeURIComponent(componentKey);
-  }, 3000);
-};
+import * as React from 'react';
+import { shallow, ShallowWrapper } from 'enzyme';
+import UpdateForm from '../UpdateForm';
+import { change, click } from '../../../helpers/testUtils';
+
+it('should render', () => {
+  const wrapper = shallow(
+    <UpdateForm component={{ key: 'foo', name: 'Foo' }} onKeyChange={jest.fn()} />
+  );
+  expect(getInner(wrapper)).toMatchSnapshot();
+
+  change(getInner(wrapper).find('input'), 'bar');
+  expect(getInner(wrapper)).toMatchSnapshot();
+
+  click(getInner(wrapper).find('Button'));
+  expect(getInner(wrapper)).toMatchSnapshot();
+});
+
+function getInner(wrapper: ShallowWrapper) {
+  // TODO find a better way to do this
+  return wrapper.dive().dive();
+}

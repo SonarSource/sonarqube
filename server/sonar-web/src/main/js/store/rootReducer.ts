@@ -24,7 +24,6 @@ import languages, * as fromLanguages from './languages';
 import metrics, * as fromMetrics from './metrics';
 import organizations, * as fromOrganizations from './organizations';
 import users, * as fromUsers from './users';
-import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
 import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 
 export type Store = {
@@ -36,7 +35,6 @@ export type Store = {
   users: fromUsers.State;
 
   // apps
-  projectAdminApp: any;
   settingsApp: any;
 };
 
@@ -49,7 +47,6 @@ export default combineReducers<Store>({
   users,
 
   // apps
-  projectAdminApp,
   settingsApp
 });
 
@@ -127,8 +124,4 @@ export function isSettingsAppLoading(state: Store, key: string) {
 
 export function getSettingsAppValidationMessage(state: Store, key: string) {
   return fromSettingsApp.getValidationMessage(state.settingsApp, key);
-}
-
-export function getProjectAdminProjectModules(state: Store, projectKey: string) {
-  return fromProjectAdminApp.getProjectModules(state.projectAdminApp, projectKey);
 }

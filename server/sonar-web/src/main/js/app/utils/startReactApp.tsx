@@ -268,7 +268,7 @@ export default function startReactApp(
                     />
                     <Route
                       path="project/key"
-                      component={lazyLoad(() => import('../../apps/project-admin/key/Key'))}
+                      component={lazyLoad(() => import('../../apps/projectKey/Key'))}
                     />
                   </Route>
                 </Route>

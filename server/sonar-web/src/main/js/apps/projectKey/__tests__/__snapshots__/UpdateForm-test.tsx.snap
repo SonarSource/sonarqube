@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<Fragment>
+  <form
+    onSubmit={[Function]}
+  >
+    <input
+      className="input-super-large"
+      id="update-key-new-key"
+      onChange={[Function]}
+      placeholder="update_key.new_key"
+      required={true}
+      type="text"
+      value="foo"
+    />
+    <div
+      className="spacer-top"
+    >
+      <SubmitButton
+        disabled={true}
+        id="update-key-submit"
+      >
+        update_verb
+      </SubmitButton>
+      <Button
+        className="spacer-left"
+        disabled={true}
+        id="update-key-reset"
+        onClick={[Function]}
+        type="reset"
+      >
+        reset_verb
+      </Button>
+    </div>
+  </form>
+</Fragment>
+`;
+
+exports[`should render 2`] = `
+<Fragment>
+  <form
+    onSubmit={[Function]}
+  >
+    <input
+      className="input-super-large"
+      id="update-key-new-key"
+      onChange={[Function]}
+      placeholder="update_key.new_key"
+      required={true}
+      type="text"
+      value="bar"
+    />
+    <div
+      className="spacer-top"
+    >
+      <SubmitButton
+        disabled={false}
+        id="update-key-submit"
+      >
+        update_verb
+      </SubmitButton>
+      <Button
+        className="spacer-left"
+        disabled={false}
+        id="update-key-reset"
+        onClick={[Function]}
+        type="reset"
+      >
+        reset_verb
+      </Button>
+    </div>
+  </form>
+</Fragment>
+`;
+
+exports[`should render 3`] = `
+<Fragment>
+  <form
+    onSubmit={[Function]}
+  >
+    <input
+      className="input-super-large"
+      id="update-key-new-key"
+      onChange={[Function]}
+      placeholder="update_key.new_key"
+      required={true}
+      type="text"
+      value="foo"
+    />
+    <div
+      className="spacer-top"
+    >
+      <SubmitButton
+        disabled={true}
+        id="update-key-submit"
+      >
+        update_verb
+      </SubmitButton>
+      <Button
+        className="spacer-left"
+        disabled={true}
+        id="update-key-reset"
+        onClick={[Function]}
+        type="reset"
+      >
+        reset_verb
+      </Button>
+    </div>
+  </form>
+</Fragment>
+`;

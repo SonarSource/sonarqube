@@ -222,27 +222,8 @@ export function searchComponents(data?: {
   return getJSON('/api/components/search', data);
 }
 
-/**
- * Change component's key
- */
-export function changeKey(from: string, to: string): Promise<void> {
-  const url = '/api/projects/update_key';
-  const data = { from, to };
-  return post(url, data);
-}
-
-/**
- * Bulk change component's key
- */
-export function bulkChangeKey(
-  project: string,
-  from: string,
-  to: string,
-  dryRun: boolean = false
-): Promise<any> {
-  const url = '/api/projects/bulk_update_key';
-  const data = { project, from, to, dryRun };
-  return postJSON(url, data);
+export function changeKey(data: { from: string; to: string }) {
+  return post('/api/projects/update_key', data).catch(throwGlobalError);
 }
 
 export interface SuggestionsResponse {
