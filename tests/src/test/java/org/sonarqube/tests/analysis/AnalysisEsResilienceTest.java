@@ -133,6 +133,7 @@ public class AnalysisEsResilienceTest {
 
   @Test
   public void purge_mechanism_must_be_resilient_at_next_analysis() throws Exception {
+
     Organization organization = tester.organizations().generate();
     User orgAdministrator = tester.users().generateAdministrator(organization);
     WsProjects.CreateWsResponse.Project project = tester.projects().generate(organization);
