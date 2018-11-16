@@ -36,19 +36,19 @@ import org.sonar.api.utils.PathUtils;
 /**
  * Intended to be used in unit tests that need to create {@link InputFile}s.
  * An InputFile is unambiguously identified by a <b>module key</b> and a <b>relative path</b>, so these parameters are mandatory.
- * 
+ * <p>
  * A module base directory is only needed to construct absolute paths.
- * 
+ * <p>
  * Examples of usage of the constructors:
- * 
+ *
  * <pre>
  * InputFile file1 = TestInputFileBuilder.create("module1", "myfile.java").build();
  * InputFile file2 = TestInputFileBuilder.create("", fs.baseDir(), myfile).build();
  * </pre>
- * 
+ * <p>
  * file1 will have the "module1" as both module key and module base directory.
  * file2 has an empty string as module key, and a relative path which is the path from the filesystem base directory to myfile.
- * 
+ *
  * @since 6.3
  */
 public class TestInputFileBuilder {
@@ -56,7 +56,7 @@ public class TestInputFileBuilder {
 
   private final int id;
   private final String relativePath;
-  private final String moduleKey;
+  private final String projectKey;
   @CheckForNull
   private Path projectBaseDir;
   private Path moduleBaseDir;
@@ -74,29 +74,28 @@ public class TestInputFileBuilder {
   private String contents;
 
   /**
-   * Create a InputFile identified by the given module key and relative path.
-   * The module key will also be used as the module's base directory. 
+   * Create a InputFile identified by the given project key and relative path.
    */
-  public TestInputFileBuilder(String moduleKey, String relativePath) {
-    this(moduleKey, relativePath, batchId++);
+  public TestInputFileBuilder(String projectKey, String relativePath) {
+    this(projectKey, relativePath, batchId++);
   }
 
   /**
    * Create a InputFile with a given module key and module base directory.
-   * The relative path is generated comparing the file path to the module base directory. 
+   * The relative path is generated comparing the file path to the module base directory.
    * filePath must point to a file that is within the module base directory.
    */
-  public TestInputFileBuilder(String moduleKey, File moduleBaseDir, File filePath) {
+  public TestInputFileBuilder(String projectKey, File moduleBaseDir, File filePath) {
     String relativePath = moduleBaseDir.toPath().relativize(filePath.toPath()).toString();
-    this.moduleKey = moduleKey;
+    this.projectKey = projectKey;
     setModuleBaseDir(moduleBaseDir.toPath());
     this.relativePath = PathUtils.sanitize(relativePath);
     this.id = batchId++;
   }
 
-  public TestInputFileBuilder(String moduleKey, String relativePath, int id) {
-    this.moduleKey = moduleKey;
-    setModuleBaseDir(Paths.get(moduleKey));
+  public TestInputFileBuilder(String projectKey, String relativePath, int id) {
+    this.projectKey = projectKey;
+    setModuleBaseDir(Paths.get(projectKey));
     this.relativePath = PathUtils.sanitize(relativePath);
     this.id = id;
   }
@@ -217,7 +216,7 @@ public class TestInputFileBuilder {
       projectBaseDir = moduleBaseDir;
     }
     String projectRelativePath = projectBaseDir.relativize(absolutePath).toString();
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, moduleKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy());
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, projectKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy());
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineStartOffsets, originalLineEndOffsets, lastValidOffset)),
       contents);

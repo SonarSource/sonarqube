@@ -147,7 +147,7 @@ public class IssueModeAndReportsMediumTest {
     String logs = StringUtils.join(logTester.logs(LoggerLevel.INFO), "\n");
 
     assertThat(logs).contains("Performing issue tracking");
-    assertThat(logs).contains("6/6 components tracked");
+    assertThat(logs).contains("4/4 components tracked");
 
     // assert that original fields of a matched issue are kept
     assertThat(result.trackedIssues()).haveExactly(1, new Condition<TrackedIssue>() {

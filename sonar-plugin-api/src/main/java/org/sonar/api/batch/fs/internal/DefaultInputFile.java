@@ -174,10 +174,6 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return indexedFile.key();
   }
 
-  public String moduleKey() {
-    return indexedFile.moduleKey();
-  }
-
   @Override
   public int hashCode() {
     return indexedFile.hashCode();

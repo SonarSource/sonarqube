@@ -102,7 +102,7 @@ message Component {
   int32 ref = 1;
 
   // Path relative to module base directory
-  string path = 2;
+  string path = 2 [deprecated=true];
   string name = 3;
   ComponentType type = 4;
   bool is_test = 5;
@@ -126,8 +126,8 @@ message Component {
   enum ComponentType {
     UNSET = 0;
     PROJECT = 1;
-    MODULE = 2;
-    DIRECTORY = 3;
+    MODULE = 2 [deprecated=true];
+    DIRECTORY = 3 [deprecated=true];
     FILE = 4;
   }
 

@@ -165,9 +165,6 @@ public interface FileSystem {
     @CheckForNull
     InputFile inputFile(String relativePath);
 
-    @CheckForNull
-    InputDir inputDir(String relativePath);
-
     /**
      * @since 6.3
      */

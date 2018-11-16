@@ -87,7 +87,7 @@ public class DefaultPostJobContextTest {
     assertThat(issue.inputComponent()).isNull();
 
     String moduleKey = "foo";
-    componentStore.put(new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
+    componentStore.put(moduleKey, new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
     assertThat(issue.inputComponent()).isNotNull();
 
   }

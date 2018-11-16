@@ -24,7 +24,6 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,13 +33,10 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
@@ -53,9 +49,7 @@ public class InputComponentStore {
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
-  private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
-  private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
-  private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
+  private final Table<String, String, InputFile> inputFileByModuleCache = TreeBasedTable.create();
   // indexed by key with branch
   private final Map<String, AbstractProjectOrModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
@@ -74,7 +68,7 @@ public class InputComponentStore {
   }
 
   private Stream<DefaultInputFile> allFilesToPublishStream() {
-    return inputFileCache.values().stream()
+    return inputFileByModuleCache.values().stream()
       .map(f -> (DefaultInputFile) f)
       .filter(DefaultInputFile::isPublished);
   }
@@ -90,11 +84,7 @@ public class InputComponentStore {
   }
 
   public Iterable<InputFile> allFiles() {
-    return inputFileCache.values();
-  }
-
-  public Iterable<InputDir> allDirs() {
-    return inputDirCache.values();
+    return globalInputFileCache.values();
   }
 
   public InputComponent getByKey(String key) {
@@ -102,35 +92,13 @@ public class InputComponentStore {
   }
 
   public Iterable<InputFile> filesByModule(String moduleKey) {
-    return inputFileCache.row(moduleKey).values();
+    return inputFileByModuleCache.row(moduleKey).values();
   }
 
-  public Iterable<InputDir> dirsByModule(String moduleKey) {
-    return inputDirCache.row(moduleKey).values();
-  }
-
-  public InputComponentStore removeModule(String moduleKey) {
-    inputFileCache.row(moduleKey).clear();
-    inputDirCache.row(moduleKey).clear();
-    return this;
-  }
-
-  public InputComponentStore remove(InputFile inputFile) {
+  public InputComponentStore put(String moduleKey, InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
-    inputFileCache.remove(file.moduleKey(), file.getModuleRelativePath());
-    return this;
-  }
-
-  public InputComponentStore remove(InputDir inputDir) {
-    DefaultInputDir dir = (DefaultInputDir) inputDir;
-    inputDirCache.remove(dir.moduleKey(), inputDir.relativePath());
-    return this;
-  }
-
-  public InputComponentStore put(InputFile inputFile) {
-    DefaultInputFile file = (DefaultInputFile) inputFile;
-    addToLanguageCache(file);
-    inputFileCache.put(file.moduleKey(), file.getModuleRelativePath(), inputFile);
+    addToLanguageCache(moduleKey, file);
+    inputFileByModuleCache.put(moduleKey, file.getModuleRelativePath(), inputFile);
     globalInputFileCache.put(file.getProjectRelativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(inputFile.filename(), inputFile);
@@ -138,49 +106,22 @@ public class InputComponentStore {
     return this;
   }
 
-  private void addToLanguageCache(DefaultInputFile inputFile) {
+  private void addToLanguageCache(String moduleKey, DefaultInputFile inputFile) {
     String language = inputFile.language();
     if (language != null) {
       globalLanguagesCache.add(language);
-      languagesCache.computeIfAbsent(inputFile.moduleKey(), k -> new TreeSet<>()).add(language);
+      languagesCache.computeIfAbsent(moduleKey, k -> new TreeSet<>()).add(language);
     }
-  }
-
-  public InputComponentStore put(InputDir inputDir) {
-    DefaultInputDir dir = (DefaultInputDir) inputDir;
-    inputDirCache.put(dir.moduleKey(), inputDir.relativePath(), inputDir);
-    // FIXME an InputDir can be already indexed by another module
-    globalInputDirCache.put(getProjectRelativePath(dir), inputDir);
-    inputComponents.put(inputDir.key(), inputDir);
-    return this;
-  }
-
-  private String getProjectRelativePath(DefaultInputDir dir) {
-    return PathResolver.relativize(getProjectBaseDir(), dir.path()).orElseThrow(() -> new IllegalStateException("Dir " + dir.path() + " should be relative to project baseDir"));
-  }
-
-  private Path getProjectBaseDir() {
-    return ((AbstractProjectOrModule) project).getBaseDir();
   }
 
   @CheckForNull
   public InputFile getFile(String moduleKey, String relativePath) {
-    return inputFileCache.get(moduleKey, relativePath);
+    return inputFileByModuleCache.get(moduleKey, relativePath);
   }
 
   @CheckForNull
   public InputFile getFile(String relativePath) {
     return globalInputFileCache.get(relativePath);
-  }
-
-  @CheckForNull
-  public InputDir getDir(String moduleKey, String relativePath) {
-    return inputDirCache.get(moduleKey, relativePath);
-  }
-
-  @CheckForNull
-  public InputDir getDir(String relativePath) {
-    return globalInputDirCache.get(relativePath);
   }
 
   @CheckForNull

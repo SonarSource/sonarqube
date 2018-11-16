@@ -59,7 +59,7 @@ public class CoveragePublisherTest {
     inputFile = new TestInputFileBuilder(moduleKey, "src/Foo.php").setLines(5).build();
     DefaultInputProject rootModule = TestInputFileBuilder.newDefaultInputProject(moduleKey, temp.newFolder());
     InputComponentStore componentCache = new InputComponentStore(rootModule, mock(BranchConfiguration.class));
-    componentCache.put(inputFile);
+    componentCache.put(moduleKey, inputFile);
 
     measureCache = mock(MeasureCache.class);
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(null);

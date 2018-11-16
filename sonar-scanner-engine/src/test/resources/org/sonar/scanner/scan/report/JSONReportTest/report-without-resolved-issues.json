@@ -4,23 +4,9 @@
   "components": [
     {"key": "struts"},
     {
-      "key": "struts-core",
-      "path": "core"
-    },
-    {
-      "key": "struts-ui",
-      "path": "ui"
-    },
-    {
       "key": "struts:src/main/java/org/apache/struts/Action.java",
       "path": "src/main/java/org/apache/struts/Action.java",
-      "moduleKey": "struts",
       "status": "CHANGED"
-    },
-    {
-      "key": "struts:src/main/java/org/apache/struts",
-      "path": "src/main/java/org/apache/struts",
-      "moduleKey": "struts"
     }
   ],
   "rules": [],

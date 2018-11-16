@@ -19,14 +19,14 @@
  */
 package org.sonar.core.component;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentKeysTest {
   @Rule
@@ -34,8 +34,8 @@ public class ComponentKeysTest {
 
   @Test
   public void create_effective_key() {
-    InputFile file = mock(InputFile.class);
-    when(file.relativePath()).thenReturn("foo/Bar.php");
+    DefaultInputFile file = mock(DefaultInputFile.class);
+    when(file.getProjectRelativePath()).thenReturn("foo/Bar.php");
     assertThat(ComponentKeys.createEffectiveKey("my_project", file)).isEqualTo("my_project:foo/Bar.php");
   }
 

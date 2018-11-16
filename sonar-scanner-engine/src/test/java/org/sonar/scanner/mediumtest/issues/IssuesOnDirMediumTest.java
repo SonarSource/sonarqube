@@ -70,7 +70,6 @@ public class IssuesOnDirMediumTest {
         .build())
       .execute();
 
-    assertThat(result.issuesFor(result.inputDir("src"))).hasSize(0);
     assertThat(result.issuesFor(result.project())).hasSize(2);
   }
 
@@ -97,7 +96,6 @@ public class IssuesOnDirMediumTest {
         .build())
       .execute();
 
-    assertThat(result.issuesFor(result.inputDir(""))).hasSize(0);
     assertThat(result.issuesFor(result.project())).hasSize(2);
   }
 

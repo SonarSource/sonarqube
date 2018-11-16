@@ -39,7 +39,7 @@ import org.sonar.api.utils.PathUtils;
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
   private final String projectRelativePath;
   private final String moduleRelativePath;
-  private final String moduleKey;
+  private final String projectKey;
   private final String language;
   private final Type type;
   private final Path absolutePath;
@@ -48,15 +48,15 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   /**
    * Testing purposes only!
    */
-  public DefaultIndexedFile(String moduleKey, Path baseDir, String relativePath, @Nullable String language) {
-    this(baseDir.resolve(relativePath), moduleKey, relativePath, relativePath, Type.MAIN, language, TestInputFileBuilder.nextBatchId(),
+  public DefaultIndexedFile(String projectKey, Path baseDir, String relativePath, @Nullable String language) {
+    this(baseDir.resolve(relativePath), projectKey, relativePath, relativePath, Type.MAIN, language, TestInputFileBuilder.nextBatchId(),
       new SensorStrategy());
   }
 
-  public DefaultIndexedFile(Path absolutePath, String moduleKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
+  public DefaultIndexedFile(Path absolutePath, String projectKey, String projectRelativePath, String moduleRelativePath, Type type, @Nullable String language, int batchId,
     SensorStrategy sensorStrategy) {
     super(batchId);
-    this.moduleKey = moduleKey;
+    this.projectKey = projectKey;
     this.projectRelativePath = PathUtils.sanitize(projectRelativePath);
     this.moduleRelativePath = PathUtils.sanitize(moduleRelativePath);
     this.type = type;
@@ -114,11 +114,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
    */
   @Override
   public String key() {
-    return new StringBuilder().append(moduleKey).append(":").append(moduleRelativePath).toString();
-  }
-
-  public String moduleKey() {
-    return moduleKey;
+    return new StringBuilder().append(projectKey).append(":").append(projectRelativePath).toString();
   }
 
   @Override

@@ -114,7 +114,9 @@ public class ModuleInputComponentStoreTest {
   }
 
   private ModuleInputComponentStore newModuleInputComponentStore() {
-    return new ModuleInputComponentStore(mock(InputModule.class), componentStore, mock(SensorStrategy.class));
+    InputModule module = mock(InputModule.class);
+    when(module.key()).thenReturn("moduleKey");
+    return new ModuleInputComponentStore(module, componentStore, mock(SensorStrategy.class));
   }
 
   @Test
@@ -131,9 +133,6 @@ public class ModuleInputComponentStoreTest {
     String relativePath = "somepath";
     store.inputFile(relativePath);
     verify(inputComponentStore).getFile(any(String.class), eq(relativePath));
-
-    store.inputDir(relativePath);
-    verify(inputComponentStore).getDir(any(String.class), eq(relativePath));
 
     store.languages();
     verify(inputComponentStore).getLanguages(any(String.class));
@@ -153,9 +152,6 @@ public class ModuleInputComponentStoreTest {
     String relativePath = "somepath";
     store.inputFile(relativePath);
     verify(inputComponentStore).getFile(relativePath);
-
-    store.inputDir(relativePath);
-    verify(inputComponentStore).getDir(relativePath);
 
     store.languages();
     verify(inputComponentStore).getLanguages();

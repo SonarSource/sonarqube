@@ -21,7 +21,6 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.util.SortedSet;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -59,15 +58,6 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
   }
 
   @Override
-  public InputDir inputDir(String relativePath) {
-    if (strategy.isGlobal()) {
-      return inputComponentStore.getDir(relativePath);
-    } else {
-      return inputComponentStore.getDir(moduleKey, relativePath);
-    }
-  }
-
-  @Override
   public SortedSet<String> languages() {
     if (strategy.isGlobal()) {
       return inputComponentStore.getLanguages();
@@ -78,12 +68,7 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
 
   @Override
   protected void doAdd(InputFile inputFile) {
-    inputComponentStore.put(inputFile);
-  }
-
-  @Override
-  protected void doAdd(InputDir inputDir) {
-    inputComponentStore.put(inputDir);
+    inputComponentStore.put(moduleKey, inputFile);
   }
 
   @Override

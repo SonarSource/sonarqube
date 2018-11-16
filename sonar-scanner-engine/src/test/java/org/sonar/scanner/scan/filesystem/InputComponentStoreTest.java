@@ -60,15 +60,15 @@ public class InputComponentStoreTest {
     DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore cache = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
-    cache.put(subModule);
+    InputComponentStore store = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
+    store.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
       .setModuleBaseDir(rootBaseDir.toPath())
       .setPublish(true)
       .build();
-    cache.put(fooFile);
-    cache.put(new TestInputFileBuilder(subModuleKey, "src/main/java/Bar.java")
+    store.put(rootProject.key(), fooFile);
+    store.put(subModuleKey, new TestInputFileBuilder(rootModuleKey, "src/main/java/Bar.java")
       .setLanguage("bla")
       .setPublish(false)
       .setType(Type.MAIN)
@@ -78,28 +78,20 @@ public class InputComponentStoreTest {
       .setModuleBaseDir(temp.newFolder().toPath())
       .build());
 
-    DefaultInputFile loadedFile = (DefaultInputFile) cache.getFile(subModuleKey, "src/main/java/Bar.java");
+    DefaultInputFile loadedFile = (DefaultInputFile) store.getFile(subModuleKey, "src/main/java/Bar.java");
     assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");
     assertThat(loadedFile.charset()).isEqualTo(StandardCharsets.UTF_8);
 
-    assertThat(cache.filesByModule(rootModuleKey)).hasSize(1);
-    assertThat(cache.filesByModule(subModuleKey)).hasSize(1);
-    assertThat(cache.allFiles()).hasSize(2);
-    for (InputPath inputPath : cache.allFiles()) {
+    assertThat(store.filesByModule(rootModuleKey)).hasSize(1);
+    assertThat(store.filesByModule(subModuleKey)).hasSize(1);
+    assertThat(store.allFiles()).hasSize(2);
+    for (InputPath inputPath : store.allFiles()) {
       assertThat(inputPath.relativePath()).startsWith("src/main/java/");
     }
 
     List<InputFile> toPublish = new LinkedList<>();
-    cache.allFilesToPublish().forEach(toPublish::add);
+    store.allFilesToPublish().forEach(toPublish::add);
     assertThat(toPublish).containsExactly(fooFile);
-
-    cache.remove(fooFile);
-    assertThat(cache.allFiles()).hasSize(1);
-
-    cache.removeModule(rootModuleKey);
-    assertThat(cache.filesByModule(rootModuleKey)).hasSize(0);
-    assertThat(cache.filesByModule(subModuleKey)).hasSize(1);
-    assertThat(cache.allFiles()).hasSize(1);
   }
 
   static class InputComponentStoreTester extends InputComponentStore {
@@ -111,7 +103,7 @@ public class InputComponentStoreTest {
       DefaultInputFile file = new TestInputFileBuilder(moduleKey, relpath)
         .setLanguage(language)
         .build();
-      put(file);
+      put(moduleKey, file);
       return file;
     }
   }

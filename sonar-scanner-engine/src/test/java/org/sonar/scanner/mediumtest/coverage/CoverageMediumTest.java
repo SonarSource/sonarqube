@@ -330,14 +330,14 @@ public class CoverageMediumTest {
 
     Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
 
-    assertThat(allMeasures.get("com.foo.project:module1:src/sample1.xoo")).extracting("metricKey", "intValue.value")
+    assertThat(allMeasures.get("com.foo.project:module1/src/sample1.xoo")).extracting("metricKey", "intValue.value")
       .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
         tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2));
 
-    assertThat(allMeasures.get("com.foo.project:module1:src/sample1.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY,
+    assertThat(allMeasures.get("com.foo.project:module1/src/sample1.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY,
       CoreMetrics.UNCOVERED_CONDITIONS_KEY);
 
-    assertThat(allMeasures.get("com.foo.project:module1:src/sample2.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.LINES_TO_COVER_KEY,
+    assertThat(allMeasures.get("com.foo.project:module1/src/sample2.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.LINES_TO_COVER_KEY,
       CoreMetrics.CONDITIONS_TO_COVER_KEY,
       CoreMetrics.UNCOVERED_CONDITIONS_KEY, CoreMetrics.UNCOVERED_LINES_KEY);
   }

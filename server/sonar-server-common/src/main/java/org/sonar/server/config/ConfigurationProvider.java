@@ -28,7 +28,7 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.Settings;
 
 import static java.util.function.Function.identity;
-import static org.sonar.core.config.MultivalueProperty.parseAsCsv;
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 public class ConfigurationProvider extends ProviderAdapter {
 

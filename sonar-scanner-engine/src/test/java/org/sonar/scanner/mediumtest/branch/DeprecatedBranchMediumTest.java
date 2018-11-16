@@ -93,7 +93,7 @@ public class DeprecatedBranchMediumTest {
     assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
 
     DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
-    assertThat(result.getReportReader().readComponent(inputfile.scannerId()).getPath()).isEqualTo("src/sample.xoo");
+    assertThat(result.getReportReader().readComponent(inputfile.scannerId()).getProjectRelativePath()).isEqualTo("src/sample.xoo");
 
     assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
 
@@ -125,14 +125,11 @@ public class DeprecatedBranchMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
+    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA/src/sample.xoo");
 
     // no branch in the report
     DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("moduleA/src/sample.xoo");
-    assertThat(result.getReportReader().readComponent(inputfile.scannerId()).getPath()).isEqualTo("src/sample.xoo");
-
-    // no branch in InputModule's key or in report
-    assertThat(result.getReportComponent("com.foo.project:moduleA").getKey()).isEqualTo("com.foo.project:moduleA");
+    assertThat(result.getReportReader().readComponent(inputfile.scannerId()).getProjectRelativePath()).isEqualTo("moduleA/src/sample.xoo");
 
     assertThat(result.getReportReader().readMetadata().getDeprecatedBranch()).isEqualTo("branch");
 
@@ -145,7 +142,7 @@ public class DeprecatedBranchMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
+    assertThat(result.inputFile("moduleA/src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA/src/sample.xoo");
   }
 
 }

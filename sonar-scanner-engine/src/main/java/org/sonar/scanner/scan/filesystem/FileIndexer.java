@@ -44,12 +44,9 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.util.ProgressReport;
 
 /**
@@ -62,7 +59,6 @@ public class FileIndexer {
   private final InputFileFilter[] filters;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilder inputFileBuilder;
-  private final DefaultComponentTree componentTree;
   private final DefaultInputModule module;
   private final ScannerComponentIdGenerator scannerComponentIdGenerator;
   private final InputComponentStore componentStore;
@@ -74,13 +70,12 @@ public class FileIndexer {
   private ProgressReport progressReport;
 
   public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, DefaultModuleFileSystem defaultModuleFileSystem,
+                     InputFileBuilder inputFileBuilder, DefaultModuleFileSystem defaultModuleFileSystem,
                      LanguageDetection languageDetection,
                      InputFileFilter[] filters) {
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
     this.module = module;
-    this.componentTree = componentTree;
     this.inputFileBuilder = inputFileBuilder;
     this.defaultModuleFileSystem = defaultModuleFileSystem;
     this.langDetection = languageDetection;
@@ -90,9 +85,9 @@ public class FileIndexer {
   }
 
   public FileIndexer(ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-                     DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, DefaultModuleFileSystem defaultModuleFileSystem,
+                     InputFileBuilder inputFileBuilder, DefaultModuleFileSystem defaultModuleFileSystem,
                      LanguageDetection languageDetection) {
-    this(scannerComponentIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, defaultModuleFileSystem, languageDetection,
+    this(scannerComponentIdGenerator, componentStore, module, exclusionFilters, inputFileBuilder, defaultModuleFileSystem, languageDetection,
       new InputFileFilter[0]);
   }
 
@@ -192,32 +187,13 @@ public class FileIndexer {
       progress.increaseExcludedByPatternsCount();
       return null;
     }
-    String parentRelativePath = getParentRelativePath(realAbsoluteFile);
     synchronized (this) {
       progress.markAsIndexed(inputFile);
-      indexFileAndParentDir(inputFile, parentRelativePath);
+      defaultModuleFileSystem.add(inputFile);
     }
     LOG.debug("'{}' indexed {}with language '{}'", relativePath, type == Type.TEST ? "as test " : "", inputFile.language());
     inputFileBuilder.checkMetadata(inputFile);
     return null;
-  }
-
-  private String getParentRelativePath(Path filePath) {
-    Path parentDir = filePath.getParent();
-    return PathResolver.relativize(module.getBaseDir(), parentDir)
-      .orElseThrow(() -> new IllegalStateException("Failed to compute relative path of file: " + parentDir));
-  }
-
-  private void indexFileAndParentDir(InputFile inputFile, String parentRelativePath) {
-    DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), parentRelativePath);
-    if (inputDir == null) {
-      inputDir = new DefaultInputDir(module.key(), parentRelativePath, scannerComponentIdGenerator.getAsInt());
-      inputDir.setModuleBaseDir(module.getBaseDir());
-      componentTree.index(inputDir, module);
-      defaultModuleFileSystem.add(inputDir);
-    }
-    componentTree.index(inputFile, inputDir);
-    defaultModuleFileSystem.add(inputFile);
   }
 
   private boolean accept(InputFile indexedFile) {

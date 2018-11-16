@@ -116,10 +116,9 @@ public class ScmMediumTest {
     ScannerReportReader reader = new ScannerReportReader(reportDir);
 
     Component project = reader.readComponent(reader.readMetadata().getRootComponentRef());
-    Component dir = reader.readComponent(project.getChildRef(0));
-    for (Integer fileRef : dir.getChildRefList()) {
+    for (Integer fileRef : project.getChildRefList()) {
       Component file = reader.readComponent(fileRef);
-      if (file.getPath().equals(path)) {
+      if (file.getProjectRelativePath().equals(path)) {
         return reader.readChangesets(file.getRef());
       }
     }

@@ -160,7 +160,6 @@ public class ProjectScanContainer extends ComponentContainer {
       PathResolver.class,
       new InputProjectProvider(),
       new InputModuleHierarchyProvider(),
-      DefaultComponentTree.class,
       ScannerComponentIdGenerator.class,
       new ScmChangedFilesProvider(),
       StatusDetection.class,

@@ -234,7 +234,7 @@ public class CpdExecutorTest {
       .setLines(lines);
     config.accept(fileBuilder);
     DefaultInputFile file = fileBuilder.build();
-    componentStore.put(file);
+    componentStore.put("foo", file);
     return file;
   }
 

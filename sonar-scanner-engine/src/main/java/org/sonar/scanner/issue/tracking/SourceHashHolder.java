@@ -19,25 +19,23 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import java.util.Collection;
-import java.util.Collections;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.core.component.ComponentKeys;
 
 public class SourceHashHolder {
 
-  private final AbstractProjectOrModule module;
+  private final DefaultInputProject project;
   private final DefaultInputFile inputFile;
   private final ServerLineHashesLoader lastSnapshots;
 
   private FileHashes hashedReference;
   private FileHashes hashedSource;
 
-  public SourceHashHolder(AbstractProjectOrModule module, DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
-    this.module = module;
+  public SourceHashHolder(DefaultInputProject project, DefaultInputFile inputFile, ServerLineHashesLoader lastSnapshots) {
+    this.project = project;
     this.inputFile = inputFile;
     this.lastSnapshots = lastSnapshots;
   }
@@ -52,7 +50,7 @@ public class SourceHashHolder {
         hashedReference = hashedSource;
       } else {
         // Need key with branch
-        String serverSideKey = ComponentKeys.createEffectiveKey(module.definition().getKeyWithBranch(), inputFile);
+        String serverSideKey = ComponentKeys.createEffectiveKey(project.getKeyWithBranch(), inputFile);
         String[] lineHashes = lastSnapshots.getLineHashes(serverSideKey);
         hashedReference = lineHashes != null ? FileHashes.create(lineHashes) : null;
       }
@@ -68,14 +66,5 @@ public class SourceHashHolder {
   public FileHashes getHashedSource() {
     initHashes();
     return hashedSource;
-  }
-
-  public Collection<Integer> getNewLinesMatching(Integer originLine) {
-    FileHashes reference = getHashedReference();
-    if (reference == null) {
-      return Collections.emptySet();
-    } else {
-      return getHashedSource().getLinesForHash(reference.getHash(originLine));
-    }
   }
 }

@@ -36,11 +36,7 @@ public class DefaultInputDir extends DefaultInputComponent implements InputDir {
   private Path moduleBaseDir;
 
   public DefaultInputDir(String moduleKey, String relativePath) {
-    this(moduleKey, relativePath, TestInputFileBuilder.nextBatchId());
-  }
-
-  public DefaultInputDir(String moduleKey, String relativePath, int batchId) {
-    super(batchId);
+    super(-1);
     this.moduleKey = moduleKey;
     this.relativePath = PathUtils.sanitize(relativePath);
   }

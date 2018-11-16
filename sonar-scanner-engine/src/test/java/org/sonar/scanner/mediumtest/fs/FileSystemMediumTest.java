@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,10 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.mediumtest.AnalysisResult;
@@ -112,19 +109,15 @@ public class FileSystemMediumTest {
     int ref = result.getReportReader().readMetadata().getRootComponentRef();
     assertThat(result.getReportReader().readComponent(ref).getName()).isEmpty();
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputDirs()).hasSize(1);
 
     DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
-    InputDir dir = result.inputDir("src");
     assertThat(file.type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(file.relativePath()).isEqualTo("src/sample.xoo");
     assertThat(file.language()).isEqualTo("xoo");
-    assertThat(dir.relativePath()).isEqualTo("src");
 
-    // file and dirs were published, since language matched xoo
+    // file was published, since language matched xoo
     assertThat(file.isPublished()).isTrue();
-    assertThat(result.getReportComponent(dir.key())).isNotNull();
-    assertThat(result.getReportComponent(file.key())).isNotNull();
+    assertThat(result.getReportComponent(file.scannerId())).isNotNull();
   }
 
   @Test
@@ -290,7 +283,11 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).doesNotContain("'src/main/sample.java' generated metadata");
     assertThat(logs.getAllAsString()).doesNotContain("'src/test/sample.java' generated metadata");
     DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
-    assertThat(result.getReportComponent(javaInputFile.key())).isNull();
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unable to find report for component");
+
+    result.getReportComponent(javaInputFile);
   }
 
   @Test
@@ -317,7 +314,7 @@ public class FileSystemMediumTest {
     assertThat(logs.getAllAsString()).contains("'src" + File.separator + "sample.unknown' indexed with language 'null'");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
     DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
-    assertThat(result.getReportComponent(inputFile.key())).isNotNull();
+    assertThat(result.getReportComponent(inputFile)).isNotNull();
   }
 
   @Test
@@ -397,54 +394,9 @@ public class FileSystemMediumTest {
       .execute();
 
     DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
-    InputDir dir = result.inputDir("src");
 
     assertThat(file.isPublished()).isTrue();
-    assertThat(result.getReportComponent(dir.key())).isNotNull();
-    assertThat(result.getReportComponent(file.key())).isNotNull();
-  }
-
-  @Test
-  public void publishDirsWithIssues() throws IOException {
-    tester
-      .addRules(new XooRulesDefinition())
-      .addActiveRule("xoo", "OneIssuePerDirectory", null, "OneIssuePerDirectory", "MAJOR", null, "xoo");
-
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
-      .put("sonar.verbose", "true")
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.projectDescription", "Description of Foo Project");
-
-    Path unknownRelative = Paths.get("src", "unknown", "file.notanalyzed");
-    Path unknown = baseDir.toPath().resolve(unknownRelative);
-    Files.createDirectories(unknown.getParent());
-    Files.write(unknown, "dummy content".getBytes());
-
-    Path emptyDirRelative = Paths.get("src", "emptydir");
-    Files.createDirectories(emptyDirRelative);
-
-    AnalysisResult result = tester.newAnalysis()
-      .properties(builder
-        .put("sonar.sources", "src")
-        .build())
-      .execute();
-
-    DefaultInputFile unknownInputFile = (DefaultInputFile) result.inputFile("src/unknown/file.notanalyzed");
-    InputProject project = result.project();
-
-    assertThat(unknownInputFile.isPublished()).isFalse();
-    assertThat(result.getReportComponent(project.key())).isNotNull();
-
-    // no issues on empty dir
-    InputDir emptyInputDir = result.inputDir(emptyDirRelative.toString());
-    assertThat(emptyInputDir).isNull();
-
-    // no issues on parent dir
-    InputDir parentInputDir = result.inputDir(unknownRelative.getParent().getParent().toString());
-    assertThat(parentInputDir).isNull();
+    assertThat(result.getReportComponent(file)).isNotNull();
   }
 
   @Test
@@ -462,10 +414,8 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputDirs()).hasSize(1);
     assertThat(result.inputFile("src/sample.xoo").type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(result.inputFile("src/sample.xoo").relativePath()).isEqualTo("src/sample.xoo");
-    assertThat(result.inputDir("src").relativePath()).isEqualTo("src");
   }
 
   @Test
@@ -487,7 +437,6 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(100);
-    assertThat(result.inputDirs()).hasSize(1);
   }
 
   @Test
@@ -540,7 +489,6 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
-    assertThat(result.inputDirs()).hasSize(3);
   }
 
   @Test
@@ -680,7 +628,6 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
-    assertThat(result.inputDirs()).hasSize(4);
   }
 
   @Test
@@ -727,7 +674,6 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
-    assertThat(result.inputDirs()).hasSize(3);
   }
 
   @Test

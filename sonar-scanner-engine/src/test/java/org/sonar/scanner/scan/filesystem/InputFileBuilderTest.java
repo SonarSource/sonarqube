@@ -53,21 +53,17 @@ public class InputFileBuilderTest {
   public void setUp() throws IOException {
     baseDir = temp.newFolder().toPath();
     workDir = temp.newFolder().toPath();
-    DefaultInputModule root = new DefaultInputModule(ProjectDefinition.create()
-      .setBaseDir(baseDir.toFile())
-      .setWorkDir(workDir.toFile())
-      .setKey("root"), 0);
-    Path moduleBaseDir = baseDir.resolve("module1");
-    Files.createDirectories(moduleBaseDir);
     DefaultInputProject project = new DefaultInputProject(ProjectDefinition.create()
       .setBaseDir(baseDir.toFile())
       .setWorkDir(workDir.toFile())
       .setProperty(CoreProperties.ENCODING_PROPERTY, StandardCharsets.UTF_8.name())
-      .setKey("module1"), 0);
+      .setKey("root"), 0);
+    Path moduleBaseDir = baseDir.resolve("module1");
+    Files.createDirectories(moduleBaseDir);
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(workDir.toFile())
-      .setKey("module1"), 0);
+      .setKey("module1"), 1);
 
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     ScannerComponentIdGenerator idGenerator = new ScannerComponentIdGenerator();
@@ -82,11 +78,10 @@ public class InputFileBuilderTest {
     Path filePath = baseDir.resolve("module1/src/File1.xoo");
     DefaultInputFile inputFile = builder.create(Type.MAIN, filePath, null);
 
-    assertThat(inputFile.moduleKey()).isEqualTo("module1");
     assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString().replaceAll("\\\\", "/"));
     assertThat(inputFile.relativePath()).isEqualTo("src/File1.xoo");
     assertThat(inputFile.path()).isEqualTo(filePath);
-    assertThat(inputFile.key()).isEqualTo("module1:src/File1.xoo");
+    assertThat(inputFile.key()).isEqualTo("root:module1/src/File1.xoo");
     assertThat(inputFile.isPublished()).isFalse();
 
     sensorStrategy.setGlobal(true);

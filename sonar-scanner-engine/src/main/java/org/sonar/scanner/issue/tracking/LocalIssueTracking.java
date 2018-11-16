@@ -31,14 +31,12 @@ import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.InputComponentTree;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.core.issue.tracking.Input;
@@ -49,22 +47,21 @@ import org.sonar.scanner.issue.IssueTransformer;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.repository.ProjectRepositories;
 
-@ScannerSide
 public class LocalIssueTracking {
+  private final DefaultInputProject project;
   private final Tracker<TrackedIssue, ServerIssueFromWs> tracker;
   private final ServerLineHashesLoader lastLineHashes;
   private final ActiveRules activeRules;
   private final ServerIssueRepository serverIssueRepository;
   private final DefaultAnalysisMode mode;
-  private final InputComponentTree componentTree;
 
   private boolean hasServerAnalysis;
 
-  public LocalIssueTracking(Tracker<TrackedIssue, ServerIssueFromWs> tracker, ServerLineHashesLoader lastLineHashes, InputComponentTree componentTree,
-    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+  public LocalIssueTracking(DefaultInputProject project, Tracker<TrackedIssue, ServerIssueFromWs> tracker, ServerLineHashesLoader lastLineHashes,
+                            ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+    this.project = project;
     this.tracker = tracker;
     this.lastLineHashes = lastLineHashes;
-    this.componentTree = componentTree;
     this.serverIssueRepository = serverIssueRepository;
     this.mode = mode;
     this.activeRules = activeRules;
@@ -102,7 +99,7 @@ public class LocalIssueTracking {
       }
     }
 
-    if (hasServerAnalysis && componentTree.getParent(component) == null) {
+    if (hasServerAnalysis && !component.isFile()) {
       Preconditions.checkState(component instanceof InputModule, "Object without parent is of type: " + component.getClass());
       // issues that relate to deleted components
       addIssuesOnDeletedComponents(trackedIssues, component.key());
@@ -165,9 +162,8 @@ public class LocalIssueTracking {
   private SourceHashHolder loadSourceHashes(InputComponent component) {
     SourceHashHolder sourceHashHolder = null;
     if (component.isFile()) {
-      AbstractProjectOrModule module = (AbstractProjectOrModule) componentTree.getParent(componentTree.getParent(component));
       DefaultInputFile file = (DefaultInputFile) component;
-      sourceHashHolder = new SourceHashHolder(module, file, lastLineHashes);
+      sourceHashHolder = new SourceHashHolder(project, file, lastLineHashes);
     }
     return sourceHashHolder;
   }

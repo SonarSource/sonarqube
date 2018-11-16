@@ -172,16 +172,12 @@ public class DefaultFileSystem implements FileSystem {
     if (relativePath == null) {
       return null;
     }
-    return cache.inputDir(relativePath);
+    // Issues on InputDir are moved to the project, so we just return a fake InputDir for backward compatibility
+    return new DefaultInputDir("unused", relativePath).setModuleBaseDir(baseDir);
   }
 
   public DefaultFileSystem add(InputFile inputFile) {
     cache.add(inputFile);
-    return this;
-  }
-
-  public DefaultFileSystem add(DefaultInputDir inputDir) {
-    cache.add(inputDir);
     return this;
   }
 
@@ -199,14 +195,8 @@ public class DefaultFileSystem implements FileSystem {
 
     protected abstract void doAdd(InputFile inputFile);
 
-    protected abstract void doAdd(InputDir inputDir);
-
     final void add(InputFile inputFile) {
       doAdd(inputFile);
-    }
-
-    public void add(InputDir inputDir) {
-      doAdd(inputDir);
     }
 
     protected abstract SortedSet<String> languages();
@@ -217,7 +207,6 @@ public class DefaultFileSystem implements FileSystem {
    */
   private static class MapCache extends Cache {
     private final Map<String, InputFile> fileMap = new HashMap<>();
-    private final Map<String, InputDir> dirMap = new HashMap<>();
     private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
     private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
     private SortedSet<String> languages = new TreeSet<>();
@@ -230,11 +219,6 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     public InputFile inputFile(String relativePath) {
       return fileMap.get(relativePath);
-    }
-
-    @Override
-    public InputDir inputDir(String relativePath) {
-      return dirMap.get(relativePath);
     }
 
     @Override
@@ -255,11 +239,6 @@ public class DefaultFileSystem implements FileSystem {
       fileMap.put(inputFile.relativePath(), inputFile);
       filesByNameCache.put(inputFile.filename(), inputFile);
       filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
-    }
-
-    @Override
-    protected void doAdd(InputDir inputDir) {
-      dirMap.put(inputDir.relativePath(), inputDir);
     }
 
     @Override

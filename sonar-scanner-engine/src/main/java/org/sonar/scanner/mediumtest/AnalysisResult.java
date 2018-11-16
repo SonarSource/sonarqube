@@ -32,12 +32,11 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.scanner.fs.InputProject;
@@ -46,7 +45,6 @@ import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
-import org.sonar.scanner.protocol.output.ScannerReport.Metadata;
 import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.report.ReportPublisher;
@@ -54,16 +52,12 @@ import org.sonar.scanner.report.ScannerReportUtils;
 import org.sonar.scanner.scan.ProjectScanContainer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
-
 public class AnalysisResult implements AnalysisObserver {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisResult.class);
 
   private List<TrackedIssue> issues = new ArrayList<>();
-  private Map<String, InputFile> inputFiles = new HashMap<>();
-  private Map<String, Component> reportComponents = new HashMap<>();
-  private Map<String, InputDir> inputDirs = new HashMap<>();
+  private Map<String, InputFile> inputFilesByKeys = new HashMap<>();
   private InputProject project;
   private ScannerReportReader reader;
 
@@ -76,27 +70,9 @@ public class AnalysisResult implements AnalysisObserver {
 
     ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
     reader = new ScannerReportReader(reportPublisher.getReportDir().toFile());
-    if (!container.getComponentByType(AnalysisMode.class).isIssues()) {
-      Metadata readMetadata = getReportReader().readMetadata();
-      int rootComponentRef = readMetadata.getRootComponentRef();
-      storeReportComponents(rootComponentRef, null);
-      project = container.getComponentByType(InputProject.class);
-    }
+    project = container.getComponentByType(InputProject.class);
 
     storeFs(container);
-
-  }
-
-  private void storeReportComponents(int componentRef, String parentModuleKey) {
-    Component component = getReportReader().readComponent(componentRef);
-    if (isNotEmpty(component.getKey())) {
-      reportComponents.put(component.getKey(), component);
-    } else {
-      reportComponents.put(parentModuleKey + ":" + component.getPath(), component);
-    }
-    for (int childId : component.getChildRefList()) {
-      storeReportComponents(childId, isNotEmpty(component.getKey()) ? component.getKey() : parentModuleKey);
-    }
 
   }
 
@@ -107,10 +83,7 @@ public class AnalysisResult implements AnalysisObserver {
   private void storeFs(ProjectScanContainer container) {
     InputComponentStore inputFileCache = container.getComponentByType(InputComponentStore.class);
     for (InputFile inputPath : inputFileCache.allFiles()) {
-      inputFiles.put(((DefaultInputFile) inputPath).getProjectRelativePath(), inputPath);
-    }
-    for (InputDir inputPath : inputFileCache.allDirs()) {
-      inputDirs.put(inputPath.relativePath(), inputPath);
+      inputFilesByKeys.put(((DefaultInputFile) inputPath).getProjectRelativePath(), inputPath);
     }
   }
 
@@ -118,18 +91,20 @@ public class AnalysisResult implements AnalysisObserver {
     return issues;
   }
 
-  public Component getReportComponent(String key) {
-    return reportComponents.get(key);
+  public Component getReportComponent(InputComponent inputComponent) {
+    return getReportReader().readComponent(((DefaultInputComponent) inputComponent).scannerId());
+  }
+
+  public Component getReportComponent(int scannerId) {
+    return getReportReader().readComponent(scannerId);
   }
 
   public List<ScannerReport.Issue> issuesFor(InputComponent inputComponent) {
-    int ref = reportComponents.get(inputComponent.key()).getRef();
-    return issuesFor(ref);
+    return issuesFor(((DefaultInputComponent) inputComponent).scannerId());
   }
-  
+
   public List<ScannerReport.ExternalIssue> externalIssuesFor(InputComponent inputComponent) {
-    int ref = reportComponents.get(inputComponent.key()).getRef();
-    return externalIssuesFor(ref);
+    return externalIssuesFor(((DefaultInputComponent) inputComponent).scannerId());
   }
 
   public List<ScannerReport.Issue> issuesFor(Component reportComponent) {
@@ -146,7 +121,7 @@ public class AnalysisResult implements AnalysisObserver {
     }
     return result;
   }
-  
+
   private List<ScannerReport.ExternalIssue> externalIssuesFor(int ref) {
     List<ScannerReport.ExternalIssue> result = Lists.newArrayList();
     try (CloseableIterator<ScannerReport.ExternalIssue> it = reader.readComponentExternalIssues(ref)) {
@@ -162,41 +137,38 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   public Collection<InputFile> inputFiles() {
-    return inputFiles.values();
+    return inputFilesByKeys.values();
   }
 
   @CheckForNull
   public InputFile inputFile(String relativePath) {
-    return inputFiles.get(relativePath);
-  }
-
-  public Collection<InputDir> inputDirs() {
-    return inputDirs.values();
-  }
-
-  @CheckForNull
-  public InputDir inputDir(String relativePath) {
-    return inputDirs.get(relativePath);
+    return inputFilesByKeys.get(relativePath);
   }
 
   public Map<String, List<ScannerReport.Measure>> allMeasures() {
     Map<String, List<ScannerReport.Measure>> result = new HashMap<>();
-    for (Map.Entry<String, Component> component : reportComponents.entrySet()) {
+    List<ScannerReport.Measure> projectMeasures = new ArrayList<>();
+    try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(((DefaultInputComponent) project).scannerId())) {
+      Iterators.addAll(projectMeasures, it);
+    }
+    result.put(project.key(), projectMeasures);
+    for (InputFile inputFile : inputFilesByKeys.values()) {
       List<ScannerReport.Measure> measures = new ArrayList<>();
-      try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(component.getValue().getRef())) {
+      try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(((DefaultInputComponent) inputFile).scannerId())) {
         Iterators.addAll(measures, it);
       }
-      result.put(component.getKey(), measures);
+      result.put(inputFile.key(), measures);
     }
     return result;
   }
 
   /**
    * Get highlighting types at a given position in an inputfile
+   *
    * @param lineOffset 0-based offset in file
    */
   public List<TypeOfText> highlightingTypeFor(InputFile file, int line, int lineOffset) {
-    int ref = reportComponents.get(file.key()).getRef();
+    int ref = ((DefaultInputComponent) file).scannerId();
     if (!reader.hasSyntaxHighlighting(ref)) {
       return Collections.emptyList();
     }
@@ -222,12 +194,13 @@ public class AnalysisResult implements AnalysisObserver {
 
   /**
    * Get list of all start positions of a symbol in an inputfile
-   * @param symbolStartLine 0-based start offset for the symbol in file
+   *
+   * @param symbolStartLine       0-based start offset for the symbol in file
    * @param symbolStartLineOffset 0-based end offset for the symbol in file
    */
   @CheckForNull
   public List<ScannerReport.TextRange> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {
-    int ref = reportComponents.get(file.key()).getRef();
+    int ref = ((DefaultInputComponent) file).scannerId();
     try (CloseableIterator<Symbol> symbols = getReportReader().readComponentSymbols(ref)) {
       while (symbols.hasNext()) {
         Symbol symbol = symbols.next();
@@ -241,7 +214,7 @@ public class AnalysisResult implements AnalysisObserver {
 
   public List<ScannerReport.Duplication> duplicationsFor(InputFile file) {
     List<ScannerReport.Duplication> result = new ArrayList<>();
-    int ref = reportComponents.get(file.key()).getRef();
+    int ref = ((DefaultInputComponent) file).scannerId();
     try (CloseableIterator<ScannerReport.Duplication> it = getReportReader().readComponentDuplications(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
@@ -254,7 +227,7 @@ public class AnalysisResult implements AnalysisObserver {
 
   public List<ScannerReport.CpdTextBlock> duplicationBlocksFor(InputFile file) {
     List<ScannerReport.CpdTextBlock> result = new ArrayList<>();
-    int ref = reportComponents.get(file.key()).getRef();
+    int ref = ((DefaultInputComponent) file).scannerId();
     try (CloseableIterator<ScannerReport.CpdTextBlock> it = getReportReader().readCpdTextBlocks(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
@@ -267,7 +240,7 @@ public class AnalysisResult implements AnalysisObserver {
 
   @CheckForNull
   public ScannerReport.LineCoverage coverageFor(InputFile file, int line) {
-    int ref = reportComponents.get(file.key()).getRef();
+    int ref = ((DefaultInputComponent) file).scannerId();
     try (CloseableIterator<ScannerReport.LineCoverage> it = getReportReader().readComponentCoverage(ref)) {
       while (it.hasNext()) {
         ScannerReport.LineCoverage coverage = it.next();
@@ -282,7 +255,7 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   public ScannerReport.Test firstTestExecutionForName(InputFile testFile, String testName) {
-    int ref = reportComponents.get(testFile.key()).getRef();
+    int ref = ((DefaultInputComponent) testFile).scannerId();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readTests(ref))) {
       ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       while (test != null) {
@@ -298,7 +271,7 @@ public class AnalysisResult implements AnalysisObserver {
   }
 
   public ScannerReport.CoverageDetail coveragePerTestFor(InputFile testFile, String testName) {
-    int ref = reportComponents.get(testFile.key()).getRef();
+    int ref = ((DefaultInputComponent) testFile).scannerId();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readCoverageDetails(ref))) {
       ScannerReport.CoverageDetail details = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
       while (details != null) {

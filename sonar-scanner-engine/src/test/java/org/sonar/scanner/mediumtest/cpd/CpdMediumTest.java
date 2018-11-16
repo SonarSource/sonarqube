@@ -125,7 +125,7 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile1.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile1.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile1.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile2).key()).getRef());
+    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(inputFile2).getRef());
 
     List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).hasSize(1);
@@ -134,7 +134,7 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile2.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile2.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile2.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile1).key()).getRef());
+    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(inputFile1).getRef());
 
     assertThat(result.duplicationBlocksFor(inputFile1)).isEmpty();
   }
@@ -177,7 +177,7 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile1.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile1.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile1.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile2).key()).getRef());
+    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(inputFile2).getRef());
 
     List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).hasSize(1);
@@ -186,7 +186,7 @@ public class CpdMediumTest {
     assertThat(cloneGroupFile2.getOriginPosition().getStartLine()).isEqualTo(1);
     assertThat(cloneGroupFile2.getOriginPosition().getEndLine()).isEqualTo(17);
     assertThat(cloneGroupFile2.getDuplicateList()).hasSize(1);
-    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent((inputFile1).key()).getRef());
+    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(inputFile1).getRef());
 
     assertThat(result.duplicationBlocksFor(inputFile1)).isEmpty();
   }

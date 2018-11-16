@@ -28,11 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,11 +49,10 @@ public class SourceHashHolderTest {
   DefaultInputFile file;
 
   private File ioFile;
-  private ProjectDefinition def;
+  private DefaultInputProject project;
 
   @Before
   public void setUp() throws Exception {
-    def = ProjectDefinition.create().setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
     lastSnapshots = mock(ServerLineHashesLoader.class);
     file = mock(DefaultInputFile.class);
     ioFile = temp.newFile();
@@ -65,7 +62,8 @@ public class SourceHashHolderTest {
     when(file.lines()).thenReturn(1);
     when(file.charset()).thenReturn(StandardCharsets.UTF_8);
 
-    sourceHashHolder = new SourceHashHolder(new DefaultInputModule(def, 1), file, lastSnapshots);
+    project = mock(DefaultInputProject.class);
+    sourceHashHolder = new SourceHashHolder(project, file, lastSnapshots);
   }
 
   @Test
@@ -84,8 +82,8 @@ public class SourceHashHolderTest {
   public void should_lazy_load_reference_hashes_when_status_changed() throws Exception {
     final String source = "source";
     FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
-    def.setKey("foo");
-    when(file.relativePath()).thenReturn("src/Foo.java");
+    when(project.getKeyWithBranch()).thenReturn("foo");
+    when(file.getProjectRelativePath()).thenReturn("src/Foo.java");
     String key = "foo:src/Foo.java";
     when(file.status()).thenReturn(InputFile.Status.CHANGED);
     when(lastSnapshots.getLineHashes(key)).thenReturn(new String[] {md5Hex(source)});
@@ -101,9 +99,8 @@ public class SourceHashHolderTest {
   public void should_lazy_load_reference_hashes_when_status_changed_on_branch() throws Exception {
     final String source = "source";
     FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
-    def.setKey("foo");
-    def.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
-    when(file.relativePath()).thenReturn("src/Foo.java");
+    when(project.getKeyWithBranch()).thenReturn("foo:myBranch");
+    when(file.getProjectRelativePath()).thenReturn("src/Foo.java");
     String key = "foo:myBranch:src/Foo.java";
     when(file.status()).thenReturn(InputFile.Status.CHANGED);
     when(lastSnapshots.getLineHashes(key)).thenReturn(new String[] {md5Hex(source)});

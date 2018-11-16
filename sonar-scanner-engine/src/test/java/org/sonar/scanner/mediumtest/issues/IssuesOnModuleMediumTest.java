@@ -67,7 +67,7 @@ public class IssuesOnModuleMediumTest {
         .build())
       .execute();
 
-    assertThat(result.issuesFor(result.getReportComponent("com.foo.project"))).hasSize(1);
+    assertThat(result.issuesFor(result.project())).hasSize(1);
   }
 
 }

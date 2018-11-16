@@ -59,7 +59,7 @@ public class SourcePublisherTest {
 
     DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(moduleKey, baseDir);
     InputComponentStore componentStore = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
-    componentStore.put(inputFile);
+    componentStore.put(moduleKey, inputFile);
 
     publisher = new SourcePublisher(componentStore);
     File outputDir = temp.newFolder();

@@ -33,15 +33,13 @@ import static org.mockito.Mockito.when;
 
 public class ModuleIndexerTest {
   private ModuleIndexer indexer;
-  private DefaultComponentTree tree;
   private DefaultInputModuleHierarchy moduleHierarchy;
   private InputComponentStore componentStore;
 
   public void createIndexer(DefaultInputProject rootProject) {
     componentStore = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
-    tree = new DefaultComponentTree();
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
-    indexer = new ModuleIndexer(tree, componentStore, moduleHierarchy);
+    indexer = new ModuleIndexer(componentStore, moduleHierarchy);
   }
 
   @Test
@@ -80,6 +78,5 @@ public class ModuleIndexerTest {
     DefaultInputModule rootModule = moduleHierarchy.root();
     assertThat(rootModule).isNotNull();
     assertThat(moduleHierarchy.children(rootModule)).hasSize(3);
-    assertThat(tree.getChildren(rootModule)).hasSize(3);
   }
 }

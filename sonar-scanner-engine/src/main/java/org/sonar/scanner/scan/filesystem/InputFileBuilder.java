@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.scanner.scan.ScanProperties;
 
 public class InputFileBuilder {
+  private final DefaultInputProject project;
   private final DefaultInputModule module;
   private final ScannerComponentIdGenerator idGenerator;
   private final MetadataGenerator metadataGenerator;
@@ -42,6 +43,7 @@ public class InputFileBuilder {
                           SensorStrategy sensorStrategy) {
     this.sensorStrategy = sensorStrategy;
     this.projectBaseDir = project.getBaseDir();
+    this.project = project;
     this.module = module;
     this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
@@ -49,7 +51,7 @@ public class InputFileBuilder {
   }
 
   DefaultInputFile create(InputFile.Type type, Path absolutePath, @Nullable String language) {
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, module.key(),
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, project.key(),
       projectBaseDir.relativize(absolutePath).toString(),
       module.getBaseDir().relativize(absolutePath).toString(),
       type, language, idGenerator.getAsInt(), sensorStrategy);

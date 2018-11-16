@@ -38,13 +38,8 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputComponentTree;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Configuration;
@@ -72,21 +67,17 @@ public class JSONReport implements Reporter {
   private final Rules rules;
   private final IssueCache issueCache;
   private final InputComponentStore componentStore;
-  private final DefaultInputModule rootModule;
-  private final InputModuleHierarchy moduleHierarchy;
-  private final InputComponentTree inputComponentTree;
+  private final DefaultInputProject project;
 
-  public JSONReport(InputModuleHierarchy moduleHierarchy, Configuration settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
-                    DefaultInputModule rootModule, InputComponentStore componentStore, InputComponentTree inputComponentTree) {
-    this.moduleHierarchy = moduleHierarchy;
+  public JSONReport(Configuration settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
+                    DefaultInputProject project, InputComponentStore componentStore) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.rules = rules;
     this.issueCache = issueCache;
-    this.rootModule = rootModule;
+    this.project = project;
     this.componentStore = componentStore;
-    this.inputComponentTree = inputComponentTree;
   }
 
   @Override
@@ -126,14 +117,14 @@ public class JSONReport implements Reporter {
     for (TrackedIssue issue : getIssues()) {
       if (issue.resolution() == null) {
         InputComponent component = componentStore.getByKey(issue.componentKey());
-        String componentKey = getModule(component).definition().getKeyWithBranch();
-        if (component instanceof InputPath) {
-          componentKey = ComponentKeys.createEffectiveKey(componentKey, (InputPath) component);
+        String componentKeyWithBranch = project.getKeyWithBranch();
+        if (component.isFile()) {
+          componentKeyWithBranch = ComponentKeys.createEffectiveKey(componentKeyWithBranch, (DefaultInputFile) component);
         }
         json
           .beginObject()
           .prop("key", issue.key())
-          .prop("component", componentKey)
+          .prop("component", componentKeyWithBranch)
           .prop("line", issue.startLine())
           .prop("startLine", issue.startLine())
           .prop("startOffset", issue.startLineOffset())
@@ -158,54 +149,28 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private AbstractProjectOrModule getModule(InputComponent component) {
-    if (component.isFile()) {
-      return (AbstractProjectOrModule) inputComponentTree.getParent(inputComponentTree.getParent(component));
-    }
-    if (component instanceof InputDir) {
-      return (AbstractProjectOrModule) inputComponentTree.getParent(component);
-    }
-    return (AbstractProjectOrModule) component;
-  }
-
   private void writeJsonComponents(JsonWriter json) {
     json.name("components").beginArray();
     // Dump modules
-    writeJsonModuleComponents(json, rootModule);
+    writeJsonProject(json);
     for (DefaultInputFile inputFile : componentStore.allFilesToPublish()) {
-      String moduleKey = getModule(inputFile).definition().getKeyWithBranch();
-      String key = ComponentKeys.createEffectiveKey(moduleKey, inputFile);
+      String projectKey = project.getKeyWithBranch();
+      String key = ComponentKeys.createEffectiveKey(projectKey, inputFile);
       json
         .beginObject()
         .prop("key", key)
         .prop("path", inputFile.relativePath())
-        .prop("moduleKey", moduleKey)
         .prop("status", inputFile.status().name())
         .endObject();
-    }
-    for (InputDir inputDir : componentStore.allDirs()) {
-      String moduleKey = getModule(inputDir).definition().getKeyWithBranch();
-      String key = ComponentKeys.createEffectiveKey(moduleKey, inputDir);
-      json
-        .beginObject()
-        .prop("key", key)
-        .prop("path", inputDir.relativePath())
-        .prop("moduleKey", moduleKey)
-        .endObject();
-
     }
     json.endArray();
   }
 
-  private void writeJsonModuleComponents(JsonWriter json, DefaultInputModule moduleOrProject) {
+  private void writeJsonProject(JsonWriter json) {
     json
       .beginObject()
-      .prop("key", moduleOrProject.definition().getKeyWithBranch())
-      .prop("path", moduleHierarchy.relativePath(moduleOrProject))
+      .prop("key", project.definition().getKeyWithBranch())
       .endObject();
-    for (DefaultInputModule subModule : moduleHierarchy.children(moduleOrProject)) {
-      writeJsonModuleComponents(json, subModule);
-    }
   }
 
   private void writeJsonRules(JsonWriter json, Set<RuleKey> ruleKeys) {

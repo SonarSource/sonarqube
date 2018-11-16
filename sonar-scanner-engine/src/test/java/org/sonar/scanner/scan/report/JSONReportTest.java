@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.TimeZone;
 import org.apache.commons.io.IOUtils;
@@ -34,9 +33,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -48,7 +45,6 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
@@ -81,39 +77,20 @@ public class JSONReportTest {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(server.getVersion()).thenReturn("3.6");
 
-    DefaultComponentTree inputComponentTree = new DefaultComponentTree();
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setWorkDir(temp.newFolder()).setKey("struts");
     DefaultInputProject project = new DefaultInputProject(def, 1);
-    DefaultInputModule rootModule = new DefaultInputModule(def, 1);
     InputComponentStore inputComponentStore = new InputComponentStore(project, mock(BranchConfiguration.class));
 
-    DefaultInputModule moduleA = new DefaultInputModule(ProjectDefinition.create().setKey("struts-core").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    inputComponentTree.index(moduleA, rootModule);
-    DefaultInputModule moduleB = new DefaultInputModule(ProjectDefinition.create().setKey("struts-ui").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    inputComponentTree.index(moduleB, rootModule);
-
-    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts", TestInputFileBuilder.nextBatchId())
-      .setModuleBaseDir(projectBaseDir.toPath());
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java")
       .setModuleBaseDir(projectBaseDir.toPath()).build();
     inputFile.setStatus(InputFile.Status.CHANGED);
     inputFile.setPublished(true);
-    inputComponentStore.put(inputFile);
-    inputComponentStore.put(inputDir);
-
-    inputComponentTree.index(inputDir, rootModule);
-    inputComponentTree.index(inputFile, inputDir);
-
-    when(moduleHierarchy.children(rootModule)).thenReturn(Arrays.asList(moduleA, moduleB));
-    when(moduleHierarchy.parent(moduleA)).thenReturn(rootModule);
-    when(moduleHierarchy.parent(moduleB)).thenReturn(rootModule);
-    when(moduleHierarchy.relativePath(moduleA)).thenReturn("core");
-    when(moduleHierarchy.relativePath(moduleB)).thenReturn("ui");
+    inputComponentStore.put("struts", inputFile);
 
     RulesBuilder builder = new RulesBuilder();
     builder.add(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles");
     rules = builder.build();
-    jsonReport = new JSONReport(moduleHierarchy, settings.asConfig(), fs, server, rules, issueCache, rootModule, inputComponentStore, inputComponentTree);
+    jsonReport = new JSONReport(settings.asConfig(), fs, server, rules, issueCache, project, inputComponentStore);
   }
 
   @Test
