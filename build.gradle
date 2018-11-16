@@ -140,7 +140,7 @@ subprojects {
       dependency 'com.ibm.icu:icu4j:3.4.4'
       dependency 'com.microsoft.sqlserver:mssql-jdbc:6.2.2.jre8'
       dependency 'com.oracle.jdbc:ojdbc8:12.2.0.1.0'
-      dependencySet(group: 'com.squareup.okhttp3', version: '3.11.0') {
+      dependencySet(group: 'com.squareup.okhttp3', version: '3.7.0') {
         entry 'okhttp'
         entry 'mockwebserver'
       }

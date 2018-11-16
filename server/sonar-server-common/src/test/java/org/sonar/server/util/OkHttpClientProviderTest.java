@@ -66,8 +66,7 @@ public class OkHttpClientProviderTest {
     settings.setProperty("http.proxyPassword", "the-password");
 
     OkHttpClient client = underTest.provide(settings.asConfig(), runtime);
-    Response response = new Response.Builder().protocol(Protocol.HTTP_1_1).request(new Request.Builder().url("http://foo").build()).code(407)
-      .message("").build();
+    Response response = new Response.Builder().protocol(Protocol.HTTP_1_1).request(new Request.Builder().url("http://foo").build()).code(407).build();
     Request request = client.proxyAuthenticator().authenticate(null, response);
 
     assertThat(request.header("Proxy-Authorization")).isEqualTo("Basic " + Base64.getEncoder().encodeToString("the-login:the-password".getBytes()));

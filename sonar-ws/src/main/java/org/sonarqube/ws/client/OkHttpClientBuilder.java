@@ -46,7 +46,6 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.internal.tls.OkHostnameVerifier;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -193,7 +192,6 @@ public class OkHttpClientBuilder {
     X509TrustManager trustManager = sslTrustManager != null ? sslTrustManager : systemDefaultTrustManager();
     SSLSocketFactory sslFactory = sslSocketFactory != null ? sslSocketFactory : systemDefaultSslSocketFactory(trustManager);
     builder.sslSocketFactory(sslFactory, trustManager);
-    builder.hostnameVerifier(OkHostnameVerifier.INSTANCE);
 
     return builder.build();
   }
