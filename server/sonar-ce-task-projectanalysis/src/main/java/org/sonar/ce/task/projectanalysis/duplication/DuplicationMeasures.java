@@ -189,7 +189,7 @@ public class DuplicationMeasures {
       int duplicatedLines = counter.dupLineCount;
       int nbLines = counter.lineCount;
       if (nbLines > 0) {
-        double density = Math.min(100d, 100d * duplicatedLines / nbLines);
+        double density = Math.min(100.0, 100.0 * duplicatedLines / nbLines);
         return Optional.of(Measure.newMeasureBuilder().create(density, context.getMetric().getDecimalScale()));
       }
       return Optional.empty();
