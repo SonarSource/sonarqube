@@ -30,7 +30,6 @@ public class SettingsWsModule extends Module {
       SettingsWsSupport.class,
       ListDefinitionsAction.class,
       ValuesAction.class,
-      SettingsFinder.class,
       ResetAction.class,
       EncryptAction.class,
       GenerateSecretKeyAction.class,

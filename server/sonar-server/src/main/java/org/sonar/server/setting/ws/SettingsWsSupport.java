@@ -20,7 +20,6 @@
 package org.sonar.server.setting.ws;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -68,14 +67,6 @@ public class SettingsWsSupport {
       .ifPresent(property -> {
         throw new IllegalArgumentException(format("Setting '%s' can only be used in sonar.properties", key));
       });
-  }
-
-  Predicate<Setting> isSettingVisible(Optional<ComponentDto> component) {
-    return setting -> isVisible(setting.getKey(), setting.getDefinition(), component);
-  }
-
-  Predicate<PropertyDefinition> isDefinitionVisible(Optional<ComponentDto> component) {
-    return propertyDefinition -> isVisible(propertyDefinition.key(), propertyDefinition, component);
   }
 
   boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {

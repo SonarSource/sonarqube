@@ -21,6 +21,9 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +41,12 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
@@ -55,6 +60,7 @@ import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
@@ -67,22 +73,21 @@ public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
+  private static final Splitter DOT_SPLITTER = Splitter.on(".").omitEmptyStrings();
   private static final Set<String> SERVER_SETTING_KEYS = ImmutableSet.of(SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
-  private final SettingsFinder settingsFinder;
   private final SettingsWsSupport settingsWsSupport;
 
-  public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder,
+  public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
     SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
-    this.settingsFinder = settingsFinder;
     this.settingsWsSupport = settingsWsSupport;
   }
 
@@ -94,12 +99,12 @@ public class ValuesAction implements SettingsWsAction {
         "The settings from conf/sonar.properties are excluded from results.<br>" +
         "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>" +
         "To access licensed settings, authentication is required<br/>" +
-          "To access secured settings, one of the following permissions is required: " +
-          "<ul>" +
-          "<li>'Execute Analysis'</li>" +
-          "<li>'Administer System'</li>" +
-          "<li>'Administer' rights on the specified component</li>" +
-          "</ul>")
+        "To access secured settings, one of the following permissions is required: " +
+        "<ul>" +
+        "<li>'Execute Analysis'</li>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified component</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setChangelog(new Change("7.1", "The settings from conf/sonar.properties are excluded from results."))
@@ -121,32 +126,26 @@ public class ValuesAction implements SettingsWsAction {
 
   private ValuesWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(true)) {
-      ValuesRequest valuesRequest = toWsRequest(request);
+      ValuesRequest valuesRequest = ValuesRequest.from(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
 
       Set<String> keys = loadKeys(valuesRequest);
-      keys.forEach(SettingsWsSupport::validateKey);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
     }
   }
 
-  private static ValuesRequest toWsRequest(Request request) {
-    ValuesRequest result = new ValuesRequest()
-      .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .setPullRequest(request.param(PARAM_PULL_REQUEST));
-    if (request.hasParam(PARAM_KEYS)) {
-      result.setKeys(request.paramAsStrings(PARAM_KEYS));
-    }
-    return result;
-  }
-
   private Set<String> loadKeys(ValuesRequest valuesRequest) {
     List<String> keys = valuesRequest.getKeys();
-    return keys == null || keys.isEmpty() ? concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key),
-      SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet()) : ImmutableSet.copyOf(keys);
+    Set<String> result;
+    if (keys == null || keys.isEmpty()) {
+      result = concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet());
+    } else {
+      result = ImmutableSet.copyOf(keys);
+    }
+    result.forEach(SettingsWsSupport::validateKey);
+    return result;
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
@@ -166,19 +165,19 @@ public class ValuesAction implements SettingsWsAction {
   private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
     // List of settings must be kept in the following orders : default -> global -> component -> branch
     List<Setting> settings = new ArrayList<>();
-    settings.addAll(loadDefaultSettings(keys));
-    settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
+    settings.addAll(loadDefaultValues(keys));
+    settings.addAll(loadGlobalSettings(dbSession, keys));
     if (component.isPresent() && component.get().getBranch() != null && component.get().getMainBranchProjectUuid() != null) {
       ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.get().getMainBranchProjectUuid());
-      settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, project).values());
+      settings.addAll(loadComponentSettings(dbSession, keys, project).values());
     }
-    component.ifPresent(componentDto -> settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, componentDto).values()));
+    component.ifPresent(componentDto -> settings.addAll(loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings.stream()
-      .filter(settingsWsSupport.isSettingVisible(component))
+      .filter(s -> settingsWsSupport.isVisible(s.getKey(), s.getDefinition(), component))
       .collect(Collectors.toList());
   }
 
-  private List<Setting> loadDefaultSettings(Set<String> keys) {
+  private List<Setting> loadDefaultValues(Set<String> keys) {
     return propertyDefinitions.getAll().stream()
       .filter(definition -> keys.contains(definition.key()))
       .filter(defaultProperty -> !isEmpty(defaultProperty.defaultValue()))
@@ -192,6 +191,51 @@ public class ValuesAction implements SettingsWsAction {
         (u, v) -> {
           throw new IllegalArgumentException(format("'%s' and '%s' cannot be used at the same time as they refer to the same setting", u, v));
         }));
+  }
+
+  private List<Setting> loadGlobalSettings(DbSession dbSession, Set<String> keys) {
+    List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, keys);
+    List<PropertyDto> propertySets = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, getPropertySetKeys(properties));
+    return properties.stream()
+      .map(property -> Setting.createFromDto(property, getPropertySets(property.getKey(), propertySets, null), propertyDefinitions.get(property.getKey())))
+      .collect(MoreCollectors.toList(properties.size()));
+  }
+
+  /**
+   * Return list of settings by component uuid, sorted from project to lowest module
+   */
+  private Multimap<String, Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, ComponentDto component) {
+    List<String> componentUuids = DOT_SPLITTER.splitToList(component.moduleUuidPath());
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+    Set<Long> componentIds = componentDtos.stream().map(ComponentDto::getId).collect(Collectors.toSet());
+    Map<Long, String> uuidsById = componentDtos.stream().collect(Collectors.toMap(ComponentDto::getId, ComponentDto::uuid));
+    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentIds(dbSession, keys, componentIds);
+    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentIds(dbSession, getPropertySetKeys(properties), componentIds);
+
+    Multimap<String, Setting> settingsByUuid = TreeMultimap.create(Ordering.explicit(componentUuids), Ordering.arbitrary());
+    for (PropertyDto propertyDto : properties) {
+      Long componentId = propertyDto.getResourceId();
+      String componentUuid = uuidsById.get(componentId);
+      String propertyKey = propertyDto.getKey();
+      settingsByUuid.put(componentUuid,
+        Setting.createFromDto(propertyDto, getPropertySets(propertyKey, propertySets, componentId), propertyDefinitions.get(propertyKey)));
+    }
+    return settingsByUuid;
+  }
+
+  private Set<String> getPropertySetKeys(List<PropertyDto> properties) {
+    return properties.stream()
+      .filter(propertyDto -> propertyDefinitions.get(propertyDto.getKey()) != null)
+      .filter(propertyDto -> propertyDefinitions.get(propertyDto.getKey()).type().equals(PROPERTY_SET))
+      .flatMap(propertyDto -> extractPropertySetKeys(propertyDto, propertyDefinitions.get(propertyDto.getKey())).stream())
+      .collect(Collectors.toSet());
+  }
+
+  private static List<PropertyDto> getPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable Long componentId) {
+    return propertySets.stream()
+      .filter(propertyDto -> Objects.equals(propertyDto.getResourceId(), componentId))
+      .filter(propertyDto -> propertyDto.getKey().startsWith(propertyKey + "."))
+      .collect(Collectors.toList());
   }
 
   private class ValuesResponseBuilder {
@@ -301,7 +345,6 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private static class ValuesRequest {
-
     private String branch;
     private String pullRequest;
     private String component;
@@ -346,5 +389,17 @@ public class ValuesAction implements SettingsWsAction {
     public List<String> getKeys() {
       return keys;
     }
+
+    private static ValuesRequest from(Request request) {
+      ValuesRequest result = new ValuesRequest()
+        .setComponent(request.param(PARAM_COMPONENT))
+        .setBranch(request.param(PARAM_BRANCH))
+        .setPullRequest(request.param(PARAM_PULL_REQUEST));
+      if (request.hasParam(PARAM_KEYS)) {
+        result.setKeys(request.paramAsStrings(PARAM_KEYS));
+      }
+      return result;
+    }
+
   }
 }

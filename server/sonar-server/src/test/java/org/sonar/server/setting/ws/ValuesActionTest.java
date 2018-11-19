@@ -88,13 +88,12 @@ public class ValuesActionTest {
   private PropertyDbTester propertyDb = new PropertyDbTester(db);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private PropertyDefinitions definitions = new PropertyDefinitions();
-  private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
   private ComponentDto project;
 
   private WsActionTester ws = new WsActionTester(
-    new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, settingsFinder, support));
+    new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support));
 
   @Before
   public void setUp() throws Exception {
@@ -285,6 +284,17 @@ public class ValuesActionTest {
     assertThat(globalPropertyWithoutDefinitionValue.getKey()).isEqualTo("globalPropertyWithoutDefinition");
     assertThat(globalPropertyWithoutDefinitionValue.getValue()).isEqualTo("value");
     assertThat(globalPropertyWithoutDefinitionValue.getInherited()).isFalse();
+  }
+
+  @Test
+  public void return_values_of_component_even_if_no_property_definition() {
+    logInAsProjectUser();
+    propertyDb.insertProperties(
+      newComponentPropertyDto(project).setKey("property").setValue("foo"));
+
+    ValuesWsResponse response = executeRequestForComponentProperties(project, "property");
+    assertThat(response.getSettingsCount()).isEqualTo(1);
+    assertSetting(response.getSettings(0), "property", "foo", false);
   }
 
   @Test
@@ -483,7 +493,7 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_when_not_authenticated() {
+  public void do_not_return_secured_and_license_settings_when_not_authenticated() {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -501,7 +511,7 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated() {
+  public void do_not_return_secured_and_license_settings_in_property_set_when_not_authenticated() {
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -958,5 +968,4 @@ public class ValuesActionTest {
       }
     }
   }
-
 }
