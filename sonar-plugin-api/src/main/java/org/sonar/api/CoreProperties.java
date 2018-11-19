@@ -126,6 +126,11 @@ public interface CoreProperties {
    */
   String CATEGORY_TECHNICAL_DEBT = "technicalDebt";
 
+  /**
+   * @since 6.7.6
+   */
+  String SUBCATEGORY_FILE_MOVE = "fileMove";
+
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
 
