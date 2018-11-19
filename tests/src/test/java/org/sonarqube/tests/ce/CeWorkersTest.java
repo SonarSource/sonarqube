@@ -23,67 +23,34 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.http.HttpMethod;
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import javax.annotation.Nullable;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
 import util.ItUtils;
 
-import static com.google.common.collect.ImmutableSet.copyOf;
-import static java.lang.String.valueOf;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 public class CeWorkersTest {
-  private static final int WAIT = 200; // ms
-  private static final int MAX_WAIT_LOOP = 5 * 60 * 5; // 5 minutes
-
-  private static final byte BLOCKING = (byte) 0x00;
-  private static final byte UNLATCHED = (byte) 0x01;
-
-  private static final String STATUS_PENDING = "PENDING";
-  private static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
 
   @ClassRule
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private static File sharedMemory;
   private static Orchestrator orchestrator;
   private static WsClient adminWsClient;
 
   @BeforeClass
   public static void setUp() throws Exception {
-    sharedMemory = temporaryFolder.newFile();
-
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("fake-governance-plugin"))
-      .setServerProperty("fakeGoverance.workerLatch.sharedMemoryFile", sharedMemory.getAbsolutePath())
       // overwrite default value to display heap dump on OOM and reduce max heap
       .setServerProperty("sonar.ce.javaOpts", "-Xmx256m -Xms128m")
       .addPlugin(xooPlugin());
@@ -98,28 +65,6 @@ public class CeWorkersTest {
     if (orchestrator != null) {
       orchestrator.stop();
       orchestrator = null;
-    }
-  }
-
-  @Before
-  public void setup() throws Exception {
-    unlockWorkersAndResetWorkerCount();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    unlockWorkersAndResetWorkerCount();
-  }
-
-  private void unlockWorkersAndResetWorkerCount() throws IOException {
-    RandomAccessFile randomAccessFile = null;
-    try {
-      randomAccessFile = new RandomAccessFile(sharedMemory, "rw");
-      MappedByteBuffer mappedByteBuffer = initMappedByteBuffer(randomAccessFile);
-      releaseAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
-      updateWorkerCount(1);
-    } finally {
-      close(randomAccessFile);
     }
   }
 
@@ -238,145 +183,6 @@ public class CeWorkersTest {
     adminWsClient.wsConnector().call(new PostRequest("api/fake_gov/activate_bomb")
       .setParam("type", type))
       .failIfNotSuccessful();
-  }
-
-  @Test
-  public void enabled_worker_count_is_initially_1_and_can_be_changed_dynamically_by_plugin() throws IOException {
-    assertThat(Files.lines(orchestrator.getServer().getCeLogs().toPath())
-      .filter(s -> s.contains("Compute Engine will use ")))
-        .isEmpty();
-
-    RandomAccessFile randomAccessFile = null;
-    try {
-      randomAccessFile = new RandomAccessFile(sharedMemory, "rw");
-      MappedByteBuffer mappedByteBuffer = initMappedByteBuffer(randomAccessFile);
-
-      verifyAnalysesRunInParallel(mappedByteBuffer, 1);
-
-      /* 4 <= newWorkerCount <= 7 */
-      int newWorkerCount = 4 + new Random().nextInt(4);
-      updateWorkerCount(newWorkerCount);
-
-      Set<String> line = Files.lines(orchestrator.getServer().getCeLogs().toPath())
-        .filter(s -> s.contains("Compute Engine will use "))
-        .collect(Collectors.toSet());
-      assertThat(line).hasSize(1);
-      assertThat(line.iterator().next()).contains(valueOf(newWorkerCount));
-
-      verifyAnalysesRunInParallel(mappedByteBuffer, newWorkerCount);
-
-      int lowerWorkerCount = 3;
-      updateWorkerCount(lowerWorkerCount);
-      verifyAnalysesRunInParallel(mappedByteBuffer, lowerWorkerCount);
-    } finally {
-      close(randomAccessFile);
-    }
-  }
-
-  private void updateWorkerCount(int newWorkerCount) {
-    orchestrator.getServer()
-      .newHttpCall("api/ce/refreshWorkerCount")
-      .setMethod(HttpMethod.POST)
-      .setParam("count", valueOf(newWorkerCount))
-      .execute();
-  }
-
-  private void verifyAnalysesRunInParallel(MappedByteBuffer mappedByteBuffer, int workerCount) {
-    assertThat(adminWsClient.ce().workerCount())
-      .extracting(WsCe.WorkerCountResponse::getValue, WsCe.WorkerCountResponse::getCanSetWorkerCount)
-      .containsOnly(workerCount, true);
-
-    blockAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
-
-    // start analysis of workerCount + 2 projects
-    List<String> projectKeys = IntStream.range(0, workerCount + 2).mapToObj(i -> "prj" + i).collect(toList());
-    for (String projectKey : projectKeys) {
-      SonarScanner sonarRunner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
-        .setProperties("sonar.projectKey", projectKey);
-      orchestrator.executeBuild(sonarRunner, false);
-    }
-
-    List<WsCe.Task> tasksList = waitForWsCallStatus(
-      this::getTasksAllTasks,
-      (tasks) -> verifyInProgressTaskCount(tasks, workerCount));
-
-    assertThat(tasksList.stream()
-      .filter(CeWorkersTest::pending)
-      .map(WsCe.Task::getComponentKey)
-      .collect(toSet()))
-        .isEqualTo(copyOf(projectKeys.subList(workerCount, projectKeys.size())));
-    assertThat(tasksList.stream()
-      .filter(CeWorkersTest::inProgress)
-      .map(WsCe.Task::getComponentKey)
-      .collect(toSet()))
-        .isEqualTo(copyOf(projectKeys.subList(0, workerCount)));
-
-    releaseAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
-
-    waitForWsCallStatus(this::getTasksAllTasks, List::isEmpty);
-  }
-
-  private static MappedByteBuffer initMappedByteBuffer(RandomAccessFile randomAccessFile) throws IOException {
-    return randomAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 1);
-  }
-
-  private void releaseAnyAnalysisWithFakeGovernancePlugin(MappedByteBuffer mappedByteBuffer) {
-    // let the blocked analyses finish running
-    mappedByteBuffer.put(0, UNLATCHED);
-  }
-
-  private static void blockAnyAnalysisWithFakeGovernancePlugin(MappedByteBuffer mappedByteBuffer) {
-    // block any analysis which will run with the fake-governance-plugin
-    mappedByteBuffer.put(0, BLOCKING);
-  }
-
-  private void close(@Nullable RandomAccessFile randomAccessFile) throws IOException {
-    if (randomAccessFile != null) {
-      randomAccessFile.close();
-    }
-  }
-
-  private static boolean verifyInProgressTaskCount(List<WsCe.Task> tasksList, int workerCount) {
-    return tasksList.stream().filter(CeWorkersTest::inProgress).count() >= workerCount;
-  }
-
-  private static boolean pending(WsCe.Task task) {
-    return WsCe.TaskStatus.PENDING == task.getStatus();
-  }
-
-  private static boolean inProgress(WsCe.Task task) {
-    return WsCe.TaskStatus.IN_PROGRESS == task.getStatus();
-  }
-
-  private List<WsCe.Task> getTasksAllTasks(WsClient wsClient) {
-    return wsClient.ce().activity(new ActivityWsRequest()
-      .setStatus(ImmutableList.of(STATUS_PENDING, STATUS_IN_PROGRESS)))
-      .getTasksList();
-  }
-
-  private <T> T waitForWsCallStatus(Function<WsClient, T> call, Predicate<T> test) {
-    WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
-    int i = 0;
-    T returnValue = call.apply(wsClient);
-    boolean expectedState = test.test(returnValue);
-    while (i < MAX_WAIT_LOOP && !expectedState) {
-      waitInterruptedly();
-      i++;
-      returnValue = call.apply(wsClient);
-      expectedState = test.test(returnValue);
-    }
-    assertThat(expectedState)
-      .as("Failed to wait for expected queue status. Last call returned:\n%s", returnValue)
-      .isTrue();
-    return returnValue;
-  }
-
-  private static void waitInterruptedly() {
-    try {
-      Thread.sleep(WAIT);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
   }
 
   private void waitForEmptyQueue() throws InterruptedException {
