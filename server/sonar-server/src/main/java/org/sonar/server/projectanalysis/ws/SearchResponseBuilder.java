@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
@@ -44,6 +43,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
 
 class SearchResponseBuilder {
@@ -148,7 +148,7 @@ class SearchResponseBuilder {
     }
 
     ListMultimap<String, EventComponentChangeDto> componentChangeByKey = eventComponentChangeDtos.stream()
-      .collect(MoreCollectors.index(EventComponentChangeDto::getComponentKey));
+      .collect(index(EventComponentChangeDto::getComponentKey));
 
     try {
       wsDefinitionChange.addAllProjects(
