@@ -65,7 +65,9 @@ exports[`should render 2`] = `
       />
     </ResetButtonLink>
   </div>
-  <ul>
+  <ul
+    className="project-activity-event-inner-more-content"
+  >
     <li
       className="display-flex-center little-spacer-top"
       key="foo"
@@ -80,6 +82,7 @@ exports[`should render 2`] = `
             Object {
               "branch": <span
                 className="nowrap"
+                title="master"
               >
                 <LongLivingBranchIcon
                   className="little-spacer-left text-text-top"
@@ -90,6 +93,7 @@ exports[`should render 2`] = `
                 onClick={[Function]}
                 onlyActiveOnIndex={false}
                 style={Object {}}
+                title="Foo"
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -121,6 +125,7 @@ exports[`should render 2`] = `
             Object {
               "branch": <span
                 className="nowrap"
+                title="master"
               >
                 <LongLivingBranchIcon
                   className="little-spacer-left text-text-top"
@@ -131,6 +136,7 @@ exports[`should render 2`] = `
                 onClick={[Function]}
                 onlyActiveOnIndex={false}
                 style={Object {}}
+                title="Bar"
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -183,7 +189,9 @@ exports[`should render for a branch 1`] = `
       />
     </ResetButtonLink>
   </div>
-  <ul>
+  <ul
+    className="project-activity-event-inner-more-content"
+  >
     <li
       className="display-flex-center little-spacer-top"
       key="foo"
@@ -198,6 +206,7 @@ exports[`should render for a branch 1`] = `
             Object {
               "branch": <span
                 className="nowrap"
+                title="feature-x"
               >
                 <LongLivingBranchIcon
                   className="little-spacer-left text-text-top"
@@ -208,6 +217,7 @@ exports[`should render for a branch 1`] = `
                 onClick={[Function]}
                 onlyActiveOnIndex={false}
                 style={Object {}}
+                title="Foo"
                 to={
                   Object {
                     "pathname": "/dashboard",
@@ -236,6 +246,7 @@ exports[`should render for a branch 1`] = `
           Object {
             "newBranch": <span
               className="nowrap"
+              title="feature-y"
             >
               <LongLivingBranchIcon
                 className="little-spacer-left text-text-top"
@@ -244,6 +255,7 @@ exports[`should render for a branch 1`] = `
             </span>,
             "oldBranch": <span
               className="nowrap"
+              title="master"
             >
               <LongLivingBranchIcon
                 className="little-spacer-left text-text-top"
@@ -254,6 +266,7 @@ exports[`should render for a branch 1`] = `
               onClick={[Function]}
               onlyActiveOnIndex={false}
               style={Object {}}
+              title="Bar"
               to={
                 Object {
                   "pathname": "/dashboard",

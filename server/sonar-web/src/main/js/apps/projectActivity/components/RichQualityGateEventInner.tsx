@@ -23,9 +23,9 @@ import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import { AnalysisEvent } from '../../../app/types';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import Level from '../../../components/ui/Level';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { ResetButtonLink } from '../../../components/ui/buttons';
-import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 
@@ -45,6 +45,10 @@ interface State {
 
 export class RichQualityGateEventInner extends React.PureComponent<Props, State> {
   state: State = { expanded: false };
+
+  stopPropagation = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+  };
 
   toggleProjectsList = () => {
     this.setState(state => ({ expanded: !state.expanded }));
@@ -91,7 +95,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
         </div>
 
         {expanded && (
-          <ul>
+          <ul className="project-activity-event-inner-more-content">
             {event.qualityGate.failing.map(project => (
               <li className="display-flex-center little-spacer-top" key={project.key}>
                 <Level
@@ -101,7 +105,8 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
                 />
                 <div className="flex-1 text-ellipsis">
                   <Link
-                    onClick={e => e.stopPropagation()}
+                    onClick={this.stopPropagation}
+                    title={project.name}
                     to={getProjectUrl(project.key, project.branch)}>
                     {project.name}
                   </Link>

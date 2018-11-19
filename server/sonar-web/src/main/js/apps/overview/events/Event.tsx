@@ -23,6 +23,7 @@ import { AnalysisEvent } from '../../../app/types';
 import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
+import { isDefinitionChangeEvent } from '../../projectActivity/components/DefinitionChangeEventInner';
 
 interface Props {
   event: AnalysisEvent;
@@ -39,10 +40,19 @@ export default function Event({ event }: Props) {
     );
   }
 
+  const eventCategory = translate('event.category', event.category);
+  if (isDefinitionChangeEvent(event)) {
+    return (
+      <div className="overview-analysis-event">
+        <span className="note">{eventCategory}</span>
+      </div>
+    );
+  }
+
   if (isRichQualityGateEvent(event)) {
     return (
       <div className="overview-analysis-event">
-        <span className="note">{translate('event.category', event.category)}:</span>{' '}
+        <span className="note">{eventCategory}:</span>{' '}
         {event.qualityGate.stillFailing ? (
           <FormattedMessage
             defaultMessage={translate('event.quality_gate.still_x')}
@@ -58,7 +68,7 @@ export default function Event({ event }: Props) {
 
   return (
     <div className="overview-analysis-event">
-      <span className="note">{translate('event.category', event.category)}:</span>{' '}
+      <span className="note">{eventCategory}:</span>{' '}
       {event.description ? (
         <strong title={event.description}>{event.name}</strong>
       ) : (

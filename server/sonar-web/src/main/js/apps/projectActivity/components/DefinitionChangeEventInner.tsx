@@ -29,6 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import { isMainBranch } from '../../../helpers/branches';
+import { limitComponentName } from '../../../helpers/path';
 
 export type DefinitionChangeEvent = AnalysisEvent &
   Required<Pick<AnalysisEvent, 'definitionChange'>>;
@@ -49,18 +50,25 @@ interface State {
 export class DefinitionChangeEventInner extends React.PureComponent<Props, State> {
   state: State = { expanded: false };
 
+  stopPropagation = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+  };
+
   toggleProjectsList = () => {
     this.setState(state => ({ expanded: !state.expanded }));
   };
 
   renderProjectLink = (project: { key: string; name: string }, branch: string | undefined) => (
-    <Link onClick={e => e.stopPropagation()} to={getProjectUrl(project.key, branch)}>
-      {project.name}
+    <Link
+      onClick={this.stopPropagation}
+      title={project.name}
+      to={getProjectUrl(project.key, branch)}>
+      {limitComponentName(project.name, 28)}
     </Link>
   );
 
-  renderBranch = (branch: string | undefined) => (
-    <span className="nowrap">
+  renderBranch = (branch = translate('branches.main_branch')) => (
+    <span className="nowrap" title={branch}>
       <LongLivingBranchIcon className="little-spacer-left text-text-top" />
       {branch}
     </span>
@@ -121,7 +129,6 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
         />
       );
     }
-
     return null;
   }
 
@@ -155,7 +162,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
         </div>
 
         {expanded && (
-          <ul>
+          <ul className="project-activity-event-inner-more-content">
             {event.definitionChange.projects.map(project => (
               <li className="display-flex-center little-spacer-top" key={project.key}>
                 {this.renderProjectChange(project)}

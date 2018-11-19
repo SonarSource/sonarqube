@@ -165,6 +165,10 @@
   margin-top: 2px;
 }
 
+.project-activity-event-inner-more-content {
+  margin-left: 18px;
+}
+
 .project-activity-event-actions {
   flex-shrink: 0;
   flex-grow: 0;
