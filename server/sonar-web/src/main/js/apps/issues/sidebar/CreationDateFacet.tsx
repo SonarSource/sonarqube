@@ -127,7 +127,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
       values.push(translate('issues.facet.createdAt.last_year'));
     }
     if (sinceLeakPeriod) {
-      values.push(translate('issues.new_code_period'));
+      values.push(translate('issues.new_code'));
     }
     return values;
   }
@@ -235,7 +235,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
             active={sinceLeakPeriod}
             name={translate('issues.new_code')}
             onClick={this.handleLeakPeriodClick}
-            tooltip={translate('issues.leak_period')}
+            tooltip={translate('issues.new_code_period')}
             value=""
           />
         ) : (
