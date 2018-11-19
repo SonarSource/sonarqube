@@ -154,6 +154,7 @@ BUILD)
 
     mvn deploy \
         $MAVEN_ARGS \
+        -DskipTests=true \
         -Dsource.skip=true \
         -Pdeploy-sonarsource
 
