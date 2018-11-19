@@ -61,10 +61,11 @@ public class TrackerRawInputFactory {
   private final SourceLinesHashRepository sourceLinesHash;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
+  private final IssueRelocationToRoot issueRelocationToRoot;
 
   public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
     SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter, RuleRepository ruleRepository,
-    ActiveRulesHolder activeRulesHolder) {
+    ActiveRulesHolder activeRulesHolder, IssueRelocationToRoot issueRelocationToRoot) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesHash = sourceLinesHash;
@@ -72,6 +73,7 @@ public class TrackerRawInputFactory {
     this.issueFilter = issueFilter;
     this.ruleRepository = ruleRepository;
     this.activeRulesHolder = activeRulesHolder;
+    this.issueRelocationToRoot = issueRelocationToRoot;
   }
 
   public Input<DefaultIssue> create(Component component) {
@@ -142,6 +144,13 @@ public class TrackerRawInputFactory {
           ScannerReport.ExternalIssue reportExternalIssue = reportExternalIssues.next();
           result.add(toExternalIssue(getLineHashSequence(), reportExternalIssue, adHocRuleMap));
         }
+      }
+
+      if (component.getType() == Component.Type.PROJECT) {
+        // TODO apply filters?
+        issueRelocationToRoot.getMovedIssues().stream()
+          .map(i -> toIssue(getLineHashSequence(), i))
+          .forEach(result::add);
       }
 
       return result;

@@ -48,6 +48,7 @@ import org.sonar.db.ce.CeTaskMessageMapper;
 import org.sonar.db.component.AnalysisPropertiesMapper;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentKeyUpdaterMapper;
 import org.sonar.db.component.ComponentMapper;
@@ -167,6 +168,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
+    confBuilder.loadAlias("ComponentWithModuleUuid", ComponentWithModuleUuidDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);

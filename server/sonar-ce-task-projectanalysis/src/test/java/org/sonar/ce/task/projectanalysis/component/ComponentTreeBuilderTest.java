@@ -43,6 +43,8 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -64,6 +66,7 @@ public class ComponentTreeBuilderTest {
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
   private static final String NO_SCM_BASE_PATH = "";
 
+  private IssueRelocationToRoot issueRelocationToRoot = mock(IssueRelocationToRoot.class);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -571,6 +574,39 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
+  public void issues_are_relocated_from_directories_and_modules_to_root() {
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey("c1")
+      .setRef(1)
+      .addChildRef(2)
+      .build();
+    ScannerReport.Component.Builder module = newBuilder()
+      .setRef(2)
+      .setType(MODULE)
+      .setKey("c2")
+      .addChildRef(3);
+    scannerComponentProvider.add(module);
+    ScannerReport.Component.Builder directory = newBuilder()
+      .setRef(3)
+      .setType(DIRECTORY)
+      .setProjectRelativePath("src/js")
+      .addChildRef(4);
+    scannerComponentProvider.add(directory);
+    ScannerReport.Component.Builder file = newBuilder()
+      .setRef(4)
+      .setType(FILE)
+      .setProjectRelativePath("src/js/Foo.js")
+      .setLines(1);
+    scannerComponentProvider.add(file);
+
+    call(project);
+    verify(issueRelocationToRoot).relocate(project, module.build());
+    verify(issueRelocationToRoot).relocate(project, directory.build());
+    verifyNoMoreInteractions(issueRelocationToRoot);
+  }
+
+  @Test
   public void descriptions_of_module_directory_and_file_are_null_if_absent_from_report() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
@@ -826,19 +862,7 @@ public class ComponentTreeBuilderTest {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(mainBranch);
     return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, branch, baseAnalysis,
-      mock(IssueRelocationToRoot.class));
-  }
-
-  private static Map<Integer, Component> indexComponentByRef(Component root) {
-    Map<Integer, Component> componentsByRef = new HashMap<>();
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, PRE_ORDER) {
-        @Override
-        public void visitAny(Component any) {
-          componentsByRef.put(any.getReportAttributes().getRef(), any);
-        }
-      }).visit(root);
-    return componentsByRef;
+      issueRelocationToRoot);
   }
 
   private static Map<String, Component> indexComponentByKey(Component root) {

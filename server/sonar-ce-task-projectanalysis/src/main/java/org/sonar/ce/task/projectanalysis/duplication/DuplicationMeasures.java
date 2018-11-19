@@ -156,10 +156,7 @@ public class DuplicationMeasures {
 
     private static int getMeasure(CounterInitializationContext context, String metricKey) {
       Optional<Measure> files = context.getMeasure(metricKey);
-      if (files.isPresent()) {
-        return files.get().getIntValue();
-      }
-      return 0;
+      return files.map(Measure::getIntValue).orElse(0);
     }
   }
 

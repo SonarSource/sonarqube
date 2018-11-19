@@ -164,4 +164,6 @@ public interface ComponentMapper {
   List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(@Param("mergeBranchUuid") String mergeBranchUuid);
 
   List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(@Param("organizationUuid") String organizationUuid);
+
+  List<ComponentWithModuleUuidDto> selectComponentsWithModuleUuidFromProjectKey(String projectKey);
 }

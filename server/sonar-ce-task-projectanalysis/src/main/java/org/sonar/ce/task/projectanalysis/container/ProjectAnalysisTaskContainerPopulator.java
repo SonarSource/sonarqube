@@ -64,6 +64,7 @@ import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.IssueCounter;
 import org.sonar.ce.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.ce.task.projectanalysis.issue.IssueLifecycle;
+import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.ce.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.ce.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.ce.task.projectanalysis.issue.IssuesRepositoryVisitor;
@@ -232,6 +233,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ComponentsWithUnprocessedIssues.class,
       ComponentIssuesRepositoryImpl.class,
       IssueFilter.class,
+      IssueRelocationToRoot.class,
 
       // common rules
       CommonRuleEngineImpl.class,

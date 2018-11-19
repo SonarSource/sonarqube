@@ -183,8 +183,12 @@ public class ComponentDao implements Dao {
     return mapper(session).selectUuidsByKeyFromProjectKey(projectKey);
   }
 
+  public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey, boolean excludeDisabled) {
+    return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, excludeDisabled);
+  }
+
   public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey) {
-    return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, true);
+    return selectEnabledModulesFromProjectKey(session, projectKey, true);
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
@@ -345,6 +349,10 @@ public class ComponentDao implements Dao {
   public Set<ComponentDto> selectComponentsByQualifiers(DbSession dbSession, Set<String> qualifiers) {
     checkArgument(!qualifiers.isEmpty(), "Qualifiers cannot be empty");
     return new HashSet<>(mapper(dbSession).selectComponentsByQualifiers(qualifiers));
+  }
+
+  public List<ComponentWithModuleUuidDto> selectComponentsWithModuleUuidFromProjectKey(DbSession dbSession, String projectKey) {
+    return mapper(dbSession).selectComponentsWithModuleUuidFromProjectKey(projectKey);
   }
 
   public List<ComponentDto> selectProjectsByNameQuery(DbSession dbSession, @Nullable String nameQuery, boolean includeModules) {

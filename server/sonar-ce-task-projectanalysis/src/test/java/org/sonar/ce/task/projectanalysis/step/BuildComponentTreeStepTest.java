@@ -168,22 +168,46 @@ public class BuildComponentTreeStepTest {
     setAnalysisMetadataHolder();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    ComponentDto module = insertComponent(newModuleDto("BCDE", project).setDbKey(REPORT_MODULE_KEY));
-    ComponentDto directory = newDirectory(module, "CDEF", REPORT_DIR_PATH_1);
-    insertComponent(directory.setDbKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_PATH_1));
-    insertComponent(newFileDto(module, directory, "DEFG").setDbKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_PATH_1));
+    ComponentDto directory = newDirectory(project, "CDEF", REPORT_DIR_PATH_1);
+    insertComponent(directory.setDbKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1));
+    insertComponent(newFileDto(project, directory, "DEFG")
+      .setDbKey(REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1)
+      .setPath(REPORT_FILE_PATH_1));
 
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
-    reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    // new structure, without modules
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
 
     underTest.execute(new TestComputationStepContext());
 
     verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
-    // TODO migrate modules
-    //    verifyComponentByRef(DIR_REF_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "CDEF");
-    //   verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, "DEFG");
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "CDEF");
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, "DEFG");
+  }
+
+  @Test
+  public void return_existing_uuids_with_modules() {
+    setAnalysisMetadataHolder();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto module = insertComponent(newModuleDto("BCDE", project).setDbKey(REPORT_MODULE_KEY));
+    ComponentDto directory = newDirectory(module, "CDEF", REPORT_DIR_PATH_1);
+    insertComponent(directory.setDbKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_PATH_1));
+    insertComponent(newFileDto(module, directory, "DEFG")
+      .setDbKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_PATH_1)
+      .setPath(REPORT_FILE_PATH_1));
+
+    // new structure, without modules
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, "module/" + REPORT_DIR_PATH_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, "module/" + REPORT_FILE_PATH_1));
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, "CDEF");
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":module/" + REPORT_FILE_PATH_1, "DEFG");
   }
 
   @Test

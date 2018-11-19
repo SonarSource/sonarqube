@@ -31,6 +31,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -67,6 +68,7 @@ public class ComponentTreeBuilder {
   private final Branch branch;
   @Nullable
   private final SnapshotDto baseAnalysis;
+  private final IssueRelocationToRoot issueRelocationToRoot;
 
   private ScannerReport.Component rootComponent;
   private String scmBasePath;
@@ -77,7 +79,7 @@ public class ComponentTreeBuilder {
     Function<String, String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
-    Branch branch, @Nullable SnapshotDto baseAnalysis) {
+    Branch branch, @Nullable SnapshotDto baseAnalysis, IssueRelocationToRoot issueRelocationToRoot) {
 
     this.keyGenerator = keyGenerator;
     this.publicKeyGenerator = publicKeyGenerator;
@@ -86,17 +88,18 @@ public class ComponentTreeBuilder {
     this.project = project;
     this.branch = branch;
     this.baseAnalysis = baseAnalysis;
+    this.issueRelocationToRoot = issueRelocationToRoot;
   }
 
   public Component buildProject(ScannerReport.Component project, String scmBasePath) {
     this.rootComponent = project;
     this.scmBasePath = trimToNull(scmBasePath);
 
-    Node root = buildFolderHierarchy(project);
-    return buildNode(root, "");
+    Node root = createProjectHierarchy(project);
+    return buildComponent(root, "");
   }
 
-  private Node buildFolderHierarchy(ScannerReport.Component rootComponent) {
+  private Node createProjectHierarchy(ScannerReport.Component rootComponent) {
     Preconditions.checkArgument(rootComponent.getType() == ScannerReport.Component.ComponentType.PROJECT, "Expected root component of type 'PROJECT'");
 
     LinkedList<ScannerReport.Component> queue = new LinkedList<>();
@@ -112,16 +115,11 @@ public class ComponentTreeBuilder {
       ScannerReport.Component component = queue.removeFirst();
       switch (component.getType()) {
         case FILE:
-          addFileOrDirectory(root, component);
+          addFile(root, component);
           break;
         case MODULE:
-
-          component.getChildRefList().stream()
-            .map(scannerComponentSupplier)
-            .forEach(queue::addLast);
-          break;
         case DIRECTORY:
-          addFileOrDirectory(root, component);
+          issueRelocationToRoot.relocate(rootComponent, component);
           component.getChildRefList().stream()
             .map(scannerComponentSupplier)
             .forEach(queue::addLast);
@@ -133,9 +131,8 @@ public class ComponentTreeBuilder {
     return root;
   }
 
-  private static void addFileOrDirectory(Node root, ScannerReport.Component file) {
-    Preconditions.checkArgument(file.getType() != ScannerReport.Component.ComponentType.FILE || !StringUtils.isEmpty(file.getProjectRelativePath()),
-      "Files should have a relative path: " + file);
+  private static void addFile(Node root, ScannerReport.Component file) {
+    Preconditions.checkArgument(!StringUtils.isEmpty(file.getProjectRelativePath()), "Files should have a project relative path: " + file);
     String[] split = StringUtils.split(file.getProjectRelativePath(), '/');
     Node currentNode = root.children().computeIfAbsent("", k -> new Node());
 
@@ -145,7 +142,7 @@ public class ComponentTreeBuilder {
     currentNode.reportComponent = file;
   }
 
-  private Component buildNode(Node node, String currentPath) {
+  private Component buildComponent(Node node, String currentPath) {
     List<Component> childComponents = buildChildren(node, currentPath);
     ScannerReport.Component component = node.reportComponent();
 
@@ -157,7 +154,7 @@ public class ComponentTreeBuilder {
       }
     }
 
-    return buildDirectory(currentPath, component, childComponents);
+    return buildDirectory(currentPath, childComponents);
   }
 
   private List<Component> buildChildren(Node node, String currentPath) {
@@ -165,14 +162,15 @@ public class ComponentTreeBuilder {
 
     for (Map.Entry<String, Node> e : node.children().entrySet()) {
       String path = buildPath(currentPath, e.getKey());
-      Node n = e.getValue();
+      Node childNode = e.getValue();
 
-      while (n.children().size() == 1 && n.children().values().iterator().next().children().size() > 0) {
-        Map.Entry<String, Node> childEntry = n.children().entrySet().iterator().next();
+      // collapse folders that only contain one folder
+      while (childNode.children().size() == 1 && childNode.children().values().iterator().next().children().size() > 0) {
+        Map.Entry<String, Node> childEntry = childNode.children().entrySet().iterator().next();
         path = buildPath(path, childEntry.getKey());
-        n = childEntry.getValue();
+        childNode = childEntry.getValue();
       }
-      children.add(buildNode(n, path));
+      children.add(buildComponent(childNode, path));
     }
     return children;
   }
@@ -216,18 +214,17 @@ public class ComponentTreeBuilder {
       .build();
   }
 
-  private ComponentImpl buildDirectory(String path, @Nullable ScannerReport.Component scannerComponent, List<Component> children) {
+  private ComponentImpl buildDirectory(String path, List<Component> children) {
     String nonEmptyPath = path.isEmpty() ? "/" : path;
     String key = keyGenerator.generateKey(rootComponent, nonEmptyPath);
     String publicKey = publicKeyGenerator.generateKey(rootComponent, nonEmptyPath);
-    Integer ref = scannerComponent != null ? scannerComponent.getRef() : null;
     return ComponentImpl.builder(Component.Type.DIRECTORY)
       .setUuid(uuidSupplier.apply(key))
       .setDbKey(key)
       .setKey(publicKey)
       .setName(publicKey)
       .setStatus(convertStatus(FileStatus.UNAVAILABLE))
-      .setReportAttributes(createAttributesBuilder(ref, nonEmptyPath, scmBasePath, path).build())
+      .setReportAttributes(createAttributesBuilder(null, nonEmptyPath, scmBasePath, path).build())
       .addChildren(children)
       .build();
   }
@@ -359,7 +356,7 @@ public class ComponentTreeBuilder {
   @CheckForNull
   private static String computeScmPath(@Nullable String scmBasePath, String scmRelativePath) {
     if (scmRelativePath.isEmpty()) {
-      return null;
+      return scmBasePath;
     }
     if (scmBasePath == null) {
       return scmRelativePath;

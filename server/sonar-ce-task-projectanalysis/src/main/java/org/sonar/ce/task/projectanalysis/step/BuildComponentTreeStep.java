@@ -31,6 +31,7 @@ import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
 import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactory;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
+import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,13 +48,15 @@ public class BuildComponentTreeStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final MutableTreeRootHolder treeRootHolder;
   private final MutableAnalysisMetadataHolder analysisMetadataHolder;
+  private final IssueRelocationToRoot issueRelocationToRoot;
 
   public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader,
-    MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder) {
+    MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder, IssueRelocationToRoot issueRelocationToRoot) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.issueRelocationToRoot = issueRelocationToRoot;
   }
 
   @Override
@@ -82,7 +85,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),
-        baseAnalysis);
+        baseAnalysis, issueRelocationToRoot);
       String relativePathFromScmRoot = reportReader.readMetadata().getRelativePathFromScmRoot();
 
       Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);

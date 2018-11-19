@@ -28,7 +28,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -39,8 +38,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
 public class ValidateProjectStepTest {
 
@@ -55,9 +52,6 @@ public class ValidateProjectStepTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
-  @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
@@ -67,17 +61,10 @@ public class ValidateProjectStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
+  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
-
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
     dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1420088400000L)); // 2015-01-01
@@ -91,13 +78,6 @@ public class ValidateProjectStepTest {
   @Test
   public void fail_if_analysis_date_is_before_last_analysis() {
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
-
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
 
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);

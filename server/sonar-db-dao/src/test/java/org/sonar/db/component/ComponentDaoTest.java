@@ -528,6 +528,34 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void select_components_with_module_dto() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
+    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
+
+    // From root project
+    assertThat(underTest.selectComponentsWithModuleUuidFromProjectKey(dbSession, project.getDbKey()))
+      .extracting(ComponentWithModuleUuidDto::uuid)
+      .containsExactlyInAnyOrder(
+        project.uuid(),
+        module.uuid(),
+        removedModule.uuid(),
+        subModule.uuid(),
+        removedSubModule.uuid(),
+        directory.uuid(),
+        removedDirectory.uuid(),
+        file.uuid(),
+        removedFile.uuid()
+      );
+  }
+
+  @Test
   public void select_all_modules_tree() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
