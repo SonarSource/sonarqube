@@ -21,21 +21,27 @@ import { ActionType } from './utils/actions';
 import { Extension, AppState } from '../app/types';
 import { EditionKey } from '../apps/marketplace/utils';
 
-type Action =
-  | ActionType<typeof setAppState, 'SET_APP_STATE'>
-  | ActionType<typeof setAdminPages, 'SET_ADMIN_PAGES'>
-  | ActionType<typeof requireAuthorization, 'REQUIRE_AUTHORIZATION'>;
+export const enum Actions {
+  SetAppState = 'SET_APP_STATE',
+  SetAdminPages = 'SET_ADMIN_PAGES',
+  RequireAuthorization = 'REQUIRE_AUTHORIZATION'
+}
+
+export type Action =
+  | ActionType<typeof setAppState, Actions.SetAppState>
+  | ActionType<typeof setAdminPages, Actions.SetAdminPages>
+  | ActionType<typeof requireAuthorization, Actions.RequireAuthorization>;
 
 export function setAppState(appState: AppState) {
-  return { type: 'SET_APP_STATE', appState };
+  return { type: Actions.SetAppState, appState };
 }
 
 export function setAdminPages(adminPages: Extension[]) {
-  return { type: 'SET_ADMIN_PAGES', adminPages };
+  return { type: Actions.SetAdminPages, adminPages };
 }
 
 export function requireAuthorization() {
-  return { type: 'REQUIRE_AUTHORIZATION' };
+  return { type: Actions.RequireAuthorization };
 }
 
 const defaultValue: AppState = {
@@ -46,21 +52,19 @@ const defaultValue: AppState = {
   organizationsEnabled: false,
   productionDatabase: true,
   qualifiers: [],
+  settings: {},
   version: ''
 };
 
 export default function(state: AppState = defaultValue, action: Action): AppState {
-  if (action.type === 'SET_APP_STATE') {
+  if (action.type === Actions.SetAppState) {
     return { ...state, ...action.appState };
   }
-
-  if (action.type === 'SET_ADMIN_PAGES') {
+  if (action.type === Actions.SetAdminPages) {
     return { ...state, adminPages: action.adminPages };
   }
-
-  if (action.type === 'REQUIRE_AUTHORIZATION') {
+  if (action.type === Actions.RequireAuthorization) {
     return { ...state, authorizationError: true };
   }
-
   return state;
 }

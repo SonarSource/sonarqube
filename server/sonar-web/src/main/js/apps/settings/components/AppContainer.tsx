@@ -17,51 +17,64 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Helmet from 'react-helmet';
-import PageHeader from './PageHeader';
-import CategoryDefinitionsList from './CategoryDefinitionsList';
+import { connect } from 'react-redux';
+import { WithRouterProps } from 'react-router';
 import AllCategoriesList from './AllCategoriesList';
+import CategoryDefinitionsList from './CategoryDefinitionsList';
+import PageHeader from './PageHeader';
 import WildcardsHelp from './WildcardsHelp';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { fetchSettings } from '../store/actions';
+import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../app/types';
 import '../styles.css';
 import '../side-tabs.css';
 
-/*::
-type Props = {
-  component?: { key: string },
-  defaultCategory: ?string,
-  fetchSettings(componentKey: ?string): Promise<*>,
-  location: { query: {} }
-};
-*/
+interface Props {
+  component?: Component;
+  defaultCategory: string;
+  fetchSettings(component?: string): Promise<void>;
+}
 
-/*::
-type State = {
-  loaded: boolean
-};
-*/
+interface State {
+  loading: boolean;
+}
 
-export default class App extends React.PureComponent {
-  /*:: props: Props; */
-  state /*: State */ = { loaded: false };
+export class App extends React.PureComponent<Props & WithRouterProps, State> {
+  mounted = false;
+  state: State = { loading: true };
 
   componentDidMount() {
-    const componentKey = this.props.component ? this.props.component.key : null;
-    this.props.fetchSettings(componentKey).then(() => this.setState({ loaded: true }));
+    this.mounted = true;
+    this.fetchSettings();
   }
 
-  componentDidUpdate(prevProps /*: Props*/) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.component !== this.props.component) {
-      const componentKey = this.props.component ? this.props.component.key : null;
-      this.props.fetchSettings(componentKey);
+      this.fetchSettings();
     }
   }
 
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  fetchSettings = () => {
+    const { component } = this.props;
+    this.props.fetchSettings(component && component.key).then(this.stopLoading, this.stopLoading);
+  };
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
   render() {
-    if (!this.state.loaded) {
+    if (this.state.loading) {
       return null;
     }
 
@@ -92,3 +105,14 @@ export default class App extends React.PureComponent {
     );
   }
 }
+
+const mapStateToProps = (state: Store) => ({
+  defaultCategory: getSettingsAppDefaultCategory(state)
+});
+
+const mapDispatchToProps = { fetchSettings: fetchSettings as any };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

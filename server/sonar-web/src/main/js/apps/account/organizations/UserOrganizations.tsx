@@ -33,7 +33,7 @@ import {
 import { Organization } from '../../../app/types';
 
 interface StateProps {
-  anyoneCanCreate?: { value: string };
+  anyoneCanCreate: boolean;
   canAdmin?: boolean;
   organizations: Organization[];
 }
@@ -68,9 +68,7 @@ class UserOrganizations extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const anyoneCanCreate =
-      this.props.anyoneCanCreate != null && this.props.anyoneCanCreate.value === 'true';
-
+    const { anyoneCanCreate } = this.props;
     const canCreateOrganizations = !this.state.loading && (anyoneCanCreate || this.props.canAdmin);
 
     return (
@@ -100,11 +98,14 @@ class UserOrganizations extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  anyoneCanCreate: getGlobalSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
-  canAdmin: getAppState(state).canAdmin,
-  organizations: getMyOrganizations(state)
-});
+const mapStateToProps = (state: Store): StateProps => {
+  const anyoneCanCreate = getGlobalSettingValue(state, 'sonar.organizations.anyoneCanCreate');
+  return {
+    anyoneCanCreate: Boolean(anyoneCanCreate && anyoneCanCreate.value === 'true'),
+    canAdmin: getAppState(state).canAdmin,
+    organizations: getMyOrganizations(state)
+  };
+};
 
 const mapDispatchToProps = {
   fetchIfAnyoneCanCreateOrganizations: fetchIfAnyoneCanCreateOrganizations as any

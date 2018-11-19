@@ -19,12 +19,11 @@
  */
 import { Dispatch } from 'redux';
 import { getValues } from '../../api/settings';
-import { receiveValues } from '../settings/store/values/actions';
+import { receiveValues } from '../settings/store/values';
 
 export function fetchAboutPageSettings() {
   return (dispatch: Dispatch) => {
     const keys = ['sonar.lf.aboutText'];
-
     return getValues({ keys: keys.join() }).then(values => {
       dispatch(receiveValues(values));
     });

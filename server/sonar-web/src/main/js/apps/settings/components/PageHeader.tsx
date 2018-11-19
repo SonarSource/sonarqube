@@ -17,17 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const CHANGE_VALUE = 'settingsPage/CHANGE_VALUE';
+import * as React from 'react';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../app/types';
 
-export const changeValue = (key, value) => ({
-  type: CHANGE_VALUE,
-  key,
-  value
-});
+interface Props {
+  component?: Component;
+}
 
-export const CANCEL_CHANGE = 'settingsPage/CANCEL_CHANGE';
+export default function PageHeader({ component }: Props) {
+  const title = component ? translate('project_settings.page') : translate('settings.page');
 
-export const cancelChange = key => ({
-  type: CANCEL_CHANGE,
-  key
-});
+  const description = component ? (
+    translate('project_settings.page.description')
+  ) : (
+    <InstanceMessage message={translate('settings.page.description')} />
+  );
+
+  return (
+    <header className="page-header">
+      <h1 className="page-title">{title}</h1>
+      <div className="page-description">{description}</div>
+    </header>
+  );
+}

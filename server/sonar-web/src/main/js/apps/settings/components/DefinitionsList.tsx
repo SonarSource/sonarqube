@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit } from 'lodash';
-import { CHANGE_VALUE, CANCEL_CHANGE } from './actions';
+import * as React from 'react';
+import Definition from './Definition';
+import { Component, Setting } from '../../../app/types';
 
-const reducer = (state = {}, action = {}) => {
-  if (action.type === CHANGE_VALUE) {
-    return { ...state, [action.key]: action.value };
-  }
+interface Props {
+  component?: Component;
+  settings: Setting[];
+}
 
-  if (action.type === CANCEL_CHANGE) {
-    return omit(state, action.key);
-  }
-
-  return state;
-};
-
-export default reducer;
-
-export const getChangedValue = (state, key) => state[key];
+export default function DefinitionsList({ component, settings }: Props) {
+  return (
+    <ul className="settings-definitions-list">
+      {settings.map(setting => (
+        <li key={setting.definition.key}>
+          <Definition component={component} setting={setting} />
+        </li>
+      ))}
+    </ul>
+  );
+}

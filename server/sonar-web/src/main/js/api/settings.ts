@@ -23,12 +23,17 @@ import {
   BranchParameters,
   SettingCategoryDefinition,
   SettingValue,
-  SettingType
+  SettingType,
+  SettingDefinition
 } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { isCategoryDefinition } from '../apps/settings/utils';
 
 export function getDefinitions(component?: string): Promise<SettingCategoryDefinition[]> {
-  return getJSON('/api/settings/list_definitions', { component }).then(r => r.definitions);
+  return getJSON('/api/settings/list_definitions', { component }).then(
+    r => r.definitions,
+    throwGlobalError
+  );
 }
 
 export function getValues(
@@ -37,11 +42,15 @@ export function getValues(
   return getJSON('/api/settings/values', data).then(r => r.settings);
 }
 
-export function setSettingValue(definition: any, value: any, component?: string): Promise<void> {
+export function setSettingValue(
+  definition: SettingDefinition,
+  value: any,
+  component?: string
+): Promise<void> {
   const { key } = definition;
   const data: RequestData = { key, component };
 
-  if (definition.multiValues) {
+  if (isCategoryDefinition(definition) && definition.multiValues) {
     data.values = value;
   } else if (definition.type === SettingType.PropertySet) {
     data.fieldValues = value

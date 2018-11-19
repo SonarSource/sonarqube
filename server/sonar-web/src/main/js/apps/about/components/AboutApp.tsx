@@ -48,7 +48,7 @@ import '../styles.css';
 interface Props {
   appState: Pick<AppState, 'defaultOrganization' | 'organizationsEnabled'>;
   currentUser: CurrentUser;
-  customText?: { value: string };
+  customText?: string;
   fetchAboutPageSettings: () => Promise<void>;
   location: Location;
 }
@@ -158,13 +158,9 @@ class AboutApp extends React.PureComponent<Props, State> {
             </div>
           </div>
 
-          {customText != null &&
-            customText.value && (
-              <div
-                className="about-page-section"
-                dangerouslySetInnerHTML={{ __html: customText.value }}
-              />
-            )}
+          {customText && (
+            <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText }} />
+          )}
 
           <AboutLanguages />
 
@@ -195,11 +191,14 @@ class AboutApp extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  appState: getAppState(state),
-  currentUser: getCurrentUser(state),
-  customText: getGlobalSettingValue(state, 'sonar.lf.aboutText')
-});
+const mapStateToProps = (state: Store) => {
+  const customText = getGlobalSettingValue(state, 'sonar.lf.aboutText');
+  return {
+    appState: getAppState(state),
+    currentUser: getCurrentUser(state),
+    customText: customText && customText.value
+  };
+};
 
 const mapDispatchToProps = { fetchAboutPageSettings } as any;
 

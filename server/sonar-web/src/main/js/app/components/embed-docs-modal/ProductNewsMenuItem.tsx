@@ -124,8 +124,11 @@ export class ProductNewsMenuItem extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  accessToken: (getGlobalSettingValue(state, 'sonar.prismic.accessToken') || {}).value
-});
+const mapStateToProps = (state: Store): StateProps => {
+  const accessToken = getGlobalSettingValue(state, 'sonar.prismic.accessToken');
+  return {
+    accessToken: accessToken && accessToken.value
+  };
+};
 
 export default connect(mapStateToProps)(ProductNewsMenuItem);

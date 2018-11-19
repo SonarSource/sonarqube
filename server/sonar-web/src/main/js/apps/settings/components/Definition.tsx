@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import Input from './inputs/Input';
@@ -34,35 +32,37 @@ import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon'
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue, checkValue } from '../store/actions';
-import { passValidation } from '../store/settingsPage/validationMessages/actions';
-import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
+import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
 import {
   getSettingsAppChangedValue,
+  getSettingsAppValidationMessage,
   isSettingsAppLoading,
-  getSettingsAppValidationMessage
+  Store
 } from '../../../store/rootReducer';
+import { Component, Setting } from '../../../app/types';
 
-class Definition extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: timeout: number; */
+interface Props {
+  cancelChange: (key: string) => void;
+  changedValue: any;
+  changeValue: (key: string, value: any) => void;
+  checkValue: (key: string) => boolean;
+  component?: Component;
+  loading: boolean;
+  passValidation: (key: string) => void;
+  resetValue: (key: string, component?: string) => Promise<void>;
+  saveValue: (key: string, component?: string) => Promise<void>;
+  setting: Setting;
+  validationMessage?: string;
+}
 
-  static propTypes = {
-    component: PropTypes.object,
-    setting: PropTypes.object.isRequired,
-    changedValue: PropTypes.any,
-    loading: PropTypes.bool.isRequired,
-    validationMessage: PropTypes.string,
+interface State {
+  success: boolean;
+}
 
-    changeValue: PropTypes.func.isRequired,
-    cancelChange: PropTypes.func.isRequired,
-    saveValue: PropTypes.func.isRequired,
-    resetValue: PropTypes.func.isRequired,
-    passValidation: PropTypes.func.isRequired
-  };
-
-  state = {
-    success: false
-  };
+export class Definition extends React.PureComponent<Props, State> {
+  timeout?: number;
+  mounted = false;
+  state = { success: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -72,87 +72,80 @@ class Definition extends React.PureComponent {
     this.mounted = false;
   }
 
-  safeSetState(changes) {
+  safeSetState(changes: State) {
     if (this.mounted) {
       this.setState(changes);
     }
   }
 
-  handleChange = value => {
+  handleChange = (value: any) => {
     clearTimeout(this.timeout);
     this.props.changeValue(this.props.setting.definition.key, value);
     this.handleCheck();
   };
 
   handleReset = () => {
-    const componentKey = this.props.component ? this.props.component.key : null;
-    const { definition } = this.props.setting;
-    return this.props
-      .resetValue(definition.key, componentKey)
-      .then(() => {
-        this.props.cancelChange(definition.key, componentKey);
-        this.safeSetState({ success: true });
-        this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-      })
-      .catch(() => {
-        /* do nothing */
-      });
+    const { component, setting } = this.props;
+    const { definition } = setting;
+    const componentKey = component && component.key;
+    return this.props.resetValue(definition.key, componentKey).then(() => {
+      this.props.cancelChange(definition.key);
+      this.safeSetState({ success: true });
+      this.timeout = window.setTimeout(() => this.safeSetState({ success: false }), 3000);
+    });
   };
 
   handleCancel = () => {
-    const componentKey = this.props.component ? this.props.component.key : null;
-    this.props.cancelChange(this.props.setting.definition.key, componentKey);
-    this.props.passValidation(this.props.setting.definition.key);
+    const { setting } = this.props;
+    this.props.cancelChange(setting.definition.key);
+    this.props.passValidation(setting.definition.key);
   };
 
   handleCheck = () => {
-    const componentKey = this.props.component ? this.props.component.key : null;
-    this.props.checkValue(this.props.setting.definition.key, componentKey);
+    const { setting } = this.props;
+    this.props.checkValue(setting.definition.key);
   };
 
   handleSave = () => {
     if (this.props.changedValue != null) {
       this.safeSetState({ success: false });
-      const componentKey = this.props.component ? this.props.component.key : null;
-      this.props
-        .saveValue(this.props.setting.definition.key, componentKey)
-        .then(() => {
+      const { component, setting } = this.props;
+      this.props.saveValue(setting.definition.key, component && component.key).then(
+        () => {
           this.safeSetState({ success: true });
-          this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-        })
-        .catch(() => {
-          /* do nothing */
-        });
+          this.timeout = window.setTimeout(() => this.safeSetState({ success: false }), 3000);
+        },
+        () => {}
+      );
     }
   };
 
   render() {
-    const { setting, changedValue, loading } = this.props;
+    const { changedValue, loading, setting, validationMessage } = this.props;
     const { definition } = setting;
     const propertyName = getPropertyName(definition);
-    const hasError = this.props.validationMessage != null;
-
+    const hasError = validationMessage != null;
     const hasValueChanged = changedValue != null;
-
-    const className = classNames('settings-definition', {
-      'settings-definition-changed': hasValueChanged
-    });
-
     const effectiveValue = hasValueChanged ? changedValue : getSettingValue(setting);
-
     const isDefault = isDefaultOrInherited(setting);
-
+    const description = getPropertyDescription(definition);
     return (
-      <div className={className} data-key={definition.key}>
+      <div
+        className={classNames('settings-definition', {
+          'settings-definition-changed': hasValueChanged
+        })}
+        data-key={definition.key}>
         <div className="settings-definition-left">
           <h3 className="settings-definition-name" title={propertyName}>
             {propertyName}
           </h3>
 
-          <div
-            className="markdown small spacer-top"
-            dangerouslySetInnerHTML={{ __html: getPropertyDescription(definition) }}
-          />
+          {description && (
+            <div
+              className="markdown small spacer-top"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          )}
 
           <div className="settings-definition-key note little-spacer-top">
             {translateWithParameters('settings.key_x', definition.key)}
@@ -169,14 +162,11 @@ class Definition extends React.PureComponent {
             )}
 
             {!loading &&
-              hasError && (
+              validationMessage && (
                 <span className="text-danger">
                   <AlertErrorIcon className="spacer-right" />
                   <span>
-                    {translateWithParameters(
-                      'settings.state.validation_failed',
-                      this.props.validationMessage
-                    )}
+                    {translateWithParameters('settings.state.validation_failed', validationMessage)}
                   </span>
                 </span>
               )}
@@ -216,20 +206,22 @@ class Definition extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state: Store, ownProps: Pick<Props, 'setting'>) => ({
   changedValue: getSettingsAppChangedValue(state, ownProps.setting.definition.key),
   loading: isSettingsAppLoading(state, ownProps.setting.definition.key),
   validationMessage: getSettingsAppValidationMessage(state, ownProps.setting.definition.key)
 });
 
+const mapDispatchToProps = {
+  cancelChange: cancelChange as any,
+  changeValue: changeValue as any,
+  checkValue: checkValue as any,
+  passValidation: passValidation as any,
+  resetValue: resetValue as any,
+  saveValue: saveValue as any
+};
+
 export default connect(
   mapStateToProps,
-  {
-    changeValue,
-    saveValue,
-    resetValue,
-    passValidation,
-    cancelChange,
-    checkValue
-  }
+  mapDispatchToProps
 )(Definition);

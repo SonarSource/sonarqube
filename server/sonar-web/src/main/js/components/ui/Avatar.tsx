@@ -55,10 +55,14 @@ function Avatar(props: Props) {
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
-  gravatarServerUrl: (getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value
-});
+const mapStateToProps = (state: Store) => {
+  const enableGravatar = getGlobalSettingValue(state, 'sonar.lf.enableGravatar');
+  const gravatarServerUrl = getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl');
+  return {
+    enableGravatar: Boolean(enableGravatar && enableGravatar.value === 'true'),
+    gravatarServerUrl: (gravatarServerUrl && gravatarServerUrl.value) || ''
+  };
+};
 
 export default connect(mapStateToProps)(Avatar);
 

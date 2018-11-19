@@ -41,8 +41,8 @@ export function closeGlobalMessage(id: string) {
   return { type: 'CLOSE_GLOBAL_MESSAGE', id };
 }
 
-export function closeAllGlobalMessages(id: string) {
-  return { type: 'CLOSE_ALL_GLOBAL_MESSAGES', id };
+export function closeAllGlobalMessages() {
+  return { type: 'CLOSE_ALL_GLOBAL_MESSAGES' };
 }
 
 type Action =

@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { groupBy, isEqual, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 import { getSubCategoryName, getSubCategoryDescription } from '../utils';
+import { Component, SettingCategoryDefinition, Setting } from '../../../app/types';
 
-export default class SubCategoryDefinitionsList extends React.PureComponent {
-  static propTypes = {
-    component: PropTypes.object,
-    fetchValues: PropTypes.func,
-    settings: PropTypes.array.isRequired
-  };
+interface Props {
+  category: string;
+  component?: Component;
+  fetchValues: Function;
+  settings: Array<Setting & { definition: SettingCategoryDefinition }>;
+}
 
+export default class SubCategoryDefinitionsList extends React.PureComponent<Props> {
   componentDidMount() {
     this.fetchValues();
   }
 
-  componentDidUpdate(prevProps /*: Object */) {
+  componentDidUpdate(prevProps: Props) {
     const prevKeys = prevProps.settings.map(setting => setting.definition.key);
     const keys = this.props.settings.map(setting => setting.definition.key);
     if (prevProps.component !== this.props.component || !isEqual(prevKeys, keys)) {
@@ -49,13 +49,13 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
     this.props.fetchValues(keys, this.props.component && this.props.component.key);
   }
 
-  renderEmailForm(subCategoryKey /*: string */) {
+  renderEmailForm = (subCategoryKey: string) => {
     const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';
     if (!isEmailSettings) {
       return null;
     }
     return <EmailForm />;
-  }
+  };
 
   render() {
     const bySubCategory = groupBy(this.props.settings, setting => setting.definition.subCategory);
@@ -67,7 +67,6 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
     const sortedSubCategories = sortBy(subCategories, subCategory =>
       subCategory.name.toLowerCase()
     );
-
     return (
       <ul className="settings-sub-categories-list">
         {sortedSubCategories.map(subCategory => (

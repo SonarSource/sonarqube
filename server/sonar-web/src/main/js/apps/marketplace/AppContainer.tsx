@@ -36,11 +36,11 @@ interface StateToProps {
 }
 
 const mapStateToProps = (state: Store) => {
+  const updateCenterActive = getGlobalSettingValue(state, 'sonar.updatecenter.activate');
   return {
     currentEdition: getAppState(state).edition,
     standaloneMode: getAppState(state).standalone,
-    updateCenterActive:
-      (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value === 'true'
+    updateCenterActive: Boolean(updateCenterActive && updateCenterActive.value === 'true')
   };
 };
 

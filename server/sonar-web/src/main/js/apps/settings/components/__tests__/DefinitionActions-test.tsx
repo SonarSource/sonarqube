@@ -20,8 +20,8 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import DefinitionActions from '../components/DefinitionActions';
-import { SettingType } from '../../../app/types';
+import DefinitionActions from '../DefinitionActions';
+import { SettingType } from '../../../../app/types';
 
 const definition = {
   category: 'baz',

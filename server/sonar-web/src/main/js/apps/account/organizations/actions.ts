@@ -21,7 +21,7 @@ import { Dispatch } from 'redux';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveMyOrganizations } from '../../../store/organizations';
 import { getValues } from '../../../api/settings';
-import { receiveValues } from '../../settings/store/values/actions';
+import { receiveValues } from '../../settings/store/values';
 
 export const fetchMyOrganizations = () => (dispatch: Dispatch) => {
   return getOrganizations({ member: true }).then(({ organizations }) => {
@@ -31,6 +31,6 @@ export const fetchMyOrganizations = () => (dispatch: Dispatch) => {
 
 export const fetchIfAnyoneCanCreateOrganizations = () => (dispatch: Dispatch) => {
   return getValues({ keys: 'sonar.organizations.anyoneCanCreate' }).then(values => {
-    dispatch(receiveValues(values, undefined));
+    dispatch(receiveValues(values));
   });
 };

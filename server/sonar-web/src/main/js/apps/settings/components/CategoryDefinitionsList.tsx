@@ -17,15 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const START_LOADING = 'settingsPage/START_LOADING';
+import { connect } from 'react-redux';
+import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
+import { fetchValues } from '../store/actions';
+import { getSettingsAppSettingsForCategory, Store } from '../../../store/rootReducer';
+import { Component } from '../../../app/types';
 
-export const startLoading = key => ({
-  type: START_LOADING,
-  key
-});
-export const STOP_LOADING = 'settingsPage/STOP_LOADING';
+interface Props {
+  category: string;
+  component?: Component;
+}
 
-export const stopLoading = key => ({
-  type: STOP_LOADING,
-  key
+const mapStateToProps = (state: Store, ownProps: Props) => ({
+  settings: getSettingsAppSettingsForCategory(
+    state,
+    ownProps.category,
+    ownProps.component && ownProps.component.key
+  )
 });
+
+const mapDispatchToProps = { fetchValues };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SubCategoryDefinitionsList);

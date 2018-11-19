@@ -17,49 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { keyBy, sortBy, uniqBy } from 'lodash';
-import { RECEIVE_DEFINITIONS } from './actions';
-import { DEFAULT_CATEGORY, getCategoryName } from '../../utils';
-/*:: import type { Definition } from '../../types'; */
+import { ActionType } from '../../../store/utils/actions';
+import { SettingCategoryDefinition } from '../../../app/types';
+import { DEFAULT_CATEGORY, getCategoryName } from '../utils';
 
-/*::
-type State = { [key: string]: Definition };
-*/
+const enum Actions {
+  ReceiveDefinitions = 'RECEIVE_DEFINITIONS'
+}
 
-/*::
-type Action = { type: string, definitions: Definition[] };
-*/
+type Action = ActionType<typeof receiveDefinitions, Actions.ReceiveDefinitions>;
 
-const reducer = (state /*: State */ = {}, action /*: Action */) => {
-  if (action.type === RECEIVE_DEFINITIONS) {
+export interface State {
+  [key: string]: SettingCategoryDefinition;
+}
+
+export function receiveDefinitions(definitions: SettingCategoryDefinition[]) {
+  return { type: Actions.ReceiveDefinitions, definitions };
+}
+
+export default function components(state: State = {}, action: Action) {
+  if (action.type === Actions.ReceiveDefinitions) {
     return keyBy(action.definitions, 'key');
   }
-
   return state;
-};
+}
 
-export default reducer;
-
-export function getDefinition(state /*: State */, key /*: string */) /*: Definition */ {
+export function getDefinition(state: State, key: string) {
   return state[key];
 }
 
-export function getAllDefinitions(state /*: State */) /*: Definition[] */ {
+export function getAllDefinitions(state: State) {
   return Object.keys(state).map(key => state[key]);
 }
 
-export const getDefinitionsForCategory = (state /*: State */, category /*: string */) =>
-  getAllDefinitions(state).filter(
+export function getDefinitionsForCategory(state: State, category: string) {
+  return getAllDefinitions(state).filter(
     definition => definition.category.toLowerCase() === category.toLowerCase()
   );
+}
 
-export const getAllCategories = (state /*: State */) =>
-  uniqBy(getAllDefinitions(state).map(definition => definition.category), category =>
+export function getAllCategories(state: State) {
+  return uniqBy(getAllDefinitions(state).map(definition => definition.category), category =>
     category.toLowerCase()
   );
+}
 
-export const getDefaultCategory = (state /*: State */) => {
+export function getDefaultCategory(state: State) {
   const categories = getAllCategories(state);
   if (categories.includes(DEFAULT_CATEGORY)) {
     return DEFAULT_CATEGORY;
@@ -69,4 +73,4 @@ export const getDefaultCategory = (state /*: State */) => {
     );
     return sortedCategories[0];
   }
-};
+}

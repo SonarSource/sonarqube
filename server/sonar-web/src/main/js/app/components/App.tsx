@@ -27,6 +27,7 @@ import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { getInstance, isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
 import { getCurrentUser, getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { isLoggedIn } from '../../helpers/users';
 
 const PageTracker = lazyLoad(() => import('./PageTracker'));
 
@@ -70,10 +71,8 @@ class App extends React.PureComponent<Props> {
     this.mounted = true;
     this.props.fetchLanguages();
     const { appState, currentUser } = this.props;
-    if (appState && currentUser) {
-      if (appState.organizationsEnabled && currentUser.isLoggedIn) {
-        this.props.fetchMyOrganizations();
-      }
+    if (appState && isSonarCloud() && currentUser && isLoggedIn(currentUser)) {
+      this.props.fetchMyOrganizations();
     }
   }
 
@@ -104,12 +103,16 @@ class App extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  appState: getAppState(state),
-  currentUser: getCurrentUser(state),
-  enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
-  gravatarServerUrl: (getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value || ''
-});
+const mapStateToProps = (state: Store): StateProps => {
+  const enableGravatar = getGlobalSettingValue(state, 'sonar.lf.enableGravatar');
+  const gravatarServerUrl = getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl');
+  return {
+    appState: getAppState(state),
+    currentUser: getCurrentUser(state),
+    enableGravatar: Boolean(enableGravatar && enableGravatar.value === 'true'),
+    gravatarServerUrl: (gravatarServerUrl && gravatarServerUrl.value) || ''
+  };
+};
 
 const mapDispatchToProps = ({
   fetchLanguages,

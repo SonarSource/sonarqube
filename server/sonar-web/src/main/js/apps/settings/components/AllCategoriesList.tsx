@@ -17,49 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { connect } from 'react-redux';
 import { sortBy } from 'lodash';
 import { IndexLink } from 'react-router';
 import { getCategoryName } from '../utils';
+import { Component } from '../../../app/types';
+import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 
-/*::
-type Category = {
-  key: string,
-  name: string
-};
-*/
+interface Category {
+  key: string;
+  name: string;
+}
 
-/*::
-type Props = {
-  categories: Category[],
-  component?: { key: string },
-  defaultCategory: string,
-  selectedCategory: string
-};
-*/
+interface Props {
+  categories: string[];
+  component?: Component;
+  defaultCategory: string;
+  selectedCategory: string;
+}
 
-export default class CategoriesList extends React.PureComponent {
-  /*:: rops: Props; */
-
-  renderLink(category /*: Category */) {
-    const query /*: Object */ = {};
-
-    if (category.key !== this.props.defaultCategory) {
-      query.category = category.key.toLowerCase();
-    }
-
-    if (this.props.component) {
-      query.id = this.props.component.key;
-    }
-
-    const className =
-      category.key.toLowerCase() === this.props.selectedCategory.toLowerCase() ? 'active' : '';
-
+export class CategoriesList extends React.PureComponent<Props> {
+  renderLink(category: Category) {
+    const { component, defaultCategory, selectedCategory } = this.props;
     const pathname = this.props.component ? '/project/settings' : '/settings';
-
+    const query = {
+      category: category.key !== defaultCategory ? category.key.toLowerCase() : undefined,
+      id: component && component.key
+    };
     return (
-      <IndexLink className={className} title={category.name} to={{ pathname, query }}>
+      <IndexLink
+        className={classNames({
+          active: category.key.toLowerCase() === selectedCategory.toLowerCase()
+        })}
+        title={category.name}
+        to={{ pathname, query }}>
         {category.name}
       </IndexLink>
     );
@@ -71,7 +64,6 @@ export default class CategoriesList extends React.PureComponent {
       name: getCategoryName(key)
     }));
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
-
     return (
       <ul className="side-tabs-menu">
         {sortedCategories.map(category => (
@@ -81,3 +73,9 @@ export default class CategoriesList extends React.PureComponent {
     );
   }
 }
+
+const mapStateToProps = (state: Store) => ({
+  categories: getSettingsAppAllCategories(state)
+});
+
+export default connect(mapStateToProps)(CategoriesList);

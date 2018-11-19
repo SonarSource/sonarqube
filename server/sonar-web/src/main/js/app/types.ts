@@ -86,6 +86,7 @@ export interface AppState {
   organizationsEnabled?: boolean;
   productionDatabase: boolean;
   qualifiers: string[];
+  settings: { [key: string]: string };
   standalone?: boolean;
   version: string;
 }
@@ -739,6 +740,7 @@ export enum SettingType {
   Boolean = 'BOOLEAN',
   Float = 'FLOAT',
   Integer = 'INTEGER',
+  License = 'LICENSE',
   Long = 'LONG',
   SingleSelectList = 'SINGLE_SELECT_LIST',
   PropertySet = 'PROPERTY_SET'

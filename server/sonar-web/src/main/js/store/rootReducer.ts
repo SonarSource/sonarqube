@@ -109,9 +109,9 @@ export function getSettingsAppDefaultCategory(state: Store) {
 export function getSettingsAppSettingsForCategory(
   state: Store,
   category: string,
-  componentKey: string
+  component?: string
 ) {
-  return fromSettingsApp.getSettingsForCategory(state.settingsApp, category, componentKey);
+  return fromSettingsApp.getSettingsForCategory(state.settingsApp, category, component);
 }
 
 export function getSettingsAppChangedValue(state: Store, key: string) {
