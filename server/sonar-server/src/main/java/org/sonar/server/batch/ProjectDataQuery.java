@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class ProjectDataQuery {
 
-  private String projectOrModuleKey;
+  private String projectKey;
   private String profileName;
   private boolean issuesMode;
   private String branch;
@@ -53,12 +53,12 @@ public class ProjectDataQuery {
     return this;
   }
 
-  public String getModuleKey() {
-    return projectOrModuleKey;
+  public String getProjectKey() {
+    return projectKey;
   }
 
-  public ProjectDataQuery setModuleKey(String projectOrModuleKey) {
-    this.projectOrModuleKey = projectOrModuleKey;
+  public ProjectDataQuery setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 

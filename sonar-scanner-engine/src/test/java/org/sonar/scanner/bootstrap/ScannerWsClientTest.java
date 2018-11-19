@@ -116,12 +116,11 @@ public class ScannerWsClientTest {
   @Test
   public void fail_if_requires_permission() {
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("missing scan permission, missing another permission");
+    expectedException.expectMessage("You're not authorized to run analysis. Please contact the project administrator.");
 
     WsRequest request = newRequest();
     WsResponse response = newResponse()
-      .setCode(403)
-      .setContent("{\"errors\":[{\"msg\":\"missing scan permission\"}, {\"msg\":\"missing another permission\"}]}");
+      .setCode(403);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     new ScannerWsClient(wsClient, true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);

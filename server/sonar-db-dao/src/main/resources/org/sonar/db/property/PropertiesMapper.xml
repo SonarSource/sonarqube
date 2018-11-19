@@ -62,17 +62,6 @@
       and r.kee=#{resourceKey,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectDescendantModuleProperties" parameterType="String" resultType="ScrapProperty">
-    select
-      <include refid="columnsToScrapPropertyDto"/>
-    from
-      properties p
-    inner join (select p.id from projects p<include refid="org.sonar.db.component.ComponentMapper.modulesTreeQuery"/>) modules
-      on modules.id=p.resource_id
-    where
-      p.user_id is null
-  </select>
-
   <select id="selectByKey" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>

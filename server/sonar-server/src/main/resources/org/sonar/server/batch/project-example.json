@@ -1,6 +1,5 @@
 {
   "timestamp": 0,
-  "settingsByModule": {},
   "fileDataByModuleAndPath": {
     "com.sonarsource:java-markdown": {
       "src/test/java/com/sonarsource/markdown/impl/RuleBuilderTest.java": {

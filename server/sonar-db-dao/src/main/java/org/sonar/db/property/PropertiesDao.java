@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
@@ -126,10 +125,6 @@ public class PropertiesDao implements Dao {
     try (DbSession session = mybatis.openSession(false)) {
       return selectProjectProperties(session, resourceKey);
     }
-  }
-
-  public List<PropertyDto> selectEnabledDescendantModuleProperties(String moduleUuid, DbSession session) {
-    return getMapper(session).selectDescendantModuleProperties(moduleUuid, Scopes.PROJECT, true);
   }
 
   @CheckForNull

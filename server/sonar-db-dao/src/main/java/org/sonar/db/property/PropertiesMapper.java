@@ -44,9 +44,6 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectByKeyAndMatchingValue(@Param("key") String key, @Param("value") String value);
 
-  List<PropertyDto> selectDescendantModuleProperties(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
-    @Param(value = "excludeDisabled") boolean excludeDisabled);
-
   List<Long> selectIdsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 
   List<Long> selectIdsByOrganizationAndMatchingLogin(@Param("organizationUuid") String organizationUuid, @Param("login") String login,

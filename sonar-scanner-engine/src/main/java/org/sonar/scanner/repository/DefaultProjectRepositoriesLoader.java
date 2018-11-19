@@ -37,7 +37,6 @@ import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.Batch;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 import org.sonarqube.ws.Batch.WsProjectResponse.FileDataByPath;
-import org.sonarqube.ws.Batch.WsProjectResponse.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
@@ -100,14 +99,6 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       WsProjectResponse response = WsProjectResponse.parseFrom(is);
 
       Table<String, String, FileData> fileDataTable = HashBasedTable.create();
-      Table<String, String, String> settings = HashBasedTable.create();
-
-      Map<String, Settings> settingsByModule = response.getSettingsByModule();
-      for (Map.Entry<String, Settings> e1 : settingsByModule.entrySet()) {
-        for (Map.Entry<String, String> e2 : e1.getValue().getSettings().entrySet()) {
-          settings.put(e1.getKey(), e2.getKey(), e2.getValue());
-        }
-      }
 
       Map<String, FileDataByPath> fileDataByModuleAndPath = response.getFileDataByModuleAndPath();
       for (Map.Entry<String, FileDataByPath> e1 : fileDataByModuleAndPath.entrySet()) {
@@ -117,7 +108,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
         }
       }
 
-      return new ProjectRepositories(settings, fileDataTable, new Date(response.getLastAnalysisDate()));
+      return new ProjectRepositories(fileDataTable, new Date(response.getLastAnalysisDate()));
     } catch (IOException e) {
       throw new IllegalStateException("Couldn't load project repository for " + projectKey, e);
     } finally {

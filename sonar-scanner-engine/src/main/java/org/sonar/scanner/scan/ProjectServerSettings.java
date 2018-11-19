@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,21 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.scanner.scan;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.config.Encryption;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.scanner.config.DefaultConfiguration;
 
+/**
+ * Project settings coming from the server. Does not contain global settings.
+ */
 @Immutable
-public class GlobalConfiguration extends DefaultConfiguration {
+public class ProjectServerSettings {
 
-  public GlobalConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode,
-                             Map<String, String> settings) {
-    super(propertyDefinitions, encryption, mode, settings);
+  private final Map<String, String> properties;
+
+  public ProjectServerSettings(Map<String, String> properties) {
+    this.properties = properties;
   }
 
+  public Map<String, String> properties() {
+    return ImmutableMap.copyOf(properties);
+  }
+
+  public String property(String key) {
+    return properties.get(key);
+  }
 
 }

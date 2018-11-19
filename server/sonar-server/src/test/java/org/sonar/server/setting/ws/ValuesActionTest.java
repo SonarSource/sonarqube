@@ -97,8 +97,7 @@ public class ValuesActionTest {
 
   @Before
   public void setUp() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
   @Test
@@ -566,7 +565,7 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void return_component_secured_settings_when_not_authenticated_but_with_scan_permission() {
+  public void return_component_secured_settings_when_not_authenticated_but_with_project_scan_permission() {
     userSession
       .addProjectPermission(USER, project)
       .addProjectPermission(SCAN_EXECUTION, project);

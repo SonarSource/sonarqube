@@ -19,8 +19,6 @@
  */
 package org.sonar.server.batch;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,10 +30,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
@@ -48,10 +44,8 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -71,448 +65,6 @@ public class ProjectDataLoaderTest {
   private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
 
   @Test
-  public void return_project_settings_with_global_scan_permission() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    // Project properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-
-    Map<String, String> projectSettings = ref.settings(project.getKey());
-    assertThat(projectSettings).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-  }
-
-  @Test
-  public void return_project_settings_with_project_scan_permission() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn("john").addProjectPermission(SCAN_EXECUTION, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-
-    Map<String, String> projectSettings = ref.settings(project.getKey());
-    assertThat(projectSettings).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-  }
-
-  @Test
-  public void not_returned_secured_settings_when_logged_but_no_scan_permission() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn("john").addProjectPermission(UserRole.USER, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()).setIssuesMode(true));
-    Map<String, String> projectSettings = ref.settings(project.getKey());
-    assertThat(projectSettings).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR"));
-  }
-
-  @Test
-  public void return_project_with_module_settings() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module);
-
-    // Module properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module.getId()));
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-    assertThat(ref.settings(project.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-    assertThat(ref.settings(module.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR-SERVER",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_project_with_module_settings_inherited_from_project() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module);
-
-    // No property on module -> should have the same as project
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-    assertThat(ref.settings(project.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-    assertThat(ref.settings(module.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-  }
-
-  @Test
-  public void return_project_with_module_with_sub_module() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module);
-
-    // Module properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module.getId()));
-
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    dbClient.componentDao().insert(dbSession, subModule);
-
-    // Sub module properties
-    dbClient.propertiesDao().saveProperty(
-      dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER-DAO").setResourceId(subModule.getId()));
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-    assertThat(ref.settings(project.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-    assertThat(ref.settings(module.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR-SERVER",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-    assertThat(ref.settings(subModule.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR-SERVER-DAO",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_project_with_two_modules() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-
-    ComponentDto module1 = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module1);
-
-    // Module 1 properties
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module1.getId()));
-    // This property should not be found on the other module
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module1.getId()));
-
-    ComponentDto module2 = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module2);
-
-    // Module 2 property
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION").setResourceId(module2.getId()));
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-    assertThat(ref.settings(project.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-    assertThat(ref.settings(module1.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR-SERVER",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-    assertThat(ref.settings(module2.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR-APPLICATION",
-      "sonar.jira.login.secured", "john"));
-  }
-
-  @Test
-  public void return_provisioned_project_settings() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
-    assertThat(ref.settings(project.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john"));
-  }
-
-  @Test
-  public void return_sub_module_settings() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    // No project properties
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    // No module properties
-
-    // Sub module properties
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(subModule.getId()));
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(subModule.getKey()));
-    assertThat(ref.settings(project.getKey())).isEmpty();
-    assertThat(ref.settings(module.getKey())).isEmpty();
-    assertThat(ref.settings(subModule.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_sub_module_settings_including_settings_from_parent_modules() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-
-    // Project property
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module);
-
-    // Module property
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(module.getId()));
-
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    dbClient.componentDao().insert(dbSession, subModule);
-
-    // Sub module properties
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(subModule.getKey()));
-    assertThat(ref.settings(project.getKey())).isEmpty();
-    assertThat(ref.settings(module.getKey())).isEmpty();
-    assertThat(ref.settings(subModule.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_sub_module_settings_only_inherited_from_project() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
-
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module);
-    // No module property
-
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    dbClient.componentDao().insert(dbSession, subModule);
-    // No sub module property
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(subModule.getKey()));
-    assertThat(ref.settings(project.getKey())).isEmpty();
-    assertThat(ref.settings(module.getKey())).isEmpty();
-    assertThat(ref.settings(subModule.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_sub_module_settings_inherited_from_project_and_module() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-
-    // Project properties
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
-
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    dbClient.componentDao().insert(dbSession, module);
-
-    // Module property
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
-
-    ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    dbClient.componentDao().insert(dbSession, subModule);
-    // No sub module property
-
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(subModule.getKey()));
-    assertThat(ref.settings(project.getKey())).isEmpty();
-    assertThat(ref.settings(module.getKey())).isEmpty();
-    assertThat(ref.settings(subModule.getKey())).isEqualTo(ImmutableMap.of(
-      "sonar.jira.project.key", "SONAR-SERVER",
-      "sonar.jira.login.secured", "john",
-      "sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_project_settings_from_project_when_using_branch_parameter() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    db.properties().insertProperties(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
-      .setModuleKey(project.getKey())
-      .setBranch("my_branch"));
-
-    assertThat(project.getKey()).isEqualTo(branch.getKey());
-    assertThat(ref.settings(project.getKey())).containsExactly(entry("sonar.jira.project.key", "SONAR"));
-  }
-
-  @Test
-  public void return_project_with_module_settings_when_using_branch_parameter() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto moduleBranch = db.components().insertComponent(newModuleDto(branch).setDbKey(generateBranchKey(module.getKey(), "my_branch")));
-    // Project properties
-    db.properties().insertProperties(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()),
-      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    // Module properties
-    db.properties().insertProperties(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()),
-      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module.getId()));
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
-      .setModuleKey(project.getKey())
-      .setBranch("my_branch"));
-
-    assertThat(ref.settings(branch.getKey())).containsOnly(
-      entry("sonar.jira.project.key", "SONAR"),
-      entry("sonar.jira.login.secured", "john"));
-    assertThat(ref.settings(moduleBranch.getKey())).containsOnly(
-      entry("sonar.jira.project.key", "SONAR-SERVER"),
-      entry("sonar.jira.login.secured", "john"),
-      entry("sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
-  public void return_settings_from_project_when_module_is_only_in_branch() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    // This module does not exist on master
-    ComponentDto moduleBranch = db.components().insertComponent(newModuleDto(branch));
-    db.properties().insertProperties(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()),
-      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
-      .setModuleKey(project.getKey())
-      .setBranch("my_branch"));
-
-    assertThat(ref.settings(moduleBranch.getKey())).containsOnly(
-      entry("sonar.jira.project.key", "SONAR"),
-      entry("sonar.jira.login.secured", "john"));
-  }
-
-  @Test
-  public void return_sub_module_settings_when_using_branch_parameter() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto moduleBranch = db.components().insertComponent(newModuleDto(branch).setDbKey(generateBranchKey(module.getKey(), "my_branch")));
-    ComponentDto subModuleBranch = db.components().insertComponent(newModuleDto(moduleBranch).setDbKey(generateBranchKey(subModule.getKey(), "my_branch")));
-    // Sub module properties
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(subModule.getId()));
-    dbClient.propertiesDao()
-      .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(subModuleBranch.getKey()));
-
-    assertThat(ref.settings(branch.getKey())).isEmpty();
-    assertThat(ref.settings(moduleBranch.getKey())).isEmpty();
-    assertThat(ref.settings(subModuleBranch.getKey())).containsOnly(
-      entry("sonar.jira.project.key", "SONAR"),
-      entry("sonar.jira.login.secured", "john"),
-      entry("sonar.coverage.exclusions", "**/*.java"));
-  }
-
-  @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organizationDto);
@@ -522,7 +74,7 @@ public class ProjectDataLoaderTest {
     expectedException.expectMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "unknown_branch"));
 
     underTest.load(ProjectDataQuery.create()
-      .setModuleKey(project.getKey())
+      .setProjectKey(project.getKey())
       .setBranch("unknown_branch"));
   }
 
@@ -535,7 +87,7 @@ public class ProjectDataLoaderTest {
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
     db.commit();
 
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
+    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
 
     assertThat(ref.fileDataByPath(project.getKey())).hasSize(1);
     FileData fileData = ref.fileData(project.getKey(), file.path());
@@ -556,31 +108,10 @@ public class ProjectDataLoaderTest {
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(moduleFile).setSrcHash("789456"));
     dbSession.commit();
 
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
+    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
 
     assertThat(ref.fileData(project.getKey(), projectFile.path()).hash()).isEqualTo("123456");
     assertThat(ref.fileData(module.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
-  }
-
-  @Test
-  public void return_file_data_from_module() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    // File on project
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));
-    // File on module
-    ComponentDto moduleFile = db.components().insertComponent(newFileDto(module));
-    dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(moduleFile).setSrcHash("789456"));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setModuleKey(module.getKey()));
-
-    assertThat(ref.fileData(module.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
-    assertThat(ref.fileData(module.getKey(), moduleFile.path()).revision()).isEqualTo("123456789");
-    assertThat(ref.fileData(project.getKey(), projectFile.path())).isNull();
   }
 
   @Test
@@ -599,7 +130,7 @@ public class ProjectDataLoaderTest {
     dbSession.commit();
 
     ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
-      .setModuleKey(project.getKey())
+      .setProjectKey(project.getKey())
       .setBranch("my_branch"));
 
     assertThat(ref.fileData(branch.getKey(), projectFile.path()).hash()).isEqualTo("123456");
@@ -628,27 +159,22 @@ public class ProjectDataLoaderTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'theKey' not found");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(key));
+    underTest.load(ProjectDataQuery.create().setProjectKey(key));
   }
 
   @Test
-  public void fails_with_BRE_if_component_is_neither_a_project_or_a_module() {
+  public void fails_with_BRE_if_component_is_not_a_project() {
     String[][] allScopesAndQualifierButProjectAndModule = {
-      {Scopes.PROJECT, Qualifiers.VIEW},
-      {Scopes.PROJECT, Qualifiers.SUBVIEW},
-      {Scopes.PROJECT, Qualifiers.APP},
-      {Scopes.FILE, Qualifiers.PROJECT},
-      {Scopes.DIRECTORY, Qualifiers.DIRECTORY},
-      {Scopes.FILE, Qualifiers.UNIT_TEST_FILE},
-      {Scopes.PROJECT, "DEV"},
-      {Scopes.PROJECT, "DEV_PRJ"}
+      {Scopes.PROJECT, "fakeModuleUuid"},
+      {Scopes.FILE, null},
+      {Scopes.DIRECTORY, null}
     };
 
     OrganizationDto organizationDto = db.organizations().insert();
     for (String[] scopeAndQualifier : allScopesAndQualifierButProjectAndModule) {
       String scope = scopeAndQualifier[0];
-      String qualifier = scopeAndQualifier[1];
-      String key = "theKey_" + scope + "_" + qualifier;
+      String moduleUuid = scopeAndQualifier[1];
+      String key = "theKey_" + scope + "_" + moduleUuid;
       String uuid = "uuid_" + uuidCounter++;
       dbClient.componentDao().insert(dbSession, new ComponentDto()
         .setOrganizationUuid(organizationDto.getUuid())
@@ -657,13 +183,13 @@ public class ProjectDataLoaderTest {
         .setRootUuid(uuid)
         .setProjectUuid(uuid)
         .setScope(scope)
-        .setQualifier(qualifier)
+        .setModuleUuid(moduleUuid)
         .setDbKey(key));
       dbSession.commit();
 
       try {
-        underTest.load(ProjectDataQuery.create().setModuleKey(key));
-        fail(format("A NotFoundException should have been raised because scope (%s) or qualifier (%s) is not project", scope, qualifier));
+        underTest.load(ProjectDataQuery.create().setProjectKey(key));
+        fail("A NotFoundException should have been raised because component is not project");
       } catch (BadRequestException e) {
         assertThat(e).hasMessage("Key '" + key + "' belongs to a component which is not a Project");
       }
@@ -678,7 +204,7 @@ public class ProjectDataLoaderTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You're not authorized to execute any SonarQube analysis");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
+    underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
   }
 
   @Test
@@ -689,7 +215,7 @@ public class ProjectDataLoaderTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()));
+    underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
   }
 
   @Test
@@ -697,7 +223,7 @@ public class ProjectDataLoaderTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()).setIssuesMode(true));
+    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()).setIssuesMode(true));
 
     assertThat(repositories).isNotNull();
   }
@@ -710,7 +236,7 @@ public class ProjectDataLoaderTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You don't have the required permissions to access this project");
 
-    underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()).setIssuesMode(true));
+    underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()).setIssuesMode(true));
   }
 
   @Test
@@ -719,7 +245,7 @@ public class ProjectDataLoaderTest {
     userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.getKey()).setIssuesMode(true));
+    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()).setIssuesMode(true));
 
     assertThat(repositories).isNotNull();
   }

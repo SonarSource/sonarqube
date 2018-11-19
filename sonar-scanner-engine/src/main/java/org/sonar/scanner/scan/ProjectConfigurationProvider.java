@@ -22,26 +22,26 @@ package org.sonar.scanner.scan;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
-import org.sonar.scanner.repository.ProjectRepositories;
 
 public class ProjectConfigurationProvider extends ProviderAdapter {
 
   private ProjectConfiguration projectConfig;
 
-  public ProjectConfiguration provide(GlobalServerSettings globalServerSettings, AbstractProjectOrModule project,
-                                      GlobalConfiguration globalConfig, ProjectRepositories projectRepositories, GlobalAnalysisMode mode) {
+  public ProjectConfiguration provide(DefaultInputProject project, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
+                                      GlobalAnalysisMode mode, MutableProjectSettings projectSettings) {
     if (projectConfig == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
       settings.putAll(globalServerSettings.properties());
-      settings.putAll(projectRepositories.settings(project.getKeyWithBranch()));
+      settings.putAll(projectServerSettings.properties());
       settings.putAll(project.properties());
 
       projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), mode, settings);
+      projectSettings.complete(projectConfig);
     }
     return projectConfig;
   }

@@ -43,7 +43,6 @@ public class ProjectActionTest {
     String projectKey = "org.codehaus.sonar:sonar";
 
     ProjectRepositories projectReferentials = mock(ProjectRepositories.class);
-    when(projectReferentials.toJson()).thenReturn("{\"settingsByModule\": {}}");
 
     ArgumentCaptor<ProjectDataQuery> queryArgumentCaptor = ArgumentCaptor.forClass(ProjectDataQuery.class);
     when(projectDataLoader.load(queryArgumentCaptor.capture())).thenReturn(projectReferentials);
@@ -54,9 +53,9 @@ public class ProjectActionTest {
       .setParam("profile", "Default")
       .setParam("preview", "false")
       .execute();
-    assertJson(response.getInput()).isSimilarTo("{\"settingsByModule\": {}}");
+    assertJson(response.getInput()).isSimilarTo("{\"fileDataByModuleAndPath\": {}}");
 
-    assertThat(queryArgumentCaptor.getValue().getModuleKey()).isEqualTo(projectKey);
+    assertThat(queryArgumentCaptor.getValue().getProjectKey()).isEqualTo(projectKey);
     assertThat(queryArgumentCaptor.getValue().getProfileName()).isEqualTo("Default");
     assertThat(queryArgumentCaptor.getValue().isIssuesMode()).isFalse();
     assertThat(queryArgumentCaptor.getValue().getBranch()).isEqualTo("my_branch");

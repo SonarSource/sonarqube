@@ -20,15 +20,9 @@
 package org.sonar.scanner.scan;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.repository.ProjectRepositories;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,49 +32,15 @@ import static java.util.Objects.requireNonNull;
 @Deprecated
 public class MutableModuleSettings extends Settings {
 
-  private final ProjectRepositories projectRepos;
-  private final AnalysisMode analysisMode;
   private final Map<String, String> properties = new HashMap<>();
 
-  public MutableModuleSettings(GlobalConfiguration globalConfig, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
-                               AnalysisMode analysisMode) {
-    super(globalConfig.getDefinitions(), globalConfig.getEncryption());
-    this.projectRepos = projectSettingsRepo;
-    this.analysisMode = analysisMode;
-
-    init(moduleDefinition, globalConfig);
-  }
-
-  private MutableModuleSettings init(ProjectDefinition moduleDefinition, GlobalConfiguration globalConfig) {
-    addProjectProperties(moduleDefinition, globalConfig);
-    addBuildProperties(moduleDefinition);
-    return this;
-  }
-
-  private void addProjectProperties(ProjectDefinition def, GlobalConfiguration globalConfig) {
-    addProperties(globalConfig.getProperties());
-    do {
-      if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-        addProperties(projectRepos.settings(def.getKeyWithBranch()));
-        break;
-      }
-      def = def.getParent();
-    } while (def != null);
-  }
-
-  private void addBuildProperties(ProjectDefinition project) {
-    List<ProjectDefinition> orderedProjects = ModuleConfigurationProvider.getTopDownParentProjects(project);
-    for (ProjectDefinition p : orderedProjects) {
-      addProperties(p.properties());
-    }
+  public MutableModuleSettings(ModuleConfiguration config) {
+    super(config.getDefinitions(), config.getEncryption());
+    addProperties(config.getProperties());
   }
 
   @Override
   protected Optional<String> get(String key) {
-    if (analysisMode.isIssues() && key.endsWith(".secured") && !key.contains(".license")) {
-      throw MessageException.of("Access to the secured property '" + key
-        + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
-    }
     return Optional.ofNullable(properties.get(key));
   }
 

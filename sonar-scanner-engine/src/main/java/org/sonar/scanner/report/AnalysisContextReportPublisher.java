@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -43,7 +43,10 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scan.ProjectServerSettings;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
+
+import static java.util.stream.Collectors.toList;
 
 @ScannerSide
 public class AnalysisContextReportPublisher {
@@ -56,22 +59,24 @@ public class AnalysisContextReportPublisher {
   private static final String SONAR_PROP_PREFIX = "sonar.";
   private static final int MAX_WIDTH = 1000;
   private final ScannerPluginRepository pluginRepo;
+  private final ProjectServerSettings projectServerSettings;
   private final AnalysisMode mode;
   private final System2 system;
-  private final ProjectRepositories projectRepos;
   private final GlobalServerSettings globalServerSettings;
   private final InputModuleHierarchy hierarchy;
+  private final InputComponentStore store;
 
   private ScannerReportWriter writer;
 
-  public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-    ProjectRepositories projectRepos, GlobalServerSettings globalServerSettings, InputModuleHierarchy hierarchy) {
+  public AnalysisContextReportPublisher(ProjectServerSettings projectServerSettings, AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
+                                        GlobalServerSettings globalServerSettings, InputModuleHierarchy hierarchy, InputComponentStore store) {
+    this.projectServerSettings = projectServerSettings;
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
-    this.projectRepos = projectRepos;
     this.globalServerSettings = globalServerSettings;
     this.hierarchy = hierarchy;
+    this.store = store;
   }
 
   public void init(ScannerReportWriter writer) {
@@ -87,6 +92,8 @@ public class AnalysisContextReportPublisher {
       }
       writePlugins(fileWriter);
       writeGlobalSettings(fileWriter);
+      writeProjectSettings(fileWriter);
+      writeModulesSettings(fileWriter);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
     }
@@ -125,30 +132,40 @@ public class AnalysisContextReportPublisher {
   }
 
   private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
-    fileWriter.append("Global properties:\n");
+    fileWriter.append("Global server settings:\n");
     Map<String, String> props = globalServerSettings.properties();
     for (String prop : new TreeSet<>(props.keySet())) {
       dumpPropIfNotSensitive(fileWriter, prop, props.get(prop));
     }
   }
 
-  public void dumpModuleSettings(DefaultInputModule module) {
-    if (mode.isIssues()) {
-      return;
+  private void writeProjectSettings(BufferedWriter fileWriter) throws IOException {
+    fileWriter.append("Project server settings:\n");
+    Map<String, String> props = projectServerSettings.properties();
+    for (String prop : new TreeSet<>(props.keySet())) {
+      dumpPropIfNotSensitive(fileWriter, prop, props.get(prop));
     }
+    fileWriter.append("Project scanner properties:\n");
+    writeScannerProps(fileWriter, hierarchy.root().properties());
+  }
 
-    File analysisLog = writer.getFileStructure().analysisLog();
-    try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
-      Map<String, String> moduleSpecificProps = collectModuleSpecificProps(module);
-      fileWriter.append(String.format("Settings for module: %s", module.key())).append('\n');
-      for (String prop : new TreeSet<>(moduleSpecificProps.keySet())) {
-        if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
-          continue;
-        }
-        dumpPropIfNotSensitive(fileWriter, prop, moduleSpecificProps.get(prop));
+  private void writeModulesSettings(BufferedWriter fileWriter) throws IOException {
+    for (DefaultInputModule module : store.allModules()) {
+      if (module.equals(hierarchy.root())) {
+        continue;
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to write analysis log", e);
+      Map<String, String> moduleSpecificProps = collectModuleSpecificProps(module);
+      fileWriter.append(String.format("Scanner properties of module: %s", module.key())).append('\n');
+      writeScannerProps(fileWriter, moduleSpecificProps);
+    }
+  }
+
+  private void writeScannerProps(BufferedWriter fileWriter, Map<String, String> props) throws IOException {
+    for (Map.Entry<String, String> prop : props.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).collect(toList())) {
+      if (isSystemProp(prop.getKey()) || isEnvVariable(prop.getKey()) || !isSqProp(prop.getKey())) {
+        continue;
+      }
+      dumpPropIfNotSensitive(fileWriter, prop.getKey(), prop.getValue());
     }
   }
 
@@ -161,9 +178,6 @@ public class AnalysisContextReportPublisher {
    */
   private Map<String, String> collectModuleSpecificProps(DefaultInputModule module) {
     Map<String, String> moduleSpecificProps = new HashMap<>();
-    if (projectRepos.moduleExists(module.getKeyWithBranch())) {
-      moduleSpecificProps.putAll(projectRepos.settings(module.getKeyWithBranch()));
-    }
     AbstractProjectOrModule parent = hierarchy.parent(module);
     if (parent == null) {
       moduleSpecificProps.putAll(module.properties());

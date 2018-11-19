@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,37 +29,22 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
-import org.sonar.scanner.repository.ProjectRepositories;
 
 public class ModuleConfigurationProvider extends ProviderAdapter {
 
   private ModuleConfiguration moduleConfiguration;
 
-  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectRepositories projectRepos,
+  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectServerSettings projectServerSettings,
                                      GlobalAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     if (moduleConfiguration == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(addServerSidePropertiesIfModuleExists(projectRepos, module.definition()));
+      settings.putAll(projectServerSettings.properties());
       addScannerSideProperties(settings, module.definition());
-      contextReportPublisher.dumpModuleSettings(module);
 
       moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), analysisMode, settings);
     }
     return moduleConfiguration;
-  }
-
-  private static Map<String, String> addServerSidePropertiesIfModuleExists(ProjectRepositories projectRepos, ProjectDefinition def) {
-    if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-      return projectRepos.settings(def.getKeyWithBranch());
-    } else {
-      // Module doesn't exist on server. Try to add parent server settings as inheritance.
-      ProjectDefinition parentDef = def.getParent();
-      if (parentDef != null) {
-        return addServerSidePropertiesIfModuleExists(projectRepos, parentDef);
-      }
-      return Collections.emptyMap();
-    }
   }
 
   private static void addScannerSideProperties(Map<String, String> settings, ProjectDefinition project) {

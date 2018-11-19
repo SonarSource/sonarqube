@@ -34,8 +34,8 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -51,7 +51,7 @@ public class InputComponentStore {
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
   private final Table<String, String, InputFile> inputFileByModuleCache = TreeBasedTable.create();
   // indexed by key with branch
-  private final Map<String, AbstractProjectOrModule> inputModuleCache = new HashMap<>();
+  private final Map<String, DefaultInputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
@@ -125,11 +125,11 @@ public class InputComponentStore {
   }
 
   @CheckForNull
-  public AbstractProjectOrModule getModule(String moduleKeyWithBranch) {
+  public DefaultInputModule getModule(String moduleKeyWithBranch) {
     return inputModuleCache.get(moduleKeyWithBranch);
   }
 
-  public void put(AbstractProjectOrModule inputModule) {
+  public void put(DefaultInputModule inputModule) {
     String key = inputModule.key();
     String keyWithBranch = inputModule.getKeyWithBranch();
     Preconditions.checkNotNull(inputModule);
@@ -153,5 +153,9 @@ public class InputComponentStore {
 
   public SortedSet<String> getLanguages(String moduleKey) {
     return languagesCache.getOrDefault(moduleKey, Collections.emptySortedSet());
+  }
+
+  public Collection<DefaultInputModule> allModules() {
+    return inputModuleCache.values();
   }
 }

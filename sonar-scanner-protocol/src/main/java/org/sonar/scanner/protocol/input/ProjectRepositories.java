@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.scanner.protocol.GsonHelper;
 
 /**
  * Container for all project data going from server to batch.
@@ -34,28 +33,8 @@ import org.sonar.scanner.protocol.GsonHelper;
 public class ProjectRepositories {
 
   private long timestamp;
-  private boolean exists;
-  private Map<String, Map<String, String>> settingsByModule = new HashMap<>();
   private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<>();
   private Date lastAnalysisDate;
-
-  public Map<String, String> settings(String moduleKey) {
-    return settingsByModule.containsKey(moduleKey) ? settingsByModule.get(moduleKey) : Collections.<String, String>emptyMap();
-  }
-
-  public Map<String, Map<String, String>> settings() {
-    return settingsByModule;
-  }
-
-  public ProjectRepositories addSettings(String moduleKey, Map<String, String> settings) {
-    Map<String, String> existingSettings = settingsByModule.computeIfAbsent(moduleKey, k -> new HashMap<>());
-    existingSettings.putAll(settings);
-    return this;
-  }
-
-  public boolean exists() {
-    return exists;
-  }
 
   public Map<String, Map<String, FileData>> fileDataByModuleAndPath() {
     return fileDataByModuleAndPath;
@@ -95,13 +74,5 @@ public class ProjectRepositories {
 
   public void setLastAnalysisDate(@Nullable Date lastAnalysisDate) {
     this.lastAnalysisDate = lastAnalysisDate;
-  }
-
-  public String toJson() {
-    return GsonHelper.create().toJson(this);
-  }
-
-  public static ProjectRepositories fromJson(String json) {
-    return GsonHelper.create().fromJson(json, ProjectRepositories.class);
   }
 }

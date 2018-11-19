@@ -92,8 +92,12 @@ public class XooPlugin implements Plugin {
         .subCategory("General")
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
-      // Used by DuplicationsTest. If not declared it is not returned by api/settings
+      // Used by DuplicationsTest and IssueFilterOnCommonRulesTest. If not declared it is not returned by api/settings
       PropertyDefinition.builder("sonar.cpd.xoo.minimumTokens")
+        .onQualifiers(Qualifiers.PROJECT)
+        .type(PropertyType.INTEGER)
+        .build(),
+      PropertyDefinition.builder("sonar.cpd.xoo.minimumLines")
         .onQualifiers(Qualifiers.PROJECT)
         .type(PropertyType.INTEGER)
         .build(),

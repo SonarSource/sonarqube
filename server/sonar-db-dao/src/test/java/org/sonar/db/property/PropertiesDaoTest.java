@@ -40,9 +40,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -283,45 +281,6 @@ public class PropertiesDaoTest {
       .hasResourceId(10L)
       .hasNoUserId()
       .hasValue("one");
-  }
-
-  @Test
-  public void selectEnabledDescendantModuleProperties() {
-    db.prepareDbUnit(getClass(), "select_module_properties_tree.xml");
-
-    List<PropertyDto> properties = underTest.selectEnabledDescendantModuleProperties("ABCD", db.getSession());
-    assertThat(properties.size()).isEqualTo(4);
-    assertThat(properties).extracting("key").containsOnly("struts.one", "core.one", "core.two", "data.one");
-    assertThat(properties).extracting("value").containsOnly("one", "two");
-
-    properties = underTest.selectEnabledDescendantModuleProperties("EFGH", db.getSession());
-    assertThat(properties.size()).isEqualTo(3);
-    assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
-
-    properties = underTest.selectEnabledDescendantModuleProperties("FGHI", db.getSession());
-    assertThat(properties.size()).isEqualTo(1);
-    assertThat(properties).extracting("key").containsOnly("data.one");
-
-    assertThat(underTest.selectEnabledDescendantModuleProperties("unknown-result.xml", db.getSession()).size()).isEqualTo(0);
-  }
-
-  @Test
-  @UseDataProvider("allValuesForSelect")
-  public void selectEnabledDescendantModuleProperties_supports_all_values(String dbValue, String expected) {
-    String projectUuid = "A";
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid);
-    dbClient.componentDao().insert(session, project);
-    long projectId = project.getId();
-    insertProperty("project.one", dbValue, projectId, null);
-
-    List<PropertyDto> dtos = underTest.selectEnabledDescendantModuleProperties(projectUuid, db.getSession());
-    assertThat(dtos)
-      .hasSize(1);
-    assertThatDto(dtos.iterator().next())
-      .hasKey("project.one")
-      .hasResourceId(projectId)
-      .hasNoUserId()
-      .hasValue(expected);
   }
 
   @Test

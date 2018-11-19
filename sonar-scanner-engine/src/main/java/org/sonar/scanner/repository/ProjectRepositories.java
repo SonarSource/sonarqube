@@ -29,21 +29,18 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class ProjectRepositories {
-  private final ImmutableTable<String, String, String> settingsByModule;
   private final ImmutableTable<String, String, FileData> fileDataByModuleAndPath;
   private final Date lastAnalysisDate;
   private final boolean exists;
 
   public ProjectRepositories() {
     this.exists = false;
-    this.settingsByModule = new ImmutableTable.Builder<String, String, String>().build();
     this.fileDataByModuleAndPath = new ImmutableTable.Builder<String, String, FileData>().build();
     this.lastAnalysisDate = null;
   }
 
-  public ProjectRepositories(Table<String, String, String> settingsByModule, Table<String, String, FileData> fileDataByModuleAndPath,
-    @Nullable Date lastAnalysisDate) {
-    this.settingsByModule = ImmutableTable.copyOf(settingsByModule);
+  public ProjectRepositories(Table<String, String, FileData> fileDataByModuleAndPath,
+                             @Nullable Date lastAnalysisDate) {
     this.fileDataByModuleAndPath = ImmutableTable.copyOf(fileDataByModuleAndPath);
     this.lastAnalysisDate = lastAnalysisDate;
     this.exists = true;
@@ -59,14 +56,6 @@ public class ProjectRepositories {
 
   public Table<String, String, FileData> fileDataByModuleAndPath() {
     return fileDataByModuleAndPath;
-  }
-
-  public boolean moduleExists(String moduleKey) {
-    return settingsByModule.containsRow(moduleKey);
-  }
-
-  public Map<String, String> settings(String moduleKey) {
-    return settingsByModule.row(moduleKey);
   }
 
   @CheckForNull

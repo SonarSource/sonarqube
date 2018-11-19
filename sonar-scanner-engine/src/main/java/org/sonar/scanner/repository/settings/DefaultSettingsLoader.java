@@ -22,7 +22,9 @@ package org.sonar.scanner.repository.settings;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ import org.sonarqube.ws.Settings.FieldValues.Value;
 import org.sonarqube.ws.Settings.Setting;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
 
 public class DefaultSettingsLoader implements SettingsLoader {
 
@@ -62,8 +65,13 @@ public class DefaultSettingsLoader implements SettingsLoader {
       ValuesWsResponse values = ValuesWsResponse.parseFrom(is);
       profiler.stopInfo();
       return toMap(values.getSettingsList());
+    } catch (HttpException e) {
+      if (e.code() == HttpURLConnection.HTTP_NOT_FOUND) {
+        return Collections.emptyMap();
+      }
+      throw e;
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to load server settings", e);
+      throw new IllegalStateException("Unable to load settings", e);
     }
   }
 

@@ -95,7 +95,7 @@ public class ProjectAction implements BatchWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     ProjectRepositories data = projectDataLoader.load(ProjectDataQuery.create()
-      .setModuleKey(wsRequest.mandatoryParam(PARAM_KEY))
+      .setProjectKey(wsRequest.mandatoryParam(PARAM_KEY))
       .setProfileName(wsRequest.param(PARAM_PROFILE))
       .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_ISSUES_MODE))
       .setBranch(wsRequest.param(PARAM_BRANCH))
@@ -111,8 +111,6 @@ public class ProjectAction implements BatchWsAction {
     response.setTimestamp(data.timestamp());
     response.getMutableFileDataByModuleAndPath()
       .putAll(buildFileDataByModuleAndPath(data));
-    response.getMutableSettingsByModule()
-      .putAll(buildSettingsByModule(data));
 
     return response.build();
   }
@@ -139,27 +137,6 @@ public class ProjectAction implements BatchWsAction {
     }
 
     return response.build();
-  }
-
-  private static Map<String, WsProjectResponse.Settings> buildSettingsByModule(ProjectRepositories data) {
-    Map<String, WsProjectResponse.Settings> settingsByModuleResponse = new HashMap<>();
-    for (Map.Entry<String, Map<String, String>> moduleSettingsEntry : data.settings().entrySet()) {
-      settingsByModuleResponse.put(
-        moduleSettingsEntry.getKey(),
-        toSettingsResponse(moduleSettingsEntry.getValue()));
-    }
-
-    return settingsByModuleResponse;
-  }
-
-  private static WsProjectResponse.Settings toSettingsResponse(Map<String, String> settings) {
-    WsProjectResponse.Settings.Builder settingsResponse = WsProjectResponse.Settings
-      .newBuilder();
-    settingsResponse
-      .getMutableSettings()
-      .putAll(settings);
-
-    return settingsResponse.build();
   }
 
   private static WsProjectResponse.FileData toFileDataResponse(FileData fileData) {

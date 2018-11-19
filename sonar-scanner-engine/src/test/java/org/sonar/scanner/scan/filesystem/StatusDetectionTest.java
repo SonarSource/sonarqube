@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -41,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class StatusDetectionTest {
   @Test
   public void detect_status() {
-    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(null);
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -52,7 +51,7 @@ public class StatusDetectionTest {
 
   @Test
   public void detect_status_branches_exclude() {
-    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.emptyList());
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -69,7 +68,7 @@ public class StatusDetectionTest {
     when(mockedFile.relativePath()).thenReturn("module/src/Foo.java");
     when(mockedFile.path()).thenReturn(Paths.get("module", "src", "Foo.java"));
 
-    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -82,7 +81,7 @@ public class StatusDetectionTest {
 
   @Test
   public void detect_status_branches_confirm() {
-    ProjectRepositories ref = new ProjectRepositories(ImmutableTable.of(), createTable(), null);
+    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 

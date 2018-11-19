@@ -55,10 +55,9 @@ public class ProjectRepositoriesProviderTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    Table<String, String, String> t1 = HashBasedTable.create();
     Table<String, String, FileData> t2 = HashBasedTable.create();
 
-    project = new ProjectRepositories(t1, t2, new Date());
+    project = new ProjectRepositories(t2, new Date());
     provider = new ProjectRepositoriesProvider();
 
     when(props.getKeyWithBranch()).thenReturn("key");

@@ -150,6 +150,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new ProjectPullRequestsProvider(),
       DefaultAnalysisMode.class,
       new ProjectRepositoriesProvider(),
+      new ProjectServerSettingsProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),

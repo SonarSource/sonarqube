@@ -28,13 +28,8 @@ option optimize_for = SPEED;
 // WS batch/project
 message WsProjectResponse {
   optional int64 timestamp = 1;
-  map<string, Settings> settingsByModule = 2;
   map<string, FileDataByPath> fileDataByModuleAndPath = 3;
   optional int64 lastAnalysisDate = 4;
-
-  message Settings {
-    map<string,string> settings = 1;
-  }
 
   message FileDataByPath {
     map<string, FileData> FileDataByPath = 1;
