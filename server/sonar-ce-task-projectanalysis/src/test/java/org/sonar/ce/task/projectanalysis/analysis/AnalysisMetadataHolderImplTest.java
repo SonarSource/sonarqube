@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.analysis;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -357,5 +358,29 @@ public class AnalysisMetadataHolderImplTest {
     underTest.setBranch(branch);
 
     assertThat(underTest.isPullRequest()).isTrue();
+  }
+
+  @Test
+  public void setScmRevisionId_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setScmRevisionId("scm_revision_id1");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("ScmRevisionId has already been set");
+    underTest.setScmRevisionId("scm_revision_id1");
+  }
+
+  @Test
+  public void getScmRevisionId_returns_empty_if_scmRevisionId_is_not_initialized() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    assertThat(underTest.getScmRevisionId()).isNotPresent();
+  }
+
+  @Test
+  public void getScmRevisionId_returns_scmRevisionId_if_scmRevisionId_is_initialized() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setScmRevisionId("scm_revision_id");
+    assertThat(underTest.getScmRevisionId()).isEqualTo(Optional.of("scm_revision_id"));
   }
 }
