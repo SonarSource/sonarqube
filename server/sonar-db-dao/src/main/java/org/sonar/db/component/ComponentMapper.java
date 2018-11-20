@@ -35,7 +35,10 @@ public interface ComponentMapper {
   ComponentDto selectByKey(String key);
 
   @CheckForNull
-  ComponentDto selectByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
+  ComponentDto selectBranchByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
+
+  @CheckForNull
+  ComponentDto selectPrByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
 
   @CheckForNull
   ComponentDto selectById(long id);

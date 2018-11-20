@@ -36,15 +36,26 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByKeyAndBranchKey" parameterType="String" resultType="Component">
-    SELECT
-    <include refid="componentColumns"/>
-    FROM projects p
-    INNER JOIN project_branches pb on pb.uuid = p.project_uuid
-    <where>
+  <select id="selectBranchByKeyAndBranchKey" parameterType="String" resultType="Component">
+    select
+      <include refid="componentColumns"/>
+    from projects p
+    inner join project_branches pb on pb.uuid = p.project_uuid
+    where
       (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
-      AND pb.kee=#{branch,jdbcType=VARCHAR}
-    </where>
+      and pb.kee=#{branch,jdbcType=VARCHAR}
+      and (pb.branch_type='LONG' or pb.branch_type='SHORT')
+  </select>
+
+  <select id="selectPrByKeyAndBranchKey" parameterType="String" resultType="Component">
+    select
+      <include refid="componentColumns"/>
+    from projects p
+    inner join project_branches pb on pb.uuid = p.project_uuid
+    where
+      (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
+      and pb.kee=#{branch,jdbcType=VARCHAR}
+      and pb.branch_type='PULL_REQUEST'
   </select>
 
   <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">

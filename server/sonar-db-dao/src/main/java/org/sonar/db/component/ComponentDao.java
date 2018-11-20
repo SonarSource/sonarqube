@@ -273,11 +273,11 @@ public class ComponentDao implements Dao {
   }
 
   public Optional<ComponentDto> selectByKeyAndBranch(DbSession session, String key, String branch) {
-    return Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
+    return Optional.ofNullable(mapper(session).selectBranchByKeyAndBranchKey(key, generateBranchKey(key, branch), branch));
   }
 
   public Optional<ComponentDto> selectByKeyAndPullRequest(DbSession session, String key, String pullRequestId) {
-    return Optional.ofNullable(mapper(session).selectByKeyAndBranchKey(key, generatePullRequestKey(key, pullRequestId), pullRequestId));
+    return Optional.ofNullable(mapper(session).selectPrByKeyAndBranchKey(key, generatePullRequestKey(key, pullRequestId), pullRequestId));
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
