@@ -26,8 +26,7 @@ interface Props {
 }
 
 export default function GlobalNavExplore({ location }: Props) {
-  const active = location.pathname.startsWith('explore');
-
+  const active = location.pathname.startsWith('/explore');
   return (
     <li>
       <Link

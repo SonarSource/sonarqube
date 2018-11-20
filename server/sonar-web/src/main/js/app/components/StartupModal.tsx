@@ -163,7 +163,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
     const { currentUser, location } = this.props;
     if (
       currentUser.showOnboardingTutorial &&
-      !['about', 'documentation', 'onboarding', 'projects/create', 'create-organization'].some(
+      !['/about', '/documentation', '/onboarding', '/projects/create', '/create-organization'].some(
         path => location.pathname.startsWith(path)
       )
     ) {

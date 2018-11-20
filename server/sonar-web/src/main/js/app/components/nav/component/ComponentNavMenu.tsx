@@ -138,7 +138,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
 
   renderIssuesLink() {
     const { location = { pathname: '' } } = this.props;
-    const isIssuesActive = location.pathname.startsWith('project/issues');
+    const isIssuesActive = location.pathname.startsWith('/project/issues');
     return (
       <li>
         <Link
@@ -195,6 +195,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       return null;
     }
 
+    const { location = { pathname: '' } } = this.props;
     const isActive = location.pathname.startsWith('/project/security_reports');
     return (
       <Dropdown overlay={this.renderSecurityReportsLink()} tagName="li">

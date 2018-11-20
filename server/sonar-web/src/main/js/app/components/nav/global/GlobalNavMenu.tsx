@@ -46,8 +46,8 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     }
 
     const active =
-      this.props.location.pathname.startsWith('projects') &&
-      this.props.location.pathname !== 'projects/create';
+      this.props.location.pathname.startsWith('/projects') &&
+      this.props.location.pathname !== '/projects/create';
 
     return (
       <li>

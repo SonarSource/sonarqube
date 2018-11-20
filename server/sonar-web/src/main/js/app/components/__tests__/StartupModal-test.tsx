@@ -89,7 +89,15 @@ it('should render only the children', async () => {
     getWrapper({
       canAdmin: false,
       currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true },
-      location: { pathname: 'documentation/' }
+      location: { pathname: '/documentation/' }
+    })
+  );
+
+  await shouldNotHaveModals(
+    getWrapper({
+      canAdmin: false,
+      currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true },
+      location: { pathname: '/create-organization' }
     })
   );
 });
