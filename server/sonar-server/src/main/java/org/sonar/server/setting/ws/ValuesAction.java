@@ -35,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Change;
@@ -60,11 +61,13 @@ import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
+import static org.sonar.server.setting.ws.SettingsWsSupport.isSecured;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -81,14 +84,16 @@ public class ValuesAction implements SettingsWsAction {
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsWsSupport settingsWsSupport;
+  private final boolean isSonarCloud;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-    SettingsWsSupport settingsWsSupport) {
+    SettingsWsSupport settingsWsSupport, Configuration configuration) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsWsSupport = settingsWsSupport;
+    this.isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   @Override
@@ -194,7 +199,14 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private List<Setting> loadGlobalSettings(DbSession dbSession, Set<String> keys) {
-    List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, keys);
+    Set<String> allowedKeys;
+    if (isSonarCloud && !userSession.isSystemAdministrator()) {
+      // remove the global settings that require admin permission
+      allowedKeys = keys.stream().filter(k -> !isSecured(k)).collect(Collectors.toSet());
+    } else {
+      allowedKeys = keys;
+    }
+    List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, allowedKeys);
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, getPropertySetKeys(properties));
     return properties.stream()
       .map(property -> Setting.createFromDto(property, getPropertySets(property.getKey(), propertySets, null), propertyDefinitions.get(property.getKey())))

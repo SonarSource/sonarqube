@@ -73,8 +73,12 @@ public class SettingsWsSupport {
     return hasPermission(OrganizationPermission.SCAN, SCAN_EXECUTION, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
   }
 
+  static boolean isSecured(String key) {
+    return key.endsWith(DOT_SECURED);
+  }
+
   private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return isLicense(key, definition) || (!key.endsWith(DOT_SECURED) || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component));
+    return isLicense(key, definition) || (!isSecured(key) || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component));
   }
 
   private boolean verifyLicenseSetting(String key, @Nullable PropertyDefinition definition) {
@@ -86,11 +90,14 @@ public class SettingsWsSupport {
   }
 
   private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<ComponentDto> component) {
+    if (userSession.isSystemAdministrator()) {
+      return true;
+    }
     if (userSession.hasPermission(orgPermission, defaultOrganizationProvider.get().getUuid())) {
       return true;
     }
     return component
-      .map(c -> userSession.hasComponentPermission(projectPermission, c))
+      .map(c -> userSession.hasPermission(orgPermission, c.getOrganizationUuid()) || userSession.hasComponentPermission(projectPermission, c))
       .orElse(false);
   }
 
