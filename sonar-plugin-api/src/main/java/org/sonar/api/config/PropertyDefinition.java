@@ -136,6 +136,10 @@ public final class PropertyDefinition {
     this.index = builder.index;
   }
 
+  /**
+   * @param key the unique property key. If it ends with ".secured" then users need the
+   *            administration permission to access the value.
+   */
   public static Builder builder(String key) {
     return new Builder(key);
   }
