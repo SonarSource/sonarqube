@@ -29,6 +29,9 @@ import {
 import { isBitbucket, isGithub } from '../../../helpers/almIntegrations';
 import { decodeJwt } from '../../../helpers/strings';
 
+export const ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP =
+  'sonarcloud.import_org.binding_in_progress';
+
 export const ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP =
   'sonarcloud.import_org.redirect_to_projects';
 

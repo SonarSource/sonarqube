@@ -22,7 +22,10 @@ import RemoteRepositories from './RemoteRepositories';
 import OrganizationInput from './OrganizationInput';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import { AlmApplication, Organization } from '../../../app/types';
-import { ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP } from '../organization/utils';
+import {
+  ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
+  ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP
+} from '../organization/utils';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 
@@ -54,6 +57,7 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
   }
 
   handleInstallAppClick = () => {
+    save(ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP, Date.now().toString(10));
     save(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP, Date.now().toString(10));
   };
 

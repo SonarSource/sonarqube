@@ -31,7 +31,8 @@ import {
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
   parseQuery,
   serializeQuery,
-  Query
+  Query,
+  ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP
 } from './utils';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
@@ -196,7 +197,17 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       .then(
         ({ almOrganization, boundOrganization }: GetAlmOrganizationResponse) => {
           if (this.mounted) {
-            this.setState({ almOrganization, almOrgLoading: false, boundOrganization });
+            if (
+              boundOrganization &&
+              boundOrganization.key &&
+              !this.isStoredTimestampValid(ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP)
+            ) {
+              this.props.router.push({
+                pathname: getOrganizationUrl(boundOrganization.key)
+              });
+            } else {
+              this.setState({ almOrganization, almOrgLoading: false, boundOrganization });
+            }
           }
         },
         () => {
@@ -217,12 +228,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   handleOrgCreated = (organization: string, justCreated = true) => {
     this.props.skipOnboarding();
-    const redirectProjectTimestamp = get(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP);
-    remove(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP);
-    if (
-      redirectProjectTimestamp &&
-      differenceInMinutes(Date.now(), Number(redirectProjectTimestamp)) < 10
-    ) {
+    if (this.isStoredTimestampValid(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP)) {
       this.props.router.push({
         pathname: '/projects/create',
         state: { organization, tab: this.state.almOrganization ? 'auto' : 'manual' }
@@ -233,6 +239,12 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
         state: { justCreated }
       });
     }
+  };
+
+  isStoredTimestampValid = (timestampKey: string) => {
+    const storedTimestamp = get(timestampKey);
+    remove(timestampKey);
+    return storedTimestamp && differenceInMinutes(Date.now(), Number(storedTimestamp)) < 10;
   };
 
   onTabChange = (tab: TabKeys) => {

@@ -245,6 +245,55 @@ it('should redirect to projects creation page after creation', async () => {
   });
 });
 
+it('should display AutoOrganizationCreate with already bound organization', async () => {
+  (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
+    almOrganization: {
+      avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+      key: 'Foo&Bar',
+      name: 'Foo & Bar',
+      personal: true
+    },
+    boundOrganization: { key: 'foobar', name: 'Foo & Bar' }
+  });
+  (get as jest.Mock<any>).mockReturnValueOnce(Date.now().toString());
+  const push = jest.fn();
+  const wrapper = shallowRender({
+    currentUser: { ...user, externalProvider: 'github' },
+    location: { query: { installation_id: 'foo' } } as Location,
+    router: mockRouter({ push })
+  });
+  await waitAndUpdate(wrapper);
+  expect(get).toHaveBeenCalled();
+  expect(remove).toHaveBeenCalled();
+  expect(getAlmOrganization).toHaveBeenCalledWith({ installationId: 'foo' });
+  expect(push).not.toHaveBeenCalled();
+  expect(wrapper.find('AutoOrganizationCreate').prop('boundOrganization')).toEqual({
+    key: 'foobar',
+    name: 'Foo & Bar'
+  });
+});
+
+it('should redirect to org page when already bound and no binding in progress', async () => {
+  (getAlmOrganization as jest.Mock<any>).mockResolvedValueOnce({
+    almOrganization: {
+      avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
+      key: 'Foo&Bar',
+      name: 'Foo & Bar',
+      personal: true
+    },
+    boundOrganization: { key: 'foobar', name: 'Foo & Bar' }
+  });
+  const push = jest.fn();
+  const wrapper = shallowRender({
+    currentUser: { ...user, externalProvider: 'github' },
+    location: { query: { installation_id: 'foo' } } as Location,
+    router: mockRouter({ push })
+  });
+  await waitAndUpdate(wrapper);
+  expect(getAlmOrganization).toHaveBeenCalledWith({ installationId: 'foo' });
+  expect(push).toHaveBeenCalledWith({ pathname: '/organizations/foobar' });
+});
+
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
   return shallow(
     <CreateOrganization

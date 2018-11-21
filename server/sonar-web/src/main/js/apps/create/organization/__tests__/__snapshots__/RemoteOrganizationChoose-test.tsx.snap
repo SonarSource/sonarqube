@@ -81,6 +81,7 @@ exports[`should display unbound installations 1`] = `
             "name": "GitHub",
           }
         }
+        onClick={[Function]}
         small={true}
         url="https://alm.application.url"
       >
@@ -171,6 +172,7 @@ exports[`should render 1`] = `
             "name": "GitHub",
           }
         }
+        onClick={[Function]}
         small={true}
         url="https://alm.application.url"
       >

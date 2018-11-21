@@ -21,7 +21,7 @@ import * as React from 'react';
 import { WithRouterProps, withRouter } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { sortBy } from 'lodash';
-import { serializeQuery } from './utils';
+import { serializeQuery, ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP } from './utils';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Select from '../../../components/controls/Select';
@@ -33,9 +33,10 @@ import {
   AlmUnboundApplication,
   OrganizationBase
 } from '../../../app/types';
-import { getBaseUrl } from '../../../helpers/urls';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
+import { save } from '../../../helpers/storage';
+import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   almApplication: AlmApplication;
@@ -65,6 +66,10 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
         })
       });
     }
+  };
+
+  handleInstallAppClick = () => {
+    save(ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP, Date.now().toString(10));
   };
 
   handleInstallationChange = ({ installationId }: AlmUnboundApplication) => {
@@ -144,6 +149,7 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
             <IdentityProviderLink
               className="display-inline-block"
               identityProvider={almApplication}
+              onClick={this.handleInstallAppClick}
               small={true}
               url={almApplication.installationUrl}>
               {translate(
