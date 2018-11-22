@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 
@@ -31,7 +31,7 @@ public class ActiveRulesHolderRule extends ExternalResource implements ActiveRul
 
   @Override
   public Optional<ActiveRule> get(RuleKey ruleKey) {
-    return Optional.fromNullable(activeRulesByKey.get(ruleKey));
+    return Optional.ofNullable(activeRulesByKey.get(ruleKey));
   }
 
   public ActiveRulesHolderRule put(ActiveRule activeRule) {

@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 

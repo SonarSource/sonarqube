@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

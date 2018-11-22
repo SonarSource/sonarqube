@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;

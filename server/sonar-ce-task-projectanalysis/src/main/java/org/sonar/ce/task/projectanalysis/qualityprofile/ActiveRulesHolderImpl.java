@@ -19,11 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -36,7 +36,7 @@ public class ActiveRulesHolderImpl implements ActiveRulesHolder {
   @Override
   public Optional<ActiveRule> get(RuleKey ruleKey) {
     checkState(activeRulesByKey != null, "Active rules have not been initialized yet");
-    return Optional.fromNullable(activeRulesByKey.get(ruleKey));
+    return Optional.ofNullable(activeRulesByKey.get(ruleKey));
   }
 
   public Collection<ActiveRule> getAll() {

@@ -19,10 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -86,7 +86,7 @@ public class IssueCreationDateCalculatorTest {
 
     when(ruleRepository.findByKey(ruleKey)).thenReturn(java.util.Optional.of(rule));
     when(activeRulesHolder.get(any(RuleKey.class)))
-      .thenReturn(Optional.absent());
+      .thenReturn(Optional.empty());
     when(activeRulesHolder.get(ruleKey))
       .thenReturn(Optional.of(activeRule));
     when(issue.getRuleKey())
