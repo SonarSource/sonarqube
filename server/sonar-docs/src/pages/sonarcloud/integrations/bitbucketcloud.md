@@ -23,7 +23,7 @@ SonarCloud integrates with Bitbucket Pipelines to make it easier to trigger anal
 
 ```
 script:
-  -mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=my-team-org -Dsonar.login=$SONAR_TOKEN
+  -mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=my-project -Dsonar.organization=my-team-org -Dsonar.login=$SONAR_TOKEN
 ```
 
 When this change on `bitbucket-pipelines.yml` is committed and pushed, Pipelines should automatically run a new build and therefore trigger the analysis of the repository. Shortly after, your project will appear on SonarCloud in your organization.
