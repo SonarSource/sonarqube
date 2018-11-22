@@ -1,11 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
-  className="boxed-group"
->
-  <div
-    className="boxed-group-inner"
+<Fragment>
+  <OrganizationDetailsStep
+    finished={false}
+    onOpen={[MockFunction]}
+    open={true}
+    stepTitle="onboarding.import_organization.personal.import_org_details"
   >
     <div
       className="display-flex-center big-spacer-bottom"
@@ -41,7 +42,7 @@ exports[`should render correctly 1`] = `
       />
       <DeleteButton
         className="little-spacer-left"
-        onClick={[Function]}
+        onClick={[MockFunction]}
       />
     </div>
     <OrganizationDetailsForm
@@ -53,8 +54,26 @@ exports[`should render correctly 1`] = `
           "name": "Personal Org",
         }
       }
-      submitText="onboarding.import_organization.bind"
+      submitText="continue"
     />
-  </div>
-</div>
+  </OrganizationDetailsStep>
+  <PlanStep
+    createOrganization={[Function]}
+    onDone={[MockFunction]}
+    onlyPaid={false}
+    open={false}
+    subscriptionPlans={
+      Array [
+        Object {
+          "maxNcloc": 100000,
+          "price": 10,
+        },
+        Object {
+          "maxNcloc": 250000,
+          "price": 75,
+        },
+      ]
+    }
+  />
+</Fragment>
 `;

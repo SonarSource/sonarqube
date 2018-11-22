@@ -1,18 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display choice between import or creation 1`] = `
-<div
-  className="boxed-group"
->
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.import_organization.import_org_details
-    </h2>
-  </div>
-  <div
-    className="boxed-group-inner"
+<div>
+  <OrganizationDetailsStep
+    finished={false}
+    onOpen={[MockFunction]}
+    open={true}
+    stepTitle="onboarding.import_organization.import_org_details"
   >
     <div
       className="huge-spacer-bottom"
@@ -39,7 +33,7 @@ exports[`should display choice between import or creation 1`] = `
         />
         <DeleteButton
           className="little-spacer-left"
-          onClick={[Function]}
+          onClick={[MockFunction]}
         />
       </p>
       <RadioToggle
@@ -61,23 +55,36 @@ exports[`should display choice between import or creation 1`] = `
         value={null}
       />
     </div>
-  </div>
+  </OrganizationDetailsStep>
+  <PlanStep
+    createOrganization={[Function]}
+    onDone={[MockFunction]}
+    onUpgradeFail={[MockFunction]}
+    onlyPaid={false}
+    open={false}
+    subscriptionPlans={
+      Array [
+        Object {
+          "maxNcloc": 100000,
+          "price": 10,
+        },
+        Object {
+          "maxNcloc": 250000,
+          "price": 75,
+        },
+      ]
+    }
+  />
 </div>
 `;
 
 exports[`should render prefilled and create org 1`] = `
-<div
-  className="boxed-group"
->
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.import_organization.import_org_details
-    </h2>
-  </div>
-  <div
-    className="boxed-group-inner"
+<div>
+  <OrganizationDetailsStep
+    finished={false}
+    onOpen={[MockFunction]}
+    open={true}
+    stepTitle="onboarding.import_organization.import_org_details"
   >
     <div
       className="huge-spacer-bottom"
@@ -104,12 +111,12 @@ exports[`should render prefilled and create org 1`] = `
         />
         <DeleteButton
           className="little-spacer-left"
-          onClick={[Function]}
+          onClick={[MockFunction]}
         />
       </p>
     </div>
     <OrganizationDetailsForm
-      onContinue={[Function]}
+      onContinue={[MockFunction]}
       organization={
         Object {
           "avatar": "http://example.com/avatar",
@@ -120,34 +127,27 @@ exports[`should render prefilled and create org 1`] = `
           "url": "http://example.com/foo",
         }
       }
-      submitText="onboarding.import_organization.import"
+      submitText="continue"
     />
-  </div>
-</div>
-`;
-
-exports[`should render with import org button 1`] = `
-<div
-  className="boxed-group"
->
-  <div
-    className="boxed-group-header"
-  >
-    <h2>
-      onboarding.import_organization.import_org_details
-    </h2>
-  </div>
-  <withRouter(RemoteOrganizationChoose)
-    almApplication={
-      Object {
-        "backgroundColor": "#0052CC",
-        "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
-        "installationUrl": "https://bitbucket.org/install/app",
-        "key": "bitbucket",
-        "name": "BitBucket",
-      }
+  </OrganizationDetailsStep>
+  <PlanStep
+    createOrganization={[Function]}
+    onDone={[MockFunction]}
+    onUpgradeFail={[MockFunction]}
+    onlyPaid={false}
+    open={false}
+    subscriptionPlans={
+      Array [
+        Object {
+          "maxNcloc": 100000,
+          "price": 10,
+        },
+        Object {
+          "maxNcloc": 250000,
+          "price": 75,
+        },
+      ]
     }
-    almUnboundApplications={Array []}
   />
 </div>
 `;

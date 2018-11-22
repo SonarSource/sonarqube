@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ManualOrganizationCreate from '../ManualOrganizationCreate';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { Step } from '../utils';
 
 const organization = {
   avatar: 'http://example.com/avatar',
@@ -32,20 +33,18 @@ const organization = {
 
 it('should render and create organization', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
-  const onOrgCreated = jest.fn();
-  const wrapper = shallowRender({ createOrganization, onOrgCreated });
+  const onDone = jest.fn();
+  const handleOrgDetailsFinish = jest.fn();
+  const wrapper = shallowRender({ createOrganization, handleOrgDetailsFinish, onDone });
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
+  expect(handleOrgDetailsFinish).toHaveBeenCalled();
+  wrapper.setProps({ step: Step.Plan });
   expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('PlanStep').prop<Function>('onFreePlanChoose')();
-  await waitAndUpdate(wrapper);
-  expect(createOrganization).toBeCalledWith(organization);
-  expect(onOrgCreated).toBeCalledWith('foo');
 });
 
 it('should preselect paid plan', async () => {
@@ -57,28 +56,15 @@ it('should preselect paid plan', async () => {
   expect(wrapper.find('PlanStep').prop('onlyPaid')).toBe(true);
 });
 
-it('should roll back after upgrade failure', async () => {
-  const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
-  const deleteOrganization = jest.fn().mockResolvedValue(undefined);
-  const wrapper = shallowRender({ createOrganization, deleteOrganization });
-  await waitAndUpdate(wrapper);
-
-  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
-  await waitAndUpdate(wrapper);
-
-  wrapper.find('PlanStep').prop<Function>('createOrganization')();
-  expect(createOrganization).toBeCalledWith(organization);
-
-  wrapper.find('PlanStep').prop<Function>('deleteOrganization')();
-  expect(deleteOrganization).toBeCalledWith(organization.key);
-});
-
 function shallowRender(props: Partial<ManualOrganizationCreate['props']> = {}) {
   return shallow(
     <ManualOrganizationCreate
       createOrganization={jest.fn()}
-      deleteOrganization={jest.fn()}
-      onOrgCreated={jest.fn()}
+      handleOrgDetailsFinish={jest.fn()}
+      handleOrgDetailsStepOpen={jest.fn()}
+      onDone={jest.fn()}
+      onUpgradeFail={jest.fn()}
+      step={Step.OrganizationDetails}
       subscriptionPlans={[{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }]}
       {...props}
     />

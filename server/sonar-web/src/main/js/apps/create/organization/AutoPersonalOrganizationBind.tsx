@@ -20,7 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
-import { Query } from './utils';
+import OrganizationDetailsStep from './OrganizationDetailsStep';
+import PlanStep from './PlanStep';
+import { Step } from './utils';
 import { DeleteButton } from '../../../components/ui/buttons';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
@@ -31,37 +33,48 @@ interface Props {
   almApplication: T.AlmApplication;
   almInstallId?: string;
   almOrganization: T.AlmOrganization;
+  handleCancelImport: () => void;
+  handleOrgDetailsFinish: (organization: T.Organization) => Promise<void>;
+  handleOrgDetailsStepOpen: () => void;
   importPersonalOrg: T.Organization;
-  onOrgCreated: (organization: string) => void;
+  onDone: () => void;
+  organization?: T.Organization;
+  step: Step;
+  subscriptionPlans?: T.SubscriptionPlan[];
   updateOrganization: (
-    organization: T.OrganizationBase & { installationId?: string }
-  ) => Promise<T.Organization>;
-  updateUrlQuery: (query: Partial<Query>) => void;
+    organization: T.Organization & { installationId?: string }
+  ) => Promise<string>;
 }
 
 export default class AutoPersonalOrganizationBind extends React.PureComponent<Props> {
-  handleCancelImport = () => {
-    this.props.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
+  handleCreateOrganization = () => {
+    const { organization } = this.props;
+    if (!organization) {
+      return Promise.reject();
+    }
+    return this.props.updateOrganization({
+      ...organization,
+      installationId: this.props.almInstallId
+    });
   };
 
-  handleCreateOrganization = (organization: Required<T.OrganizationBase>) => {
-    return this.props
-      .updateOrganization({
-        avatar: organization.avatar,
-        description: organization.description,
-        installationId: this.props.almInstallId,
-        key: this.props.importPersonalOrg.key,
-        name: organization.name || organization.key,
-        url: organization.url
-      })
-      .then(({ key }) => this.props.onOrgCreated(key));
+  handleOrgDetailsFinish = (organization: T.Organization) => {
+    return this.props.handleOrgDetailsFinish({
+      ...organization,
+      key: this.props.importPersonalOrg.key
+    });
   };
 
   render() {
-    const { almApplication, importPersonalOrg } = this.props;
+    const { almApplication, importPersonalOrg, organization, step, subscriptionPlans } = this.props;
     return (
-      <div className="boxed-group">
-        <div className="boxed-group-inner">
+      <>
+        <OrganizationDetailsStep
+          finished={organization !== undefined}
+          onOpen={this.props.handleOrgDetailsStepOpen}
+          open={step === Step.OrganizationDetails}
+          organization={organization}
+          stepTitle={translate('onboarding.import_organization.personal.import_org_details')}>
           <div className="display-flex-center big-spacer-bottom">
             <FormattedMessage
               defaultMessage={translate('onboarding.import_personal_organization_x')}
@@ -84,16 +97,25 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
                 personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
               }}
             />
-            <DeleteButton className="little-spacer-left" onClick={this.handleCancelImport} />
+            <DeleteButton className="little-spacer-left" onClick={this.props.handleCancelImport} />
           </div>
           <OrganizationDetailsForm
             keyReadOnly={true}
-            onContinue={this.handleCreateOrganization}
+            onContinue={this.handleOrgDetailsFinish}
             organization={importPersonalOrg}
-            submitText={translate('onboarding.import_organization.bind')}
+            submitText={translate('continue')}
           />
-        </div>
-      </div>
+        </OrganizationDetailsStep>
+        {subscriptionPlans !== undefined && (
+          <PlanStep
+            createOrganization={this.handleCreateOrganization}
+            onDone={this.props.onDone}
+            onlyPaid={false /* TODO */}
+            open={step === Step.Plan}
+            subscriptionPlans={subscriptionPlans}
+          />
+        )}
+      </>
     );
   }
 }

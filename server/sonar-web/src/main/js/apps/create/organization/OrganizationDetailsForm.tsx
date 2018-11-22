@@ -32,8 +32,8 @@ type RequiredOrganization = Required<T.OrganizationBase>;
 
 interface Props {
   keyReadOnly?: boolean;
-  onContinue: (organization: RequiredOrganization) => Promise<void>;
-  organization?: T.OrganizationBase & { key: string };
+  onContinue: (organization: T.Organization) => Promise<void>;
+  organization?: T.Organization;
   submitText: string;
 }
 
@@ -108,7 +108,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
     this.setState({ url });
   };
 
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const { state } = this;
     if (this.canSubmit(state)) {

@@ -62,90 +62,101 @@ exports[`should display an alert message 1`] = `
 
 exports[`should display unbound installations 1`] = `
 <div
-  className="boxed-group-inner"
+  className="boxed-group"
 >
   <div
-    className="display-flex-center"
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.import_organization.import_org_details
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
   >
     <div
-      className="display-inline-block"
-    >
-      <IdentityProviderLink
-        className="display-inline-block"
-        identityProvider={
-          Object {
-            "backgroundColor": "blue",
-            "iconPath": "icon/path",
-            "installationUrl": "https://alm.application.url",
-            "key": "github",
-            "name": "GitHub",
-          }
-        }
-        onClick={[Function]}
-        small={true}
-        url="https://alm.application.url"
-      >
-        onboarding.import_organization.choose_organization_button.github
-      </IdentityProviderLink>
-    </div>
-    <div
-      className="display-flex-stretch"
+      className="display-flex-center"
     >
       <div
-        className="vertical-pipe-separator"
+        className="display-inline-block"
       >
-        <div
-          className="vertical-separator "
-        />
-        <span
-          className="note"
-        >
-          or
-        </span>
-        <div
-          className="vertical-separator"
-        />
-      </div>
-      <form
-        className="big-spacer-top big-spacer-bottom"
-        onSubmit={[Function]}
-      >
-        <div
-          className="form-field abs-width-400"
-        >
-          <label
-            htmlFor="select-unbound-installation"
-          >
-            onboarding.import_organization.choose_unbound_installation.github
-          </label>
-          <Select
-            className="input-super-large"
-            clearable={false}
-            id="select-unbound-installation"
-            labelKey="name"
-            onChange={[Function]}
-            optionRenderer={[Function]}
-            options={
-              Array [
-                Object {
-                  "installationId": "12345",
-                  "key": "foo",
-                  "name": "Foo",
-                },
-              ]
+        <IdentityProviderLink
+          className="display-inline-block"
+          identityProvider={
+            Object {
+              "backgroundColor": "blue",
+              "iconPath": "icon/path",
+              "installationUrl": "https://alm.application.url",
+              "key": "github",
+              "name": "GitHub",
             }
-            placeholder="onboarding.import_organization.choose_organization"
-            value=""
-            valueKey="installationId"
-            valueRenderer={[Function]}
+          }
+          onClick={[Function]}
+          small={true}
+          url="https://alm.application.url"
+        >
+          onboarding.import_organization.choose_organization_button.github
+        </IdentityProviderLink>
+      </div>
+      <div
+        className="display-flex-stretch"
+      >
+        <div
+          className="vertical-pipe-separator"
+        >
+          <div
+            className="vertical-separator "
+          />
+          <span
+            className="note"
+          >
+            or
+          </span>
+          <div
+            className="vertical-separator"
           />
         </div>
-        <SubmitButton
-          disabled={true}
+        <form
+          className="big-spacer-top big-spacer-bottom"
+          onSubmit={[Function]}
         >
-          continue
-        </SubmitButton>
-      </form>
+          <div
+            className="form-field abs-width-400"
+          >
+            <label
+              htmlFor="select-unbound-installation"
+            >
+              onboarding.import_organization.choose_unbound_installation.github
+            </label>
+            <Select
+              className="input-super-large"
+              clearable={false}
+              id="select-unbound-installation"
+              labelKey="name"
+              onChange={[Function]}
+              optionRenderer={[Function]}
+              options={
+                Array [
+                  Object {
+                    "installationId": "12345",
+                    "key": "foo",
+                    "name": "Foo",
+                  },
+                ]
+              }
+              placeholder="onboarding.import_organization.choose_organization"
+              value=""
+              valueKey="installationId"
+              valueRenderer={[Function]}
+            />
+          </div>
+          <SubmitButton
+            disabled={true}
+          >
+            continue
+          </SubmitButton>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -153,31 +164,42 @@ exports[`should display unbound installations 1`] = `
 
 exports[`should render 1`] = `
 <div
-  className="boxed-group-inner"
+  className="boxed-group"
 >
   <div
-    className="display-flex-center"
+    className="boxed-group-header"
+  >
+    <h2>
+      onboarding.import_organization.import_org_details
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
   >
     <div
-      className="display-inline-block"
+      className="display-flex-center"
     >
-      <IdentityProviderLink
+      <div
         className="display-inline-block"
-        identityProvider={
-          Object {
-            "backgroundColor": "blue",
-            "iconPath": "icon/path",
-            "installationUrl": "https://alm.application.url",
-            "key": "github",
-            "name": "GitHub",
-          }
-        }
-        onClick={[Function]}
-        small={true}
-        url="https://alm.application.url"
       >
-        onboarding.import_organization.choose_organization_button.github
-      </IdentityProviderLink>
+        <IdentityProviderLink
+          className="display-inline-block"
+          identityProvider={
+            Object {
+              "backgroundColor": "blue",
+              "iconPath": "icon/path",
+              "installationUrl": "https://alm.application.url",
+              "key": "github",
+              "name": "GitHub",
+            }
+          }
+          onClick={[Function]}
+          small={true}
+          url="https://alm.application.url"
+        >
+          onboarding.import_organization.choose_organization_button.github
+        </IdentityProviderLink>
+      </div>
     </div>
   </div>
 </div>

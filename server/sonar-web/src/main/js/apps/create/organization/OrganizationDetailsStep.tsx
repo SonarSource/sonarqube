@@ -27,7 +27,8 @@ interface Props {
   finished: boolean;
   onOpen: () => void;
   open: boolean;
-  organization?: T.OrganizationBase & { key: string };
+  organization?: T.Organization;
+  stepTitle?: string;
 }
 export default class OrganizationDetailsStep extends React.PureComponent<Props> {
   renderForm = () => {
@@ -53,7 +54,9 @@ export default class OrganizationDetailsStep extends React.PureComponent<Props> 
         renderForm={this.renderForm}
         renderResult={this.renderResult}
         stepNumber={1}
-        stepTitle={translate('onboarding.create_organization.enter_org_details')}
+        stepTitle={
+          this.props.stepTitle || translate('onboarding.create_organization.enter_org_details')
+        }
       />
     );
   }

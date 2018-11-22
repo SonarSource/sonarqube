@@ -18,37 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import AutoOrganizationBind from './AutoOrganizationBind';
-import RemoteOrganizationChoose from './RemoteOrganizationChoose';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
-import { Query } from './utils';
-import RadioToggle from '../../../components/controls/RadioToggle';
+import OrganizationDetailsStep from './OrganizationDetailsStep';
+import PlanStep from './PlanStep';
+import { Step } from './utils';
 import { DeleteButton } from '../../../components/ui/buttons';
+import RadioToggle from '../../../components/controls/RadioToggle';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
-export enum Filters {
+enum Filters {
   Bind = 'bind',
   Create = 'create'
 }
 
 interface Props {
   almApplication: T.AlmApplication;
-  almInstallId?: string;
-  almOrganization?: T.AlmOrganization;
-  almUnboundApplications: T.AlmUnboundApplication[];
-  boundOrganization?: T.OrganizationBase;
+  almInstallId: string;
+  almOrganization: T.AlmOrganization;
   className?: string;
   createOrganization: (
-    organization: T.OrganizationBase & { installationId?: string }
-  ) => Promise<T.Organization>;
+    organization: T.Organization & { installationId?: string }
+  ) => Promise<string>;
+  handleCancelImport: () => void;
+  handleOrgDetailsFinish: (organization: T.Organization) => Promise<void>;
+  handleOrgDetailsStepOpen: () => void;
+  onDone: () => void;
   onOrgCreated: (organization: string, justCreated?: boolean) => void;
+  onUpgradeFail: () => void;
+  organization?: T.Organization;
+  step: Step;
+  subscriptionPlans?: T.SubscriptionPlan[];
   unboundOrganizations: T.Organization[];
-  updateUrlQuery: (query: Partial<Query>) => void;
 }
 
 interface State {
@@ -64,121 +69,117 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
   }
 
   handleBindOrganization = (organization: string) => {
-    if (this.props.almInstallId) {
-      return bindAlmOrganization({
-        organization,
-        installationId: this.props.almInstallId
-      }).then(() => this.props.onOrgCreated(organization, false));
+    return bindAlmOrganization({
+      organization,
+      installationId: this.props.almInstallId
+    }).then(() => this.props.onOrgCreated(organization, false));
+  };
+
+  handleCreateOrganization = () => {
+    const { organization } = this.props;
+    if (!organization) {
+      return Promise.reject();
     }
-    return Promise.reject();
-  };
-
-  handleCancelImport = () => {
-    this.props.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
-  };
-
-  handleCreateOrganization = (organization: Required<T.OrganizationBase>) => {
-    return this.props
-      .createOrganization({
-        avatar: organization.avatar,
-        description: organization.description,
-        installationId: this.props.almInstallId,
-        key: organization.key,
-        name: organization.name || organization.key,
-        url: organization.url
-      })
-      .then(({ key }) => this.props.onOrgCreated(key));
+    return this.props.createOrganization({
+      ...organization,
+      installationId: this.props.almInstallId
+    });
   };
 
   handleOptionChange = (filter: Filters) => {
     this.setState({ filter });
   };
 
-  renderContent = (almOrganization: T.AlmOrganization) => {
-    const { almApplication, unboundOrganizations } = this.props;
-
+  render() {
+    const {
+      almApplication,
+      almOrganization,
+      className,
+      organization,
+      step,
+      subscriptionPlans,
+      unboundOrganizations
+    } = this.props;
     const { filter } = this.state;
     const hasUnboundOrgs = unboundOrganizations.length > 0;
     return (
-      <div className="boxed-group-inner">
-        <div className="huge-spacer-bottom">
-          <p className="display-flex-center big-spacer-bottom">
-            <FormattedMessage
-              defaultMessage={translate('onboarding.import_organization_x')}
-              id="onboarding.import_organization_x"
-              values={{
-                avatar: (
-                  <img
-                    alt={almApplication.name}
-                    className="little-spacer-left"
-                    src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
-                      almApplication.key
-                    )}.svg`}
-                    width={16}
-                  />
-                ),
-                name: <strong>{almOrganization.name}</strong>
-              }}
-            />
-            <DeleteButton className="little-spacer-left" onClick={this.handleCancelImport} />
-          </p>
+      <div className={className}>
+        <OrganizationDetailsStep
+          finished={organization !== undefined}
+          onOpen={this.props.handleOrgDetailsStepOpen}
+          open={step === Step.OrganizationDetails}
+          organization={organization}
+          stepTitle={translate('onboarding.import_organization.import_org_details')}>
+          <div className="huge-spacer-bottom">
+            <p className="display-flex-center big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={translate('onboarding.import_organization_x')}
+                id="onboarding.import_organization_x"
+                values={{
+                  avatar: (
+                    <img
+                      alt={almApplication.name}
+                      className="little-spacer-left"
+                      src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
+                        almApplication.key
+                      )}.svg`}
+                      width={16}
+                    />
+                  ),
+                  name: <strong>{almOrganization.name}</strong>
+                }}
+              />
+              <DeleteButton
+                className="little-spacer-left"
+                onClick={this.props.handleCancelImport}
+              />
+            </p>
 
-          {hasUnboundOrgs && (
-            <RadioToggle
-              name="filter"
-              onCheck={this.handleOptionChange}
-              options={[
-                {
-                  label: translate('onboarding.import_organization.create_new'),
-                  value: Filters.Create
-                },
-                {
-                  label: translate('onboarding.import_organization.bind_existing'),
-                  value: Filters.Bind
-                }
-              ]}
-              value={filter}
+            {hasUnboundOrgs && (
+              <RadioToggle
+                name="filter"
+                onCheck={this.handleOptionChange}
+                options={[
+                  {
+                    label: translate('onboarding.import_organization.create_new'),
+                    value: Filters.Create
+                  },
+                  {
+                    label: translate('onboarding.import_organization.bind_existing'),
+                    value: Filters.Bind
+                  }
+                ]}
+                value={filter}
+              />
+            )}
+          </div>
+
+          {filter === Filters.Create && (
+            <OrganizationDetailsForm
+              onContinue={this.props.handleOrgDetailsFinish}
+              organization={almOrganization}
+              submitText={translate('continue')}
             />
           )}
-        </div>
+          {filter === Filters.Bind && (
+            <AutoOrganizationBind
+              onBindOrganization={this.handleBindOrganization}
+              unboundOrganizations={unboundOrganizations}
+            />
+          )}
+        </OrganizationDetailsStep>
 
-        {filter === Filters.Create && (
-          <OrganizationDetailsForm
-            onContinue={this.handleCreateOrganization}
-            organization={almOrganization}
-            submitText={translate('onboarding.import_organization.import')}
-          />
-        )}
-        {filter === Filters.Bind && (
-          <AutoOrganizationBind
-            onBindOrganization={this.handleBindOrganization}
-            unboundOrganizations={unboundOrganizations}
-          />
-        )}
-      </div>
-    );
-  };
-
-  render() {
-    const { almInstallId, almOrganization, boundOrganization, className } = this.props;
-
-    return (
-      <div className={classNames('boxed-group', className)}>
-        <div className="boxed-group-header">
-          <h2>{translate('onboarding.import_organization.import_org_details')}</h2>
-        </div>
-
-        {almInstallId && almOrganization && !boundOrganization ? (
-          this.renderContent(almOrganization)
-        ) : (
-          <RemoteOrganizationChoose
-            almApplication={this.props.almApplication}
-            almInstallId={almInstallId}
-            almOrganization={almOrganization}
-            almUnboundApplications={this.props.almUnboundApplications}
-            boundOrganization={boundOrganization}
-          />
-        )}
+        {subscriptionPlans !== undefined &&
+          filter !== Filters.Bind && (
+            <PlanStep
+              createOrganization={this.handleCreateOrganization}
+              onDone={this.props.onDone}
+              onUpgradeFail={this.props.onUpgradeFail}
+              onlyPaid={false /* TODO */}
+              open={step === Step.Plan}
+              subscriptionPlans={subscriptionPlans}
+            />
+          )}
       </div>
     );
   }

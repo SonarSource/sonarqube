@@ -32,12 +32,14 @@ import {
   parseQuery,
   serializeQuery,
   Query,
-  ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP
+  ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
+  Step
 } from './utils';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
 import AutoPersonalOrganizationBind from './AutoPersonalOrganizationBind';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
+import RemoteOrganizationChoose from './RemoteOrganizationChoose';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
@@ -63,13 +65,13 @@ import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
   createOrganization: (
-    organization: T.OrganizationBase & { installationId?: string }
-  ) => Promise<T.Organization>;
+    organization: T.Organization & { installationId?: string }
+  ) => Promise<string>;
   currentUser: T.LoggedInUser;
   deleteOrganization: (key: string) => Promise<void>;
   updateOrganization: (
-    organization: T.OrganizationBase & { installationId?: string }
-  ) => Promise<T.Organization>;
+    organization: T.Organization & { installationId?: string }
+  ) => Promise<string>;
   userOrganizations: T.Organization[];
   skipOnboarding: () => void;
 }
@@ -82,6 +84,7 @@ interface State {
   boundOrganization?: T.OrganizationBase;
   loading: boolean;
   organization?: T.Organization;
+  step: Step;
   subscriptionPlans?: T.SubscriptionPlan[];
 }
 
@@ -96,7 +99,12 @@ interface LocationState {
 
 export class CreateOrganization extends React.PureComponent<Props & WithRouterProps, State> {
   mounted = false;
-  state: State = { almOrgLoading: false, almUnboundApplications: [], loading: true };
+  state: State = {
+    almOrgLoading: false,
+    almUnboundApplications: [],
+    loading: true,
+    step: Step.OrganizationDetails
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -139,41 +147,18 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     }
   }
 
+  deleteOrganization = () => {
+    if (this.state.organization) {
+      this.props.deleteOrganization(this.state.organization.key);
+    }
+  };
+
   fetchAlmApplication = () => {
     return getAlmAppInfo().then(({ application }) => {
       if (this.mounted) {
         this.setState({ almApplication: application });
       }
     });
-  };
-
-  fetchAlmUnboundApplications = () => {
-    return listUnboundApplications().then(almUnboundApplications => {
-      if (this.mounted) {
-        this.setState({ almUnboundApplications });
-      }
-    });
-  };
-
-  hasAutoImport(state: State, paid?: boolean): state is StateWithAutoImport {
-    return Boolean(state.almApplication && !paid);
-  }
-
-  setValidOrgKey = (almOrganization: T.AlmOrganization) => {
-    const key = slugify(almOrganization.key);
-    const keys = [key, ...times(9, i => `${key}-${i + 1}`)];
-    return api
-      .getOrganizations({ organizations: keys.join(',') })
-      .then(
-        ({ organizations }) => {
-          const availableKey = keys.find(key => !organizations.find(o => o.key === key));
-          return availableKey || `${key}-${Math.ceil(Math.random() * 1000) + 10}`;
-        },
-        () => key
-      )
-      .then(key => {
-        return { almOrganization: { ...almOrganization, key } };
-      });
   };
 
   fetchAlmOrganization = (installationId: string) => {
@@ -209,12 +194,24 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       );
   };
 
+  fetchAlmUnboundApplications = () => {
+    return listUnboundApplications().then(almUnboundApplications => {
+      if (this.mounted) {
+        this.setState({ almUnboundApplications });
+      }
+    });
+  };
+
   fetchSubscriptionPlans = () => {
     return getSubscriptionPlans().then(subscriptionPlans => {
       if (this.mounted) {
         this.setState({ subscriptionPlans });
       }
     });
+  };
+
+  handleCancelImport = () => {
+    this.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
   };
 
   handleOrgCreated = (organization: string, justCreated = true) => {
@@ -232,6 +229,25 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     }
   };
 
+  handleOrgDetailsFinish = (organization: T.Organization) => {
+    this.setState({ organization, step: Step.Plan });
+    return Promise.resolve();
+  };
+
+  handleOrgDetailsStepOpen = () => {
+    this.setState({ step: Step.OrganizationDetails });
+  };
+
+  handlePlanDone = () => {
+    if (this.state.organization) {
+      this.handleOrgCreated(this.state.organization.key);
+    }
+  };
+
+  hasAutoImport(state: State): state is StateWithAutoImport {
+    return Boolean(state.almApplication);
+  }
+
   isStoredTimestampValid = (timestampKey: string) => {
     const storedTimestamp = get(timestampKey);
     remove(timestampKey);
@@ -240,6 +256,23 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   onTabChange = (tab: TabKeys) => {
     this.updateUrlState({ tab });
+  };
+
+  setValidOrgKey = (almOrganization: T.AlmOrganization) => {
+    const key = slugify(almOrganization.key);
+    const keys = [key, ...times(9, i => `${key}-${i + 1}`)];
+    return api
+      .getOrganizations({ organizations: keys.join(',') })
+      .then(
+        ({ organizations }) => {
+          const availableKey = keys.find(key => !organizations.find(o => o.key === key));
+          return availableKey || `${key}-${Math.ceil(Math.random() * 1000) + 10}`;
+        },
+        () => key
+      )
+      .then(key => {
+        return { almOrganization: { ...almOrganization, key } };
+      });
   };
 
   stopLoading = () => {
@@ -267,66 +300,97 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   renderContent = (almInstallId?: string, importPersonalOrg?: T.Organization) => {
     const { currentUser, location } = this.props;
     const { state } = this;
-    const { almOrganization } = state;
+    const { organization, step, subscriptionPlans } = state;
     const { paid, tab = 'auto' } = (location.state || {}) as LocationState;
 
-    if (importPersonalOrg && almOrganization && state.almApplication) {
+    const commonProps = {
+      handleOrgDetailsFinish: this.handleOrgDetailsFinish,
+      handleOrgDetailsStepOpen: this.handleOrgDetailsStepOpen,
+      onDone: this.handlePlanDone,
+      organization,
+      step,
+      subscriptionPlans
+    };
+
+    if (!this.hasAutoImport(state)) {
+      return (
+        <ManualOrganizationCreate
+          {...commonProps}
+          createOrganization={this.props.createOrganization}
+          onUpgradeFail={this.deleteOrganization}
+          onlyPaid={paid}
+          organization={this.state.organization}
+          step={this.state.step}
+        />
+      );
+    }
+
+    const { almApplication, almOrganization, boundOrganization } = state;
+
+    if (importPersonalOrg && almOrganization && almApplication) {
       return (
         <AutoPersonalOrganizationBind
-          almApplication={state.almApplication}
+          {...commonProps}
+          almApplication={almApplication}
           almInstallId={almInstallId}
           almOrganization={almOrganization}
+          handleCancelImport={this.handleCancelImport}
           importPersonalOrg={importPersonalOrg}
-          onOrgCreated={this.handleOrgCreated}
+          subscriptionPlans={subscriptionPlans}
           updateOrganization={this.props.updateOrganization}
-          updateUrlQuery={this.updateUrlQuery}
         />
       );
     }
 
     return (
       <>
-        {this.hasAutoImport(state, paid) && (
-          <Tabs<TabKeys>
-            onChange={this.onTabChange}
-            selected={tab || 'auto'}
-            tabs={[
-              {
-                key: 'auto',
-                node: translate('onboarding.import_organization', state.almApplication.key)
-              },
-              {
-                key: 'manual',
-                node: translate('onboarding.create_organization.create_manually')
-              }
-            ]}
-          />
-        )}
-
-        <ManualOrganizationCreate
-          className={classNames({ hidden: tab !== 'manual' && this.hasAutoImport(state, paid) })}
-          createOrganization={this.props.createOrganization}
-          deleteOrganization={this.props.deleteOrganization}
-          onOrgCreated={this.handleOrgCreated}
-          onlyPaid={paid}
-          subscriptionPlans={this.state.subscriptionPlans}
+        <Tabs<TabKeys>
+          onChange={this.onTabChange}
+          selected={tab || 'auto'}
+          tabs={[
+            {
+              key: 'auto',
+              node: translate('onboarding.import_organization', almApplication.key)
+            },
+            {
+              key: 'manual',
+              node: translate('onboarding.create_organization.create_manually')
+            }
+          ]}
         />
 
-        {this.hasAutoImport(state, paid) && (
+        <ManualOrganizationCreate
+          {...commonProps}
+          className={classNames({ hidden: tab !== 'manual' && this.hasAutoImport(state) })}
+          createOrganization={this.props.createOrganization}
+          onUpgradeFail={this.deleteOrganization}
+          onlyPaid={paid}
+        />
+
+        {almInstallId && almOrganization && !boundOrganization ? (
           <AutoOrganizationCreate
-            almApplication={state.almApplication}
+            {...commonProps}
+            almApplication={almApplication}
             almInstallId={almInstallId}
             almOrganization={almOrganization}
-            almUnboundApplications={this.state.almUnboundApplications}
-            boundOrganization={this.state.boundOrganization}
             className={classNames({ hidden: tab !== 'auto' })}
             createOrganization={this.props.createOrganization}
+            handleCancelImport={this.handleCancelImport}
             onOrgCreated={this.handleOrgCreated}
+            onUpgradeFail={this.deleteOrganization}
             unboundOrganizations={this.props.userOrganizations.filter(
               ({ actions = {}, alm, key }) =>
                 !alm && key !== currentUser.personalOrganization && actions.admin
             )}
-            updateUrlQuery={this.updateUrlQuery}
+          />
+        ) : (
+          <RemoteOrganizationChoose
+            almApplication={almApplication}
+            almInstallId={almInstallId}
+            almOrganization={almOrganization}
+            almUnboundApplications={state.almUnboundApplications}
+            boundOrganization={boundOrganization}
+            className={classNames({ hidden: tab !== 'auto' })}
           />
         )}
       </>
@@ -387,18 +451,18 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   }
 }
 
-function createOrganization(organization: T.OrganizationBase & { installationId?: string }) {
+function createOrganization(organization: T.Organization & { installationId?: string }) {
   return (dispatch: Dispatch) => {
-    return api.createOrganization(organization).then((organization: T.Organization) => {
-      dispatch(actions.createOrganization(organization));
-      return organization;
-    });
+    return api
+      .createOrganization({ ...organization, name: organization.name || organization.key })
+      .then((organization: T.Organization) => {
+        dispatch(actions.createOrganization(organization));
+        return organization.key;
+      });
   };
 }
 
-function updateOrganization(
-  organization: T.OrganizationBase & { key: string; installationId?: string }
-) {
+function updateOrganization(organization: T.Organization & { installationId?: string }) {
   return (dispatch: Dispatch) => {
     const { key, installationId, ...changes } = organization;
     const promises = [api.updateOrganization(key, changes)];
@@ -407,7 +471,7 @@ function updateOrganization(
     }
     return Promise.all(promises).then(() => {
       dispatch(actions.updateOrganization(key, changes));
-      return organization;
+      return organization.key;
     });
   };
 }

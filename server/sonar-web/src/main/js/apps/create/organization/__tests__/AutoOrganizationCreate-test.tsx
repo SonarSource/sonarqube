@@ -22,6 +22,7 @@ import { shallow } from 'enzyme';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 import { bindAlmOrganization } from '../../../../api/alm-integration';
+import { Step } from '../utils';
 
 jest.mock('../../../../api/alm-integration', () => ({
   bindAlmOrganization: jest.fn().mockResolvedValue({})
@@ -35,47 +36,32 @@ const organization = {
   url: 'http://example.com/foo'
 };
 
-it('should render with import org button', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
 it('should render prefilled and create org', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
-  const onOrgCreated = jest.fn();
-  const wrapper = shallowRender({
-    almInstallId: 'id-foo',
-    almOrganization: { ...organization, personal: false },
-    createOrganization,
-    onOrgCreated
-  });
+  const handleOrgDetailsFinish = jest.fn();
+  const wrapper = shallowRender({ createOrganization, handleOrgDetailsFinish });
 
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
   await waitAndUpdate(wrapper);
+  expect(handleOrgDetailsFinish).toBeCalled();
 
+  wrapper.setProps({ organization });
+  wrapper.find('PlanStep').prop<Function>('createOrganization')();
   expect(createOrganization).toBeCalledWith({ ...organization, installationId: 'id-foo' });
-  expect(onOrgCreated).toBeCalledWith('foo');
 });
 
 it('should allow to cancel org import', () => {
-  const updateUrlQuery = jest.fn().mockResolvedValue({ key: 'foo' });
-  const wrapper = shallowRender({
-    almInstallId: 'id-foo',
-    almOrganization: { ...organization, personal: false },
-    updateUrlQuery
-  });
+  const handleCancelImport = jest.fn().mockResolvedValue({ key: 'foo' });
+  const wrapper = shallowRender({ handleCancelImport });
 
   click(wrapper.find('DeleteButton'));
-  expect(updateUrlQuery).toBeCalledWith({ almInstallId: undefined, almKey: undefined });
+  expect(handleCancelImport).toBeCalled();
 });
 
 it('should display choice between import or creation', () => {
-  const wrapper = shallowRender({
-    almInstallId: 'id-foo',
-    almOrganization: { ...organization, personal: false },
-    unboundOrganizations: [organization]
-  });
+  const wrapper = shallowRender({ unboundOrganizations: [organization] });
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('RadioToggle').prop<Function>('onCheck')('create');
@@ -89,12 +75,7 @@ it('should display choice between import or creation', () => {
 
 it('should bind existing organization', async () => {
   const onOrgCreated = jest.fn();
-  const wrapper = shallowRender({
-    almInstallId: 'id-foo',
-    almOrganization: { ...organization, personal: false },
-    onOrgCreated,
-    unboundOrganizations: [organization]
-  });
+  const wrapper = shallowRender({ onOrgCreated, unboundOrganizations: [organization] });
 
   wrapper.find('RadioToggle').prop<Function>('onCheck')('bind');
   wrapper.update();
@@ -117,11 +98,18 @@ function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
         key: 'bitbucket',
         name: 'BitBucket'
       }}
-      almUnboundApplications={[]}
+      almInstallId="id-foo"
+      almOrganization={{ ...organization, personal: false }}
       createOrganization={jest.fn()}
+      handleCancelImport={jest.fn()}
+      handleOrgDetailsFinish={jest.fn()}
+      handleOrgDetailsStepOpen={jest.fn()}
+      onDone={jest.fn()}
       onOrgCreated={jest.fn()}
+      onUpgradeFail={jest.fn()}
+      step={Step.OrganizationDetails}
+      subscriptionPlans={[{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }]}
       unboundOrganizations={[]}
-      updateUrlQuery={jest.fn()}
       {...props}
     />
   );

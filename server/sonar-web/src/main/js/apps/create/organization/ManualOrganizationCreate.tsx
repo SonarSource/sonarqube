@@ -21,113 +21,54 @@ import * as React from 'react';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
-import { formatPrice } from './utils';
+import { Step } from './utils';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  createOrganization: (organization: T.OrganizationBase) => Promise<T.Organization>;
+  createOrganization: (organization: T.Organization) => Promise<string>;
   className?: string;
-  deleteOrganization: (key: string) => Promise<void>;
-  onOrgCreated: (organization: string) => void;
+  onUpgradeFail: () => void;
+  handleOrgDetailsFinish: (organization: T.Organization) => Promise<void>;
+  handleOrgDetailsStepOpen: () => void;
+  onDone: () => void;
   onlyPaid?: boolean;
+  organization?: T.Organization;
+  step: Step;
   subscriptionPlans?: T.SubscriptionPlan[];
 }
 
-enum Step {
-  OrganizationDetails,
-  Plan
-}
-
-interface State {
-  organization?: T.Organization;
-  step: Step;
-}
-
-export default class ManualOrganizationCreate extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { step: Step.OrganizationDetails };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleOrganizationDetailsStepOpen = () => {
-    this.setState({ step: Step.OrganizationDetails });
-  };
-
-  handleOrganizationDetailsFinish = (organization: Required<T.OrganizationBase>) => {
-    this.setState({ organization, step: Step.Plan });
-    return Promise.resolve();
-  };
-
-  handlePaidPlanChoose = () => {
-    if (this.state.organization) {
-      this.props.onOrgCreated(this.state.organization.key);
-    }
-  };
-
-  handleFreePlanChoose = () => {
-    return this.createOrganization().then(key => {
-      this.props.onOrgCreated(key);
-    });
-  };
-
-  createOrganization = () => {
-    const { organization } = this.state;
-    if (organization) {
-      return this.props
-        .createOrganization({
-          avatar: organization.avatar,
-          description: organization.description,
-          key: organization.key,
-          name: organization.name || organization.key,
-          url: organization.url
-        })
-        .then(({ key }) => key);
-    } else {
+export default class ManualOrganizationCreate extends React.PureComponent<Props> {
+  handleCreateOrganization = () => {
+    const { organization } = this.props;
+    if (!organization) {
       return Promise.reject();
     }
-  };
-
-  deleteOrganization = () => {
-    const { organization } = this.state;
-    if (organization) {
-      this.props.deleteOrganization(organization.key).catch(() => {});
-    }
+    return this.props.createOrganization(organization);
   };
 
   render() {
-    const { className, subscriptionPlans } = this.props;
-    const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
-    const formattedPrice = formatPrice(startedPrice);
-
+    const { className, organization, subscriptionPlans } = this.props;
     return (
       <div className={className}>
         <OrganizationDetailsStep
-          finished={this.state.organization !== undefined}
-          onOpen={this.handleOrganizationDetailsStepOpen}
-          open={this.state.step === Step.OrganizationDetails}
-          organization={this.state.organization}>
+          finished={organization !== undefined}
+          onOpen={this.props.handleOrgDetailsStepOpen}
+          open={this.props.step === Step.OrganizationDetails}
+          organization={organization}>
           <OrganizationDetailsForm
-            onContinue={this.handleOrganizationDetailsFinish}
-            organization={this.state.organization}
+            onContinue={this.props.handleOrgDetailsFinish}
+            organization={organization}
             submitText={translate('continue')}
           />
         </OrganizationDetailsStep>
 
         {subscriptionPlans !== undefined && (
           <PlanStep
-            createOrganization={this.createOrganization}
-            deleteOrganization={this.deleteOrganization}
-            onFreePlanChoose={this.handleFreePlanChoose}
-            onPaidPlanChoose={this.handlePaidPlanChoose}
+            createOrganization={this.handleCreateOrganization}
+            onDone={this.props.onDone}
+            onUpgradeFail={this.props.onUpgradeFail}
             onlyPaid={this.props.onlyPaid}
-            open={this.state.step === Step.Plan}
-            startingPrice={formattedPrice}
+            open={this.props.step === Step.Plan}
             subscriptionPlans={subscriptionPlans}
           />
         )}

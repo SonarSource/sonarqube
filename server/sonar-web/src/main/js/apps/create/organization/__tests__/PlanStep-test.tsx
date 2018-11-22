@@ -20,45 +20,46 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import PlanStep from '../PlanStep';
-import { waitAndUpdate, click } from '../../../../helpers/testUtils';
+import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 import { Plan } from '../PlanSelect';
 
 jest.mock('../../../../app/components/extensions/utils', () => ({
   getExtensionStart: jest.fn().mockResolvedValue(undefined)
 }));
 
+const subscriptionPlans = [{ maxNcloc: 1000, price: 100 }];
+
 it('should render and use free plan', async () => {
-  const onFreePlanChoose = jest.fn().mockResolvedValue(undefined);
+  const onDone = jest.fn();
+  const createOrganization = jest.fn().mockResolvedValue('org');
   const wrapper = shallow(
     <PlanStep
-      createOrganization={jest.fn().mockResolvedValue('org')}
-      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
-      onFreePlanChoose={onFreePlanChoose}
-      onPaidPlanChoose={jest.fn()}
+      createOrganization={createOrganization}
+      onDone={onDone}
+      onUpgradeFail={jest.fn()}
       open={true}
-      startingPrice="10"
-      subscriptionPlans={[]}
+      subscriptionPlans={subscriptionPlans}
     />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.dive()).toMatchSnapshot();
 
-  click(wrapper.dive().find('SubmitButton'));
-  expect(onFreePlanChoose).toBeCalled();
+  submit(wrapper.dive().find('form'));
+  await waitAndUpdate(wrapper);
+  expect(createOrganization).toBeCalled();
+  expect(onDone).toBeCalled();
 });
 
 it('should upgrade', async () => {
-  const onPaidPlanChoose = jest.fn();
+  const onDone = jest.fn();
   const wrapper = shallow(
     <PlanStep
       createOrganization={jest.fn().mockResolvedValue('org')}
-      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
-      onFreePlanChoose={jest.fn().mockResolvedValue(undefined)}
-      onPaidPlanChoose={onPaidPlanChoose}
+      onDone={onDone}
+      onUpgradeFail={jest.fn()}
       open={true}
-      startingPrice="10"
-      subscriptionPlans={[]}
+      subscriptionPlans={subscriptionPlans}
     />
   );
   await waitAndUpdate(wrapper);
@@ -73,20 +74,18 @@ it('should upgrade', async () => {
     .dive()
     .find('Connect(withCurrentUser(BillingFormShim))')
     .prop<Function>('onCommit')();
-  expect(onPaidPlanChoose).toBeCalled();
+  expect(onDone).toBeCalled();
 });
 
 it('should preselect paid plan', async () => {
   const wrapper = shallow(
     <PlanStep
       createOrganization={jest.fn()}
-      deleteOrganization={jest.fn().mockResolvedValue(undefined)}
-      onFreePlanChoose={jest.fn().mockResolvedValue(undefined)}
-      onPaidPlanChoose={jest.fn()}
+      onDone={jest.fn()}
+      onUpgradeFail={jest.fn()}
       onlyPaid={true}
       open={true}
-      startingPrice="10"
-      subscriptionPlans={[]}
+      subscriptionPlans={subscriptionPlans}
     />
   );
   await waitAndUpdate(wrapper);

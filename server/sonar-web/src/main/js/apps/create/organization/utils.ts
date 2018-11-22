@@ -35,6 +35,11 @@ export const ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP =
 export const ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP =
   'sonarcloud.import_org.redirect_to_projects';
 
+export enum Step {
+  OrganizationDetails,
+  Plan
+}
+
 export function formatPrice(price?: number, noSign?: boolean) {
   const priceFormatted = formatMeasure(price, 'FLOAT')
     .replace(/[.|,]0$/, '')

@@ -4,21 +4,19 @@ exports[`should render and create organization 1`] = `
 <div>
   <OrganizationDetailsStep
     finished={false}
-    onOpen={[Function]}
+    onOpen={[MockFunction]}
     open={true}
   >
     <OrganizationDetailsForm
-      onContinue={[Function]}
+      onContinue={[MockFunction]}
       submitText="continue"
     />
   </OrganizationDetailsStep>
   <PlanStep
     createOrganization={[Function]}
-    deleteOrganization={[Function]}
-    onFreePlanChoose={[Function]}
-    onPaidPlanChoose={[Function]}
+    onDone={[MockFunction]}
+    onUpgradeFail={[MockFunction]}
     open={false}
-    startingPrice="billing.price_format.10"
     subscriptionPlans={
       Array [
         Object {
@@ -38,28 +36,30 @@ exports[`should render and create organization 1`] = `
 exports[`should render and create organization 2`] = `
 <div>
   <OrganizationDetailsStep
-    finished={true}
-    onOpen={[Function]}
+    finished={false}
+    onOpen={[MockFunction]}
     open={false}
-    organization={
-      Object {
-        "avatar": "http://example.com/avatar",
-        "description": "description-foo",
-        "key": "key-foo",
-        "name": "name-foo",
-        "url": "http://example.com/foo",
-      }
-    }
   >
     <OrganizationDetailsForm
-      onContinue={[Function]}
-      organization={
-        Object {
-          "avatar": "http://example.com/avatar",
-          "description": "description-foo",
-          "key": "key-foo",
-          "name": "name-foo",
-          "url": "http://example.com/foo",
+      onContinue={
+        [MockFunction] {
+          "calls": Array [
+            Array [
+              Object {
+                "avatar": "http://example.com/avatar",
+                "description": "description-foo",
+                "key": "key-foo",
+                "name": "name-foo",
+                "url": "http://example.com/foo",
+              },
+            ],
+          ],
+          "results": Array [
+            Object {
+              "isThrow": false,
+              "value": undefined,
+            },
+          ],
         }
       }
       submitText="continue"
@@ -67,11 +67,9 @@ exports[`should render and create organization 2`] = `
   </OrganizationDetailsStep>
   <PlanStep
     createOrganization={[Function]}
-    deleteOrganization={[Function]}
-    onFreePlanChoose={[Function]}
-    onPaidPlanChoose={[Function]}
+    onDone={[MockFunction]}
+    onUpgradeFail={[MockFunction]}
     open={true}
-    startingPrice="billing.price_format.10"
     subscriptionPlans={
       Array [
         Object {

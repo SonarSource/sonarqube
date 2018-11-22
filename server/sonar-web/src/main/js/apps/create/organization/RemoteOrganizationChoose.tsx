@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { WithRouterProps, withRouter } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { sortBy } from 'lodash';
@@ -38,6 +39,7 @@ interface Props {
   almOrganization?: T.AlmOrganization;
   almUnboundApplications: T.AlmUnboundApplication[];
   boundOrganization?: T.OrganizationBase;
+  className?: string;
 }
 
 interface State {
@@ -91,102 +93,108 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
       almInstallId,
       almOrganization,
       almUnboundApplications,
-      boundOrganization
+      boundOrganization,
+      className
     } = this.props;
     const { unboundInstallationId } = this.state;
     return (
-      <div className="boxed-group-inner">
-        {almInstallId &&
-          !almOrganization && (
-            <Alert className="big-spacer-bottom width-60" variant="error">
-              <div className="markdown">
-                {translate('onboarding.import_organization.org_not_found')}
-                <ul>
-                  <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
-                  <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
-                </ul>
-              </div>
-            </Alert>
-          )}
-        {almOrganization &&
-          boundOrganization && (
-            <Alert className="big-spacer-bottom width-60" variant="error">
-              <FormattedMessage
-                defaultMessage={translate('onboarding.import_organization.already_bound_x')}
-                id="onboarding.import_organization.already_bound_x"
-                values={{
-                  avatar: (
-                    <img
-                      alt={almApplication.name}
-                      className="little-spacer-left"
-                      src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
-                        almApplication.key
-                      )}.svg`}
-                      width={16}
-                    />
-                  ),
-                  name: <strong>{almOrganization.name}</strong>,
-                  boundAvatar: (
-                    <OrganizationAvatar
-                      className="little-spacer-left"
-                      organization={boundOrganization}
-                      small={true}
-                    />
-                  ),
-                  boundName: <strong>{boundOrganization.name}</strong>
-                }}
-              />
-            </Alert>
-          )}
-        <div className="display-flex-center">
-          <div className="display-inline-block">
-            <IdentityProviderLink
-              className="display-inline-block"
-              identityProvider={almApplication}
-              onClick={this.handleInstallAppClick}
-              small={true}
-              url={almApplication.installationUrl}>
-              {translate(
-                'onboarding.import_organization.choose_organization_button',
-                almApplication.key
-              )}
-            </IdentityProviderLink>
-          </div>
-          {almUnboundApplications.length > 0 && (
-            <div className="display-flex-stretch">
-              <div className="vertical-pipe-separator">
-                <div className="vertical-separator " />
-                <span className="note">{translate('or')}</span>
-                <div className="vertical-separator" />
-              </div>
-              <form className="big-spacer-top big-spacer-bottom" onSubmit={this.handleSubmit}>
-                <div className="form-field abs-width-400">
-                  <label htmlFor="select-unbound-installation">
-                    {translate(
-                      'onboarding.import_organization.choose_unbound_installation',
-                      almApplication.key
-                    )}
-                  </label>
-                  <Select
-                    className="input-super-large"
-                    clearable={false}
-                    id="select-unbound-installation"
-                    labelKey="name"
-                    onChange={this.handleInstallationChange}
-                    optionRenderer={this.renderOption}
-                    options={sortBy(almUnboundApplications, o => o.name.toLowerCase())}
-                    placeholder={translate('onboarding.import_organization.choose_organization')}
-                    value={unboundInstallationId}
-                    valueKey="installationId"
-                    valueRenderer={this.renderOption}
-                  />
+      <div className={classNames('boxed-group', className)}>
+        <div className="boxed-group-header">
+          <h2>{translate('onboarding.import_organization.import_org_details')}</h2>
+        </div>
+        <div className="boxed-group-inner">
+          {almInstallId &&
+            !almOrganization && (
+              <Alert className="big-spacer-bottom width-60" variant="error">
+                <div className="markdown">
+                  {translate('onboarding.import_organization.org_not_found')}
+                  <ul>
+                    <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
+                    <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
+                  </ul>
                 </div>
-                <SubmitButton disabled={!unboundInstallationId}>
-                  {translate('continue')}
-                </SubmitButton>
-              </form>
+              </Alert>
+            )}
+          {almOrganization &&
+            boundOrganization && (
+              <Alert className="big-spacer-bottom width-60" variant="error">
+                <FormattedMessage
+                  defaultMessage={translate('onboarding.import_organization.already_bound_x')}
+                  id="onboarding.import_organization.already_bound_x"
+                  values={{
+                    avatar: (
+                      <img
+                        alt={almApplication.name}
+                        className="little-spacer-left"
+                        src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
+                          almApplication.key
+                        )}.svg`}
+                        width={16}
+                      />
+                    ),
+                    name: <strong>{almOrganization.name}</strong>,
+                    boundAvatar: (
+                      <OrganizationAvatar
+                        className="little-spacer-left"
+                        organization={boundOrganization}
+                        small={true}
+                      />
+                    ),
+                    boundName: <strong>{boundOrganization.name}</strong>
+                  }}
+                />
+              </Alert>
+            )}
+          <div className="display-flex-center">
+            <div className="display-inline-block">
+              <IdentityProviderLink
+                className="display-inline-block"
+                identityProvider={almApplication}
+                onClick={this.handleInstallAppClick}
+                small={true}
+                url={almApplication.installationUrl}>
+                {translate(
+                  'onboarding.import_organization.choose_organization_button',
+                  almApplication.key
+                )}
+              </IdentityProviderLink>
             </div>
-          )}
+            {almUnboundApplications.length > 0 && (
+              <div className="display-flex-stretch">
+                <div className="vertical-pipe-separator">
+                  <div className="vertical-separator " />
+                  <span className="note">{translate('or')}</span>
+                  <div className="vertical-separator" />
+                </div>
+                <form className="big-spacer-top big-spacer-bottom" onSubmit={this.handleSubmit}>
+                  <div className="form-field abs-width-400">
+                    <label htmlFor="select-unbound-installation">
+                      {translate(
+                        'onboarding.import_organization.choose_unbound_installation',
+                        almApplication.key
+                      )}
+                    </label>
+                    <Select
+                      className="input-super-large"
+                      clearable={false}
+                      id="select-unbound-installation"
+                      labelKey="name"
+                      onChange={this.handleInstallationChange}
+                      optionRenderer={this.renderOption}
+                      options={sortBy(almUnboundApplications, o => o.name.toLowerCase())}
+                      placeholder={translate('onboarding.import_organization.choose_organization')}
+                      value={unboundInstallationId}
+                      valueKey="installationId"
+                      valueRenderer={this.renderOption}
+                    />
+                  </div>
+                  <SubmitButton disabled={!unboundInstallationId}>
+                    {translate('continue')}
+                  </SubmitButton>
+                </form>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

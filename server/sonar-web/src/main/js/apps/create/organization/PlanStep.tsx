@@ -20,6 +20,7 @@
 import * as React from 'react';
 import BillingFormShim from './BillingFormShim';
 import PlanSelect, { Plan } from './PlanSelect';
+import { formatPrice } from './utils';
 import Step from '../../tutorials/components/Step';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
@@ -31,12 +32,10 @@ const BillingForm = withCurrentUser(BillingFormShim);
 
 interface Props {
   createOrganization: () => Promise<string>;
-  deleteOrganization: () => void;
-  onFreePlanChoose: () => Promise<void>;
-  onPaidPlanChoose: () => void;
+  onDone: () => void;
+  onUpgradeFail?: () => void;
   onlyPaid?: boolean;
   open: boolean;
-  startingPrice: string;
   subscriptionPlans: T.SubscriptionPlan[];
 }
 
@@ -84,13 +83,19 @@ export default class PlanStep extends React.PureComponent<Props, State> {
     }
   };
 
-  handleFreePlanSubmit = () => {
+  handleFreePlanSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     this.setState({ submitting: true });
-    this.props.onFreePlanChoose().then(this.stopSubmitting, this.stopSubmitting);
+    return this.props.createOrganization().then(() => {
+      this.props.onDone();
+      this.stopSubmitting();
+    }, this.stopSubmitting);
   };
 
   renderForm = () => {
     const { submitting } = this.state;
+    const { subscriptionPlans } = this.props;
+    const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     return (
       <div className="boxed-group-inner">
         {this.state.ready && (
@@ -99,18 +104,18 @@ export default class PlanStep extends React.PureComponent<Props, State> {
               <PlanSelect
                 onChange={this.handlePlanChange}
                 plan={this.state.plan}
-                startingPrice={this.props.startingPrice}
+                startingPrice={formatPrice(startedPrice)}
               />
             )}
 
             {this.state.plan === Plan.Paid ? (
               <BillingForm
-                onCommit={this.props.onPaidPlanChoose}
-                onFailToUpgrade={this.props.deleteOrganization}
+                onCommit={this.props.onDone}
+                onFailToUpgrade={this.props.onUpgradeFail}
                 organizationKey={this.props.createOrganization}
                 subscriptionPlans={this.props.subscriptionPlans}>
                 {({ onSubmit, renderFormFields, renderSubmitGroup }) => (
-                  <form onSubmit={onSubmit}>
+                  <form id="organization-paid-plan-form" onSubmit={onSubmit}>
                     {renderFormFields()}
                     <div className="billing-input-large big-spacer-top">
                       {renderSubmitGroup(
@@ -121,12 +126,15 @@ export default class PlanStep extends React.PureComponent<Props, State> {
                 )}
               </BillingForm>
             ) : (
-              <div className="display-flex-center big-spacer-top">
-                <SubmitButton disabled={submitting} onClick={this.handleFreePlanSubmit}>
+              <form
+                className="display-flex-center big-spacer-top"
+                id="organization-free-plan-form"
+                onSubmit={this.handleFreePlanSubmit}>
+                <SubmitButton disabled={submitting}>
                   {translate('my_account.create_organization')}
                 </SubmitButton>
                 {submitting && <DeferredSpinner className="spacer-left" />}
-              </div>
+              </form>
             )}
           </>
         )}

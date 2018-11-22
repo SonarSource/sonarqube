@@ -21,16 +21,25 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoPersonalOrganizationBind from '../AutoPersonalOrganizationBind';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
+import { Step } from '../utils';
 
 const personalOrg = { key: 'personalorg', name: 'Personal Org' };
+const almOrganization = {
+  avatar: 'http://example.com/avatar',
+  description: 'description-foo',
+  key: 'key-foo',
+  name: 'name-foo',
+  personal: true,
+  url: 'http://example.com/foo'
+};
 
 it('should render correctly', async () => {
   const updateOrganization = jest.fn().mockResolvedValue({ key: personalOrg.key });
-  const onOrgCreated = jest.fn();
+  const handleOrgDetailsFinish = jest.fn();
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
     importPersonalOrg: personalOrg,
-    onOrgCreated,
+    handleOrgDetailsFinish,
     updateOrganization
   });
 
@@ -38,21 +47,23 @@ it('should render correctly', async () => {
 
   wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(personalOrg);
   await waitAndUpdate(wrapper);
+  expect(handleOrgDetailsFinish).toBeCalled();
 
+  wrapper.setProps({ organization: personalOrg });
+  wrapper.find('PlanStep').prop<Function>('createOrganization')();
   expect(updateOrganization).toBeCalledWith({ ...personalOrg, installationId: 'id-foo' });
-  expect(onOrgCreated).toBeCalledWith(personalOrg.key);
 });
 
 it('should allow to cancel org import', () => {
-  const updateUrlQuery = jest.fn();
+  const handleCancelImport = jest.fn();
   const wrapper = shallowRender({
     almInstallId: 'id-foo',
     importPersonalOrg: personalOrg,
-    updateUrlQuery
+    handleCancelImport
   });
 
   click(wrapper.find('DeleteButton'));
-  expect(updateUrlQuery).toBeCalledWith({ almInstallId: undefined, almKey: undefined });
+  expect(handleCancelImport).toBeCalled();
 });
 
 function shallowRender(props: Partial<AutoPersonalOrganizationBind['props']> = {}) {
@@ -65,18 +76,15 @@ function shallowRender(props: Partial<AutoPersonalOrganizationBind['props']> = {
         key: 'bitbucket',
         name: 'BitBucket'
       }}
-      almOrganization={{
-        avatar: 'http://example.com/avatar',
-        description: 'description-foo',
-        key: 'key-foo',
-        name: 'name-foo',
-        personal: true,
-        url: 'http://example.com/foo'
-      }}
+      almOrganization={almOrganization}
+      handleCancelImport={jest.fn()}
+      handleOrgDetailsFinish={jest.fn()}
+      handleOrgDetailsStepOpen={jest.fn()}
       importPersonalOrg={{ key: 'personalorg', name: 'Personal Org' }}
-      onOrgCreated={jest.fn()}
+      onDone={jest.fn()}
+      step={Step.OrganizationDetails}
+      subscriptionPlans={[{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }]}
       updateOrganization={jest.fn()}
-      updateUrlQuery={jest.fn()}
       {...props}
     />
   );
