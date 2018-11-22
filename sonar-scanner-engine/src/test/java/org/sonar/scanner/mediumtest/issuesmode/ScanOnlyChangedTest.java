@@ -47,9 +47,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
-import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.FileData;
@@ -104,7 +104,7 @@ public class ScanOnlyChangedTest {
 
     tester
       // this will cause the file to have status==SAME
-      .addFileData(projectKey, filePath, new FileData(md5sum, null))
+      .addFileData(filePath, new FileData(md5sum, null))
       .setPreviousAnalysisDate(new Date())
       // Existing issue that is copied
       .mockServerIssue(ServerIssue.newBuilder().setKey("xyz")

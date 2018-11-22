@@ -34,7 +34,6 @@ import static org.sonar.api.batch.fs.InputFile.Status.SAME;
 
 @Immutable
 public class StatusDetection {
-
   private final ProjectRepositories projectRepositories;
   private final ScmChangedFiles scmChangedFiles;
 
@@ -43,8 +42,8 @@ public class StatusDetection {
     this.scmChangedFiles = scmChangedFiles;
   }
 
-  InputFile.Status status(String projectKeyWithBranch, DefaultInputFile inputFile, String hash) {
-    FileData fileDataPerPath = projectRepositories.fileData(projectKeyWithBranch, inputFile.relativePath());
+  InputFile.Status status(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {
+    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile);
     if (fileDataPerPath == null) {
       return checkChanged(ADDED, inputFile);
     }
@@ -64,8 +63,8 @@ public class StatusDetection {
    * @return null if it was not possible to get the status without calculating metadata
    */
   @CheckForNull
-  public InputFile.Status getStatusWithoutMetadata(String projectKeyWithBranch, DefaultInputFile inputFile) {
-    FileData fileDataPerPath = projectRepositories.fileData(projectKeyWithBranch, inputFile.relativePath());
+  public InputFile.Status getStatusWithoutMetadata(String moduleKeyWithBranch, DefaultInputFile inputFile) {
+    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile);
     if (fileDataPerPath == null) {
       return checkChanged(ADDED, inputFile);
     }

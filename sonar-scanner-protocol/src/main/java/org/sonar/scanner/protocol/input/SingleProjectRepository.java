@@ -1,52 +1,45 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
- *
+ *  
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
- *
+ *  
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ *  
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.scanner.protocol.input;
 
-import java.util.Date;
-import javax.annotation.CheckForNull;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 
-/**
- * Container for all project data going from server to batch.
- * This is not an API since server and batch always share the same version.
- */
-public abstract class ProjectRepositories {
+public class SingleProjectRepository extends ProjectRepositories {
+  private Map<String, FileData> fileDataByPath = new HashMap<>();
 
-  private long timestamp;
+  public ProjectRepositories addFileData(@Nullable String path, FileData fileData) {
+    if (path == null || (fileData.hash() == null && fileData.revision() == null)) {
+      return this;
+    }
 
-  private Date lastAnalysisDate;
-
-  public long timestamp() {
-    return timestamp;
+    fileDataByPath.put(path, fileData);
+    return this;
   }
 
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
+  public Map<String, FileData> fileData() {
+    return fileDataByPath;
   }
 
-  @CheckForNull
-  public Date lastAnalysisDate() {
-    return lastAnalysisDate;
-  }
-
-  public void setLastAnalysisDate(@Nullable Date lastAnalysisDate) {
-    this.lastAnalysisDate = lastAnalysisDate;
+  public FileData fileDataByPath(@Nullable String path) {
+    return fileDataByPath.get(path);
   }
 }

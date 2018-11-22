@@ -32,7 +32,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.scanner.protocol.input.FileData;
+import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
+import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
@@ -56,7 +58,6 @@ public class ProjectDataLoader {
 
   public ProjectRepositories load(ProjectDataQuery query) {
     try (DbSession session = dbClient.openSession(false)) {
-      ProjectRepositories data = new ProjectRepositories();
       String projectKey = query.getProjectKey();
       String branch = query.getBranch();
       String pullRequest = query.getPullRequest();
@@ -72,12 +73,23 @@ public class ProjectDataLoader {
       List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, branchOrMainModule.uuid());
 
       List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, branchOrMainModule);
-      addFileData(data, modulesTree, files);
+
+      // MMF-365 we still have to support multi-module projects because it's not possible to transform from logical to
+      // physical structure for some multi-module projects
+      ProjectRepositories data;
+      if (modulesTree.size() > 1) {
+        MultiModuleProjectRepository repository = new MultiModuleProjectRepository();
+        addFileDataPerModule(repository, modulesTree, files);
+        data = repository;
+      } else {
+        SingleProjectRepository repository = new SingleProjectRepository();
+        addFileData(repository, files);
+        data = repository;
+      }
 
       // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
       // ok
       data.setLastAnalysisDate(new Date());
-
       return data;
     }
   }
@@ -90,7 +102,7 @@ public class ProjectDataLoader {
       : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
   }
 
-  private static void addFileData(ProjectRepositories data, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
+  private static void addFileDataPerModule(MultiModuleProjectRepository data, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
     Map<String, String> moduleKeysByUuid = newHashMap();
     for (ComponentDto module : moduleChildren) {
       moduleKeysByUuid.put(module.uuid(), module.getKey());
@@ -98,7 +110,14 @@ public class ProjectDataLoader {
 
     for (FilePathWithHashDto file : files) {
       FileData fileData = new FileData(file.getSrcHash(), file.getRevision());
-      data.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
+      data.addFileDataToModule(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
+    }
+  }
+
+  private static void addFileData(SingleProjectRepository data, List<FilePathWithHashDto> files) {
+    for (FilePathWithHashDto file : files) {
+      FileData fileData = new FileData(file.getSrcHash(), file.getRevision());
+      data.addFileData(file.getPath(), fileData);
     }
   }
 

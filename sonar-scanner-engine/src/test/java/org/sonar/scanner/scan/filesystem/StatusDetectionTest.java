@@ -19,16 +19,16 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.SingleProjectRepository;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class StatusDetectionTest {
   @Test
   public void detect_status() {
-    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(null);
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -51,7 +51,7 @@ public class StatusDetectionTest {
 
   @Test
   public void detect_status_branches_exclude() {
-    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.emptyList());
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -65,34 +65,34 @@ public class StatusDetectionTest {
   @Test
   public void detect_status_without_metadata() {
     DefaultInputFile mockedFile = mock(DefaultInputFile.class);
-    when(mockedFile.relativePath()).thenReturn("module/src/Foo.java");
+    when(mockedFile.getProjectRelativePath()).thenReturn("module/src/Foo.java");
     when(mockedFile.path()).thenReturn(Paths.get("module", "src", "Foo.java"));
 
-    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
     assertThat(statusDetection.getStatusWithoutMetadata("foo", mockedFile)).isEqualTo(InputFile.Status.ADDED);
 
     verify(mockedFile).path();
-    verify(mockedFile).relativePath();
+    verify(mockedFile).getProjectRelativePath();
     verifyNoMoreInteractions(mockedFile);
   }
 
   @Test
   public void detect_status_branches_confirm() {
-    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
     assertThat(statusDetection.status("foo", createFile("src/Foo.java"), "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
   }
 
-  private static Table<String, String, FileData> createTable() {
-    Table<String, String, FileData> t = HashBasedTable.create();
+  private static Map<String, FileData> createFileDataPerPathMap() {
+    Map<String, FileData> t = new HashMap<>();
 
-    t.put("foo", "src/Foo.java", new FileData("ABCDE", "12345789"));
-    t.put("foo", "src/Bar.java", new FileData("FGHIJ", "123456789"));
+    t.put("src/Foo.java", new FileData("ABCDE", "12345789"));
+    t.put("src/Bar.java", new FileData("FGHIJ", "123456789"));
 
     return t;
   }

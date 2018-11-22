@@ -20,6 +20,7 @@
 package org.sonar.scanner.mediumtest;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,6 +63,7 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.repository.SingleProjectRepository;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
@@ -199,22 +201,22 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   public ScannerMediumTester addActiveRule(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
-    @Nullable String internalKey, @Nullable String languag) {
+    @Nullable String internalKey, @Nullable String language) {
     LoadedActiveRule r = new LoadedActiveRule();
 
     r.setInternalKey(internalKey);
     r.setRuleKey(RuleKey.of(repositoryKey, ruleKey));
     r.setName(name);
     r.setTemplateRuleKey(templateRuleKey);
-    r.setLanguage(languag);
+    r.setLanguage(language);
     r.setSeverity(severity);
 
     activeRules.addActiveRule(r);
     return this;
   }
 
-  public ScannerMediumTester addFileData(String moduleKey, String path, FileData fileData) {
-    projectRefProvider.addFileData(moduleKey, path, fileData);
+  public ScannerMediumTester addFileData(String path, FileData fileData) {
+    projectRefProvider.addFileData(path, fileData);
     return this;
   }
 
@@ -368,17 +370,16 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
-
-    private Table<String, String, FileData> fileDataTable = HashBasedTable.create();
+    private Map<String, FileData> fileDataMap = Maps.newHashMap();
     private Date lastAnalysisDate;
 
     @Override
     public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchBase) {
-      return new ProjectRepositories(fileDataTable, lastAnalysisDate);
+      return new SingleProjectRepository(fileDataMap, lastAnalysisDate);
     }
 
-    public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
-      fileDataTable.put(moduleKey, path, fileData);
+    public FakeProjectRepositoriesLoader addFileData(String path, FileData fileData) {
+      fileDataMap.put(path, fileData);
       return this;
     }
 

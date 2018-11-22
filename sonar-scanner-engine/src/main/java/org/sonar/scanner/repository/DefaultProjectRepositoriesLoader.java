@@ -20,12 +20,11 @@
 package org.sonar.scanner.repository;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -34,9 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.ScannerUtils;
-import org.sonarqube.ws.Batch;
 import org.sonarqube.ws.Batch.WsProjectResponse;
-import org.sonarqube.ws.Batch.WsProjectResponse.FileDataByPath;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
@@ -62,7 +59,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       }
 
       LOG.debug("Project repository not available - continuing without it");
-      return new ProjectRepositories();
+      return new SingleProjectRepository();
     }
   }
 
@@ -97,22 +94,32 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   private static ProjectRepositories processStream(InputStream is, String projectKey) {
     try {
       WsProjectResponse response = WsProjectResponse.parseFrom(is);
-
-      Table<String, String, FileData> fileDataTable = HashBasedTable.create();
-
-      Map<String, FileDataByPath> fileDataByModuleAndPath = response.getFileDataByModuleAndPath();
-      for (Map.Entry<String, FileDataByPath> e1 : fileDataByModuleAndPath.entrySet()) {
-        for (Map.Entry<String, Batch.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
-          FileData fd = new FileData(e2.getValue().getHash(), e2.getValue().getRevision());
-          fileDataTable.put(e1.getKey(), e2.getKey(), fd);
-        }
+      if (response.getFileDataByModuleAndPathCount() == 0) {
+        return new SingleProjectRepository(constructFileDataMap(response.getFileDataByPathMap()), new Date(response.getLastAnalysisDate()));
+      } else {
+        final Map<String, SingleProjectRepository> repositoriesPerModule = new HashMap<>();
+        response.getFileDataByModuleAndPathMap().keySet().forEach(moduleKey -> {
+          WsProjectResponse.FileDataByPath filePaths = response.getFileDataByModuleAndPathMap().get(moduleKey);
+          repositoriesPerModule.put(moduleKey, new SingleProjectRepository(
+            constructFileDataMap(filePaths.getFileDataByPathMap()), new Date(response.getLastAnalysisDate())));
+        });
+        return new MultiModuleProjectRepository(repositoriesPerModule, new Date(response.getLastAnalysisDate()));
       }
 
-      return new ProjectRepositories(fileDataTable, new Date(response.getLastAnalysisDate()));
     } catch (IOException e) {
       throw new IllegalStateException("Couldn't load project repository for " + projectKey, e);
     } finally {
       IOUtils.closeQuietly(is);
     }
+  }
+
+  private static Map<String, FileData> constructFileDataMap(Map<String, WsProjectResponse.FileData> content) {
+    Map<String, FileData> fileDataMap = new HashMap<>();
+    content.forEach((key, value) -> {
+      FileData fd = new FileData(value.getHash(), value.getRevision());
+      fileDataMap.put(key, fd);
+    });
+
+    return fileDataMap;
   }
 }

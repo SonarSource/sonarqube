@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
@@ -124,9 +125,11 @@ public class DefaultProjectRepositoriesLoaderTest {
     InputStream is = getTestResource("project.protobuf");
     WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=org.sonarsource.github%3Asonar-github-plugin&issues_mode=true", is);
 
+    DefaultInputFile file = mock(DefaultInputFile.class);
+    when(file.getModuleRelativePath()).thenReturn("src/test/java/org/sonar/plugins/github/PullRequestIssuePostJobTest.java");
+
     ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true, null);
-    FileData fd = proj.fileData("org.sonarsource.github:sonar-github-plugin",
-      "src/test/java/org/sonar/plugins/github/PullRequestIssuePostJobTest.java");
+    FileData fd = proj.fileData("org.sonarsource.github:sonar-github-plugin", file);
 
     assertThat(fd.revision()).isEqualTo("27bf2c54633d05c5df402bbe09471fe43bd9e2e5");
     assertThat(fd.hash()).isEqualTo("edb6b3b9ab92d8dc53ba90ab86cd422e");

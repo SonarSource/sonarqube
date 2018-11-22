@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import com.google.common.collect.Maps;
 import java.util.Date;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,9 +55,9 @@ public class ProjectRepositoriesProviderTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    Table<String, String, FileData> t2 = HashBasedTable.create();
+    Map<String, FileData> fileMap = Maps.newHashMap();
 
-    project = new ProjectRepositories(t2, new Date());
+    project = new SingleProjectRepository(fileMap, new Date());
     provider = new ProjectRepositoriesProvider();
 
     when(props.getKeyWithBranch()).thenReturn("key");

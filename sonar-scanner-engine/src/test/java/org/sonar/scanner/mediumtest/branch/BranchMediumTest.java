@@ -66,7 +66,7 @@ public class BranchMediumTest {
     String md5sum = new FileMetadata()
       .readMetadata(Files.newInputStream(filepath), StandardCharsets.UTF_8, FILE_PATH)
       .hash();
-    tester.addFileData(PROJECT_KEY, FILE_PATH, new FileData(md5sum, "1.1"));
+    tester.addFileData(FILE_PATH, new FileData(md5sum, "1.1"));
   }
 
   @Test

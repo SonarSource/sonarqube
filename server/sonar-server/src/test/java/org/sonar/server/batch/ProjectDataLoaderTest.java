@@ -34,7 +34,9 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
+import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
+import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -44,6 +46,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -89,8 +92,11 @@ public class ProjectDataLoaderTest {
 
     ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
 
-    assertThat(ref.fileDataByPath(project.getKey())).hasSize(1);
-    FileData fileData = ref.fileData(project.getKey(), file.path());
+    assertTrue(ref instanceof SingleProjectRepository);
+    SingleProjectRepository singleProjectRepository = ((SingleProjectRepository) ref);
+    assertThat(singleProjectRepository.fileData()).hasSize(1);
+    FileData fileData = singleProjectRepository.fileDataByPath(file.path());
+    assertThat(fileData).isNotNull();
     assertThat(fileData.hash()).isEqualTo("123456");
   }
 
@@ -110,8 +116,10 @@ public class ProjectDataLoaderTest {
 
     ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
 
-    assertThat(ref.fileData(project.getKey(), projectFile.path()).hash()).isEqualTo("123456");
-    assertThat(ref.fileData(module.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
+    assertTrue(ref instanceof MultiModuleProjectRepository);
+    MultiModuleProjectRepository repository = ((MultiModuleProjectRepository) ref);
+    assertThat(repository.fileData(project.getKey(), projectFile.path()).hash()).isEqualTo("123456");
+    assertThat(repository.fileData(module.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
   }
 
   @Test
@@ -133,8 +141,10 @@ public class ProjectDataLoaderTest {
       .setProjectKey(project.getKey())
       .setBranch("my_branch"));
 
-    assertThat(ref.fileData(branch.getKey(), projectFile.path()).hash()).isEqualTo("123456");
-    assertThat(ref.fileData(moduleBranch.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
+    assertTrue(ref instanceof MultiModuleProjectRepository);
+    MultiModuleProjectRepository repository = ((MultiModuleProjectRepository) ref);
+    assertThat(repository.fileData(branch.getKey(), projectFile.path()).hash()).isEqualTo("123456");
+    assertThat(repository.fileData(moduleBranch.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
   }
 
   @Test

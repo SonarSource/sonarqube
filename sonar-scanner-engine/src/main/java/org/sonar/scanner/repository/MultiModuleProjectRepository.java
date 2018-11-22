@@ -1,52 +1,45 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
- *
+ *  
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
- *
+ *  
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ *  
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.protocol.input;
+package org.sonar.scanner.repository;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Date;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-/**
- * Container for all project data going from server to batch.
- * This is not an API since server and batch always share the same version.
- */
-public abstract class ProjectRepositories {
+@Immutable
+public class MultiModuleProjectRepository extends ProjectRepositories {
 
-  private long timestamp;
+  private Map<String, SingleProjectRepository> repositoriesPerModule;
 
-  private Date lastAnalysisDate;
-
-  public long timestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
+  public MultiModuleProjectRepository(Map<String, SingleProjectRepository> repositoriesPerModule, @Nullable Date lastAnalysisDate) {
+    super(lastAnalysisDate, true);
+    this.repositoriesPerModule = ImmutableMap.copyOf(repositoriesPerModule);
   }
 
   @CheckForNull
-  public Date lastAnalysisDate() {
-    return lastAnalysisDate;
+  public FileData fileData(String moduleKeyWithBranch, String path) {
+    SingleProjectRepository repository = repositoriesPerModule.get(moduleKeyWithBranch);
+    return repository == null ? null : repository.fileData(path);
   }
 
-  public void setLastAnalysisDate(@Nullable Date lastAnalysisDate) {
-    this.lastAnalysisDate = lastAnalysisDate;
-  }
 }

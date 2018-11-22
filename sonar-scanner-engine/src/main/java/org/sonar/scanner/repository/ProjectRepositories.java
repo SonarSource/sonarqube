@@ -19,48 +19,33 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
 import java.util.Date;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 @Immutable
-public class ProjectRepositories {
-  private final ImmutableTable<String, String, FileData> fileDataByModuleAndPath;
+public abstract class ProjectRepositories {
   private final Date lastAnalysisDate;
   private final boolean exists;
 
-  public ProjectRepositories() {
-    this.exists = false;
-    this.fileDataByModuleAndPath = new ImmutableTable.Builder<String, String, FileData>().build();
-    this.lastAnalysisDate = null;
-  }
-
-  public ProjectRepositories(Table<String, String, FileData> fileDataByModuleAndPath,
-                             @Nullable Date lastAnalysisDate) {
-    this.fileDataByModuleAndPath = ImmutableTable.copyOf(fileDataByModuleAndPath);
+  public ProjectRepositories(@Nullable Date lastAnalysisDate, boolean exists) {
     this.lastAnalysisDate = lastAnalysisDate;
-    this.exists = true;
+    this.exists = exists;
   }
 
   public boolean exists() {
     return exists;
   }
 
-  public Map<String, FileData> fileDataByPath(String moduleKey) {
-    return fileDataByModuleAndPath.row(moduleKey);
-  }
-
-  public Table<String, String, FileData> fileDataByModuleAndPath() {
-    return fileDataByModuleAndPath;
-  }
-
   @CheckForNull
-  public FileData fileData(String projectKeyWithBranch, String path) {
-    return fileDataByModuleAndPath.get(projectKeyWithBranch, path);
+  public FileData fileData(String moduleKeyWithBranch, DefaultInputFile inputFile) {
+    if (this instanceof SingleProjectRepository) {
+      return ((SingleProjectRepository) this).fileData(inputFile.getProjectRelativePath());
+    } else {
+      return ((MultiModuleProjectRepository) this).fileData(moduleKeyWithBranch, inputFile.getModuleRelativePath());
+    }
   }
 
   @CheckForNull

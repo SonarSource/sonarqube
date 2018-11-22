@@ -19,15 +19,18 @@
  */
 package org.sonar.server.batch;
 
+import com.google.common.collect.Maps;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.scanner.protocol.input.FileData;
+import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
+import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 import org.sonarqube.ws.Batch.WsProjectResponse.FileData.Builder;
 
@@ -109,33 +112,31 @@ public class ProjectAction implements BatchWsAction {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
     setNullable(data.lastAnalysisDate(), response::setLastAnalysisDate, Date::getTime);
     response.setTimestamp(data.timestamp());
-    response.getMutableFileDataByModuleAndPath()
-      .putAll(buildFileDataByModuleAndPath(data));
+    if (data instanceof SingleProjectRepository) {
+      response.putAllFileDataByPath(buildFileDataByPath((SingleProjectRepository) data));
+    } else {
+      response.putAllFileDataByModuleAndPath(buildFileDataByModuleAndPath((MultiModuleProjectRepository) data));
+    }
 
     return response.build();
   }
 
-  private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPath(ProjectRepositories data) {
-    Map<String, WsProjectResponse.FileDataByPath> fileDataByModuleAndPathResponse = new HashMap<>();
-    for (Map.Entry<String, Map<String, FileData>> moduleAndFileDataByPathEntry : data.fileDataByModuleAndPath().entrySet()) {
-      fileDataByModuleAndPathResponse.put(
-        moduleAndFileDataByPathEntry.getKey(),
-        buildFileDataByPath(moduleAndFileDataByPathEntry.getValue()));
-    }
+  private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPath(MultiModuleProjectRepository data) {
+    return data.repositoriesByModule().entrySet()
+      .stream()
+      .map(entry -> Maps.immutableEntry(entry.getKey(), buildFileDataByPath(entry.getValue().fileData())))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
 
-    return fileDataByModuleAndPathResponse;
+  private static Map<String, WsProjectResponse.FileData> buildFileDataByPath(SingleProjectRepository data) {
+    return data.fileData().entrySet()
+      .stream()
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> toFileDataResponse(e.getValue())));
   }
 
   private static WsProjectResponse.FileDataByPath buildFileDataByPath(Map<String, FileData> fileDataByPath) {
     WsProjectResponse.FileDataByPath.Builder response = WsProjectResponse.FileDataByPath.newBuilder();
-    Map<String, WsProjectResponse.FileData> fileDataByPathResponse = response.getMutableFileDataByPath();
-
-    for (Map.Entry<String, FileData> pathFileDataEntry : fileDataByPath.entrySet()) {
-      fileDataByPathResponse.put(
-        pathFileDataEntry.getKey(),
-        toFileDataResponse(pathFileDataEntry.getValue()));
-    }
-
+    fileDataByPath.forEach((key, value) -> response.putFileDataByPath(key, toFileDataResponse(value)));
     return response.build();
   }
 

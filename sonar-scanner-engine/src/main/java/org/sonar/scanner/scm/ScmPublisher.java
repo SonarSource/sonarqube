@@ -27,8 +27,8 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -57,7 +57,7 @@ public final class ScmPublisher {
   private final BranchConfiguration branchConfiguration;
 
   public ScmPublisher(AbstractProjectOrModule inputModule, ScmConfiguration configuration, ProjectRepositories projectRepositories,
-                      ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
+    ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
     this.inputModule = inputModule;
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;
@@ -108,7 +108,7 @@ public final class ScmPublisher {
         addIfNotEmpty(filesToBlame, f);
       } else if (!branchConfiguration.isShortOrPullRequest()) {
         // File status is SAME so that mean fileData exists
-        FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), inputFile.getModuleRelativePath());
+        FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), inputFile);
         if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {
