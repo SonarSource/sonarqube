@@ -93,7 +93,6 @@ type StateWithAutoImport = State & Required<Pick<State, 'almApplication'>>;
 type TabKeys = 'auto' | 'manual';
 
 interface LocationState {
-  paid?: boolean;
   tab?: TabKeys;
 }
 
@@ -301,7 +300,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     const { currentUser, location } = this.props;
     const { state } = this;
     const { organization, step, subscriptionPlans } = state;
-    const { paid, tab = 'auto' } = (location.state || {}) as LocationState;
+    const { tab = 'auto' } = (location.state || {}) as LocationState;
 
     const commonProps = {
       handleOrgDetailsFinish: this.handleOrgDetailsFinish,
@@ -318,7 +317,6 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           {...commonProps}
           createOrganization={this.props.createOrganization}
           onUpgradeFail={this.deleteOrganization}
-          onlyPaid={paid}
           organization={this.state.organization}
           step={this.state.step}
         />
@@ -364,7 +362,6 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           className={classNames({ hidden: tab !== 'manual' && this.hasAutoImport(state) })}
           createOrganization={this.props.createOrganization}
           onUpgradeFail={this.deleteOrganization}
-          onlyPaid={paid}
         />
 
         {almInstallId && almOrganization && !boundOrganization ? (

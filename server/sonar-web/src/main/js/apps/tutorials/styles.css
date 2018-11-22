@@ -62,7 +62,7 @@
 .onboarding-choices {
   display: flex;
   justify-content: space-around;
-  padding: 44px 0;
+  padding: 44px 100px;
   background-color: var(--barBackgroundColor);
 }
 
@@ -86,7 +86,6 @@
 
 .onboarding-choice-name {
   padding-top: var(--gridSize);
-  padding-bottom: calc(0.5 * var(--gridSize));
   color: inherit;
   font-size: var(--mediumFontSize);
 }

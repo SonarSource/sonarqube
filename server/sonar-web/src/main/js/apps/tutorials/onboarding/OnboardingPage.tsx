@@ -54,15 +54,6 @@ export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps
     this.props.router.replace('/');
   };
 
-  closeOrganizationOnboarding = ({ key }: Pick<T.Organization, 'key'>) => {
-    this.closeOnboarding();
-    this.props.router.push(`/organizations/${key}`);
-  };
-
-  openOrganizationOnboarding = () => {
-    this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
-  };
-
   openTeamOnboarding = () => {
     this.setState({ modal: ModalKey.teamOnboarding });
   };
@@ -74,7 +65,6 @@ export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps
         {modal === ModalKey.onboarding && (
           <OnboardingModal
             onClose={this.closeOnboarding}
-            onOpenOrganizationOnboarding={this.openOrganizationOnboarding}
             onOpenProjectOnboarding={this.context.openProjectOnboarding}
             onOpenTeamOnboarding={this.openTeamOnboarding}
           />

@@ -112,11 +112,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.setState({ modal: ModalKey.onboarding });
   };
 
-  openOrganizationOnboarding = () => {
-    this.setState({ automatic: false, modal: undefined });
-    this.props.router.push({ pathname: '/create-organization', state: { paid: true } });
-  };
-
   openProjectOnboarding = (organization?: T.Organization) => {
     if (isSonarCloud()) {
       this.setState({ automatic: false, modal: undefined });
@@ -183,7 +178,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
         {modal === ModalKey.onboarding && (
           <OnboardingModal
             onClose={this.closeOnboarding}
-            onOpenOrganizationOnboarding={this.openOrganizationOnboarding}
             onOpenProjectOnboarding={this.openProjectOnboarding}
             onOpenTeamOnboarding={this.openTeamOnboarding}
           />

@@ -106,14 +106,6 @@ it('should render with manual tab displayed', async () => {
   expect(getAlmAppInfo).not.toHaveBeenCalled();
 });
 
-it('should preselect paid plan on manual creation', async () => {
-  const location = { state: { paid: true } };
-  // @ts-ignore avoid passing everything from WithRouterProps
-  const wrapper = shallowRender({ location });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('ManualOrganizationCreate').prop('onlyPaid')).toBe(true);
-});
-
 it('should render with auto tab displayed', async () => {
   const wrapper = shallowRender({ currentUser: { ...user, externalProvider: 'github' } });
   await waitAndUpdate(wrapper);

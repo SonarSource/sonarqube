@@ -21,7 +21,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import Modal from '../../../components/controls/Modal';
-import OnboardingPrivateIcon from '../../../components/icons-components/OnboardingPrivateIcon';
 import OnboardingProjectIcon from '../../../components/icons-components/OnboardingProjectIcon';
 import OnboardingTeamIcon from '../../../components/icons-components/OnboardingTeamIcon';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
@@ -32,7 +31,6 @@ import '../styles.css';
 
 interface OwnProps {
   onClose: () => void;
-  onOpenOrganizationOnboarding: () => void;
   onOpenProjectOnboarding: () => void;
   onOpenTeamOnboarding: () => void;
 }
@@ -73,24 +71,13 @@ export class OnboardingModal extends React.PureComponent<Props> {
         <div className="modal-simple-body text-center onboarding-choices">
           <Button className="onboarding-choice" onClick={this.handleOpenProjectOnboarding}>
             <OnboardingProjectIcon className="big-spacer-bottom" />
-            <h6 className="onboarding-choice-name">
-              {translate('onboarding.analyze_public_code')}
-            </h6>
-            <p className="note">{translate('onboarding.analyze_public_code.note')}</p>
-          </Button>
-          <Button className="onboarding-choice" onClick={this.props.onOpenOrganizationOnboarding}>
-            <OnboardingPrivateIcon className="big-spacer-bottom" />
-            <h6 className="onboarding-choice-name">
-              {translate('onboarding.analyze_private_code')}
-            </h6>
-            <p className="note">{translate('onboarding.analyze_private_code.note')}</p>
+            <h6 className="onboarding-choice-name">{translate('onboarding.analyze_your_code')}</h6>
           </Button>
           <Button className="onboarding-choice" onClick={this.props.onOpenTeamOnboarding}>
             <OnboardingTeamIcon className="big-spacer-bottom" />
             <h6 className="onboarding-choice-name">
               {translate('onboarding.contribute_existing_project')}
             </h6>
-            <p className="note">{translate('onboarding.contribute_existing_project.note')}</p>
           </Button>
         </div>
         <div className="modal-simple-footer text-center">
