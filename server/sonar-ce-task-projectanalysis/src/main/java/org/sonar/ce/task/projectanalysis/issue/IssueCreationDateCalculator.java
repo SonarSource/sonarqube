@@ -30,6 +30,7 @@ import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -53,15 +54,18 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   private final IssueChangeContext changeContext;
   private final ActiveRulesHolder activeRulesHolder;
   private final RuleRepository ruleRepository;
+  private final AddedFileRepository addedFileRepository;
 
   public IssueCreationDateCalculator(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository,
-    IssueFieldsSetter issueUpdater, ActiveRulesHolder activeRulesHolder, RuleRepository ruleRepository) {
+    IssueFieldsSetter issueUpdater, ActiveRulesHolder activeRulesHolder, RuleRepository ruleRepository,
+    AddedFileRepository addedFileRepository) {
     this.scmInfoRepository = scmInfoRepository;
     this.issueUpdater = issueUpdater;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.ruleRepository = ruleRepository;
     this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
     this.activeRulesHolder = activeRulesHolder;
+    this.addedFileRepository = addedFileRepository;
   }
 
   @Override
@@ -69,21 +73,34 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     if (!issue.isNew()) {
       return;
     }
+
     Optional<Long> lastAnalysisOptional = lastAnalysis();
     boolean firstAnalysis = !lastAnalysisOptional.isPresent();
+    if (firstAnalysis || isNewFile(component)) {
+      backdateIssue(component, issue);
+      return;
+    }
+
     Rule rule = ruleRepository.findByKey(issue.getRuleKey())
       .orElseThrow(illegalStateException("The rule with key '%s' raised an issue, but no rule with that key was found", issue.getRuleKey()));
-
     if (rule.isExternal()) {
-      getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
+      backdateIssue(component, issue);
     } else {
       // Rule can't be inactive (see contract of IssueVisitor)
       ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
-      if (firstAnalysis || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
+      if (activeRuleIsNew(activeRule, lastAnalysisOptional.get())
         || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())) {
-        getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
+        backdateIssue(component, issue);
       }
     }
+  }
+
+  private boolean isNewFile(Component component) {
+    return component.getType() == Component.Type.FILE && addedFileRepository.isAdded(component);
+  }
+
+  private void backdateIssue(Component component, DefaultIssue issue) {
+    getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
   }
 
   private boolean ruleImplementationChanged(RuleKey ruleKey, @Nullable String pluginKey, long lastAnalysisDate) {

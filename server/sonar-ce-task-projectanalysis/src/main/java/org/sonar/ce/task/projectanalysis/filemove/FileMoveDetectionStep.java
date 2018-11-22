@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.filemove;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class FileMoveDetectionStep implements ComputationStep {
-  protected static final int MIN_REQUIRED_SCORE = 85;
+  static final int MIN_REQUIRED_SCORE = 85;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
   private static final Comparator<ScoreMatrix.ScoreFile> SCORE_FILE_COMPARATOR = (o1, o2) -> -1 * Integer.compare(o1.getLineCount(), o2.getLineCount());
   private static final double LOWER_BOUND_RATIO = 0.84;
@@ -75,10 +74,11 @@ public class FileMoveDetectionStep implements ComputationStep {
   private final MutableMovedFilesRepository movedFilesRepository;
   private final SourceLinesHashRepository sourceLinesHash;
   private final ScoreMatrixDumper scoreMatrixDumper;
+  private final MutableAddedFileRepository addedFileRepository;
 
   public FileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
     FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository, SourceLinesHashRepository sourceLinesHash,
-    ScoreMatrixDumper scoreMatrixDumper) {
+    ScoreMatrixDumper scoreMatrixDumper, MutableAddedFileRepository addedFileRepository) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
@@ -86,6 +86,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     this.movedFilesRepository = movedFilesRepository;
     this.sourceLinesHash = sourceLinesHash;
     this.scoreMatrixDumper = scoreMatrixDumper;
+    this.addedFileRepository = addedFileRepository;
   }
 
   @Override
@@ -103,25 +104,30 @@ public class FileMoveDetectionStep implements ComputationStep {
     Profiler p = Profiler.createIfTrace(LOG);
 
     p.start();
+    Map<String, Component> reportFilesByKey = getReportFilesByKey(this.rootHolder.getRoot());
+    context.getStatistics().add("reportFiles", reportFilesByKey.size());
+    if (reportFilesByKey.isEmpty()) {
+      LOG.debug("No files in report. No file move detection.");
+      return;
+    }
+
     Map<String, DbComponent> dbFilesByKey = getDbFilesByKey();
     context.getStatistics().add("dbFiles", dbFilesByKey.size());
-    if (dbFilesByKey.isEmpty()) {
-      LOG.debug("Previous snapshot has no file. Do nothing.");
-      return;
-    }
 
-    Map<String, Component> reportFilesByKey = getReportFilesByKey(this.rootHolder.getRoot());
-    if (reportFilesByKey.isEmpty()) {
-      LOG.debug("No files in report. Do nothing.");
-      return;
-    }
-
-    Set<String> addedFileKeys = ImmutableSet.copyOf(Sets.difference(reportFilesByKey.keySet(), dbFilesByKey.keySet()));
+    Set<String> addedFileKeys = difference(reportFilesByKey.keySet(), dbFilesByKey.keySet());
     context.getStatistics().add("addedFiles", addedFileKeys.size());
-    Set<String> removedFileKeys = ImmutableSet.copyOf(Sets.difference(dbFilesByKey.keySet(), reportFilesByKey.keySet()));
+
+    if (dbFilesByKey.isEmpty()) {
+      registerAddedFiles(addedFileKeys, reportFilesByKey, null);
+      LOG.debug("Previous snapshot has no file. No file move detection.");
+      return;
+    }
+
+    Set<String> removedFileKeys = difference(dbFilesByKey.keySet(), reportFilesByKey.keySet());
 
     // can find matches if at least one of the added or removed files groups is empty => abort
     if (addedFileKeys.isEmpty() || removedFileKeys.isEmpty()) {
+      registerAddedFiles(addedFileKeys, reportFilesByKey, null);
       LOG.debug("Either no files added or no files removed. Do nothing.");
       return;
     }
@@ -138,6 +144,8 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     // not a single match with score higher than MIN_REQUIRED_SCORE => abort
     if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
+      context.getStatistics().add("movedFiles", 0);
+      registerAddedFiles(addedFileKeys, reportFilesByKey, null);
       LOG.debug("max score in matrix is less than min required score ({}). Do nothing.", MIN_REQUIRED_SCORE);
       return;
     }
@@ -148,7 +156,16 @@ public class FileMoveDetectionStep implements ComputationStep {
     ElectedMatches electedMatches = electMatches(removedFileKeys, reportFileSourcesByKey, matchesByScore);
     p.stopTrace("Matches elected");
 
+    context.getStatistics().add("movedFiles", electedMatches.size());
     registerMatches(dbFilesByKey, reportFilesByKey, electedMatches);
+    registerAddedFiles(addedFileKeys, reportFilesByKey, electedMatches);
+  }
+
+  public Set<String> difference(Set<String> set1, Set<String> set2) {
+    if (set1.isEmpty() || set2.isEmpty()) {
+      return set1;
+    }
+    return Sets.difference(set1, set2).immutableCopy();
   }
 
   private void registerMatches(Map<String, DbComponent> dbFilesByKey, Map<String, Component> reportFilesByKey, ElectedMatches electedMatches) {
@@ -158,6 +175,22 @@ public class FileMoveDetectionStep implements ComputationStep {
         reportFilesByKey.get(validatedMatch.getReportKey()),
         toOriginalFile(dbFilesByKey.get(validatedMatch.getDbKey())));
       LOG.trace("File move found: {}", validatedMatch);
+    }
+  }
+
+  private void registerAddedFiles(Set<String> addedFileKeys, Map<String, Component> reportFilesByKey, @Nullable ElectedMatches electedMatches) {
+    if (electedMatches == null || electedMatches.isEmpty()) {
+      addedFileKeys.stream()
+        .map(reportFilesByKey::get)
+        .forEach(addedFileRepository::register);
+    } else {
+      Set<String> reallyAddedFileKeys = new HashSet<>(addedFileKeys);
+      for (Match electedMatch : electedMatches) {
+        reallyAddedFileKeys.remove(electedMatch.getReportKey());
+      }
+      reallyAddedFileKeys.stream()
+        .map(reportFilesByKey::get)
+        .forEach(addedFileRepository::register);
     }
   }
 
@@ -401,6 +434,10 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     public int size() {
       return matches.size();
+    }
+
+    public boolean isEmpty() {
+      return matches.isEmpty();
     }
   }
 }

@@ -19,18 +19,25 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
@@ -54,12 +61,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class IssueCreationDateCalculatorTest {
   private static final String COMPONENT_UUID = "ab12";
 
   @org.junit.Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-
   @org.junit.Rule
   public ExpectedException exception = ExpectedException.none();
 
@@ -70,10 +77,13 @@ public class IssueCreationDateCalculatorTest {
   private RuleKey ruleKey = RuleKey.of("reop", "rule");
   private DefaultIssue issue = mock(DefaultIssue.class);
   private ActiveRule activeRule = mock(ActiveRule.class);
-  private IssueCreationDateCalculator calculator;
+
+  private IssueCreationDateCalculator underTest;
+
   private Analysis baseAnalysis = mock(Analysis.class);
   private Map<String, ScannerPlugin> scannerPlugins = new HashMap<>();
   private RuleRepository ruleRepository = mock(RuleRepository.class);
+  private AddedFileRepository addedFileRepository = mock(AddedFileRepository.class);
   private ScmInfo scmInfo;
   private Rule rule = mock(Rule.class);
 
@@ -82,9 +92,9 @@ public class IssueCreationDateCalculatorTest {
     analysisMetadataHolder.setScannerPluginsByKey(scannerPlugins);
     analysisMetadataHolder.setAnalysisDate(new Date());
     when(component.getUuid()).thenReturn(COMPONENT_UUID);
-    calculator = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository);
+    underTest = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository, addedFileRepository);
 
-    when(ruleRepository.findByKey(ruleKey)).thenReturn(java.util.Optional.of(rule));
+    when(ruleRepository.findByKey(ruleKey)).thenReturn(Optional.of(rule));
     when(activeRulesHolder.get(any(RuleKey.class)))
       .thenReturn(Optional.empty());
     when(activeRulesHolder.get(ruleKey))
@@ -94,13 +104,13 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
-  public void should_not_change_date_if_no_scm_available() {
+  public void should_not_backdate_if_no_scm_available() {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    newIssue();
+    makeIssueNew();
     noScm();
-    ruleCreatedAt(2800L);
+    setRuleCreatedAt(2800L);
 
     run();
 
@@ -108,13 +118,14 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
-  public void should_not_change_date_if_rule_and_plugin_and_base_plugin_are_old() {
+  @UseDataProvider("backdatingDateCases")
+  public void should_not_backdate_if_rule_and_plugin_and_base_plugin_are_old(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    newIssue();
-    withScm(1200L);
-    ruleCreatedAt(1500L);
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(1500L);
     rulePlugin("customjava");
     pluginUpdatedAt("customjava", "java", 1700L);
     pluginUpdatedAt("java", 1700L);
@@ -125,13 +136,14 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
-  public void should_not_change_date_if_rule_and_plugin_are_old_and_no_base_plugin() {
+  @UseDataProvider("backdatingDateCases")
+  public void should_not_backdate_if_rule_and_plugin_are_old_and_no_base_plugin(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    newIssue();
-    withScm(1200L);
-    ruleCreatedAt(1500L);
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(1500L);
     rulePlugin("java");
     pluginUpdatedAt("java", 1700L);
 
@@ -141,13 +153,14 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
-  public void should_not_change_date_if_issue_existed_before() {
+  @UseDataProvider("backdatingDateCases")
+  public void should_not_backdate_if_issue_existed_before(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    existingIssue();
-    withScm(1200L);
-    ruleCreatedAt(2800L);
+    makeIssueNotNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(2800L);
 
     run();
 
@@ -159,9 +172,8 @@ public class IssueCreationDateCalculatorTest {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    existingIssue();
-    when(issue.getRuleKey())
-      .thenReturn(RuleKey.of("repo", "disabled"));
+    makeIssueNotNew();
+    setIssueBelongToNonExistingRule();
 
     run();
 
@@ -173,8 +185,8 @@ public class IssueCreationDateCalculatorTest {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    when(ruleRepository.findByKey(ruleKey)).thenReturn(java.util.Optional.empty());
-    newIssue();
+    when(ruleRepository.findByKey(ruleKey)).thenReturn(Optional.empty());
+    makeIssueNew();
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("The rule with key 'reop:rule' raised an issue, but no rule with that key was found");
@@ -182,155 +194,159 @@ public class IssueCreationDateCalculatorTest {
   }
 
   @Test
-  public void should_change_date_if_scm_is_available_and_rule_is_new() {
+  @UseDataProvider("backdatingDateCases")
+  public void should_backdate_date_if_scm_is_available_and_rule_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    newIssue();
-    withScm(1200L);
-    ruleCreatedAt(2800L);
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(2800L);
 
     run();
 
-    assertChangeOfCreationDateTo(1200L);
+    assertChangeOfCreationDateTo(expectedDate);
   }
 
   @Test
-  public void should_change_date_if_scm_is_available_and_first_analysis() {
-    analysisMetadataHolder.setBaseAnalysis(null);
+  @UseDataProvider("backdatingDateCases")
+  public void should_backdate_date_if_scm_is_available_and_first_analysis(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
+    currentAnalysisIsFirstAnalysis();
     currentAnalysisIs(3000L);
 
-    newIssue();
-    withScm(1200L);
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
 
     run();
 
-    assertChangeOfCreationDateTo(1200L);
+    assertChangeOfCreationDateTo(expectedDate);
   }
 
   @Test
-  public void should_change_date_if_scm_is_available_and_plugin_is_new() {
+  @UseDataProvider("backdatingDateCases")
+  public void should_backdate_date_if_scm_is_available_and_current_component_is_new_file(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    newIssue();
-    withScm(1200L);
-    ruleCreatedAt(1500L);
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    currentComponentIsNewFile();
+
+    run();
+
+    assertChangeOfCreationDateTo(expectedDate);
+  }
+  @Test
+  @UseDataProvider("backdatingDateCases")
+  public void should_backdate_if_scm_is_available_and_plugin_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(1500L);
     rulePlugin("java");
     pluginUpdatedAt("java", 2500L);
 
     run();
 
-    assertChangeOfCreationDateTo(1200L);
+    assertChangeOfCreationDateTo(expectedDate);
   }
 
   @Test
-  public void should_change_date_if_scm_is_available_and_base_plugin_is_new() {
+  @UseDataProvider("backdatingDateCases")
+  public void should_backdate_if_scm_is_available_and_base_plugin_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     previousAnalysisWas(2000L);
     currentAnalysisIs(3000L);
 
-    newIssue();
-    withScm(1200L);
-    ruleCreatedAt(1500L);
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(1500L);
     rulePlugin("customjava");
     pluginUpdatedAt("customjava", "java", 1000L);
     pluginUpdatedAt("java", 2500L);
 
     run();
 
-    assertChangeOfCreationDateTo(1200L);
+    assertChangeOfCreationDateTo(expectedDate);
   }
 
   @Test
-  public void should_backdate_external_issues() {
-    analysisMetadataHolder.setBaseAnalysis(null);
+  @UseDataProvider("backdatingDateCases")
+  public void should_backdate_external_issues(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
+    currentAnalysisIsFirstAnalysis();
     currentAnalysisIs(3000L);
 
-    newIssue();
+    makeIssueNew();
     when(rule.isExternal()).thenReturn(true);
-    when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder().setTextRange(range(2, 3)).build());
-    withScmAt(2, 1200L);
-    withScmAt(3, 1300L);
+    configure.accept(issue, createMockScmInfo());
 
     run();
 
-    assertChangeOfCreationDateTo(1300L);
+    assertChangeOfCreationDateTo(expectedDate);
     verifyZeroInteractions(activeRulesHolder);
   }
 
-  @Test
-  public void should_use_primary_location_when_backdating() {
-    analysisMetadataHolder.setBaseAnalysis(null);
-    currentAnalysisIs(3000L);
-
-    newIssue();
-    when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder().setTextRange(range(2, 3)).build());
-    withScmAt(2, 1200L);
-    withScmAt(3, 1300L);
-
-    run();
-
-    assertChangeOfCreationDateTo(1300L);
+  @DataProvider
+  public static Object[][] backdatingDateCases() {
+    return new Object[][] {
+      {new NoIssueLocation(), 1200L},
+      {new OnlyPrimaryLocation(), 1300L},
+      {new FlowOnCurrentFileOnly(), 1900L},
+      {new FlowOnMultipleFiles(), 1700L}
+    };
   }
 
-  @Test
-  public void should_use_flows_location_when_backdating() {
-    analysisMetadataHolder.setBaseAnalysis(null);
-    currentAnalysisIs(3000L);
-
-    newIssue();
-    Builder builder = DbIssues.Locations.newBuilder()
-      .setTextRange(range(2, 3));
-    Flow.Builder secondary = Flow.newBuilder().addLocation(Location.newBuilder().setTextRange(range(4, 5)));
-    builder.addFlow(secondary).build();
-    Flow.Builder flow = Flow.newBuilder()
-      .addLocation(Location.newBuilder().setTextRange(range(6, 7)).setComponentId(COMPONENT_UUID))
-      .addLocation(Location.newBuilder().setTextRange(range(8, 9)).setComponentId(COMPONENT_UUID));
-    builder.addFlow(flow).build();
-    when(issue.getLocations()).thenReturn(builder.build());
-    withScmAt(2, 1200L);
-    withScmAt(3, 1300L);
-    withScmAt(4, 1400L);
-    withScmAt(5, 1500L);
-    // some lines missing should be ok
-    withScmAt(9, 1900L);
-
-    run();
-
-    assertChangeOfCreationDateTo(1900L);
+  private static class NoIssueLocation implements BiConsumer<DefaultIssue, ScmInfo> {
+    @Override
+    public void accept(DefaultIssue issue, ScmInfo scmInfo) {
+      setDateOfLatestScmChangeset(scmInfo, 1200L);
+    }
   }
 
-  @Test
-  public void should_ignore_flows_location_outside_current_file_when_backdating() {
-    analysisMetadataHolder.setBaseAnalysis(null);
-    currentAnalysisIs(3000L);
-
-    newIssue();
-    Builder builder = DbIssues.Locations.newBuilder()
-      .setTextRange(range(2, 3));
-    Flow.Builder secondary = Flow.newBuilder().addLocation(Location.newBuilder().setTextRange(range(4, 5)));
-    builder.addFlow(secondary).build();
-    Flow.Builder flow = Flow.newBuilder()
-      .addLocation(Location.newBuilder().setTextRange(range(6, 7)).setComponentId(COMPONENT_UUID))
-      .addLocation(Location.newBuilder().setTextRange(range(8, 9)).setComponentId("another"));
-    builder.addFlow(flow).build();
-    when(issue.getLocations()).thenReturn(builder.build());
-    withScmAt(2, 1200L);
-    withScmAt(3, 1300L);
-    withScmAt(4, 1400L);
-    withScmAt(5, 1500L);
-    withScmAt(6, 1600L);
-    withScmAt(7, 1700L);
-    withScmAt(8, 1800L);
-    withScmAt(9, 1900L);
-
-    run();
-
-    assertChangeOfCreationDateTo(1700L);
+  private static class OnlyPrimaryLocation implements BiConsumer<DefaultIssue, ScmInfo> {
+    @Override
+    public void accept(DefaultIssue issue, ScmInfo scmInfo) {
+      when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder().setTextRange(range(2, 3)).build());
+      setDateOfChangetsetAtLine(scmInfo, 2, 1200L);
+      setDateOfChangetsetAtLine(scmInfo, 3, 1300L);
+    }
   }
 
-  private org.sonar.db.protobuf.DbCommons.TextRange.Builder range(int startLine, int endLine) {
-    return TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine);
+  private static class FlowOnCurrentFileOnly implements BiConsumer<DefaultIssue, ScmInfo> {
+    @Override
+    public void accept(DefaultIssue issue, ScmInfo scmInfo) {
+      Builder locations = DbIssues.Locations.newBuilder()
+        .setTextRange(range(2, 3))
+        .addFlow(newFlow(newLocation(4, 5)))
+        .addFlow(newFlow(newLocation(6, 7, COMPONENT_UUID), newLocation(8, 9, COMPONENT_UUID)));
+      when(issue.getLocations()).thenReturn(locations.build());
+      setDateOfChangetsetAtLine(scmInfo, 2, 1200L);
+      setDateOfChangetsetAtLine(scmInfo, 3, 1300L);
+      setDateOfChangetsetAtLine(scmInfo, 4, 1400L);
+      setDateOfChangetsetAtLine(scmInfo, 5, 1500L);
+      // some lines missing should be ok
+      setDateOfChangetsetAtLine(scmInfo, 9, 1900L);
+    }
+  }
+
+  private static class FlowOnMultipleFiles implements BiConsumer<DefaultIssue, ScmInfo> {
+    @Override
+    public void accept(DefaultIssue issue, ScmInfo scmInfo) {
+      Builder locations = DbIssues.Locations.newBuilder()
+        .setTextRange(range(2, 3))
+        .addFlow(newFlow(newLocation(4, 5)))
+        .addFlow(newFlow(newLocation(6, 7, COMPONENT_UUID), newLocation(8, 9, "another")));
+      when(issue.getLocations()).thenReturn(locations.build());
+      setDateOfChangetsetAtLine(scmInfo, 2, 1200L);
+      setDateOfChangetsetAtLine(scmInfo, 3, 1300L);
+      setDateOfChangetsetAtLine(scmInfo, 4, 1400L);
+      setDateOfChangetsetAtLine(scmInfo, 5, 1500L);
+      setDateOfChangetsetAtLine(scmInfo, 6, 1600L);
+      setDateOfChangetsetAtLine(scmInfo, 7, 1700L);
+      setDateOfChangetsetAtLine(scmInfo, 8, 1800L);
+      setDateOfChangetsetAtLine(scmInfo, 9, 1900L);
+    }
   }
 
   private void previousAnalysisWas(long analysisDate) {
@@ -347,47 +363,60 @@ public class IssueCreationDateCalculatorTest {
     scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, basePluginKey, updatedAt));
   }
 
+  private AnalysisMetadataHolderRule currentAnalysisIsFirstAnalysis() {
+    return analysisMetadataHolder.setBaseAnalysis(null);
+  }
+
   private void currentAnalysisIs(long analysisDate) {
     analysisMetadataHolder.setAnalysisDate(analysisDate);
   }
 
-  private void newIssue() {
+  private void currentComponentIsNewFile() {
+    when(component.getType()).thenReturn(Component.Type.FILE);
+    when(addedFileRepository.isAdded(component)).thenReturn(true);
+  }
+
+  private void makeIssueNew() {
     when(issue.isNew())
       .thenReturn(true);
   }
 
-  private void existingIssue() {
+  private void makeIssueNotNew() {
     when(issue.isNew())
       .thenReturn(false);
   }
 
-  private void noScm() {
-    when(scmInfoRepository.getScmInfo(component))
-      .thenReturn(java.util.Optional.empty());
+  private void setIssueBelongToNonExistingRule() {
+    when(issue.getRuleKey())
+      .thenReturn(RuleKey.of("repo", "disabled"));
   }
 
-  private void withScm(long blame) {
-    createMockScmInfo();
-    Changeset changeset = Changeset.newChangesetBuilder().setDate(blame).setRevision("1").build();
+  private void noScm() {
+    when(scmInfoRepository.getScmInfo(component))
+      .thenReturn(Optional.empty());
+  }
+
+  private static void setDateOfLatestScmChangeset(ScmInfo scmInfo, long date) {
+    Changeset changeset = Changeset.newChangesetBuilder().setDate(date).setRevision("1").build();
     when(scmInfo.getLatestChangeset()).thenReturn(changeset);
   }
 
-  private void createMockScmInfo() {
-    if (scmInfo == null) {
-      scmInfo = mock(ScmInfo.class);
-      when(scmInfoRepository.getScmInfo(component))
-        .thenReturn(java.util.Optional.of(scmInfo));
-    }
-  }
-
-  private void withScmAt(int line, long blame) {
-    createMockScmInfo();
-    Changeset changeset = Changeset.newChangesetBuilder().setDate(blame).setRevision("1").build();
+  private static void setDateOfChangetsetAtLine(ScmInfo scmInfo, int line, long date) {
+    Changeset changeset = Changeset.newChangesetBuilder().setDate(date).setRevision("1").build();
     when(scmInfo.hasChangesetForLine(line)).thenReturn(true);
     when(scmInfo.getChangesetForLine(line)).thenReturn(changeset);
   }
 
-  private void ruleCreatedAt(long createdAt) {
+  private ScmInfo createMockScmInfo() {
+    if (scmInfo == null) {
+      scmInfo = mock(ScmInfo.class);
+      when(scmInfoRepository.getScmInfo(component))
+        .thenReturn(Optional.of(scmInfo));
+    }
+    return scmInfo;
+  }
+
+  private void setRuleCreatedAt(long createdAt) {
     when(activeRule.getCreatedAt()).thenReturn(createdAt);
   }
 
@@ -395,10 +424,28 @@ public class IssueCreationDateCalculatorTest {
     when(activeRule.getPluginKey()).thenReturn(pluginKey);
   }
 
+  private static Location newLocation(int startLine, int endLine) {
+    return Location.newBuilder().setTextRange(range(startLine, endLine)).build();
+  }
+
+  private static Location newLocation(int startLine, int endLine, String componentUuid) {
+    return Location.newBuilder().setTextRange(range(startLine, endLine)).setComponentId(componentUuid).build();
+  }
+
+  private static org.sonar.db.protobuf.DbCommons.TextRange range(int startLine, int endLine) {
+    return TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine).build();
+  }
+
+  private static Flow newFlow(Location... locations) {
+    Flow.Builder builder = Flow.newBuilder();
+    Arrays.stream(locations).forEach(builder::addLocation);
+    return builder.build();
+  }
+
   private void run() {
-    calculator.beforeComponent(component);
-    calculator.onIssue(component, issue);
-    calculator.afterComponent(component);
+    underTest.beforeComponent(component);
+    underTest.onIssue(component, issue);
+    underTest.afterComponent(component);
   }
 
   private void assertNoChangeOfCreationDate() {
