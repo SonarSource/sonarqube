@@ -80,15 +80,21 @@ it('should upgrade', async () => {
 it('should preselect paid plan', async () => {
   const wrapper = shallow(
     <PlanStep
+      almOrganization={{
+        avatar: 'my-avatar',
+        key: 'foo',
+        name: 'Foo',
+        personal: true,
+        privateRepos: 5,
+        publicRepos: 0
+      }}
       createOrganization={jest.fn()}
       onDone={jest.fn()}
       onUpgradeFail={jest.fn()}
-      onlyPaid={true}
       open={true}
       subscriptionPlans={subscriptionPlans}
     />
   );
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
   expect(wrapper.dive()).toMatchSnapshot();
 });

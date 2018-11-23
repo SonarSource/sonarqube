@@ -172,10 +172,11 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
         {subscriptionPlans !== undefined &&
           filter !== Filters.Bind && (
             <PlanStep
+              almApplication={this.props.almApplication}
+              almOrganization={this.props.almOrganization}
               createOrganization={this.handleCreateOrganization}
               onDone={this.props.onDone}
               onUpgradeFail={this.props.onUpgradeFail}
-              onlyPaid={false /* TODO */}
               open={step === Step.Plan}
               subscriptionPlans={subscriptionPlans}
             />

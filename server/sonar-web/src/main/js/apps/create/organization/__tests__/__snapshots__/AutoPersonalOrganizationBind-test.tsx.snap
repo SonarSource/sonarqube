@@ -58,9 +58,29 @@ exports[`should render correctly 1`] = `
     />
   </OrganizationDetailsStep>
   <PlanStep
+    almApplication={
+      Object {
+        "backgroundColor": "#0052CC",
+        "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
+        "installationUrl": "https://bitbucket.org/install/app",
+        "key": "bitbucket",
+        "name": "BitBucket",
+      }
+    }
+    almOrganization={
+      Object {
+        "avatar": "http://example.com/avatar",
+        "description": "description-foo",
+        "key": "key-foo",
+        "name": "name-foo",
+        "personal": true,
+        "privateRepos": 0,
+        "publicRepos": 3,
+        "url": "http://example.com/foo",
+      }
+    }
     createOrganization={[Function]}
     onDone={[MockFunction]}
-    onlyPaid={false}
     open={false}
     subscriptionPlans={
       Array [

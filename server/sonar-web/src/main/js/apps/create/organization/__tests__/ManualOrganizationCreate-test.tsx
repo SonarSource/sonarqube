@@ -47,15 +47,6 @@ it('should render and create organization', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should preselect paid plan', async () => {
-  const wrapper = shallowRender({ onlyPaid: true });
-
-  await waitAndUpdate(wrapper);
-  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('PlanStep').prop('onlyPaid')).toBe(true);
-});
-
 function shallowRender(props: Partial<ManualOrganizationCreate['props']> = {}) {
   return shallow(
     <ManualOrganizationCreate

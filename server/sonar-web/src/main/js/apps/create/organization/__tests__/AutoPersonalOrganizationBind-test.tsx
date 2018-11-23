@@ -30,6 +30,8 @@ const almOrganization = {
   key: 'key-foo',
   name: 'name-foo',
   personal: true,
+  privateRepos: 0,
+  publicRepos: 3,
   url: 'http://example.com/foo'
 };
 

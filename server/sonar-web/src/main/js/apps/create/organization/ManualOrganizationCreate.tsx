@@ -31,7 +31,6 @@ interface Props {
   handleOrgDetailsFinish: (organization: T.Organization) => Promise<void>;
   handleOrgDetailsStepOpen: () => void;
   onDone: () => void;
-  onlyPaid?: boolean;
   organization?: T.Organization;
   step: Step;
   subscriptionPlans?: T.SubscriptionPlan[];
@@ -67,7 +66,6 @@ export default class ManualOrganizationCreate extends React.PureComponent<Props>
             createOrganization={this.handleCreateOrganization}
             onDone={this.props.onDone}
             onUpgradeFail={this.props.onUpgradeFail}
-            onlyPaid={this.props.onlyPaid}
             open={this.props.step === Step.Plan}
             subscriptionPlans={subscriptionPlans}
           />

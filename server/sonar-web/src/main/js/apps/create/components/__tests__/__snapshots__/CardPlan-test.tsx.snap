@@ -1,0 +1,294 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#FreeCardPlan should render correctly 1`] = `
+<CardPlan
+  title="billing.free_plan.title"
+>
+  <ul
+    className="note"
+  >
+    <li>
+      billing.free_plan.all_projects_analyzed_public
+    </li>
+    <li>
+      billing.free_plan.anyone_can_browse_source_code
+    </li>
+  </ul>
+</CardPlan>
+`;
+
+exports[`#FreeCardPlan should render disabled with info 1`] = `
+<CardPlan
+  disabled={true}
+  title="billing.free_plan.title"
+>
+  <ul
+    className="note"
+  >
+    <li>
+      billing.free_plan.all_projects_analyzed_public
+    </li>
+    <li>
+      billing.free_plan.anyone_can_browse_source_code
+    </li>
+  </ul>
+  <Alert
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="billing.free_plan.not_available_info"
+      id="billing.free_plan.not_available_info"
+      values={
+        Object {
+          "alm": "GitHub",
+        }
+      }
+    />
+  </Alert>
+</CardPlan>
+`;
+
+exports[`#FreeCardPlan should render with warning 1`] = `
+<CardPlan
+  selected={true}
+  title="billing.free_plan.title"
+>
+  <ul
+    className="note"
+  >
+    <li>
+      billing.free_plan.all_projects_analyzed_public
+    </li>
+    <li>
+      billing.free_plan.anyone_can_browse_source_code
+    </li>
+  </ul>
+  <Alert
+    variant="warning"
+  >
+    <FormattedMessage
+      defaultMessage="billing.free_plan.private_repo_warning"
+      id="billing.free_plan.private_repo_warning"
+      values={
+        Object {
+          "alm": "GitHub",
+        }
+      }
+    />
+  </Alert>
+</CardPlan>
+`;
+
+exports[`#PaidCardPlan should render correctly 1`] = `
+<CardPlan
+  recommended="billing.paid_plan.recommended"
+  startingPrice="$10"
+  title="billing.paid_plan.title"
+>
+  <ul
+    className="note"
+  >
+    <li
+      className="display-flex-center"
+      key="0"
+    >
+      <CheckIcon
+        className="spacer-right"
+        fill="#00aa00"
+      />
+      billing.upgrade_box.unlimited_private_projects
+    </li>
+    <li
+      className="display-flex-center"
+      key="1"
+    >
+      <CheckIcon
+        className="spacer-right"
+        fill="#00aa00"
+      />
+      billing.upgrade_box.strict_control_private_data
+    </li>
+    <li
+      className="display-flex-center"
+      key="2"
+    >
+      <CheckIcon
+        className="spacer-right"
+        fill="#00aa00"
+      />
+      billing.upgrade_box.cancel_anytime
+    </li>
+    <li
+      className="display-flex-center"
+      key="3"
+    >
+      <CheckIcon
+        className="spacer-right"
+        fill="#00aa00"
+      />
+      billing.upgrade_box.free_trial
+    </li>
+  </ul>
+  <div
+    className="big-spacer-left"
+  >
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to="/documentation/sonarcloud-pricing/"
+    >
+      learn_more
+    </Link>
+  </div>
+</CardPlan>
+`;
+
+exports[`should be actionable 1`] = `
+<div
+  className="card-plan card-plan-actionable"
+  onClick={[MockFunction]}
+  role="radio"
+  tabIndex={0}
+>
+  <h2
+    className="card-plan-header big-spacer-bottom"
+  >
+    <span
+      className="display-flex-center"
+    >
+      <i
+        className="icon-radio spacer-right"
+      />
+      Free Plan
+    </span>
+    <span
+      className="card-plan-price"
+    >
+      billing.price_format.0
+    </span>
+  </h2>
+  <div
+    className="card-plan-body"
+  >
+    <div>
+      content
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should be actionable 2`] = `
+<div
+  aria-checked={true}
+  className="card-plan card-plan-actionable selected"
+  onClick={
+    [MockFunction] {
+      "calls": Array [
+        Array [
+          Object {
+            "currentTarget": Object {
+              "blur": [Function],
+            },
+            "preventDefault": [Function],
+            "stopPropagation": [Function],
+            "target": Object {
+              "blur": [Function],
+            },
+          },
+        ],
+      ],
+      "results": Array [
+        Object {
+          "isThrow": false,
+          "value": undefined,
+        },
+      ],
+    }
+  }
+  role="radio"
+  tabIndex={0}
+>
+  <h2
+    className="card-plan-header big-spacer-bottom"
+  >
+    <span
+      className="display-flex-center"
+    >
+      <i
+        className="icon-radio spacer-right is-checked"
+      />
+      Free Plan
+    </span>
+    <span
+      className="card-plan-price"
+    >
+      billing.price_format.0
+    </span>
+  </h2>
+  <div
+    className="card-plan-body"
+  >
+    <div>
+      content
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="card-plan"
+  role="radio"
+  tabIndex={0}
+>
+  <h2
+    className="card-plan-header big-spacer-bottom"
+  >
+    <span
+      className="display-flex-center"
+    >
+      Paid Plan
+    </span>
+    <FormattedMessage
+      defaultMessage="billing.price_from_x"
+      id="billing.price_from_x"
+      values={
+        Object {
+          "price": <span
+            className="card-plan-price"
+          >
+            $10
+          </span>,
+        }
+      }
+    />
+  </h2>
+  <div
+    className="card-plan-body"
+  >
+    <div>
+      content
+    </div>
+  </div>
+  <div
+    className="card-plan-recommended"
+  >
+    <RecommendedIcon
+      className="spacer-right"
+    />
+    <FormattedMessage
+      defaultMessage="Recommended for you"
+      id="Recommended for you"
+      values={
+        Object {
+          "recommended": <strong>
+            recommended
+          </strong>,
+        }
+      }
+    />
+  </div>
+</div>
+`;

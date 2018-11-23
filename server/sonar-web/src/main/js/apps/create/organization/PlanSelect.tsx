@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
-import Radio from '../../../components/controls/Radio';
+import { FreeCardPlan, PaidCardPlan } from '../components/CardPlan';
 import { translate } from '../../../helpers/l10n';
+import { AlmOrganization, AlmApplication } from '../../../app/types';
 
 export enum Plan {
   Free = 'free',
@@ -29,6 +28,8 @@ export enum Plan {
 }
 
 interface Props {
+  almApplication?: AlmApplication;
+  almOrganization?: AlmOrganization;
   onChange: (plan: Plan) => void;
   plan: Plan;
   startingPrice: string;
@@ -44,43 +45,36 @@ export default class PlanSelect extends React.PureComponent<Props> {
   };
 
   render() {
-    const { plan } = this.props;
+    const { almApplication, almOrganization, plan } = this.props;
+    const hasPrivateRepo = Boolean(almOrganization && almOrganization.privateRepos > 0);
+    const onlyPrivateRepo = Boolean(
+      hasPrivateRepo && almOrganization && almOrganization.publicRepos === 0
+    );
+
+    const cards = [
+      <PaidCardPlan
+        isRecommended={hasPrivateRepo}
+        key="paid"
+        onClick={this.handlePaidPlanClick}
+        selected={plan === Plan.Paid}
+        startingPrice={this.props.startingPrice}
+      />,
+      <FreeCardPlan
+        almName={almApplication && almApplication.name}
+        disabled={onlyPrivateRepo}
+        hasWarning={hasPrivateRepo && plan === Plan.Free}
+        key="free"
+        onClick={this.handleFreePlanClick}
+        selected={plan === Plan.Free}
+      />
+    ];
+
     return (
       <div
         aria-label={translate('onboarding.create_organization.choose_plan')}
-        className="huge-spacer-bottom"
+        className="display-flex-row huge-spacer-bottom"
         role="radiogroup">
-        <div>
-          <Radio checked={plan === Plan.Free} onCheck={this.handleFreePlanClick}>
-            <span>{translate('billing.free_plan.title')}</span>
-          </Radio>
-          <p className="note markdown little-spacer-top">
-            {translate('billing.free_plan.description')}
-          </p>
-        </div>
-        <div className="big-spacer-top">
-          <Radio checked={plan === Plan.Paid} onCheck={this.handlePaidPlanClick}>
-            <span>{translate('billing.paid_plan.title')}</span>
-          </Radio>
-          <p className="note markdown little-spacer-top">
-            <FormattedMessage
-              defaultMessage={translate('billing.paid_plan.description')}
-              id="billing.paid_plan.description"
-              values={{
-                price: this.props.startingPrice,
-                more: (
-                  <>
-                    {' '}
-                    <Link target="_blank" to="/documentation/sonarcloud-pricing/">
-                      {translate('learn_more')}
-                    </Link>
-                    <br />
-                  </>
-                )
-              }}
-            />
-          </p>
-        </div>
+        {hasPrivateRepo ? cards : cards.reverse()}
       </div>
     );
   }

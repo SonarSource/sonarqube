@@ -21,20 +21,21 @@ import * as React from 'react';
 import BillingFormShim from './BillingFormShim';
 import PlanSelect, { Plan } from './PlanSelect';
 import { formatPrice } from './utils';
-import Step from '../../tutorials/components/Step';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { translate } from '../../../helpers/l10n';
-import { getExtensionStart } from '../../../app/components/extensions/utils';
-import { SubmitButton } from '../../../components/ui/buttons';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import Step from '../../tutorials/components/Step';
+import { SubmitButton } from '../../../components/ui/buttons';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import { getExtensionStart } from '../../../app/components/extensions/utils';
+import { translate } from '../../../helpers/l10n';
 
 const BillingForm = withCurrentUser(BillingFormShim);
 
 interface Props {
+  almApplication?: T.AlmApplication;
+  almOrganization?: T.AlmOrganization;
   createOrganization: () => Promise<string>;
   onDone: () => void;
   onUpgradeFail?: () => void;
-  onlyPaid?: boolean;
   open: boolean;
   subscriptionPlans: T.SubscriptionPlan[];
 }
@@ -51,7 +52,7 @@ export default class PlanStep extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      plan: props.onlyPaid ? Plan.Paid : Plan.Free,
+      plan: props.almOrganization && props.almOrganization.privateRepos > 0 ? Plan.Paid : Plan.Free,
       ready: false,
       submitting: false
     };
@@ -100,13 +101,13 @@ export default class PlanStep extends React.PureComponent<Props, State> {
       <div className="boxed-group-inner">
         {this.state.ready && (
           <>
-            {!this.props.onlyPaid && (
-              <PlanSelect
-                onChange={this.handlePlanChange}
-                plan={this.state.plan}
-                startingPrice={formatPrice(startedPrice)}
-              />
-            )}
+            <PlanSelect
+              almApplication={this.props.almApplication}
+              almOrganization={this.props.almOrganization}
+              onChange={this.handlePlanChange}
+              plan={this.state.plan}
+              startingPrice={formatPrice(startedPrice)}
+            />
 
             {this.state.plan === Plan.Paid ? (
               <BillingForm
@@ -143,8 +144,9 @@ export default class PlanStep extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { almOrganization } = this.props;
     const stepTitle = translate(
-      this.props.onlyPaid
+      almOrganization && almOrganization.privateRepos > 0 && almOrganization.publicRepos === 0
         ? 'onboarding.create_organization.enter_payment_details'
         : 'onboarding.create_organization.choose_plan'
     );

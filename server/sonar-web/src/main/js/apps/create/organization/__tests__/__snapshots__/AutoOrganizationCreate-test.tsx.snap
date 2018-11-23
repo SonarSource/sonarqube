@@ -57,10 +57,30 @@ exports[`should display choice between import or creation 1`] = `
     </div>
   </OrganizationDetailsStep>
   <PlanStep
+    almApplication={
+      Object {
+        "backgroundColor": "#0052CC",
+        "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
+        "installationUrl": "https://bitbucket.org/install/app",
+        "key": "bitbucket",
+        "name": "BitBucket",
+      }
+    }
+    almOrganization={
+      Object {
+        "avatar": "http://example.com/avatar",
+        "description": "description-foo",
+        "key": "key-foo",
+        "name": "name-foo",
+        "personal": false,
+        "privateRepos": 0,
+        "publicRepos": 3,
+        "url": "http://example.com/foo",
+      }
+    }
     createOrganization={[Function]}
     onDone={[MockFunction]}
     onUpgradeFail={[MockFunction]}
-    onlyPaid={false}
     open={false}
     subscriptionPlans={
       Array [
@@ -124,6 +144,8 @@ exports[`should render prefilled and create org 1`] = `
           "key": "key-foo",
           "name": "name-foo",
           "personal": false,
+          "privateRepos": 0,
+          "publicRepos": 3,
           "url": "http://example.com/foo",
         }
       }
@@ -131,10 +153,30 @@ exports[`should render prefilled and create org 1`] = `
     />
   </OrganizationDetailsStep>
   <PlanStep
+    almApplication={
+      Object {
+        "backgroundColor": "#0052CC",
+        "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
+        "installationUrl": "https://bitbucket.org/install/app",
+        "key": "bitbucket",
+        "name": "BitBucket",
+      }
+    }
+    almOrganization={
+      Object {
+        "avatar": "http://example.com/avatar",
+        "description": "description-foo",
+        "key": "key-foo",
+        "name": "name-foo",
+        "personal": false,
+        "privateRepos": 0,
+        "publicRepos": 3,
+        "url": "http://example.com/foo",
+      }
+    }
     createOrganization={[Function]}
     onDone={[MockFunction]}
     onUpgradeFail={[MockFunction]}
-    onlyPaid={false}
     open={false}
     subscriptionPlans={
       Array [

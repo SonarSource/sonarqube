@@ -51,7 +51,14 @@ it('should display already bound alert message', () => {
   expect(
     shallowRender({
       almInstallId: 'foo',
-      almOrganization: { avatar: 'foo-avatar', key: 'foo', name: 'Foo', personal: false },
+      almOrganization: {
+        avatar: 'foo-avatar',
+        key: 'foo',
+        name: 'Foo',
+        personal: false,
+        privateRepos: 0,
+        publicRepos: 3
+      },
       boundOrganization: { avatar: 'bound-avatar', key: 'bound', name: 'Bound' }
     }).find('Alert')
   ).toMatchSnapshot();

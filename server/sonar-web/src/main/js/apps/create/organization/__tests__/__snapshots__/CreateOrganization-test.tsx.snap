@@ -43,6 +43,8 @@ exports[`should render with auto personal organization bind page 2`] = `
           "key": "foo",
           "name": "Foo",
           "personal": true,
+          "privateRepos": 0,
+          "publicRepos": 3,
         }
       }
       handleCancelImport={[Function]}
@@ -276,6 +278,8 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
           "key": "sonarsource",
           "name": "SonarSource",
           "personal": false,
+          "privateRepos": 0,
+          "publicRepos": 3,
           "url": "https://www.sonarsource.com",
         }
       }
@@ -484,6 +488,8 @@ exports[`should render with organization bind page 2`] = `
           "key": "foo",
           "name": "Foo",
           "personal": false,
+          "privateRepos": 0,
+          "publicRepos": 3,
         }
       }
       className=""

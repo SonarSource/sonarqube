@@ -1,18 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should preselect paid plan 1`] = `
-<Step
-  finished={false}
-  onOpen={[Function]}
-  open={true}
-  renderForm={[Function]}
-  renderResult={[Function]}
-  stepNumber={2}
-  stepTitle="onboarding.create_organization.enter_payment_details"
-/>
-`;
-
-exports[`should preselect paid plan 2`] = `
 <div
   className="boxed-group onboarding-step is-open"
 >
@@ -34,6 +22,21 @@ exports[`should preselect paid plan 2`] = `
     <div
       className="boxed-group-inner"
     >
+      <PlanSelect
+        almOrganization={
+          Object {
+            "avatar": "my-avatar",
+            "key": "foo",
+            "name": "Foo",
+            "personal": true,
+            "privateRepos": 5,
+            "publicRepos": 0,
+          }
+        }
+        onChange={[Function]}
+        plan="paid"
+        startingPrice="billing.price_format.100"
+      />
       <Connect(withCurrentUser(BillingFormShim))
         onCommit={[MockFunction]}
         onFailToUpgrade={[MockFunction]}

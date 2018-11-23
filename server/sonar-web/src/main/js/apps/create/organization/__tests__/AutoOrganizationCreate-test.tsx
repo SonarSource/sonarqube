@@ -33,6 +33,8 @@ const organization = {
   description: 'description-foo',
   key: 'key-foo',
   name: 'name-foo',
+  privateRepos: 0,
+  publicRepos: 3,
   url: 'http://example.com/foo'
 };
 

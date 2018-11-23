@@ -29,6 +29,8 @@ declare namespace T {
   export interface AlmOrganization extends OrganizationBase {
     key: string;
     personal: boolean;
+    privateRepos: number;
+    publicRepos: number;
   }
 
   export interface AlmRepository {

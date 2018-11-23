@@ -20,15 +20,42 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import PlanSelect, { Plan } from '../PlanSelect';
+import { click } from '../../../../helpers/testUtils';
 
 it('should render and select', () => {
   const onChange = jest.fn();
-  const wrapper = shallow(<PlanSelect onChange={onChange} plan={Plan.Free} startingPrice="10" />);
+  const wrapper = shallowRender({ onChange });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('Radio[checked=false]').prop<Function>('onCheck')();
+  click(wrapper.find('PaidCardPlan'));
   expect(onChange).toBeCalledWith(Plan.Paid);
-
   wrapper.setProps({ plan: Plan.Paid });
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should recommend paid plan', () => {
+  const wrapper = shallowRender({
+    almOrganization: { key: 'foo', name: 'Foo', personal: false, privateRepos: 1, publicRepos: 5 },
+    plan: Plan.Paid
+  });
+  expect(wrapper.find('PaidCardPlan').prop('isRecommended')).toBe(true);
+  expect(wrapper.find('FreeCardPlan').prop('disabled')).toBe(false);
+  expect(wrapper.find('FreeCardPlan').prop('hasWarning')).toBe(false);
+
+  wrapper.setProps({ plan: Plan.Free });
+  expect(wrapper.find('FreeCardPlan').prop('hasWarning')).toBe(true);
+});
+
+it('should recommend paid plan and disable free plan', () => {
+  const wrapper = shallowRender({
+    almOrganization: { key: 'foo', name: 'Foo', personal: false, privateRepos: 1, publicRepos: 0 }
+  });
+  expect(wrapper.find('PaidCardPlan').prop('isRecommended')).toBe(true);
+  expect(wrapper.find('FreeCardPlan').prop('disabled')).toBe(true);
+});
+
+function shallowRender(props: Partial<PlanSelect['props']> = {}) {
+  return shallow(
+    <PlanSelect onChange={jest.fn()} plan={Plan.Free} startingPrice="10" {...props} />
+  );
+}

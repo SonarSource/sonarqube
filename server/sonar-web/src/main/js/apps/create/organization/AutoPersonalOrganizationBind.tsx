@@ -108,9 +108,10 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
         </OrganizationDetailsStep>
         {subscriptionPlans !== undefined && (
           <PlanStep
+            almApplication={this.props.almApplication}
+            almOrganization={this.props.almOrganization}
             createOrganization={this.handleCreateOrganization}
             onDone={this.props.onDone}
-            onlyPaid={false /* TODO */}
             open={step === Step.Plan}
             subscriptionPlans={subscriptionPlans}
           />

@@ -36,8 +36,12 @@ it('#isVSTS', () => {
 });
 
 it('#isPersonal', () => {
-  expect(isPersonal({ key: 'foo', name: 'Foo', personal: true })).toBeTruthy();
-  expect(isPersonal({ key: 'foo', name: 'Foo', personal: false })).toBeFalsy();
+  expect(
+    isPersonal({ key: 'foo', name: 'Foo', personal: true, privateRepos: 0, publicRepos: 3 })
+  ).toBeTruthy();
+  expect(
+    isPersonal({ key: 'foo', name: 'Foo', personal: false, privateRepos: 0, publicRepos: 3 })
+  ).toBeFalsy();
 });
 
 it('#sanitizeAlmId', () => {
