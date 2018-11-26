@@ -19,6 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -27,19 +30,23 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentUuidFactoryTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private ReportModulesPath reportModulesPath = mock(ReportModulesPath.class);
+
   @Test
   public void load_uuids_from_existing_components_in_db() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(ComponentTesting
-      .newModuleDto(project).setPath("module1"));
-
-    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey());
+      .newModuleDto(project));
+    when(reportModulesPath.get()).thenReturn(Collections.singletonMap(module.getKey(), "module1_path"));
+    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey(), reportModulesPath);
 
     assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
     assertThat(underTest.getOrCreateForKey(module.getDbKey())).isNotEqualTo(module.uuid());
@@ -49,11 +56,9 @@ public class ComponentUuidFactoryTest {
   public void migrate_project_with_modules() {
     ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
     ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
-      .setDbKey("project:module1")
-      .setPath("module1_path"));
+      .setDbKey("project:module1"));
     ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(module1)
-      .setDbKey("project:module1:module2")
-      .setPath("module2_path"));
+      .setDbKey("project:module1:module2"));
     ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project)
       .setDbKey("project:file1")
       .setPath("file1_path"));
@@ -62,8 +67,11 @@ public class ComponentUuidFactoryTest {
       .setPath("file2_path"));
 
     assertThat(file2.moduleUuidPath()).isEqualTo("." + project.uuid() + "." + module1.uuid() + "." + module2.uuid() + ".");
-
-    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey());
+    Map<String, String> modulesRelativePaths = new HashMap<>();
+    modulesRelativePaths.put("project:module1", "module1_path");
+    modulesRelativePaths.put("project:module1:module2", "module1_path/module2_path");
+    when(reportModulesPath.get()).thenReturn(modulesRelativePaths);
+    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey(), reportModulesPath);
 
     // migrated files
     assertThat(underTest.getOrCreateForKey("project:file1_path")).isEqualTo(file1.uuid());
@@ -84,51 +92,23 @@ public class ComponentUuidFactoryTest {
     ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
     ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
       .setDbKey("project:module1")
-      .setEnabled(false)
-      .setPath("module1_path"));
+      .setEnabled(false));
     ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(module1)
       .setDbKey("project:file1")
       .setEnabled(false)
       .setPath("file1_path"));
+    when(reportModulesPath.get()).thenReturn(Collections.singletonMap("project:module1", "module1_path"));
 
-    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey());
+    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey(), reportModulesPath);
 
     // migrated files
     assertThat(underTest.getOrCreateForKey("project:module1_path/file1_path")).isEqualTo(file1.uuid());
   }
 
   @Test
-  public void migrate_project_having_modules_without_paths() {
-    ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project)
-      .setDbKey("project:module")
-      .setPath(null));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module)
-      .setDbKey("project:module:file")
-      .setPath("file_path"));
-
-    assertThat(file.moduleUuidPath()).isEqualTo("." + project.uuid() + "." + module.uuid() + ".");
-
-    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey());
-
-    // file will have this key since the module has a null path
-    assertThat(underTest.getOrCreateForKey("project:file_path")).isEqualTo(file.uuid());
-
-    // migrated module
-    // TODO!!
-    //assertThat(underTest.getOrCreateForKey("project:module")).isEqualTo(module.uuid());
-
-    // project remains the same
-    //assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
-
-    // old keys with modules don't exist
-    assertThat(underTest.getOrCreateForKey(module.getDbKey())).isNotEqualTo(module.uuid());
-    assertThat(underTest.getOrCreateForKey(file.getDbKey())).isNotEqualTo(file.uuid());
-  }
-
-  @Test
   public void generate_uuid_if_it_does_not_exist_in_db() {
-    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), "theProjectKey");
+    when(reportModulesPath.get()).thenReturn(Collections.emptyMap());
+    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), "theProjectKey", reportModulesPath);
 
     String generatedKey = underTest.getOrCreateForKey("foo");
     assertThat(generatedKey).isNotEmpty();

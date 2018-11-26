@@ -84,11 +84,10 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   public String relativePath(DefaultInputModule module) {
     AbstractProjectOrModule parent = parent(module);
     if (parent == null) {
-      return null;
+      return "";
     }
-    DefaultInputModule inputModule = (DefaultInputModule) module;
     Path parentBaseDir = parent.getBaseDir();
-    Path moduleBaseDir = inputModule.getBaseDir();
+    Path moduleBaseDir = module.getBaseDir();
 
     return PathResolver.relativize(parentBaseDir, moduleBaseDir).orElse(null);
   }

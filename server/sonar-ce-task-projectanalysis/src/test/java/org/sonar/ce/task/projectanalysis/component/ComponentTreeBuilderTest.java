@@ -416,7 +416,7 @@ public class ComponentTreeBuilderTest {
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
       .setType(DIRECTORY)
-      .setPath("/")
+      .setProjectRelativePath("/")
       .addChildRef(3));
     scannerComponentProvider.add(newBuilder()
       .setRef(3)

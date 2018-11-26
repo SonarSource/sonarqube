@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
 import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.ce.task.projectanalysis.dbmigration.DbMigrationModule;
@@ -179,7 +180,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       new ComputationTempFolderProvider(),
 
       DbMigrationModule.class,
-
+      ReportModulesPath.class,
       MetricModule.class,
 
       // holders

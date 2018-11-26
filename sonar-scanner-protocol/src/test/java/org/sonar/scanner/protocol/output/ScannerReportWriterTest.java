@@ -80,7 +80,7 @@ public class ScannerReportWriterTest {
     ScannerReport.Component.Builder component = ScannerReport.Component.newBuilder()
       .setRef(1)
       .setLanguage("java")
-      .setPath("src/Foo.java")
+      .setProjectRelativePath("src/Foo.java")
       .setType(ComponentType.FILE)
       .setIsTest(false)
       .addChildRef(5)
@@ -142,13 +142,13 @@ public class ScannerReportWriterTest {
 
     // write data
     ScannerReport.AdHocRule rule = ScannerReport.AdHocRule.newBuilder()
-            .setEngineId("eslint")
-            .setRuleId("123")
-            .setName("Foo")
-            .setDescription("Description")
-            .setSeverity(Constants.Severity.BLOCKER)
-            .setType(ScannerReport.IssueType.BUG)
-            .build();
+      .setEngineId("eslint")
+      .setRuleId("123")
+      .setName("Foo")
+      .setDescription("Description")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setType(ScannerReport.IssueType.BUG)
+      .build();
     underTest.appendAdHocRule(rule);
 
     File file = underTest.getFileStructure().adHocRules();

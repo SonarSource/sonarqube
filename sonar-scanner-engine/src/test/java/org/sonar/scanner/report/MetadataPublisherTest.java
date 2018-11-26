@@ -22,8 +22,10 @@ package org.sonar.scanner.report;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import org.junit.Before;
@@ -81,14 +83,27 @@ public class MetadataPublisherTest {
     when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(Paths.get("dummy/path"));
     when(scmProvider.revisionId(any(Path.class))).thenReturn("dummy-sha1");
 
-    createPublisher(ProjectDefinition.create().setKey("foo"));
+    createPublisher(ProjectDefinition.create());
     when(pluginRepository.getPluginsByKey()).thenReturn(emptyMap());
   }
 
   private void createPublisher(ProjectDefinition def) throws IOException {
-    rootModule = new DefaultInputModule(def.setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
+    Path rootBaseDir = temp.newFolder().toPath();
+    Path moduleBaseDir = rootBaseDir.resolve("moduleDir");
+    Files.createDirectory(moduleBaseDir);
+    rootModule = new DefaultInputModule(def
+      .setBaseDir(rootBaseDir.toFile())
+      .setKey("root")
+      .setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
+    DefaultInputModule child = new DefaultInputModule(ProjectDefinition.create()
+      .setKey("module")
+      .setBaseDir(moduleBaseDir.toFile())
+      .setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
+    when(inputModuleHierarchy.children(rootModule)).thenReturn(Collections.singletonList(child));
+    when(inputModuleHierarchy.relativePath(child)).thenReturn("modulePath");
+    when(inputModuleHierarchy.relativePath(rootModule)).thenReturn("");
     branches = mock(BranchConfiguration.class);
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
@@ -111,18 +126,18 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
-    assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getQprofilesPerLanguage()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
+    assertThat(metadata.getProjectKey()).isEqualTo("root");
+    assertThat(metadata.getModulesProjectRelativePathByKeyMap()).containsOnly(entry("module", "modulePath"), entry("root", ""));
+    assertThat(metadata.getQprofilesPerLanguageMap()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")
       .setLanguage("java")
       .setRulesUpdatedAt(date.getTime())
       .build()));
     assertThat(metadata.getPluginsByKey()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
-      .setKey("java")
-      .setUpdatedAt(12345)
-      .build()),
+        .setKey("java")
+        .setUpdatedAt(12345)
+        .build()),
       entry("php", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
         .setKey("php")
         .setUpdatedAt(45678)
@@ -146,7 +161,7 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
-    assertThat(metadata.getProjectKey()).isEqualTo("foo");
+    assertThat(metadata.getProjectKey()).isEqualTo("root");
     assertThat(metadata.getDeprecatedBranch()).isEqualTo("myBranch");
     assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
@@ -162,7 +177,7 @@ public class MetadataPublisherTest {
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(properties.organizationKey()).isEqualTo(Optional.of("SonarSource"));
+    assertThat(metadata.getOrganizationKey()).isEqualTo("SonarSource");
   }
 
   @Test

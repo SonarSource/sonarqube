@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
@@ -102,11 +103,12 @@ public class BuildComponentTreeStepTest {
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-
+  private ReportModulesPath reportModulesPath = new ReportModulesPath(reportReader);
   private IssueRelocationToRoot issueRelocationToRoot = mock(IssueRelocationToRoot.class);
 
   private DbClient dbClient = dbTester.getDbClient();
-  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+    issueRelocationToRoot, reportModulesPath);
 
   @Test(expected = NullPointerException.class)
   public void fails_if_root_component_does_not_exist_in_reportReader() {
@@ -202,7 +204,8 @@ public class BuildComponentTreeStepTest {
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, "module/" + REPORT_DIR_PATH_1, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, "module/" + REPORT_FILE_PATH_1));
-
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().putModulesProjectRelativePathByKey(REPORT_MODULE_KEY,
+      "module").build());
     underTest.execute(new TestComputationStepContext());
 
     verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
@@ -221,7 +224,8 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+      issueRelocationToRoot, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
     reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));
@@ -248,7 +252,8 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+      issueRelocationToRoot, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF, LEAFLESS_MODULE_REF));
     reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));
@@ -288,7 +293,8 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+      issueRelocationToRoot, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF, LEAFLESS_MODULE_REF));
     reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));
@@ -335,7 +341,8 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(projectDto))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+      issueRelocationToRoot, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, branchDto.getKey()));
 
     underTest.execute(new TestComputationStepContext());
@@ -350,7 +357,8 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+      issueRelocationToRoot, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
     reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));
@@ -370,7 +378,8 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
       .setBranch(new DefaultBranchImpl("origin/feature"));
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, issueRelocationToRoot);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder,
+      issueRelocationToRoot, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
     reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
     reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));

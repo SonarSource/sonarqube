@@ -47,6 +47,7 @@ message Metadata {
   string scm_revision_id = 13;
 
   string pull_request_key = 14;
+  map<string, string> modules_project_relative_path_by_key = 15;
 
   message QProfile {
     string key = 1;
@@ -101,8 +102,6 @@ message ComponentLink {
 message Component {
   int32 ref = 1;
 
-  // Path relative to module base directory
-  string path = 2 [deprecated=true];
   string name = 3;
   ComponentType type = 4;
   bool is_test = 5;

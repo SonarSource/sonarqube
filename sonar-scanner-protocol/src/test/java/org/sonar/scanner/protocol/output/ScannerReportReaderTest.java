@@ -82,10 +82,10 @@ public class ScannerReportReaderTest {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     ScannerReport.Component.Builder component = ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setPath("src/main/java/Foo.java");
+      .setProjectRelativePath("src/main/java/Foo.java");
     writer.writeComponent(component.build());
 
-    assertThat(underTest.readComponent(1).getPath()).isEqualTo("src/main/java/Foo.java");
+    assertThat(underTest.readComponent(1).getProjectRelativePath()).isEqualTo("src/main/java/Foo.java");
   }
 
   @Test(expected = IllegalStateException.class)

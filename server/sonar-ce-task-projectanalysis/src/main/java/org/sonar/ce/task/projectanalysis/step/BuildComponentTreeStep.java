@@ -31,6 +31,7 @@ import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
 import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactory;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
+import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
@@ -49,14 +50,16 @@ public class BuildComponentTreeStep implements ComputationStep {
   private final MutableTreeRootHolder treeRootHolder;
   private final MutableAnalysisMetadataHolder analysisMetadataHolder;
   private final IssueRelocationToRoot issueRelocationToRoot;
+  private final ReportModulesPath reportModulesPath;
 
-  public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader,
-    MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder, IssueRelocationToRoot issueRelocationToRoot) {
+  public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder,
+    MutableAnalysisMetadataHolder analysisMetadataHolder, IssueRelocationToRoot issueRelocationToRoot, ReportModulesPath reportModulesPath) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.issueRelocationToRoot = issueRelocationToRoot;
+    this.reportModulesPath = reportModulesPath;
   }
 
   @Override
@@ -70,12 +73,13 @@ public class BuildComponentTreeStep implements ComputationStep {
       ScannerReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
       ComponentKeyGenerator keyGenerator = loadKeyGenerator();
       ComponentKeyGenerator publicKeyGenerator = loadPublicKeyGenerator();
+      ScannerReport.Metadata metadata = reportReader.readMetadata();
 
       // root key of branch, not necessarily of project
       String rootKey = keyGenerator.generateKey(reportProject, null);
 
       // loads the UUIDs from database. If they don't exist, then generate new ones
-      ComponentUuidFactory componentUuidFactory = new ComponentUuidFactory(dbClient, dbSession, rootKey);
+      ComponentUuidFactory componentUuidFactory = new ComponentUuidFactory(dbClient, dbSession, rootKey, reportModulesPath);
 
       String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
       SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
@@ -86,7 +90,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),
         baseAnalysis, issueRelocationToRoot);
-      String relativePathFromScmRoot = reportReader.readMetadata().getRelativePathFromScmRoot();
+      String relativePathFromScmRoot = metadata.getRelativePathFromScmRoot();
 
       Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);
 

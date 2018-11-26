@@ -19,9 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -36,11 +38,11 @@ import org.sonar.db.component.KeyWithUuidDto;
 public class ComponentUuidFactory {
   private final Map<String, String> uuidsByKey = new HashMap<>();
 
-  public ComponentUuidFactory(DbClient dbClient, DbSession dbSession, String rootKey) {
-    Map<String, String> modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey);
+  public ComponentUuidFactory(DbClient dbClient, DbSession dbSession, String rootKey, Supplier<Map<String, String>> reportModulesPath) {
+    Map<String, String> modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey, reportModulesPath);
 
     if (modulePathsByUuid.isEmpty()) {
-      // only contains root project
+      // only contains root project or we don't have relative paths for other modules anyway
       List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
       keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
     } else {
@@ -57,33 +59,24 @@ public class ComponentUuidFactory {
     return dbClient.componentDao().selectComponentsWithModuleUuidFromProjectKey(dbSession, rootKey);
   }
 
-  private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey) {
+  private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Supplier<Map<String, String>> reportModulesPath) {
     List<ComponentDto> moduleDtos = dbClient.componentDao()
       .selectEnabledModulesFromProjectKey(dbSession, rootKey, false).stream()
       .filter(c -> Qualifiers.MODULE.equals(c.qualifier()))
       .collect(Collectors.toList());
 
-    Map<String, ComponentDto> dtoByUuid = moduleDtos.stream()
-      .collect(Collectors.toMap(ComponentDto::uuid, dto -> dto));
-
-    Map<String, String> modulePathByUuid = new HashMap<>();
-
-    for (ComponentDto dto : moduleDtos) {
-      String modulePath = null;
-      ComponentDto currentDto = dto;
-      while (currentDto != null && currentDto.moduleUuid() != null) {
-        String path = currentDto.path();
-        if (modulePath == null) {
-          modulePath = path;
-        } else {
-          modulePath = path + "/" + modulePath;
-        }
-        currentDto = dtoByUuid.get(currentDto.moduleUuid());
-      }
-
-      modulePathByUuid.put(dto.uuid(), modulePath);
+    if (moduleDtos.isEmpty()) {
+      return Collections.emptyMap();
     }
 
+    Map<String, String> pathByModuleKey = reportModulesPath.get();
+    Map<String, String> modulePathByUuid = new HashMap<>();
+    for (ComponentDto dto : moduleDtos) {
+      String relativePath = pathByModuleKey.get(dto.getKey());
+      if (relativePath != null) {
+        modulePathByUuid.put(dto.uuid(), relativePath);
+      }
+    }
     return modulePathByUuid;
   }
 

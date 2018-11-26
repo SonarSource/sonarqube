@@ -229,7 +229,7 @@ public class ScannerReportViewerApp {
         return component.getName();
       case DIRECTORY:
       case FILE:
-        return component.getPath();
+        return component.getProjectRelativePath();
       default:
         throw new IllegalArgumentException("Unknow component type: " + component.getType());
     }
