@@ -42,10 +42,16 @@ All communications are done over TLS 1.2:
 
 SonarCloud performs webhook calls from the following list of IPs:
 ```
+3.120.158.225
+3.121.87.141 
 52.59.209.17
 52.59.246.1
 54.93.180.144
+18.184.94.137
+18.184.195.184 
+18.185.94.218 
 18.194.44.125
+18.194.206.183
 18.194.244.158
 18.195.64.198
 ```
