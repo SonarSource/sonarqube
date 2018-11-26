@@ -22,17 +22,16 @@ package org.sonar.scanner.scan.filesystem;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 public class MetadataGenerator {
-  private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);
+  private static final Logger LOG = Loggers.get(MetadataGenerator.class);
   @VisibleForTesting
   static final Charset UTF_32BE = Charset.forName("UTF-32BE");
 
@@ -41,11 +40,9 @@ public class MetadataGenerator {
 
   private final StatusDetection statusDetection;
   private final FileMetadata fileMetadata;
-  private final DefaultInputModule inputModule;
   private final IssueExclusionsLoader exclusionsScanner;
 
-  public MetadataGenerator(DefaultInputModule inputModule, StatusDetection statusDetection, FileMetadata fileMetadata, IssueExclusionsLoader exclusionsScanner) {
-    this.inputModule = inputModule;
+  public MetadataGenerator(StatusDetection statusDetection, FileMetadata fileMetadata, IssueExclusionsLoader exclusionsScanner) {
     this.statusDetection = statusDetection;
     this.fileMetadata = fileMetadata;
     this.exclusionsScanner = exclusionsScanner;
@@ -55,7 +52,7 @@ public class MetadataGenerator {
    * Sets all metadata in the file, including charset and status.
    * It is an expensive computation, reading the entire file.
    */
-  public void setMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
+  public void setMetadata(String moduleKeyWithBranch, final DefaultInputFile inputFile, Charset defaultEncoding) {
     CharsetDetector charsetDetector = new CharsetDetector(inputFile.path(), defaultEncoding);
     try {
       Charset charset;
@@ -69,8 +66,8 @@ public class MetadataGenerator {
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(is, charset, inputFile.absolutePath(), exclusionsScanner.createCharHandlerFor(inputFile.key()));
       inputFile.setMetadata(metadata);
-      inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile, metadata.hash()));
-      LOG.debug("'{}' generated metadata {} with charset '{}'", inputFile, inputFile.type() == Type.TEST ? "as test " : "", charset);
+      inputFile.setStatus(statusDetection.status(moduleKeyWithBranch, inputFile, metadata.hash()));
+      LOG.debug("'{}' generated metadata{} with charset '{}'", inputFile, inputFile.type() == Type.TEST ? " as test " : "", charset);
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

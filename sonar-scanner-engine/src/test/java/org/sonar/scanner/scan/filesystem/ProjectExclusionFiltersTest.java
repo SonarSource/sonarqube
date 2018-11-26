@@ -32,28 +32,25 @@ import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.scan.filesystem.FileExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExclusionFiltersTest {
+public class ProjectExclusionFiltersTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   private Path moduleBaseDir;
   private MapSettings settings;
-  private ExclusionFilters filter;
 
   @Before
   public void setUp() throws IOException {
     settings = new MapSettings();
     moduleBaseDir = temp.newFolder().toPath();
-    filter = new ExclusionFilters(new FileExclusions(settings.asConfig()));
   }
 
   @Test
   public void no_inclusions_nor_exclusions() throws IOException {
-    filter.prepare();
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
@@ -63,7 +60,7 @@ public class ExclusionFiltersTest {
   @Test
   public void match_inclusion() throws IOException {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
-    filter.prepare();
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
@@ -75,7 +72,7 @@ public class ExclusionFiltersTest {
   @Test
   public void match_at_least_one_inclusion() throws IOException {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java,**/*Dto.java");
-    filter.prepare();
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
     assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
@@ -89,7 +86,7 @@ public class ExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "src/test/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
-    filter.prepare();
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
@@ -108,7 +105,7 @@ public class ExclusionFiltersTest {
 
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:" + excludedFile.getAbsolutePath());
-    filter.prepare();
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Foo.java", null);
     assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
@@ -119,9 +116,9 @@ public class ExclusionFiltersTest {
 
   @Test
   public void trim_pattern() {
-    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "   **/*Dao.java   ");
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
-    assertThat(filter.prepareMainExclusions()[0].toString()).isEqualTo("**/*Dao.java");
+    assertThat(filter.prepareMainExclusions(new String[] {"   **/*Dao.java   "}, new String[0])[0].toString()).isEqualTo("**/*Dao.java");
   }
 
 }

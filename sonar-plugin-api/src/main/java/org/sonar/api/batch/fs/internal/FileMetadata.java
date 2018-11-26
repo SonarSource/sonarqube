@@ -26,11 +26,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
 import org.sonar.api.batch.fs.internal.charhandler.FileHashComputer;
@@ -42,7 +39,6 @@ import org.sonar.api.batch.fs.internal.charhandler.LineOffsetCounter;
  * Computes hash of files. Ends of Lines are ignored, so files with
  * same content but different EOL encoding have the same hash.
  */
-@ScannerSide
 @Immutable
 public class FileMetadata {
   private static final char LINE_FEED = '\n';

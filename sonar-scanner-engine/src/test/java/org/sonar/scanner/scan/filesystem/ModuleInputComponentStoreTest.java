@@ -49,7 +49,7 @@ public class ModuleInputComponentStoreTest {
   @Before
   public void setUp() throws IOException {
     DefaultInputProject root = TestInputFileBuilder.newDefaultInputProject(projectKey, temp.newFolder());
-    componentStore = new InputComponentStore(root, mock(BranchConfiguration.class));
+    componentStore = new InputComponentStore(mock(BranchConfiguration.class));
   }
 
   @Test

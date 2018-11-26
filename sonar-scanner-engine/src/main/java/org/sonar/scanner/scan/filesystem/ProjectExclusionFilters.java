@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.scanner.ScannerSide;
-import org.sonarsource.api.sonarlint.SonarLintSide;
+import org.sonar.api.config.Configuration;
 
-/**
- * Extension point to exclude some files from inspection
- * @since 4.2
- * @since 7.6 evaluated at project level
- */
-@ScannerSide
-@SonarLintSide
-@ExtensionPoint
-@FunctionalInterface
-public interface InputFileFilter {
+public class ProjectExclusionFilters extends AbstractExclusionFilters {
 
-  boolean accept(InputFile f);
+  public ProjectExclusionFilters(Configuration projectConfig) {
+    super(projectConfig::getStringArray);
+    log();
+  }
 
 }

@@ -37,13 +37,15 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.AnalysisResult;
-import org.sonar.scanner.mediumtest.LogOutputRecorder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.global.GlobalSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -55,14 +57,14 @@ public class FileSystemMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private LogOutputRecorder logs = new LogOutputRecorder();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .addDefaultQProfile("xoo2", "Sonar Way")
-    .setLogOutput(logs);
+    .addDefaultQProfile("xoo2", "Sonar Way");
 
   private File baseDir;
   private ImmutableMap.Builder<String, String> builder;
@@ -137,9 +139,9 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
-    assertThat(logs.getAllAsString()).contains("Organization key: my org");
-    assertThat(logs.getAllAsString()).doesNotContain("Branch key");
+    assertThat(logTester.logs()).contains("Project key: com.foo.project");
+    assertThat(logTester.logs()).contains("Organization key: my org");
+    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("Branch key");
   }
 
   @Test
@@ -158,9 +160,9 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
-    assertThat(logs.getAllAsString()).contains("Branch key: my-branch");
-    assertThat(logs.getAllAsString()).contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\".");
+    assertThat(logTester.logs()).contains("Project key: com.foo.project");
+    assertThat(logTester.logs()).contains("Branch key: my-branch");
+    assertThat(logTester.logs()).contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\". See https://redirect.sonarsource.com/doc/branches.html.");
   }
 
   @Test
@@ -197,9 +199,9 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
-    assertThat(logs.getAllAsString()).doesNotContain("Organization key");
-    assertThat(logs.getAllAsString()).doesNotContain("Branch key");
+    assertThat(logTester.logs()).contains("Project key: com.foo.project");
+    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("Organization key");
+    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("Branch key");
   }
 
   @Test
@@ -215,15 +217,17 @@ public class FileSystemMediumTest {
     File javaFile = new File(srcDir, "sample.java");
     FileUtils.write(javaFile, "Sample xoo\ncontent");
 
+    logTester.setLevel(LoggerLevel.DEBUG);
+
     tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("2 files indexed");
-    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
+    assertThat(logTester.logs()).contains("2 files indexed");
+    assertThat(logTester.logs()).contains("'src/sample.xoo' generated metadata with charset 'UTF-8'");
+    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("'src/sample.java' generated metadata");
 
   }
 
@@ -241,15 +245,17 @@ public class FileSystemMediumTest {
     File javaFile = new File(srcDir, "sample.java");
     FileUtils.write(javaFile, "Sample xoo\ncontent");
 
+    logTester.setLevel(LoggerLevel.DEBUG);
+
     tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("2 files indexed");
-    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
-    assertThat(logs.getAllAsString()).contains("'src/sample.java' generated metadata");
+    assertThat(logTester.logs()).contains("2 files indexed");
+    assertThat(logTester.logs()).contains("'src/sample.xoo' generated metadata with charset 'UTF-8'");
+    assertThat(logTester.logs()).contains("'src/sample.java' generated metadata with charset 'UTF-8'");
   }
 
   @Test
@@ -271,6 +277,8 @@ public class FileSystemMediumTest {
     Path javaFile = mainDir.resolve("sample.java");
     Files.write(javaFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
 
+    logTester.setLevel(LoggerLevel.DEBUG);
+
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src/main")
@@ -278,10 +286,10 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("3 files indexed");
-    assertThat(logs.getAllAsString()).contains("'src/main/sample.xoo' generated metadata");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/main/sample.java' generated metadata");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/test/sample.java' generated metadata");
+    assertThat(logTester.logs()).contains("3 files indexed");
+    assertThat(logTester.logs()).contains("'src/main/sample.xoo' generated metadata with charset 'UTF-8'");
+    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("'src/main/sample.java' generated metadata");
+    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("'src/test/sample.java' generated metadata");
     DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
 
     thrown.expect(IllegalStateException.class);
@@ -304,15 +312,17 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.unknown");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
+    logTester.setLevel(LoggerLevel.DEBUG);
+
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).contains("1 file indexed");
-    assertThat(logs.getAllAsString()).contains("'src" + File.separator + "sample.unknown' indexed with language 'null'");
-    assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
+    assertThat(logTester.logs()).contains("1 file indexed");
+    assertThat(logTester.logs()).contains("'src" + File.separator + "sample.unknown' indexed with language 'null'");
+    assertThat(logTester.logs()).contains("'src/sample.unknown' generated metadata with charset 'UTF-8'");
     DefaultInputFile inputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
     assertThat(result.getReportComponent(inputFile)).isNotNull();
   }
@@ -337,15 +347,17 @@ public class FileSystemMediumTest {
     new Random().nextBytes(b);
     FileUtils.writeByteArrayToFile(unknownFile, b);
 
+    logTester.setLevel(LoggerLevel.DEBUG);
+
     tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).containsOnlyOnce("'src" + File.separator + "myfile.binary' indexed with language 'null'");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/myfile.binary' generating issue exclusions");
-    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/sample.xoo' generating issue exclusions");
+    assertThat(logTester.logs()).containsOnlyOnce("'src" + File.separator + "myfile.binary' indexed with language 'null'");
+    assertThat(logTester.logs()).doesNotContain("'src/myfile.binary' generating issue exclusions");
+    assertThat(logTester.logs()).containsOnlyOnce("'src/sample.xoo' generating issue exclusions");
   }
 
   @Test
@@ -363,14 +375,16 @@ public class FileSystemMediumTest {
     File unknownFile = new File(srcDir, "myfile.binary");
     FileUtils.write(unknownFile, "some text");
 
+    logTester.setLevel(LoggerLevel.DEBUG);
+
     tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
 
-    assertThat(logs.getAllAsString()).containsOnlyOnce("- Exclusion pattern 'pattern'");
-    assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' generating issue exclusions");
+    assertThat(logTester.logs()).containsOnlyOnce("- Exclusion pattern 'pattern': every issue in this file will be ignored.");
+    assertThat(logTester.logs()).containsOnlyOnce("'src/myfile.binary' generating issue exclusions");
   }
 
   @Test
@@ -526,6 +540,84 @@ public class FileSystemMediumTest {
   }
 
   @Test
+  public void warn_user_for_outdated_inherited_exclusions_for_multi_module_project() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sample.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sample.xoo");
+    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.exclusions", "src/sample.xoo")
+        .build())
+      .execute();
+
+    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
+    assertThat(fileA).isNull();
+
+    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
+    assertThat(fileB).isNull();
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("File 'moduleB/src/sample.xoo' was excluded because patterns are still evaluated using module relative paths but this is deprecated. " +
+      "Please update file inclusion/exclusion configuration so that patterns refer to project relative paths.");
+  }
+
+  @Test
+  public void warn_user_for_outdated_module_exclusions_for_multi_module_project() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sample.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sample.xoo");
+    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("moduleB.sonar.exclusions", "src/sample.xoo")
+        .build())
+      .execute();
+
+    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
+    assertThat(fileA).isNotNull();
+
+    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
+    assertThat(fileB).isNull();
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Defining inclusion/exclusions at module level is deprecated. " +
+        "Move file inclusion/exclusion configuration from module 'moduleB' to the root project and update patterns to refer to project relative paths.");
+  }
+
+  @Test
   public void failForDuplicateInputFile() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -639,7 +731,7 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
-    assertThat(logs.get("INFO")).contains(
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains(
       "Global Sensor: module_a/module_a1/src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
       "Global Sensor: module_a/module_a2/src/main/xoo/com/sonar/it/samples/modules/a2/HelloA2.xoo",
       "Global Sensor: module_b/module_b1/src/main/xoo/com/sonar/it/samples/modules/b1/HelloB1.xoo",

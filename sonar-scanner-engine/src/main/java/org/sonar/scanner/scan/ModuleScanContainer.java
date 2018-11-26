@@ -22,7 +22,6 @@ package org.sonar.scanner.scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
@@ -33,12 +32,6 @@ import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.issue.ModuleIssueFilters;
 import org.sonar.scanner.issue.ModuleIssues;
-import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
-import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
-import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
-import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.phases.AbstractModulePhaseExecutor;
 import org.sonar.scanner.phases.IssuesPhaseExecutor;
 import org.sonar.scanner.phases.ModuleCoverageExclusions;
@@ -49,10 +42,6 @@ import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.scanner.scan.filesystem.ExclusionFilters;
-import org.sonar.scanner.scan.filesystem.FileIndexer;
-import org.sonar.scanner.scan.filesystem.InputFileBuilder;
-import org.sonar.scanner.scan.filesystem.MetadataGenerator;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorContext;
@@ -105,13 +94,7 @@ public class ModuleScanContainer extends ComponentContainer {
       // file system
       ModuleInputComponentStore.class,
       FileExclusions.class,
-      ExclusionFilters.class,
-      MetadataGenerator.class,
-      FileMetadata.class,
-      FileIndexer.class,
-      InputFileBuilder.class,
       DefaultModuleFileSystem.class,
-      QProfileVerifier.class,
 
       SensorOptimizer.class,
       PostJobOptimizer.class,
@@ -125,14 +108,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // issues
       ModuleIssues.class,
-
-      // issue exclusions
-      IssueInclusionPatternInitializer.class,
-      IssueExclusionPatternInitializer.class,
-      PatternMatcher.class,
-      IssueExclusionsLoader.class,
-      EnforceIssuesFilter.class,
-      IgnoreIssuesFilter.class,
 
       // Perspectives
       ScannerPerspectives.class,

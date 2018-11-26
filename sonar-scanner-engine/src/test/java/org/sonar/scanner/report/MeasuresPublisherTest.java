@@ -69,7 +69,7 @@ public class MeasuresPublisherTest {
     String projectKey = "foo";
     project = TestInputFileBuilder.newDefaultInputProject(projectKey, temp.newFolder());
     inputFile = new TestInputFileBuilder(projectKey, "src/Foo.php").setPublish(true).build();
-    InputComponentStore componentCache = new InputComponentStore(project, mock(BranchConfiguration.class));
+    InputComponentStore componentCache = new InputComponentStore(mock(BranchConfiguration.class));
     componentCache.put(projectKey, inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());

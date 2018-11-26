@@ -37,7 +37,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
-import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 /**
@@ -55,11 +54,9 @@ public class InputComponentStore {
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
-  private final InputProject project;
   private final BranchConfiguration branchConfiguration;
 
-  public InputComponentStore(InputProject project, BranchConfiguration branchConfiguration) {
-    this.project = project;
+  public InputComponentStore(BranchConfiguration branchConfiguration) {
     this.branchConfiguration = branchConfiguration;
   }
 
@@ -83,7 +80,7 @@ public class InputComponentStore {
       ::iterator;
   }
 
-  public Iterable<InputFile> allFiles() {
+  public Collection<InputFile> allFiles() {
     return globalInputFileCache.values();
   }
 

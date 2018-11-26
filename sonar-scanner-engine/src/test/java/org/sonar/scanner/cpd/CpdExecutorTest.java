@@ -90,7 +90,7 @@ public class CpdExecutorTest {
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
 
     DefaultInputProject project = TestInputFileBuilder.newDefaultInputProject("foo", baseDir);
-    componentStore = new InputComponentStore(project, mock(BranchConfiguration.class));
+    componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     executor = new CpdExecutor(settings, index, publisher, componentStore, executorService);
     reader = new ScannerReportReader(outputDir);
 

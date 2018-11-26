@@ -22,6 +22,7 @@ package org.sonar.scanner.scan;
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -50,6 +51,12 @@ import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.issue.DefaultProjectIssues;
 import org.sonar.scanner.issue.IssueCache;
+import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
+import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
+import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.scanner.issue.tracking.IssueTransition;
 import org.sonar.scanner.issue.tracking.LocalIssueTracking;
@@ -85,6 +92,7 @@ import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.ActiveRulesProvider;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
 import org.sonar.scanner.rule.DefaultRulesLoader;
+import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -92,8 +100,12 @@ import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
+import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
+import org.sonar.scanner.scan.filesystem.MetadataGenerator;
+import org.sonar.scanner.scan.filesystem.ProjectExclusionFilters;
+import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
@@ -165,11 +177,18 @@ public class ProjectScanContainer extends ComponentContainer {
       new ScmChangedFilesProvider(),
       StatusDetection.class,
       LanguageDetection.class,
+      MetadataGenerator.class,
+      FileMetadata.class,
+      FileIndexer.class,
+      ProjectFileIndexer.class,
+      ProjectExclusionFilters.class,
+
 
       // rules
       new ActiveRulesProvider(),
       new QualityProfilesProvider(),
       CheckFactory.class,
+      QProfileVerifier.class,
 
       // issues
       IssueCache.class,
@@ -190,6 +209,14 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Measures
       MeasureCache.class,
+
+      // issue exclusions
+      IssueInclusionPatternInitializer.class,
+      IssueExclusionPatternInitializer.class,
+      PatternMatcher.class,
+      IssueExclusionsLoader.class,
+      EnforceIssuesFilter.class,
+      IgnoreIssuesFilter.class,
 
       // context
       ContextPropertiesCache.class,
@@ -289,6 +316,11 @@ public class ProjectScanContainer extends ComponentContainer {
     } else if (branchConfig.branchName() != null) {
       LOG.info("Branch name: {}, type: {}", branchConfig.branchName(), branchTypeToDisplayName(branchConfig.branchType()));
     }
+
+    getComponentByType(ProjectFileIndexer.class).index();
+
+    // Log detected languages and their profiles after FS is indexed and languages detected
+    getComponentByType(QProfileVerifier.class).execute();
 
     LOG.debug("Start recursive analysis of project modules");
     scanRecursively(tree, tree.root(), analysisMode);

@@ -58,7 +58,7 @@ public class SourcePublisherTest {
       .build();
 
     DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(moduleKey, baseDir);
-    InputComponentStore componentStore = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
+    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     componentStore.put(moduleKey, inputFile);
 
     publisher = new SourcePublisher(componentStore);

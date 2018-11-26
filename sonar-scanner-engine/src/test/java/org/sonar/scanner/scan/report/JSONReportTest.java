@@ -79,7 +79,7 @@ public class JSONReportTest {
 
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setWorkDir(temp.newFolder()).setKey("struts");
     DefaultInputProject project = new DefaultInputProject(def, 1);
-    InputComponentStore inputComponentStore = new InputComponentStore(project, mock(BranchConfiguration.class));
+    InputComponentStore inputComponentStore = new InputComponentStore(mock(BranchConfiguration.class));
 
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java")
       .setModuleBaseDir(projectBaseDir.toPath()).build();

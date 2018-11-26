@@ -60,7 +60,7 @@ public class InputComponentStoreTest {
     DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore store = new InputComponentStore(rootProject, mock(BranchConfiguration.class));
+    InputComponentStore store = new InputComponentStore(mock(BranchConfiguration.class));
     store.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -96,7 +96,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-      super(TestInputFileBuilder.newDefaultInputProject("root", temp.newFolder()), mock(BranchConfiguration.class));
+      super(mock(BranchConfiguration.class));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {

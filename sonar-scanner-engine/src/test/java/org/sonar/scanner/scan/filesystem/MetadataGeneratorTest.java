@@ -31,10 +31,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.PathUtils;
@@ -64,8 +62,7 @@ public class MetadataGeneratorTest {
     MockitoAnnotations.initMocks(this);
     metadata = new FileMetadata();
     IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(PatternMatcher.class));
-    generator = new MetadataGenerator(new DefaultInputModule(ProjectDefinition.create().setKey("module").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())),
-      statusDetection, metadata, issueExclusionsLoader);
+    generator = new MetadataGenerator(statusDetection, metadata, issueExclusionsLoader);
   }
 
   @Test
@@ -94,7 +91,7 @@ public class MetadataGeneratorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", relativePath)
       .setModuleBaseDir(baseDir)
       .build();
-    generator.setMetadata(inputFile, StandardCharsets.US_ASCII);
+    generator.setMetadata("module", inputFile, StandardCharsets.US_ASCII);
     return inputFile;
   }
 
