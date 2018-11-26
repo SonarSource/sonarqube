@@ -53,7 +53,7 @@ public class ExternalIssuesMediumTest {
 
   @Test
   public void testOneIssuePerLine() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
@@ -76,7 +76,7 @@ public class ExternalIssuesMediumTest {
 
   @Test
   public void testOneIssuePerLine_register_ad_hoc_rule() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
@@ -105,7 +105,7 @@ public class ExternalIssuesMediumTest {
 
   @Test
   public void testLoadIssuesFromJsonReport() throws URISyntaxException, IOException {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 

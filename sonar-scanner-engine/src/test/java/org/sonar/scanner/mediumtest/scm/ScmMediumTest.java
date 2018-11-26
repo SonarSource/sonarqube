@@ -320,8 +320,8 @@ public class ScmMediumTest {
     assertThat(file1Scm).isNotNull();
   }
 
-  private String getNonAsciiAuthor() throws URISyntaxException {
-    return Files.contentOf(new File(this.getClass().getResource("/mediumtest/blameAuthor.txt").toURI()), StandardCharsets.UTF_8);
+  private String getNonAsciiAuthor() {
+    return Files.contentOf(new File("test-resources/mediumtest/blameAuthor.txt"), StandardCharsets.UTF_8);
 
   }
 

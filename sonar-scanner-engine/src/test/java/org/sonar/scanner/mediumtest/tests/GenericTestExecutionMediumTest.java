@@ -101,7 +101,7 @@ public class GenericTestExecutionMediumTest {
   @Test
   public void singleReport() throws IOException {
 
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-test-exec");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-test-exec");
 
     TaskResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))
@@ -146,7 +146,7 @@ public class GenericTestExecutionMediumTest {
   @Test
   public void twoReports() throws IOException {
 
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-test-exec");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-test-exec");
 
     TaskResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))

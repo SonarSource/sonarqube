@@ -617,7 +617,7 @@ public class FileSystemMediumTest {
   @Test
   public void scanProjectWithSourceSymlink() {
     assumeTrue(!System2.INSTANCE.isOsWindows());
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-with-symlink");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-symlink");
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .execute();
@@ -632,7 +632,7 @@ public class FileSystemMediumTest {
   public void scanProjectWithWrongCase() {
     // To please the quality gate, don't use assumeTrue, or the test will be reported as skipped
     if (System2.INSTANCE.isOsWindows()) {
-      File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
+      File projectDir = new File("test-resources/mediumtest/xoo/sample");
       TaskResult result = tester
         .newScanTask(new File(projectDir, "sonar-project.properties"))
         .property("sonar.sources", "XOURCES")
@@ -672,7 +672,7 @@ public class FileSystemMediumTest {
 
   @Test
   public void scanMultiModuleProject() {
-    File projectDir = new File("src/test/resources/mediumtest/xoo/multi-modules-sample");
+    File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .execute();
@@ -683,7 +683,7 @@ public class FileSystemMediumTest {
 
   @Test
   public void global_sensor_should_see_project_relative_paths() {
-    File projectDir = new File("src/test/resources/mediumtest/xoo/multi-modules-sample");
+    File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .property(GlobalSensor.ENABLE_PROP, "true")

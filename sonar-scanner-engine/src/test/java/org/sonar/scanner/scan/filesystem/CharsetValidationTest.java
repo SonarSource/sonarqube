@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -49,8 +48,8 @@ public class CharsetValidationTest {
   }
 
   @Test
-  public void testWithSourceCode() throws IOException, URISyntaxException {
-    Path path = Paths.get(this.getClass().getClassLoader().getResource("mediumtest/xoo/sample/xources/hello/HelloJava.xoo").toURI());
+  public void testWithSourceCode() throws IOException {
+    Path path = Paths.get("test-resources/mediumtest/xoo/sample/xources/hello/HelloJava.xoo");
     List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
     String text = lines.stream().collect(StringBuffer::new, StringBuffer::append, StringBuffer::append).toString();
 

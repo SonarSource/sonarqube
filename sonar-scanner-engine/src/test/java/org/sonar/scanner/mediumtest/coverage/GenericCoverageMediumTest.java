@@ -45,7 +45,7 @@ public class GenericCoverageMediumTest {
   @Test
   public void singleReport() throws IOException {
 
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-coverage");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
     TaskResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))
@@ -87,7 +87,7 @@ public class GenericCoverageMediumTest {
   
   @Test
   public void warnAboutDeprecatedProperty() {
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-coverage");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
     tester
       .setLogOutput((msg, level) -> logs.add(msg))
@@ -102,7 +102,7 @@ public class GenericCoverageMediumTest {
   @Test
   public void twoReports() throws IOException {
 
-    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-generic-coverage");
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-generic-coverage");
 
     TaskResult result = tester
       .setLogOutput((msg, level) -> logs.add(msg))

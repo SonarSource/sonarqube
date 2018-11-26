@@ -52,7 +52,7 @@ public class IssuesMediumTest {
 
   @Test
   public void testOneIssuePerLine() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
@@ -72,7 +72,7 @@ public class IssuesMediumTest {
   
   @Test
   public void testOneExternalIssuePerLine() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
@@ -90,7 +90,7 @@ public class IssuesMediumTest {
 
   @Test
   public void findActiveRuleByInternalKey() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
@@ -105,7 +105,7 @@ public class IssuesMediumTest {
 
   @Test
   public void testOverrideQProfileSeverity() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
@@ -120,7 +120,7 @@ public class IssuesMediumTest {
 
   @Test
   public void testIssueExclusion() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
     File tmpDir = temp.newFolder();
     FileUtils.copyDirectory(projectDir, tmpDir);
 

@@ -110,14 +110,14 @@ public class IssueModeAndReportsMediumTest {
 
   private File copyProject(String path) throws Exception {
     File projectDir = temp.newFolder();
-    File originalProjectDir = new File(IssueModeAndReportsMediumTest.class.getResource(path).toURI());
+    File originalProjectDir = new File(path);
     FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
     return projectDir;
   }
 
   @Test
   public void testIssueTracking() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
+    File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -163,7 +163,7 @@ public class IssueModeAndReportsMediumTest {
 
   @Test
   public void testPostJob() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
+    File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))

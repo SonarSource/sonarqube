@@ -184,9 +184,9 @@ public class PathResolverTest {
   @Test
   public void supportSymlink() {
     PathResolver resolver = new PathResolver();
-    File rootDir = new File("src/test/resources/org/sonar/api/scan/filesystem/sample-with-symlink");
+    File rootDir = new File("test-resources/org/sonar/api/scan/filesystem/sample-with-symlink");
 
-    assertThat(resolver.relativePath(rootDir, new File("src/test/resources/org/sonar/api/scan/filesystem/sample-with-symlink/testx/ClassOneTest.java"))).isEqualTo(
+    assertThat(resolver.relativePath(rootDir, new File("test-resources/org/sonar/api/scan/filesystem/sample-with-symlink/testx/ClassOneTest.java"))).isEqualTo(
       "testx/ClassOneTest.java");
   }
 }

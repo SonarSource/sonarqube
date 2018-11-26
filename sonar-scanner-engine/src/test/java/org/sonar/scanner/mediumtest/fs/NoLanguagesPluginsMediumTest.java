@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.mediumtest.issuesmode.IssueModeAndReportsMediumTest;
 
 public class NoLanguagesPluginsMediumTest {
   @Rule
@@ -42,7 +41,7 @@ public class NoLanguagesPluginsMediumTest {
 
   @Test
   public void testNoLanguagePluginsInstalled() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
+    File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("No language plugins are installed");
@@ -54,7 +53,7 @@ public class NoLanguagesPluginsMediumTest {
 
   private File copyProject(String path) throws Exception {
     File projectDir = temp.newFolder();
-    File originalProjectDir = new File(IssueModeAndReportsMediumTest.class.getResource(path).toURI());
+    File originalProjectDir = new File(path);
     FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
     return projectDir;
   }

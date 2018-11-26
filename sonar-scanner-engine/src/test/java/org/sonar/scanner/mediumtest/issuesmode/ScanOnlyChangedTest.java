@@ -20,10 +20,8 @@
 package org.sonar.scanner.mediumtest.issuesmode;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -97,9 +95,9 @@ public class ScanOnlyChangedTest {
     .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo");
 
   @Before
-  public void prepare() throws IOException, URISyntaxException {
+  public void prepare() throws IOException {
     String filePath = "xources/hello/HelloJava.xoo";
-    Path path = Paths.get(Resources.getResource("mediumtest/xoo/sample/" + filePath).toURI());
+    Path path = Paths.get("test-resources/mediumtest/xoo/sample/" + filePath);
     String md5sum = new FileMetadata()
       .readMetadata(Files.newInputStream(path), StandardCharsets.UTF_8, filePath)
       .hash();
@@ -134,14 +132,14 @@ public class ScanOnlyChangedTest {
 
   private File copyProject(String path) throws Exception {
     File projectDir = temp.newFolder();
-    File originalProjectDir = new File(IssueModeAndReportsMediumTest.class.getResource(path).toURI());
+    File originalProjectDir = new File(path);
     FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
     return projectDir;
   }
 
   @Test
   public void testScanOnlyChangedFiles() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
+    File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
     TaskBuilder taskBuilder = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -169,7 +167,7 @@ public class ScanOnlyChangedTest {
 
   @Test
   public void testScanAll() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
+    File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
     TaskBuilder taskBuilder = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))

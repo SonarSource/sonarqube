@@ -52,7 +52,7 @@ public class MultilineIssuesMediumTest {
 
   @Before
   public void prepare() throws Exception {
-    File projectDir = new File(MultilineIssuesMediumTest.class.getResource("/mediumtest/xoo/sample-multiline").toURI());
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-multiline");
     File tmpDir = temp.getRoot();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
