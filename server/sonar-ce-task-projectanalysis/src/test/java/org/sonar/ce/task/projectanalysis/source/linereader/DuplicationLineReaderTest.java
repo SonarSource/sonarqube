@@ -68,6 +68,23 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
+  public void read_duplication_with_repeated_text_blocks() {
+    DuplicationLineReader reader = duplicationLineReader(
+      duplication(1, 2, innerDuplicate(3, 4)),
+      duplication(3, 4, innerDuplicate(1, 2)));
+
+    assertThat(reader.read(line1)).isEmpty();
+    assertThat(reader.read(line2)).isEmpty();
+    assertThat(reader.read(line3)).isEmpty();
+    assertThat(reader.read(line4)).isEmpty();
+
+    assertThat(line1.getDuplicationList()).containsExactly(1);
+    assertThat(line2.getDuplicationList()).containsExactly(1);
+    assertThat(line3.getDuplicationList()).containsExactly(3);
+    assertThat(line4.getDuplicationList()).containsExactly(3);
+  }
+
+  @Test
   public void read_duplication_with_duplicates_on_other_file() {
     DuplicationLineReader reader = duplicationLineReader(
       duplication(

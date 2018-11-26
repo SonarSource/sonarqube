@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.duplication.Duplicate;
 import org.sonar.ce.task.projectanalysis.duplication.Duplication;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -71,7 +70,7 @@ public class DuplicationLineReader implements LineReader {
   private static Map<TextBlock, Integer> createIndexOfDuplicatedTextBlocks(Iterable<Duplication> duplications) {
     return extractAllDuplicatedTextBlocks(duplications)
       .stream().sorted()
-      .collect(Collectors.toMap(e -> e, new TextBlockIndexGenerator(), MoreCollectors.mergeNotSupportedMerger(), LinkedHashMap::new));
+      .collect(Collectors.toMap(e -> e, new TextBlockIndexGenerator(), (a, b) -> a, LinkedHashMap::new));
   }
 
   /**
