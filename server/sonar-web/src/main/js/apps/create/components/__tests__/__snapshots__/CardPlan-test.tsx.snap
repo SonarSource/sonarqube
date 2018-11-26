@@ -94,7 +94,7 @@ exports[`#PaidCardPlan should render correctly 1`] = `
     >
       <CheckIcon
         className="spacer-right"
-        fill="#00aa00"
+        fill="#b0d513"
       />
       billing.upgrade_box.unlimited_private_projects
     </li>
@@ -104,7 +104,7 @@ exports[`#PaidCardPlan should render correctly 1`] = `
     >
       <CheckIcon
         className="spacer-right"
-        fill="#00aa00"
+        fill="#b0d513"
       />
       billing.upgrade_box.strict_control_private_data
     </li>
@@ -114,7 +114,7 @@ exports[`#PaidCardPlan should render correctly 1`] = `
     >
       <CheckIcon
         className="spacer-right"
-        fill="#00aa00"
+        fill="#b0d513"
       />
       billing.upgrade_box.cancel_anytime
     </li>
@@ -124,9 +124,13 @@ exports[`#PaidCardPlan should render correctly 1`] = `
     >
       <CheckIcon
         className="spacer-right"
-        fill="#00aa00"
+        fill="#b0d513"
       />
-      billing.upgrade_box.free_trial
+      <strong
+        key="trial"
+      >
+        billing.upgrade_box.free_trial_x.14
+      </strong>
     </li>
   </ul>
   <div
@@ -139,7 +143,7 @@ exports[`#PaidCardPlan should render correctly 1`] = `
       target="_blank"
       to="/documentation/sonarcloud-pricing/"
     >
-      learn_more
+      billing.pricing.learn_more
     </Link>
   </div>
 </CardPlan>

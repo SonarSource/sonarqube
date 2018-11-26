@@ -24,8 +24,8 @@ import { Link } from 'react-router';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
 import RecommendedIcon from '../../../components/icons-components/RecommendedIcon';
 import { Alert } from '../../../components/ui/Alert';
-import { formatPrice } from '../organization/utils';
-import { translate } from '../../../helpers/l10n';
+import { formatPrice, TRIAL_DURATION_DAYS } from '../organization/utils';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import * as theme from '../../../app/theme';
 import './CardPlan.css';
 
@@ -139,7 +139,9 @@ export function PaidCardPlan({ isRecommended, ...props }: PaidProps) {
     translate('billing.upgrade_box.unlimited_private_projects'),
     translate('billing.upgrade_box.strict_control_private_data'),
     translate('billing.upgrade_box.cancel_anytime'),
-    translate('billing.upgrade_box.free_trial')
+    <strong key="trial">
+      {translateWithParameters('billing.upgrade_box.free_trial_x', TRIAL_DURATION_DAYS)}
+    </strong>
   ];
 
   return (
@@ -151,14 +153,14 @@ export function PaidCardPlan({ isRecommended, ...props }: PaidProps) {
         <ul className="note">
           {advantages.map((text, idx) => (
             <li className="display-flex-center" key={idx}>
-              <CheckIcon className="spacer-right" fill={theme.green} />
+              <CheckIcon className="spacer-right" fill={theme.lightGreen} />
               {text}
             </li>
           ))}
         </ul>
         <div className="big-spacer-left">
           <Link className="spacer-left" target="_blank" to="/documentation/sonarcloud-pricing/">
-            {translate('learn_more')}
+            {translate('billing.pricing.learn_more')}
           </Link>
         </div>
       </>
