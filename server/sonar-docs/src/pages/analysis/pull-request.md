@@ -53,7 +53,7 @@ For GitHub Enterprise or GitHub.com, you need to configure the **Authentication 
 #### Pull Request Provider
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
-| `sonar.pullrequest.provider` | `github` or `vsts` or `bitbucketcloud`<br/> This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.|
+| `sonar.pullrequest.provider` | `github` or `vsts` <!-- sonarcloud -->or `bitbucketcloud`<!-- /sonarcloud -->. This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". <!-- sonarcloud -->Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->|
 
 #### GitHub Parameters
 | Parameter Name        | Description |
@@ -63,11 +63,13 @@ For GitHub Enterprise or GitHub.com, you need to configure the **Authentication 
 
 Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
 
+<!-- sonarcloud -->
 #### Bitbucket Cloud Parameters
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
 | `sonar.pullrequest.bitbucketcloud.repository` | SLUG or UUID of the Bitbucket Cloud Repo |
 | `sonar.pullrequest.bitbucketcloud.owner` | SLUG or UUID of the Bitbucket Cloud Owner |
+<!-- /sonarcloud -->
 
 <!-- sonarqube -->
 #### Issue links
