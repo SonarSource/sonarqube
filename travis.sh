@@ -64,6 +64,7 @@ cancel_branch_build_with_pr || if [[ $? -eq 1 ]]; then exit 0; fi
 case "$TARGET" in
 
 BUILD)
+  git fetch --unshallow
   installJdk8
   ./gradlew build sonarqube --no-daemon --console plain \
   -PjacocoEnabled=true \
