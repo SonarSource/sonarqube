@@ -164,7 +164,7 @@ public class SearchAction implements OrganizationsWsAction {
     setNullable(organization.getDescription(), builder::setDescription);
     setNullable(organization.getUrl(), builder::setUrl);
     setNullable(organization.getAvatarUrl(), builder::setAvatar);
-    if (organizationAlmBinding != null) {
+    if (onlyMembershipOrganizations && organizationAlmBinding != null) {
       builder.setAlm(Organization.Alm.newBuilder()
         .setKey(organizationAlmBinding.getAlm().getId())
         .setUrl(organizationAlmBinding.getUrl()));

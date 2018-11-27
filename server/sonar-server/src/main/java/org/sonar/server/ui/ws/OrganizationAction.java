@@ -20,6 +20,7 @@
 package org.sonar.server.ui.ws;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -29,6 +30,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.BillingValidations;
@@ -101,13 +103,13 @@ public class OrganizationAction implements NavigationWsAction {
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeOrganization(json, organization, newProjectPrivate);
+      writeOrganization(json, organization, dbClient.organizationAlmBindingDao().selectByOrganization(dbSession, organization), newProjectPrivate);
       json.endObject()
         .close();
     }
   }
 
-  private void writeOrganization(JsonWriter json, OrganizationDto organization, boolean newProjectPrivate) {
+  private void writeOrganization(JsonWriter json, OrganizationDto organization, Optional<OrganizationAlmBindingDto> organizationAlmBinding, boolean newProjectPrivate) {
     json.name("organization")
       .beginObject()
       .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
@@ -116,6 +118,7 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("canUpdateProjectsVisibilityToPrivate",
         userSession.hasPermission(ADMINISTER, organization) &&
           billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid())));
+    writeAlm(json, organizationAlmBinding);
     json.name("pages");
     writePages(json, pageRepository.getOrganizationPages(false));
     if (userSession.hasPermission(ADMINISTER, organization)) {
@@ -132,5 +135,15 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("name", p.getName())
       .endObject());
     json.endArray();
+  }
+
+  private static void writeAlm(JsonWriter json, Optional<OrganizationAlmBindingDto> organizationAlmBindingOpt) {
+    organizationAlmBindingOpt.ifPresent(
+      organizationAlmBinding -> json
+        .name("alm")
+        .beginObject()
+        .prop("key", organizationAlmBinding.getAlm().getId())
+        .prop("url", organizationAlmBinding.getUrl())
+        .endObject());
   }
 }

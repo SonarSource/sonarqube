@@ -261,13 +261,17 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_alm_info() {
+  public void return_alm_info_when_member_parameter_is_set_to_true() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
     OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
     OrganizationDto organizationNotBoundToAlm = db.organizations().insert();
+    db.organizations().addMember(organization, user);
+    db.organizations().addMember(organizationNotBoundToAlm, user);
 
-    SearchWsResponse result = call(ws.newRequest());
+    SearchWsResponse result = call(ws.newRequest().setParam("member", "true"));
 
     Map<String, Organization> orgByKey = result.getOrganizationsList().stream().collect(toMap(Organization::getKey, identity()));
     assertThat(orgByKey.get(organization.getKey()).getAlm().getKey()).isEqualTo(organizationAlmBinding.getAlm().getId());
@@ -276,14 +280,30 @@ public class SearchActionTest {
   }
 
   @Test
+  public void do_not_return_alm_info_when_no_member_parameter() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationDto organizationNotBoundToAlm = db.organizations().insert();
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getOrganizationsList())
+      .extracting(Organization::getKey, Organization::hasAlm)
+      .containsExactlyInAnyOrder(
+        tuple(organization.getKey(), false),
+        tuple(organizationNotBoundToAlm.getKey(), false));
+  }
+
+  @Test
   public void return_subscription_info_when_member_parameter_is_set_to_true() {
     UserDto user = db.users().insertUser();
+    userSession.logIn(user);
     OrganizationDto organization1 = db.organizations().insert(o -> o.setSubscription(FREE));
     OrganizationDto organization2 = db.organizations().insert(o -> o.setSubscription(PAID));
     OrganizationDto organization3 = db.organizations().insert(o -> o.setSubscription(PAID));
     db.organizations().addMember(organization1, user);
     db.organizations().addMember(organization2, user);
-    userSession.logIn(user);
 
     SearchWsResponse result = call(ws.newRequest().setParam("member", "true"));
 
@@ -295,7 +315,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void subscription_info_is_not_returned_when_no_member_parameter() {
+  public void do_not_return_subscription_info_when_no_member_parameter() {
     UserDto user = db.users().insertUser();
     OrganizationDto organization1 = db.organizations().insert(o -> o.setSubscription(FREE));
     OrganizationDto organization2 = db.organizations().insert(o -> o.setSubscription(PAID));

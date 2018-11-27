@@ -33,6 +33,8 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.AlmAppInstallDto;
+import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.BillingValidations;
@@ -95,7 +97,10 @@ public class OrganizationActionTest {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, true);
     userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
-    assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"private\"}}");
+
+    TestResponse response = executeRequest(organization);
+
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"private\"}}");
   }
 
   @Test
@@ -103,7 +108,10 @@ public class OrganizationActionTest {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, false);
     userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
-    assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"public\"}}");
+
+    TestResponse response = executeRequest(organization);
+
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"public\"}}");
   }
 
   @Test
@@ -124,61 +132,75 @@ public class OrganizationActionTest {
   }
 
   @Test
-  public void return_subscription_flag() {
+  public void return_FREE_subscription_flag() {
     OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
-    assertJson(executeRequest(freeOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"FREE\"}}");
 
+    TestResponse response = executeRequest(freeOrganization);
+
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"FREE\"}}");
+  }
+
+  @Test
+  public void return_SONARQUBE_subscription_flag() {
     OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
-    assertJson(executeRequest(sonarQubeOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"SONARQUBE\"}}");
 
+    TestResponse response = executeRequest(sonarQubeOrganization);
+
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"SONARQUBE\"}}");
+  }
+
+  @Test
+  public void return_PAID_subscription_flag() {
     OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    userSession.logIn().addMembership(paidOrganization);
 
-    userSession.logIn()
-      .addMembership(paidOrganization);
+    TestResponse response = executeRequest(paidOrganization);
 
-    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
   }
 
   @Test
-  public void do_not_throws_FE_when_not_member_on_free_organization() {
-    OrganizationDto freeOrganization = db.organizations().insert(o -> o.setSubscription(FREE));
-    executeRequest(freeOrganization).getInput();
-  }
-
-  @Test
-  public void do_not_throws_FE_when_not_member_on_sonarqube_organization() {
-    OrganizationDto sonarQubeOrganization = db.organizations().insert(o -> o.setSubscription(SONARQUBE));
-    executeRequest(sonarQubeOrganization).getInput();
-  }
-
-  @Test
-  public void throws_FE_when_not_member_on_private_organization() {
+  public void return_PAID_subscription_flag_when_not_member_on_private_organization_with_public_project() {
     OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    db.components().insertPublicProject(paidOrganization);
+    userSession.anonymous();
+
+    TestResponse response = executeRequest(paidOrganization);
+
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+  }
+
+  @Test
+  public void throw_FE_when_not_member_on_private_organization_and_no_public_project() {
+    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
+    db.components().insertPrivateProject(paidOrganization);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("You're not member of organization");
-    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+
+    executeRequest(paidOrganization);
   }
 
   @Test
-  public void do_no_throws_FE_when_not_member_on_private_organization_with_public_project() {
-    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
-    db.components().insertPublicProject(paidOrganization);
+  public void return_alm_binding() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
 
-    assertJson(executeRequest(paidOrganization).getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
+    TestResponse response = executeRequest(organization);
+
+    assertJson(response.getInput()).isSimilarTo("{\"organization\": " +
+      "  {" +
+      "    \"alm\": {" +
+      "      \"key\": \"" + organizationAlmBinding.getAlm().getId() + "\"," +
+      "      \"url\": \"" + organizationAlmBinding.getUrl() + "\"" +
+      "    }" +
+      "  }" +
+      "}");
   }
 
   @Test
-  public void return_information_when_member_of_the_organization() {
-    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
-    userSession.logIn()
-      .addMembership(paidOrganization);
-
-    executeRequest(paidOrganization).getInput();
-  }
-
-  @Test
-  public void fails_with_IAE_if_parameter_organization_is_not_specified() {
+  public void fail_with_IAE_if_parameter_organization_is_not_specified() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'organization' parameter is missing");
 
@@ -197,8 +219,7 @@ public class OrganizationActionTest {
 
     TestResponse response = executeRequest(organization);
 
-    assertJson(response.getInput())
-      .isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(response.getInput()).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
