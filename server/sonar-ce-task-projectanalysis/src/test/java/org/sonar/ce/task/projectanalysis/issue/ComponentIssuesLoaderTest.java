@@ -19,13 +19,17 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +50,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -219,6 +224,142 @@ public class ComponentIssuesLoaderTest {
     assertThat(underTest.loadClosedIssues(componentUuid)).isEmpty();
 
     verifyZeroInteractions(dbClient, system2);
+  }
+
+  @Test
+  public void loadLatestDiffChangesForReopeningOfClosedIssues_does_not_query_DB_if_issue_list_is_empty() {
+    DbClient dbClient = mock(DbClient.class);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
+      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(emptyList());
+
+    verifyZeroInteractions(dbClient, system2);
+  }
+
+  @Test
+  @UseDataProvider("statusOrResolutionFieldName")
+  public void loadLatestDiffChangesForReopeningOfClosedIssues_add_diff_change_with_most_recent_status_or_resolution(String statusOrResolutionFieldName) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    IssueDto issue = dbTester.issues().insert(rule, project, file);
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val1")).setIssueChangeCreationDate(5));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val2")).setIssueChangeCreationDate(20));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val3")).setIssueChangeCreationDate(13));
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
+      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
+
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(ImmutableList.of(defaultIssue));
+
+    assertThat(defaultIssue.changes())
+      .hasSize(1);
+    assertThat(defaultIssue.changes())
+      .extracting(t -> t.get(statusOrResolutionFieldName))
+      .filteredOn(t -> hasValue(t, "val2"))
+      .hasSize(1);
+  }
+
+  @Test
+  public void loadLatestDiffChangesForReopeningOfClosedIssues_add_single_diff_change_when_most_recent_status_and_resolution_is_the_same_diff() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    IssueDto issue = dbTester.issues().insert(rule, project, file);
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2")).setIssueChangeCreationDate(19));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3", "resolution", "valRes3")).setIssueChangeCreationDate(20));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
+      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
+
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(ImmutableList.of(defaultIssue));
+
+    assertThat(defaultIssue.changes())
+      .hasSize(1);
+    assertThat(defaultIssue.changes())
+      .extracting(t -> t.get("status"))
+      .filteredOn(t -> hasValue(t, "valStatus3"))
+      .hasSize(1);
+    assertThat(defaultIssue.changes())
+      .extracting(t -> t.get("resolution"))
+      .filteredOn(t -> hasValue(t, "valRes3"))
+      .hasSize(1);
+  }
+
+  @Test
+  public void loadLatestDiffChangesForReopeningOfClosedIssues_adds_2_diff_changes_if_most_recent_status_and_resolution_are_not_the_same_diff() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    IssueDto issue = dbTester.issues().insert(rule, project, file);
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2", "resolution", "valRes2")).setIssueChangeCreationDate(19));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3")).setIssueChangeCreationDate(20));
+    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
+      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
+
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(ImmutableList.of(defaultIssue));
+
+    assertThat(defaultIssue.changes())
+      .hasSize(2);
+    assertThat(defaultIssue.changes())
+      .extracting(t -> t.get("status"))
+      .filteredOn(t -> hasValue(t, "valStatus3"))
+      .hasSize(1);
+    assertThat(defaultIssue.changes())
+      .extracting(t -> t.get("resolution"))
+      .filteredOn(t -> hasValue(t, "valRes2"))
+      .hasSize(1);
+  }
+
+  private static boolean hasValue(@Nullable FieldDiffs.Diff t, String value) {
+    if (t == null) {
+      return false;
+    }
+    return (t.oldValue() == null || value.equals(t.oldValue())) && (t.newValue() == null || value.equals(t.newValue()));
+  }
+
+  @DataProvider
+  public static Object[][] statusOrResolutionFieldName() {
+    return new Object[][] {
+      {"status"},
+      {"resolution"},
+    };
+  }
+
+  private static String randomDiffWith(String... fieldsAndValues) {
+    Random random = new Random();
+    List<Diff> diffs = new ArrayList<>();
+    for (int i = 0; i < fieldsAndValues.length; i++) {
+      int oldOrNew = random.nextInt(3);
+      String value = fieldsAndValues[i + 1];
+      diffs.add(new Diff(fieldsAndValues[i], oldOrNew <= 2 ? value : null, oldOrNew >= 2 ? value : null));
+      i++;
+    }
+    IntStream.range(0, random.nextInt(5))
+      .forEach(i -> diffs.add(new Diff(randomAlphabetic(10), random.nextBoolean() ? null : randomAlphabetic(11), random.nextBoolean() ? null : randomAlphabetic(12))));
+    Collections.shuffle(diffs);
+
+    FieldDiffs res = new FieldDiffs();
+    diffs.forEach(diff -> res.setDiff(diff.field, diff.oldValue, diff.newValue));
+    return res.toEncodedString();
+  }
+
+  private static final class Diff {
+    private final String field;
+    private final String oldValue;
+    private final String newValue;
+
+    private Diff(String field, @Nullable String oldValue, @Nullable String newValue) {
+      this.field = field;
+      this.oldValue = oldValue;
+      this.newValue = newValue;
+    }
   }
 
   private static FieldDiffs newToClosedDiffsWithLine(Date creationDate, @Nullable Integer oldLineValue) {

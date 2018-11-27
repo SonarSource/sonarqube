@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -74,7 +75,7 @@ public class IssueTesting {
 
   public static IssueChangeDto newIssuechangeDto(IssueDto issue) {
     return new IssueChangeDto()
-      .setKey("uuid_" + randomAlphabetic(10))
+      .setKey(UuidFactoryFast.getInstance().create())
       .setIssueKey(issue.getKey())
       .setChangeData("data_" + randomAlphanumeric(40))
       .setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE)

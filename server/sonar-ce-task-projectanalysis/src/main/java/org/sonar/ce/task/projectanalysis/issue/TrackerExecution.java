@@ -67,7 +67,7 @@ public class TrackerExecution {
     Set<DefaultIssue> matchesClosedIssues = closedIssuesTracking.getMatchedRaws().values().stream()
       .filter(t -> Issue.STATUS_CLOSED.equals(t.getStatus()))
       .collect(MoreCollectors.toSet());
-    componentIssuesLoader.loadChanges(matchesClosedIssues);
+    componentIssuesLoader.loadLatestDiffChangesForReopeningOfClosedIssues(matchesClosedIssues);
 
     return closedIssuesTracking;
   }

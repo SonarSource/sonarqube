@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface IssueChangeMapper {
 
@@ -37,9 +38,13 @@ public interface IssueChangeMapper {
   /**
    * Issue changes by chronological date of creation
    */
-  List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") List<String> issueKeys,
-    @Param("changeType") String changeType);
+  List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") List<String> issueKeys, @Param("changeType") String changeType);
+
+  /**
+   * Scrolls through all changes with type {@link IssueChangeDto#TYPE_FIELD_CHANGE diff}, sorted by issue key and
+   * then change creation date.
+   */
+  void scrollDiffChangesOfIssues(@Param("issueKeys") List<String> issueKeys, ResultHandler<IssueChangeDto> handler);
 
   List<IssueChangeDto> selectByIssues(@Param("issueKeys") List<String> issueKeys);
-
 }

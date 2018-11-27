@@ -19,8 +19,12 @@
  */
 package org.sonar.db.issue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -28,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 
+import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -184,4 +189,70 @@ public class IssueChangeDaoTest {
           issueChange.getUpdatedAt()));
   }
 
+  @Test
+  public void scrollDiffChangesOfIssues_scrolls_only_diff_changes_of_selected_issues() {
+    IssueDto issue1 = db.issues().insertIssue();
+    IssueChangeDto diffChange1 = db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE));
+    db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_COMMENT));
+    IssueDto issue2 = db.issues().insertIssue();
+    IssueChangeDto diffChange2 = db.issues().insertChange(issue2, t -> t.setChangeType(TYPE_FIELD_CHANGE));
+    db.issues().insertChange(issue2, t -> t.setChangeType(TYPE_COMMENT));
+    IssueDto issue3 = db.issues().insertIssue();
+    IssueChangeDto diffChange31 = db.issues().insertChange(issue3, t -> t.setChangeType(TYPE_FIELD_CHANGE));
+    IssueChangeDto diffChange32 = db.issues().insertChange(issue3, t -> t.setChangeType(TYPE_FIELD_CHANGE));
+    db.issues().insertChange(issue3, t -> t.setChangeType(TYPE_COMMENT));
+    RecordingIssueChangeDtoResultHandler recordingHandler = new RecordingIssueChangeDtoResultHandler();
+
+    underTest.scrollDiffChangesOfIssues(db.getSession(), of(), recordingHandler.clear());
+    assertThat(recordingHandler.getDtoKeys()).isEmpty();
+    underTest.scrollDiffChangesOfIssues(db.getSession(), of("fooBarCacahuete"), recordingHandler.clear());
+    assertThat(recordingHandler.getDtoKeys()).isEmpty();
+
+    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue1.getKee()), recordingHandler.clear());
+    assertThat(recordingHandler.getDtoKeys()).containsOnly(diffChange1.getKey());
+
+    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue2.getKee()), recordingHandler.clear());
+    assertThat(recordingHandler.getDtoKeys()).containsOnly(diffChange2.getKey());
+
+    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue1.getKee(), issue3.getKee()), recordingHandler.clear());
+    assertThat(recordingHandler.getDtoKeys()).containsOnly(diffChange1.getKey(), diffChange31.getKey(), diffChange32.getKey());
+  }
+
+  @Test
+  public void scrollDiffChangesOfIssues_orders_changes_by_issue_and_then_creationDate() {
+    IssueDto issue1 = db.issues().insertIssue();
+    IssueChangeDto[] diffChanges = {
+      db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(1L).setIssueChangeCreationDate(50L)),
+      db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(2L).setIssueChangeCreationDate(20L)),
+      db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(3L).setIssueChangeCreationDate(30L)),
+      db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(4L).setIssueChangeCreationDate(80L)),
+      db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(5L).setIssueChangeCreationDate(10L)),
+    };
+    RecordingIssueChangeDtoResultHandler recordingHandler = new RecordingIssueChangeDtoResultHandler();
+    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue1.getKee()), recordingHandler.clear());
+    assertThat(recordingHandler.getDtoKeys()).containsExactly(
+      diffChanges[3].getKey(),
+      diffChanges[0].getKey(),
+      diffChanges[2].getKey(),
+      diffChanges[1].getKey(),
+      diffChanges[4].getKey());
+  }
+
+  private static class RecordingIssueChangeDtoResultHandler implements ResultHandler<IssueChangeDto> {
+    private final List<IssueChangeDto> dtos = new ArrayList<>();
+
+    @Override
+    public void handleResult(ResultContext<? extends IssueChangeDto> resultContext) {
+      dtos.add(resultContext.getResultObject());
+    }
+
+    public RecordingIssueChangeDtoResultHandler clear() {
+      dtos.clear();
+      return this;
+    }
+
+    public Stream<String> getDtoKeys() {
+      return dtos.stream().map(IssueChangeDto::getKey);
+    }
+  }
 }

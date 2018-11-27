@@ -48,6 +48,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class ComponentIssuesLoader {
   private static final int DEFAULT_CLOSED_ISSUES_MAX_AGE = 30;
@@ -95,16 +96,6 @@ public class ComponentIssuesLoader {
     }
   }
 
-  public void loadChanges(Collection<DefaultIssue> issues) {
-    if (issues.isEmpty()) {
-      return;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      loadChanges(dbSession, issues);
-    }
-  }
-
   public List<DefaultIssue> loadChanges(DbSession dbSession, Collection<DefaultIssue> issues) {
     Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
       .selectByIssueKeys(dbSession, issues.stream().map(DefaultIssue::key).collect(toList()))
@@ -115,6 +106,60 @@ public class ComponentIssuesLoader {
       .stream()
       .peek(i -> setChanges(changeDtoByIssueKey, i))
       .collect(toList());
+  }
+
+  /**
+   * Loads the most recent diff changes of the specified issues which contain the latest status and resolution of the
+   * issue.
+   */
+  public void loadLatestDiffChangesForReopeningOfClosedIssues(Collection<DefaultIssue> issues) {
+    if (issues.isEmpty()) {
+      return;
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      loadLatestDiffChangesForReopeningOfClosedIssues(dbSession, issues);
+    }
+  }
+
+  /**
+   * To be efficient both in term of memory and speed:
+   * <ul>
+   *   <li>only diff changes are loaded from DB, sorted by issue and then change creation date</li>
+   *   <li>data from DB is streamed</li>
+   *   <li>only the latest change(s) with status and resolution are added to the {@link DefaultIssue} objects</li>
+   * </ul>
+   */
+  private void loadLatestDiffChangesForReopeningOfClosedIssues(DbSession dbSession, Collection<DefaultIssue> issues) {
+    Map<String, DefaultIssue> issuesByKey = issues.stream().collect(uniqueIndex(DefaultIssue::key));
+
+    dbClient.issueChangeDao()
+      .scrollDiffChangesOfIssues(dbSession, issuesByKey.keySet(), new ResultHandler<IssueChangeDto>() {
+        private DefaultIssue currentIssue = null;
+        private boolean previousStatusFound = false;
+        private boolean previousResolutionFound = false;
+
+        @Override
+        public void handleResult(ResultContext<? extends IssueChangeDto> resultContext) {
+          IssueChangeDto issueChangeDto = resultContext.getResultObject();
+          if (currentIssue == null || !currentIssue.key().equals(issueChangeDto.getIssueKey())) {
+            currentIssue = issuesByKey.get(issueChangeDto.getIssueKey());
+            previousStatusFound = false;
+            previousResolutionFound = false;
+          }
+
+          if (currentIssue != null) {
+            FieldDiffs fieldDiffs = issueChangeDto.toFieldDiffs();
+            boolean hasPreviousStatus = fieldDiffs.get("status") != null;
+            boolean hasPreviousResolution = fieldDiffs.get("resolution") != null;
+            if ((!previousStatusFound && hasPreviousStatus) || (!previousResolutionFound && hasPreviousResolution)) {
+              currentIssue.addChange(fieldDiffs);
+            }
+            previousStatusFound |= hasPreviousStatus;
+            previousResolutionFound |= hasPreviousResolution;
+          }
+        }
+      });
   }
 
   private List<DefaultIssue> loadOpenIssues(String componentUuid, DbSession dbSession) {
@@ -137,18 +182,21 @@ public class ComponentIssuesLoader {
   }
 
   private static void setChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
-    changeDtoByIssueKey.computeIfAbsent(i.key(), k -> emptyList()).forEach(c -> {
-      switch (c.getChangeType()) {
-        case IssueChangeDto.TYPE_FIELD_CHANGE:
-          i.addChange(c.toFieldDiffs());
-          break;
-        case IssueChangeDto.TYPE_COMMENT:
-          i.addComment(c.toComment());
-          break;
-        default:
-          throw new IllegalStateException("Unknow change type: " + c.getChangeType());
-      }
-    });
+    changeDtoByIssueKey.computeIfAbsent(i.key(), k -> emptyList())
+      .forEach(c -> addChangeOrComment(i, c));
+  }
+
+  private static void addChangeOrComment(DefaultIssue i, IssueChangeDto c) {
+    switch (c.getChangeType()) {
+      case IssueChangeDto.TYPE_FIELD_CHANGE:
+        i.addChange(c.toFieldDiffs());
+        break;
+      case IssueChangeDto.TYPE_COMMENT:
+        i.addComment(c.toComment());
+        break;
+      default:
+        throw new IllegalStateException("Unknow change type: " + c.getChangeType());
+    }
   }
 
   private boolean isActive(RuleKey ruleKey) {

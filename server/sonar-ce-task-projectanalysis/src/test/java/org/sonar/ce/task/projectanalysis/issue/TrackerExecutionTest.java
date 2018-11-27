@@ -139,7 +139,7 @@ public class TrackerExecutionTest {
     assertThat(tracking).isSameAs(closedTracking);
     verify(tracker).trackNonClosed(rawInput, openIssuesInput);
     verify(tracker).trackClosed(nonClosedTracking, closedIssuesInput);
-    verify(componentIssuesLoader).loadChanges(mappedClosedIssues);
+    verify(componentIssuesLoader).loadLatestDiffChangesForReopeningOfClosedIssues(mappedClosedIssues);
     verifyNoMoreInteractions(tracker);
   }
 }

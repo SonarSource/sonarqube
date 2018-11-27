@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
@@ -29,6 +30,7 @@ import org.sonar.db.DbSession;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class IssueChangeDao implements Dao {
 
@@ -49,6 +51,14 @@ public class IssueChangeDao implements Dao {
 
   public Optional<IssueChangeDto> selectCommentByKey(DbSession session, String commentKey) {
     return Optional.ofNullable(mapper(session).selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT));
+  }
+
+  public void scrollDiffChangesOfIssues(DbSession dbSession, Collection<String> issueKeys, ResultHandler<IssueChangeDto> handler) {
+    if (issueKeys.isEmpty()) {
+      return;
+    }
+
+    executeLargeInputsWithoutOutput(issueKeys, issueKeySubList -> mapper(dbSession).scrollDiffChangesOfIssues(issueKeySubList, handler));
   }
 
   public void insert(DbSession session, IssueChangeDto change) {
