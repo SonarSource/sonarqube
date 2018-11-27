@@ -4,35 +4,6 @@ set -euo pipefail
 ./.travis/setup_ramdisk.sh
 
 #
-# A (too) old version of JDK8 is installed by default on Travis.
-# This method is preferred over Travis apt oracle-java8-installer because
-# JDK is kept in cache. It does not need to be downloaded from Oracle
-# at each build.
-#
-installJdk8() {
-  # copied from https://github.com/SonarSource/travis-utils/blob/master/bin/installJDK8
-  JDK_RELEASE=191
-  echo "Setup JDK 1.8u$JDK_RELEASE"
-  mkdir -p ~/jvm
-  pushd ~/jvm > /dev/null
-
-  if [ ! -d "jdk1.8.0_$JDK_RELEASE" ]; then
-    {
-      wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.tar.gz
-    } || {
-      echo "failed to download JDK 1.8u$JDK_RELEASE"
-      exit 1
-    }
-    tar xzf jdk-8u$JDK_RELEASE-linux-x64.tar.gz
-    rm jdk-8u$JDK_RELEASE-linux-x64.tar.gz
-  fi
-  popd > /dev/null
-  export JAVA_HOME=~/jvm/jdk1.8.0_$JDK_RELEASE
-  export PATH=$JAVA_HOME/bin:$PATH
-  echo "JDK 1.8u$JDK_RELEASE installed"
-}
-
-#
 # Configure Maven settings and install some script utilities
 #
 configureTravis() {
@@ -65,7 +36,6 @@ case "$TARGET" in
 
 BUILD)
   git fetch --unshallow
-  installJdk8
   ./gradlew build sonarqube --no-daemon --console plain \
   -PjacocoEnabled=true \
   -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
