@@ -62,6 +62,7 @@ message Organization {
   optional bool guarded = 6;
   optional Alm alm = 8;
   optional Actions actions = 9;
+  optional Subscription subscription = 10;
 
   message Alm {
     optional string key = 1;
@@ -80,4 +81,16 @@ message User {
   optional string name = 2;
   optional string avatar = 3;
   optional int32 groupCount = 4;
+}
+
+
+// See org.sonar.db.organization.OrganizationDto.Subscription
+enum Subscription {
+  // Zero is required in order to not get LONG as default value
+  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
+  UNKNOWN = 0;
+
+  SONARQUBE = 1;
+  FREE = 2;
+  PAID = 3;
 }

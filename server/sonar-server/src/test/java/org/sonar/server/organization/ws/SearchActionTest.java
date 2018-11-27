@@ -43,6 +43,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Organizations.SearchWsResponse;
 
@@ -272,6 +273,45 @@ public class SearchActionTest {
     assertThat(orgByKey.get(organization.getKey()).getAlm().getKey()).isEqualTo(organizationAlmBinding.getAlm().getId());
     assertThat(orgByKey.get(organization.getKey()).getAlm().getUrl()).isEqualTo(organizationAlmBinding.getUrl());
     assertThat(orgByKey.get(organizationNotBoundToAlm.getKey()).hasAlm()).isEqualTo(false);
+  }
+
+  @Test
+  public void return_subscription_info_when_member_parameter_is_set_to_true() {
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization1 = db.organizations().insert(o -> o.setSubscription(FREE));
+    OrganizationDto organization2 = db.organizations().insert(o -> o.setSubscription(PAID));
+    OrganizationDto organization3 = db.organizations().insert(o -> o.setSubscription(PAID));
+    db.organizations().addMember(organization1, user);
+    db.organizations().addMember(organization2, user);
+    userSession.logIn(user);
+
+    SearchWsResponse result = call(ws.newRequest().setParam("member", "true"));
+
+    assertThat(result.getOrganizationsList())
+      .extracting(Organization::getKey, Organization::getSubscription)
+      .containsExactlyInAnyOrder(
+        tuple(organization1.getKey(), Organizations.Subscription.FREE),
+        tuple(organization2.getKey(), Organizations.Subscription.PAID));
+  }
+
+  @Test
+  public void subscription_info_is_not_returned_when_no_member_parameter() {
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization1 = db.organizations().insert(o -> o.setSubscription(FREE));
+    OrganizationDto organization2 = db.organizations().insert(o -> o.setSubscription(PAID));
+    OrganizationDto organization3 = db.organizations().insert(o -> o.setSubscription(PAID));
+    db.organizations().addMember(organization1, user);
+    db.organizations().addMember(organization2, user);
+    userSession.logIn(user);
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getOrganizationsList())
+      .extracting(Organization::getKey, Organization::hasSubscription)
+      .containsExactlyInAnyOrder(
+        tuple(organization1.getKey(), false),
+        tuple(organization2.getKey(), false),
+        tuple(organization3.getKey(), false));
   }
 
   @Test

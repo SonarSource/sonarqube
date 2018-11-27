@@ -39,6 +39,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -72,8 +73,9 @@ public class SearchAction implements OrganizationsWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setInternal(true)
       .setSince("6.2")
-      .setChangelog(new Change("6.4", "Paging fields have been added to the response"))
+      .setChangelog(new Change("7.5", format("Return 'subscription' field when parameter '%s' is set to 'true'", PARAM_MEMBER)))
       .setChangelog(new Change("7.5", "Removed 'isAdmin' and return 'actions' for each organization"))
+      .setChangelog(new Change("6.4", "Paging fields have been added to the response"))
       .setHandler(this);
 
     action.createParam(PARAM_ORGANIZATIONS)
@@ -86,7 +88,7 @@ public class SearchAction implements OrganizationsWsAction {
     action.createParam(PARAM_MEMBER)
       .setDescription("Filter organizations based on whether the authenticated user is a member. If false, no filter applies.")
       .setSince("7.0")
-      .setDefaultValue(String.valueOf(false))
+      .setDefaultValue("false")
       .setBooleanPossibleValues();
 
     action.addPagingParams(100, MAX_SIZE);
@@ -94,8 +96,8 @@ public class SearchAction implements OrganizationsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean isMember = request.mandatoryParamAsBoolean(PARAM_MEMBER);
-    if (isMember) {
+    boolean onlyMembershipOrganizations = request.mandatoryParamAsBoolean(PARAM_MEMBER);
+    if (onlyMembershipOrganizations) {
       userSession.checkLoggedIn();
     }
 
@@ -108,7 +110,10 @@ public class SearchAction implements OrganizationsWsAction {
       Set<String> provisionOrganizationUuids = searchOrganizationWithProvisionPermission(dbSession);
       Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid = dbClient.organizationAlmBindingDao().selectByOrganizations(dbSession, organizations)
         .stream().collect(MoreCollectors.uniqueIndex(OrganizationAlmBindingDto::getOrganizationUuid));
-      writeResponse(request, response, organizations, adminOrganizationUuids, provisionOrganizationUuids, organizationAlmBindingByOrgUuid, paging);
+
+      Organizations.SearchWsResponse wsResponse = buildOrganizations(organizations, adminOrganizationUuids, provisionOrganizationUuids, organizationAlmBindingByOrgUuid,
+        onlyMembershipOrganizations, paging);
+      writeProtobuf(wsResponse, request, response);
     }
   }
 
@@ -131,10 +136,8 @@ public class SearchAction implements OrganizationsWsAction {
       : dbClient.organizationDao().selectByPermission(dbSession, userId, PROVISION_PROJECTS.getKey()).stream().map(OrganizationDto::getUuid).collect(toSet());
   }
 
-  private void writeResponse(Request httpRequest, Response httpResponse, List<OrganizationDto> organizations,
-    Set<String> adminOrganizationUuids, Set<String> provisionOrganizationUuids,
-    Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid,
-    Paging paging) {
+  private Organizations.SearchWsResponse buildOrganizations(List<OrganizationDto> organizations, Set<String> adminOrganizationUuids, Set<String> provisionOrganizationUuids,
+    Map<String, OrganizationAlmBindingDto> organizationAlmBindingByOrgUuid, boolean onlyMembershipOrganizations, Paging paging) {
     Organizations.SearchWsResponse.Builder response = Organizations.SearchWsResponse.newBuilder();
     response.setPaging(paging);
     Organization.Builder wsOrganization = Organization.newBuilder();
@@ -147,12 +150,13 @@ public class SearchAction implements OrganizationsWsAction {
           .setAdmin(isAdmin)
           .setProvision(canProvision)
           .setDelete(o.isGuarded() ? userSession.isRoot() : isAdmin));
-        response.addOrganizations(toOrganization(wsOrganization, o, organizationAlmBindingByOrgUuid.get(o.getUuid())));
+        response.addOrganizations(toOrganization(wsOrganization, o, organizationAlmBindingByOrgUuid.get(o.getUuid()), onlyMembershipOrganizations));
       });
-    writeProtobuf(response.build(), httpRequest, httpResponse);
+    return response.build();
   }
 
-  private static Organization.Builder toOrganization(Organization.Builder builder, OrganizationDto organization, @Nullable OrganizationAlmBindingDto organizationAlmBinding) {
+  private static Organization.Builder toOrganization(Organization.Builder builder, OrganizationDto organization, @Nullable OrganizationAlmBindingDto organizationAlmBinding,
+    boolean onlyMembershipOrganizations) {
     builder
       .setName(organization.getName())
       .setKey(organization.getKey())
@@ -164,6 +168,9 @@ public class SearchAction implements OrganizationsWsAction {
       builder.setAlm(Organization.Alm.newBuilder()
         .setKey(organizationAlmBinding.getAlm().getId())
         .setUrl(organizationAlmBinding.getUrl()));
+    }
+    if (onlyMembershipOrganizations) {
+      builder.setSubscription(Organizations.Subscription.valueOf(organization.getSubscription().name()));
     }
     return builder;
   }
