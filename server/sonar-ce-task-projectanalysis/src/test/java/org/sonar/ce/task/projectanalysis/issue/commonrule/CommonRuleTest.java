@@ -38,7 +38,7 @@ public class CommonRuleTest {
 
   @Test
   public void test_getMinDensityParam() {
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "30.5"), 1_000L, PLUGIN_KEY);
+    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "30.5"), 1_000L, 1_000L, PLUGIN_KEY);
     double minDensity = CommonRule.getMinDensityParam(activeRule, "minDensity");
 
     assertThat(minDensity).isEqualTo(30.5);
@@ -49,7 +49,7 @@ public class CommonRuleTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Required parameter [minDensity] is missing on rule [xoo:x1]");
 
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of(), 1_000L, PLUGIN_KEY);
+    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of(), 1_000L, 1_000L, PLUGIN_KEY);
     CommonRule.getMinDensityParam(activeRule, "minDensity");
   }
 
@@ -58,7 +58,7 @@ public class CommonRuleTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Minimum density of rule [xoo:x1] is incorrect. Got [-30.5] but must be between 0 and 100.");
 
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "-30.5"), 1_000L, PLUGIN_KEY);
+    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "-30.5"), 1_000L, 1_000L, PLUGIN_KEY);
     CommonRule.getMinDensityParam(activeRule, "minDensity");
   }
 
@@ -67,7 +67,7 @@ public class CommonRuleTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Minimum density of rule [xoo:x1] is incorrect. Got [305] but must be between 0 and 100.");
 
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "305"), 1_000L, PLUGIN_KEY);
+    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "305"), 1_000L, 1_000L, PLUGIN_KEY);
     CommonRule.getMinDensityParam(activeRule, "minDensity");
   }
 }

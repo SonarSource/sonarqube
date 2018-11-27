@@ -22,6 +22,7 @@ package org.sonar.api.batch.rule.internal;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -29,71 +30,93 @@ import org.sonar.api.rule.Severity;
 /**
  * @since 4.2
  */
+@Immutable
 public class NewActiveRule {
   final RuleKey ruleKey;
-  String name;
-  String severity = Severity.defaultSeverity();
-  Map<String, String> params = new HashMap<>();
-  long createdAt;
-  String internalKey;
-  String language;
-  String templateRuleKey;
-  private final ActiveRulesBuilder builder;
+  final String name;
+  final String severity;
+  final Map<String, String> params;
+  final long createdAt;
+  final long updatedAt;
+  final String internalKey;
+  final String language;
+  final String templateRuleKey;
 
-  NewActiveRule(ActiveRulesBuilder builder, RuleKey ruleKey) {
-    this.builder = builder;
-    this.ruleKey = ruleKey;
+  NewActiveRule(Builder builder) {
+    this.ruleKey = builder.ruleKey;
+    this.name = builder.name;
+    this.severity = builder.severity;
+    this.params = builder.params;
+    this.createdAt = builder.createdAt;
+    this.updatedAt = builder.updatedAt;
+    this.internalKey = builder.internalKey;
+    this.language = builder.language;
+    this.templateRuleKey = builder.templateRuleKey;
   }
 
-  public NewActiveRule setName(String name) {
-    this.name = name;
-    return this;
-  }
+  public static class Builder {
+    private RuleKey ruleKey;
+    private String name;
+    private String severity = Severity.defaultSeverity();
+    private Map<String, String> params = new HashMap<>();
+    private long createdAt;
+    private long updatedAt;
+    private String internalKey;
+    private String language;
+    private String templateRuleKey;
 
-  public NewActiveRule setSeverity(@Nullable String severity) {
-    this.severity = StringUtils.defaultIfBlank(severity, Severity.defaultSeverity());
-    return this;
-  }
-
-  public NewActiveRule setInternalKey(@Nullable String internalKey) {
-    this.internalKey = internalKey;
-    return this;
-  }
-
-  public NewActiveRule setTemplateRuleKey(@Nullable String templateRuleKey) {
-    this.templateRuleKey = templateRuleKey;
-    return this;
-  }
-
-  public NewActiveRule setLanguage(@Nullable String language) {
-    this.language = language;
-    return this;
-  }
-
-  public NewActiveRule setParam(String key, @Nullable String value) {
-    // possible improvement : check that the param key exists in rule definition
-    if (value == null) {
-      params.remove(key);
-    } else {
-      params.put(key, value);
+    public Builder setRuleKey(RuleKey ruleKey) {
+      this.ruleKey = ruleKey;
+      return this;
     }
-    return this;
-  }
 
-  public Map<String, String> params() {
-    return params;
-  }
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
 
-  public long getCreatedAt() {
-    return createdAt;
-  }
+    public Builder setSeverity(@Nullable String severity) {
+      this.severity = StringUtils.defaultIfBlank(severity, Severity.defaultSeverity());
+      return this;
+    }
 
-  public void setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
-  }
+    public Builder setParam(String key, @Nullable String value) {
+      // possible improvement : check that the param key exists in rule definition
+      if (value == null) {
+        params.remove(key);
+      } else {
+        params.put(key, value);
+      }
+      return this;
+    }
 
-  public ActiveRulesBuilder activate() {
-    builder.activate(this);
-    return builder;
+    public Builder setCreatedAt(long createdAt) {
+      this.createdAt = createdAt;
+      return this;
+    }
+
+    public Builder setUpdatedAt(long updatedAt) {
+      this.updatedAt = updatedAt;
+      return this;
+    }
+
+    public Builder setInternalKey(@Nullable String internalKey) {
+      this.internalKey = internalKey;
+      return this;
+    }
+
+    public Builder setLanguage(@Nullable String language) {
+      this.language = language;
+      return this;
+    }
+
+    public Builder setTemplateRuleKey(@Nullable String templateRuleKey) {
+      this.templateRuleKey = templateRuleKey;
+      return this;
+    }
+
+    public NewActiveRule build() {
+      return new NewActiveRule(this);
+    }
   }
 }

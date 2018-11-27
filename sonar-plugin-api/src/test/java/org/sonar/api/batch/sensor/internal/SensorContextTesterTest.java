@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -36,6 +37,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -51,6 +53,8 @@ import org.sonar.api.rules.RuleType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SensorContextTesterTest {
 
@@ -79,7 +83,10 @@ public class SensorContextTesterTest {
 
   @Test
   public void testActiveRules() {
-    ActiveRules activeRules = new ActiveRulesBuilder().create(RuleKey.of("repo", "rule")).activate().build();
+    NewActiveRule activeRule = new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of("foo", "bar"))
+      .build();
+    ActiveRules activeRules = new ActiveRulesBuilder().addRule(activeRule).build();
     tester.setActiveRules(activeRules);
     assertThat(tester.activeRules().findAll()).hasSize(1);
   }

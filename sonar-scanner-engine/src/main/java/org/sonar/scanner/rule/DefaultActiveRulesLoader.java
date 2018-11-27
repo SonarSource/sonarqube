@@ -45,7 +45,7 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt&activation=true";
+  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt&activation=true";
   private static final String RULES_SEARCH_NO_HOTSPOT_URL;
 
   static {
@@ -127,6 +127,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       loadedRule.setName(r.getName());
       loadedRule.setSeverity(active.getSeverity());
       loadedRule.setCreatedAt(dateToLong(parseDateTime(active.getCreatedAt())));
+      loadedRule.setUpdatedAt(dateToLong(parseDateTime(active.getUpdatedAt())));
       loadedRule.setLanguage(r.getLang());
       loadedRule.setInternalKey(r.getInternalKey());
       if (r.hasTemplateKey()) {

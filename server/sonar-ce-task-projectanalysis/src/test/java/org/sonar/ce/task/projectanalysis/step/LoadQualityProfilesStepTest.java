@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,9 +32,11 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonarqube.ws.Rules;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
@@ -58,8 +59,11 @@ public class LoadQualityProfilesStepTest {
       .setPluginKey("xoo");
 
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
-      .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
-      .setSeverity(Constants.Severity.BLOCKER);
+      .setRuleRepository(XOO_X1.repository())
+      .setRuleKey(XOO_X1.rule())
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setCreatedAt(1000L)
+      .setUpdatedAt(1200L);
     batch1.getMutableParamsByKey().put("p1", "v1");
 
     ScannerReport.ActiveRule.Builder batch2 = ScannerReport.ActiveRule.newBuilder()
@@ -70,15 +74,19 @@ public class LoadQualityProfilesStepTest {
 
     assertThat(activeRulesHolder.getAll()).hasSize(2);
 
-    Optional<ActiveRule> ar1 = activeRulesHolder.get(XOO_X1);
-    assertThat(ar1.get().getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(ar1.get().getParams()).containsExactly(MapEntry.entry("p1", "v1"));
-    assertThat(ar1.get().getPluginKey()).isEqualTo("xoo");
+    ActiveRule ar1 = activeRulesHolder.get(XOO_X1).get();
+    assertThat(ar1.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(ar1.getParams()).containsExactly(MapEntry.entry("p1", "v1"));
+    assertThat(ar1.getPluginKey()).isEqualTo("xoo");
+    assertThat(ar1.getCreatedAt()).isEqualTo(1000L);
+    assertThat(ar1.getUpdatedAt()).isEqualTo(1200L);
 
-    Optional<ActiveRule> ar2 = activeRulesHolder.get(XOO_X2);
-    assertThat(ar2.get().getSeverity()).isEqualTo(Severity.MAJOR);
-    assertThat(ar2.get().getParams()).isEmpty();
-    assertThat(ar2.get().getPluginKey()).isEqualTo("xoo");
+    ActiveRule ar2 = activeRulesHolder.get(XOO_X2).get();
+    assertThat(ar2.getSeverity()).isEqualTo(Severity.MAJOR);
+    assertThat(ar2.getParams()).isEmpty();
+    assertThat(ar2.getPluginKey()).isEqualTo("xoo");
+    assertThat(ar1.getCreatedAt()).isEqualTo(1000L);
+    assertThat(ar1.getUpdatedAt()).isEqualTo(1200L);
   }
 
   @Test

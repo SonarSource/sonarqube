@@ -31,6 +31,7 @@ public class LoadedActiveRule {
   private String language;
   private Map<String, String> params;
   private long createdAt;
+  private long updatedAt;
   private String templateRuleKey;
   private String internalKey;
 
@@ -80,6 +81,14 @@ public class LoadedActiveRule {
 
   public void setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
+  }
+
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
   @CheckForNull

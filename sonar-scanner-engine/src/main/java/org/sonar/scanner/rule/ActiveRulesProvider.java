@@ -71,27 +71,30 @@ public class ActiveRulesProvider extends ProviderAdapter {
   }
 
   private static ActiveRules transform(Collection<LoadedActiveRule> loadedRules) {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
 
     for (LoadedActiveRule activeRule : loadedRules) {
-      NewActiveRule newActiveRule = builder.create(activeRule.getRuleKey());
-      newActiveRule.setName(activeRule.getName());
-      newActiveRule.setSeverity(activeRule.getSeverity());
-      newActiveRule.setCreatedAt(activeRule.getCreatedAt());
-      newActiveRule.setLanguage(activeRule.getLanguage());
-      newActiveRule.setInternalKey(activeRule.getInternalKey());
-      newActiveRule.setTemplateRuleKey(activeRule.getTemplateRuleKey());
+      NewActiveRule.Builder builder = new NewActiveRule.Builder();
+      builder
+        .setRuleKey(activeRule.getRuleKey())
+        .setName(activeRule.getName())
+        .setSeverity(activeRule.getSeverity())
+        .setCreatedAt(activeRule.getCreatedAt())
+        .setUpdatedAt(activeRule.getUpdatedAt())
+        .setLanguage(activeRule.getLanguage())
+        .setInternalKey(activeRule.getInternalKey())
+        .setTemplateRuleKey(activeRule.getTemplateRuleKey());
 
       // load parameters
       if (activeRule.getParams() != null) {
         for (Map.Entry<String, String> params : activeRule.getParams().entrySet()) {
-          newActiveRule.setParam(params.getKey(), params.getValue());
+          builder.setParam(params.getKey(), params.getValue());
         }
       }
 
-      newActiveRule.activate();
+      activeRulesBuilder.addRule(builder.build());
     }
-    return builder.build();
+    return activeRulesBuilder.build();
   }
 
   private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) {

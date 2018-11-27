@@ -86,7 +86,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void no_issue_if_enough_coverage() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getCoverageMetricKey(), Measure.newMeasureBuilder().create(90.0, 1));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -96,7 +96,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void issue_if_coverage_is_too_low() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getCoverageMetricKey(), Measure.newMeasureBuilder().create(20.0, 1));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getUncoveredMetricKey(), Measure.newMeasureBuilder().create(40));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getToCoverMetricKey(), Measure.newMeasureBuilder().create(50));
@@ -114,7 +114,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void no_issue_if_coverage_is_not_set() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, 1_000L, PLUGIN_KEY));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

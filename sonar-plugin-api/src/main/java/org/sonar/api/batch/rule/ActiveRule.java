@@ -71,4 +71,5 @@ public interface ActiveRule {
    */
   @CheckForNull
   String templateRuleKey();
+
 }

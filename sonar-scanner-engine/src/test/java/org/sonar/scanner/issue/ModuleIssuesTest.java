@@ -27,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -115,7 +116,7 @@ public class ModuleIssuesTest {
   @Test
   public void ignore_null_rule_of_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(SQUID_RULE_KEY).build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
@@ -130,7 +131,10 @@ public class ModuleIssuesTest {
   @Test
   public void add_issue_to_cache() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
@@ -169,7 +173,10 @@ public class ModuleIssuesTest {
   @Test
   public void use_severity_from_active_rule_if_no_severity_on_issue() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
@@ -186,7 +193,11 @@ public class ModuleIssuesTest {
   @Test
   public void use_rule_name_if_no_message() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).setName(SQUID_RULE_NAME).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .setName(SQUID_RULE_NAME)
+      .build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
@@ -205,7 +216,10 @@ public class ModuleIssuesTest {
   @Test
   public void filter_issue() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.INFO)
+      .build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()

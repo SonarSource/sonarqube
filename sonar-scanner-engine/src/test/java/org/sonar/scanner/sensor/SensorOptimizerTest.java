@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
@@ -106,18 +107,15 @@ public class SensorOptimizerTest {
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(RuleKey.of("repo1", "foo"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("repo1", "foo")).build())
       .build();
     optimizer = new SensorOptimizer(fs, activeRules, settings.asConfig());
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     activeRules = new ActiveRulesBuilder()
-      .create(RuleKey.of("repo1", "foo"))
-      .activate()
-      .create(RuleKey.of("squid", "rule"))
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("repo1", "foo")).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("squid", "rule")).build())
       .build();
     optimizer = new SensorOptimizer(fs, activeRules, settings.asConfig());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();

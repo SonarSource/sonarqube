@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
@@ -47,7 +46,13 @@ public class ActiveRulesPublisherTest {
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
 
-    NewActiveRule ar = new ActiveRulesBuilder().create(RuleKey.of("java", "S001")).setSeverity("BLOCKER").setParam("p1", "v1");
+    NewActiveRule ar = new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of("java", "S001"))
+      .setSeverity("BLOCKER")
+      .setParam("p1", "v1")
+      .setCreatedAt(1_000L)
+      .setUpdatedAt(2_000L)
+      .build();
     ActiveRules activeRules = new DefaultActiveRules(singletonList(ar));
 
     ActiveRulesPublisher underTest = new ActiveRulesPublisher(activeRules);
@@ -59,6 +64,8 @@ public class ActiveRulesPublisherTest {
       assertThat(reportAr.getRuleRepository()).isEqualTo("java");
       assertThat(reportAr.getRuleKey()).isEqualTo("S001");
       assertThat(reportAr.getSeverity()).isEqualTo(Constants.Severity.BLOCKER);
+      assertThat(reportAr.getCreatedAt()).isEqualTo(1_000L);
+      assertThat(reportAr.getUpdatedAt()).isEqualTo(2_000L);
       assertThat(reportAr.getParamsByKeyMap()).hasSize(1);
       assertThat(reportAr.getParamsByKeyMap().entrySet().iterator().next().getKey()).isEqualTo("p1");
       assertThat(reportAr.getParamsByKeyMap().entrySet().iterator().next().getValue()).isEqualTo("v1");

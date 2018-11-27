@@ -210,6 +210,22 @@ public class IssueCreationDateCalculatorTest {
 
   @Test
   @UseDataProvider("backdatingDateCases")
+  public void should_backdate_date_if_scm_is_available_and_rule_has_changed(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    setRuleCreatedAt(1200L);
+    setRuleUpdatedAt(2800L);
+
+    run();
+
+    assertChangeOfCreationDateTo(expectedDate);
+  }
+
+  @Test
+  @UseDataProvider("backdatingDateCases")
   public void should_backdate_date_if_scm_is_available_and_first_analysis(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
     currentAnalysisIsFirstAnalysis();
     currentAnalysisIs(3000L);
@@ -418,6 +434,11 @@ public class IssueCreationDateCalculatorTest {
 
   private void setRuleCreatedAt(long createdAt) {
     when(activeRule.getCreatedAt()).thenReturn(createdAt);
+    when(activeRule.getUpdatedAt()).thenReturn(createdAt);
+  }
+
+  private void setRuleUpdatedAt(long updateAt) {
+    when(activeRule.getUpdatedAt()).thenReturn(updateAt);
   }
 
   private void rulePlugin(String pluginKey) {

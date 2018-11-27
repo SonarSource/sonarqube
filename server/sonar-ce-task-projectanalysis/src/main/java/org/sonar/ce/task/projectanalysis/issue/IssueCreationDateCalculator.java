@@ -88,7 +88,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     } else {
       // Rule can't be inactive (see contract of IssueVisitor)
       ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
-      if (activeRuleIsNew(activeRule, lastAnalysisOptional.get())
+      if (activeRuleIsNewOrChanged(activeRule, lastAnalysisOptional.get())
         || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())) {
         backdateIssue(component, issue);
       }
@@ -127,9 +127,8 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     return lastAnalysisDate < scannerPlugin.getUpdatedAt();
   }
 
-  private static boolean activeRuleIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
-    long ruleCreationDate = activeRule.getCreatedAt();
-    return lastAnalysisDate < ruleCreationDate;
+  private static boolean activeRuleIsNewOrChanged(ActiveRule activeRule, Long lastAnalysisDate) {
+    return lastAnalysisDate < activeRule.getUpdatedAt();
   }
 
   private Optional<Date> getDateOfLatestChange(Component component, DefaultIssue issue) {

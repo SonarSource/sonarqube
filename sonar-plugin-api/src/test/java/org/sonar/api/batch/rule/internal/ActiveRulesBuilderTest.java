@@ -42,16 +42,24 @@ public class ActiveRulesBuilderTest {
 
   @Test
   public void build_rules() {
-    ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(RuleKey.of("squid", "S0001"))
+    NewActiveRule activeRule = new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of("squid", "S0001"))
       .setName("My Rule")
       .setSeverity(Severity.CRITICAL)
       .setInternalKey("__S0001__")
       .setParam("min", "20")
-      .activate()
+      .build();
+
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(activeRule)
       // most simple rule
-      .create(RuleKey.of("squid", "S0002")).activate()
-      .create(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null).activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(RuleKey.of("squid", "S0002")).build())
+      .addRule(new NewActiveRule.Builder()
+        .setRuleKey(RuleKey.of("findbugs", "NPE"))
+        .setInternalKey(null)
+        .setSeverity(null)
+        .setParam("foo", null)
+        .build())
       .build();
 
     assertThat(activeRules.findAll()).hasSize(3);
@@ -83,11 +91,14 @@ public class ActiveRulesBuilderTest {
   @Test
   public void fail_to_add_twice_the_same_rule() {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.create(RuleKey.of("squid", "S0001")).activate();
+    NewActiveRule rule = new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of("squid", "S0001"))
+      .build();
+    builder.addRule(rule);
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Rule 'squid:S0001' is already activated");
 
-    builder.create(RuleKey.of("squid", "S0001")).activate();
+    builder.addRule(rule);
   }
 }

@@ -35,15 +35,12 @@ public class ActiveRulesBuilder {
 
   private final Map<RuleKey, NewActiveRule> map = new LinkedHashMap<>();
 
-  public NewActiveRule create(RuleKey ruleKey) {
-    return new NewActiveRule(this, ruleKey);
-  }
-
-  void activate(NewActiveRule newActiveRule) {
+  public ActiveRulesBuilder addRule(NewActiveRule newActiveRule) {
     if (map.containsKey(newActiveRule.ruleKey)) {
       throw new IllegalStateException(String.format("Rule '%s' is already activated", newActiveRule.ruleKey));
     }
     map.put(newActiveRule.ruleKey, newActiveRule);
+    return this;
   }
 
   public ActiveRules build() {

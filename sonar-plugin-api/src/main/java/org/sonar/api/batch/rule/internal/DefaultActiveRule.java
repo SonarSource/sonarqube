@@ -35,6 +35,7 @@ public class DefaultActiveRule implements ActiveRule {
   private final String templateRuleKey;
   private final Map<String, String> params;
   private final long createdAt;
+  private final long updatedAt;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
@@ -44,6 +45,7 @@ public class DefaultActiveRule implements ActiveRule {
     this.params = Collections.unmodifiableMap(new HashMap<>(newActiveRule.params));
     this.language = newActiveRule.language;
     this.createdAt = newActiveRule.createdAt;
+    this.updatedAt = newActiveRule.updatedAt;
   }
 
   @Override
@@ -84,5 +86,9 @@ public class DefaultActiveRule implements ActiveRule {
 
   public long createdAt() {
     return createdAt;
+  }
+
+  public long updatedAt() {
+    return updatedAt;
   }
 }

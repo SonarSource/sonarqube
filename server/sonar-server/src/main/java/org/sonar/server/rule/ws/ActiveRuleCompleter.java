@@ -167,6 +167,7 @@ public class ActiveRuleCompleter {
     builder.setInherit(inheritance != null ? inheritance : ActiveRuleInheritance.NONE.name());
     builder.setSeverity(activeRule.getSeverityString());
     builder.setCreatedAt(DateUtils.formatDateTime(activeRule.getCreatedAt()));
+    builder.setUpdatedAt(DateUtils.formatDateTime(activeRule.getUpdatedAt()));
     Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();
     for (ActiveRuleParamDto parameter : parameters) {
       builder.addParams(paramBuilder.clear()

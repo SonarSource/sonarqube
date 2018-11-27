@@ -22,6 +22,7 @@ package org.sonar.scanner.rule;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
@@ -77,7 +78,10 @@ public class RulesProfileProviderTest {
     QProfile qProfile = new QProfile("java-sw", "Sonar way", "java", null);
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
     ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
-    activeRulesBuilder.create(RuleKey.of("java", "S001")).setTemplateRuleKey("T001").setLanguage("java").activate();
+    activeRulesBuilder.addRule(new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of("java", "S001"))
+      .setTemplateRuleKey("T001").setLanguage("java")
+      .build());
 
     RulesProfile profile = provider.provide(qProfiles, activeRulesBuilder.build(), settings.asConfig());
 

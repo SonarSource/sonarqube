@@ -160,6 +160,7 @@ message Active {
   optional string unusedParent = 4;
   repeated Param params = 5;
   optional string createdAt = 6;
+  optional string updatedAt = 7;
 
   message Param {
     optional string key = 1;

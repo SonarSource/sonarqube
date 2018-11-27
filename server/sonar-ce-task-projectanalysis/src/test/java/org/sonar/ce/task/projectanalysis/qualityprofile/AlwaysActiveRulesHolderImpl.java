@@ -28,7 +28,7 @@ import static java.util.Collections.emptyMap;
 public class AlwaysActiveRulesHolderImpl implements ActiveRulesHolder {
   @Override
   public Optional<ActiveRule> get(RuleKey ruleKey) {
-    return Optional.of(new ActiveRule(ruleKey, Severity.MAJOR, emptyMap(), 1_000L, null));
+    return Optional.of(new ActiveRule(ruleKey, Severity.MAJOR, emptyMap(), 1_000L, 1_000L, null));
   }
 
 }

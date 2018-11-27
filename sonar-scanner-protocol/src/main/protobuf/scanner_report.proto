@@ -79,6 +79,7 @@ message ActiveRule {
   Severity severity = 3;
   map<string,string> params_by_key = 4;
   int64 createdAt = 5;
+  int64 updatedAt = 6;
 }
 
 message ComponentLink {

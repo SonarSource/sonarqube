@@ -44,6 +44,7 @@ public class RulesWsParameters {
   public static final String FIELD_REPO = "repo";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_CREATED_AT = "createdAt";
+  public static final String FIELD_UPDATED_AT = "updatedAt";
   public static final String FIELD_SEVERITY = "severity";
   public static final String FIELD_STATUS = "status";
   public static final String FIELD_INTERNAL_KEY = "internalKey";
@@ -96,7 +97,7 @@ public class RulesWsParameters {
   public static final String FIELD_PARAMS = "params";
   public static final String FIELD_ACTIVES = "actives";
 
-  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY,
+  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY,
     FIELD_IS_EXTERNAL, FIELD_IS_TEMPLATE, FIELD_TEMPLATE_KEY, FIELD_TAGS, FIELD_SYSTEM_TAGS, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_HTML_DESCRIPTION,
     FIELD_MARKDOWN_DESCRIPTION, FIELD_NOTE_LOGIN, FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
     FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION,

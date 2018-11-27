@@ -118,7 +118,7 @@ public class DefaultActiveRulesLoaderTest {
   }
 
   private String urlOfPage(int page, boolean noHotspots) {
-    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt&activation=true"
+    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt&activation=true"
       + (noHotspots ? "&types=CODE_SMELL,BUG,VULNERABILITY" : "") + "&qprofile=c%2B-test_c%2B-values-17445&p=" + page
       + "&ps=500";
   }
@@ -144,6 +144,7 @@ public class DefaultActiveRulesLoaderTest {
 
         Active.Builder activeBuilder = Active.newBuilder();
         activeBuilder.setCreatedAt("2014-05-27T15:50:45+0100");
+        activeBuilder.setUpdatedAt("2014-05-27T15:50:45+0100");
         if (EXAMPLE_KEY.equals(key)) {
           activeBuilder.addParams(Rules.Active.Param.newBuilder().setKey(FORMAT_KEY).setValue(FORMAT_VALUE));
           activeBuilder.setSeverity(SEVERITY_VALUE);
