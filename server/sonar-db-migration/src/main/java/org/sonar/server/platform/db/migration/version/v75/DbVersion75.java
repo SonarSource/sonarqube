@@ -32,6 +32,6 @@ public class DbVersion75 implements DbVersion {
       .add(2402, "Add column USER_EXTERNAL_ID in ALM_APP_INSTALLS", AddUserExternalIdColumnInAlmAppInstall.class)
       .add(2403, "Set IS_OWNER_USER not nullable in ALM_APP_INSTALLS", SetIsOwnerUserNotNullableInAlmAppInstalls.class)
       .add(2404, "Add table EVENT_COMPONENT_CHANGES", AddEventComponentChanges.class)
-    ;
+      .add(2405, "Move module and directory properties to a project level property", MigrateModuleProperties.class);
   }
 }
