@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="billing.upgrade_box.upgrade_to_paid_plan"
+  medium={true}
+  onRequestClose={[MockFunction]}
+  shouldCloseOnOverlayClick={false}
+  simple={true}
+>
+  <div
+    className="modal-simple-head"
+  >
+    <h2>
+      billing.upgrade_box.upgrade_to_paid_plan
+    </h2>
+  </div>
+  <Connect(withCurrentUser(BillingFormShim))
+    onCommit={[MockFunction]}
+    organizationKey="foo"
+    subscriptionPlans={Array []}
+  >
+    <Component />
+  </Connect(withCurrentUser(BillingFormShim))>
+</Modal>
+`;

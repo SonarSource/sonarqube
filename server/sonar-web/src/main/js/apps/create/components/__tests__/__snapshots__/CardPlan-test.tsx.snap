@@ -1,37 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`#FreeCardPlan should render correctly 1`] = `
+exports[`#FreeCardPlan should render 1`] = `
 <CardPlan
+  startingPrice={0}
   title="billing.free_plan.title"
 >
-  <ul
-    className="note"
+  <div
+    className="spacer-left"
   >
-    <li>
-      billing.free_plan.all_projects_analyzed_public
-    </li>
-    <li>
-      billing.free_plan.anyone_can_browse_source_code
-    </li>
-  </ul>
+    <ul
+      className="big-spacer-left note"
+    >
+      <li
+        className="little-spacer-bottom"
+      >
+        billing.free_plan.all_projects_analyzed_public
+      </li>
+      <li>
+        billing.free_plan.anyone_can_browse_source_code
+      </li>
+    </ul>
+  </div>
 </CardPlan>
 `;
 
 exports[`#FreeCardPlan should render disabled with info 1`] = `
 <CardPlan
   disabled={true}
+  startingPrice={0}
   title="billing.free_plan.title"
 >
-  <ul
-    className="note"
+  <div
+    className="spacer-left"
   >
-    <li>
-      billing.free_plan.all_projects_analyzed_public
-    </li>
-    <li>
-      billing.free_plan.anyone_can_browse_source_code
-    </li>
-  </ul>
+    <ul
+      className="big-spacer-left note"
+    >
+      <li
+        className="little-spacer-bottom"
+      >
+        billing.free_plan.all_projects_analyzed_public
+      </li>
+      <li>
+        billing.free_plan.anyone_can_browse_source_code
+      </li>
+    </ul>
+  </div>
   <Alert
     variant="info"
   >
@@ -51,18 +65,25 @@ exports[`#FreeCardPlan should render disabled with info 1`] = `
 exports[`#FreeCardPlan should render with warning 1`] = `
 <CardPlan
   selected={true}
+  startingPrice={0}
   title="billing.free_plan.title"
 >
-  <ul
-    className="note"
+  <div
+    className="spacer-left"
   >
-    <li>
-      billing.free_plan.all_projects_analyzed_public
-    </li>
-    <li>
-      billing.free_plan.anyone_can_browse_source_code
-    </li>
-  </ul>
+    <ul
+      className="big-spacer-left note"
+    >
+      <li
+        className="little-spacer-bottom"
+      >
+        billing.free_plan.all_projects_analyzed_public
+      </li>
+      <li>
+        billing.free_plan.anyone_can_browse_source_code
+      </li>
+    </ul>
+  </div>
   <Alert
     variant="warning"
   >
@@ -79,60 +100,13 @@ exports[`#FreeCardPlan should render with warning 1`] = `
 </CardPlan>
 `;
 
-exports[`#PaidCardPlan should render correctly 1`] = `
+exports[`#PaidCardPlan should render 1`] = `
 <CardPlan
   recommended="billing.paid_plan.recommended"
-  startingPrice="$10"
+  startingPrice={10}
   title="billing.paid_plan.title"
 >
-  <ul
-    className="note"
-  >
-    <li
-      className="display-flex-center"
-      key="0"
-    >
-      <CheckIcon
-        className="spacer-right"
-        fill="#b0d513"
-      />
-      billing.upgrade_box.unlimited_private_projects
-    </li>
-    <li
-      className="display-flex-center"
-      key="1"
-    >
-      <CheckIcon
-        className="spacer-right"
-        fill="#b0d513"
-      />
-      billing.upgrade_box.strict_control_private_data
-    </li>
-    <li
-      className="display-flex-center"
-      key="2"
-    >
-      <CheckIcon
-        className="spacer-right"
-        fill="#b0d513"
-      />
-      billing.upgrade_box.cancel_anytime
-    </li>
-    <li
-      className="display-flex-center"
-      key="3"
-    >
-      <CheckIcon
-        className="spacer-right"
-        fill="#b0d513"
-      />
-      <strong
-        key="trial"
-      >
-        billing.upgrade_box.free_trial_x.14
-      </strong>
-    </li>
-  </ul>
+  <UpgradeOrganizationAdvantages />
   <div
     className="big-spacer-left"
   >
@@ -141,7 +115,7 @@ exports[`#PaidCardPlan should render correctly 1`] = `
       onlyActiveOnIndex={false}
       style={Object {}}
       target="_blank"
-      to="/documentation/sonarcloud-pricing/"
+      to="/about/pricing"
     >
       billing.pricing.learn_more
     </Link>
@@ -166,11 +140,6 @@ exports[`should be actionable 1`] = `
         className="icon-radio spacer-right"
       />
       Free Plan
-    </span>
-    <span
-      className="card-plan-price"
-    >
-      billing.price_format.0
     </span>
   </h2>
   <div
@@ -263,7 +232,7 @@ exports[`should render correctly 1`] = `
           "price": <span
             className="card-plan-price"
           >
-            $10
+            billing.price_format.10
           </span>,
         }
       }

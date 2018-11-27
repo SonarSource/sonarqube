@@ -62,19 +62,25 @@ export function getOptionRenderer(hideIcons?: boolean) {
     const icon = organization.alm
       ? `sonarcloud/${sanitizeAlmId(organization.alm.key)}`
       : 'sonarcloud-square-logo';
+    const isPaidOrg = organization.subscription === 'PAID';
     return (
-      <span>
-        {!hideIcons && (
-          <img
-            alt={organization.alm ? organization.alm.key : 'SonarCloud'}
-            className="spacer-right"
-            height={14}
-            src={`${getBaseUrl()}/images/${icon}.svg`}
-          />
+      <div className="display-flex-space-between">
+        <span className="text-ellipsis flex-1">
+          {!hideIcons && (
+            <img
+              alt={organization.alm ? organization.alm.key : 'SonarCloud'}
+              className="little-spacer-right"
+              height={14}
+              src={`${getBaseUrl()}/images/${icon}.svg`}
+            />
+          )}
+          {organization.name}
+          <span className="note little-spacer-left">{organization.key}</span>
+        </span>
+        {isPaidOrg && (
+          <div className="outline-badge">{translate('organization.paid_plan.badge')}</div>
         )}
-        {organization.name}
-        <span className="note little-spacer-left">{organization.key}</span>
-      </span>
+      </div>
     );
   };
 }

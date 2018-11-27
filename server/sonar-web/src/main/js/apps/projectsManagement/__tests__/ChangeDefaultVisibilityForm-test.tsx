@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ChangeVisibilityForm from '../ChangeVisibilityForm';
+import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
 import { click } from '../../../helpers/testUtils';
 
 const organization: T.Organization = {
@@ -61,9 +61,9 @@ it('changes visibility', () => {
   expect(onConfirm).toBeCalledWith('private');
 });
 
-function shallowRender(props: Partial<ChangeVisibilityForm['props']> = {}) {
+function shallowRender(props: Partial<ChangeDefaultVisibilityForm['props']> = {}) {
   return shallow(
-    <ChangeVisibilityForm
+    <ChangeDefaultVisibilityForm
       onClose={jest.fn()}
       onConfirm={jest.fn()}
       organization={organization}

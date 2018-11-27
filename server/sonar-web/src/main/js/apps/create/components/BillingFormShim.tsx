@@ -18,33 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as ReactModal from 'react-modal';
-import * as classNames from 'classnames';
 
-ReactModal.setAppElement('#content');
-
-interface OwnProps {
-  medium?: boolean;
-  noBackdrop?: boolean;
-  large?: boolean;
-  simple?: true;
+interface ChildrenProps {
+  onSubmit: React.FormEventHandler;
+  processingUpgrade: boolean;
+  renderFormFields: () => React.ReactNode;
+  renderNextCharge: () => React.ReactNode;
+  renderRecap: () => React.ReactNode;
+  renderSubmitButton: (submitText?: string) => React.ReactNode;
+  renderSubmitGroup: (submitText?: string) => React.ReactNode;
 }
 
-type MandatoryProps = Pick<ReactModal.Props, 'contentLabel'>;
+interface Props {
+  children: (props: ChildrenProps) => React.ReactNode;
+  initialCountry?: string;
+  currentUser: T.CurrentUser;
+  onCommit: () => void;
+  onFailToUpgrade?: () => void;
+  organizationKey: string | (() => Promise<string>);
+  subscriptionPlans: T.SubscriptionPlan[];
+}
 
-type Props = Partial<ReactModal.Props> & MandatoryProps & OwnProps;
-
-export default function Modal(props: Props) {
-  return (
-    <ReactModal
-      className={classNames('modal', {
-        'modal-medium': props.medium,
-        'modal-large': props.large,
-        'modal-simple': props.simple
-      })}
-      isOpen={true}
-      overlayClassName={classNames('modal-overlay', { 'modal-no-backdrop': props.noBackdrop })}
-      {...props}
-    />
-  );
+export default class BillingFormShim extends React.Component<Props> {
+  render() {
+    const { BillingForm } = (window as any).SonarBilling;
+    return <BillingForm {...this.props} />;
+  }
 }

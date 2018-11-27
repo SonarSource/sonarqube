@@ -72,6 +72,10 @@
   opacity: 1;
 }
 
+.modal-no-backdrop {
+  background-color: transparent;
+}
+
 .modal-open,
 .ReactModal__Body--open {
   overflow: hidden;
@@ -101,22 +105,45 @@
   padding: 10px;
 }
 
+.modal-simple {
+  border-radius: 3px;
+}
+
 .modal-simple-head {
-  padding: calc(2 * var(--pagePadding)) calc(3 * var(--pagePadding));
+  padding: var(--pagePadding) calc(2 * var(--pagePadding));
 }
 
 .modal-simple-head h1 {
+  margin-top: var(--pagePadding);
   font-size: var(--hugeFontSize);
   font-weight: bold;
   line-height: 30px;
 }
 
-.modal-simple-body {
-  padding: 0 calc(3 * var(--pagePadding));
+.modal-simple-head h2 {
+  font-size: var(--bigFontSize);
+  font-weight: bold;
+  line-height: 24px;
 }
 
-.modal-simple-footer {
-  padding: calc(2 * var(--pagePadding)) calc(3 * var(--pagePadding));
+.modal-simple-body {
+  padding: 0 calc(2 * var(--pagePadding)) var(--pagePadding);
+}
+
+.modal-simple-foot {
+  padding: calc(2 * var(--pagePadding)) calc(2 * var(--pagePadding));
+  border-radius: 3px;
+}
+
+.modal-simple-foot-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--pagePadding) calc(2 * var(--pagePadding));
+  border-top: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
+  text-align: right;
+  border-radius: 3px;
 }
 
 .modal-field,

@@ -18,7 +18,7 @@ exports[`should render and select 1`] = `
     key="paid"
     onClick={[Function]}
     selected={false}
-    startingPrice="10"
+    startingPrice={10}
   />
 </div>
 `;
@@ -41,7 +41,7 @@ exports[`should render and select 2`] = `
     key="paid"
     onClick={[Function]}
     selected={true}
-    startingPrice="10"
+    startingPrice={10}
   />
 </div>
 `;

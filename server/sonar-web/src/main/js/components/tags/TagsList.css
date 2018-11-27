@@ -19,6 +19,7 @@
  */
 .tags-list {
   white-space: nowrap;
+  line-height: 16px;
 }
 
 .tags-list i::before {

@@ -207,13 +207,15 @@ export class TooltipInner extends React.Component<Props, State> {
 
   handleMouseEnter = () => {
     this.mouseEnterTimeout = window.setTimeout(() => {
-      if (this.mounted) {
-        // for some reason even after the `this.mouseEnterTimeout` is cleared, it still triggers
-        // to workaround this issue, check that its value is not `undefined`
-        // (if it's `undefined`, it means the timer has been reset)
-        if (this.props.visible === undefined && this.mouseEnterTimeout !== undefined) {
-          this.setState({ visible: true });
-        }
+      // for some reason even after the `this.mouseEnterTimeout` is cleared, it still triggers
+      // to workaround this issue, check that its value is not `undefined`
+      // (if it's `undefined`, it means the timer has been reset)
+      if (
+        this.mounted &&
+        this.props.visible === undefined &&
+        this.mouseEnterTimeout !== undefined
+      ) {
+        this.setState({ visible: true });
       }
     }, (this.props.mouseEnterDelay || 0) * 1000);
 
@@ -230,10 +232,8 @@ export class TooltipInner extends React.Component<Props, State> {
 
     if (!this.mouseIn) {
       this.mouseLeaveTimeout = window.setTimeout(() => {
-        if (this.mounted) {
-          if (this.props.visible === undefined && !this.mouseIn) {
-            this.setState({ visible: false });
-          }
+        if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
+          this.setState({ visible: false });
         }
       }, (this.props.mouseLeaveDelay || 0) * 1000);
 
@@ -254,7 +254,6 @@ export class TooltipInner extends React.Component<Props, State> {
 
   render() {
     const { classNameSpace = 'tooltip' } = this.props;
-
     return (
       <>
         {React.cloneElement(this.props.children, {

@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
+import { isDefined } from '../../../helpers/types';
 import { getCodeMetrics, showLeakMeasure } from '../utils';
 
 interface Props {
@@ -36,7 +37,7 @@ interface Props {
 export default function Components(props: Props) {
   const { baseComponent, branchLike, components, rootComponent, selected } = props;
   const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
-  const metrics = metricKeys.map(metric => props.metrics[metric]).filter(Boolean);
+  const metrics = metricKeys.map(metric => props.metrics[metric]).filter(isDefined);
   const isLeak = Boolean(baseComponent && showLeakMeasure(branchLike));
   return (
     <table className="data boxed-padding zebra">

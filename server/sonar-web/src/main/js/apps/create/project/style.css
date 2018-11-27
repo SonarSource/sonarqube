@@ -1,0 +1,104 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.create-project {
+  display: flex !important;
+  justify-content: space-between;
+}
+
+.create-project-repository {
+  display: flex;
+  align-items: center;
+  min-width: 500px;
+  height: 40px;
+  border: 1px solid var(--barBorderColor);
+  padding: var(--gridSize) calc(var(--gridSize) * 2);
+  margin-bottom: calc(var(--gridSize));
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-project-repository.disabled {
+  background-color: var(--disableGrayBg);
+  border-color: var(--disableGrayBorder);
+  cursor: default;
+}
+
+.create-project-repository.imported {
+  cursor: default;
+}
+
+.create-project-repository.selected {
+  background-color: var(--lightBlue);
+  border-color: var(--darkBlue);
+}
+
+.create-project-repository:not(.imported):not(.disabled):hover,
+.create-project-repository:not(.imported):not(.disabled):focus,
+.create-project-repository:not(.imported):not(.disabled):active {
+  border-color: var(--blue);
+  box-shadow: none;
+}
+
+.create-project-setup {
+  display: flex;
+  overflow: hidden;
+  opacity: 0;
+  flex-direction: column;
+  height: 0;
+  width: 450px;
+  margin-bottom: 0;
+  color: #fff;
+  background-color: var(--sonarcloudBlue900);
+  border: none;
+  border-radius: 3px;
+  transition: height 0.5s ease, opacity 0.4s ease-out, margin-bottom 0.5s ease-in;
+}
+
+.create-project-setup.open {
+  opacity: 1;
+  height: 160px;
+  margin-bottom: calc(2.5 * var(--gridSize));
+}
+
+.create-project-setup h2 {
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--bigFontSize);
+}
+
+.create-project-setup .boxed-group-inner {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.create-project-setup .button {
+  border-color: var(--sonarcloudBlue500);
+  background-color: var(--sonarcloudBlue500);
+  color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.create-project-setup .button:hover,
+.create-project-setup .button:focus {
+  border-color: var(--sonarcloudBlue600);
+  background-color: var(--sonarcloudBlue600);
+}

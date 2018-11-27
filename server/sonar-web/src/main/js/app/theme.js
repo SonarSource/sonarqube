@@ -90,6 +90,7 @@ module.exports = {
   bigFontSize: '16px',
   hugeFontSize: '24px',
 
+  largeControlHeight: `${4 * grid}px`,
   controlHeight: `${3 * grid}px`,
   smallControlHeight: `${2.5 * grid}px`,
   tinyControlHeight: `${2 * grid}px`,
@@ -137,6 +138,7 @@ module.exports = {
   // sonarcloud
   sonarcloudOrange500: '#fd6a00',
   sonarcloudOrange700: '#db5700',
+
   sonarcloudBlack100: '#ffffff',
   sonarcloudBlack200: '#f9f9fb',
   sonarcloudBlack250: '#e6e8ea',
@@ -145,6 +147,11 @@ module.exports = {
   sonarcloudBlack700: '#434447',
   sonarcloudBlack800: '#2d3032',
   sonarcloudBlack900: '#070706',
+
+  sonarcloudBlue500: '#4c9bd6',
+  sonarcloudBlue600: '#327bb3',
+  sonarcloudBlue900: '#0b3c62',
+
   sonarcloudBorderGray: 'rgba(207, 211, 215, 0.5)',
   sonarcloudFontFamily:
     "Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"

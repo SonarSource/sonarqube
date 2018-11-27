@@ -51,6 +51,10 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
     }
   }
 
+  handleOrganizationUpgrade = () => {
+    this.props.fetchOrganization(this.props.organization.key);
+  };
+
   handleVisibilityChange = (visibility: T.Visibility) => {
     if (this.props.organization) {
       this.props.onVisibilityChange(this.props.organization, visibility);
@@ -71,6 +75,7 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
       <App
         currentUser={this.props.currentUser}
         hasProvisionPermission={actions.provision}
+        onOrganizationUpgrade={this.handleOrganizationUpgrade}
         onVisibilityChange={this.handleVisibilityChange}
         organization={organization}
         topLevelQualifiers={topLevelQualifiers}

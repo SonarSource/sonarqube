@@ -101,24 +101,7 @@ exports[`should render with auto tab displayed 1`] = `
       <p
         className="page-description"
       >
-        <FormattedMessage
-          defaultMessage="onboarding.create_organization.page.description"
-          id="onboarding.create_organization.page.description"
-          values={
-            Object {
-              "break": <br />,
-              "more": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/sonarcloud-pricing/"
-              >
-                learn_more
-              </Link>,
-              "price": "billing.price_format.10",
-            }
-          }
-        />
+        onboarding.create_organization.page.description
       </p>
     </header>
     <Tabs
@@ -203,24 +186,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
       <p
         className="page-description"
       >
-        <FormattedMessage
-          defaultMessage="onboarding.create_organization.page.description"
-          id="onboarding.create_organization.page.description"
-          values={
-            Object {
-              "break": <br />,
-              "more": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/sonarcloud-pricing/"
-              >
-                learn_more
-              </Link>,
-              "price": "billing.price_format.10",
-            }
-          }
-        />
+        onboarding.create_organization.page.description
       </p>
     </header>
     <Tabs
@@ -342,24 +308,7 @@ exports[`should render with manual tab displayed 1`] = `
       <p
         className="page-description"
       >
-        <FormattedMessage
-          defaultMessage="onboarding.create_organization.page.description"
-          id="onboarding.create_organization.page.description"
-          values={
-            Object {
-              "break": <br />,
-              "more": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/sonarcloud-pricing/"
-              >
-                learn_more
-              </Link>,
-              "price": "billing.price_format.10",
-            }
-          }
-        />
+        onboarding.create_organization.page.description
       </p>
     </header>
     <ManualOrganizationCreate
@@ -414,24 +363,7 @@ exports[`should render with organization bind page 2`] = `
       <p
         className="page-description"
       >
-        <FormattedMessage
-          defaultMessage="onboarding.create_organization.page.description"
-          id="onboarding.create_organization.page.description"
-          values={
-            Object {
-              "break": <br />,
-              "more": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/sonarcloud-pricing/"
-              >
-                learn_more
-              </Link>,
-              "price": "billing.price_format.10",
-            }
-          }
-        />
+        onboarding.create_organization.page.description
       </p>
     </header>
     <Tabs
@@ -551,24 +483,7 @@ exports[`should switch tabs 1`] = `
       <p
         className="page-description"
       >
-        <FormattedMessage
-          defaultMessage="onboarding.create_organization.page.description"
-          id="onboarding.create_organization.page.description"
-          values={
-            Object {
-              "break": <br />,
-              "more": <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                target="_blank"
-                to="/documentation/sonarcloud-pricing/"
-              >
-                learn_more
-              </Link>,
-              "price": "billing.price_format.10",
-            }
-          }
-        />
+        onboarding.create_organization.page.description
       </p>
     </header>
     <Tabs

@@ -6,6 +6,7 @@ exports[`renders correctly 1`] = `
   medium={true}
   onRequestClose={[MockFunction]}
   shouldCloseOnOverlayClick={false}
+  simple={true}
 >
   <div
     className="modal-simple-head text-center"
@@ -50,7 +51,7 @@ exports[`renders correctly 1`] = `
     </Button>
   </div>
   <div
-    className="modal-simple-footer text-center"
+    className="modal-simple-foot text-center"
   >
     <ResetButtonLink
       className="spacer-bottom"

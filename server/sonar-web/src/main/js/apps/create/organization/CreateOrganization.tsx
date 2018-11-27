@@ -24,10 +24,8 @@ import { times } from 'lodash';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
-import { Link, withRouter, WithRouterProps } from 'react-router';
+import { withRouter, WithRouterProps } from 'react-router';
 import {
-  formatPrice,
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
   parseQuery,
   serializeQuery,
@@ -410,7 +408,6 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       ? translate('onboarding.import_organization.personal.page.header')
       : translate('onboarding.create_organization.page.header');
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
-    const formattedPrice = formatPrice(startedPrice);
 
     return (
       <>
@@ -421,19 +418,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             {!importPersonalOrg &&
               startedPrice !== undefined && (
                 <p className="page-description">
-                  <FormattedMessage
-                    defaultMessage={translate('onboarding.create_organization.page.description')}
-                    id="onboarding.create_organization.page.description"
-                    values={{
-                      break: <br />,
-                      price: formattedPrice,
-                      more: (
-                        <Link target="_blank" to="/documentation/sonarcloud-pricing/">
-                          {translate('learn_more')}
-                        </Link>
-                      )
-                    }}
-                  />
+                  {translate('onboarding.create_organization.page.description')}
                 </p>
               )}
           </header>

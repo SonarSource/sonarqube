@@ -77,13 +77,24 @@ exports[`creates project 1`] = `
           onChange={[Function]}
           visibility="public"
         />
-        <div
-          className="spacer-top"
-        >
-          <UpgradeOrganizationBox
-            organization="org"
-          />
-        </div>
+      </div>
+      <div
+        className="spacer-top display-flex-space-around"
+      >
+        <UpgradeOrganizationBox
+          insideModal={true}
+          onOrganizationUpgrade={[MockFunction]}
+          organization={
+            Object {
+              "actions": Object {
+                "admin": true,
+              },
+              "key": "org",
+              "name": "org",
+              "projectVisibility": "public",
+            }
+          }
+        />
       </div>
     </div>
     <footer
@@ -183,13 +194,24 @@ exports[`creates project 2`] = `
           onChange={[Function]}
           visibility="private"
         />
-        <div
-          className="spacer-top"
-        >
-          <UpgradeOrganizationBox
-            organization="org"
-          />
-        </div>
+      </div>
+      <div
+        className="spacer-top display-flex-space-around"
+      >
+        <UpgradeOrganizationBox
+          insideModal={true}
+          onOrganizationUpgrade={[MockFunction]}
+          organization={
+            Object {
+              "actions": Object {
+                "admin": true,
+              },
+              "key": "org",
+              "name": "org",
+              "projectVisibility": "public",
+            }
+          }
+        />
       </div>
     </div>
     <footer
@@ -289,13 +311,24 @@ exports[`creates project 3`] = `
           onChange={[Function]}
           visibility="private"
         />
-        <div
-          className="spacer-top"
-        >
-          <UpgradeOrganizationBox
-            organization="org"
-          />
-        </div>
+      </div>
+      <div
+        className="spacer-top display-flex-space-around"
+      >
+        <UpgradeOrganizationBox
+          insideModal={true}
+          onOrganizationUpgrade={[MockFunction]}
+          organization={
+            Object {
+              "actions": Object {
+                "admin": true,
+              },
+              "key": "org",
+              "name": "org",
+              "projectVisibility": "public",
+            }
+          }
+        />
       </div>
     </div>
     <footer

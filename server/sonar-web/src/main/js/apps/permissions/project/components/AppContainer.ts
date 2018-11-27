@@ -19,10 +19,22 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getCurrentUser, Store } from '../../../../store/rootReducer';
+import { getCurrentUser, getOrganizationByKey, Store } from '../../../../store/rootReducer';
+import { fetchOrganization } from '../../../organizations/actions';
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
+interface OwnProps {
+  component: T.Component;
+  onComponentChange: (changes: Partial<T.Component>) => void;
+}
+
+const mapStateToProps = (state: Store, { component }: OwnProps) => ({
+  currentUser: getCurrentUser(state),
+  organization: getOrganizationByKey(state, component.organization)
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = { fetchOrganization };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

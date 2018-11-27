@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import EmptyResult from './EmptyResult';
-import OriginalBubbleChart, { BubbleItem } from '../../../components/charts/BubbleChart';
+import OriginalBubbleChart from '../../../components/charts/BubbleChart';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
@@ -31,6 +31,7 @@ import {
 } from '../../../helpers/l10n';
 import { getBubbleMetrics, getBubbleYDomain, isProjectOverview } from '../utils';
 import { RATING_COLORS } from '../../../helpers/constants';
+import { isDefined } from '../../../helpers/types';
 
 const HEIGHT = 500;
 
@@ -113,13 +114,13 @@ export default class BubbleChart extends React.PureComponent<Props> {
           size,
           color:
             colors !== undefined
-              ? RATING_COLORS[Math.max(...colors.filter(Boolean) as number[]) - 1]
+              ? RATING_COLORS[Math.max(...colors.filter(isDefined)) - 1]
               : undefined,
           data: component,
           tooltip: this.getTooltip(component.name, { x, y, size, colors }, metrics)
         };
       })
-      .filter(Boolean) as BubbleItem<T.ComponentMeasureEnhanced>[];
+      .filter(isDefined);
 
     const formatXTick = (tick: string | number | undefined) => formatMeasure(tick, metrics.x.type);
     const formatYTick = (tick: string | number | undefined) => formatMeasure(tick, metrics.y.type);

@@ -33,9 +33,11 @@ import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
 import '../../../app/styles/sonarcloud.css';
+import './style.css';
 
 interface Props {
   currentUser: T.LoggedInUser;
+  fetchMyOrganizations: () => Promise<void>;
   skipOnboarding: () => void;
   userOrganizations: T.Organization[];
 }
@@ -162,6 +164,7 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
                   boundOrganizations={userOrganizations.filter(
                     ({ alm, actions = {} }) => alm && actions.provision
                   )}
+                  onOrganizationUpgrade={this.props.fetchMyOrganizations}
                   onProjectCreate={this.handleProjectCreate}
                   organization={state.organization}
                 />

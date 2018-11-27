@@ -101,6 +101,10 @@ th.nowrap {
   margin-left: 40px !important;
 }
 
+.huge-spacer-right {
+  margin-right: 40px !important;
+}
+
 .little-spacer-left {
   margin-left: 4px !important;
 }
@@ -297,6 +301,16 @@ td.big-spacer-top {
 .display-flex-center {
   display: flex !important;
   align-items: center;
+}
+
+.display-flex-space-around {
+  display: flex !important;
+  justify-content: space-around;
+}
+
+.display-flex-space-between {
+  display: flex !important;
+  justify-content: space-between;
 }
 
 .display-flex-stretch {

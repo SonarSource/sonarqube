@@ -34,46 +34,64 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render options correctly 1`] = `
-<span>
-  <img
-    alt="SonarCloud"
-    className="spacer-right"
-    height={14}
-    src="/images/sonarcloud-square-logo.svg"
-  />
-  Foo
+<div
+  className="display-flex-space-between"
+>
   <span
-    className="note little-spacer-left"
+    className="text-ellipsis flex-1"
   >
-    foo
+    <img
+      alt="SonarCloud"
+      className="little-spacer-right"
+      height={14}
+      src="/images/sonarcloud-square-logo.svg"
+    />
+    Foo
+    <span
+      className="note little-spacer-left"
+    >
+      foo
+    </span>
   </span>
-</span>
+</div>
 `;
 
 exports[`should render options correctly 2`] = `
-<span>
-  <img
-    alt="github"
-    className="spacer-right"
-    height={14}
-    src="/images/sonarcloud/github.svg"
-  />
-  Bar
+<div
+  className="display-flex-space-between"
+>
   <span
-    className="note little-spacer-left"
+    className="text-ellipsis flex-1"
   >
-    bar
+    <img
+      alt="github"
+      className="little-spacer-right"
+      height={14}
+      src="/images/sonarcloud/github.svg"
+    />
+    Bar
+    <span
+      className="note little-spacer-left"
+    >
+      bar
+    </span>
   </span>
-</span>
+</div>
 `;
 
 exports[`should render options correctly 3`] = `
-<span>
-  Foo
+<div
+  className="display-flex-space-between"
+>
   <span
-    className="note little-spacer-left"
+    className="text-ellipsis flex-1"
   >
-    foo
+    Foo
+    <span
+      className="note little-spacer-left"
+    >
+      foo
+    </span>
   </span>
-</span>
+</div>
 `;

@@ -35,8 +35,6 @@ export const ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP =
 export const ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP =
   'sonarcloud.import_org.redirect_to_projects';
 
-export const TRIAL_DURATION_DAYS = 14;
-
 export enum Step {
   OrganizationDetails,
   Plan

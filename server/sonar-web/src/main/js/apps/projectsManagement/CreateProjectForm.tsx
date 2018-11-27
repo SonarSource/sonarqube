@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { createProject } from '../../api/components';
-import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
+import UpgradeOrganizationBox from '../create/components/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import Modal from '../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
@@ -32,6 +32,7 @@ import { Alert } from '../../components/ui/Alert';
 interface Props {
   onClose: () => void;
   onProjectCreated: () => void;
+  onOrganizationUpgrade: () => void;
   organization: T.Organization;
 }
 
@@ -194,12 +195,18 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                   onChange={this.handleVisibilityChange}
                   visibility={this.state.visibility}
                 />
-                {!organization.canUpdateProjectsVisibilityToPrivate && (
-                  <div className="spacer-top">
-                    <UpgradeOrganizationBox organization={organization.key} />
+              </div>
+              {organization.actions &&
+                organization.actions.admin &&
+                !organization.canUpdateProjectsVisibilityToPrivate && (
+                  <div className="spacer-top display-flex-space-around">
+                    <UpgradeOrganizationBox
+                      insideModal={true}
+                      onOrganizationUpgrade={this.props.onOrganizationUpgrade}
+                      organization={organization}
+                    />
                   </div>
                 )}
-              </div>
             </div>
 
             <footer className="modal-foot">

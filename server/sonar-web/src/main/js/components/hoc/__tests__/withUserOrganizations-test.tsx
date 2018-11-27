@@ -24,7 +24,10 @@ import { withUserOrganizations } from '../withUserOrganizations';
 
 jest.mock('../../../api/organizations', () => ({ getOrganizations: jest.fn() }));
 
-class X extends React.Component<{ userOrganizations: T.Organization[] }> {
+class X extends React.Component<{
+  fetchMyOrganizations: () => Promise<void>;
+  userOrganizations: T.Organization[];
+}> {
   render() {
     return <div />;
   }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ChangeVisibilityForm from './ChangeVisibilityForm';
+import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 import { EditButton, Button } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
@@ -75,13 +75,14 @@ export default class Header extends React.PureComponent<Props, State> {
 
         <p className="page-description">{translate('projects_management.page.description')}</p>
 
-        {this.state.visibilityForm && (
-          <ChangeVisibilityForm
-            onClose={this.closeVisiblityForm}
-            onConfirm={this.props.onVisibilityChange}
-            organization={organization}
-          />
-        )}
+        {!isSonarCloud() &&
+          this.state.visibilityForm && (
+            <ChangeDefaultVisibilityForm
+              onClose={this.closeVisiblityForm}
+              onConfirm={this.props.onVisibilityChange}
+              organization={organization}
+            />
+          )}
       </header>
     );
   }

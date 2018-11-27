@@ -90,6 +90,10 @@
   border-color: var(--blue);
 }
 
+.Select-placeholder {
+  color: var(--secondFontColor);
+}
+
 .Select-placeholder,
 :not(.Select--multi) > .Select-control .Select-value {
   bottom: 0;
@@ -113,6 +117,13 @@
 .Select-value svg,
 .Select-value img {
   padding-top: 4px;
+}
+
+.Select-value .outline-badge,
+.Select-option .outline-badge {
+  height: 20px;
+  line-height: 19px;
+  margin-top: 1px;
 }
 
 .Select-option svg,

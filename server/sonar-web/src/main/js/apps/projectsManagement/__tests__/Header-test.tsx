@@ -22,7 +22,13 @@ import { shallow } from 'enzyme';
 import Header, { Props } from '../Header';
 import { click } from '../../../helpers/testUtils';
 
-const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn().mockReturnValue(false) }));
+
+const organization: T.Organization = {
+  key: 'org',
+  name: 'org',
+  projectVisibility: 'public'
+};
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -41,14 +47,14 @@ it('changes default visibility', () => {
 
   click(wrapper.find('.js-change-visibility'));
 
-  const modalWrapper = wrapper.find('ChangeVisibilityForm');
+  const modalWrapper = wrapper.find('ChangeDefaultVisibilityForm');
   expect(modalWrapper).toMatchSnapshot();
   modalWrapper.prop<Function>('onConfirm')('private');
   expect(onVisibilityChange).toBeCalledWith('private');
 
   modalWrapper.prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('ChangeVisibilityForm').exists()).toBeFalsy();
+  expect(wrapper.find('ChangeDefaultVisibilityForm').exists()).toBeFalsy();
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

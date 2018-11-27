@@ -18,30 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import AlmRepositoryItem from './AlmRepositoryItem';
+import SetupProjectBox from './SetupProjectBox';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { getRepositories, provisionProject } from '../../../api/alm-integration';
-import { SubmitButton } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
+import { getRepositories } from '../../../api/alm-integration';
+import { isDefined } from '../../../helpers/types';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   almApplication: T.AlmApplication;
+  onOrganizationUpgrade: () => void;
   onProjectCreate: (projectKeys: string[], organization: string) => void;
-  organization: string;
+  organization: T.Organization;
 }
 
 type SelectedRepositories = { [key: string]: T.AlmRepository | undefined };
 
 interface State {
+  highlight: boolean;
   loading: boolean;
   repositories: T.AlmRepository[];
   selectedRepositories: SelectedRepositories;
-  submitting: boolean;
+  successfullyUpgraded: boolean;
 }
 
 export default class RemoteRepositories extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: true, repositories: [], selectedRepositories: {}, submitting: false };
+  state: State = {
+    highlight: false,
+    loading: true,
+    repositories: [],
+    selectedRepositories: {},
+    successfullyUpgraded: false
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -51,7 +63,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
   componentDidUpdate(prevProps: Props) {
     const { organization } = this.props;
     if (prevProps.organization !== organization) {
-      this.setState({ loading: true });
+      this.setState({ loading: true, selectedRepositories: {} });
       this.fetchRepositories();
     }
   }
@@ -62,7 +74,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
 
   fetchRepositories = () => {
     const { organization } = this.props;
-    return getRepositories({ organization }).then(
+    return getRepositories({ organization: organization.key }).then(
       ({ repositories }) => {
         if (this.mounted) {
           this.setState({ loading: false, repositories });
@@ -76,26 +88,14 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
     );
   };
 
-  handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  handleHighlightUpgradeBox = (highlight: boolean) => {
+    this.setState({ highlight });
+  };
 
-    if (this.isValid()) {
-      const { selectedRepositories } = this.state;
-      this.setState({ submitting: true });
-      provisionProject({
-        installationKeys: Object.keys(selectedRepositories).filter(key => {
-          const repositories = selectedRepositories[key];
-          return repositories && !repositories.private;
-        }),
-        organization: this.props.organization
-      }).then(
-        ({ projects }) =>
-          this.props.onProjectCreate(
-            projects.map(project => project.projectKey),
-            this.props.organization
-          ),
-        this.handleProvisionFail
-      );
+  handleOrganizationUpgrade = () => {
+    this.props.onOrganizationUpgrade();
+    if (this.mounted) {
+      this.setState({ successfullyUpgraded: true });
     }
   };
 
@@ -110,16 +110,10 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
               updateSelectedRepositories[newRepository.installationKey] = newRepository;
             }
           });
-          return { selectedRepositories: updateSelectedRepositories, submitting: false };
+          return { selectedRepositories: updateSelectedRepositories };
         });
       }
     });
-  };
-
-  isValid = () => {
-    return this.state.repositories.some(repo =>
-      Boolean(this.state.selectedRepositories[repo.installationKey])
-    );
   };
 
   toggleRepository = (repository: T.AlmRepository) => {
@@ -134,29 +128,60 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
   };
 
   render() {
-    const { loading, selectedRepositories, submitting } = this.state;
-    const { almApplication } = this.props;
+    const { highlight, loading, repositories, selectedRepositories } = this.state;
+    const { almApplication, organization } = this.props;
+    const isPaidOrg = organization.subscription === 'PAID';
+    const hasPrivateRepositories = repositories.some(repository => Boolean(repository.private));
+    const showUpgradebox =
+      !isPaidOrg && hasPrivateRepositories && organization.actions && organization.actions.admin;
+
     return (
-      <DeferredSpinner loading={loading}>
-        <form onSubmit={this.handleFormSubmit}>
-          <div className="form-field">
+      <div className="create-project">
+        <div className="flex-1 huge-spacer-right">
+          {this.state.successfullyUpgraded && (
+            <Alert variant="success">
+              {translateWithParameters(
+                'onboarding.create_project.subscribtion_success_x',
+                organization.name
+              )}
+            </Alert>
+          )}
+          <DeferredSpinner loading={loading}>
             <ul>
-              {this.state.repositories.map(repo => (
-                <li className="big-spacer-bottom" key={repo.installationKey}>
-                  <AlmRepositoryItem
-                    identityProvider={almApplication}
-                    repository={repo}
-                    selected={Boolean(selectedRepositories[repo.installationKey])}
-                    toggleRepository={this.toggleRepository}
-                  />
-                </li>
+              {repositories.map(repo => (
+                <AlmRepositoryItem
+                  disabled={Boolean(repo.private && !isPaidOrg)}
+                  highlightUpgradeBox={this.handleHighlightUpgradeBox}
+                  identityProvider={almApplication}
+                  key={repo.installationKey}
+                  repository={repo}
+                  selected={Boolean(selectedRepositories[repo.installationKey])}
+                  toggleRepository={this.toggleRepository}
+                />
               ))}
             </ul>
+          </DeferredSpinner>
+        </div>
+        {organization && (
+          <div className="huge-spacer-left">
+            <SetupProjectBox
+              onProjectCreate={this.props.onProjectCreate}
+              onProvisionFail={this.handleProvisionFail}
+              organization={organization}
+              selectedRepositories={Object.keys(selectedRepositories)
+                .map(r => selectedRepositories[r])
+                .filter(isDefined)}
+            />
+            {showUpgradebox && (
+              <UpgradeOrganizationBox
+                className={classNames({ highlight })}
+                onOrganizationUpgrade={this.handleOrganizationUpgrade}
+                organization={organization}
+              />
+            )}
           </div>
-          <SubmitButton disabled={!this.isValid() || submitting}>{translate('setup')}</SubmitButton>
-          <DeferredSpinner className="spacer-left" loading={submitting} />
-        </form>
-      </DeferredSpinner>
+        )}
+      </div>
     );
   }
 }

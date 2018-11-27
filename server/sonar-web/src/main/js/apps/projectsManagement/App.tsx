@@ -33,6 +33,7 @@ import { translate } from '../../helpers/l10n';
 export interface Props {
   currentUser: { login: string };
   hasProvisionPermission?: boolean;
+  onOrganizationUpgrade: () => void;
   onVisibilityChange: (visibility: T.Visibility) => void;
   organization: T.Organization;
   topLevelQualifiers: string[];
@@ -233,6 +234,7 @@ export default class App extends React.PureComponent<Props, State> {
         {this.state.createProjectForm && (
           <CreateProjectForm
             onClose={this.closeCreateProjectForm}
+            onOrganizationUpgrade={this.props.onOrganizationUpgrade}
             onProjectCreated={this.requestProjects}
             organization={this.props.organization}
           />

@@ -56,6 +56,6 @@ it('should recommend paid plan and disable free plan', () => {
 
 function shallowRender(props: Partial<PlanSelect['props']> = {}) {
   return shallow(
-    <PlanSelect onChange={jest.fn()} plan={Plan.Free} startingPrice="10" {...props} />
+    <PlanSelect onChange={jest.fn()} plan={Plan.Free} startingPrice={10} {...props} />
   );
 }

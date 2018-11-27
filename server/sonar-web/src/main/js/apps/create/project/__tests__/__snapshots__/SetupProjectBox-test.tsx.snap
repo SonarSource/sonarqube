@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly create projects 1`] = `
+<form
+  className="create-project-setup boxed-group open"
+  onSubmit={[Function]}
+>
+  <div
+    className="boxed-group-header"
+  >
+    <h2
+      className="spacer-top"
+    >
+      onboarding.create_project.x_repositories_selected.2
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <div
+      className="flex-1"
+    >
+      <p>
+        onboarding.create_project.1_repository_created_as_public
+      </p>
+      <p>
+        onboarding.create_project.1_repository_created_as_private
+      </p>
+    </div>
+    <div>
+      <SubmitButton
+        className="button-large"
+        disabled={false}
+      >
+        setup
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+        timeout={100}
+      />
+    </div>
+  </div>
+</form>
+`;

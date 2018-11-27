@@ -137,6 +137,7 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
     <App
       currentUser={{ login: 'foo' }}
       hasProvisionPermission={true}
+      onOrganizationUpgrade={jest.fn()}
       onVisibilityChange={jest.fn()}
       organization={organization}
       topLevelQualifiers={['TRK', 'VW', 'APP']}

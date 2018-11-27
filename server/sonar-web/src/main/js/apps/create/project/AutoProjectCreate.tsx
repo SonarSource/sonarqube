@@ -31,6 +31,7 @@ import { save } from '../../../helpers/storage';
 interface Props {
   almApplication: T.AlmApplication;
   boundOrganizations: T.Organization[];
+  onOrganizationUpgrade: () => void;
   onProjectCreate: (projectKeys: string[], organization: string) => void;
   organization?: string;
 }
@@ -40,9 +41,19 @@ interface State {
 }
 
 export default class AutoProjectCreate extends React.PureComponent<Props, State> {
+  mounted = false;
+
   constructor(props: Props) {
     super(props);
     this.state = { selectedOrganization: this.getInitialSelectedOrganization(props) };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   getInitialSelectedOrganization(props: Props) {
@@ -89,6 +100,8 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
     }
 
     const { selectedOrganization } = this.state;
+    const organization = boundOrganizations.find(o => o.key === selectedOrganization);
+
     return (
       <>
         <OrganizationInput
@@ -97,11 +110,12 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
           organization={selectedOrganization}
           organizations={this.props.boundOrganizations}
         />
-        {selectedOrganization && (
+        {organization && (
           <RemoteRepositories
             almApplication={almApplication}
+            onOrganizationUpgrade={this.props.onOrganizationUpgrade}
             onProjectCreate={onProjectCreate}
-            organization={selectedOrganization}
+            organization={organization}
           />
         )}
       </>

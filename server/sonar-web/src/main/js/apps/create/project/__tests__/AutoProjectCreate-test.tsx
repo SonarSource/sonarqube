@@ -29,11 +29,27 @@ const almApplication = {
   name: 'GitHub'
 };
 
+const boundOrganizations: T.Organization[] = [
+  {
+    actions: { admin: true },
+    alm: { key: 'github', url: '' },
+    key: 'foo',
+    name: 'Foo',
+    subscription: 'FREE'
+  },
+  {
+    alm: { key: 'github', url: '' },
+    key: 'bar',
+    name: 'Bar',
+    subscription: 'FREE'
+  }
+];
+
 it('should display the provider app install button', () => {
   expect(shallowRender({ boundOrganizations: [] })).toMatchSnapshot();
 });
 
-it('should display the bounded organizations dropdown with the list of repositories', () => {
+it('should display the bound organizations dropdown with the remote repositories', () => {
   expect(shallowRender({ organization: 'foo' })).toMatchSnapshot();
 });
 
@@ -41,10 +57,8 @@ function shallowRender(props: Partial<AutoProjectCreate['props']> = {}) {
   return shallow(
     <AutoProjectCreate
       almApplication={almApplication}
-      boundOrganizations={[
-        { alm: { key: 'github', url: '' }, key: 'foo', name: 'Foo' },
-        { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
-      ]}
+      boundOrganizations={boundOrganizations}
+      onOrganizationUpgrade={jest.fn()}
       onProjectCreate={jest.fn()}
       organization=""
       {...props}

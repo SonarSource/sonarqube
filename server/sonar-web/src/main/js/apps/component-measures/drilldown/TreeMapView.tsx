@@ -30,6 +30,7 @@ import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
+import { isDefined } from '../../../helpers/types';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -96,7 +97,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
           })
         };
       })
-      .filter(Boolean) as TreeMapItem[];
+      .filter(isDefined);
   };
 
   getLevelColorScale = () =>

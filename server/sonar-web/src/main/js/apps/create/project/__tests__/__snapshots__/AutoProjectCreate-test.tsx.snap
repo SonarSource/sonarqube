@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display the bounded organizations dropdown with the list of repositories 1`] = `
+exports[`should display the bound organizations dropdown with the remote repositories 1`] = `
 <Fragment>
   <withRouter(OrganizationInput)
     autoImport={true}
@@ -9,12 +9,16 @@ exports[`should display the bounded organizations dropdown with the list of repo
     organizations={
       Array [
         Object {
+          "actions": Object {
+            "admin": true,
+          },
           "alm": Object {
             "key": "github",
             "url": "",
           },
           "key": "foo",
           "name": "Foo",
+          "subscription": "FREE",
         },
         Object {
           "alm": Object {
@@ -23,6 +27,7 @@ exports[`should display the bounded organizations dropdown with the list of repo
           },
           "key": "bar",
           "name": "Bar",
+          "subscription": "FREE",
         },
       ]
     }
@@ -37,8 +42,22 @@ exports[`should display the bounded organizations dropdown with the list of repo
         "name": "GitHub",
       }
     }
+    onOrganizationUpgrade={[MockFunction]}
     onProjectCreate={[MockFunction]}
-    organization="foo"
+    organization={
+      Object {
+        "actions": Object {
+          "admin": true,
+        },
+        "alm": Object {
+          "key": "github",
+          "url": "",
+        },
+        "key": "foo",
+        "name": "Foo",
+        "subscription": "FREE",
+      }
+    }
   />
 </Fragment>
 `;

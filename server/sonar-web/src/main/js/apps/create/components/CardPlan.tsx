@@ -21,12 +21,11 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import CheckIcon from '../../../components/icons-components/CheckIcon';
+import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
 import RecommendedIcon from '../../../components/icons-components/RecommendedIcon';
 import { Alert } from '../../../components/ui/Alert';
-import { formatPrice, TRIAL_DURATION_DAYS } from '../organization/utils';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import * as theme from '../../../app/theme';
+import { formatPrice } from '../organization/utils';
+import { translate } from '../../../helpers/l10n';
 import './CardPlan.css';
 
 interface Props {
@@ -34,7 +33,7 @@ interface Props {
   disabled?: boolean;
   onClick?: () => void;
   selected?: boolean;
-  startingPrice?: string;
+  startingPrice?: number;
 }
 
 interface CardProps extends Props {
@@ -64,17 +63,18 @@ export default function CardPlan(props: CardProps) {
           )}
           {props.title}
         </span>
-        {startingPrice ? (
-          <FormattedMessage
-            defaultMessage={translate('billing.price_from_x')}
-            id="billing.price_from_x"
-            values={{
-              price: <span className="card-plan-price">{startingPrice}</span>
-            }}
-          />
-        ) : (
-          <span className="card-plan-price">{formatPrice(0)}</span>
-        )}
+        {startingPrice !== undefined &&
+          (startingPrice ? (
+            <FormattedMessage
+              defaultMessage={translate('billing.price_from_x')}
+              id="billing.price_from_x"
+              values={{
+                price: <span className="card-plan-price">{formatPrice(startingPrice)}</span>
+              }}
+            />
+          ) : (
+            <span className="card-plan-price">{formatPrice(0)}</span>
+          ))}
       </h2>
       <div className="card-plan-body">{props.children}</div>
       {recommended && (
@@ -101,12 +101,16 @@ export function FreeCardPlan({ almName, hasWarning, ...props }: FreeProps) {
   const showWarning = almName && hasWarning && !props.disabled;
 
   return (
-    <CardPlan title={translate('billing.free_plan.title')} {...props}>
+    <CardPlan startingPrice={0} title={translate('billing.free_plan.title')} {...props}>
       <>
-        <ul className="note">
-          <li>{translate('billing.free_plan.all_projects_analyzed_public')}</li>
-          <li>{translate('billing.free_plan.anyone_can_browse_source_code')}</li>
-        </ul>
+        <div className="spacer-left">
+          <ul className="big-spacer-left note">
+            <li className="little-spacer-bottom">
+              {translate('billing.free_plan.all_projects_analyzed_public')}
+            </li>
+            <li>{translate('billing.free_plan.anyone_can_browse_source_code')}</li>
+          </ul>
+        </div>
         {showWarning && (
           <Alert variant="warning">
             <FormattedMessage
@@ -135,31 +139,15 @@ interface PaidProps extends Props {
 }
 
 export function PaidCardPlan({ isRecommended, ...props }: PaidProps) {
-  const advantages = [
-    translate('billing.upgrade_box.unlimited_private_projects'),
-    translate('billing.upgrade_box.strict_control_private_data'),
-    translate('billing.upgrade_box.cancel_anytime'),
-    <strong key="trial">
-      {translateWithParameters('billing.upgrade_box.free_trial_x', TRIAL_DURATION_DAYS)}
-    </strong>
-  ];
-
   return (
     <CardPlan
       recommended={isRecommended ? translate('billing.paid_plan.recommended') : undefined}
       title={translate('billing.paid_plan.title')}
       {...props}>
       <>
-        <ul className="note">
-          {advantages.map((text, idx) => (
-            <li className="display-flex-center" key={idx}>
-              <CheckIcon className="spacer-right" fill={theme.lightGreen} />
-              {text}
-            </li>
-          ))}
-        </ul>
+        <UpgradeOrganizationAdvantages />
         <div className="big-spacer-left">
-          <Link className="spacer-left" target="_blank" to="/documentation/sonarcloud-pricing/">
+          <Link className="spacer-left" target="_blank" to="/about/pricing">
             {translate('billing.pricing.learn_more')}
           </Link>
         </div>

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <CardPlan
+    startingPrice={10}
+    title="billing.upgrade_box.header"
+  >
+    <UpgradeOrganizationAdvantages />
+    <div
+      className="big-spacer-left"
+    >
+      <Button
+        className="js-upgrade-organization"
+        onClick={[Function]}
+      >
+        billing.paid_plan.upgrade
+      </Button>
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to="/about/pricing"
+      >
+        billing.pricing.learn_more
+      </Link>
+    </div>
+  </CardPlan>
+</Fragment>
+`;

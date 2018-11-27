@@ -18,26 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { shallow } from 'enzyme';
+import UpgradeOrganizationModal from '../UpgradeOrganizationModal';
+import { getExtensionStart } from '../../../../app/components/extensions/utils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-interface ChildrenProps {
-  onSubmit: React.FormEventHandler;
-  renderFormFields: () => React.ReactElement<any>;
-  renderSubmitGroup: (submitText?: string) => React.ReactElement<any>;
-}
+jest.mock('../../../../app/components/extensions/utils', () => ({
+  getExtensionStart: jest.fn().mockResolvedValue(undefined)
+}));
 
-interface Props {
-  children: (props: ChildrenProps) => React.ReactElement<any>;
-  initialCountry?: string;
-  currentUser: T.CurrentUser;
-  onCommit: () => void;
-  onFailToUpgrade?: () => void;
-  organizationKey: string | (() => Promise<string>);
-  subscriptionPlans: T.SubscriptionPlan[];
-}
+const organization = { key: 'foo', name: 'Foo' };
 
-export default class BillingFormShim extends React.Component<Props> {
-  render() {
-    const { BillingForm } = (window as any).SonarBilling;
-    return <BillingForm {...this.props} />;
-  }
-}
+it('should render correctly', async () => {
+  const wrapper = shallow(
+    <UpgradeOrganizationModal
+      onClose={jest.fn()}
+      onUpgradeDone={jest.fn()}
+      organization={organization}
+      subscriptionPlans={[]}
+    />
+  );
+  await waitAndUpdate(wrapper);
+  expect(getExtensionStart).toHaveBeenCalled();
+  expect(wrapper).toMatchSnapshot();
+});

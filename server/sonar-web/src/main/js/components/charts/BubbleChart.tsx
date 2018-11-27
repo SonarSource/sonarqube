@@ -77,7 +77,7 @@ export class Bubble<T> extends React.PureComponent<BubbleProps<T>> {
   }
 }
 
-export interface BubbleItem<T> {
+interface BubbleItem<T> {
   color?: string;
   key?: string;
   link?: string | Location;

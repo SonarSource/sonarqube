@@ -23,6 +23,7 @@ import * as classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
 import LinkIcon from '../icons-components/LinkIcon';
 import Tooltip, { Placement } from '../controls/Tooltip';
+import { Location } from '../../helpers/urls';
 
 const SIZE_SCALE = scaleLinear()
   .domain([3, 15])

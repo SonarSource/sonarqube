@@ -22,21 +22,17 @@ import { connect } from 'react-redux';
 import { Store, getMyOrganizations } from '../../store/rootReducer';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 
+interface OwnProps {
+  fetchMyOrganizations: () => Promise<void>;
+  userOrganizations: T.Organization[];
+}
+
 export function withUserOrganizations<P>(
-  WrappedComponent: React.ComponentClass<
-    P & {
-      personalOrganization?: T.Organization;
-      userOrganizations: T.Organization[];
-    }
-  >
+  WrappedComponent: React.ComponentClass<P & Partial<OwnProps>>
 ) {
-  type Props = P & {
-    fetchMyOrganizations: () => Promise<void>;
-    userOrganizations: T.Organization[];
-  };
   const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
-  class Wrapper extends React.Component<Props> {
+  class Wrapper extends React.Component<P & OwnProps> {
     static displayName = `withUserOrganizations(${wrappedDisplayName})`;
 
     componentDidMount() {
@@ -44,13 +40,11 @@ export function withUserOrganizations<P>(
     }
 
     render() {
-      // @ts-ignore Rest operator not supported yet by TS for generics
-      const { fetchMyOrganizations, ...other } = this.props;
-      return <WrappedComponent {...other} />;
+      return <WrappedComponent {...this.props} />;
     }
   }
 
-  const mapDispatchToProps = { fetchMyOrganizations };
+  const mapDispatchToProps = { fetchMyOrganizations: fetchMyOrganizations as any };
 
   function mapStateToProps(state: Store) {
     return { userOrganizations: getMyOrganizations(state) };

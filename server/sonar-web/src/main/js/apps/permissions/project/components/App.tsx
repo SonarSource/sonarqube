@@ -23,7 +23,7 @@ import { without } from 'lodash';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
-import UpgradeOrganizationBox from '../../../../components/common/UpgradeOrganizationBox';
+import UpgradeOrganizationBox from '../../../create/components/UpgradeOrganizationBox';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import * as api from '../../../../api/permissions';
 import { translate } from '../../../../helpers/l10n';
@@ -31,7 +31,9 @@ import '../../styles.css';
 
 interface Props {
   component: T.Component;
+  fetchOrganization: (organization: string) => void;
   onComponentChange: (changes: Partial<T.Component>) => void;
+  organization?: T.Organization;
 }
 
 interface State {
@@ -299,6 +301,16 @@ export default class App extends React.PureComponent<Props, State> {
     return Promise.resolve();
   };
 
+  handleOrganizationUpgrade = () => {
+    const { component, organization } = this.props;
+    if (organization) {
+      this.props.onComponentChange({
+        configuration: { ...component.configuration, canUpdateProjectVisibilityToPrivate: true }
+      });
+      this.props.fetchOrganization(organization.key);
+    }
+  };
+
   handleVisibilityChange = (visibility: string) => {
     if (visibility === 'public') {
       this.openDisclaimer();
@@ -348,16 +360,25 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { component, organization } = this.props;
     const canTurnToPrivate =
-      this.props.component.configuration != null &&
-      this.props.component.configuration.canUpdateProjectVisibilityToPrivate;
+      component.configuration && component.configuration.canUpdateProjectVisibilityToPrivate;
+
+    let showUpgradeBox;
+    if (organization && !canTurnToPrivate) {
+      const isOrgAdmin = organization.actions && organization.actions.admin;
+      showUpgradeBox =
+        isOrgAdmin &&
+        this.props.component.qualifier === 'TRK' &&
+        !organization.canUpdateProjectsVisibilityToPrivate;
+    }
 
     return (
       <div className="page page-limited" id="project-permissions-page">
         <Helmet title={translate('permissions.page')} />
 
         <PageHeader
-          component={this.props.component}
+          component={component}
           loadHolders={this.loadHolders}
           loading={this.state.loading}
         />
@@ -366,22 +387,26 @@ export default class App extends React.PureComponent<Props, State> {
             canTurnToPrivate={canTurnToPrivate}
             className="big-spacer-top big-spacer-bottom"
             onChange={this.handleVisibilityChange}
-            visibility={this.props.component.visibility}
+            visibility={component.visibility}
           />
-          {this.props.component.qualifier === 'TRK' &&
-            !canTurnToPrivate && (
-              <UpgradeOrganizationBox organization={this.props.component.organization} />
+          {showUpgradeBox &&
+            organization && (
+              <UpgradeOrganizationBox
+                className="big-spacer-bottom"
+                onOrganizationUpgrade={this.handleOrganizationUpgrade}
+                organization={organization}
+              />
             )}
           {this.state.disclaimer && (
             <PublicProjectDisclaimer
-              component={this.props.component}
+              component={component}
               onClose={this.closeDisclaimer}
               onConfirm={this.turnProjectToPublic}
             />
           )}
         </div>
         <AllHoldersList
-          component={this.props.component}
+          component={component}
           filter={this.state.filter}
           grantPermissionToGroup={this.grantPermissionToGroup}
           grantPermissionToUser={this.grantPermissionToUser}
@@ -397,7 +422,7 @@ export default class App extends React.PureComponent<Props, State> {
           selectedPermission={this.state.selectedPermission}
           users={this.state.users}
           usersPaging={this.state.usersPaging}
-          visibility={this.props.component.visibility}
+          visibility={component.visibility}
         />
       </div>
     );

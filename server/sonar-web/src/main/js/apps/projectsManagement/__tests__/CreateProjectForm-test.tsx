@@ -31,12 +31,18 @@ import { change, submit, waitAndUpdate } from '../../../helpers/testUtils';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
 
-const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+const organization: T.Organization = {
+  actions: { admin: true },
+  key: 'org',
+  name: 'org',
+  projectVisibility: 'public'
+};
 
 it('creates project', async () => {
   const wrapper = shallow(
     <CreateProjectForm
       onClose={jest.fn()}
+      onOrganizationUpgrade={jest.fn()}
       onProjectCreated={jest.fn()}
       organization={organization}
     />

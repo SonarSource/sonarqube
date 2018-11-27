@@ -25,6 +25,7 @@ import { scaleLinear, scalePoint, scaleTime, ScaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 import * as theme from '../../app/theme';
 import { Serie, Point } from '../../apps/projectActivity/utils';
+import { isDefined } from '../../helpers/types';
 import './LineChart.css';
 import './AdvancedTimeline.css';
 
@@ -412,7 +413,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
                   />
                 );
               })
-              .filter(Boolean)
+              .filter(isDefined)
           )
           .filter(dots => dots.length > 0)}
       </g>

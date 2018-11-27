@@ -26,6 +26,7 @@ import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH, MeasureHistory, Serie } from '../utils';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { Popup, PopupPlacement } from '../../../components/ui/popups';
+import { isDefined } from '../../../helpers/types';
 
 interface Props {
   events: T.AnalysisEvent[];
@@ -85,7 +86,7 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
       left -= TOOLTIP_WIDTH;
       placement = PopupPlacement.LeftTop;
     }
-    const tooltipContent = this.renderContent().filter(Boolean);
+    const tooltipContent = this.renderContent().filter(isDefined);
     const addSeparator = tooltipContent.length > 0;
     return (
       <Popup

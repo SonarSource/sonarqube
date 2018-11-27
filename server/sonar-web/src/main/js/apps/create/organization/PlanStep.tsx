@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BillingFormShim from './BillingFormShim';
 import PlanSelect, { Plan } from './PlanSelect';
-import { formatPrice } from './utils';
+import BillingFormShim from '../components/BillingFormShim';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Step from '../../tutorials/components/Step';
 import { SubmitButton } from '../../../components/ui/buttons';
@@ -96,7 +95,7 @@ export default class PlanStep extends React.PureComponent<Props, State> {
   renderForm = () => {
     const { submitting } = this.state;
     const { subscriptionPlans } = this.props;
-    const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
+    const startingPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
     return (
       <div className="boxed-group-inner">
         {this.state.ready && (
@@ -106,7 +105,7 @@ export default class PlanStep extends React.PureComponent<Props, State> {
               almOrganization={this.props.almOrganization}
               onChange={this.handlePlanChange}
               plan={this.state.plan}
-              startingPrice={formatPrice(startedPrice)}
+              startingPrice={startingPrice}
             />
 
             {this.state.plan === Plan.Paid ? (

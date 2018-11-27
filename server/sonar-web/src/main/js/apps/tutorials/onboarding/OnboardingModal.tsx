@@ -63,7 +63,8 @@ export class OnboardingModal extends React.PureComponent<Props> {
         contentLabel={header}
         medium={true}
         onRequestClose={this.props.onClose}
-        shouldCloseOnOverlayClick={false}>
+        shouldCloseOnOverlayClick={false}
+        simple={true}>
         <div className="modal-simple-head text-center">
           <h1>{translate('onboarding.header')}</h1>
           <p className="spacer-top">{translate('onboarding.header.description')}</p>
@@ -80,7 +81,7 @@ export class OnboardingModal extends React.PureComponent<Props> {
             </h6>
           </Button>
         </div>
-        <div className="modal-simple-footer text-center">
+        <div className="modal-simple-foot text-center">
           <ResetButtonLink className="spacer-bottom" onClick={this.props.onClose}>
             {translate('not_now')}
           </ResetButtonLink>

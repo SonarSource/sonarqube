@@ -24,6 +24,7 @@ import { PROJECTS_DEFAULT_FILTER, PROJECTS_ALL } from './utils';
 import { save } from '../../helpers/storage';
 import { isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
+import { isDefined } from '../../helpers/types';
 
 const routes = [
   { indexRoute: { component: DefaultPageSelectorContainer } },
@@ -39,6 +40,6 @@ const routes = [
     path: 'create',
     component: lazyLoad(() => import('../create/project/CreateProjectPage'))
   }
-].filter(Boolean);
+].filter(isDefined);
 
 export default routes;

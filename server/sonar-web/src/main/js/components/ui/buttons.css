@@ -163,6 +163,12 @@
   font-size: 11px;
 }
 
+.button-large {
+  height: var(--largeControlHeight);
+  padding: 0 16px;
+  font-size: var(--mediumFontSize);
+}
+
 /* #region .button-group */
 .button-group {
   display: inline-block;

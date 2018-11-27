@@ -260,9 +260,6 @@ exports[`renders disabled 1`] = `
         visibility.private.description.short
       </p>
     </div>
-    <UpgradeOrganizationBox
-      organization="org"
-    />
   </div>
   <footer
     className="modal-foot"

@@ -49,8 +49,12 @@ it('should render selected', () => {
   expect(getWrapper({ selected: true })).toMatchSnapshot();
 });
 
-it('should render disabled', () => {
+it('should render imported', () => {
   expect(getWrapper({ repository: repositories[0] })).toMatchSnapshot();
+});
+
+it('should render disabed', () => {
+  expect(getWrapper({ disabled: true, repository: repositories[1] })).toMatchSnapshot();
 });
 
 it('should render private repositories', () => {
@@ -60,6 +64,8 @@ it('should render private repositories', () => {
 function getWrapper(props = {}) {
   return shallow(
     <AlmRepositoryItem
+      disabled={false}
+      highlightUpgradeBox={jest.fn()}
       identityProvider={identityProviders}
       repository={repositories[1]}
       selected={false}

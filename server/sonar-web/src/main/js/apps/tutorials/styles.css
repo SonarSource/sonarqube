@@ -64,6 +64,7 @@
   justify-content: space-around;
   padding: 44px 100px;
   background-color: var(--barBackgroundColor);
+  margin-top: var(--pagePadding);
 }
 
 .onboarding-choice {

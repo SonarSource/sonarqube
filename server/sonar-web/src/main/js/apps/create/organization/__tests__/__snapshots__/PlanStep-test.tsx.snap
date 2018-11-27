@@ -35,7 +35,7 @@ exports[`should preselect paid plan 1`] = `
         }
         onChange={[Function]}
         plan="paid"
-        startingPrice="billing.price_format.100"
+        startingPrice={100}
       />
       <Connect(withCurrentUser(BillingFormShim))
         onCommit={[MockFunction]}
@@ -94,7 +94,7 @@ exports[`should render and use free plan 2`] = `
       <PlanSelect
         onChange={[Function]}
         plan="free"
-        startingPrice="billing.price_format.100"
+        startingPrice={100}
       />
       <form
         className="display-flex-center big-spacer-top"
@@ -137,7 +137,7 @@ exports[`should upgrade 1`] = `
       <PlanSelect
         onChange={[Function]}
         plan="paid"
-        startingPrice="billing.price_format.100"
+        startingPrice={100}
       />
       <Connect(withCurrentUser(BillingFormShim))
         onCommit={[MockFunction]}

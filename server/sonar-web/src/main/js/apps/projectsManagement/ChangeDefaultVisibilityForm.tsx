@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import Modal from '../../components/controls/Modal';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
@@ -35,7 +34,7 @@ interface State {
   visibility: T.Visibility;
 }
 
-export default class ChangeVisibilityForm extends React.PureComponent<Props, State> {
+export default class ChangeDefaultVisibilityForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { visibility: props.organization.projectVisibility as T.Visibility };
@@ -95,12 +94,10 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
             </div>
           ))}
 
-          {organization.canUpdateProjectsVisibilityToPrivate ? (
+          {organization.canUpdateProjectsVisibilityToPrivate && (
             <Alert variant="warning">
               {translate('organization.change_visibility_form.warning')}
             </Alert>
-          ) : (
-            <UpgradeOrganizationBox organization={this.props.organization.key} />
           )}
         </div>
 

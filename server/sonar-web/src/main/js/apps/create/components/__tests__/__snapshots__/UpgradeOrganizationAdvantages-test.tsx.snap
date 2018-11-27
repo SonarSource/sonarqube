@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly  1`] = `
+<ul
+  className="note"
+>
+  <Advantage>
+    billing.upgrade_box.unlimited_private_projects
+  </Advantage>
+  <Advantage>
+    billing.upgrade_box.strict_control_private_data
+  </Advantage>
+  <Advantage>
+    billing.upgrade_box.cancel_anytime
+  </Advantage>
+  <Advantage>
+    <strong>
+      billing.upgrade_box.free_trial_x.14
+    </strong>
+  </Advantage>
+</ul>
+`;

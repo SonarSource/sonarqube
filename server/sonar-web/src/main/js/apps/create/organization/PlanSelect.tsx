@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { FreeCardPlan, PaidCardPlan } from '../components/CardPlan';
 import { translate } from '../../../helpers/l10n';
-import { AlmOrganization, AlmApplication } from '../../../app/types';
 
 export enum Plan {
   Free = 'free',
@@ -28,11 +27,11 @@ export enum Plan {
 }
 
 interface Props {
-  almApplication?: AlmApplication;
-  almOrganization?: AlmOrganization;
+  almApplication?: T.AlmApplication;
+  almOrganization?: T.AlmOrganization;
   onChange: (plan: Plan) => void;
   plan: Plan;
-  startingPrice: string;
+  startingPrice: number;
 }
 
 export default class PlanSelect extends React.PureComponent<Props> {

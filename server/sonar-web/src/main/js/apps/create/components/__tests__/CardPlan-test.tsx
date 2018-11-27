@@ -25,7 +25,7 @@ import { click } from '../../../../helpers/testUtils';
 it('should render correctly', () => {
   expect(
     shallow(
-      <CardPlan recommended="Recommended for you" startingPrice="$10" title="Paid Plan">
+      <CardPlan recommended="Recommended for you" startingPrice={10} title="Paid Plan">
         <div>content</div>
       </CardPlan>
     )
@@ -42,12 +42,12 @@ it('should be actionable', () => {
 
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
-  wrapper.setProps({ selected: true });
+  wrapper.setProps({ selected: true, startingPrice: 0 });
   expect(wrapper).toMatchSnapshot();
 });
 
 describe('#FreeCardPlan', () => {
-  it('should render correctly', () => {
+  it('should render', () => {
     expect(shallow(<FreeCardPlan hasWarning={false} />)).toMatchSnapshot();
   });
 
@@ -65,7 +65,7 @@ describe('#FreeCardPlan', () => {
 });
 
 describe('#PaidCardPlan', () => {
-  it('should render correctly', () => {
-    expect(shallow(<PaidCardPlan isRecommended={true} startingPrice="$10" />)).toMatchSnapshot();
+  it('should render', () => {
+    expect(shallow(<PaidCardPlan isRecommended={true} startingPrice={10} />)).toMatchSnapshot();
   });
 });

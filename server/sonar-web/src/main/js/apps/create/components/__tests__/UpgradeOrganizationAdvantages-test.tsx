@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.upgrade-organization-box {
-  max-width: 400px;
-  background-color: var(--barBackgroundColor) !important;
-}
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import UpgradeOrganizationAdvantages from '../UpgradeOrganizationAdvantages';
+
+it('should render correctly ', () => {
+  expect(shallow(<UpgradeOrganizationAdvantages />)).toMatchSnapshot();
+});

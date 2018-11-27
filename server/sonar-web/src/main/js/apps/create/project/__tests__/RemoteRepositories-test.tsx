@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import RemoteRepositories from '../RemoteRepositories';
-import { getRepositories, provisionProject } from '../../../../api/alm-integration';
-import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
+import { getRepositories } from '../../../../api/alm-integration';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/alm-integration', () => ({
   getRepositories: jest.fn().mockResolvedValue({
@@ -32,13 +32,9 @@ jest.mock('../../../../api/alm-integration', () => ({
         linkedProjectKey: 'proj_cool',
         linkedProjectName: 'Proj Cool'
       },
-      {
-        label: 'Awesome Project',
-        installationKey: 'github/awesome'
-      }
+      { label: 'Awesome Project', installationKey: 'github/awesome' }
     ]
-  }),
-  provisionProject: jest.fn().mockResolvedValue({ projects: [{ projectKey: 'awesome' }] })
+  })
 }));
 
 const almApplication = {
@@ -49,45 +45,60 @@ const almApplication = {
   name: 'GitHub'
 };
 
+const organization: T.Organization = {
+  alm: { key: 'github', url: '' },
+  key: 'sonarsource',
+  name: 'SonarSource',
+  subscription: 'FREE'
+};
+
 beforeEach(() => {
   (getRepositories as jest.Mock<any>).mockClear();
-  (provisionProject as jest.Mock<any>).mockClear();
 });
 
 it('should display the list of repositories', async () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
-  expect(getRepositories).toHaveBeenCalledWith({ organization: 'sonarsource' });
   expect(wrapper).toMatchSnapshot();
+  expect(getRepositories).toHaveBeenCalledWith({ organization: 'sonarsource' });
 });
 
-it('should correctly create a project', async () => {
-  const onProjectCreate = jest.fn();
-  const wrapper = shallowRender({ onProjectCreate });
-  (wrapper.instance() as RemoteRepositories).toggleRepository({
-    label: 'Awesome Project',
-    installationKey: 'github/awesome'
+it('should display the organization upgrade box', async () => {
+  (getRepositories as jest.Mock<any>).mockResolvedValueOnce({
+    repositories: [{ label: 'Foo Project', installationKey: 'github/foo', private: true }]
   });
+  const wrapper = shallowRender({ organization: { ...organization, actions: { admin: true } } });
   await waitAndUpdate(wrapper);
+  expect(wrapper.find('UpgradeOrganizationBox')).toMatchSnapshot();
+  wrapper.find('UpgradeOrganizationBox').prop<Function>('onOrganizationUpgrade')();
+  expect(wrapper.find('Alert[variant="success"]').exists()).toBe(true);
+});
 
-  expect(wrapper.find('SubmitButton')).toMatchSnapshot();
-  submit(wrapper.find('form'));
-  expect(provisionProject).toBeCalledWith({
-    installationKeys: ['github/awesome'],
-    organization: 'sonarsource'
+it('should not display the organization upgrade box', () => {
+  (getRepositories as jest.Mock<any>).mockResolvedValueOnce({
+    repositories: [{ label: 'Bar Project', installationKey: 'github/bar', private: true }]
+  });
+  const wrapper = shallowRender({
+    organization: {
+      actions: { admin: true },
+      alm: { key: 'github', url: '' },
+      key: 'foobar',
+      name: 'FooBar',
+      subscription: 'PAID'
+    }
   });
 
-  await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith(['awesome'], 'sonarsource');
+  expect(wrapper.find('UpgradeOrganizationBox').exists()).toBe(false);
 });
 
 function shallowRender(props: Partial<RemoteRepositories['props']> = {}) {
   return shallow(
     <RemoteRepositories
       almApplication={almApplication}
+      onOrganizationUpgrade={jest.fn()}
       onProjectCreate={jest.fn()}
-      organization="sonarsource"
+      organization={organization}
       {...props}
     />
   );
