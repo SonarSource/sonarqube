@@ -20,7 +20,6 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -94,8 +93,6 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.sonar.api.issue.Issue.STATUS_OPEN;
-import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
@@ -806,27 +803,6 @@ public class IssueIndex {
           .stream()
           .collect(uniqueIndex(StringTerms.Bucket::getKeyAsString, InternalTerms.Bucket::getDocCount))))
       .collect(MoreCollectors.toList(branchUuids.size()));
-  }
-
-  public BranchStatistics searchPrStatistics(String projectUuid, String pullRequestUuid) {
-    SearchRequestBuilder request = client.prepareSearch(INDEX_TYPE_ISSUE)
-      .setRouting(projectUuid)
-      .setQuery(
-        boolQuery()
-          .must(termQuery(FIELD_ISSUE_BRANCH_UUID, pullRequestUuid))
-          .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION))
-          .must(termsQuery(FIELD_ISSUE_STATUS, STATUS_OPEN, STATUS_REOPENED))
-          .must(termQuery(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(false))))
-      .setSize(0)
-      .addAggregation(AggregationBuilders.terms("types").field(FIELD_ISSUE_TYPE));
-
-    ImmutableMap<String, Long> issueCountByType = ((StringTerms) request.get()
-      .getAggregations()
-      .get("types")).getBuckets()
-      .stream()
-      .collect(uniqueIndex(StringTerms.Bucket::getKeyAsString, InternalTerms.Bucket::getDocCount));
-
-    return new BranchStatistics(pullRequestUuid, issueCountByType);
   }
 
   public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
