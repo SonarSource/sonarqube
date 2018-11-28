@@ -33,8 +33,8 @@ public class ProjectServerSettingsProvider extends ProviderAdapter {
 
   private static final Logger LOG = Loggers.get(ProjectConfigurationProvider.class);
 
-  private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = "Please migrate all the properties listed in " +
-    "`sonar.module.removedProperties` setting to appriopriate project level setting.";
+  private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = String.format("Please configure the settings listed in " +
+    "`%s` at project level and remove that setting to prevent the analysis from displaying a warning.", CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS);
 
   private ProjectServerSettings singleton = null;
 

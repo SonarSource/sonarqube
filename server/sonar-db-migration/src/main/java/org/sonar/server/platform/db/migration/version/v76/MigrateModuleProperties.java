@@ -31,7 +31,7 @@ import org.sonar.server.platform.db.migration.step.Upsert;
 @SupportsBlueGreen
 public class MigrateModuleProperties extends DataChange {
 
-  protected static final String NEW_PROPERTY_NAME = "sonar.modules.archivedSettings";
+  protected static final String NEW_PROPERTY_NAME = "sonar.subproject.settings.archived";
 
   private final System2 system2;
 

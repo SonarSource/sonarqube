@@ -45,6 +45,11 @@ public interface CoreProperties {
   String SUBCATEGORY_DATABASE_CLEANER = "databaseCleaner";
 
   /**
+   * @since 7.6
+   */
+  String SUBCATEGORY_MODULES = "subProjects";
+
+  /**
    * @since 4.0
    */
   String SUBCATEGORY_DUPLICATIONS = "duplications";
@@ -530,5 +535,5 @@ public interface CoreProperties {
   /**
    * @since 7.6
    */
-  String MODULE_LEVEL_ARCHIVED_SETTINGS = "sonar.modules.archivedSettings";
+  String MODULE_LEVEL_ARCHIVED_SETTINGS = "sonar.subproject.settings.archived";
 }

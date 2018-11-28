@@ -62,6 +62,16 @@ public class CorePropertyDefinitions {
     defs.addAll(ScannerProperties.all());
 
     defs.addAll(asList(
+      PropertyDefinition.builder(CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS)
+        .name("Archived Sub-Projects Settings")
+        .description("DEPRECATED - Recap of the properties that were previously configured at sub-project / module level. " +
+          "These properties are not used anymore and should now be configured at project level. " +
+          "Set this parameter to empty to prevent the analysis from displaying a warning.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_MODULES)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .type(PropertyType.TEXT)
+        .build(),
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
         .name("Server base URL")
         .description("HTTP URL of this SonarQube server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.")
