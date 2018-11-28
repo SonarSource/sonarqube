@@ -31,9 +31,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
@@ -231,10 +233,6 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(Measure newMeasure) {
-    if (newMeasure.inputComponent() instanceof DefaultInputFile) {
-      DefaultInputFile defaultInputFile = (DefaultInputFile) newMeasure.inputComponent();
-      defaultInputFile.setPublished(true);
-    }
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
   }
 
@@ -250,6 +248,11 @@ public class DefaultSensorStorage implements SensorStorage {
       defaultInputFile.setPublished(true);
     }
 
+    if (component instanceof InputDir || (component instanceof DefaultInputModule && ((DefaultInputModule) component).definition().getParent() != null)) {
+      logOnce(measure.metric().key(), "Storing measures on folders or modules is deprecated. Provided value of metric '{}' is ignored.", measure.metric().key());
+      return;
+    }
+
     if (DEPRECATED_METRICS_KEYS.contains(measure.metric().key())) {
       logOnce(measure.metric().key(), "Metric '{}' is deprecated. Provided value is ignored.", measure.metric().key());
       return;
@@ -261,7 +264,7 @@ public class DefaultSensorStorage implements SensorStorage {
     }
 
     if (!measure.isFromCore() && NEWLY_CORE_METRICS_KEYS.contains(measure.metric().key())) {
-      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube. Provided value is ignored.", measure.metric().key());
+      logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube/SonarCloud. Provided value is ignored.", measure.metric().key());
       return;
     }
 

@@ -22,6 +22,7 @@ package org.sonar.scanner.mediumtest.measures;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -66,19 +67,15 @@ public class MeasuresMediumTest {
   @Test
   public void applyExclusionsOnCoverageMeasures() throws IOException {
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent", StandardCharsets.UTF_8);
 
     File measures = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(measures, "lines_to_cover:2");
+    FileUtils.write(measures, "lines_to_cover:2", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
       .execute();
@@ -90,12 +87,8 @@ public class MeasuresMediumTest {
 
     result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .put("sonar.coverage.exclusions", "src/sample.xoo")
         .build())
@@ -109,19 +102,15 @@ public class MeasuresMediumTest {
   @Test
   public void deprecatedCoverageMeasuresAreConverted() throws IOException {
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent", StandardCharsets.UTF_8);
 
     File measures = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(measures, "it_lines_to_cover:2");
+    FileUtils.write(measures, "it_lines_to_cover:2", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
       .execute();
@@ -138,20 +127,16 @@ public class MeasuresMediumTest {
   @Test
   public void failIfTryingToSaveServerSideMeasure() throws IOException {
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent", StandardCharsets.UTF_8);
 
     File measures = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(measures, "new_lines:2");
+    FileUtils.write(measures, "new_lines:2", StandardCharsets.UTF_8);
 
     try {
       tester.newAnalysis()
         .properties(ImmutableMap.<String, String>builder()
-          .put("sonar.task", "scan")
           .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
           .put("sonar.projectKey", "com.foo.project")
-          .put("sonar.projectName", "Foo Project")
-          .put("sonar.projectVersion", "1.0-SNAPSHOT")
-          .put("sonar.projectDescription", "Description of Foo Project")
           .put("sonar.sources", "src")
           .build())
         .execute();
@@ -166,19 +151,15 @@ public class MeasuresMediumTest {
   @Test
   public void lineMeasures() throws IOException {
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent", StandardCharsets.UTF_8);
 
     File lineMeasures = new File(srcDir, "sample.xoo.linemeasures");
-    FileUtils.write(lineMeasures, "ncloc_data:1=1;2=0;4=1");
+    FileUtils.write(lineMeasures, "ncloc_data:1=1;2=0;4=1", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
       .execute();
@@ -192,19 +173,15 @@ public class MeasuresMediumTest {
   @Test
   public void projectLevelMeasures() throws IOException {
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent", StandardCharsets.UTF_8);
 
     File projectMeasures = new File(baseDir, "module.measures");
-    FileUtils.write(projectMeasures, "tests:10");
+    FileUtils.write(projectMeasures, "tests:10", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .build())
       .execute();
@@ -214,6 +191,52 @@ public class MeasuresMediumTest {
     assertThat(allMeasures.get("com.foo.project"))
       .extracting("metricKey", "intValue.value", "stringValue.value")
       .containsExactly(tuple("tests", 10, ""));
+  }
+
+  @Test
+  public void warnWhenSavingFolderMeasure() throws IOException {
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent", StandardCharsets.UTF_8);
+
+    File folderMeasures = new File(srcDir, "folder.measures");
+    FileUtils.write(folderMeasures, "tests:10", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Storing measures on folders or modules is deprecated. Provided value of metric 'tests' is ignored.");
+  }
+
+  @Test
+  public void warnWhenSavingModuleMeasure() throws IOException {
+    File moduleDir = new File(baseDir, "moduleA");
+    moduleDir.mkdirs();
+
+    srcDir = new File(moduleDir, "src");
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent", StandardCharsets.UTF_8);
+
+    File moduleMeasures = new File(moduleDir, "module.measures");
+    FileUtils.write(moduleMeasures, "tests:10", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.modules", "moduleA")
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Storing measures on folders or modules is deprecated. Provided value of metric 'tests' is ignored.");
   }
 
 }

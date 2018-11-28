@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
@@ -119,6 +120,11 @@ public class MeasureSensor implements Sensor {
       File ioFile = file.file();
       File measureFile = new File(ioFile.getParentFile(), ioFile.getName() + MEASURES_EXTENSION);
       processFileMeasures(file, measureFile, context);
+
+      InputDir inputDir = context.fileSystem().inputDir(ioFile.getParentFile());
+      if (inputDir != null) {
+        processFileMeasures(inputDir, new File(ioFile.getParentFile(), "folder" + MEASURES_EXTENSION), context);
+      }
     }
     processFileMeasures(context.module(), new File(context.fileSystem().baseDir(), "module" + MEASURES_EXTENSION), context);
   }

@@ -27,15 +27,12 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 @Immutable
 public class DefaultInputModule extends AbstractProjectOrModule implements InputModule {
 
-  private static final Logger LOG = Loggers.get(DefaultInputModule.class);
   private final List<Path> sourceDirsOrFiles;
   private final List<Path> testDirsOrFiles;
 

@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -63,6 +64,7 @@ import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -121,6 +123,29 @@ public class DefaultSensorStorageTest {
       .on(file)
       .forMetric(CoreMetrics.LINES)
       .withValue(10));
+  }
+
+  @Test
+  public void shouldIgnoreMeasuresOnFolders() {
+    underTest.store(new DefaultMeasure()
+      .on(new DefaultInputDir("foo", "bar"))
+      .forMetric(CoreMetrics.LINES)
+      .withValue(10));
+
+    verifyNoMoreInteractions(measureCache);
+  }
+
+  @Test
+  public void shouldIgnoreMeasuresOnModules() throws IOException {
+    ProjectDefinition module = ProjectDefinition.create().setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
+    ProjectDefinition root = ProjectDefinition.create().addSubProject(module);
+
+    underTest.store(new DefaultMeasure()
+      .on(new DefaultInputModule(module))
+      .forMetric(CoreMetrics.LINES)
+      .withValue(10));
+
+    verifyNoMoreInteractions(measureCache);
   }
 
   @Test

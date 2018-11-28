@@ -32,13 +32,9 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 @Immutable
 public abstract class AbstractProjectOrModule extends DefaultInputComponent {
-
-  private static final Logger LOG = Loggers.get(AbstractProjectOrModule.class);
 
   private final Path baseDir;
   private final Path workDir;

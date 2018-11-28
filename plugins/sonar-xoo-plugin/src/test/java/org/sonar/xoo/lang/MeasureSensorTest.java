@@ -21,6 +21,7 @@ package org.sonar.xoo.lang;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,7 +77,7 @@ public class MeasureSensorTest {
   @Test
   public void testExecution() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
-    FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment");
+    FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment", StandardCharsets.UTF_8);
     InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
     context.fileSystem().add(inputFile);
 
@@ -94,6 +95,26 @@ public class MeasureSensorTest {
     assertThat(context.measure("foo:src/foo.xoo", CoreMetrics.BRANCH_COVERAGE).value()).isEqualTo(5.3);
     assertThat(context.measure("foo:src/foo.xoo", CoreMetrics.TECHNICAL_DEBT).value()).isEqualTo(300L);
     assertThat(context.measure("foo:src/foo.xoo", booleanMetric).value()).isTrue();
+  }
+
+  @Test
+  public void testExecutionForFoldersMeasures_no_measures() throws IOException {
+    File measures = new File(baseDir, "src/folder.measures");
+    FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment", StandardCharsets.UTF_8);
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
+    context.fileSystem().add(inputFile);
+
+    Metric<Boolean> booleanMetric = new Metric.Builder("bool", "Bool", Metric.ValueType.BOOL)
+      .create();
+
+    when(metricFinder.<Integer>findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.<Double>findByKey("branch_coverage")).thenReturn(CoreMetrics.BRANCH_COVERAGE);
+    when(metricFinder.<Long>findByKey("sqale_index")).thenReturn(CoreMetrics.TECHNICAL_DEBT);
+    when(metricFinder.<Boolean>findByKey("bool")).thenReturn(booleanMetric);
+
+    sensor.execute(context);
+
+    assertThat(context.measure("foo:src", CoreMetrics.NCLOC)).isNull();
   }
 
   @Test
