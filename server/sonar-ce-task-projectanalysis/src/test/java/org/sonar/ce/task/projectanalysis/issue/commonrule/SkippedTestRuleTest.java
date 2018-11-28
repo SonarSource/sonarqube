@@ -67,7 +67,7 @@ public class SkippedTestRuleTest {
 
   @Test
   public void issue_if_skipped_tests() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.SKIPPED_TESTS_KEY, Measure.newMeasureBuilder().create(2));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -80,7 +80,7 @@ public class SkippedTestRuleTest {
 
   @Test
   public void no_issues_if_zero_skipped_tests() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.SKIPPED_TESTS_KEY, Measure.newMeasureBuilder().create(0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -90,7 +90,7 @@ public class SkippedTestRuleTest {
 
   @Test
   public void no_issues_if_measure_is_absent() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

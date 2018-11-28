@@ -32,11 +32,9 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonarqube.ws.Rules;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
@@ -78,14 +76,12 @@ public class LoadQualityProfilesStepTest {
     assertThat(ar1.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(ar1.getParams()).containsExactly(MapEntry.entry("p1", "v1"));
     assertThat(ar1.getPluginKey()).isEqualTo("xoo");
-    assertThat(ar1.getCreatedAt()).isEqualTo(1000L);
     assertThat(ar1.getUpdatedAt()).isEqualTo(1200L);
 
     ActiveRule ar2 = activeRulesHolder.get(XOO_X2).get();
     assertThat(ar2.getSeverity()).isEqualTo(Severity.MAJOR);
     assertThat(ar2.getParams()).isEmpty();
     assertThat(ar2.getPluginKey()).isEqualTo("xoo");
-    assertThat(ar1.getCreatedAt()).isEqualTo(1000L);
     assertThat(ar1.getUpdatedAt()).isEqualTo(1200L);
   }
 

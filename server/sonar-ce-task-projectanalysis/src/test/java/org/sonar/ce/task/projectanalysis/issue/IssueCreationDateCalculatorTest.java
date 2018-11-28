@@ -110,7 +110,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     noScm();
-    setRuleCreatedAt(2800L);
+    setRuleUpdatedAt(2800L);
 
     run();
 
@@ -125,7 +125,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(1500L);
+    setRuleUpdatedAt(1500L);
     rulePlugin("customjava");
     pluginUpdatedAt("customjava", "java", 1700L);
     pluginUpdatedAt("java", 1700L);
@@ -143,7 +143,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(1500L);
+    setRuleUpdatedAt(1500L);
     rulePlugin("java");
     pluginUpdatedAt("java", 1700L);
 
@@ -160,7 +160,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNotNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(2800L);
+    setRuleUpdatedAt(2800L);
 
     run();
 
@@ -201,7 +201,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(2800L);
+    setRuleUpdatedAt(2800L);
 
     run();
 
@@ -216,7 +216,6 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(1200L);
     setRuleUpdatedAt(2800L);
 
     run();
@@ -260,7 +259,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(1500L);
+    setRuleUpdatedAt(1500L);
     rulePlugin("java");
     pluginUpdatedAt("java", 2500L);
 
@@ -277,7 +276,7 @@ public class IssueCreationDateCalculatorTest {
 
     makeIssueNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleCreatedAt(1500L);
+    setRuleUpdatedAt(1500L);
     rulePlugin("customjava");
     pluginUpdatedAt("customjava", "java", 1000L);
     pluginUpdatedAt("java", 2500L);
@@ -430,11 +429,6 @@ public class IssueCreationDateCalculatorTest {
         .thenReturn(Optional.of(scmInfo));
     }
     return scmInfo;
-  }
-
-  private void setRuleCreatedAt(long createdAt) {
-    when(activeRule.getCreatedAt()).thenReturn(createdAt);
-    when(activeRule.getUpdatedAt()).thenReturn(createdAt);
   }
 
   private void setRuleUpdatedAt(long updateAt) {
