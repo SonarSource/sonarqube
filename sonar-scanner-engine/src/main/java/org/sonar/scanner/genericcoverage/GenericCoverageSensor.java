@@ -100,6 +100,7 @@ public class GenericCoverageSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("Generic Coverage Report")
+      .global()
       .onlyWhenConfiguration(c -> asList(REPORT_PATHS_PROPERTY_KEY, OLD_REPORT_PATH_PROPERTY_KEY, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY,
         OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY)
           .stream()
