@@ -62,7 +62,6 @@ import '../style.css';
 interface Props {
   branchLike?: T.BranchLike;
   component: T.ComponentMeasure;
-  currentUser: T.CurrentUser;
   location: { pathname: string; query: RawQuery };
   fetchMeasures: (
     component: string,
@@ -200,7 +199,6 @@ export default class App extends React.PureComponent<Props, State> {
         <MeasureOverviewContainer
           branchLike={branchLike}
           className="layout-page-main"
-          currentUser={this.props.currentUser}
           domain={query.metric}
           leakPeriod={leakPeriod}
           metrics={metrics}
@@ -234,7 +232,6 @@ export default class App extends React.PureComponent<Props, State> {
       <MeasureContentContainer
         branchLike={branchLike}
         className="layout-page-main"
-        currentUser={this.props.currentUser}
         fetchMeasures={fetchMeasures}
         leakPeriod={leakPeriod}
         metric={metric}

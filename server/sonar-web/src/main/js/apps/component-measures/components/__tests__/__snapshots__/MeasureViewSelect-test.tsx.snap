@@ -9,14 +9,14 @@ exports[`should display correctly with treemap option 1`] = `
   options={
     Array [
       Object {
-        "icon": <ListIcon />,
-        "label": "component_measures.tab.list",
-        "value": "list",
-      },
-      Object {
         "icon": <TreeIcon />,
         "label": "component_measures.tab.tree",
         "value": "tree",
+      },
+      Object {
+        "icon": <ListIcon />,
+        "label": "component_measures.tab.list",
+        "value": "list",
       },
       Object {
         "icon": <TreemapIcon />,

@@ -26,8 +26,10 @@ import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../help
 import { isLongLivingBranch, isMainBranch } from '../../helpers/branches';
 import { getDisplayMetrics } from '../../helpers/measures';
 
+export type View = 'list' | 'tree' | 'treemap';
+
 export const PROJECT_OVERVEW = 'project_overview';
-export const DEFAULT_VIEW = 'list';
+export const DEFAULT_VIEW: View = 'tree';
 export const DEFAULT_METRIC = PROJECT_OVERVEW;
 export const KNOWN_DOMAINS = [
   'Releasability',
@@ -122,7 +124,7 @@ export const groupByDomains = memoize((measures: T.MeasureEnhanced[]) => {
   ]);
 });
 
-export function getDefaultView(metric: string): string {
+export function getDefaultView(metric: string): View {
   if (!hasList(metric)) {
     return 'tree';
   }
@@ -196,35 +198,37 @@ export function isProjectOverview(metric: string) {
   return metric === PROJECT_OVERVEW;
 }
 
-const parseView = (metric: string, rawView?: string) => {
-  const view = parseAsString(rawView) || DEFAULT_VIEW;
+function parseView(metric: string, rawView?: string): View {
+  const view = (parseAsString(rawView) || DEFAULT_VIEW) as View;
   if (!hasTree(metric)) {
     return 'list';
   } else if (view === 'list' && !hasList(metric)) {
     return 'tree';
   }
   return view;
-};
+}
 
 export interface Query {
   metric: string;
   selected?: string;
-  view: string;
+  view: View;
 }
 
-export const parseQuery = memoize((urlQuery: RawQuery) => {
-  const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
-  return {
-    metric,
-    selected: parseAsString(urlQuery['selected']),
-    view: parseView(metric, urlQuery['view'])
-  };
-});
+export const parseQuery = memoize(
+  (urlQuery: RawQuery): Query => {
+    const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
+    return {
+      metric,
+      selected: parseAsString(urlQuery['selected']),
+      view: parseView(metric, urlQuery['view'])
+    };
+  }
+);
 
 export const serializeQuery = memoize((query: Query) => {
   return cleanQuery({
-    metric: query.metric === DEFAULT_METRIC ? null : serializeString(query.metric),
+    metric: query.metric === DEFAULT_METRIC ? undefined : serializeString(query.metric),
     selected: serializeString(query.selected),
-    view: query.view === DEFAULT_VIEW ? null : serializeString(query.view)
+    view: query.view === DEFAULT_VIEW ? undefined : serializeString(query.view)
   });
 });

@@ -121,16 +121,17 @@ describe('parseQuery', () => {
 
 describe('serializeQuery', () => {
   it('should correctly serialize the query', () => {
-    expect(utils.serializeQuery({ metric: '', selected: '', view: 'list' })).toEqual({});
+    expect(utils.serializeQuery({ metric: '', selected: '', view: 'list' })).toEqual({
+      view: 'list'
+    });
     expect(utils.serializeQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
       metric: 'foo',
-      selected: 'bar',
-      view: 'tree'
+      selected: 'bar'
     });
   });
 
   it('should be memoized', () => {
-    const query = { metric: 'foo', selected: 'bar', view: 'tree' };
+    const query: utils.Query = { metric: 'foo', selected: 'bar', view: 'tree' };
     expect(utils.serializeQuery(query)).toBe(utils.serializeQuery(query));
   });
 });

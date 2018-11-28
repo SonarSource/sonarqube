@@ -156,10 +156,20 @@
   border-top-right-radius: 4px;
 }
 
-.measure-breadcrumbs {
-  display: inline-block;
-  max-width: 60%;
-  vertical-align: middle;
+.measure-content-header {
+  display: flex;
+  align-items: center;
+}
+
+.measure-content-header-left {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.measure-content-header-right {
+  margin-left: calc(2 * var(--gridSize));
+  white-space: nowrap;
 }
 
 .measure-favorite svg {

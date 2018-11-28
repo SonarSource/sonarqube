@@ -20,23 +20,24 @@
 import * as React from 'react';
 import FilesCounter from './FilesCounter';
 import { translate } from '../../../helpers/l10n';
+import { View } from '../utils';
 
 interface Props {
   current?: number;
   isFile?: boolean;
   paging?: T.Paging;
   totalLoadedComponents?: number;
-  view?: string;
+  view?: View;
 }
 
 export default function PageActions(props: Props) {
   const { isFile, paging, totalLoadedComponents } = props;
   const showShortcuts = props.view && ['list', 'tree'].includes(props.view);
   return (
-    <div className="pull-right">
+    <div className="display-flex-center">
       {!isFile && showShortcuts && renderShortcuts()}
       {isFile && paging && renderFileShortcuts()}
-      <div className="measure-details-page-actions">
+      <div className="measure-details-page-actions nowrap">
         {paging != null && (
           <FilesCounter
             className="spacer-left"
@@ -51,7 +52,7 @@ export default function PageActions(props: Props) {
 
 function renderShortcuts() {
   return (
-    <span className="note big-spacer-right">
+    <span className="note big-spacer-right nowrap">
       <span className="big-spacer-right">
         <span className="shortcut-button little-spacer-right">↑</span>
         <span className="shortcut-button little-spacer-right">↓</span>
@@ -69,7 +70,7 @@ function renderShortcuts() {
 
 function renderFileShortcuts() {
   return (
-    <span className="note spacer-right">
+    <span className="note spacer-right nowrap">
       <span>
         <span className="shortcut-button little-spacer-right">j</span>
         <span className="shortcut-button little-spacer-right">k</span>

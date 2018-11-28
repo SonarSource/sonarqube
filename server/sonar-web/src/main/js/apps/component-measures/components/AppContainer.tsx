@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getCurrentUser, getMetrics, getMetricsKey } from '../../../store/rootReducer';
+import { getMetrics, getMetricsKey } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
@@ -30,7 +30,6 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface StateToProps {
-  currentUser: T.CurrentUser;
   metrics: { [metric: string]: T.Metric };
   metricsKey: string[];
 }
@@ -54,7 +53,6 @@ interface OwnProps {
 }
 
 const mapStateToProps = (state: any): StateToProps => ({
-  currentUser: getCurrentUser(state),
   metrics: getMetrics(state),
   metricsKey: getMetricsKey(state)
 });

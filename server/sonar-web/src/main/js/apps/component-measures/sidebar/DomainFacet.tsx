@@ -35,7 +35,8 @@ import {
   getLocalizedCategoryMetricName,
   getLocalizedMetricDomain,
   getLocalizedMetricName,
-  translate
+  translate,
+  hasMessage
 } from '../../../helpers/l10n';
 
 interface Props {
@@ -148,12 +149,12 @@ export default class DomainFacet extends React.PureComponent<Props> {
 
   render() {
     const { domain } = this.props;
-    const helper = `component_measures.domain_facets.${domain.name}.help`;
-    const translatedHelper = translate(helper);
+    const helperMessageKey = `component_measures.domain_facets.${domain.name}.help`;
+    const helper = hasMessage(helperMessageKey) ? translate(helperMessageKey) : undefined;
     return (
       <FacetBox property={domain.name}>
         <FacetHeader
-          helper={helper !== translatedHelper ? translatedHelper : undefined}
+          helper={helper}
           name={getLocalizedMetricDomain(domain.name)}
           onClick={this.handleHeaderClick}
           open={this.props.open}

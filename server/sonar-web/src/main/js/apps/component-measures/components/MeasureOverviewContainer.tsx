@@ -28,7 +28,6 @@ import { getBranchLikeQuery } from '../../../helpers/branches';
 interface Props {
   branchLike?: T.BranchLike;
   className?: string;
-  currentUser: T.CurrentUser;
   domain: string;
   leakPeriod?: T.Period;
   metrics: { [metric: string]: T.Metric };
@@ -119,7 +118,6 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
         branchLike={this.props.branchLike}
         className={this.props.className}
         component={this.state.component}
-        currentUser={this.props.currentUser}
         domain={this.props.domain}
         leakPeriod={this.props.leakPeriod}
         loading={this.state.loading.component || this.state.loading.bubbles}

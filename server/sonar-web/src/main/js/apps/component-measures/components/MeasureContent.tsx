@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { InjectedRouter } from 'react-router';
 import Breadcrumbs from './Breadcrumbs';
-import MeasureFavoriteContainer from './MeasureFavoriteContainer';
+import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import MetricNotFound from './MetricNotFound';
@@ -31,19 +31,17 @@ import CodeView from '../drilldown/CodeView';
 import TreeMapView from '../drilldown/TreeMapView';
 import { getComponentTree } from '../../../api/components';
 import { complementary } from '../config/complementary';
-import { enhanceComponent, isFileType, isViewType } from '../utils';
+import { enhanceComponent, isFileType, isViewType, View } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { RequestData } from '../../../helpers/request';
-import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
   branchLike?: T.BranchLike;
   className?: string;
   component: T.ComponentMeasure;
-  currentUser: T.CurrentUser;
   loading: boolean;
   loadingMore: boolean;
   leakPeriod?: T.Period;
@@ -55,8 +53,8 @@ interface Props {
   secondaryMeasure?: T.MeasureEnhanced;
   updateLoading: (param: { [key: string]: boolean }) => void;
   updateSelected: (component: string) => void;
-  updateView: (view: string) => void;
-  view: string;
+  updateView: (view: View) => void;
+  view: View;
 }
 
 interface State {
@@ -64,7 +62,6 @@ interface State {
   metric?: T.Metric;
   paging?: T.Paging;
   selected?: string;
-  view?: string;
 }
 
 export default class MeasureContent extends React.PureComponent<Props, State> {
@@ -99,37 +96,47 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   };
 
-  getComponentRequestParams = (view: string, metric: T.Metric, options: Object = {}) => {
+  getComponentRequestParams = (view: View, metric: T.Metric, options: Object = {}) => {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
     const opts: RequestData = {
       ...getBranchLikeQuery(this.props.branchLike),
       additionalFields: 'metrics',
-      metricSortFilter: 'withMeasuresOnly'
+      ps: 500
     };
-    const isDiff = isDiffMetric(metric.key);
-    if (isDiff) {
-      opts.metricPeriodSort = 1;
-    }
-    if (view === 'treemap') {
-      const sizeMetric = isDiff ? 'new_lines' : 'ncloc';
-      metricKeys.push(sizeMetric);
-      opts.metricSort = sizeMetric;
+
+    const setMetricSort = () => {
+      const isDiff = isDiffMetric(metric.key);
       opts.s = isDiff ? 'metricPeriod' : 'metric';
-      opts.asc = false;
-    } else {
+      opts.metricSortFilter = 'withMeasuresOnly';
+      if (isDiff) {
+        opts.metricPeriodSort = 1;
+      }
+    };
+
+    const isDiff = isDiffMetric(metric.key);
+    if (view === 'tree') {
+      metricKeys.push(...(complementary[metric.key] || []));
+      opts.asc = true;
+      opts.s = 'qualifier,name';
+    } else if (view === 'list') {
       metricKeys.push(...(complementary[metric.key] || []));
       opts.asc = metric.direction === 1;
-      opts.ps = 100;
       opts.metricSort = metric.key;
-      opts.s = isDiff ? 'metricPeriod' : 'metric';
+      setMetricSort();
+    } else if (view === 'treemap') {
+      const sizeMetric = isDiff ? 'new_lines' : 'ncloc';
+      metricKeys.push(sizeMetric);
+      opts.asc = false;
+      opts.metricSort = sizeMetric;
+      setMetricSort();
     }
+
     return { metricKeys, opts: { ...opts, ...options }, strategy };
   };
 
   fetchComponents = ({ component, metric, metrics, view }: Props) => {
     if (isFileType(component)) {
-      this.setState({ metric: undefined, view: undefined });
       return;
     }
 
@@ -178,9 +185,9 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                 ...state.components,
                 ...r.components.map(component => enhanceComponent(component, metric, metrics))
               ],
+              // merge to get the metric best value
               metric: { ...metric, ...r.metrics.find(m => m.key === metric.key) },
-              paging: r.paging,
-              view
+              paging: r.paging
             }));
           }
           this.props.updateLoading({ moreComponents: false });
@@ -228,45 +235,44 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   }
 
   renderMeasure() {
-    const { metric, view } = this.state;
-    if (metric !== undefined) {
-      if (!view || ['list', 'tree'].includes(view)) {
-        const selectedIdx = this.getSelectedIndex();
-        return (
-          <FilesView
-            branchLike={this.props.branchLike}
-            components={this.state.components}
-            fetchMore={this.fetchMoreComponents}
-            handleOpen={this.onOpenComponent}
-            handleSelect={this.onSelectComponent}
-            loadingMore={this.props.loadingMore}
-            metric={metric}
-            metrics={this.props.metrics}
-            paging={this.state.paging}
-            rootComponent={this.props.rootComponent}
-            selectedIdx={selectedIdx}
-            selectedKey={selectedIdx !== undefined ? this.state.selected : undefined}
-          />
-        );
-      }
-
-      if (view === 'treemap') {
-        return (
-          <TreeMapView
-            branchLike={this.props.branchLike}
-            components={this.state.components}
-            handleSelect={this.onOpenComponent}
-            metric={metric}
-          />
-        );
-      }
+    const { view } = this.props;
+    const { metric } = this.state;
+    if (!metric) {
+      return null;
     }
-
-    return null;
+    if (view === 'tree' || view === 'list') {
+      const selectedIdx = this.getSelectedIndex();
+      return (
+        <FilesView
+          branchLike={this.props.branchLike}
+          components={this.state.components}
+          defaultShowBestMeasures={view === 'tree'}
+          fetchMore={this.fetchMoreComponents}
+          handleOpen={this.onOpenComponent}
+          handleSelect={this.onSelectComponent}
+          loadingMore={this.props.loadingMore}
+          metric={metric}
+          metrics={this.props.metrics}
+          paging={this.state.paging}
+          rootComponent={this.props.rootComponent}
+          selectedIdx={selectedIdx}
+          selectedKey={selectedIdx !== undefined ? this.state.selected : undefined}
+        />
+      );
+    } else {
+      return (
+        <TreeMapView
+          branchLike={this.props.branchLike}
+          components={this.state.components}
+          handleSelect={this.onOpenComponent}
+          metric={metric}
+        />
+      );
+    }
   }
 
   render() {
-    const { branchLike, component, currentUser, measure, metric, rootComponent, view } = this.props;
+    const { branchLike, component, measure, metric, rootComponent, view } = this.props;
     const isFile = isFileType(component);
     const selectedIdx = this.getSelectedIndex();
     return (
@@ -276,38 +282,40 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         <div className="layout-page-header-panel layout-page-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner">
-              <Breadcrumbs
-                backToFirst={view === 'list'}
-                branchLike={branchLike}
-                className="measure-breadcrumbs spacer-right text-ellipsis"
-                component={component}
-                handleSelect={this.onOpenComponent}
-                rootComponent={rootComponent}
-              />
-              {component.key !== rootComponent.key &&
-                isLoggedIn(currentUser) && (
-                  <MeasureFavoriteContainer
+              <MeasureContentHeader
+                left={
+                  <Breadcrumbs
+                    backToFirst={view === 'list'}
                     branchLike={branchLike}
-                    className="measure-favorite spacer-right"
-                    component={component.key}
+                    className="text-ellipsis flex-1"
+                    component={component}
+                    handleSelect={this.onOpenComponent}
+                    rootComponent={rootComponent}
                   />
-                )}
-              {!isFile && (
-                <MeasureViewSelect
-                  className="measure-view-select"
-                  handleViewChange={this.props.updateView}
-                  metric={metric}
-                  view={view}
-                />
-              )}
-              <PageActions
-                current={
-                  selectedIdx !== undefined && view !== 'treemap' ? selectedIdx + 1 : undefined
                 }
-                isFile={isFile}
-                paging={this.state.paging}
-                totalLoadedComponents={this.state.components.length}
-                view={view}
+                right={
+                  <div className="display-flex-center">
+                    {!isFile && (
+                      <MeasureViewSelect
+                        className="measure-view-select big-spacer-right"
+                        handleViewChange={this.props.updateView}
+                        metric={metric}
+                        view={view}
+                      />
+                    )}
+                    <PageActions
+                      current={
+                        selectedIdx !== undefined && view !== 'treemap'
+                          ? selectedIdx + 1
+                          : undefined
+                      }
+                      isFile={isFile}
+                      paging={this.state.paging}
+                      totalLoadedComponents={this.state.components.length}
+                      view={view}
+                    />
+                  </div>
+                }
               />
             </div>
           </div>

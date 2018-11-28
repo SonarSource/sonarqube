@@ -46,7 +46,6 @@ const METRICS = {
 const PROPS: App['props'] = {
   branchLike: { isMain: true, name: 'master' },
   component: COMPONENT,
-  currentUser: { isLoggedIn: false },
   location: { pathname: '/component_measures', query: { metric: 'coverage' } },
   fetchMeasures: jest.fn().mockResolvedValue({
     component: COMPONENT,

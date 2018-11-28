@@ -58,6 +58,7 @@ function getWrapper(props = {}) {
   return shallow(
     <FilesView
       components={COMPONENTS}
+      defaultShowBestMeasures={false}
       fetchMore={jest.fn()}
       handleOpen={jest.fn()}
       handleSelect={jest.fn()}

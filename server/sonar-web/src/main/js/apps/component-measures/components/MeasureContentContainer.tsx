@@ -20,12 +20,11 @@
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import MeasureContent from './MeasureContent';
-import { Query } from '../utils';
+import { Query, View } from '../utils';
 
 interface Props {
   branchLike?: T.BranchLike;
   className?: string;
-  currentUser: T.CurrentUser;
   rootComponent: T.ComponentMeasure;
   fetchMeasures: (
     component: string,
@@ -38,7 +37,7 @@ interface Props {
   router: InjectedRouter;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
-  view: string;
+  view: View;
 }
 
 interface LoadingState {
@@ -111,7 +110,9 @@ export default class MeasureContentContainer extends React.PureComponent<Props, 
     });
   };
 
-  updateView = (view: string) => this.props.updateQuery({ view });
+  updateView = (view: View) => {
+    this.props.updateQuery({ view });
+  };
 
   render() {
     if (!this.state.component) {
@@ -123,7 +124,6 @@ export default class MeasureContentContainer extends React.PureComponent<Props, 
         branchLike={this.props.branchLike}
         className={this.props.className}
         component={this.state.component}
-        currentUser={this.props.currentUser}
         leakPeriod={this.props.leakPeriod}
         loading={this.state.loading.measure || this.state.loading.components}
         loadingMore={this.state.loading.moreComponents}

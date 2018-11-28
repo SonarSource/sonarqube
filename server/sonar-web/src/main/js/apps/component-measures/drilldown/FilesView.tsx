@@ -31,6 +31,7 @@ import { Alert } from '../../../components/ui/Alert';
 interface Props {
   branchLike?: T.BranchLike;
   components: T.ComponentMeasureEnhanced[];
+  defaultShowBestMeasures: boolean;
   fetchMore: () => void;
   handleSelect: (component: string) => void;
   handleOpen: (component: string) => void;
@@ -47,12 +48,12 @@ interface State {
   showBestMeasures: boolean;
 }
 
-export default class ListView extends React.PureComponent<Props, State> {
+export default class FilesView extends React.PureComponent<Props, State> {
   listContainer?: HTMLElement | null;
 
   constructor(props: Props) {
     super(props);
-    this.state = { showBestMeasures: false };
+    this.state = { showBestMeasures: props.defaultShowBestMeasures };
     this.selectNext = throttle(this.selectNext, 100);
     this.selectPrevious = throttle(this.selectPrevious, 100);
   }
@@ -69,7 +70,7 @@ export default class ListView extends React.PureComponent<Props, State> {
       this.scrollToElement();
     }
     if (prevProps.metric.key !== this.props.metric.key) {
-      this.setState({ showBestMeasures: false });
+      this.setState({ showBestMeasures: this.props.defaultShowBestMeasures });
     }
   }
 

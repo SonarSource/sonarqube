@@ -147,12 +147,6 @@ export function installGlobal() {
   (window as any).requestMessages = requestMessages;
 }
 
-export function getLocalizedDashboardName(baseName: string) {
-  const l10nKey = `dashboard.${baseName}.name`;
-  const l10nLabel = translate(l10nKey);
-  return l10nLabel !== l10nKey ? l10nLabel : baseName;
-}
-
 export function getLocalizedMetricName(
   metric: { key: string; name?: string },
   short?: boolean
@@ -160,24 +154,21 @@ export function getLocalizedMetricName(
   const bundleKey = `metric.${metric.key}.${short ? 'short_name' : 'name'}`;
   if (hasMessage(bundleKey)) {
     return translate(bundleKey);
+  } else if (short) {
+    return getLocalizedMetricName(metric);
   } else {
-    if (short) {
-      return getLocalizedMetricName(metric);
-    }
     return metric.name || metric.key;
   }
 }
 
 export function getLocalizedCategoryMetricName(metric: { key: string; name?: string }) {
   const bundleKey = `metric.${metric.key}.extra_short_name`;
-  const fromBundle = translate(bundleKey);
-  return fromBundle === bundleKey ? getLocalizedMetricName(metric, true) : fromBundle;
+  return hasMessage(bundleKey) ? translate(bundleKey) : getLocalizedMetricName(metric, true);
 }
 
 export function getLocalizedMetricDomain(domainName: string) {
   const bundleKey = `metric_domain.${domainName}`;
-  const fromBundle = translate(bundleKey);
-  return fromBundle !== bundleKey ? fromBundle : domainName;
+  return hasMessage(bundleKey) ? translate(bundleKey) : domainName;
 }
 
 export function getCurrentLocale() {

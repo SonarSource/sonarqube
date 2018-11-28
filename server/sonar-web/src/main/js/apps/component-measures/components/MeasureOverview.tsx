@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
-import MeasureFavoriteContainer from './MeasureFavoriteContainer';
+import MeasureContentHeader from './MeasureContentHeader';
 import PageActions from './PageActions';
 import BubbleChart from '../drilldown/BubbleChart';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
@@ -33,7 +33,6 @@ interface Props {
   branchLike?: T.BranchLike;
   className?: string;
   component: T.ComponentMeasure;
-  currentUser: T.CurrentUser;
   domain: string;
   leakPeriod?: T.Period;
   loading: boolean;
@@ -133,33 +132,31 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { branchLike, component, currentUser, leakPeriod, rootComponent } = this.props;
-    const isLoggedIn = currentUser && currentUser.isLoggedIn;
+    const { branchLike, component, leakPeriod, rootComponent } = this.props;
     const isFile = isFileType(component);
     return (
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner">
-              <Breadcrumbs
-                backToFirst={true}
-                branchLike={branchLike}
-                className="measure-breadcrumbs spacer-right text-ellipsis"
-                component={component}
-                handleSelect={this.props.updateSelected}
-                rootComponent={rootComponent}
-              />
-              {component.key !== rootComponent.key &&
-                isLoggedIn && (
-                  <MeasureFavoriteContainer
-                    className="measure-favorite spacer-right"
-                    component={component.key}
+              <MeasureContentHeader
+                left={
+                  <Breadcrumbs
+                    backToFirst={true}
+                    branchLike={branchLike}
+                    className="text-ellipsis"
+                    component={component}
+                    handleSelect={this.props.updateSelected}
+                    rootComponent={rootComponent}
                   />
-                )}
-              <PageActions
-                current={this.state.components.length}
-                isFile={isFile}
-                paging={this.state.paging}
+                }
+                right={
+                  <PageActions
+                    current={this.state.components.length}
+                    isFile={isFile}
+                    paging={this.state.paging}
+                  />
+                }
               />
             </div>
           </div>

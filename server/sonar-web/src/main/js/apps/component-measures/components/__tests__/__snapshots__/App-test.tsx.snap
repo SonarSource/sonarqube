@@ -81,11 +81,6 @@ exports[`should render correctly 1`] = `
         }
       }
       className="layout-page-main"
-      currentUser={
-        Object {
-          "isLoggedIn": false,
-        }
-      }
       fetchMeasures={
         [MockFunction] {
           "calls": Array [
@@ -166,7 +161,7 @@ exports[`should render correctly 1`] = `
       }
       selected=""
       updateQuery={[Function]}
-      view="list"
+      view="tree"
     />
   </div>
 </div>

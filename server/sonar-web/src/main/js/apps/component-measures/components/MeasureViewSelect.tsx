@@ -22,32 +22,32 @@ import ListIcon from '../../../components/icons-components/ListIcon';
 import TreeIcon from '../../../components/icons-components/TreeIcon';
 import TreemapIcon from '../../../components/icons-components/TreemapIcon';
 import Select from '../../../components/controls/Select';
-import { hasList, hasTree, hasTreemap } from '../utils';
+import { hasList, hasTree, hasTreemap, View } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
   metric: T.Metric;
-  handleViewChange: (view: string) => void;
-  view: string;
+  handleViewChange: (view: View) => void;
+  view: View;
 }
 
 export default class MeasureViewSelect extends React.PureComponent<Props> {
   getOptions = () => {
     const { metric } = this.props;
     const options = [];
-    if (hasList(metric.key)) {
-      options.push({
-        icon: <ListIcon />,
-        label: translate('component_measures.tab.list'),
-        value: 'list'
-      });
-    }
     if (hasTree(metric.key)) {
       options.push({
         icon: <TreeIcon />,
         label: translate('component_measures.tab.tree'),
         value: 'tree'
+      });
+    }
+    if (hasList(metric.key)) {
+      options.push({
+        icon: <ListIcon />,
+        label: translate('component_measures.tab.list'),
+        value: 'list'
       });
     }
     if (hasTreemap(metric.key, metric.type)) {
@@ -61,7 +61,7 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
   };
 
   handleChange = (option: { value: string }) => {
-    return this.props.handleViewChange(option.value);
+    return this.props.handleViewChange(option.value as View);
   };
 
   renderOption = (option: { icon: JSX.Element; label: string }) => {
