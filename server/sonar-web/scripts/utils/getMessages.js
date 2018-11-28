@@ -23,23 +23,35 @@ const { promisify } = require('util');
 
 const readFileAsync = promisify(fs.readFile);
 
-const filename = path.resolve(
-  __dirname,
-  '../../../../sonar-core/src/main/resources/org/sonar/l10n/core.properties'
-);
+const filename = '../../../../sonar-core/src/main/resources/org/sonar/l10n/core.properties';
 
-function getMessages() {
-  return readFileAsync(filename, 'utf-8').then(content => {
-    const messages = {};
-    const lines = content.split('\n');
-    lines.forEach(line => {
-      const parts = line.split('=');
-      if (parts.length > 1) {
-        messages[parts[0]] = parts.slice(1).join('=');
-      }
-    });
-    return messages;
-  });
+const extensionsFilenames = [
+  '../../../../private/core-extension-billing/src/main/resources/org/sonar/l10n/billing.properties',
+  '../../../../private/core-extension-governance/src/main/resources/org/sonar/l10n/governance.properties',
+  '../../../../private/core-extension-license/src/main/resources/org/sonar/l10n/license.properties'
+];
+
+function getFileMessage(filename) {
+  return readFileAsync(path.resolve(__dirname, filename), 'utf-8').then(
+    content => {
+      const messages = {};
+      const lines = content.split('\n');
+      lines.forEach(line => {
+        const parts = line.split('=');
+        if (parts.length > 1) {
+          messages[parts[0]] = parts.slice(1).join('=');
+        }
+      });
+      return messages;
+    },
+    () => ({})
+  );
+}
+
+function getMessages(l10nExtensions) {
+  return Promise.all(
+    [filename, ...extensionsFilenames].map(filename => getFileMessage(filename))
+  ).then(filesMessages => filesMessages.reduce((acc, messages) => ({ ...acc, ...messages }), {}));
 }
 
 module.exports = getMessages;

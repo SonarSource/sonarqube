@@ -40,6 +40,7 @@ const proxy = process.env.PROXY || 'http://localhost:9000';
 
 // Force start script to proxy l10n request to the server (can be useful when working with plugins/extensions)
 const l10nCompiledFlag = process.argv.findIndex(val => val === 'l10nCompiled') >= 0;
+const l10nExtensions = process.argv.findIndex(val => val === 'l10nExtensions') >= 0;
 
 const compiler = setupCompiler(host, port, protocol);
 runDevServer(compiler, host, port, protocol);
@@ -87,7 +88,7 @@ function runDevServer(compiler, host, port, protocol) {
       app.use(errorOverlayMiddleware());
       if (!l10nCompiledFlag) {
         app.get('/api/l10n/index', (req, res) => {
-          getMessages()
+          getMessages(l10nExtensions)
             .then(messages => res.json({ effectiveLocale: 'en', messages }))
             .catch(() => res.status(500));
         });
