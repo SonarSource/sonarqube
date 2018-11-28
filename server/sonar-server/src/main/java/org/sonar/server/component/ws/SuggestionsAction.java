@@ -334,10 +334,10 @@ public class SuggestionsAction implements ComponentsWsAction {
   private static Suggestion toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, Map<String, ComponentDto> componentsByUuids,
     Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
     ComponentDto result = componentsByUuids.get(hit.getUuid());
-    boolean returnProject = QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier());
     if (result == null
       // SONAR-11419 this has happened in production while code does not really allow it. An inconsistency in DB may be the cause.
-      || (returnProject && projectsByUuids.get(result.projectUuid()) == null)) {
+      || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.projectUuid()) == null)
+    ) {
       return null;
     }
     String organizationKey = organizationByUuids.get(result.getOrganizationUuid()).getKey();
@@ -349,7 +349,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
       .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getDbKey()))
       .setIsFavorite(favoriteUuids.contains(result.uuid()));
-    if (returnProject) {
+    if (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier())) {
       builder.setProject(projectsByUuids.get(result.projectUuid()).getDbKey());
     }
     return builder.build();

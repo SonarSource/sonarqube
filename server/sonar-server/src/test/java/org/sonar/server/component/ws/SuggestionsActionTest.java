@@ -393,6 +393,27 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void should_not_return_suggestion_on_non_existing_project() {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+
+    componentIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    db.getDbClient().componentDao().delete(db.getSession(), project.getId());
+    db.commit();
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, project.getDbKey())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .isEmpty();
+  }
+
+  @Test
   public void must_not_search_if_no_valid_tokens_are_provided() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
 
