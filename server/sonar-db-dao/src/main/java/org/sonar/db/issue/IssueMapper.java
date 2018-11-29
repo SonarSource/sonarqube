@@ -34,6 +34,8 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
+  List<IssueDto> selectByKeysIfNotUpdatedAt(@Param("keys") List<String> keys, @Param("updatedAt") long updatedAt);
+
   List<ShortBranchIssueDto> selectOpenByComponentUuids(List<String> componentUuids);
 
   void insert(IssueDto issue);
@@ -53,4 +55,5 @@ public interface IssueMapper {
   Collection<IssueGroupDto> selectIssueGroupsByBaseComponent(
     @Param("baseComponent") ComponentDto baseComponent,
     @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
+
 }

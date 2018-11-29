@@ -32,7 +32,6 @@ import org.sonar.db.issue.IssueMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 
@@ -51,21 +50,20 @@ public class UpdateConflictResolverTest {
 
     // Issue as seen and changed by end-user
     IssueMapper mapper = mock(IssueMapper.class);
-    when(mapper.selectByKey("ABCDE")).thenReturn(
-      new IssueDto()
-        .setKee("ABCDE")
-        .setType(CODE_SMELL)
-        .setRuleId(10)
-        .setRuleKey("squid", "AvoidCycles")
-        .setProjectUuid("U1")
-        .setComponentUuid("U2")
-        .setLine(10)
-        .setStatus(STATUS_OPEN)
+    IssueDto issueDto = new IssueDto()
+      .setKee("ABCDE")
+      .setType(CODE_SMELL)
+      .setRuleId(10)
+      .setRuleKey("squid", "AvoidCycles")
+      .setProjectUuid("U1")
+      .setComponentUuid("U2")
+      .setLine(10)
+      .setStatus(STATUS_OPEN)
 
-        // field changed by user
-        .setAssigneeUuid("arthur-uuid"));
+      // field changed by user
+      .setAssigneeUuid("arthur-uuid");
 
-    new UpdateConflictResolver().resolve(issue, mapper);
+    new UpdateConflictResolver().resolve(issue, issueDto, mapper);
 
     ArgumentCaptor<IssueDto> argument = ArgumentCaptor.forClass(IssueDto.class);
     verify(mapper).update(argument.capture());

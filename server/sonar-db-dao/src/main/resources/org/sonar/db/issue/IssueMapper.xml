@@ -261,6 +261,21 @@
     </foreach>
   </select>
 
+  <select id="selectByKeysIfNotUpdatedAt" parameterType="map" resultType="Issue">
+    select
+      <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
+    where
+      i.kee in
+        <foreach collection="keys" open="(" close=")" item="key" separator=",">
+          #{key,jdbcType=VARCHAR}
+        </foreach>
+      and i.updated_at &lt;&gt; #{updatedAt,jdbcType=BIGINT}
+  </select>
+
   <select id="selectOpenByComponentUuids" parameterType="map" resultType="ShortBranchIssue">
     select
       i.kee as kee,

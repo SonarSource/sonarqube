@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -46,9 +47,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
@@ -58,7 +59,10 @@ import org.sonar.server.issue.IssueStorage;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -80,8 +84,10 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setOrganizationUuid("org-1", "qg-uuid-1");
 
+  private System2 system2 = mock(System2.class);
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();
+  private UpdateConflictResolver conflictResolver = mock(UpdateConflictResolver.class);
   private IssueCache issueCache;
   private ComputationStep underTest;
 
@@ -95,11 +101,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Before
   public void setup() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    System2 system2 = mock(System2.class);
-    when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    underTest = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder), issueCache,
+    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder), issueCache,
       new IssueStorage());
   }
 
@@ -113,11 +117,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
-    dbClient.componentDao().insert(session, project);
-    ComponentDto file = newFileDto(project, null);
-    dbClient.componentDao().insert(session, file);
-    session.commit();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    when(system2.now()).thenReturn(NOW);
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
@@ -130,6 +132,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setNew(false)
       .setCopied(true)
       .setType(RuleType.BUG)
+      .setSelectedAt(NOW)
       .addComment(new DefaultIssueComment()
         .setKey("COMMENT")
         .setIssueKey("ISSUE")
@@ -160,7 +163,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "1"), entry("updates", "0"), entry("untouched", "0"));
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -168,11 +171,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
-    dbClient.componentDao().insert(session, project);
-    ComponentDto file = newFileDto(project, null);
-    dbClient.componentDao().insert(session, file);
-    session.commit();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    when(system2.now()).thenReturn(NOW);
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
@@ -185,6 +186,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setNew(true)
       .setCopied(true)
       .setType(RuleType.BUG)
+      .setSelectedAt(NOW)
       .addComment(new DefaultIssueComment()
         .setKey("COMMENT")
         .setIssueKey("ISSUE")
@@ -214,7 +216,43 @@ public class PersistIssuesStepTest extends BaseStepTest {
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "1"), entry("updates", "0"), entry("untouched", "0"));
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"), entry("untouched", "0"));
+  }
+
+  @Test
+  public void update_conflicting_issue() {
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    db.rules().insert(rule);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    IssueDto issue = db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN)
+        .setResolution(null)
+        .setCreatedAt(NOW - 1_000_000_000L)
+        // simulate the issue has been updated after the analysis ran
+        .setUpdatedAt(NOW + 1_000_000_000L));
+    issue = dbClient.issueDao().selectByKey(db.getSession(), issue.getKey()).get();
+    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
+    when(system2.now()).thenReturn(NOW);
+
+    DefaultIssue defaultIssue = issue.toDefaultIssue()
+      .setStatus(STATUS_CLOSED)
+      .setResolution(RESOLUTION_FIXED)
+      .setSelectedAt(NOW)
+      .setNew(false)
+      .setChanged(true);
+    issueCacheAppender.append(defaultIssue).close();
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    ArgumentCaptor<IssueDto> issueDtoCaptor = ArgumentCaptor.forClass(IssueDto.class);
+    verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture(), any(IssueMapper.class));
+    assertThat(issueDtoCaptor.getValue().getId()).isEqualTo(issue.getId());
+    assertThat(context.getStatistics().getAll()).containsOnly(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "1"), entry("untouched", "0"));
+
   }
 
   @Test
@@ -222,10 +260,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
-    dbClient.componentDao().insert(session, project);
-    ComponentDto file = newFileDto(project, null);
-    dbClient.componentDao().insert(session, file);
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     session.commit();
 
     issueCache.newAppender().append(new DefaultIssue()
@@ -251,7 +287,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "1"), entry("updates", "0"), entry("untouched", "0"));
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -282,7 +318,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CLOSED);
     assertThat(issueReloaded.getResolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("untouched", "0"));
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -322,7 +358,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_COMMENT, "john_uuid", "Some text", issue.getKey(), NOW);
     assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("untouched", "0"));
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"), entry("untouched", "0"));
   }
 
   @Test
@@ -360,7 +396,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         IssueChangeDto::getIssueChangeCreationDate)
       .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john_uuid", "technicalDebt=1", issue.getKey(), NOW);
     assertThat(context.getStatistics().getAll()).containsOnly(
-      entry("inserts", "0"), entry("updates", "1"), entry("untouched", "0"));
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"), entry("untouched", "0"));
   }
 
 }
