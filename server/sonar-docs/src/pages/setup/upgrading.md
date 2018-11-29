@@ -25,7 +25,7 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/e
 4. Stop your old SonarQube Server
 5. Start your new SonarQube Server
 6. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions
-7. Analyze your projects (and compute your Views|Portofolios|Application if you own the Enterprise Edition product) to get fresh data
+7. Reanalyze your projects to get fresh data
 
 ## Anything Else?
 
