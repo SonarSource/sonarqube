@@ -20,17 +20,31 @@
 package org.sonar.scanner.scan;
 
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class ProjectServerSettingsProvider extends ProviderAdapter {
 
-  private ProjectServerSettings singleton;
+  private static final Logger LOG = Loggers.get(ProjectConfigurationProvider.class);
 
-  public ProjectServerSettings provide(SettingsLoader loader, ScannerProperties scannerProperties) {
+  private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = "Please migrate all the properties listed in " +
+    "`sonar.module.removedProperties` setting to appriopriate project level setting.";
+
+  private ProjectServerSettings singleton = null;
+
+  public ProjectServerSettings provide(SettingsLoader loader, ScannerProperties scannerProperties, AnalysisWarnings analysisWarnings) {
     if (singleton == null) {
       Map<String, String> serverSideSettings = loader.load(scannerProperties.getKeyWithBranch());
+      if (StringUtils.isNotBlank(serverSideSettings.get(CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS))) {
+        LOG.warn(MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING);
+        analysisWarnings.addUnique(MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING);
+      }
       singleton = new ProjectServerSettings(serverSideSettings);
     }
     return singleton;

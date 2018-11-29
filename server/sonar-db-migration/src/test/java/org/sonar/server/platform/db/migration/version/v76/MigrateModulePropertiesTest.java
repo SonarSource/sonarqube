@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v75;
+package org.sonar.server.platform.db.migration.version.v76;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -35,9 +35,10 @@ import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.platform.db.migration.version.v76.MigrateModuleProperties.NEW_PROPERTY_NAME;
 
 public class MigrateModulePropertiesTest {
-  private final static long NOW = 50_000_000_000L;
+  private static final long NOW = 50_000_000_000L;
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(MigrateModulePropertiesTest.class, "schema.sql");
@@ -75,9 +76,9 @@ public class MigrateModulePropertiesTest {
 
     underTest.execute();
 
-    List<Map<String, Object>> properties = db.select("select ID, TEXT_VALUE, CLOB_VALUE " +
+    List<Map<String, Object>> properties = db.select(String.format("select ID, TEXT_VALUE, CLOB_VALUE " +
       "from properties " +
-      "where PROP_KEY='sonar.subprojects.settings.removed' and RESOURCE_ID = 5");
+      "where PROP_KEY='%s' and RESOURCE_ID = 5", NEW_PROPERTY_NAME));
     assertThat(properties).hasSize(0);
     List<Map<String, Object>> remainingProperties = db.select("select ID from properties");
     assertThat(remainingProperties).hasSize(2);
@@ -148,9 +149,9 @@ public class MigrateModulePropertiesTest {
       "sonar.coverage.exclusions=Module2A.java\n" +
       "sonar.cpd.exclusions=Module2B.java\n";
 
-    List<Map<String, Object>> properties = db.select("select ID, TEXT_VALUE, CLOB_VALUE " +
-      "from properties " +
-      "where PROP_KEY='sonar.subprojects.settings.removed' and RESOURCE_ID = 1");
+    List<Map<String, Object>> properties = db
+      .select(String.format("select ID, TEXT_VALUE, CLOB_VALUE from properties where PROP_KEY='%s' and RESOURCE_ID = 1",
+        NEW_PROPERTY_NAME));
 
     assertThat(properties).hasSize(1);
     Map<String, Object> project1Property = properties.get(0);
@@ -171,9 +172,9 @@ public class MigrateModulePropertiesTest {
     final String expectedResult = "# previous settings for sub-project Another multi-module project::Module X\n" +
       "sonar.coverage.exclusions=InModule.java\n";
 
-    List<Map<String, Object>> properties = db.select("select ID, TEXT_VALUE, CLOB_VALUE " +
+    List<Map<String, Object>> properties = db.select(String.format("select ID, TEXT_VALUE, CLOB_VALUE " +
       "from properties " +
-      "where PROP_KEY='sonar.subprojects.settings.removed' and RESOURCE_ID = 6");
+      "where PROP_KEY='%s' and RESOURCE_ID = 6", NEW_PROPERTY_NAME));
 
     assertThat(properties).hasSize(1);
     Map<String, Object> project2Property = properties.get(0);

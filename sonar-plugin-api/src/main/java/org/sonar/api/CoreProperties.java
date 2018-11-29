@@ -79,7 +79,6 @@ public interface CoreProperties {
    */
   String CATEGORY_EXTERNAL_ISSUES = "externalIssues";
 
-  
   /**
    * @since 2.11
    */
@@ -366,7 +365,7 @@ public interface CoreProperties {
   /**
    * @since 3.6
    */
-  //TODO remove?
+  // TODO remove?
   String PROFILING_LOG_PROPERTY = "sonar.showProfiling";
 
   /**
@@ -527,4 +526,9 @@ public interface CoreProperties {
    * @since 5.1
    */
   String DEFAULT_ISSUE_ASSIGNEE = "sonar.issues.defaultAssigneeLogin";
+
+  /**
+   * @since 7.6
+   */
+  String MODULE_LEVEL_ARCHIVED_SETTINGS = "sonar.modules.archivedSettings";
 }

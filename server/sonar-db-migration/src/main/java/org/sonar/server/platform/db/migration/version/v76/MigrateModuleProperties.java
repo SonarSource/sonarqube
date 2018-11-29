@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v75;
+package org.sonar.server.platform.db.migration.version.v76;
 
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,7 +31,7 @@ import org.sonar.server.platform.db.migration.step.Upsert;
 @SupportsBlueGreen
 public class MigrateModuleProperties extends DataChange {
 
-  private static final String NEW_PROPERTY_NAME = "sonar.subprojects.settings.removed";
+  protected static final String NEW_PROPERTY_NAME = "sonar.modules.archivedSettings";
 
   private final System2 system2;
 
