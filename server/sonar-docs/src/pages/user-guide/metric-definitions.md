@@ -286,7 +286,7 @@ where
 **Coverage on new code** (`new_coverage`)  
 Identical to Coverage but restricted to new / updated source code.
 
-**Line coverage (`line_coverage`)  
+**Line coverage** (`line_coverage`)  
 On a given line of code, Line coverage simply answers the following question: Has this line of code been executed during the execution of the unit tests?. It is the density of covered lines by unit tests:
 
 `Line coverage = LC / EL`  
