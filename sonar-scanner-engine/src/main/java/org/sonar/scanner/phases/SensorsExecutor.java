@@ -23,27 +23,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
+import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.sensor.SensorWrapper;
 
-@ScannerSide
 public class SensorsExecutor {
   private static final Logger LOG = Loggers.get(SensorsExecutor.class);
   private static final Profiler profiler = Profiler.create(LOG);
-  private final ScannerExtensionDictionnary selector;
+  private final SensorExtensionDictionnary selector;
   private final SensorStrategy strategy;
   private final ScannerPluginRepository pluginRepo;
   private final boolean isRoot;
 
-  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
+  public SensorsExecutor(SensorExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
                          SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
     this.strategy = strategy;
@@ -52,17 +50,18 @@ public class SensorsExecutor {
   }
 
   public void execute() {
-    Collection<SensorWrapper> moduleSensors = selector.selectSensors(false);
+    Collection<SensorWrapper> moduleSensors = new ArrayList<>();
+    withModuleStrategy(() -> moduleSensors.addAll(selector.selectSensors(false)));
     Collection<SensorWrapper> globalSensors = new ArrayList<>();
     if (isRoot) {
-      withGlobalStrategy(() -> globalSensors.addAll(selector.selectSensors(true)));
+      globalSensors.addAll(selector.selectSensors(true));
     }
 
     printSensors(moduleSensors, globalSensors);
-    execute(moduleSensors);
+    withModuleStrategy(() -> execute(moduleSensors));
 
     if (isRoot) {
-      withGlobalStrategy(() -> execute(globalSensors));
+      execute(globalSensors);
     }
   }
 
@@ -74,9 +73,9 @@ public class SensorsExecutor {
     LOG.debug("Sensors : {}", sensors);
   }
 
-  private void withGlobalStrategy(Runnable r) {
+  private void withModuleStrategy(Runnable r) {
     boolean orig = strategy.isGlobal();
-    strategy.setGlobal(true);
+    strategy.setGlobal(false);
     r.run();
     strategy.setGlobal(orig);
   }

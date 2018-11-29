@@ -22,7 +22,9 @@ package org.sonar.scanner.scan.filesystem;
 import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
@@ -36,6 +38,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.scanner.phases.ModuleCoverageExclusions;
+import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.util.ProgressReport;
 
@@ -49,6 +53,7 @@ public class FileIndexer {
   private final ScanProperties properties;
   private final InputFileFilter[] filters;
   private final ProjectExclusionFilters projectExclusionFilters;
+  private final ProjectCoverageExclusions projectCoverageExclusions;
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final MetadataGenerator metadataGenerator;
   private final DefaultInputProject project;
@@ -58,15 +63,16 @@ public class FileIndexer {
   private final LanguageDetection langDetection;
 
   private boolean warnExclusionsAlreadyLogged;
+  private boolean warnCoverageExclusionsAlreadyLogged;
 
-  public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, ProjectExclusionFilters projectExclusionFilters,
-    IssueExclusionsLoader issueExclusionsLoader,
-    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy,
-    LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
+  public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
+    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageExclusions projectCoverageExclusions, IssueExclusionsLoader issueExclusionsLoader,
+    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
     InputFileFilter[] filters) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
+    this.projectCoverageExclusions = projectCoverageExclusions;
     this.issueExclusionsLoader = issueExclusionsLoader;
     this.metadataGenerator = metadataGenerator;
     this.sensorStrategy = sensorStrategy;
@@ -77,15 +83,18 @@ public class FileIndexer {
     this.projectExclusionFilters = projectExclusionFilters;
   }
 
-  public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore, ProjectExclusionFilters projectExclusionFilters,
-    IssueExclusionsLoader issueExclusionsLoader,
+  public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
+    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageExclusions projectCoverageExclusions, IssueExclusionsLoader issueExclusionsLoader,
     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
-    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, issueExclusionsLoader, metadataGenerator, sensorStrategy, languageDetection, analysisWarnings,
+    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageExclusions, issueExclusionsLoader, metadataGenerator, sensorStrategy,
+      languageDetection,
+      analysisWarnings,
       properties, new InputFileFilter[0]);
   }
 
-  public void indexFile(DefaultInputModule module, AbstractExclusionFilters moduleExclusionFilters, Path sourceFile, InputFile.Type type, ProgressReport progressReport,
-                        AtomicInteger excludedByPatternsCount)
+  public void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageExclusions moduleCoverageExclusions, Path sourceFile,
+    InputFile.Type type, ProgressReport progressReport,
+    AtomicInteger excludedByPatternsCount)
     throws IOException {
     // get case of real file without resolving link
     Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
@@ -101,10 +110,10 @@ public class FileIndexer {
     }
     if (!moduleExclusionFilters.accept(realAbsoluteFile, moduleRelativePath, type)) {
       if (projectExclusionFilters.equals(moduleExclusionFilters)) {
-        warnOnce("File '" + projectRelativePath + "' was excluded because patterns are still evaluated using module relative paths but this is deprecated. " +
+        warnOnceDeprecatedExclusion("File '" + projectRelativePath + "' was excluded because patterns are still evaluated using module relative paths but this is deprecated. " +
           "Please update file inclusion/exclusion configuration so that patterns refer to project relative paths.");
       } else {
-        warnOnce("Defining inclusion/exclusions at module level is deprecated. " +
+        warnOnceDeprecatedExclusion("Defining inclusion/exclusions at module level is deprecated. " +
           "Move file inclusion/exclusion configuration from module '" + module.getName() + "' " +
           "to the root project and update patterns to refer to project relative paths.");
       }
@@ -127,27 +136,60 @@ public class FileIndexer {
     if (!accept(inputFile)) {
       return;
     }
-    if (componentStore.getFile(inputFile.getProjectRelativePath()) != null) {
-      throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
-        + "disjoint sets for main and test files");
-    }
+    checkIfAlreadyIndexed(inputFile);
     componentStore.put(module.key(), inputFile);
     if (issueExclusionsLoader.shouldExecute()) {
       issueExclusionsLoader.addMulticriteriaPatterns(inputFile.getProjectRelativePath(), inputFile.key());
     }
     LOG.debug("'{}' indexed {}with language '{}'", projectRelativePath, type == Type.TEST ? "as test " : "", inputFile.language());
+    evaluateCoverageExclusions(module, moduleCoverageExclusions, inputFile);
     if (properties.preloadFileMetadata()) {
       inputFile.checkMetadata();
     }
-    int count = componentStore.allFiles().size();
+    int count = componentStore.inputFiles().size();
     progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.getProjectRelativePath() + ")");
   }
 
-  private void warnOnce(String msg) {
+  private void checkIfAlreadyIndexed(DefaultInputFile inputFile) {
+    if (componentStore.inputFile(inputFile.getProjectRelativePath()) != null) {
+      throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
+        + "disjoint sets for main and test files");
+    }
+  }
+
+  private void evaluateCoverageExclusions(DefaultInputModule module, ModuleCoverageExclusions moduleCoverageExclusions, DefaultInputFile inputFile) {
+    boolean excludedByProjectConfiguration = projectCoverageExclusions.isExcluded(inputFile);
+    if (excludedByProjectConfiguration) {
+      inputFile.setExcludedForCoverage(true);
+      LOG.debug("File {} excluded for coverage", inputFile);
+    } else if (moduleCoverageExclusions.isExcluded(inputFile)) {
+      inputFile.setExcludedForCoverage(true);
+      if (Arrays.equals(moduleCoverageExclusions.getCoverageExclusionConfig(), projectCoverageExclusions.getCoverageExclusionConfig())) {
+        warnOnceDeprecatedCoverageExclusion(
+          "File '" + inputFile + "' was excluded from coverage because patterns are still evaluated using module relative paths but this is deprecated. " +
+            "Please update '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' configuration so that patterns refer to project relative paths");
+      } else {
+        warnOnceDeprecatedCoverageExclusion("Defining coverage exclusions at module level is deprecated. " +
+          "Move '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' from module '" + module.getName() + "' " +
+          "to the root project and update patterns to refer to project relative paths");
+      }
+      LOG.debug("File {} excluded for coverage", inputFile);
+    }
+  }
+
+  private void warnOnceDeprecatedExclusion(String msg) {
     if (!warnExclusionsAlreadyLogged) {
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);
       warnExclusionsAlreadyLogged = true;
+    }
+  }
+
+  private void warnOnceDeprecatedCoverageExclusion(String msg) {
+    if (!warnCoverageExclusionsAlreadyLogged) {
+      LOG.warn(msg);
+      analysisWarnings.addUnique(msg);
+      warnCoverageExclusionsAlreadyLogged = true;
     }
   }
 

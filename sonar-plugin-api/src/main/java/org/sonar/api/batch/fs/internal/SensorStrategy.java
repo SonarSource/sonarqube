@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
  */
 public class SensorStrategy {
 
-  private boolean global = false;
+  private boolean global = true;
 
   public boolean isGlobal() {
     return global;

@@ -23,11 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
@@ -39,26 +37,21 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
-@InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
-@ScannerSide
 public final class ScmPublisher {
 
   private static final Logger LOG = Loggers.get(ScmPublisher.class);
 
-  private final AbstractProjectOrModule inputModule;
   private final ScmConfiguration configuration;
   private final ProjectRepositories projectRepositories;
-  private final ModuleInputComponentStore componentStore;
-  private final DefaultModuleFileSystem fs;
+  private final InputComponentStore componentStore;
+  private final FileSystem fs;
   private final ScannerReportWriter writer;
   private final BranchConfiguration branchConfiguration;
 
-  public ScmPublisher(AbstractProjectOrModule inputModule, ScmConfiguration configuration, ProjectRepositories projectRepositories,
-    ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
-    this.inputModule = inputModule;
+  public ScmPublisher(ScmConfiguration configuration, ProjectRepositories projectRepositories,
+                      InputComponentStore componentStore, FileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;
     this.componentStore = componentStore;
@@ -99,16 +92,12 @@ public final class ScmPublisher {
       LOG.warn("Forced reloading of SCM data for all files.");
     }
     List<InputFile> filesToBlame = new LinkedList<>();
-    for (InputFile f : componentStore.inputFiles()) {
-      DefaultInputFile inputFile = (DefaultInputFile) f;
-      if (!inputFile.isPublished()) {
-        continue;
-      }
+    for (DefaultInputFile f : componentStore.allFilesToPublish()) {
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
       } else if (!branchConfiguration.isShortOrPullRequest()) {
         // File status is SAME so that mean fileData exists
-        FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), inputFile);
+        FileData fileData = projectRepositories.fileData(componentStore.findModule(f).getKeyWithBranch(), f);
         if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {

@@ -41,7 +41,7 @@ import org.sonarqube.ws.client.WsResponse;
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
   private static final String BATCH_PROJECT_URL = "/batch/project.protobuf";
-  private ScannerWsClient wsClient;
+  private final ScannerWsClient wsClient;
 
   public DefaultProjectRepositoriesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
@@ -91,7 +91,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     return false;
   }
 
-  private static ProjectRepositories processStream(InputStream is, String projectKey) {
+  private ProjectRepositories processStream(InputStream is, String projectKey) {
     try {
       WsProjectResponse response = WsProjectResponse.parseFrom(is);
       if (response.getFileDataByModuleAndPathCount() == 0) {

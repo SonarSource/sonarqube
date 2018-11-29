@@ -20,11 +20,15 @@
 package org.sonar.scanner.phases;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.scan.ModuleConfiguration;
 
@@ -63,9 +67,12 @@ public class ModuleCoverageExclusionsTest {
     assertThat(coverageExclusions.isExcluded(file)).isFalse();
   }
 
-  private ModuleConfiguration mockConfig(String... values) {
+  private DefaultInputModule mockConfig(String... values) {
     ModuleConfiguration config = mock(ModuleConfiguration.class);
     when(config.getStringArray("sonar.coverage.exclusions")).thenReturn(values);
-    return config;
+    return new DefaultInputModule(ProjectDefinition.create()
+      .setBaseDir(baseDir)
+      .setWorkDir(baseDir)
+      .setProperty("sonar.coverage.exclusions", Arrays.asList(values).stream().collect(Collectors.joining(","))));
   }
 }

@@ -87,6 +87,7 @@ public class DefaultInputFileTest {
     assertThat(inputFile.getModuleRelativePath()).isEqualTo(MODULE_RELATIVE_PATH);
     assertThat(inputFile.getProjectRelativePath()).isEqualTo(PROJECT_RELATIVE_PATH);
 
+    sensorStrategy.setGlobal(false);
     assertThat(inputFile.relativePath()).isEqualTo(MODULE_RELATIVE_PATH);
     assertThat(new File(inputFile.relativePath())).isRelative();
     sensorStrategy.setGlobal(true);

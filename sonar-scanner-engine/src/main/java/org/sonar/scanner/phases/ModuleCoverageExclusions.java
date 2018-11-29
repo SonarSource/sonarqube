@@ -21,12 +21,17 @@ package org.sonar.scanner.phases;
 
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.scanner.scan.ModuleConfiguration;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 @Immutable
 public class ModuleCoverageExclusions extends AbstractCoverageExclusions {
 
-  public ModuleCoverageExclusions(ModuleConfiguration config) {
-    super(config, DefaultInputFile::getModuleRelativePath);
+  public ModuleCoverageExclusions(DefaultInputModule module) {
+    super(k -> {
+      String value = module.properties().get(k);
+      return value != null ? parseAsCsv(k, value) : new String[0];
+    }, DefaultInputFile::getModuleRelativePath);
   }
 }

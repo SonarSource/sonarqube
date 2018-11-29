@@ -43,6 +43,7 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
+import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
@@ -65,6 +66,9 @@ import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.AnalysisObservers;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.phases.ProjectCoverageExclusions;
+import org.sonar.scanner.postjob.DefaultPostJobContext;
+import org.sonar.scanner.postjob.PostJobOptimizer;
+import org.sonar.scanner.postjob.PostJobsExecutor;
 import org.sonar.scanner.report.ActiveRulesPublisher;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.report.AnalysisWarningsPublisher;
@@ -100,6 +104,7 @@ import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
+import org.sonar.scanner.scan.filesystem.DefaultProjectFileSystem;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
@@ -110,7 +115,10 @@ import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
+import org.sonar.scanner.scan.report.JSONReport;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
+import org.sonar.scanner.scm.ScmConfiguration;
+import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.storage.Storages;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
@@ -183,7 +191,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectFileIndexer.class,
       ProjectExclusionFilters.class,
 
-
       // rules
       new ActiveRulesProvider(),
       new QualityProfilesProvider(),
@@ -245,6 +252,19 @@ public class ProjectScanContainer extends ComponentContainer {
       CpdSettings.class,
       SonarCpdBlockIndex.class,
       JavaCpdBlockIndexerSensor.class,
+
+      // PostJobs
+      PostJobsExecutor.class,
+      PostJobOptimizer.class,
+      DefaultPostJobContext.class,
+      PostJobExtensionDictionnary.class,
+
+      // SCM
+      ScmConfiguration.class,
+      ScmPublisher.class,
+
+      // Filesystem
+      DefaultProjectFileSystem.class,
 
       AnalysisObservers.class);
 
@@ -323,7 +343,21 @@ public class ProjectScanContainer extends ComponentContainer {
     getComponentByType(QProfileVerifier.class).execute();
 
     LOG.debug("Start recursive analysis of project modules");
-    scanRecursively(tree, tree.root(), analysisMode);
+    scanRecursively(tree, tree.root());
+
+    getComponentByType(ScmPublisher.class).publish();
+
+    if (analysisMode.isIssues()) {
+      getComponentByType(IssueTransition.class).execute();
+      getComponentByType(JSONReport.class).execute();
+    } else {
+      getComponentByType(CpdExecutor.class).execute();
+      getComponentByType(ReportPublisher.class).execute();
+    }
+
+    getComponentByType(PostJobsExecutor.class).execute();
+
+    LOG.info("ANALYSIS SUCCESSFUL");
 
     if (analysisMode.isMediumTest()) {
       getComponentByType(AnalysisObservers.class).notifyEndOfScanTask();
@@ -345,16 +379,16 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module, GlobalAnalysisMode analysisMode) {
+  private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module) {
     for (DefaultInputModule child : tree.children(module)) {
-      scanRecursively(tree, child, analysisMode);
+      scanRecursively(tree, child);
     }
-    scan(module, analysisMode);
+    scan(module);
   }
 
   @VisibleForTesting
-  void scan(DefaultInputModule module, GlobalAnalysisMode analysisMode) {
-    new ModuleScanContainer(this, module, analysisMode).execute();
+  void scan(DefaultInputModule module) {
+    new ModuleScanContainer(this, module).execute();
   }
 
 }

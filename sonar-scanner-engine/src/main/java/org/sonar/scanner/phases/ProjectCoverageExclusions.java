@@ -27,7 +27,7 @@ import org.sonar.scanner.scan.ProjectConfiguration;
 public class ProjectCoverageExclusions extends AbstractCoverageExclusions {
 
   public ProjectCoverageExclusions(ProjectConfiguration projectConfig) {
-    super(projectConfig, DefaultInputFile::getProjectRelativePath);
+    super(projectConfig::getStringArray, DefaultInputFile::getProjectRelativePath);
     log();
   }
 }

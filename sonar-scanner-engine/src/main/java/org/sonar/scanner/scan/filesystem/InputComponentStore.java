@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
@@ -43,7 +44,7 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
  * Store of all files and dirs. Inclusion and
  * exclusion patterns are already applied.
  */
-public class InputComponentStore {
+public class InputComponentStore extends DefaultFileSystem.Cache {
 
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
@@ -65,7 +66,7 @@ public class InputComponentStore {
   }
 
   private Stream<DefaultInputFile> allFilesToPublishStream() {
-    return inputFileByModuleCache.values().stream()
+    return globalInputFileCache.values().stream()
       .map(f -> (DefaultInputFile) f)
       .filter(DefaultInputFile::isPublished);
   }
@@ -80,7 +81,8 @@ public class InputComponentStore {
       ::iterator;
   }
 
-  public Collection<InputFile> allFiles() {
+  @Override
+  public Collection<InputFile> inputFiles() {
     return globalInputFileCache.values();
   }
 
@@ -116,14 +118,26 @@ public class InputComponentStore {
     return inputFileByModuleCache.get(moduleKey, relativePath);
   }
 
+  @Override
   @CheckForNull
-  public InputFile getFile(String relativePath) {
+  public InputFile inputFile(String relativePath) {
     return globalInputFileCache.get(relativePath);
   }
 
   @CheckForNull
   public DefaultInputModule getModule(String moduleKeyWithBranch) {
     return inputModuleCache.get(moduleKeyWithBranch);
+  }
+
+  @CheckForNull
+  public DefaultInputModule findModule(DefaultInputFile file) {
+    return inputFileByModuleCache
+      .cellSet()
+      .stream()
+      .filter(c -> c.getValue().equals(file))
+      .findFirst()
+      .map(c -> (DefaultInputModule) inputComponents.get(c.getRowKey()))
+      .orElse(null);
   }
 
   public void put(DefaultInputModule inputModule) {
@@ -136,23 +150,32 @@ public class InputComponentStore {
     inputModuleCache.put(keyWithBranch, inputModule);
   }
 
+  @Override
   public Iterable<InputFile> getFilesByName(String filename) {
     return filesByNameCache.get(filename);
   }
 
+  @Override
   public Iterable<InputFile> getFilesByExtension(String extension) {
     return filesByExtensionCache.get(extension);
   }
 
-  public SortedSet<String> getLanguages() {
+  @Override
+  public SortedSet<String> languages() {
     return globalLanguagesCache;
   }
 
-  public SortedSet<String> getLanguages(String moduleKey) {
+  public SortedSet<String> languages(String moduleKey) {
     return languagesCache.getOrDefault(moduleKey, Collections.emptySortedSet());
   }
 
   public Collection<DefaultInputModule> allModules() {
     return inputModuleCache.values();
   }
+
+  @Override
+  protected void doAdd(InputFile inputFile) {
+    throw new UnsupportedOperationException();
+  }
+
 }

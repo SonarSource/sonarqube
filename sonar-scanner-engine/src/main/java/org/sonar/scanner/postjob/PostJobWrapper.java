@@ -35,6 +35,9 @@ public class PostJobWrapper {
     this.optimizer = optimizer;
     this.descriptor = new DefaultPostJobDescriptor();
     newPostJob.describe(descriptor);
+    if (descriptor.name() == null) {
+      descriptor.name(newPostJob.getClass().getName());
+    }
     this.adaptor = adaptor;
   }
 

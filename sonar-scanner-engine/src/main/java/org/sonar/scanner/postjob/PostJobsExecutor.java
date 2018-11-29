@@ -17,23 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.phases;
+package org.sonar.scanner.postjob;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
-import org.sonar.scanner.postjob.PostJobWrapper;
+import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 
-@ScannerSide
 public class PostJobsExecutor {
   private static final Logger LOG = Loggers.get(PostJobsExecutor.class);
 
-  private final ScannerExtensionDictionnary selector;
+  private final PostJobExtensionDictionnary selector;
 
-  public PostJobsExecutor(ScannerExtensionDictionnary selector) {
+  public PostJobsExecutor(PostJobExtensionDictionnary selector) {
     this.selector = selector;
   }
 

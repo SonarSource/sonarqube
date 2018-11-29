@@ -82,7 +82,7 @@ public class AnalysisResult implements AnalysisObserver {
 
   private void storeFs(ProjectScanContainer container) {
     InputComponentStore inputFileCache = container.getComponentByType(InputComponentStore.class);
-    for (InputFile inputPath : inputFileCache.allFiles()) {
+    for (InputFile inputPath : inputFileCache.inputFiles()) {
       inputFilesByKeys.put(((DefaultInputFile) inputPath).getProjectRelativePath(), inputPath);
     }
   }

@@ -45,6 +45,7 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.issue.IssueCache;
@@ -57,7 +58,8 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
     name = "Report Results Export File",
     type = PropertyType.STRING,
     global = false, project = false)})
-public class JSONReport implements Reporter {
+@ScannerSide
+public class JSONReport {
 
   static final String SONAR_REPORT_EXPORT_PATH = "sonar.report.export.path";
   private static final Logger LOG = LoggerFactory.getLogger(JSONReport.class);
@@ -80,7 +82,6 @@ public class JSONReport implements Reporter {
     this.componentStore = componentStore;
   }
 
-  @Override
   public void execute() {
     settings.get(SONAR_REPORT_EXPORT_PATH).ifPresent(this::exportResults);
   }

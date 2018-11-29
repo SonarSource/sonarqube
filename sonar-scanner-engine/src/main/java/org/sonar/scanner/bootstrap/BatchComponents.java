@@ -31,8 +31,6 @@ import org.sonar.scanner.genericcoverage.GenericTestExecutionSensor;
 import org.sonar.scanner.issue.tracking.ServerIssueFromWs;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.scan.report.JSONReport;
-import org.sonar.scanner.scm.ScmConfiguration;
-import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.source.ZeroCoverageSensor;
 
 public class BatchComponents {
@@ -45,10 +43,6 @@ public class BatchComponents {
       DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
     if (!analysisMode.isIssues()) {
-      // SCM
-      components.add(ScmConfiguration.class);
-      components.add(ScmPublisher.class);
-
       components.add(ZeroCoverageSensor.class);
 
       // Generic coverage

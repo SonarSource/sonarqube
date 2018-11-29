@@ -22,8 +22,9 @@ package org.sonar.scanner.phases;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
+import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.postjob.PostJobWrapper;
+import org.sonar.scanner.postjob.PostJobsExecutor;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class PostJobsExecutorTest {
   private PostJobsExecutor executor;
 
-  private ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
+  private PostJobExtensionDictionnary selector = mock(PostJobExtensionDictionnary.class);
   private PostJobWrapper job1 = mock(PostJobWrapper.class);
   private PostJobWrapper job2 = mock(PostJobWrapper.class);
 

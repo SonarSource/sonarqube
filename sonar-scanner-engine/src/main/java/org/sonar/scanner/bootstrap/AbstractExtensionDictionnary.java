@@ -33,36 +33,16 @@ import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.postjob.PostJob;
-import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.postjob.PostJobOptimizer;
-import org.sonar.scanner.postjob.PostJobWrapper;
-import org.sonar.scanner.sensor.SensorOptimizer;
-import org.sonar.scanner.sensor.SensorWrapper;
 
-/**
- * @since 2.6
- */
-public class ScannerExtensionDictionnary {
+public abstract class AbstractExtensionDictionnary {
 
   private final ComponentContainer componentContainer;
-  private final SensorContext sensorContext;
-  private final SensorOptimizer sensorOptimizer;
-  private final PostJobOptimizer postJobOptimizer;
-  private final PostJobContext postJobContext;
 
-  public ScannerExtensionDictionnary(ComponentContainer componentContainer, SensorContext sensorContext, SensorOptimizer sensorOptimizer,
-    PostJobOptimizer postJobOptimizer, PostJobContext postJobContext) {
+  public AbstractExtensionDictionnary(ComponentContainer componentContainer) {
     this.componentContainer = componentContainer;
-    this.sensorContext = sensorContext;
-    this.sensorOptimizer = sensorOptimizer;
-    this.postJobOptimizer = postJobOptimizer;
-    this.postJobContext = postJobContext;
   }
 
   public <T> Collection<T> select(Class<T> type, boolean sort, @Nullable ExtensionMatcher matcher) {
@@ -73,22 +53,6 @@ public class ScannerExtensionDictionnary {
     return result;
   }
 
-  public Collection<SensorWrapper> selectSensors(boolean global) {
-    Collection<Sensor> result = sort(getFilteredExtensions(Sensor.class, null));
-    return result.stream()
-      .map(s -> new SensorWrapper(s, sensorContext, sensorOptimizer))
-      .filter(s -> global == s.isGlobal() && s.shouldExecute())
-      .collect(Collectors.toList());
-  }
-
-  public Collection<PostJobWrapper> selectPostJobs() {
-    Collection<PostJob> result = sort(getFilteredExtensions(PostJob.class, null));
-    return result.stream()
-      .map(j -> new PostJobWrapper(j, postJobContext, postJobOptimizer))
-      .filter(PostJobWrapper::shouldExecute)
-      .collect(Collectors.toList());
-  }
-
   private static Phase.Name evaluatePhase(Object extension) {
     Phase phaseAnnotation = AnnotationUtils.getAnnotation(extension, Phase.class);
     if (phaseAnnotation != null) {
@@ -97,7 +61,7 @@ public class ScannerExtensionDictionnary {
     return Phase.Name.DEFAULT;
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable ExtensionMatcher matcher) {
+  protected <T> List<T> getFilteredExtensions(Class<T> type, @Nullable ExtensionMatcher matcher) {
     List<T> result = new ArrayList<>();
 
     for (Object extension : getExtensions(type)) {
@@ -122,7 +86,7 @@ public class ScannerExtensionDictionnary {
     }
   }
 
-  private <T> Collection<T> sort(Collection<T> extensions) {
+  protected <T> Collection<T> sort(Collection<T> extensions) {
     DirectAcyclicGraph dag = new DirectAcyclicGraph();
 
     for (T extension : extensions) {

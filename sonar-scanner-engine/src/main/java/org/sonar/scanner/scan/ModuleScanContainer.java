@@ -27,23 +27,14 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
+import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.issue.ModuleIssueFilters;
 import org.sonar.scanner.issue.ModuleIssues;
-import org.sonar.scanner.phases.AbstractModulePhaseExecutor;
-import org.sonar.scanner.phases.IssuesPhaseExecutor;
 import org.sonar.scanner.phases.ModuleCoverageExclusions;
-import org.sonar.scanner.phases.PostJobsExecutor;
-import org.sonar.scanner.phases.PublishPhaseExecutor;
 import org.sonar.scanner.phases.SensorsExecutor;
-import org.sonar.scanner.postjob.DefaultPostJobContext;
-import org.sonar.scanner.postjob.PostJobOptimizer;
-import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
-import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
@@ -56,12 +47,10 @@ import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final DefaultInputModule module;
-  private final GlobalAnalysisMode analysisMode;
 
-  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module, GlobalAnalysisMode analysisMode) {
+  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module) {
     super(parent);
     this.module = module;
-    this.analysisMode = analysisMode;
   }
 
   @Override
@@ -76,19 +65,8 @@ public class ModuleScanContainer extends ComponentContainer {
       module.definition(),
       module,
       MutableModuleSettings.class,
-      new ModuleConfigurationProvider());
+      new ModuleConfigurationProvider(),
 
-    if (analysisMode.isIssues()) {
-      add(
-        IssuesPhaseExecutor.class,
-        IssuesReports.class);
-    } else {
-      add(
-        PublishPhaseExecutor.class);
-    }
-
-    add(
-      PostJobsExecutor.class,
       SensorsExecutor.class,
 
       // file system
@@ -97,12 +75,10 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultModuleFileSystem.class,
 
       SensorOptimizer.class,
-      PostJobOptimizer.class,
 
-      DefaultPostJobContext.class,
       DefaultSensorStorage.class,
       DefaultSensorContext.class,
-      ScannerExtensionDictionnary.class,
+      SensorExtensionDictionnary.class,
       ModuleIssueFilters.class,
       ModuleCoverageExclusions.class,
 
@@ -124,7 +100,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    getComponentByType(AbstractModulePhaseExecutor.class).execute(module);
+    getComponentByType(SensorsExecutor.class).execute();
   }
 
 }

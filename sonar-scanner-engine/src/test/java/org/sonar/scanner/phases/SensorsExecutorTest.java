@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
+import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.sensor.SensorWrapper;
 
@@ -64,7 +64,7 @@ public class SensorsExecutorTest {
     when(globalSensor.shouldExecute()).thenReturn(true);
     when(globalSensor.wrappedSensor()).thenReturn(mock(Sensor.class));
 
-    ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
+    SensorExtensionDictionnary selector = mock(SensorExtensionDictionnary.class);
     when(selector.selectSensors(false)).thenReturn(Collections.singleton(perModuleSensor));
     when(selector.selectSensors(true)).thenReturn(Collections.singleton(globalSensor));
 

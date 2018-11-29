@@ -42,7 +42,7 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
   @Override
   public Iterable<InputFile> inputFiles() {
     if (strategy.isGlobal()) {
-      return inputComponentStore.allFiles();
+      return inputComponentStore.inputFiles();
     } else {
       return inputComponentStore.filesByModule(moduleKey);
     }
@@ -51,7 +51,7 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
   @Override
   public InputFile inputFile(String relativePath) {
     if (strategy.isGlobal()) {
-      return inputComponentStore.getFile(relativePath);
+      return inputComponentStore.inputFile(relativePath);
     } else {
       return inputComponentStore.getFile(moduleKey, relativePath);
     }
@@ -60,9 +60,9 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
   @Override
   public SortedSet<String> languages() {
     if (strategy.isGlobal()) {
-      return inputComponentStore.getLanguages();
+      return inputComponentStore.languages();
     } else {
-      return inputComponentStore.getLanguages(moduleKey);
+      return inputComponentStore.languages(moduleKey);
     }
   }
 

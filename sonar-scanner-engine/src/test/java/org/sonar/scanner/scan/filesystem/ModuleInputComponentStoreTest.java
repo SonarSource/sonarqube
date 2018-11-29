@@ -127,6 +127,8 @@ public class ModuleInputComponentStoreTest {
     when(module.key()).thenReturn("foo");
     ModuleInputComponentStore store = new ModuleInputComponentStore(module, inputComponentStore, strategy);
 
+    strategy.setGlobal(false);
+
     store.inputFiles();
     verify(inputComponentStore).filesByModule("foo");
 
@@ -135,7 +137,7 @@ public class ModuleInputComponentStoreTest {
     verify(inputComponentStore).getFile(any(String.class), eq(relativePath));
 
     store.languages();
-    verify(inputComponentStore).getLanguages(any(String.class));
+    verify(inputComponentStore).languages(any(String.class));
   }
 
   @Test
@@ -147,13 +149,13 @@ public class ModuleInputComponentStoreTest {
     strategy.setGlobal(true);
 
     store.inputFiles();
-    verify(inputComponentStore).allFiles();
+    verify(inputComponentStore).inputFiles();
 
     String relativePath = "somepath";
     store.inputFile(relativePath);
-    verify(inputComponentStore).getFile(relativePath);
+    verify(inputComponentStore).inputFile(relativePath);
 
     store.languages();
-    verify(inputComponentStore).getLanguages();
+    verify(inputComponentStore).languages();
   }
 }

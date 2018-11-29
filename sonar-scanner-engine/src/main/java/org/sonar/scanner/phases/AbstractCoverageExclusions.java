@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 
 @Immutable
@@ -40,10 +39,10 @@ public abstract class AbstractCoverageExclusions {
 
   private Collection<WildcardPattern> exclusionPatterns;
 
-  public AbstractCoverageExclusions(Configuration config, Function<DefaultInputFile, String> pathExtractor) {
+  public AbstractCoverageExclusions(Function<String, String[]> configProvider, Function<DefaultInputFile, String> pathExtractor) {
     this.pathExtractor = pathExtractor;
     Builder<WildcardPattern> builder = ImmutableList.builder();
-    coverageExclusionConfig = config.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY);
+    coverageExclusionConfig = configProvider.apply(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY);
     for (String pattern : coverageExclusionConfig) {
       builder.add(WildcardPattern.create(pattern));
     }
@@ -60,7 +59,7 @@ public abstract class AbstractCoverageExclusions {
     }
   }
 
-  boolean isExcluded(DefaultInputFile file) {
+  public boolean isExcluded(DefaultInputFile file) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();
     while (!found && iterator.hasNext()) {

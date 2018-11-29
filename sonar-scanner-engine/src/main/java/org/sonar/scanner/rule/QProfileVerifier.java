@@ -51,7 +51,7 @@ public class QProfileVerifier {
   void execute(Logger logger) {
     String defaultName = config.get(QualityProfiles.SONAR_PROFILE_PROP).orElse(null);
     boolean defaultNameUsed = StringUtils.isBlank(defaultName);
-    for (String lang : store.getLanguages()) {
+    for (String lang : store.languages()) {
       QProfile profile = profiles.findByLanguage(lang);
       if (profile == null) {
         logger.warn("No Quality profile found for language {}", lang);
@@ -62,7 +62,7 @@ public class QProfileVerifier {
         }
       }
     }
-    if (!defaultNameUsed && !store.getLanguages().isEmpty()) {
+    if (!defaultNameUsed && !store.languages().isEmpty()) {
       throw MessageException.of("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
     }
   }

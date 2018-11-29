@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,6 +38,8 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.scanner.phases.ModuleCoverageExclusions;
+import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.util.ProgressReport;
 
 /**
@@ -49,16 +52,18 @@ public class ProjectFileIndexer {
   private final DefaultInputProject project;
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
+  private final ProjectCoverageExclusions projectCoverageExclusions;
   private final FileIndexer fileIndexer;
 
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(DefaultInputProject project, InputComponentStore componentStore, AbstractExclusionFilters exclusionFilters,
-    InputModuleHierarchy inputModuleHierarchy,
+    InputModuleHierarchy inputModuleHierarchy, ProjectCoverageExclusions projectCoverageExclusions,
     FileIndexer fileIndexer) {
     this.project = project;
     this.componentStore = componentStore;
     this.inputModuleHierarchy = inputModuleHierarchy;
+    this.projectCoverageExclusions = projectCoverageExclusions;
     this.fileIndexer = fileIndexer;
     this.projectExclusionFilters = exclusionFilters;
   }
@@ -71,7 +76,7 @@ public class ProjectFileIndexer {
 
     indexModulesRecursively(inputModuleHierarchy.root(), excludedByPatternsCount);
 
-    int totalIndexed = componentStore.allFiles().size();
+    int totalIndexed = componentStore.inputFiles().size();
     progressReport.stop(totalIndexed + " " + pluralizeFiles(totalIndexed) + " indexed");
 
     if (projectExclusionFilters.hasPattern()) {
@@ -81,27 +86,32 @@ public class ProjectFileIndexer {
   }
 
   private void indexModulesRecursively(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
-    inputModuleHierarchy.children(module).forEach(m -> indexModulesRecursively(m, excludedByPatternsCount));
+    inputModuleHierarchy.children(module).stream().sorted(Comparator.comparing(DefaultInputModule::key)).forEach(m -> indexModulesRecursively(m, excludedByPatternsCount));
     index(module, excludedByPatternsCount);
   }
 
   private void index(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
+    if (componentStore.allModules().size() > 1) {
+      LOG.info("Indexing files from module {}", module.getName());
+    }
     ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(module);
-    indexFiles(module, moduleExclusionFilters, module.getSourceDirsOrFiles(), Type.MAIN, excludedByPatternsCount);
-    indexFiles(module, moduleExclusionFilters, module.getTestDirsOrFiles(), Type.TEST, excludedByPatternsCount);
+    ModuleCoverageExclusions moduleCoverageExclusions = new ModuleCoverageExclusions(module);
+    indexFiles(module, moduleExclusionFilters, moduleCoverageExclusions, module.getSourceDirsOrFiles(), Type.MAIN, excludedByPatternsCount);
+    indexFiles(module, moduleExclusionFilters, moduleCoverageExclusions, module.getTestDirsOrFiles(), Type.TEST, excludedByPatternsCount);
   }
 
   private static String pluralizeFiles(int count) {
     return count == 1 ? "file" : "files";
   }
 
-  private void indexFiles(DefaultInputModule module, AbstractExclusionFilters moduleExclusionFilters, List<Path> sources, Type type, AtomicInteger excludedByPatternsCount) {
+  private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageExclusions moduleCoverageExclusions, List<Path> sources,
+    Type type, AtomicInteger excludedByPatternsCount) {
     try {
       for (Path dirOrFile : sources) {
         if (dirOrFile.toFile().isDirectory()) {
-          indexDirectory(module, moduleExclusionFilters, dirOrFile, type, excludedByPatternsCount);
+          indexDirectory(module, moduleExclusionFilters, moduleCoverageExclusions, dirOrFile, type, excludedByPatternsCount);
         } else {
-          fileIndexer.indexFile(module, moduleExclusionFilters, dirOrFile, type, progressReport, excludedByPatternsCount);
+          fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageExclusions, dirOrFile, type, progressReport, excludedByPatternsCount);
         }
       }
     } catch (IOException e) {
@@ -109,21 +119,25 @@ public class ProjectFileIndexer {
     }
   }
 
-  private void indexDirectory(DefaultInputModule module, AbstractExclusionFilters moduleExclusionFilters, Path dirToIndex, Type type, AtomicInteger excludedByPatternsCount)
+  private void indexDirectory(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageExclusions moduleCoverageExclusions, Path dirToIndex,
+    Type type, AtomicInteger excludedByPatternsCount)
     throws IOException {
     Files.walkFileTree(dirToIndex.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
-      new IndexFileVisitor(module, moduleExclusionFilters, type, excludedByPatternsCount));
+      new IndexFileVisitor(module, moduleExclusionFilters, moduleCoverageExclusions, type, excludedByPatternsCount));
   }
 
   private class IndexFileVisitor implements FileVisitor<Path> {
     private final DefaultInputModule module;
-    private final AbstractExclusionFilters moduleExclusionFilters;
+    private final ModuleExclusionFilters moduleExclusionFilters;
+    private final ModuleCoverageExclusions moduleCoverageExclusions;
     private final Type type;
     private final AtomicInteger excludedByPatternsCount;
 
-    IndexFileVisitor(DefaultInputModule module, AbstractExclusionFilters moduleExclusionFilters, Type type, AtomicInteger excludedByPatternsCount) {
+    IndexFileVisitor(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageExclusions moduleCoverageExclusions, Type type,
+      AtomicInteger excludedByPatternsCount) {
       this.module = module;
       this.moduleExclusionFilters = moduleExclusionFilters;
+      this.moduleCoverageExclusions = moduleCoverageExclusions;
       this.type = type;
       this.excludedByPatternsCount = excludedByPatternsCount;
     }
@@ -144,7 +158,7 @@ public class ProjectFileIndexer {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
       if (!Files.isHidden(file)) {
-        fileIndexer.indexFile(module, moduleExclusionFilters, file, type, progressReport, excludedByPatternsCount);
+        fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageExclusions, file, type, progressReport, excludedByPatternsCount);
       }
       return FileVisitResult.CONTINUE;
     }
