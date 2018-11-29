@@ -58,7 +58,7 @@ import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -207,7 +207,7 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   private final MetricFinder metricFinder;
-  private final ModuleIssues moduleIssues;
+  private final IssuePublisher moduleIssues;
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
@@ -217,9 +217,9 @@ public class DefaultSensorStorage implements SensorStorage {
   private final BranchConfiguration branchConfiguration;
   private final Set<String> alreadyLogged = new HashSet<>();
 
-  public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues, Configuration settings,
-    ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
-    ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
+  public DefaultSensorStorage(MetricFinder metricFinder, IssuePublisher moduleIssues, Configuration settings,
+                              ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
+                              ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.settings = settings;

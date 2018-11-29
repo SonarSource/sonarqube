@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
@@ -30,23 +30,23 @@ import org.sonar.scanner.protocol.output.ScannerReport;
  * @deprecated since 7.6, {@link IssueFilter} is deprecated
  */
 @Deprecated
-public class ModuleIssueFilters {
+public class IssueFilters {
   private final IssueFilterChain filterChain;
-  private final InputModule module;
+  private final DefaultInputProject project;
   private final ProjectAnalysisInfo projectAnalysisInfo;
 
-  public ModuleIssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters) {
-    this.module = module;
+  public IssueFilters(DefaultInputProject project, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters) {
+    this.project = project;
     this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
     this.projectAnalysisInfo = projectAnalysisInfo;
   }
 
-  public ModuleIssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo) {
-    this(module, projectAnalysisInfo, new IssueFilter[0]);
+  public IssueFilters(DefaultInputProject project, ProjectAnalysisInfo projectAnalysisInfo) {
+    this(project, projectAnalysisInfo, new IssueFilter[0]);
   }
 
   public boolean accept(String componentKey, ScannerReport.Issue rawIssue) {
-    FilterableIssue fIssue = new DefaultFilterableIssue(module, projectAnalysisInfo, rawIssue, componentKey);
+    FilterableIssue fIssue = new DefaultFilterableIssue(project, projectAnalysisInfo, rawIssue, componentKey);
     return filterChain.accept(fIssue);
   }
 

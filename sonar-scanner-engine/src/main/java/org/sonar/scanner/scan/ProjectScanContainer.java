@@ -52,6 +52,8 @@ import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.issue.DefaultProjectIssues;
 import org.sonar.scanner.issue.IssueCache;
+import org.sonar.scanner.issue.IssueFilters;
+import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
 import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
@@ -202,6 +204,9 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultProjectIssues.class,
       IssueTransition.class,
       NoSonarFilter.class,
+      IssueFilters.class,
+      IssuePublisher.class,
+
 
       // metrics
       DefaultMetricFinder.class,

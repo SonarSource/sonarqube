@@ -20,14 +20,11 @@
 package org.sonar.scanner.issue;
 
 import java.util.Date;
-
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.rule.RuleKey;
@@ -40,10 +37,10 @@ public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final String componentKey;
-  private AbstractProjectOrModule module;
+  private DefaultInputProject project;
 
-  public DefaultFilterableIssue(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, Issue rawIssue, String componentKey) {
-    this.module = (AbstractProjectOrModule) module;
+  public DefaultFilterableIssue(DefaultInputProject project, ProjectAnalysisInfo projectAnalysisInfo, Issue rawIssue, String componentKey) {
+    this.project = project;
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.rawIssue = rawIssue;
     this.componentKey = componentKey;
@@ -98,7 +95,7 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public String projectKey() {
-    return module.key();
+    return project.key();
   }
 
   @Override

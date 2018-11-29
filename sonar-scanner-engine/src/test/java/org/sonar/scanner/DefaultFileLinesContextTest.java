@@ -19,24 +19,29 @@
  */
 package org.sonar.scanner;
 
-import java.io.File;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
@@ -55,12 +60,12 @@ public class DefaultFileLinesContextTest {
 
   private DefaultFileLinesContext fileLineMeasures;
 
-  private SensorContextTester sensorContextTester;
   private MeasureCache measureCache;
+  private SensorStorage sensorStorage;
+  private DefaultInputFile file;
 
   @Before
   public void setUp() throws Exception {
-    sensorContextTester = SensorContextTester.create(temp.newFolder());
     MetricFinder metricFinder = mock(MetricFinder.class);
     org.sonar.api.batch.measure.Metric<String> hitsMetric = mock(org.sonar.api.batch.measure.Metric.class);
     when(hitsMetric.valueType()).thenReturn(String.class);
@@ -77,7 +82,9 @@ public class DefaultFileLinesContextTest {
     when(metricFinder.<String>findByKey(CoreMetrics.NCLOC_DATA_KEY)).thenReturn(CoreMetrics.NCLOC_DATA);
     when(metricFinder.<String>findByKey(CoreMetrics.EXECUTABLE_LINES_DATA_KEY)).thenReturn(CoreMetrics.EXECUTABLE_LINES_DATA);
     measureCache = mock(MeasureCache.class);
-    fileLineMeasures = new DefaultFileLinesContext(sensorContextTester, new TestInputFileBuilder("foo", "src/foo.php").initMetadata("Foo\nbar\nbiz").build(), metricFinder,
+    sensorStorage = mock(SensorStorage.class);
+    file = new TestInputFileBuilder("foo", "src/foo.php").initMetadata("Foo\nbar\nbiz").build();
+    fileLineMeasures = new DefaultFileLinesContext(sensorStorage, file, metricFinder,
       measureCache);
   }
 
@@ -89,7 +96,13 @@ public class DefaultFileLinesContextTest {
 
     assertThat(fileLineMeasures.toString()).isEqualTo("DefaultFileLinesContext{map={hits={1=2, 3=0}}}");
 
-    assertThat(sensorContextTester.measure("foo:src/foo.php", HITS_METRIC_KEY).value()).isEqualTo("1=2;3=0");
+    ArgumentCaptor<DefaultMeasure> captor = ArgumentCaptor.forClass(DefaultMeasure.class);
+    verify(sensorStorage).store(captor.capture());
+
+    DefaultMeasure measure = captor.getValue();
+    assertThat(measure.inputComponent()).isEqualTo(file);
+    assertThat(measure.metric().key()).isEqualTo(HITS_METRIC_KEY);
+    assertThat(measure.value()).isEqualTo("1=2;3=0");
   }
 
   @Test
@@ -112,8 +125,13 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setIntValue(EXECUTABLE_LINES_DATA_KEY, 2, 1);
     fileLineMeasures.save();
 
-    assertThat(sensorContextTester.measure("foo:src/foo.php", NCLOC_DATA_KEY).value()).isEqualTo("2=1");
-    assertThat(sensorContextTester.measure("foo:src/foo.php", EXECUTABLE_LINES_DATA_KEY).value()).isEqualTo("2=1");
+    ArgumentCaptor<DefaultMeasure> captor = ArgumentCaptor.forClass(DefaultMeasure.class);
+    verify(sensorStorage, times(2)).store(captor.capture());
+
+    List<DefaultMeasure> measures = captor.getAllValues();
+    assertThat(measures).extracting(DefaultMeasure::inputComponent, m -> m.metric().key(), DefaultMeasure::value)
+      .containsExactlyInAnyOrder(tuple(file, NCLOC_DATA_KEY, "2=1"),
+        tuple(file, EXECUTABLE_LINES_DATA_KEY, "2=1"));
   }
 
   @Test
@@ -127,9 +145,14 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setIntValue(BRANCHES_METRIC_KEY, 3, 4);
     fileLineMeasures.save();
 
-    assertThat(sensorContextTester.measure("foo:src/foo.php", HITS_METRIC_KEY).value()).isEqualTo("1=2;3=4");
-    assertThat(sensorContextTester.measure("foo:src/foo.php", AUTHOR_METRIC_KEY).value()).isEqualTo("1=simon;3=evgeny");
-    assertThat(sensorContextTester.measure("foo:src/foo.php", BRANCHES_METRIC_KEY).value()).isEqualTo("1=2;3=4");
+    ArgumentCaptor<DefaultMeasure> captor = ArgumentCaptor.forClass(DefaultMeasure.class);
+    verify(sensorStorage, times(3)).store(captor.capture());
+
+    List<DefaultMeasure> measures = captor.getAllValues();
+    assertThat(measures).extracting(DefaultMeasure::inputComponent, m -> m.metric().key(), DefaultMeasure::value)
+      .containsExactlyInAnyOrder(tuple(file, HITS_METRIC_KEY, "1=2;3=4"),
+        tuple(file, AUTHOR_METRIC_KEY, "1=simon;3=evgeny"),
+        tuple(file, BRANCHES_METRIC_KEY, "1=2;3=4"));
   }
 
   @Test(expected = UnsupportedOperationException.class)

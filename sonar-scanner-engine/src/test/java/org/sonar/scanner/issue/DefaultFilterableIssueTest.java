@@ -22,7 +22,7 @@ package org.sonar.scanner.issue;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
@@ -34,14 +34,14 @@ import static org.mockito.Mockito.when;
 
 public class DefaultFilterableIssueTest {
   private DefaultFilterableIssue issue;
-  private DefaultInputModule mockedProject;
+  private DefaultInputProject mockedProject;
   private ProjectAnalysisInfo projectAnalysisInfo;
   private String componentKey;
   private Issue rawIssue;
 
   @Before
   public void setUp() {
-    mockedProject = mock(DefaultInputModule.class);
+    mockedProject = mock(DefaultInputProject.class);
     projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     componentKey = "component";
   }

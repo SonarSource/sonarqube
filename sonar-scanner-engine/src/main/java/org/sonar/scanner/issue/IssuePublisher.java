@@ -43,13 +43,13 @@ import static com.google.common.base.Strings.nullToEmpty;
  * Initialize the issues raised during scan.
  */
 @ThreadSafe
-public class ModuleIssues {
+public class IssuePublisher {
 
   private final ActiveRules activeRules;
-  private final ModuleIssueFilters filters;
+  private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
 
-  public ModuleIssues(ActiveRules activeRules, ModuleIssueFilters filters, ReportPublisher reportPublisher) {
+  public IssuePublisher(ActiveRules activeRules, IssueFilters filters, ReportPublisher reportPublisher) {
     this.activeRules = activeRules;
     this.filters = filters;
     this.reportPublisher = reportPublisher;

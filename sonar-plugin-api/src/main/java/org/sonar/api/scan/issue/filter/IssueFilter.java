@@ -22,11 +22,12 @@ package org.sonar.api.scan.issue.filter;
 
 import javax.annotation.concurrent.ThreadSafe;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * @since 5.3
+ * @since 7.6 moved to project container
  * @deprecated since 7.6
  */
 @ScannerSide

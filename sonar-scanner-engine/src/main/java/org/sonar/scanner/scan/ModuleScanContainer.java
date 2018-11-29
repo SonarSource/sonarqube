@@ -29,9 +29,6 @@ import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
-import org.sonar.scanner.issue.ModuleIssueFilters;
-import org.sonar.scanner.issue.ModuleIssues;
-import org.sonar.scanner.phases.ModuleCoverageExclusions;
 import org.sonar.scanner.phases.SensorsExecutor;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
@@ -79,11 +76,6 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultSensorStorage.class,
       DefaultSensorContext.class,
       SensorExtensionDictionnary.class,
-      ModuleIssueFilters.class,
-      ModuleCoverageExclusions.class,
-
-      // issues
-      ModuleIssues.class,
 
       // Perspectives
       ScannerPerspectives.class,

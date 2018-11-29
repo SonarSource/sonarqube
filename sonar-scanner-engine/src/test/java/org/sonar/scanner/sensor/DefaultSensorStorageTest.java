@@ -51,7 +51,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
@@ -78,7 +78,7 @@ public class DefaultSensorStorageTest {
 
   private DefaultSensorStorage underTest;
   private MapSettings settings;
-  private ModuleIssues moduleIssues;
+  private IssuePublisher moduleIssues;
   private MeasureCache measureCache;
   private ScannerReportWriter reportWriter;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
@@ -93,7 +93,7 @@ public class DefaultSensorStorageTest {
     when(metricFinder.<Integer>findByKey(CoreMetrics.LINES_TO_COVER_KEY)).thenReturn(CoreMetrics.LINES_TO_COVER);
 
     settings = new MapSettings();
-    moduleIssues = mock(ModuleIssues.class);
+    moduleIssues = mock(IssuePublisher.class);
     measureCache = mock(MeasureCache.class);
 
     ReportPublisher reportPublisher = mock(ReportPublisher.class);

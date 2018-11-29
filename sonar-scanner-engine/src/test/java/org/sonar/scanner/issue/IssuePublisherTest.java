@@ -57,7 +57,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ModuleIssuesTest {
+public class IssuePublisherTest {
 
   static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
   static final String SQUID_RULE_NAME = "Avoid Cycle";
@@ -69,12 +69,12 @@ public class ModuleIssuesTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Mock
-  ModuleIssueFilters filters;
+  IssueFilters filters;
 
   ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
   RulesBuilder ruleBuilder = new RulesBuilder();
 
-  ModuleIssues moduleIssues;
+  IssuePublisher moduleIssues;
 
   DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
   ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
@@ -249,10 +249,10 @@ public class ModuleIssuesTest {
   }
 
   /**
-   * Every rules and active rules has to be added in builders before creating ModuleIssues
+   * Every rules and active rules has to be added in builders before creating IssuePublisher
    */
   private void initModuleIssues() {
-    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), filters, reportPublisher);
+    moduleIssues = new IssuePublisher(activeRulesBuilder.build(), filters, reportPublisher);
   }
 
 }
