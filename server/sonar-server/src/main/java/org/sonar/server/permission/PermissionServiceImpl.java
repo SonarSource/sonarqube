@@ -26,7 +26,6 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.permission.OrganizationPermission;
 
 import static java.util.stream.Collectors.toList;
@@ -35,7 +34,7 @@ import static java.util.stream.Collectors.toList;
 public class PermissionServiceImpl implements PermissionService {
 
   private static final List<String> ALL_PROJECT_PERMISSIONS = ImmutableList.of(
-    UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, GlobalPermissions.SCAN_EXECUTION, UserRole.USER);
+    UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, UserRole.SCAN, UserRole.USER);
 
   private static final List<OrganizationPermission> ALL_GLOBAL_PERMISSIONS = ImmutableList.copyOf(OrganizationPermission.values());
 

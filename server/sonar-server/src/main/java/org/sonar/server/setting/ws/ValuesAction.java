@@ -42,6 +42,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -60,7 +61,6 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
@@ -160,7 +160,7 @@ public class ValuesAction implements SettingsWsAction {
     }
     ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, valuesRequest.getBranch(), valuesRequest.getPullRequest());
     if (!userSession.hasComponentPermission(USER, component) &&
-      !userSession.hasComponentPermission(SCAN_EXECUTION, component) &&
+      !userSession.hasComponentPermission(UserRole.SCAN, component) &&
       !userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }

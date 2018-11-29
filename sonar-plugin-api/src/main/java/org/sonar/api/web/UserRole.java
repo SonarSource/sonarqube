@@ -51,10 +51,16 @@ public @interface UserRole {
    */
   String SECURITYHOTSPOT_ADMIN = "securityhotspotadmin";
 
+  /**
+   * @since 7.5
+   */
+  String SCAN = "scan";
+
   String[] value() default {};
 
   /**
    * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
+   * @since 7.5
    */
   Set<String> PUBLIC_PERMISSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(UserRole.USER, UserRole.CODEVIEWER)));
 

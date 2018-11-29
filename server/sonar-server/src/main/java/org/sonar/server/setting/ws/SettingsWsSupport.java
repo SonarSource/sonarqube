@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.process.ProcessProperties;
@@ -36,7 +37,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -70,7 +70,7 @@ public class SettingsWsSupport {
   }
 
   boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return hasPermission(OrganizationPermission.SCAN, SCAN_EXECUTION, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
+    return hasPermission(OrganizationPermission.SCAN, UserRole.SCAN, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
   }
 
   static boolean isSecured(String key) {

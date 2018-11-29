@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -50,7 +51,6 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -125,7 +125,7 @@ public class ListAction implements PullRequestWsAction {
 
   private void checkPermission(ComponentDto component) {
     if (userSession.hasComponentPermission(USER, component) ||
-      userSession.hasComponentPermission(SCAN_EXECUTION, component) ||
+      userSession.hasComponentPermission(UserRole.SCAN, component) ||
       userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
       return;
     }

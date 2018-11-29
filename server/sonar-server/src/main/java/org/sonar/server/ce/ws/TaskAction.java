@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -45,7 +46,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Ce;
 
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -126,7 +126,7 @@ public class TaskAction implements CeWsAction {
       String orgUuid = component.get().getOrganizationUuid();
       if (!userSession.hasPermission(OrganizationPermission.ADMINISTER, orgUuid) &&
         !userSession.hasPermission(OrganizationPermission.SCAN, orgUuid) &&
-        !userSession.hasComponentPermission(SCAN_EXECUTION, component.get())) {
+        !userSession.hasComponentPermission(UserRole.SCAN, component.get())) {
         throw insufficientPrivilegesException();
       }
 

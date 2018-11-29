@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,7 +49,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -74,7 +74,7 @@ public class ProjectDataLoader {
       String pullRequest = query.getPullRequest();
       ComponentDto mainModule = componentFinder.getByKey(session, moduleKey);
       checkRequest(isProjectOrModule(mainModule), "Key '%s' belongs to a component which is not a Project", moduleKey);
-      boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, mainModule) ||
+      boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, mainModule) ||
         userSession.hasPermission(OrganizationPermission.SCAN, mainModule.getOrganizationUuid());
       boolean hasBrowsePerm = userSession.hasComponentPermission(USER, mainModule);
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);

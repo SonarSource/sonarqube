@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.UserRole;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
@@ -48,7 +49,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
@@ -96,7 +96,7 @@ public class ReportSubmitter {
     // they don't have the direct permission on the project.
     // That means that dropping the permission on the project does not have any effects
     // if user has still the permission on the organization
-    if (!userSession.hasComponentPermission(SCAN_EXECUTION, project) &&
+    if (!userSession.hasComponentPermission(UserRole.SCAN, project) &&
       !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }

@@ -47,9 +47,7 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -220,11 +218,11 @@ public class GroupPermissionDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
 
-    db.users().insertProjectPermissionOnGroup(group1, SCAN_EXECUTION, project);
-    db.users().insertProjectPermissionOnGroup(group1, PROVISIONING, project);
+    db.users().insertProjectPermissionOnGroup(group1, SCAN.getKey(), project);
+    db.users().insertProjectPermissionOnGroup(group1, PROVISION_PROJECTS.getKey(), project);
 
-    db.users().insertProjectPermissionOnGroup(group1, SYSTEM_ADMIN, anotherProject);
-    db.users().insertProjectPermissionOnGroup(group3, SCAN_EXECUTION, anotherProject);
+    db.users().insertProjectPermissionOnGroup(group1, ADMIN, anotherProject);
+    db.users().insertProjectPermissionOnGroup(group3, UserRole.SCAN, anotherProject);
     db.users().insertPermissionOnGroup(group2, SCAN);
 
     PermissionQuery.Builder builderOnComponent = newQuery().setComponentUuid(project.uuid());
@@ -291,13 +289,13 @@ public class GroupPermissionDaoTest {
 
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(group3.getId()), null))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
-      .containsOnly(tuple(group3.getId(), SYSTEM_ADMIN, null));
+      .containsOnly(tuple(group3.getId(), ADMINISTER.getKey(), null));
 
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(ANYONE_ID), null))
       .extracting(GroupPermissionDto::getGroupId, GroupPermissionDto::getRole, GroupPermissionDto::getResourceId)
       .containsOnly(
-        tuple(0, SCAN_EXECUTION, null),
-        tuple(0, PROVISIONING, null));
+        tuple(0, SCAN.getKey(), null),
+        tuple(0, PROVISION_PROJECTS.getKey(), null));
 
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(group1.getId(), group2.getId(), ANYONE_ID), null)).hasSize(3);
     assertThat(underTest.selectByGroupIds(dbSession, organizationDto.getUuid(), asList(MISSING_ID), null)).isEmpty();
