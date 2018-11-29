@@ -25,7 +25,6 @@ import org.sonar.db.permission.OrganizationPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class PermissionServiceImplTest {
 
   private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers("APP", "VW");
@@ -36,12 +35,6 @@ public class PermissionServiceImplTest {
     assertThat(underTest.getAllOrganizationPermissions())
       .extracting(OrganizationPermission::getKey)
       .containsExactly("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
-  }
-
-  @Test
-  public void publicPermissions_must_be_ordered() {
-    assertThat(underTest.getPublicPermissions())
-      .containsExactly("user", "codeviewer");
   }
 
   @Test

@@ -44,6 +44,7 @@ import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -136,7 +137,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     // delete project permissions for group AnyOne
     dbClient.groupPermissionDao().deleteByRootComponentIdAndGroupId(dbSession, component.getId(), null);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
-    permissionService.getPublicPermissions().forEach(permission -> {
+    PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupIdsWithPermissionOnProjectBut(dbSession, component.getId(), permission)
         .forEach(groupId -> insertProjectPermissionOnGroup(dbSession, component, permission, groupId));
       dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, component.getId(), permission)
@@ -157,7 +158,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void updatePermissionsToPublic(DbSession dbSession, ComponentDto component) {
-    permissionService.getPublicPermissions().forEach(permission -> {
+    PUBLIC_PERMISSIONS.forEach(permission -> {
       // delete project group permission for UserRole.CODEVIEWER and UserRole.USER
       dbClient.groupPermissionDao().deleteByRootComponentIdAndPermission(dbSession, component.getId(), permission);
       // delete project user permission for UserRole.CODEVIEWER and UserRole.USER

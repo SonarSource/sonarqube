@@ -59,8 +59,7 @@ public class UserPermissionChangerTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-
-  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), permissionService);
+  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient());
   private OrganizationDto org1;
   private OrganizationDto org2;
   private UserDto user1;

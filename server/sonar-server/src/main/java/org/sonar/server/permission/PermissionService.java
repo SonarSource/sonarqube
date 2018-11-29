@@ -27,5 +27,5 @@ public interface PermissionService {
 
   List<OrganizationPermission> getAllOrganizationPermissions();
   List<String> getAllProjectPermissions();
-  List<String> getPublicPermissions();
+
 }

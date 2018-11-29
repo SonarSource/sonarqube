@@ -43,12 +43,12 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.server.permission.PermissionService;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 
 /**
  * Implementation of {@link UserSession} used in web server
@@ -62,18 +62,16 @@ public class ServerUserSession extends AbstractUserSession {
   private final Supplier<Collection<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
   private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
   private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
-  private final PermissionService permissionService;
   private Map<String, Set<OrganizationPermission>> permissionsByOrganizationUuid;
   private Map<String, Set<String>> permissionsByProjectUuid;
   private Set<String> organizationMembership = new HashSet<>();
 
   ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto, PermissionService permissionService) {
+    DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto) {
     this.dbClient = dbClient;
     this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userDto = userDto;
-    this.permissionService = permissionService;
   }
 
   private Collection<GroupDto> loadGroups() {
@@ -200,7 +198,7 @@ public class ServerUserSession extends AbstractUserSession {
         return loadDbPermissions(dbSession, projectUuid);
       }
       ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-      builder.addAll(permissionService.getPublicPermissions());
+      builder.addAll(PUBLIC_PERMISSIONS);
       builder.addAll(loadDbPermissions(dbSession, projectUuid));
       return builder.build();
     }

@@ -38,8 +38,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
-import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionServiceImpl;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
@@ -58,9 +56,6 @@ public class ServerUserSessionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-
   private DbClient dbClient = db.getDbClient();
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
@@ -703,7 +698,7 @@ public class ServerUserSessionTest {
   }
 
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {
-    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, userDto, permissionService);
+    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, userDto);
   }
 
   private ServerUserSession newAnonymousSession() {

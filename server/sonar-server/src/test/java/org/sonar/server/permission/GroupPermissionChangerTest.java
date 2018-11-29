@@ -38,10 +38,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
-import org.sonar.server.usergroups.ws.GroupWsSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -56,11 +53,9 @@ public class GroupPermissionChangerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private GroupWsSupport groupWsSupport = new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient(), permissionService);
+  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient());
   private OrganizationDto org;
   private GroupDto group;
   private ComponentDto privateProject;

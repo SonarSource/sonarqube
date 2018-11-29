@@ -23,6 +23,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @since 1.11
@@ -48,5 +52,10 @@ public @interface UserRole {
   String SECURITYHOTSPOT_ADMIN = "securityhotspotadmin";
 
   String[] value() default {};
+
+  /**
+   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
+   */
+  Set<String> PUBLIC_PERMISSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(UserRole.USER, UserRole.CODEVIEWER)));
 
 }

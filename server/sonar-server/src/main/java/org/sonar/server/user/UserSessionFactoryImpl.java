@@ -24,7 +24,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.server.permission.PermissionService;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,24 +33,22 @@ public class UserSessionFactoryImpl implements UserSessionFactory {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
-  private final PermissionService permissionService;
 
   public UserSessionFactoryImpl(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    OrganizationFlags organizationFlags, PermissionService permissionService) {
+    OrganizationFlags organizationFlags) {
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
-    this.permissionService = permissionService;
   }
 
   @Override
   public ServerUserSession create(UserDto user) {
     requireNonNull(user, "UserDto must not be null");
-    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, user, permissionService);
+    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, user);
   }
 
   @Override
   public ServerUserSession createAnonymous() {
-    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, null, permissionService);
+    return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, null);
   }
 }

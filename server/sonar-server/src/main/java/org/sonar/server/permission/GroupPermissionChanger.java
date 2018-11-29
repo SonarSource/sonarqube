@@ -25,6 +25,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 
+import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
@@ -34,11 +35,9 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class GroupPermissionChanger {
 
   private final DbClient dbClient;
-  private final PermissionService permissionService;
 
-  public GroupPermissionChanger(DbClient dbClient, PermissionService permissionService) {
+  public GroupPermissionChanger(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.permissionService = permissionService;
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
@@ -70,7 +69,7 @@ public class GroupPermissionChanger {
   private boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectId projectId) {
     return !projectId.isPrivate()
       && change.getOperation() == ADD
-      && permissionService.getPublicPermissions().contains(change.getPermission());
+      && PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectId projectId) {
@@ -100,7 +99,7 @@ public class GroupPermissionChanger {
   private boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectId projectId) {
     return !projectId.isPrivate()
       && change.getOperation() == REMOVE
-      && permissionService.getPublicPermissions().contains(change.getPermission());
+      && PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private boolean addPermission(DbSession dbSession, GroupPermissionChange change) {

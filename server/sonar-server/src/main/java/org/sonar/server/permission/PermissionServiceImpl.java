@@ -39,11 +39,6 @@ public class PermissionServiceImpl implements PermissionService {
 
   private static final List<OrganizationPermission> ALL_GLOBAL_PERMISSIONS = ImmutableList.copyOf(OrganizationPermission.values());
 
-  /**
-   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
-   */
-  private static final List<String> PUBLIC_PERMISSIONS = ImmutableList.of(UserRole.USER, UserRole.CODEVIEWER);
-
   private final List<OrganizationPermission> globalPermissions;
   private final List<String> projectPermissions;
 
@@ -72,13 +67,5 @@ public class PermissionServiceImpl implements PermissionService {
   @Override
   public List<String> getAllProjectPermissions() {
     return projectPermissions;
-  }
-
-  /**
-   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
-   */
-  @Override
-  public List<String> getPublicPermissions() {
-    return PUBLIC_PERMISSIONS;
   }
 }

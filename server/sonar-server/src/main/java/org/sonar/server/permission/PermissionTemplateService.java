@@ -51,6 +51,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
+import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 
 @ServerSide
 public class PermissionTemplateService {
@@ -170,7 +171,7 @@ public class PermissionTemplateService {
   }
 
   private boolean permissionValidForProject(ComponentDto project, String permission) {
-    return project.isPrivate() || !permissionService.getPublicPermissions().contains(permission);
+    return project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission);
   }
 
   private static boolean groupNameValidForProject(ComponentDto project, String groupName) {
