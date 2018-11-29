@@ -20,21 +20,17 @@
 package org.sonar.api.resources;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * The extension point to define a new language
- * <br>
- * Instantiation strategy changed to PER_BATCH in version 4.2.
  *
  * @since 1.10
  */
 @ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
 @SonarLintSide
 @ComputeEngineSide

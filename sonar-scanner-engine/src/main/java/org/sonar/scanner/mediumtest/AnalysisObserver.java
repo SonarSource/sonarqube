@@ -20,7 +20,7 @@
 package org.sonar.scanner.mediumtest;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.scanner.scan.ProjectScanContainer;
 
 @ScannerSide

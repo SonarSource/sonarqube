@@ -24,7 +24,6 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
@@ -32,7 +31,6 @@ import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
-@ScannerSide
 public class DefaultServer extends Server {
 
   private final Configuration settings;

@@ -22,7 +22,6 @@ package org.sonar.scanner.scan;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
@@ -33,7 +32,6 @@ import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 /**
  * Properties that can be passed to the scanners and are not exposed in SonarQube.
  */
-@ScannerSide
 public class ScanProperties {
   public static final String METADATA_FILE_PATH_KEY = "sonar.scanner.metadataFilePath";
   public static final String KEEP_REPORT_PROP_KEY = "sonar.scanner.keepReport";

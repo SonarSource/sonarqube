@@ -21,7 +21,7 @@ package org.sonar.api.utils;
 
 import java.io.File;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

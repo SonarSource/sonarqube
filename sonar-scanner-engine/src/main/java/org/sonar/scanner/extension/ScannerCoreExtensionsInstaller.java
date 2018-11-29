@@ -20,7 +20,7 @@
 package org.sonar.scanner.extension;
 
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 

@@ -36,7 +36,7 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.monitors.NullComponentMonitor;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ServerSide;

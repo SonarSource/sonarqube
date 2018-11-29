@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;

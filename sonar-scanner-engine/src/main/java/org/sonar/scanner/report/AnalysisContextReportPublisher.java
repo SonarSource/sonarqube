@@ -32,7 +32,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -48,7 +47,6 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static java.util.stream.Collectors.toList;
 
-@ScannerSide
 public class AnalysisContextReportPublisher {
 
   private static final String KEY_VALUE_FORMAT = "  - %s=%s";

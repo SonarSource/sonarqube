@@ -22,7 +22,7 @@ package org.sonar.api.measures;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

@@ -22,13 +22,11 @@ package org.sonar.core.issue.tracking;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.issue.Issue;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ScannerSide
 public class Tracker<RAW extends Trackable, BASE extends Trackable> extends AbstractTracker<RAW, BASE> {
 

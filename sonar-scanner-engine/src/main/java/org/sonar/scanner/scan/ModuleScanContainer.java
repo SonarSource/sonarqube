@@ -23,9 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
@@ -33,11 +31,9 @@ import org.sonar.scanner.phases.SensorsExecutor;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.sensor.DefaultSensorContext;
-import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_PROJECT;
-import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 
@@ -73,19 +69,14 @@ public class ModuleScanContainer extends ComponentContainer {
 
       SensorOptimizer.class,
 
-      DefaultSensorStorage.class,
       DefaultSensorContext.class,
       SensorExtensionDictionnary.class,
 
       // Perspectives
-      ScannerPerspectives.class,
-
-      DefaultFileLinesContextFactory.class);
+      ScannerPerspectives.class);
   }
 
   private void addExtensions() {
-    CoreExtensionsInstaller coreExtensionsInstaller = getComponentByType(CoreExtensionsInstaller.class);
-    coreExtensionsInstaller.install(this, noExtensionFilter(), t -> isInstantiationStrategy(t, PER_PROJECT));
     ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
     pluginInstaller.install(this, e -> isDeprecatedScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
   }

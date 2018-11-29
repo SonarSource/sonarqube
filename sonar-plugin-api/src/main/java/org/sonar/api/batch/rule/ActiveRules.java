@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -28,7 +28,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 
 /**
- * The rules that are activated on the current module. Quality profiles are
+ * The rules that are activated on the current project. Quality profiles are
  * merged, so rules can relate to different repositories and languages.
  * <br>
  * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} to instantiate
@@ -43,7 +43,7 @@ public interface ActiveRules {
   /**
    * Find a {@link ActiveRule} by the associated rule key. <code>null</code>
    * is returned if the rule does not exist or if the rule is not activated
-   * on any Quality profile associated with the module.
+   * on any Quality profile associated with the project.
    */
   @CheckForNull
   ActiveRule find(RuleKey ruleKey);
@@ -66,7 +66,7 @@ public interface ActiveRules {
   /**
    * Find a {@link ActiveRule} by the associated internal key. <code>null</code>
    * is returned if the rule does not exist or if the rule is not activated
-   * on any Quality profile associated with the module.
+   * on any Quality profile associated with the project.
    */
   @CheckForNull
   ActiveRule findByInternalKey(String repository, String internalKey);

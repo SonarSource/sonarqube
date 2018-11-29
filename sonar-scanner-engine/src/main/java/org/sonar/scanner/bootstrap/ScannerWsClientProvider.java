@@ -21,7 +21,6 @@ package org.sonar.scanner.bootstrap;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
@@ -31,7 +30,6 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
-@ScannerSide
 public class ScannerWsClientProvider extends ProviderAdapter {
 
   static final int CONNECT_TIMEOUT_MS = 5_000;

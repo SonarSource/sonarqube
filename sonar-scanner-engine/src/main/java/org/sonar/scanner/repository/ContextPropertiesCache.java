@@ -19,14 +19,11 @@
  */
 package org.sonar.scanner.repository;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sonar.api.batch.ScannerSide;
+import static com.google.common.base.Preconditions.checkArgument;
 
-@ScannerSide
 public class ContextPropertiesCache {
 
   private final Map<String, String> props = new HashMap<>();

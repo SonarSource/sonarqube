@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

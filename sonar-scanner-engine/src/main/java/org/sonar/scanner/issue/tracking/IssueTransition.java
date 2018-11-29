@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.core.util.CloseableIterator;
@@ -38,7 +37,6 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
-@ScannerSide
 public class IssueTransition {
   private final IssueCache issueCache;
   private final InputComponentStore inputComponentStore;

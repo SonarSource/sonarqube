@@ -36,6 +36,7 @@ import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
@@ -121,6 +122,7 @@ import org.sonar.scanner.scan.report.JSONReport;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
+import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.storage.Storages;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
@@ -207,7 +209,6 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueFilters.class,
       IssuePublisher.class,
 
-
       // metrics
       DefaultMetricFinder.class,
 
@@ -267,6 +268,10 @@ public class ProjectScanContainer extends ComponentContainer {
       // SCM
       ScmConfiguration.class,
       ScmPublisher.class,
+
+      // Sensors
+      DefaultSensorStorage.class,
+      DefaultFileLinesContextFactory.class,
 
       // Filesystem
       DefaultProjectFileSystem.class,

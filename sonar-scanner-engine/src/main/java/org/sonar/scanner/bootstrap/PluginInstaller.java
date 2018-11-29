@@ -21,9 +21,7 @@ package org.sonar.scanner.bootstrap;
 
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.batch.ScannerSide;
 
-@ScannerSide
 public interface PluginInstaller {
 
   /**

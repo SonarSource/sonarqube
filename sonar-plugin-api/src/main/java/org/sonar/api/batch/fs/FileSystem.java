@@ -23,7 +23,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.SortedSet;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * The {@link FileSystem} manages all the source files to be analyzed.

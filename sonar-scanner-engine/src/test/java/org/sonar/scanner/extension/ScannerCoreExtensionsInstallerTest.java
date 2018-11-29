@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.extension.CoreExtension;

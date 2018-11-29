@@ -20,7 +20,7 @@
 package org.sonar.api.config;
 
 import java.util.Optional;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ServerSide;
@@ -29,7 +29,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 /**
  * Component to get effective configuration. Values of properties depend on the runtime environment:
  * <ul>
- *   <li>immutable project or module configuration in scanner.</li>
+ *   <li>immutable project configuration in scanner.</li>
  *   <li>global configuration in web server. It does not allow to get the settings overridden on projects.</li>
  *   <li>project configuration in Compute Engine.</li>
  * </ul>

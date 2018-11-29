@@ -41,7 +41,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
@@ -52,7 +51,6 @@ import org.sonar.core.platform.PluginRepository;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@ScannerSide
 public class DefaultI18n implements I18n, Startable {
 
   private static final Logger LOG = Loggers.get(DefaultI18n.class);

@@ -20,7 +20,7 @@
 package org.sonar.api;
 
 /**
- * An interface which is implemented by classes annotated with {@link org.sonar.api.batch.ScannerSide ScannerSide},
+ * An interface which is implemented by classes annotated with {@link org.sonar.api.scanner.ScannerSide ScannerSide},
  * {@link org.sonar.api.server.ServerSide ServerSide} and/or {@link org.sonar.api.ce.ComputeEngineSide ComputeEngineSide}
  * (referred to below as "component") that can be started and stopped.
  * <p>

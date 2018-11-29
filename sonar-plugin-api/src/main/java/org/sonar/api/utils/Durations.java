@@ -20,14 +20,12 @@
 package org.sonar.api.utils;
 
 import java.util.Locale;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
  * @since 4.3
  */
-@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class Durations {

@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
@@ -34,8 +32,6 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.storage.Storage;
 import org.sonar.scanner.storage.Storages;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-@ScannerSide
 public class ServerIssueRepository {
 
   private static final Logger LOG = Loggers.get(ServerIssueRepository.class);

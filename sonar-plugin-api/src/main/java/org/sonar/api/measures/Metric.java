@@ -27,9 +27,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -38,10 +37,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Used to define a metric in a plugin. Should be used with {@link Metrics} extension point.
- * Should no more be used on scanner side. Use {@link org.sonar.api.batch.measure.Metric} instead.
  */
 @ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
 @ComputeEngineSide
 public class Metric<G extends Serializable> implements Serializable, org.sonar.api.batch.measure.Metric<G> {

@@ -19,9 +19,6 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import org.sonar.api.batch.ScannerSide;
-
-@ScannerSide
 public interface ServerLineHashesLoader {
 
   String[] getLineHashes(String fileKey);

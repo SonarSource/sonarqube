@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface ProjectBranchesLoader {
 
   /**

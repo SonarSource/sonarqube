@@ -122,10 +122,10 @@ public interface Plugin {
     /**
      * Add an extension as :
      * <ul>
-     *   <li>a Class that is annotated with {@link org.sonar.api.batch.ScannerSide}, {@link org.sonar.api.server.ServerSide}
+     *   <li>a Class that is annotated with {@link org.sonar.api.scanner.ScannerSide}, {@link org.sonar.api.server.ServerSide}
      *   or {@link org.sonar.api.ce.ComputeEngineSide}. The extension will be instantiated once. Its dependencies are
      *   injected through constructor parameters.</li>
-     *   <li>an instance that is annotated with {@link org.sonar.api.batch.ScannerSide}, {@link org.sonar.api.server.ServerSide}
+     *   <li>an instance that is annotated with {@link org.sonar.api.scanner.ScannerSide}, {@link org.sonar.api.server.ServerSide}
      *   or {@link org.sonar.api.ce.ComputeEngineSide}.</li>
      * </ul>
      * Only a single component can be registered for a class. It's not allowed for example to register:

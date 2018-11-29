@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -38,7 +38,6 @@ import org.sonar.scanner.scan.measure.MeasureCache;
 import static java.util.stream.Collectors.toMap;
 
 public class DefaultFileLinesContext implements FileLinesContext {
-  private final SensorContext context;
   private final InputFile inputFile;
   private final MetricFinder metricFinder;
   private final MeasureCache measureCache;
@@ -47,9 +46,10 @@ public class DefaultFileLinesContext implements FileLinesContext {
    * metric key -> line -> value
    */
   private final Map<String, Map<Integer, Object>> map = new HashMap<>();
+  private final SensorStorage sensorStorage;
 
-  public DefaultFileLinesContext(SensorContext context, InputFile inputFile, MetricFinder metricFinder, MeasureCache measureCache) {
-    this.context = context;
+  public DefaultFileLinesContext(SensorStorage sensorStorage, InputFile inputFile, MetricFinder metricFinder, MeasureCache measureCache) {
+    this.sensorStorage = sensorStorage;
     this.inputFile = inputFile;
     this.metricFinder = metricFinder;
     this.measureCache = measureCache;
@@ -103,7 +103,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
       Map<Integer, Object> lines = entry.getValue();
       if (shouldSave(lines)) {
         String data = KeyValueFormat.format(optimizeStorage(metricKey, lines));
-        context.newMeasure()
+        new DefaultMeasure<String>(sensorStorage)
           .on(inputFile)
           .forMetric(metricFinder.findByKey(metricKey))
           .withValue(data)

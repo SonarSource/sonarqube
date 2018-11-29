@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;

@@ -24,12 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Configuration;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-@ScannerSide
 public abstract class AbstractPatternInitializer {
   private Configuration settings;
   private List<IssuePattern> multicriteriaPatterns;

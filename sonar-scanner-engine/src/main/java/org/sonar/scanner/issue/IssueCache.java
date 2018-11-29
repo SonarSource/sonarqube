@@ -20,7 +20,6 @@
 package org.sonar.scanner.issue;
 
 import java.util.Collection;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.storage.Storage;
 import org.sonar.scanner.storage.Storages;
@@ -28,7 +27,6 @@ import org.sonar.scanner.storage.Storages;
 /**
  * Shared issues among all project modules
  */
-@ScannerSide
 public class IssueCache {
 
   // component key -> issue key -> issue

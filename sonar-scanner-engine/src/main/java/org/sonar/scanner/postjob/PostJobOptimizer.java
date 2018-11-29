@@ -21,11 +21,9 @@ package org.sonar.scanner.postjob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 import org.sonar.api.config.Configuration;
 
-@ScannerSide
 public class PostJobOptimizer {
 
   private static final Logger LOG = LoggerFactory.getLogger(PostJobOptimizer.class);

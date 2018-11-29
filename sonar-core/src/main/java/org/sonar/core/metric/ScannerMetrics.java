@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;

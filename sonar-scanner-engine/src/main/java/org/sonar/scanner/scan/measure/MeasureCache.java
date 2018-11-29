@@ -21,7 +21,6 @@ package org.sonar.scanner.scan.measure;
 
 import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.scanner.storage.Storage;
@@ -31,7 +30,6 @@ import org.sonar.scanner.storage.Storages;
 /**
  * Cache of all measures. This cache is shared amongst all project modules.
  */
-@ScannerSide
 public class MeasureCache {
 
   private final Storage<DefaultMeasure<?>> cache;

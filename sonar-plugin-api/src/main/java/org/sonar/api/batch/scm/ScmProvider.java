@@ -26,14 +26,12 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * @since 5.0
  */
 @ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ExtensionPoint
 public abstract class ScmProvider {
 

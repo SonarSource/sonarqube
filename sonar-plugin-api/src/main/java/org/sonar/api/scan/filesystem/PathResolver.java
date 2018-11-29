@@ -28,7 +28,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.io.FilenameUtils;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.PathUtils;
 
 import static java.util.stream.Collectors.joining;

@@ -36,7 +36,6 @@ import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
@@ -63,7 +62,6 @@ import static org.sonar.scanner.scan.branch.BranchType.LONG;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
 import static org.sonar.scanner.scan.branch.BranchType.SHORT;
 
-@ScannerSide
 public class ReportPublisher implements Startable {
 
   private static final Logger LOG = Loggers.get(ReportPublisher.class);

@@ -20,8 +20,7 @@
 package org.sonar.api.batch.bootstrap;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * This extension point allows to change project structure at runtime. It is executed once during task startup.
@@ -37,7 +36,6 @@ import org.sonar.api.batch.ScannerSide;
  * @since 2.9
  */
 @ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ExtensionPoint
 @Deprecated
 public abstract class ProjectBuilder {

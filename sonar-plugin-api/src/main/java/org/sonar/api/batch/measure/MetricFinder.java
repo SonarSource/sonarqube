@@ -25,7 +25,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.scanner.ScannerSide;
 
 /**
  * @since 4.5

@@ -20,11 +20,9 @@
 package org.sonar.scanner.deprecated.perspectives;
 
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.component.Perspective;
 
-@ScannerSide
 public abstract class PerspectiveBuilder<T extends Perspective> {
 
   private final Class<T> perspectiveClass;

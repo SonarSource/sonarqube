@@ -31,9 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.ScannerSide;
 
-@ScannerSide
 public class Storages implements Startable {
   private final Map<String, Exchange> cacheMap = new HashMap<>();
   private Persistit persistit;
