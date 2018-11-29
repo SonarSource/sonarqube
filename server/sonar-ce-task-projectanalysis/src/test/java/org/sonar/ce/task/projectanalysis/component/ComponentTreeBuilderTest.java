@@ -370,6 +370,7 @@ public class ComponentTreeBuilderTest {
       .setRef(1)
       .addChildRef(2)
       .addChildRef(3)
+      .addChildRef(6)
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
@@ -391,10 +392,18 @@ public class ComponentTreeBuilderTest {
       .setType(FILE)
       .setProjectRelativePath("src/test/xoo/org/sonar/Foo2.js")
       .setLines(1));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(6)
+      .setType(FILE)
+      .setProjectRelativePath("pom.xml")
+      .setLines(1));
 
     Component root = call(project);
 
-    Component directory = root.getChildren().iterator().next();
+    Component pom = root.getChildren().get(0);
+    assertThat(pom.getName()).isEqualTo("public_K1:pom.xml");
+
+    Component directory = root.getChildren().get(1);
     assertThat(directory.getName()).isEqualTo("public_K1:src");
 
     // folders are collapsed and they only contain one directory
@@ -403,6 +412,30 @@ public class ComponentTreeBuilderTest {
 
     Component d2 = directory.getChildren().get(1);
     assertThat(d2.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+  }
+
+  @Test
+  public void collapse_directories_from_root() {
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey(projectInDb.getKey())
+      .setRef(1)
+      .addChildRef(2)
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(FILE)
+      .setProjectRelativePath("src/test/xoo/org/sonar/Foo2.js")
+      .setLines(1));
+
+    Component root = call(project);
+
+    // folders are collapsed and they only contain one directory
+    Component dir = root.getChildren().get(0);
+    assertThat(dir.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+
+    Component file = dir.getChildren().get(0);
+    assertThat(file.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar/Foo2.js");
   }
 
   @Test

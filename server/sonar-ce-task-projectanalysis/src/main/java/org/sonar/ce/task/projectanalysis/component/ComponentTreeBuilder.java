@@ -134,7 +134,7 @@ public class ComponentTreeBuilder {
   private static void addFile(Node root, ScannerReport.Component file) {
     Preconditions.checkArgument(!StringUtils.isEmpty(file.getProjectRelativePath()), "Files should have a project relative path: " + file);
     String[] split = StringUtils.split(file.getProjectRelativePath(), '/');
-    Node currentNode = root.children().computeIfAbsent("", k -> new Node());
+    Node currentNode = root;
 
     for (int i = 0; i < split.length; i++) {
       currentNode = currentNode.children().computeIfAbsent(split[i], k -> new Node());
@@ -192,8 +192,7 @@ public class ComponentTreeBuilder {
       .setKey(projectPublicKey)
       .setStatus(convertStatus(rootComponent.getStatus()))
       .setProjectAttributes(new ProjectAttributes(createProjectVersion(rootComponent)))
-      .setReportAttributes(createAttributesBuilder(rootComponent.getRef(), rootComponent.getProjectRelativePath(), scmBasePath,
-        rootComponent.getProjectRelativePath()).build())
+      .setReportAttributes(createAttributesBuilder(rootComponent.getRef(), rootComponent.getProjectRelativePath(), scmBasePath).build())
       .addChildren(children);
     setNameAndDescription(rootComponent, builder);
     return builder.build();
@@ -209,22 +208,21 @@ public class ComponentTreeBuilder {
       .setName(nameOfOthers(component, publicKey))
       .setStatus(convertStatus(component.getStatus()))
       .setDescription(trimToNull(component.getDescription()))
-      .setReportAttributes(createAttributesBuilder(component.getRef(), component.getProjectRelativePath(), scmBasePath, component.getProjectRelativePath()).build())
+      .setReportAttributes(createAttributesBuilder(component.getRef(), component.getProjectRelativePath(), scmBasePath).build())
       .setFileAttributes(createFileAttributes(component))
       .build();
   }
 
   private ComponentImpl buildDirectory(String path, List<Component> children) {
-    String nonEmptyPath = path.isEmpty() ? "/" : path;
-    String key = keyGenerator.generateKey(rootComponent, nonEmptyPath);
-    String publicKey = publicKeyGenerator.generateKey(rootComponent, nonEmptyPath);
+    String key = keyGenerator.generateKey(rootComponent, path);
+    String publicKey = publicKeyGenerator.generateKey(rootComponent, path);
     return ComponentImpl.builder(Component.Type.DIRECTORY)
       .setUuid(uuidSupplier.apply(key))
       .setDbKey(key)
       .setKey(publicKey)
       .setName(publicKey)
       .setStatus(convertStatus(FileStatus.UNAVAILABLE))
-      .setReportAttributes(createAttributesBuilder(null, nonEmptyPath, scmBasePath, path).build())
+      .setReportAttributes(createAttributesBuilder(null, path, scmBasePath).build())
       .addChildren(children)
       .build();
   }
@@ -347,10 +345,10 @@ public class ComponentTreeBuilder {
     return DEFAULT_PROJECT_VERSION;
   }
 
-  private static ReportAttributes.Builder createAttributesBuilder(@Nullable Integer ref, String path, @Nullable String scmBasePath, String scmRelativePath) {
+  private static ReportAttributes.Builder createAttributesBuilder(@Nullable Integer ref, String path, @Nullable String scmBasePath) {
     return ReportAttributes.newBuilder(ref)
       .setPath(trimToNull(path))
-      .setScmPath(computeScmPath(scmBasePath, scmRelativePath));
+      .setScmPath(computeScmPath(scmBasePath, path));
   }
 
   @CheckForNull
