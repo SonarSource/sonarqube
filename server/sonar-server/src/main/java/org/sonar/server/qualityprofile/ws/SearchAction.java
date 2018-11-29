@@ -120,7 +120,7 @@ public class SearchAction implements QProfileWsAction {
     action
       .createParam(PARAM_LANGUAGE)
       .setDescription("Language key. If provided, only profiles for the given language are returned.")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+      .setPossibleValues(LanguageParamUtils.getOrderedLanguageKeys(languages));
 
     action.createParam(PARAM_QUALITY_PROFILE)
       .setDescription("Quality profile name")

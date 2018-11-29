@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
-import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
+import static org.sonar.server.util.LanguageParamUtils.getOrderedLanguageKeys;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -105,7 +105,7 @@ public class CreateAction implements QProfileWsAction {
       .setRequired(true)
       .setDescription("Quality profile language")
       .setExampleValue("js")
-      .setPossibleValues(getLanguageKeys(languages));
+      .setPossibleValues(getOrderedLanguageKeys(languages));
 
     for (ProfileImporter importer : importers) {
       create.createParam(getBackupParamName(importer.getKey()))

@@ -52,7 +52,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
-import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
+import static org.sonar.server.util.LanguageParamUtils.getOrderedLanguageKeys;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -107,7 +107,7 @@ public class SearchAction implements ComponentsWsAction {
       .createParam(PARAM_LANGUAGE)
       .setDescription("Language key. If provided, only components for the given language are returned.")
       .setExampleValue(getExampleValue(languages))
-      .setPossibleValues(getLanguageKeys(languages));
+      .setPossibleValues(getOrderedLanguageKeys(languages));
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
       .setRequired(true);
   }

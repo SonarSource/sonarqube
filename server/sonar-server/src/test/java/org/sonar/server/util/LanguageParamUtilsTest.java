@@ -19,32 +19,34 @@
  */
 package org.sonar.server.util;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.resources.Language;
+import org.junit.Test;
+import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Languages;
-import org.sonar.core.util.stream.MoreCollectors;
 
-public class LanguageParamUtils {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private LanguageParamUtils() {
-    // Utility class
+public class LanguageParamUtilsTest {
+
+  @Test
+  public void getOrderedLanguageKeys() {
+    assertThat(LanguageParamUtils.getOrderedLanguageKeys(new Languages())).isEmpty();
+
+    Languages languages = new Languages(
+      new TestLanguage("java"),
+      new TestLanguage("abap"),
+      new TestLanguage("js"),
+      new TestLanguage("cobol"));
+    assertThat(LanguageParamUtils.getOrderedLanguageKeys(languages)).containsExactly("abap", "cobol", "java", "js");
   }
 
-  public static String getExampleValue(Languages languages) {
-    Language[] languageArray = languages.all();
-    if (languageArray.length > 0) {
-      return languageArray[0].getKey();
-    } else {
-      return "";
+  private static class TestLanguage extends AbstractLanguage {
+    TestLanguage(String key) {
+      super(key);
     }
-  }
 
-  public static List<String> getOrderedLanguageKeys(Languages languages) {
-    Language[] all = languages.all();
-    return Arrays.stream(all)
-      .map(Language::getKey)
-      .sorted()
-      .collect(MoreCollectors.toList(all.length));
+    @Override
+    public String[] getFileSuffixes() {
+      return new String[0];
+    }
   }
 }

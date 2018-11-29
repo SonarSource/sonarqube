@@ -94,7 +94,7 @@ public class ExportAction implements QProfileWsAction {
     action.createParam(PARAM_LANGUAGE)
       .setDescription("Quality profile language")
       .setExampleValue(LanguageParamUtils.getExampleValue(languages))
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+      .setPossibleValues(LanguageParamUtils.getOrderedLanguageKeys(languages));
 
     createOrganizationParam(action)
       .setSince("6.4");
