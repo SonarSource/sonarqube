@@ -110,6 +110,7 @@ import org.sonar.ce.task.projectanalysis.qualitymodel.NewReliabilityAndSecurityR
 import org.sonar.ce.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
@@ -218,6 +219,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewLinesRepository.class,
       FileSourceDataComputer.class,
       SourceLineReadersFactory.class,
+      QProfileStatusRepositoryImpl.class,
 
       // issues
       RuleRepositoryImpl.class,
