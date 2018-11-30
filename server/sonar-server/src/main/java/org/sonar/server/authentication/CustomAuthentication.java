@@ -19,15 +19,23 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.UserSession;
 
+/**
+ * Authentication that can create {@link org.sonar.server.user.UserSession}
+ * that are not associated to a user.
+ * That is convenient for authenticating bots that need special permissions.
+ *
+ * This is not an extension point, plugins can not provide their own
+ * implementations.
+ */
 @ServerSide
-public interface RequestAuthenticator {
+public interface CustomAuthentication {
 
-  UserSession authenticate(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException;
+  Optional<UserSession> authenticate(HttpServletRequest request, HttpServletResponse response);
 
 }

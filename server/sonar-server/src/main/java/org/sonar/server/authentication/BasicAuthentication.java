@@ -30,7 +30,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.ENGLISH;
+import static org.apache.commons.lang.StringUtils.startsWithIgnoreCase;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
@@ -42,11 +42,6 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
  * @see UserTokenAuthentication for user access token
  */
 public class BasicAuthentication {
-
-  private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
-
-  private static final String AUTHORIZATION_HEADER = "Authorization";
-  private static final String BASIC_AUTHORIZATION = "BASIC";
 
   private final DbClient dbClient;
   private final CredentialsAuthentication credentialsAuthentication;
@@ -62,17 +57,16 @@ public class BasicAuthentication {
   }
 
   public Optional<UserDto> authenticate(HttpServletRequest request) {
-    String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-    if (authorizationHeader == null || !authorizationHeader.toUpperCase(ENGLISH).startsWith(BASIC_AUTHORIZATION)) {
+    return extractCredentialsFromHeader(request)
+      .flatMap(credentials -> Optional.of(authenticate(credentials, request)));
+  }
+
+  public static Optional<Credentials> extractCredentialsFromHeader(HttpServletRequest request) {
+    String authorizationHeader = request.getHeader("Authorization");
+    if (authorizationHeader == null || !startsWithIgnoreCase(authorizationHeader, "BASIC")) {
       return Optional.empty();
     }
 
-    Credentials credentials = extractCredentials(authorizationHeader);
-    UserDto userDto = authenticate(credentials, request);
-    return Optional.of(userDto);
-  }
-
-  private static Credentials extractCredentials(String authorizationHeader) {
     String basicAuthEncoded = authorizationHeader.substring(6);
     String basicAuthDecoded = getDecodedBasicAuth(basicAuthEncoded);
 
@@ -85,12 +79,12 @@ public class BasicAuthentication {
     }
     String login = basicAuthDecoded.substring(0, semiColonPos);
     String password = basicAuthDecoded.substring(semiColonPos + 1);
-    return new Credentials(login, password);
+    return Optional.of(new Credentials(login, password));
   }
 
   private static String getDecodedBasicAuth(String basicAuthEncoded) {
     try {
-      return new String(BASE64_DECODER.decode(basicAuthEncoded.getBytes(UTF_8)), UTF_8);
+      return new String(Base64.getDecoder().decode(basicAuthEncoded.getBytes(UTF_8)), UTF_8);
     } catch (Exception e) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.BASIC))

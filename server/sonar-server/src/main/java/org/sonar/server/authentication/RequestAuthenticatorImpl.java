@@ -19,11 +19,12 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
 
@@ -33,17 +34,31 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   private final BasicAuthentication basicAuthentication;
   private final HttpHeadersAuthentication httpHeadersAuthentication;
   private final UserSessionFactory userSessionFactory;
+  private final List<CustomAuthentication> customAuthentications;
 
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
-                                  UserSessionFactory userSessionFactory) throws AuthenticationException {
+    UserSessionFactory userSessionFactory, CustomAuthentication[] customAuthentications) {
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthentication = basicAuthentication;
     this.httpHeadersAuthentication = httpHeadersAuthentication;
     this.userSessionFactory = userSessionFactory;
+    this.customAuthentications = Arrays.asList(customAuthentications);
+  }
+
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
+    UserSessionFactory userSessionFactory) {
+    this(jwtHttpHandler, basicAuthentication, httpHeadersAuthentication, userSessionFactory, new CustomAuthentication[0]);
   }
 
   @Override
   public UserSession authenticate(HttpServletRequest request, HttpServletResponse response) {
+    for (CustomAuthentication customAuthentication : customAuthentications) {
+      Optional<UserSession> session = customAuthentication.authenticate(request, response);
+      if (session.isPresent()) {
+        return session.get();
+      }
+    }
+
     Optional<UserDto> userOpt = loadUser(request, response);
     if (userOpt.isPresent()) {
       return userSessionFactory.create(userOpt.get());
