@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.authentication.Credentials;
 import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -93,19 +94,19 @@ public class LoginActionTest {
 
   @Test
   public void do_authenticate() throws Exception {
-    when(credentialsAuthenticator.authenticate(LOGIN, PASSWORD, request, FORM)).thenReturn(user);
+    when(credentialsAuthenticator.authenticate(new Credentials(LOGIN, PASSWORD), request, FORM)).thenReturn(user);
 
     executeRequest(LOGIN, PASSWORD);
 
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
-    verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
+    verify(credentialsAuthenticator).authenticate(new Credentials(LOGIN, PASSWORD), request, FORM);
     verify(jwtHttpHandler).generateToken(user, request, response);
     verifyZeroInteractions(chain);
     verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
-  public void ignore_get_request() throws Exception {
+  public void ignore_get_request() {
     when(request.getMethod()).thenReturn("GET");
 
     underTest.doFilter(request, response, chain);
@@ -116,7 +117,7 @@ public class LoginActionTest {
 
   @Test
   public void return_authorized_code_when_unauthorized_exception_is_thrown() throws Exception {
-    doThrow(new UnauthorizedException("error !")).when(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
+    doThrow(new UnauthorizedException("error !")).when(credentialsAuthenticator).authenticate(new Credentials(LOGIN, PASSWORD), request, FORM);
 
     executeRequest(LOGIN, PASSWORD);
 

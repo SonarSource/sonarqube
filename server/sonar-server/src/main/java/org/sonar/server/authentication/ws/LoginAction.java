@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication.ws;
 
-import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletRequest;
@@ -29,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.Credentials;
 import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -96,10 +96,8 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
       return;
     }
 
-    String login = request.getParameter("login");
-    String password = request.getParameter("password");
     try {
-      UserDto userDto = authenticate(request, login, password);
+      UserDto userDto = authenticate(request);
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));
     } catch (AuthenticationException e) {
@@ -110,7 +108,9 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
     }
   }
 
-  private UserDto authenticate(HttpServletRequest request, @Nullable String login, @Nullable String password) {
+  private UserDto authenticate(HttpServletRequest request) {
+    String login = request.getParameter("login");
+    String password = request.getParameter("password");
     if (isEmpty(login) || isEmpty(password)) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.FORM))
@@ -118,7 +118,7 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
         .setMessage("Empty login and/or password")
         .build();
     }
-    return credentialsAuthenticator.authenticate(login, password, request, Method.FORM);
+    return credentialsAuthenticator.authenticate(new Credentials(login, password), request, Method.FORM);
   }
 
   @Override

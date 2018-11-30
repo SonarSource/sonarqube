@@ -81,35 +81,35 @@ public class RealmAuthenticator implements Startable {
     }
   }
 
-  public Optional<UserDto> authenticate(String userLogin, String userPassword, HttpServletRequest request, AuthenticationEvent.Method method) {
+  public Optional<UserDto> authenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
     if (realm == null) {
       return Optional.empty();
     }
-    return Optional.of(doAuthenticate(getLogin(userLogin), userPassword, request, method));
+    return Optional.of(doAuthenticate(sanitize(credentials), request, method));
   }
 
-  private UserDto doAuthenticate(String userLogin, String userPassword, HttpServletRequest request, AuthenticationEvent.Method method) {
+  private UserDto doAuthenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
     try {
-      ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(userLogin, request);
+      ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(credentials.getLogin(), request);
       UserDetails details = externalUsersProvider.doGetUserDetails(externalUsersProviderContext);
       if (details == null) {
         throw AuthenticationException.newBuilder()
           .setSource(realmEventSource(method))
-          .setLogin(userLogin)
+          .setLogin(credentials.getLogin())
           .setMessage("No user details")
           .build();
       }
-      Authenticator.Context authenticatorContext = new Authenticator.Context(userLogin, userPassword, request);
+      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword(), request);
       boolean status = authenticator.doAuthenticate(authenticatorContext);
       if (!status) {
         throw AuthenticationException.newBuilder()
           .setSource(realmEventSource(method))
-          .setLogin(userLogin)
+          .setLogin(credentials.getLogin())
           .setMessage("Realm returned authenticate=false")
           .build();
       }
-      UserDto userDto = synchronize(userLogin, details, request, method);
-      authenticationEvent.loginSuccess(request, userLogin, realmEventSource(method));
+      UserDto userDto = synchronize(credentials.getLogin(), details, request, method);
+      authenticationEvent.loginSuccess(request, credentials.getLogin(), realmEventSource(method));
       return userDto;
     } catch (AuthenticationException e) {
       throw e;
@@ -118,7 +118,7 @@ public class RealmAuthenticator implements Startable {
       LOG.error("Error during authentication", e);
       throw AuthenticationException.newBuilder()
         .setSource(realmEventSource(method))
-        .setLogin(userLogin)
+        .setLogin(credentials.getLogin())
         .setMessage(e.getMessage())
         .build();
     }
@@ -150,11 +150,11 @@ public class RealmAuthenticator implements Startable {
         .build());
   }
 
-  private String getLogin(String userLogin) {
+  private Credentials sanitize(Credentials credentials) {
     if (config.getBoolean("sonar.authenticator.downcase").orElse(false)) {
-      return userLogin.toLowerCase(Locale.ENGLISH);
+      return new Credentials(credentials.getLogin().toLowerCase(Locale.ENGLISH), credentials.getPassword());
     }
-    return userLogin;
+    return credentials;
   }
 
   private static class ExternalIdentityProvider implements IdentityProvider {

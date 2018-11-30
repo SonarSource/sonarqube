@@ -45,27 +45,27 @@ public class CredentialsAuthenticator {
     this.localAuthentication = localAuthentication;
   }
 
-  public UserDto authenticate(String userLogin, String userPassword, HttpServletRequest request, Method method) {
+  public UserDto authenticate(Credentials credentials, HttpServletRequest request, Method method) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return authenticate(dbSession, userLogin, userPassword, request, method);
+      return authenticate(dbSession, credentials, request, method);
     }
   }
 
-  private UserDto authenticate(DbSession dbSession, String userLogin, String userPassword, HttpServletRequest request, Method method) {
-    UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
+  private UserDto authenticate(DbSession dbSession, Credentials credentials, HttpServletRequest request, Method method) {
+    UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, credentials.getLogin());
     if (localUser != null && localUser.isLocal()) {
-      localAuthentication.authenticate(dbSession, localUser, userPassword, method);
+      localAuthentication.authenticate(dbSession, localUser, credentials.getPassword(), method);
       dbSession.commit();
-      authenticationEvent.loginSuccess(request, userLogin, Source.local(method));
+      authenticationEvent.loginSuccess(request, localUser.getLogin(), Source.local(method));
       return localUser;
     }
-    Optional<UserDto> externalUser = externalAuthenticator.authenticate(userLogin, userPassword, request, method);
+    Optional<UserDto> externalUser = externalAuthenticator.authenticate(credentials, request, method);
     if (externalUser.isPresent()) {
       return externalUser.get();
     }
     throw AuthenticationException.newBuilder()
       .setSource(Source.local(method))
-      .setLogin(userLogin)
+      .setLogin(credentials.getLogin())
       .setMessage(localUser != null && !localUser.isLocal() ? "User is not local" : "No active user for login")
       .build();
   }

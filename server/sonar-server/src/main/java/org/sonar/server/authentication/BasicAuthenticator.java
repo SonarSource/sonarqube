@@ -31,7 +31,6 @@ import org.sonar.server.usertoken.UserTokenAuthenticator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
@@ -61,14 +60,12 @@ public class BasicAuthenticator {
       return Optional.empty();
     }
 
-    String[] credentials = getCredentials(authorizationHeader);
-    String login = credentials[0];
-    String password = credentials[1];
-    UserDto userDto = authenticate(login, password, request);
+    Credentials credentials = extractCredentials(authorizationHeader);
+    UserDto userDto = authenticate(credentials, request);
     return Optional.of(userDto);
   }
 
-  private static String[] getCredentials(String authorizationHeader) {
+  private static Credentials extractCredentials(String authorizationHeader) {
     String basicAuthEncoded = authorizationHeader.substring(6);
     String basicAuthDecoded = getDecodedBasicAuth(basicAuthEncoded);
 
@@ -81,7 +78,7 @@ public class BasicAuthenticator {
     }
     String login = basicAuthDecoded.substring(0, semiColonPos);
     String password = basicAuthDecoded.substring(semiColonPos + 1);
-    return new String[] {login, password};
+    return new Credentials(login, password);
   }
 
   private static String getDecodedBasicAuth(String basicAuthEncoded) {
@@ -95,13 +92,13 @@ public class BasicAuthenticator {
     }
   }
 
-  private UserDto authenticate(String login, String password, HttpServletRequest request) {
-    if (isEmpty(password)) {
-      UserDto userDto = authenticateFromUserToken(login);
+  private UserDto authenticate(Credentials credentials, HttpServletRequest request) {
+    if (credentials.getPassword().isEmpty()) {
+      UserDto userDto = authenticateFromUserToken(credentials.getLogin());
       authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
       return userDto;
     } else {
-      return credentialsAuthenticator.authenticate(login, password, request, Method.BASIC);
+      return credentialsAuthenticator.authenticate(credentials, request, Method.BASIC);
     }
   }
 

@@ -100,20 +100,20 @@ public class CredentialsAuthenticatorTest {
 
   @Test
   public void authenticate_external_user() {
-    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(Optional.of(newUserDto()));
+    when(externalAuthenticator.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).thenReturn(Optional.of(newUserDto()));
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
 
     executeAuthenticate(BASIC);
 
-    verify(externalAuthenticator).authenticate(LOGIN, PASSWORD, request, BASIC);
+    verify(externalAuthenticator).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
     verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() {
-    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC_TOKEN)).thenReturn(Optional.empty());
+    when(externalAuthenticator.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
@@ -164,7 +164,7 @@ public class CredentialsAuthenticatorTest {
   }
 
   private UserDto executeAuthenticate(AuthenticationEvent.Method method) {
-    return underTest.authenticate(LOGIN, PASSWORD, request, method);
+    return underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, method);
   }
 
   private UserDto insertUser(UserDto userDto) {

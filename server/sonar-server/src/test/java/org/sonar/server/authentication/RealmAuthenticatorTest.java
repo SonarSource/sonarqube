@@ -88,7 +88,7 @@ public class RealmAuthenticatorTest {
     userDetails.setEmail("email");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
 
-    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getExistingEmailStrategy()).isEqualTo(FORBID);
@@ -110,7 +110,7 @@ public class RealmAuthenticatorTest {
     userDetails.setEmail("email");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
 
-    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getProvider().getKey()).isEqualTo("sonarqube");
@@ -128,7 +128,7 @@ public class RealmAuthenticatorTest {
     userDetails.setEmail("email");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
 
-    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
 
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getProvider().getName()).isEqualTo("sonarqube");
     verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, REALM_NAME));
@@ -154,7 +154,7 @@ public class RealmAuthenticatorTest {
     userDetails.setName(null);
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
 
-    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUserIdentity().getName()).isEqualTo(LOGIN);
@@ -197,7 +197,7 @@ public class RealmAuthenticatorTest {
     expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("No user details");
     try {
-      underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+      underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
@@ -213,7 +213,7 @@ public class RealmAuthenticatorTest {
     expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("Realm returned authenticate=false");
     try {
-      underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+      underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
@@ -230,7 +230,7 @@ public class RealmAuthenticatorTest {
     expectedException.expect(authenticationException().from(Source.realm(BASIC_TOKEN, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage(expectedMessage);
     try {
-      underTest.authenticate(LOGIN, PASSWORD, request, BASIC_TOKEN);
+      underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
@@ -238,7 +238,7 @@ public class RealmAuthenticatorTest {
 
   @Test
   public void return_empty_user_when_no_realm() {
-    assertThat(underTest.authenticate(LOGIN, PASSWORD, request, BASIC)).isEmpty();
+    assertThat(underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).isEmpty();
     verifyNoMoreInteractions(authenticationEvent);
   }
 
@@ -287,7 +287,7 @@ public class RealmAuthenticatorTest {
     UserDetails userDetails = new UserDetails();
     userDetails.setName("name");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
-    underTest.authenticate(login, PASSWORD, request, BASIC);
+    underTest.authenticate(new Credentials(login, PASSWORD), request, BASIC);
   }
 
 }
