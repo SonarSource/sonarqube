@@ -22,8 +22,8 @@ package org.sonar.server.authentication;
 
 import org.sonar.db.user.UserDto;
 
-public interface UserIdentityAuthenticator {
+public interface UserRegistrar {
 
-  UserDto authenticate(UserIdentityAuthenticatorParameters authenticatorParameters);
+  UserDto register(UserRegistration registration);
 
 }

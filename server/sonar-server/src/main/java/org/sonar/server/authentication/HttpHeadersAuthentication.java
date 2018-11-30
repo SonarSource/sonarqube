@@ -42,8 +42,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -70,7 +70,7 @@ public class HttpHeadersAuthentication implements Startable {
 
   private static final String LAST_REFRESH_TIME_TOKEN_PARAM = "ssoLastRefreshTime";
 
-  private static final EnumSet<ProcessProperties.Property> SETTINGS = EnumSet.of(
+  private static final EnumSet<ProcessProperties.Property> PROPERTIES = EnumSet.of(
     SONAR_WEB_SSO_LOGIN_HEADER,
     SONAR_WEB_SSO_NAME_HEADER,
     SONAR_WEB_SSO_EMAIL_HEADER,
@@ -79,18 +79,18 @@ public class HttpHeadersAuthentication implements Startable {
 
   private final System2 system2;
   private final Configuration config;
-  private final UserIdentityAuthenticator userIdentityAuthenticator;
+  private final UserRegistrar userRegistrar;
   private final JwtHttpHandler jwtHttpHandler;
   private final AuthenticationEvent authenticationEvent;
+  private final Map<String, String> settingsByKey = new HashMap<>();
 
   private boolean enabled = false;
-  private Map<String, String> settingsByKey = new HashMap<>();
 
-  public HttpHeadersAuthentication(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
+  public HttpHeadersAuthentication(System2 system2, Configuration config, UserRegistrar userRegistrar,
     JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.system2 = system2;
     this.config = config;
-    this.userIdentityAuthenticator = userIdentityAuthenticator;
+    this.userRegistrar = userRegistrar;
     this.jwtHttpHandler = jwtHttpHandler;
     this.authenticationEvent = authenticationEvent;
   }
@@ -100,7 +100,7 @@ public class HttpHeadersAuthentication implements Startable {
     if (config.getBoolean(SONAR_WEB_SSO_ENABLE.getKey()).orElse(false)) {
       LOG.info("HTTP headers authentication enabled");
       enabled = true;
-      SETTINGS.forEach(entry -> settingsByKey.put(entry.getKey(), config.get(entry.getKey()).orElse(entry.getDefaultValue())));
+      PROPERTIES.forEach(entry -> settingsByKey.put(entry.getKey(), config.get(entry.getKey()).orElse(entry.getDefaultValue())));
     }
   }
 
@@ -166,8 +166,8 @@ public class HttpHeadersAuthentication implements Startable {
       String groupsValue = getHeaderValue(headerValuesByNames, SONAR_WEB_SSO_GROUPS_HEADER.getKey());
       userIdentityBuilder.setGroups(groupsValue == null ? Collections.emptySet() : new HashSet<>(COMA_SPLITTER.splitToList(groupsValue)));
     }
-    return userIdentityAuthenticator.authenticate(
-      UserIdentityAuthenticatorParameters.builder()
+    return userRegistrar.register(
+      UserRegistration.builder()
         .setUserIdentity(userIdentityBuilder.build())
         .setProvider(new SsoIdentityProvider())
         .setSource(Source.sso())

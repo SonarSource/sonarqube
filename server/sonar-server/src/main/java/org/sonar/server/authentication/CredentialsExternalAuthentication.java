@@ -37,8 +37,8 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -58,7 +58,7 @@ public class CredentialsExternalAuthentication implements Startable {
 
   private final Configuration config;
   private final SecurityRealmFactory securityRealmFactory;
-  private final UserIdentityAuthenticator userIdentityAuthenticator;
+  private final UserRegistrar userRegistrar;
   private final AuthenticationEvent authenticationEvent;
 
   private SecurityRealm realm;
@@ -67,10 +67,10 @@ public class CredentialsExternalAuthentication implements Startable {
   private ExternalGroupsProvider externalGroupsProvider;
 
   public CredentialsExternalAuthentication(Configuration config, SecurityRealmFactory securityRealmFactory,
-    UserIdentityAuthenticator userIdentityAuthenticator, AuthenticationEvent authenticationEvent) {
+                                           UserRegistrar userRegistrar, AuthenticationEvent authenticationEvent) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
-    this.userIdentityAuthenticator = userIdentityAuthenticator;
+    this.userRegistrar = userRegistrar;
     this.authenticationEvent = authenticationEvent;
   }
 
@@ -143,8 +143,8 @@ public class CredentialsExternalAuthentication implements Startable {
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }
-    return userIdentityAuthenticator.authenticate(
-      UserIdentityAuthenticatorParameters.builder()
+    return userRegistrar.register(
+      UserRegistration.builder()
         .setUserIdentity(userIdentityBuilder.build())
         .setProvider(new ExternalIdentityProvider())
         .setSource(realmEventSource(method))

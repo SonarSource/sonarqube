@@ -23,27 +23,27 @@ package org.sonar.server.authentication;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 
-public class TestUserIdentityAuthenticator implements UserIdentityAuthenticator {
+public class TestUserRegistrar implements UserRegistrar {
 
-  private UserIdentityAuthenticatorParameters authenticatorParameters;
+  private UserRegistration authenticatorParameters;
 
   @Override
-  public UserDto authenticate(UserIdentityAuthenticatorParameters authenticatorParameters) {
-    this.authenticatorParameters = authenticatorParameters;
-    String providerId = authenticatorParameters.getUserIdentity().getProviderId();
+  public UserDto register(UserRegistration registration) {
+    this.authenticatorParameters = registration;
+    String providerId = registration.getUserIdentity().getProviderId();
     return UserTesting.newUserDto()
       .setLocal(false)
-      .setLogin(authenticatorParameters.getUserIdentity().getLogin())
-      .setExternalLogin(authenticatorParameters.getUserIdentity().getProviderLogin())
-      .setExternalId(providerId == null ? authenticatorParameters.getUserIdentity().getProviderLogin() : providerId)
-      .setExternalIdentityProvider(authenticatorParameters.getProvider().getKey());
+      .setLogin(registration.getUserIdentity().getLogin())
+      .setExternalLogin(registration.getUserIdentity().getProviderLogin())
+      .setExternalId(providerId == null ? registration.getUserIdentity().getProviderLogin() : providerId)
+      .setExternalIdentityProvider(registration.getProvider().getKey());
   }
 
   boolean isAuthenticated() {
     return authenticatorParameters != null;
   }
 
-  UserIdentityAuthenticatorParameters getAuthenticatorParameters() {
+  UserRegistration getAuthenticatorParameters() {
     return authenticatorParameters;
   }
 }

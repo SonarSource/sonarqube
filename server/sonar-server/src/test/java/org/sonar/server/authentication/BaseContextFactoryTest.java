@@ -54,7 +54,7 @@ public class BaseContextFactoryTest {
 
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
 
-  private TestUserIdentityAuthenticator userIdentityAuthenticator = new TestUserIdentityAuthenticator();
+  private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
   private Server server = mock(Server.class);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);

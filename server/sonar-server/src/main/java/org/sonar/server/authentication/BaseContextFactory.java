@@ -25,8 +25,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
@@ -34,15 +34,15 @@ import org.sonar.server.user.UserSessionFactory;
 public class BaseContextFactory {
 
   private final ThreadLocalUserSession threadLocalUserSession;
-  private final UserIdentityAuthenticator userIdentityAuthenticator;
+  private final UserRegistrar userRegistrar;
   private final Server server;
   private final JwtHttpHandler jwtHttpHandler;
   private final UserSessionFactory userSessionFactory;
 
-  public BaseContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, JwtHttpHandler jwtHttpHandler,
-    ThreadLocalUserSession threadLocalUserSession, UserSessionFactory userSessionFactory) {
+  public BaseContextFactory(UserRegistrar userRegistrar, Server server, JwtHttpHandler jwtHttpHandler,
+                            ThreadLocalUserSession threadLocalUserSession, UserSessionFactory userSessionFactory) {
     this.userSessionFactory = userSessionFactory;
-    this.userIdentityAuthenticator = userIdentityAuthenticator;
+    this.userRegistrar = userRegistrar;
     this.server = server;
     this.jwtHttpHandler = jwtHttpHandler;
     this.threadLocalUserSession = threadLocalUserSession;
@@ -80,8 +80,8 @@ public class BaseContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      UserDto userDto = userIdentityAuthenticator.authenticate(
-        UserIdentityAuthenticatorParameters.builder()
+      UserDto userDto = userRegistrar.register(
+        UserRegistration.builder()
           .setUserIdentity(userIdentity)
           .setProvider(identityProvider)
           .setSource(Source.external(identityProvider))

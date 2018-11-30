@@ -32,8 +32,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.user.TestUserSessionFactory;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -62,7 +62,7 @@ public class OAuth2ContextFactoryTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
-  private TestUserIdentityAuthenticator userIdentityAuthenticator = new TestUserIdentityAuthenticator();
+  private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
   private Server server = mock(Server.class);
   private OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);

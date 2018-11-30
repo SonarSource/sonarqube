@@ -40,7 +40,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
@@ -59,11 +59,11 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import static org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 
-public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator {
+public class UserRegistrarImpl implements UserRegistrar {
 
-  private static final Logger LOGGER = Loggers.get(UserIdentityAuthenticatorImpl.class);
+  private static final Logger LOGGER = Loggers.get(UserRegistrarImpl.class);
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
@@ -72,7 +72,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
   private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
 
-  public UserIdentityAuthenticatorImpl(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
+  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
     OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
@@ -83,16 +83,16 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
   }
 
   @Override
-  public UserDto authenticate(UserIdentityAuthenticatorParameters authenticatorParameters) {
+  public UserDto register(UserRegistration registration) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = getUser(dbSession, authenticatorParameters.getUserIdentity(), authenticatorParameters.getProvider());
+      UserDto userDto = getUser(dbSession, registration.getUserIdentity(), registration.getProvider());
       if (userDto == null) {
-        return registerNewUser(dbSession, null, authenticatorParameters);
+        return registerNewUser(dbSession, null, registration);
       }
       if (!userDto.isActive()) {
-        return registerNewUser(dbSession, userDto, authenticatorParameters);
+        return registerNewUser(dbSession, userDto, registration);
       }
-      return registerExistingUser(dbSession, userDto, authenticatorParameters);
+      return registerExistingUser(dbSession, userDto, registration);
     }
   }
 
@@ -112,7 +112,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     return dbClient.userDao().selectByLogin(dbSession, login);
   }
 
-  private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserIdentityAuthenticatorParameters authenticatorParameters) {
+  private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserRegistration authenticatorParameters) {
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
     NewUser newUser = createNewUser(authenticatorParameters);
     if (disabledUser == null) {
@@ -121,7 +121,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
   }
 
-  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentityAuthenticatorParameters authenticatorParameters) {
+  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
     UpdateUser update = new UpdateUser()
       .setEmail(authenticatorParameters.getUserIdentity().getEmail())
       .setName(authenticatorParameters.getUserIdentity().getName())
@@ -139,7 +139,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     return userDto;
   }
 
-  private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserIdentityAuthenticatorParameters authenticatorParameters) {
+  private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserRegistration authenticatorParameters) {
     String email = authenticatorParameters.getUserIdentity().getEmail();
     if (email == null) {
       return Optional.empty();
@@ -174,7 +174,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     }
   }
 
-  private void detectLoginUpdate(DbSession dbSession, UserDto user, UpdateUser update, UserIdentityAuthenticatorParameters authenticatorParameters) {
+  private void detectLoginUpdate(DbSession dbSession, UserDto user, UpdateUser update, UserRegistration authenticatorParameters) {
     String newLogin = update.login();
     if (!update.isLoginChanged() || user.getLogin().equals(newLogin)) {
       return;
@@ -248,7 +248,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     return organizationFlags.isEnabled(dbSession) ? Optional.empty() : Optional.of(defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid()));
   }
 
-  private static NewUser createNewUser(UserIdentityAuthenticatorParameters authenticatorParameters) {
+  private static NewUser createNewUser(UserRegistration authenticatorParameters) {
     String identityProviderKey = authenticatorParameters.getProvider().getKey();
     if (!authenticatorParameters.getProvider().allowsUsersToSignUp()) {
       throw AuthenticationException.newBuilder()
@@ -274,7 +274,7 @@ public class UserIdentityAuthenticatorImpl implements UserIdentityAuthenticator 
     return userDto.map(u -> new UserDto[] {u}).orElse(new UserDto[] {});
   }
 
-  private static AuthenticationException generateExistingEmailError(UserIdentityAuthenticatorParameters authenticatorParameters, String email) {
+  private static AuthenticationException generateExistingEmailError(UserRegistration authenticatorParameters, String email) {
     return AuthenticationException.newBuilder()
       .setSource(authenticatorParameters.getSource())
       .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())

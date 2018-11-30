@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy.FORBID;
+import static org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
@@ -67,7 +67,7 @@ public class CredentialsExternalAuthenticationTest {
   private ExternalUsersProvider externalUsersProvider = mock(ExternalUsersProvider.class);
   private ExternalGroupsProvider externalGroupsProvider = mock(ExternalGroupsProvider.class);
 
-  private TestUserIdentityAuthenticator userIdentityAuthenticator = new TestUserIdentityAuthenticator();
+  private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);

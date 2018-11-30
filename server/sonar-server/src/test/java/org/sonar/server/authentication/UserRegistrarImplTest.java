@@ -37,8 +37,8 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
@@ -63,11 +63,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy.FORBID;
+import static org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class UserIdentityAuthenticatorImplTest {
+public class UserRegistrarImplTest {
 
   private static String USER_LOGIN = "github-johndoo";
 
@@ -112,7 +112,7 @@ public class UserIdentityAuthenticatorImplTest {
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
-  private UserIdentityAuthenticatorImpl underTest = new UserIdentityAuthenticatorImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
+  private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
       new OrganizationValidationImpl(), settings.asConfig(), null, null, null, permissionService),
     new DefaultGroupFinder(db.getDbClient()));
@@ -121,7 +121,7 @@ public class UserIdentityAuthenticatorImplTest {
   public void authenticate_new_user() {
     organizationFlags.setEnabled(true);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.realm(BASIC, IDENTITY_PROVIDER.getName()))
@@ -145,7 +145,7 @@ public class UserIdentityAuthenticatorImplTest {
   public void authenticate_new_user_generate_login_when_no_login_provided() {
     organizationFlags.setEnabled(true);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderId("ABCD")
         .setProviderLogin("johndoo")
@@ -213,7 +213,7 @@ public class UserIdentityAuthenticatorImplTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -229,7 +229,7 @@ public class UserIdentityAuthenticatorImplTest {
     organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -250,7 +250,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setName("JOhn")
       .build();
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(newUser)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -274,7 +274,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setEmail(existingUser.getEmail())
       .build();
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(newUser)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -301,7 +301,7 @@ public class UserIdentityAuthenticatorImplTest {
 
     expectedException.expect(EmailAlreadyExistsRedirectionException.class);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(newUser)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -321,7 +321,7 @@ public class UserIdentityAuthenticatorImplTest {
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(source)
@@ -343,7 +343,7 @@ public class UserIdentityAuthenticatorImplTest {
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(source)
@@ -365,7 +365,7 @@ public class UserIdentityAuthenticatorImplTest {
     expectedException.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getProviderLogin()).andPublicMessage("'github' users are not allowed to sign up"));
     expectedException.expectMessage("User signup disabled for provider 'github'");
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(identityProvider)
       .setSource(source)
@@ -384,7 +384,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -407,7 +407,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -432,7 +432,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -459,7 +459,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setExternalIdentityProvider("old identity provider"));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -485,7 +485,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderId(null)
         .setProviderLogin("johndoo")
@@ -509,7 +509,7 @@ public class UserIdentityAuthenticatorImplTest {
   public void authenticate_existing_user_when_login_is_not_provided() {
     UserDto user = db.users().insertUser(u -> u.setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderId(user.getExternalId())
         .setProviderLogin(user.getExternalLogin())
@@ -539,7 +539,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -562,7 +562,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
       .setOrganizationUuid(null));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -588,7 +588,7 @@ public class UserIdentityAuthenticatorImplTest {
 
     expectedException.expect(UpdateLoginRedirectionException.class);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -608,7 +608,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
       .setOrganizationUuid(personalOrganization.getUuid()));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -636,7 +636,7 @@ public class UserIdentityAuthenticatorImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot find personal organization uuid 'unknown' for user 'Old login'");
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -657,7 +657,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setExternalLogin("old identity")
       .setExternalIdentityProvider("old provide"));
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -687,7 +687,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setEmail("john@email.com")
       .build();
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(userIdentity)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -715,7 +715,7 @@ public class UserIdentityAuthenticatorImplTest {
 
     expectedException.expect(EmailAlreadyExistsRedirectionException.class);
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(userIdentity)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -742,7 +742,7 @@ public class UserIdentityAuthenticatorImplTest {
         "This means that you probably already registered with another account."));
     expectedException.expectMessage("Email 'john@email.com' is already used");
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(userIdentity)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.realm(AuthenticationEvent.Method.FORM, IDENTITY_PROVIDER.getName()))
@@ -764,7 +764,7 @@ public class UserIdentityAuthenticatorImplTest {
       .setEmail("john@email.com")
       .build();
 
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(userIdentity)
       .setProvider(IDENTITY_PROVIDER)
       .setSource(Source.local(BASIC))
@@ -851,7 +851,7 @@ public class UserIdentityAuthenticatorImplTest {
     GroupDto groupInOrg = db.users().insertGroup(org, groupName);
 
     // adding a group with the same name than in non-default organization
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderLogin("johndoo")
         .setLogin(user.getLogin())
@@ -868,7 +868,7 @@ public class UserIdentityAuthenticatorImplTest {
   }
 
   private void authenticate(String login, String... groups) {
-    underTest.authenticate(UserIdentityAuthenticatorParameters.builder()
+    underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderLogin("johndoo")
         .setLogin(login)

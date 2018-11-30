@@ -26,7 +26,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 
 import static java.util.Objects.requireNonNull;
 
-class UserIdentityAuthenticatorParameters {
+class UserRegistration {
 
   /**
    * Strategy to be executed when the email of the user is already used by another user
@@ -67,7 +67,7 @@ class UserIdentityAuthenticatorParameters {
   private final ExistingEmailStrategy existingEmailStrategy;
   private final UpdateLoginStrategy updateLoginStrategy;
 
-  UserIdentityAuthenticatorParameters(Builder builder) {
+  UserRegistration(Builder builder) {
     this.userIdentity = builder.userIdentity;
     this.provider = builder.provider;
     this.source = builder.source;
@@ -95,7 +95,7 @@ class UserIdentityAuthenticatorParameters {
     return updateLoginStrategy;
   }
 
-  static UserIdentityAuthenticatorParameters.Builder builder() {
+  static UserRegistration.Builder builder() {
     return new Builder();
   }
 
@@ -137,13 +137,13 @@ class UserIdentityAuthenticatorParameters {
       return this;
     }
 
-    public UserIdentityAuthenticatorParameters build() {
+    public UserRegistration build() {
       requireNonNull(userIdentity, "userIdentity must be set");
       requireNonNull(provider, "identityProvider must be set");
       requireNonNull(source, "Source must be set");
       requireNonNull(existingEmailStrategy, "existingEmailStrategy must be set ");
       requireNonNull(updateLoginStrategy, "updateLoginStrategy must be set");
-      return new UserIdentityAuthenticatorParameters(this);
+      return new UserRegistration(this);
     }
   }
 }

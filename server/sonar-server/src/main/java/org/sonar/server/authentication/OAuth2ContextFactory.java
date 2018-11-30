@@ -28,8 +28,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.ExistingEmailStrategy;
-import org.sonar.server.authentication.UserIdentityAuthenticatorParameters.UpdateLoginStrategy;
+import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
+import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
@@ -41,17 +41,17 @@ import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH
 public class OAuth2ContextFactory {
 
   private final ThreadLocalUserSession threadLocalUserSession;
-  private final UserIdentityAuthenticator userIdentityAuthenticator;
+  private final UserRegistrar userRegistrar;
   private final Server server;
   private final OAuthCsrfVerifier csrfVerifier;
   private final JwtHttpHandler jwtHttpHandler;
   private final UserSessionFactory userSessionFactory;
   private final OAuth2AuthenticationParameters oAuthParameters;
 
-  public OAuth2ContextFactory(ThreadLocalUserSession threadLocalUserSession, UserIdentityAuthenticator userIdentityAuthenticator, Server server,
-    OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2AuthenticationParameters oAuthParameters) {
+  public OAuth2ContextFactory(ThreadLocalUserSession threadLocalUserSession, UserRegistrar userRegistrar, Server server,
+                              OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2AuthenticationParameters oAuthParameters) {
     this.threadLocalUserSession = threadLocalUserSession;
-    this.userIdentityAuthenticator = userIdentityAuthenticator;
+    this.userRegistrar = userRegistrar;
     this.server = server;
     this.csrfVerifier = csrfVerifier;
     this.jwtHttpHandler = jwtHttpHandler;
@@ -133,8 +133,8 @@ public class OAuth2ContextFactory {
     public void authenticate(UserIdentity userIdentity) {
       Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
       Boolean allowUpdateLogin = oAuthParameters.getAllowUpdateLogin(request).orElse(false);
-      UserDto userDto = userIdentityAuthenticator.authenticate(
-        UserIdentityAuthenticatorParameters.builder()
+      UserDto userDto = userRegistrar.register(
+        UserRegistration.builder()
           .setUserIdentity(userIdentity)
           .setProvider(identityProvider)
           .setSource(AuthenticationEvent.Source.oauth2(identityProvider))
