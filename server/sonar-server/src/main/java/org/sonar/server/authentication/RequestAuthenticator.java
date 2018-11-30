@@ -19,13 +19,13 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.user.UserSession;
 
-public interface Authenticators {
+public interface RequestAuthenticator {
 
-  Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response);
+  UserSession authenticate(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException;
 
 }

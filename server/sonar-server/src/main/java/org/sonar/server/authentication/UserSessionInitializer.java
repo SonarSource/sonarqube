@@ -20,21 +20,17 @@
 package org.sonar.server.authentication;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.ServletFilter.UrlPattern;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
-import org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.UserSessionFactory;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -66,8 +62,7 @@ public class UserSessionInitializer {
     LOGIN_URL, LOGOUT_URL, VALIDATE_URL);
 
   private static final Set<String> URL_USING_PASSCODE = ImmutableSet.of(
-    "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics"
-  );
+    "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics");
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
@@ -82,16 +77,14 @@ public class UserSessionInitializer {
   private final Configuration config;
   private final ThreadLocalUserSession threadLocalSession;
   private final AuthenticationEvent authenticationEvent;
-  private final UserSessionFactory userSessionFactory;
-  private final Authenticators authenticators;
+  private final RequestAuthenticator requestAuthenticator;
 
   public UserSessionInitializer(Configuration config, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent,
-    UserSessionFactory userSessionFactory, Authenticators authenticators) {
+    RequestAuthenticator requestAuthenticator) {
     this.config = config;
     this.threadLocalSession = threadLocalSession;
     this.authenticationEvent = authenticationEvent;
-    this.userSessionFactory = userSessionFactory;
-    this.authenticators = authenticators;
+    this.requestAuthenticator = requestAuthenticator;
   }
 
   public boolean initUserSession(HttpServletRequest request, HttpServletResponse response) {
@@ -123,28 +116,17 @@ public class UserSessionInitializer {
     return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
-  private void loadUserSession(HttpServletRequest request, HttpServletResponse response, boolean usingPasscode) {
-    UserSession session;
-    Optional<UserDto> user = authenticators.authenticate(request, response);
-    if (user.isPresent()) {
-      session = userSessionFactory.create(user.get());
-    } else {
-      if (!usingPasscode) {
-        failIfAuthenticationIsRequired();
-      }
-      session = userSessionFactory.createAnonymous();
-    }
-    threadLocalSession.set(session);
-    request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
-  }
-
-  private void failIfAuthenticationIsRequired() {
-    if (config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false)) {
+  private void loadUserSession(HttpServletRequest request, HttpServletResponse response, boolean urlSupportsSystemPasscode) {
+    UserSession session = requestAuthenticator.authenticate(request, response);
+    if (!session.isLoggedIn() && !urlSupportsSystemPasscode && config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false)) {
+      // authentication is required
       throw AuthenticationException.newBuilder()
-        .setSource(Source.local(Method.BASIC))
+        .setSource(Source.local(AuthenticationEvent.Method.BASIC))
         .setMessage("User must be authenticated")
         .build();
     }
+    threadLocalSession.set(session);
+    request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
   }
 
   public void removeUserSession() {

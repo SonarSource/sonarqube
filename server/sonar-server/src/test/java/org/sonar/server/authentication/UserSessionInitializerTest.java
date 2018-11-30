@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -29,20 +28,17 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.user.TestUserSessionFactory;
+import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -50,32 +46,22 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserSessionInitializerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = dbTester.getDbClient();
-
-  private DbSession dbSession = dbTester.getSession();
-
-  private ThreadLocalUserSession userSession = mock(ThreadLocalUserSession.class);
-
+  private ThreadLocalUserSession threadLocalSession = mock(ThreadLocalUserSession.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
-  private Authenticators authenticators = mock(Authenticators.class);
+  private RequestAuthenticator authenticator = mock(RequestAuthenticator.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-  private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
   private MapSettings settings = new MapSettings();
-  private UserDto user = newUserDto();
-  private UserSessionInitializer underTest = new UserSessionInitializer(settings.asConfig(), userSession, authenticationEvent, userSessionFactory, authenticators);
+  private UserSessionInitializer underTest = new UserSessionInitializer(settings.asConfig(), threadLocalSession, authenticationEvent, authenticator);
 
   @Before
   public void setUp() throws Exception {
-    dbClient.userDao().insert(dbSession, user);
-    dbSession.commit();
     when(request.getContextPath()).thenReturn("");
     when(request.getRequestURI()).thenReturn("/measures");
   }
@@ -120,15 +106,15 @@ public class UserSessionInitializerTest {
   @Test
   public void return_code_401_when_not_authenticated_and_with_force_authentication() {
     ArgumentCaptor<AuthenticationException> exceptionArgumentCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
-    when(userSession.isLoggedIn()).thenReturn(false);
-    when(authenticators.authenticate(request, response)).thenReturn(Optional.empty());
+    when(threadLocalSession.isLoggedIn()).thenReturn(false);
+    when(authenticator.authenticate(request, response)).thenReturn(new AnonymousMockUserSession());
     settings.setProperty("sonar.forceAuthentication", true);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
     verifyZeroInteractions(response);
     verify(authenticationEvent).loginFailure(eq(request), exceptionArgumentCaptor.capture());
-    verifyZeroInteractions(userSession);
+    verifyZeroInteractions(threadLocalSession);
     AuthenticationException authenticationException = exceptionArgumentCaptor.getValue();
     assertThat(authenticationException.getSource()).isEqualTo(Source.local(Method.BASIC));
     assertThat(authenticationException.getLogin()).isNull();
@@ -140,31 +126,31 @@ public class UserSessionInitializerTest {
   public void return_401_and_stop_on_ws() {
     when(request.getRequestURI()).thenReturn("/api/issues");
     AuthenticationException authenticationException = AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build();
-    doThrow(authenticationException).when(authenticators).authenticate(request, response);
+    doThrow(authenticationException).when(authenticator).authenticate(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
     verify(authenticationEvent).loginFailure(request, authenticationException);
-    verifyZeroInteractions(userSession);
+    verifyZeroInteractions(threadLocalSession);
   }
 
   @Test
   public void return_401_and_stop_on_batch_ws() {
     when(request.getRequestURI()).thenReturn("/batch/global");
     doThrow(AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build())
-      .when(authenticators).authenticate(request, response);
+      .when(authenticator).authenticate(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
-    verifyZeroInteractions(userSession);
+    verifyZeroInteractions(threadLocalSession);
   }
 
   @Test
   public void return_to_session_unauthorized_when_error_on_from_external_provider() throws Exception {
     doThrow(AuthenticationException.newBuilder().setSource(Source.external(newBasicIdentityProvider("failing"))).setPublicMessage("Token id hasn't been found").build())
-      .when(authenticators).authenticate(request, response);
+      .when(authenticator).authenticate(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
@@ -175,7 +161,7 @@ public class UserSessionInitializerTest {
   public void return_to_session_unauthorized_when_error_on_from_external_provider_with_context_path() throws Exception {
     when(request.getContextPath()).thenReturn("/sonarqube");
     doThrow(AuthenticationException.newBuilder().setSource(Source.external(newBasicIdentityProvider("failing"))).setPublicMessage("Token id hasn't been found").build())
-      .when(authenticators).authenticate(request, response);
+      .when(authenticator).authenticate(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
@@ -187,27 +173,30 @@ public class UserSessionInitializerTest {
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verifyZeroInteractions(userSession, authenticators);
-    reset(userSession, authenticators);
+    verifyZeroInteractions(threadLocalSession, authenticator);
+    reset(threadLocalSession, authenticator);
   }
 
   private void assertPathIsIgnoredWithAnonymousAccess(String path) {
     when(request.getRequestURI()).thenReturn(path);
+    UserSession session = new AnonymousMockUserSession();
+    when(authenticator.authenticate(request, response)).thenReturn(session);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verify(userSession).set(any(UserSession.class));
-    reset(userSession, authenticators);
+    verify(threadLocalSession).set(session);
+    reset(threadLocalSession, authenticator);
   }
 
   private void assertPathIsNotIgnored(String path) {
     when(request.getRequestURI()).thenReturn(path);
-    when(authenticators.authenticate(request, response)).thenReturn(Optional.of(user));
+    UserSession session = new MockUserSession("foo");
+    when(authenticator.authenticate(request, response)).thenReturn(session);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verify(userSession).set(any(UserSession.class));
-    reset(userSession, authenticators);
+    verify(threadLocalSession).set(session);
+    reset(threadLocalSession, authenticator);
   }
 
   private static BaseIdentityProvider newBasicIdentityProvider(String name) {

@@ -83,7 +83,7 @@ public class HttpHeadersAuthenticator implements Startable {
   private Map<String, String> settingsByKey = new HashMap<>();
 
   public HttpHeadersAuthenticator(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
-                                  JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
+    JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.system2 = system2;
     this.config = config;
     this.userIdentityAuthenticator = userIdentityAuthenticator;

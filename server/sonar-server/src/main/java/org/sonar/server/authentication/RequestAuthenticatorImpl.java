@@ -23,22 +23,37 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserSessionFactory;
 
-public class AuthenticatorsImpl implements Authenticators {
+public class RequestAuthenticatorImpl implements RequestAuthenticator {
 
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
   private final HttpHeadersAuthenticator httpHeadersAuthenticator;
+  private final UserSessionFactory userSessionFactory;
 
-  public AuthenticatorsImpl(JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator, HttpHeadersAuthenticator httpHeadersAuthenticator) {
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator, HttpHeadersAuthenticator httpHeadersAuthenticator,
+    UserSessionFactory userSessionFactory) throws AuthenticationException {
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
     this.httpHeadersAuthenticator = httpHeadersAuthenticator;
+    this.userSessionFactory = userSessionFactory;
   }
 
-  // Try first to authenticate from SSO, then JWT token, then try from basic http header
   @Override
-  public Optional<UserDto> authenticate(HttpServletRequest request, HttpServletResponse response) {
+  public UserSession authenticate(HttpServletRequest request, HttpServletResponse response) {
+    Optional<UserDto> userOpt = loadUser(request, response);
+    if (userOpt.isPresent()) {
+      return userSessionFactory.create(userOpt.get());
+    }
+    return userSessionFactory.createAnonymous();
+  }
+
+  private Optional<UserDto> loadUser(HttpServletRequest request, HttpServletResponse response) {
+    // Try first to authenticate from SSO, then JWT token, then try from basic http header
+
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
     Optional<UserDto> user = httpHeadersAuthenticator.authenticate(request, response);
     if (user.isPresent()) {

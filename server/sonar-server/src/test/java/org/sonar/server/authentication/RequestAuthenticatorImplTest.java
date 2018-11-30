@@ -22,8 +22,13 @@ package org.sonar.server.authentication;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.server.tester.MockUserSession;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserSessionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -33,32 +38,40 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-public class AuthenticatorsImplTest {
+public class RequestAuthenticatorImplTest {
 
-  private UserDto user = newUserDto();
+  private static final UserDto A_USER = newUserDto();
+
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
   private HttpHeadersAuthenticator httpHeadersAuthenticator = mock(HttpHeadersAuthenticator.class);
-  private Authenticators underTest = new AuthenticatorsImpl(jwtHttpHandler, basicAuthenticator, httpHeadersAuthenticator);
+  private UserSessionFactory sessionFactory = mock(UserSessionFactory.class);
+  private RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthenticator, httpHeadersAuthenticator, sessionFactory);
+
+  @Before
+  public void setUp() throws Exception {
+    when(sessionFactory.create(A_USER)).thenReturn(new MockUserSession(A_USER));
+    when(sessionFactory.createAnonymous()).thenReturn(new AnonymousMockUserSession());
+  }
 
   @Test
   public void authenticate_from_jwt_token() {
     when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
-    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(user));
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(A_USER));
 
-    assertThat(underTest.authenticate(request, response)).hasValue(user);
+    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
     verify(response, never()).setStatus(anyInt());
   }
 
   @Test
   public void authenticate_from_basic_header() {
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(user));
+    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(A_USER));
     when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
-    assertThat(underTest.authenticate(request, response)).hasValue(user);
+    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
 
     verify(jwtHttpHandler).validateToken(request, response);
     verify(basicAuthenticator).authenticate(request);
@@ -67,10 +80,10 @@ public class AuthenticatorsImplTest {
 
   @Test
   public void authenticate_from_sso() {
-    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.of(user));
+    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.of(A_USER));
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
-    assertThat(underTest.authenticate(request, response)).hasValue(user);
+    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
 
     verify(httpHeadersAuthenticator).authenticate(request, response);
     verify(jwtHttpHandler, never()).validateToken(request, response);
@@ -83,7 +96,10 @@ public class AuthenticatorsImplTest {
     when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
 
-    assertThat(underTest.authenticate(request, response)).isEmpty();
+    UserSession session = underTest.authenticate(request, response);
+    assertThat(session.isLoggedIn()).isFalse();
+    assertThat(session.getUuid()).isNull();
     verify(response, never()).setStatus(anyInt());
   }
+
 }

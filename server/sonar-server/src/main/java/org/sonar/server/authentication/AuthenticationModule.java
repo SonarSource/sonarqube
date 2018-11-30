@@ -52,6 +52,6 @@ public class AuthenticationModule extends Module {
       BasicAuthenticator.class,
       ValidateAction.class,
       HttpHeadersAuthenticator.class,
-      AuthenticatorsImpl.class);
+      RequestAuthenticatorImpl.class);
   }
 }
