@@ -36,4 +36,7 @@ public interface InputModuleHierarchy {
   
   @CheckForNull
   String relativePath(DefaultInputModule module);
+
+  @CheckForNull
+  String relativePathToRoot(DefaultInputModule module);
 }

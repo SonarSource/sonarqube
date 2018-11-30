@@ -91,4 +91,11 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
 
     return PathResolver.relativize(parentBaseDir, moduleBaseDir).orElse(null);
   }
+
+  public String relativePathToRoot(DefaultInputModule module) {
+    Path rootBaseDir = root.getBaseDir();
+    Path moduleBaseDir = module.getBaseDir();
+
+    return PathResolver.relativize(rootBaseDir, moduleBaseDir).orElse(null);
+  }
 }

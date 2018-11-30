@@ -125,7 +125,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     while (!queue.isEmpty()) {
       DefaultInputModule module = queue.removeFirst();
       queue.addAll(moduleHierarchy.children(module));
-      String relativePath = moduleHierarchy.relativePath(module);
+      String relativePath = moduleHierarchy.relativePathToRoot(module);
       if (relativePath != null) {
         builder.putModulesProjectRelativePathByKey(module.key(), relativePath);
       }

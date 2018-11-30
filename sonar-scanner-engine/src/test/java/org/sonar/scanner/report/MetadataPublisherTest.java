@@ -102,8 +102,8 @@ public class MetadataPublisherTest {
       .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
     when(inputModuleHierarchy.children(rootModule)).thenReturn(Collections.singletonList(child));
-    when(inputModuleHierarchy.relativePath(child)).thenReturn("modulePath");
-    when(inputModuleHierarchy.relativePath(rootModule)).thenReturn("");
+    when(inputModuleHierarchy.relativePathToRoot(child)).thenReturn("modulePath");
+    when(inputModuleHierarchy.relativePathToRoot(rootModule)).thenReturn("");
     branches = mock(BranchConfiguration.class);
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
