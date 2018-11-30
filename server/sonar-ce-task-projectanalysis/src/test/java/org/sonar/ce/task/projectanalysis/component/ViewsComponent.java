@@ -172,6 +172,11 @@ public class ViewsComponent implements Component {
   }
 
   @Override
+  public String getShortName() {
+    return getName();
+  }
+
+  @Override
   @CheckForNull
   public String getDescription() {
     return this.description;

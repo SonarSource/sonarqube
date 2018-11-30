@@ -82,7 +82,7 @@ public class FileSourceDataWarnings {
       return format("Inconsistent %s data detected on file '%s'. " +
         "File source may have been modified while analysis was running.",
         dataWording,
-        file.getReportAttributes().getPath());
+        file.getName());
     }
     String lineHeader = "\n   ° ";
     return format("Inconsistent %s data detected on some files (%s in total). " +
@@ -90,7 +90,7 @@ public class FileSourceDataWarnings {
       + filesWithErrors.stream()
         .sorted(COMPONENT_COMPARATOR)
         .limit(5)
-        .map(component -> component.getReportAttributes().getPath())
+        .map(Component::getName)
         .collect(joining(lineHeader, lineHeader, ""));
   }
 

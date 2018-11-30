@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
@@ -42,6 +43,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeStart;
 
 public class ComponentTreeBuilder {
 
@@ -96,7 +98,7 @@ public class ComponentTreeBuilder {
     this.scmBasePath = trimToNull(scmBasePath);
 
     Node root = createProjectHierarchy(project);
-    return buildComponent(root, "");
+    return buildComponent(root, "", "");
   }
 
   private Node createProjectHierarchy(ScannerReport.Component rootComponent) {
@@ -142,7 +144,7 @@ public class ComponentTreeBuilder {
     currentNode.reportComponent = file;
   }
 
-  private Component buildComponent(Node node, String currentPath) {
+  private Component buildComponent(Node node, String currentPath, String parentPath) {
     List<Component> childComponents = buildChildren(node, currentPath);
     ScannerReport.Component component = node.reportComponent();
 
@@ -154,7 +156,7 @@ public class ComponentTreeBuilder {
       }
     }
 
-    return buildDirectory(currentPath, childComponents);
+    return buildDirectory(parentPath, currentPath, childComponents);
   }
 
   private List<Component> buildChildren(Node node, String currentPath) {
@@ -170,7 +172,7 @@ public class ComponentTreeBuilder {
         path = buildPath(path, childEntry.getKey());
         childNode = childEntry.getValue();
       }
-      children.add(buildComponent(childNode, path));
+      children.add(buildComponent(childNode, path, currentPath));
     }
     return children;
   }
@@ -205,7 +207,8 @@ public class ComponentTreeBuilder {
       .setUuid(uuidSupplier.apply(key))
       .setDbKey(key)
       .setKey(publicKey)
-      .setName(nameOfOthers(component, publicKey))
+      .setName(component.getProjectRelativePath())
+      .setShortName(FilenameUtils.getName(component.getProjectRelativePath()))
       .setStatus(convertStatus(component.getStatus()))
       .setDescription(trimToNull(component.getDescription()))
       .setReportAttributes(createAttributesBuilder(component.getRef(), component.getProjectRelativePath(), scmBasePath).build())
@@ -213,14 +216,15 @@ public class ComponentTreeBuilder {
       .build();
   }
 
-  private ComponentImpl buildDirectory(String path, List<Component> children) {
+  private ComponentImpl buildDirectory(String parentPath, String path, List<Component> children) {
     String key = keyGenerator.generateKey(rootComponent, path);
     String publicKey = publicKeyGenerator.generateKey(rootComponent, path);
     return ComponentImpl.builder(Component.Type.DIRECTORY)
       .setUuid(uuidSupplier.apply(key))
       .setDbKey(key)
       .setKey(publicKey)
-      .setName(publicKey)
+      .setName(path)
+      .setShortName(removeStart(removeStart(path, parentPath), "/"))
       .setStatus(convertStatus(FileStatus.UNAVAILABLE))
       .setReportAttributes(createAttributesBuilder(null, path, scmBasePath).build())
       .addChildren(children)
@@ -347,7 +351,6 @@ public class ComponentTreeBuilder {
 
   private static ReportAttributes.Builder createAttributesBuilder(@Nullable Integer ref, String path, @Nullable String scmBasePath) {
     return ReportAttributes.newBuilder(ref)
-      .setPath(trimToNull(path))
       .setScmPath(computeScmPath(scmBasePath, path));
   }
 

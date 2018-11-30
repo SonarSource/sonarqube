@@ -90,9 +90,14 @@ public interface Component {
   String getKey();
 
   /**
-   * The component name.
+   * The component long name. For files and directories this is the project relative path.
    */
   String getName();
+
+  /**
+   * The component short name. For files and directories this is the parent relative path (ie filename for files). For projects and view this is the same as {@link #getName()}
+   */
+  String getShortName();
 
   /**
    * The optional description of the component.

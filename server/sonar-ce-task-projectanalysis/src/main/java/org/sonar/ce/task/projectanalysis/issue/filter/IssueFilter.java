@@ -64,12 +64,12 @@ public class IssueFilter {
     return isInclude(issue, component);
   }
 
-  private boolean isExclude(DefaultIssue issue, Component component) {
+  private boolean isExclude(DefaultIssue issue, Component file) {
     IssuePattern matchingPattern = null;
     Iterator<IssuePattern> patternIterator = exclusionPatterns.iterator();
     while (matchingPattern == null && patternIterator.hasNext()) {
       IssuePattern nextPattern = patternIterator.next();
-      if (nextPattern.match(issue, component)) {
+      if (nextPattern.match(issue, file)) {
         matchingPattern = nextPattern;
       }
     }
@@ -80,7 +80,7 @@ public class IssueFilter {
     return false;
   }
 
-  private boolean isInclude(DefaultIssue issue, Component component) {
+  private boolean isInclude(DefaultIssue issue, Component file) {
     boolean atLeastOneRuleMatched = false;
     boolean atLeastOnePatternFullyMatched = false;
     IssuePattern matchingPattern = null;
@@ -88,8 +88,8 @@ public class IssueFilter {
     for (IssuePattern pattern : inclusionPatterns) {
       if (pattern.getRulePattern().match(issue.ruleKey().toString())) {
         atLeastOneRuleMatched = true;
-        String componentPath = component.getReportAttributes().getPath();
-        if (componentPath != null && pattern.getComponentPattern().match(componentPath)) {
+        String filePath = file.getName();
+        if (filePath != null && pattern.getComponentPattern().match(filePath)) {
           atLeastOnePatternFullyMatched = true;
           matchingPattern = pattern;
         }

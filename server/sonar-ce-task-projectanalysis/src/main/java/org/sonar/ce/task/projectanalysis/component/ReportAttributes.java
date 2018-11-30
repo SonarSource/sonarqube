@@ -25,20 +25,17 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Component properties which are specific to the Batch Report.
+ * Component properties which are specific to the Scanner Report.
  */
 @Immutable
 public class ReportAttributes {
   @CheckForNull
   private final Integer ref;
   @CheckForNull
-  private final String path;
-  @CheckForNull
   private final String scmPath;
 
   private ReportAttributes(Builder builder) {
     this.ref = builder.ref;
-    this.path = builder.path;
     this.scmPath = builder.scmPath;
   }
 
@@ -50,17 +47,10 @@ public class ReportAttributes {
     @CheckForNull
     private final Integer ref;
     @CheckForNull
-    private String path;
-    @CheckForNull
     private String scmPath;
 
     private Builder(@Nullable Integer ref) {
       this.ref = ref;
-    }
-
-    public Builder setPath(@Nullable String path) {
-      this.path = path;
-      return this;
     }
 
     public Builder setScmPath(@Nullable String scmPath) {
@@ -83,14 +73,6 @@ public class ReportAttributes {
   }
 
   /**
-   * The path of the report component, must be non null for directories and files.
-   */
-  @CheckForNull
-  public String getPath() {
-    return path;
-  }
-
-  /**
    * The path of the component relative the SCM root the project is part of.
    * <p>
    * Can be {@link Optional#empty() empty} if project is not version controlled,
@@ -104,7 +86,6 @@ public class ReportAttributes {
   public String toString() {
     return "ReportAttributes{" +
       "ref=" + ref +
-      ", path='" + path + '\'' +
       ", scmPath='" + scmPath + '\'' +
       '}';
   }

@@ -49,6 +49,7 @@ public class ReportComponent implements Component {
   private final Type type;
   private final Status status;
   private final String name;
+  private final String shortName;
   @CheckForNull
   private final String description;
   private final String key;
@@ -65,11 +66,11 @@ public class ReportComponent implements Component {
     this.key = builder.key;
     this.publicKey = builder.publicKey;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
+    this.shortName = builder.shortName == null ? this.name : builder.shortName;
     this.description = builder.description;
     this.uuid = builder.uuid;
     this.projectAttributes = Optional.ofNullable(builder.projectVersion).map(ProjectAttributes::new).orElse(null);
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
-      .setPath(builder.path)
       .build();
     this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
     this.children = ImmutableList.copyOf(builder.children);
@@ -112,6 +113,11 @@ public class ReportComponent implements Component {
   @Override
   public String getName() {
     return this.name;
+  }
+
+  @Override
+  public String getShortName() {
+    return this.shortName;
   }
 
   @Override
@@ -196,9 +202,9 @@ public class ReportComponent implements Component {
     private String key;
     private String publicKey;
     private String name;
+    private String shortName;
     private String projectVersion;
     private String description;
-    private String path;
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 
@@ -226,6 +232,11 @@ public class ReportComponent implements Component {
       return this;
     }
 
+    public Builder setShortName(@Nullable String s) {
+      this.shortName = s;
+      return this;
+    }
+
     public Builder setKey(String s) {
       this.key = requireNonNull(s);
       return this;
@@ -250,11 +261,6 @@ public class ReportComponent implements Component {
 
     public Builder setDescription(@Nullable String description) {
       this.description = description;
-      return this;
-    }
-
-    public Builder setPath(@Nullable String path) {
-      this.path = path;
       return this;
     }
 

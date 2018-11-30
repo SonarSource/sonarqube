@@ -24,7 +24,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class IssuePattern {
 
@@ -44,8 +43,8 @@ public class IssuePattern {
     return rulePattern;
   }
 
-  boolean match(DefaultIssue issue, Component component) {
-    return matchComponent(component.getReportAttributes().getPath()) && matchRule(issue.ruleKey());
+  boolean match(DefaultIssue issue, Component file) {
+    return matchComponent(file.getName()) && matchRule(issue.ruleKey());
   }
 
   boolean matchRule(RuleKey rule) {

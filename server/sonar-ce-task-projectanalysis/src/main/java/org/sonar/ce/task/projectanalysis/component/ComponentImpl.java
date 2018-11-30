@@ -40,6 +40,7 @@ public class ComponentImpl implements Component {
   private final Type type;
   private final Status status;
   private final String name;
+  private final String shortName;
   private final String dbKey;
   private final String key;
   private final String uuid;
@@ -59,6 +60,7 @@ public class ComponentImpl implements Component {
     this.dbKey = builder.dbKey;
     this.key = MoreObjects.firstNonNull(builder.key, builder.dbKey);
     this.name = builder.name;
+    this.shortName = MoreObjects.firstNonNull(builder.shortName, builder.name);
     this.description = builder.description;
     this.uuid = builder.uuid;
     this.projectAttributes = builder.projectAttributes;
@@ -95,6 +97,11 @@ public class ComponentImpl implements Component {
   @Override
   public String getName() {
     return this.name;
+  }
+
+  @Override
+  public String getShortName() {
+    return this.shortName;
   }
 
   @Override
@@ -161,6 +168,7 @@ public class ComponentImpl implements Component {
     private String dbKey;
     private String key;
     private String name;
+    private String shortName;
     private String description;
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
@@ -196,6 +204,11 @@ public class ComponentImpl implements Component {
 
     public Builder setName(String name) {
       this.name = abbreviate(requireNonNull(name, NAME_CANNOT_BE_NULL), MAX_COMPONENT_NAME_LENGTH);
+      return this;
+    }
+
+    public Builder setShortName(String shortName) {
+      this.shortName = abbreviate(requireNonNull(shortName, NAME_CANNOT_BE_NULL), MAX_COMPONENT_NAME_LENGTH);
       return this;
     }
 

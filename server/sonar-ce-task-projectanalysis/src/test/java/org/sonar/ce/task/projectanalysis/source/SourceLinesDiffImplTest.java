@@ -88,7 +88,7 @@ public class SourceLinesDiffImplTest {
 
   private static Component fileComponent(int ref) {
     return builder(FILE, ref)
-      .setPath("report_path" + ref)
+      .setName("report_path" + ref)
       .setUuid(componentUuidOf("" + ref))
       .build();
   }

@@ -103,7 +103,7 @@ public class FileSourceDataWarningsTest {
   public void create_highlighting_warning_when_one_file_HIGHLIGHT_read_error() {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setUuid("uuid")
-      .setPath(path)
+      .setName(path)
       .build();
     LineReader.ReadError readError = new LineReader.ReadError(HIGHLIGHTING, line);
     when(system2.now()).thenReturn(timeStamp);
@@ -123,7 +123,7 @@ public class FileSourceDataWarningsTest {
   public void create_highlighting_warning_when_any_number_of_read_error_for_one_file() {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setUuid("uuid")
-      .setPath(path)
+      .setName(path)
       .build();
     LineReader.ReadError[] readErrors = IntStream.range(0, 1 + random.nextInt(10))
       .mapToObj(i -> new LineReader.ReadError(HIGHLIGHTING, line + i))
@@ -147,7 +147,7 @@ public class FileSourceDataWarningsTest {
     Component[] files = IntStream.range(0, fileCount)
       .mapToObj(i -> ReportComponent.builder(Component.Type.FILE, i)
         .setUuid("uuid_" + i)
-        .setPath(path + "_" + i)
+        .setName(path + "_" + i)
         .build())
       .toArray(Component[]::new);
     when(system2.now()).thenReturn(timeStamp);
@@ -161,7 +161,7 @@ public class FileSourceDataWarningsTest {
 
     String expectedMessage = "Inconsistent highlighting data detected on some files (" + fileCount + " in total). " +
       "File source may have been modified while analysis was running." +
-      Arrays.stream(files).map(f -> f.getReportAttributes().getPath()).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
+      Arrays.stream(files).map(Component::getName).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
     verify(taskMessages, times(1))
       .add(new CeTaskMessages.Message(expectedMessage, timeStamp));
   }
@@ -172,7 +172,7 @@ public class FileSourceDataWarningsTest {
     Component[] files = IntStream.range(0, fileCount)
       .mapToObj(i -> ReportComponent.builder(Component.Type.FILE, i)
         .setUuid("uuid_" + i)
-        .setPath(path + "_" + i)
+        .setName(path + "_" + i)
         .build())
       .toArray(Component[]::new);
     when(system2.now()).thenReturn(timeStamp);
@@ -186,7 +186,7 @@ public class FileSourceDataWarningsTest {
 
     String expectedMessage = "Inconsistent highlighting data detected on some files (" + fileCount + " in total). " +
       "File source may have been modified while analysis was running." +
-      Arrays.stream(files).limit(5).map(f -> f.getReportAttributes().getPath()).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
+      Arrays.stream(files).limit(5).map(Component::getName).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
     verify(taskMessages, times(1))
       .add(new CeTaskMessages.Message(expectedMessage, timeStamp));
   }
@@ -195,7 +195,7 @@ public class FileSourceDataWarningsTest {
   public void create_symbol_warning_when_one_file_HIGHLIGHT_read_error() {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setUuid("uuid")
-      .setPath(path)
+      .setName(path)
       .build();
     LineReader.ReadError readError = new LineReader.ReadError(SYMBOLS, line);
     when(system2.now()).thenReturn(timeStamp);
@@ -215,7 +215,7 @@ public class FileSourceDataWarningsTest {
   public void create_symbol_warning_when_any_number_of_read_error_for_one_file() {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setUuid("uuid")
-      .setPath(path)
+      .setName(path)
       .build();
     LineReader.ReadError[] readErrors = IntStream.range(0, 1 + random.nextInt(10))
       .mapToObj(i -> new LineReader.ReadError(SYMBOLS, line + i))
@@ -239,7 +239,7 @@ public class FileSourceDataWarningsTest {
     Component[] files = IntStream.range(0, fileCount)
       .mapToObj(i -> ReportComponent.builder(Component.Type.FILE, i)
         .setUuid("uuid_" + i)
-        .setPath(path + "_" + i)
+        .setName(path + "_" + i)
         .build())
       .toArray(Component[]::new);
     when(system2.now()).thenReturn(timeStamp);
@@ -253,7 +253,7 @@ public class FileSourceDataWarningsTest {
 
     String expectedMessage = "Inconsistent symbol data detected on some files (" + fileCount + " in total). " +
       "File source may have been modified while analysis was running." +
-      Arrays.stream(files).map(f -> f.getReportAttributes().getPath()).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
+      Arrays.stream(files).map(Component::getName).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
     verify(taskMessages, times(1))
       .add(new CeTaskMessages.Message(expectedMessage, timeStamp));
   }
@@ -264,7 +264,7 @@ public class FileSourceDataWarningsTest {
     Component[] files = IntStream.range(0, fileCount)
       .mapToObj(i -> ReportComponent.builder(Component.Type.FILE, i)
         .setUuid("uuid_" + i)
-        .setPath(path + "_" + i)
+        .setName(path + "_" + i)
         .build())
       .toArray(Component[]::new);
     when(system2.now()).thenReturn(timeStamp);
@@ -278,7 +278,7 @@ public class FileSourceDataWarningsTest {
 
     String expectedMessage = "Inconsistent symbol data detected on some files (" + fileCount + " in total). " +
       "File source may have been modified while analysis was running." +
-      Arrays.stream(files).limit(5).map(f -> f.getReportAttributes().getPath()).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
+      Arrays.stream(files).limit(5).map(Component::getName).collect(Collectors.joining("\n   ° ", "\n   ° ", ""));
     verify(taskMessages, times(1))
       .add(new CeTaskMessages.Message(expectedMessage, timeStamp));
   }
@@ -288,7 +288,7 @@ public class FileSourceDataWarningsTest {
   public void creates_no_warning_when_read_error_for_anything_but_highlighting_and_symbols(LineReader.Data data) {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setUuid("uuid")
-      .setPath(path)
+      .setName(path)
       .build();
     LineReader.ReadError readError = new LineReader.ReadError(data, line);
     when(system2.now()).thenReturn(timeStamp);

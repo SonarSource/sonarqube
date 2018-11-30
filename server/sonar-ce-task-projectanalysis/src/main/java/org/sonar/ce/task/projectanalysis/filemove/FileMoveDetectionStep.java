@@ -224,7 +224,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     for (String fileKey : addedFileKeys) {
       Component component = reportFilesByKey.get(fileKey);
       File file = new LazyFileImpl(
-        component.getReportAttributes().getPath(),
+        component.getName(),
         () -> getReportFileLineHashes(component),
         component.getFileAttributes().getLines());
       builder.put(fileKey, file);

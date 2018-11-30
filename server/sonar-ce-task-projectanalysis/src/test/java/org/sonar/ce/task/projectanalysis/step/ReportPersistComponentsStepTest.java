@@ -109,11 +109,13 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public void persist_components() {
     ComponentDto projectDto = prepareProject();
     Component file = builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
-      .setPath("src/main/java/dir/Foo.java")
+      .setName("src/main/java/dir/Foo.java")
+      .setShortName("Foo.java")
       .setFileAttributes(new FileAttributes(false, "java", 1))
       .build();
     Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
-      .setPath("src/main/java/dir")
+      .setName("src/main/java/dir")
+      .setShortName("dir")
       .addChildren(file)
       .build();
     Component treeRoot = asTreeRoot(projectDto)
@@ -127,7 +129,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
-    assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
+    assertThat(directoryDto.name()).isEqualTo("dir");
+    assertThat(directoryDto.longName()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.uuid()).isEqualTo("CDEF");
@@ -144,6 +147,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(fileDto.name()).isEqualTo("Foo.java");
+    assertThat(fileDto.longName()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.description()).isNull();
     assertThat(fileDto.path()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.language()).isEqualTo("java");
@@ -166,11 +170,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public void persist_components_of_existing_branch() {
     ComponentDto project = prepareBranch("feature/foo");
     Component file = builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
-      .setPath("src/main/java/dir/Foo.java")
+      .setName("src/main/java/dir/Foo.java")
+      .setShortName("Foo.java")
       .setFileAttributes(new FileAttributes(false, "java", 1))
       .build();
-    Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
-      .setPath("src/main/java/dir")
+    Component directory = builder(DIRECTORY, 3).setUuid("CDEF")
+      .setKey("PROJECT_KEY:src/main/java/dir")
+      .setName("src/main/java/dir")
+      .setShortName("dir")
       .addChildren(file)
       .build();
     Component treeRoot = asTreeRoot(project)
@@ -184,7 +191,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir").get();
     assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
-    assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
+    assertThat(directoryDto.name()).isEqualTo("dir");
+    assertThat(directoryDto.longName()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.uuid()).isEqualTo("CDEF");
@@ -201,6 +209,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     ComponentDto fileDto = dbClient.componentDao().selectByKey(db.getSession(), "PROJECT_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(fileDto.name()).isEqualTo("Foo.java");
+    assertThat(fileDto.longName()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.description()).isNull();
     assertThat(fileDto.path()).isEqualTo("src/main/java/dir/Foo.java");
     assertThat(fileDto.language()).isEqualTo("java");
@@ -225,18 +234,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(
       asTreeRoot(projectDto)
         .addChildren(
-          builder(DIRECTORY, 2).setUuid("CDEF").setKey(projectDto.getDbKey() + ":/").setPath("/")
-            .addChildren(
-              builder(FILE, 3).setUuid("DEFG").setKey(projectDto.getDbKey() + ":pom.xml").setPath("pom.xml")
-                .build())
+          builder(FILE, 2).setUuid("DEFG").setKey(projectDto.getDbKey() + ":pom.xml")
+            .setName("pom.xml")
             .build())
         .build());
 
     underTest.execute(new TestComputationStepContext());
 
-    ComponentDto directory = dbClient.componentDao().selectByKey(db.getSession(), projectDto.getDbKey() + ":/").get();
-    assertThat(directory.name()).isEqualTo("/");
-    assertThat(directory.path()).isEqualTo("/");
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), projectDto.getDbKey() + ":/")).isNotPresent();
 
     ComponentDto file = dbClient.componentDao().selectByKey(db.getSession(), projectDto.getDbKey() + ":pom.xml").get();
     assertThat(file.name()).isEqualTo("pom.xml");
@@ -250,10 +255,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       asTreeRoot(projectDto)
         .addChildren(
           builder(DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/test/java/dir")
-            .setPath("src/test/java/dir")
+            .setName("src/test/java/dir")
             .addChildren(
               builder(FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/test/java/dir/FooTest.java")
-                .setPath("src/test/java/dir/FooTest.java")
+                .setName("src/test/java/dir/FooTest.java")
+                .setShortName("FooTest.java")
                 .setFileAttributes(new FileAttributes(true, null, 1))
                 .build())
             .build())
@@ -263,6 +269,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     ComponentDto file = dbClient.componentDao().selectByKey(db.getSession(), PROJECT_KEY + ":src/test/java/dir/FooTest.java").get();
     assertThat(file.name()).isEqualTo("FooTest.java");
+    assertThat(file.longName()).isEqualTo("src/test/java/dir/FooTest.java");
     assertThat(file.path()).isEqualTo("src/test/java/dir/FooTest.java");
     assertThat(file.qualifier()).isEqualTo("UTS");
     assertThat(file.scope()).isEqualTo("FIL");
@@ -279,10 +286,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
         .setName("Project")
         .addChildren(
           builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
-            .setPath("src/main/java/dir")
+            .setName("src/main/java/dir")
             .addChildren(
               builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
-                .setPath("src/main/java/dir/Foo.java")
+                .setName("src/main/java/dir/Foo.java")
+                .setShortName("Foo.java")
                 .build())
             .build())
         .build());
@@ -328,10 +336,10 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
         .setName("Project")
         .addChildren(
           builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
-            .setPath("src/main/java/dir")
+            .setName("src/main/java/dir")
             .addChildren(
               builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
-                .setPath("src/main/java/dir/Foo.java")
+                .setName("src/main/java/dir/Foo.java")
                 .build())
             .build())
         .build());
@@ -386,10 +394,10 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
         .setName("Project")
         .addChildren(
           builder(DIRECTORY, 4).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
-            .setPath("src/main/java/dir")
+            .setName("src/main/java/dir")
             .addChildren(
               builder(FILE, 5).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
-                .setPath("src/main/java/dir/Foo.java")
+                .setName("src/main/java/dir/Foo.java")
                 .build())
             .build())
         .build());
@@ -441,11 +449,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public void persist_components_that_were_previously_removed() {
     ComponentDto project = prepareProject();
     ComponentDto removedDirectory = ComponentTesting.newDirectory(project, "src/main/java/dir")
+      .setLongName("src/main/java/dir")
+      .setName("dir")
       .setUuid("CDEF")
       .setDbKey("PROJECT_KEY:src/main/java/dir")
       .setEnabled(false);
     ComponentDto removedFile = ComponentTesting.newFileDto(project, removedDirectory, "DEFG")
       .setPath("src/main/java/dir/Foo.java")
+      .setLongName("src/main/java/dir/Foo.java")
       .setName("Foo.java")
       .setDbKey("PROJECT_KEY:src/main/java/dir/Foo.java")
       .setEnabled(false);
@@ -457,10 +468,12 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
         .setName("Project")
         .addChildren(
           builder(DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir")
-            .setPath("src/main/java/dir")
+            .setName("src/main/java/dir")
+            .setShortName("dir")
             .addChildren(
               builder(FILE, 4).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java")
-                .setPath("src/main/java/dir/Foo.java")
+                .setName("src/main/java/dir/Foo.java")
+                .setShortName("Foo.java")
                 .build())
             .build())
         .build());
@@ -495,6 +508,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryReloaded.projectUuid()).isEqualTo(removedDirectory.projectUuid());
     assertThat(directoryReloaded.getRootUuid()).isEqualTo(removedDirectory.getRootUuid());
     assertThat(directoryReloaded.name()).isEqualTo(removedDirectory.name());
+    assertThat(directoryReloaded.longName()).isEqualTo(removedDirectory.longName());
     assertThat(directoryReloaded.path()).isEqualTo(removedDirectory.path());
     assertThat(directoryReloaded.isEnabled()).isTrue();
 
@@ -543,10 +557,10 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       .setName("Project")
       .addChildren(
         builder(Component.Type.DIRECTORY, 3).setUuid("DEFG").setKey("DIR")
-          .setPath("Directory")
+          .setName("Directory")
           .addChildren(
             builder(FILE, 4).setUuid("CDEF").setKey("FILE")
-              .setPath("file")
+              .setName("file")
               .build())
           .build())
       .build();

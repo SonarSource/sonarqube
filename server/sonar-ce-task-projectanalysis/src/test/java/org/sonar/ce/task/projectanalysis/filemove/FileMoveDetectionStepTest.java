@@ -553,7 +553,7 @@ public class FileMoveDetectionStepTest {
       String[] lines = readLines(f);
       Component c = builder(Component.Type.FILE, i++)
         .setKey(f.getName())
-        .setPath(f.getName())
+        .setName(f.getName())
         .setFileAttributes(new FileAttributes(false, null, lines.length))
         .build();
 
@@ -635,7 +635,7 @@ public class FileMoveDetectionStepTest {
 
   private Component fileComponent(int ref, @Nullable String[] content) {
     ReportComponent component = builder(Component.Type.FILE, ref)
-      .setPath("report_path" + ref)
+      .setName("report_path" + ref)
       .setFileAttributes(new FileAttributes(false, null, content == null ? 1 : content.length))
       .build();
     if (content != null) {

@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -294,9 +293,9 @@ public class PersistComponentsStep implements ComputationStep {
 
       res.setScope(Scopes.DIRECTORY);
       res.setQualifier(Qualifiers.DIRECTORY);
-      res.setName(directory.getReportAttributes().getPath());
-      res.setLongName(directory.getReportAttributes().getPath());
-      res.setPath(directory.getReportAttributes().getPath());
+      res.setName(directory.getShortName());
+      res.setLongName(directory.getName());
+      res.setPath(directory.getName());
 
       setParentModuleProperties(res, path);
 
@@ -308,9 +307,9 @@ public class PersistComponentsStep implements ComputationStep {
 
       res.setScope(Scopes.FILE);
       res.setQualifier(getFileQualifier(file));
-      res.setName(FilenameUtils.getName(file.getReportAttributes().getPath()));
-      res.setLongName(file.getReportAttributes().getPath());
-      res.setPath(file.getReportAttributes().getPath());
+      res.setName(file.getShortName());
+      res.setLongName(file.getName());
+      res.setPath(file.getName());
       res.setLanguage(file.getFileAttributes().getLanguageKey());
 
       setParentModuleProperties(res, path);

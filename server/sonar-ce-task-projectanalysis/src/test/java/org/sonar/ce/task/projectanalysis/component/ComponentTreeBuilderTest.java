@@ -138,9 +138,9 @@ public class ComponentTreeBuilderTest {
     assertThat(root.getKey()).isEqualTo("public_K1");
     assertThat(root.getType()).isEqualTo(Component.Type.PROJECT);
     assertThat(root.getName()).isEqualTo(nameInReport);
+    assertThat(root.getShortName()).isEqualTo(nameInReport);
     assertThat(root.getDescription()).isEqualTo(descriptionInReport);
     assertThat(root.getReportAttributes().getRef()).isEqualTo(42);
-    assertThat(root.getReportAttributes().getPath()).isNull();
     assertThat(root.getProjectAttributes().getVersion()).isEqualTo("6.5");
     assertThatFileAttributesAreNotSet(root);
   }
@@ -399,19 +399,26 @@ public class ComponentTreeBuilderTest {
       .setLines(1));
 
     Component root = call(project);
+    assertThat(root.getChildren()).hasSize(2);
 
     Component pom = root.getChildren().get(0);
-    assertThat(pom.getName()).isEqualTo("public_K1:pom.xml");
+    assertThat(pom.getKey()).isEqualTo("public_K1:pom.xml");
+    assertThat(pom.getName()).isEqualTo("pom.xml");
 
     Component directory = root.getChildren().get(1);
-    assertThat(directory.getName()).isEqualTo("public_K1:src");
+    assertThat(directory.getKey()).isEqualTo("public_K1:src");
+    assertThat(directory.getName()).isEqualTo("src");
 
     // folders are collapsed and they only contain one directory
     Component d1 = directory.getChildren().get(0);
-    assertThat(d1.getName()).isEqualTo("public_K1:src/main/xoo");
+    assertThat(d1.getKey()).isEqualTo("public_K1:src/main/xoo");
+    assertThat(d1.getName()).isEqualTo("src/main/xoo");
+    assertThat(d1.getShortName()).isEqualTo("main/xoo");
 
     Component d2 = directory.getChildren().get(1);
-    assertThat(d2.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+    assertThat(d2.getKey()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+    assertThat(d2.getName()).isEqualTo("src/test/xoo/org/sonar");
+    assertThat(d2.getShortName()).isEqualTo("test/xoo/org/sonar");
   }
 
   @Test
@@ -432,10 +439,14 @@ public class ComponentTreeBuilderTest {
 
     // folders are collapsed and they only contain one directory
     Component dir = root.getChildren().get(0);
-    assertThat(dir.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+    assertThat(dir.getKey()).isEqualTo("public_K1:src/test/xoo/org/sonar");
+    assertThat(dir.getName()).isEqualTo("src/test/xoo/org/sonar");
+    assertThat(dir.getShortName()).isEqualTo("src/test/xoo/org/sonar");
 
     Component file = dir.getChildren().get(0);
-    assertThat(file.getName()).isEqualTo("public_K1:src/test/xoo/org/sonar/Foo2.js");
+    assertThat(file.getKey()).isEqualTo("public_K1:src/test/xoo/org/sonar/Foo2.js");
+    assertThat(file.getName()).isEqualTo("src/test/xoo/org/sonar/Foo2.js");
+    assertThat(file.getShortName()).isEqualTo("Foo2.js");
   }
 
   @Test
@@ -460,14 +471,18 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component directory = root.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("public_K1:src/js");
+    assertThat(directory.getKey()).isEqualTo("public_K1:src/js");
+    assertThat(directory.getName()).isEqualTo("src/js");
+    assertThat(directory.getShortName()).isEqualTo("src/js");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getName()).isEqualTo("src/js/Foo.js");
+    assertThat(file.getShortName()).isEqualTo("Foo.js");
   }
 
   @Test
-  public void names_of_directory_and_file_are_public_keys_if_names_are_empty_in_report() {
+  public void names_of_directory_and_file_are_based_on_the_path() {
     ScannerReport.Component project = newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
@@ -490,10 +505,12 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component directory = root.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("public_K1:src/js");
+    assertThat(directory.getName()).isEqualTo("src/js");
+    assertThat(directory.getShortName()).isEqualTo("src/js");
 
     Component file = directory.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getName()).isEqualTo("src/js/Foo.js");
+    assertThat(file.getShortName()).isEqualTo("Foo.js");
   }
 
   @Test
@@ -521,16 +538,24 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
 
     Component directory = root.getChildren().iterator().next();
-    assertThat(directory.getName()).isEqualTo("public_K1:src");
+    assertThat(directory.getKey()).isEqualTo("public_K1:src");
+    assertThat(directory.getName()).isEqualTo("src");
+    assertThat(directory.getShortName()).isEqualTo("src");
 
     Component directoryJava = directory.getChildren().get(0);
-    assertThat(directoryJava.getName()).isEqualTo("public_K1:src/java");
+    assertThat(directoryJava.getKey()).isEqualTo("public_K1:src/java");
+    assertThat(directoryJava.getName()).isEqualTo("src/java");
+    assertThat(directoryJava.getShortName()).isEqualTo("java");
 
     Component directoryJs = directory.getChildren().get(1);
-    assertThat(directoryJs.getName()).isEqualTo("public_K1:src/js");
+    assertThat(directoryJs.getKey()).isEqualTo("public_K1:src/js");
+    assertThat(directoryJs.getName()).isEqualTo("src/js");
+    assertThat(directoryJs.getShortName()).isEqualTo("js");
 
     Component file = directoryJs.getChildren().iterator().next();
-    assertThat(file.getName()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getKey()).isEqualTo("public_K1:src/js/Foo.js");
+    assertThat(file.getName()).isEqualTo("src/js/Foo.js");
+    assertThat(file.getShortName()).isEqualTo("Foo.js");
   }
 
   private void assertThatFileAttributesAreNotSet(Component root) {
