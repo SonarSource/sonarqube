@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -71,7 +71,7 @@ public class UpdateActionTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
+  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(
     new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,

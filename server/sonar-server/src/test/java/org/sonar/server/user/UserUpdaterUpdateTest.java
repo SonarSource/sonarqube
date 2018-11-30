@@ -37,7 +37,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
-import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -81,7 +81,7 @@ public class UserUpdaterUpdateTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
-  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
+  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 

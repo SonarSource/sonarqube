@@ -35,16 +35,17 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 /**
- * This class is responsible of handling local authentication
+ * Validates the password of a "local" user (password is stored in
+ * database).
  */
-public class LocalAuthentication {
+public class CredentialsLocalAuthentication {
 
   private final DbClient dbClient;
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   // The default hash method that must be used is BCRYPT
   private static final HashMethod DEFAULT = HashMethod.BCRYPT;
 
-  public LocalAuthentication(DbClient dbClient) {
+  public CredentialsLocalAuthentication(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
@@ -139,6 +140,7 @@ public class LocalAuthentication {
 
   public interface HashFunction {
     AuthenticationResult checkCredentials(UserDto user, String password);
+
     void storeHashPassword(UserDto user, String password);
   }
 

@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class HttpHeadersAuthenticatorTest {
+public class HttpHeadersAuthenticationTest {
 
   private MapSettings settings = new MapSettings();
 
@@ -100,7 +100,7 @@ public class HttpHeadersAuthenticatorTest {
   private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
+  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private UserIdentityAuthenticatorImpl userIdentityAuthenticator = new UserIdentityAuthenticatorImpl(
@@ -113,7 +113,7 @@ public class HttpHeadersAuthenticatorTest {
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private HttpHeadersAuthenticator underTest = new HttpHeadersAuthenticator(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
+  private HttpHeadersAuthentication underTest = new HttpHeadersAuthentication(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {

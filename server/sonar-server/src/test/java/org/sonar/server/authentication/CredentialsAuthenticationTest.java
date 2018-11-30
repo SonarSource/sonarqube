@@ -43,35 +43,31 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class CredentialsAuthenticatorTest {
+public class CredentialsAuthenticationTest {
 
   private static final String LOGIN = "LOGIN";
   private static final String PASSWORD = "PASSWORD";
   private static final String SALT = "0242b0b4c0a93ddfe09dd886de50bc25ba000b51";
-  private static final String CRYPTED_PASSWORD = "540e4fc4be4e047db995bc76d18374a5b5db08cc";
+  private static final String ENCRYPTED_PASSWORD = "540e4fc4be4e047db995bc76d18374a5b5db08cc";
 
   @Rule
   public ExpectedException expectedException = none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   private DbClient dbClient = dbTester.getDbClient();
-
   private DbSession dbSession = dbTester.getSession();
-
-  private RealmAuthenticator externalAuthenticator = mock(RealmAuthenticator.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
-  private LocalAuthentication localAuthentication = new LocalAuthentication(dbClient);
-
-  private CredentialsAuthenticator underTest = new CredentialsAuthenticator(dbClient, externalAuthenticator, authenticationEvent, localAuthentication);
+  private CredentialsExternalAuthentication externalAuthentication = mock(CredentialsExternalAuthentication.class);
+  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient);
+  private CredentialsAuthentication underTest = new CredentialsAuthentication(dbClient, authenticationEvent, externalAuthentication, localAuthentication);
 
   @Test
   public void authenticate_local_user() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
-      .setCryptedPassword(CRYPTED_PASSWORD)
-      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
+      .setCryptedPassword(ENCRYPTED_PASSWORD)
+      .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setSalt(SALT)
       .setLocal(true));
 
@@ -86,7 +82,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setCryptedPassword("Wrong password")
       .setSalt("Wrong salt")
-      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
+      .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
@@ -100,20 +96,20 @@ public class CredentialsAuthenticatorTest {
 
   @Test
   public void authenticate_external_user() {
-    when(externalAuthenticator.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).thenReturn(Optional.of(newUserDto()));
+    when(externalAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).thenReturn(Optional.of(newUserDto()));
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
 
     executeAuthenticate(BASIC);
 
-    verify(externalAuthenticator).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
+    verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
     verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() {
-    when(externalAuthenticator.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
+    when(externalAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
@@ -133,7 +129,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setCryptedPassword(null)
       .setSalt(SALT)
-      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
+      .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
@@ -149,9 +145,9 @@ public class CredentialsAuthenticatorTest {
   public void fail_to_authenticate_local_user_that_have_no_salt() {
     insertUser(newUserDto()
       .setLogin(LOGIN)
-      .setCryptedPassword(CRYPTED_PASSWORD)
+      .setCryptedPassword(ENCRYPTED_PASSWORD)
       .setSalt(null)
-      .setHashMethod(LocalAuthentication.HashMethod.SHA1.name())
+      .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN).andNoPublicMessage());

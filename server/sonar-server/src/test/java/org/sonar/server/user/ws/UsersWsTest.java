@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserUpdater;
@@ -42,7 +42,7 @@ public class UsersWsTest {
   public DbTester db = DbTester.create();
 
   private WebService.Controller controller;
-  private LocalAuthentication localAuthentication = new LocalAuthentication(db.getDbClient());
+  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   @Before
   public void setUp() {

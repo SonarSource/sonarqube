@@ -35,7 +35,7 @@ public class UserTokenModule extends Module {
       GenerateAction.class,
       RevokeAction.class,
       SearchAction.class,
-      UserTokenAuthenticator.class,
+      UserTokenAuthentication.class,
       TokenGeneratorImpl.class);
   }
 }

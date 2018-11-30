@@ -27,14 +27,21 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.usertoken.UserTokenAuthenticator;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
-public class BasicAuthenticator {
+/**
+ * HTTP BASIC authentication relying on tuple {login, password}.
+ * Login can represent a user access token.
+ *
+ * @see CredentialsAuthentication for standard login/password authentication
+ * @see UserTokenAuthentication for user access token
+ */
+public class BasicAuthentication {
 
   private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
 
@@ -42,15 +49,15 @@ public class BasicAuthenticator {
   private static final String BASIC_AUTHORIZATION = "BASIC";
 
   private final DbClient dbClient;
-  private final CredentialsAuthenticator credentialsAuthenticator;
-  private final UserTokenAuthenticator userTokenAuthenticator;
+  private final CredentialsAuthentication credentialsAuthentication;
+  private final UserTokenAuthentication userTokenAuthentication;
   private final AuthenticationEvent authenticationEvent;
 
-  public BasicAuthenticator(DbClient dbClient, CredentialsAuthenticator credentialsAuthenticator,
-    UserTokenAuthenticator userTokenAuthenticator, AuthenticationEvent authenticationEvent) {
+  public BasicAuthentication(DbClient dbClient, CredentialsAuthentication credentialsAuthentication,
+    UserTokenAuthentication userTokenAuthentication, AuthenticationEvent authenticationEvent) {
     this.dbClient = dbClient;
-    this.credentialsAuthenticator = credentialsAuthenticator;
-    this.userTokenAuthenticator = userTokenAuthenticator;
+    this.credentialsAuthentication = credentialsAuthentication;
+    this.userTokenAuthentication = userTokenAuthentication;
     this.authenticationEvent = authenticationEvent;
   }
 
@@ -98,12 +105,12 @@ public class BasicAuthenticator {
       authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
       return userDto;
     } else {
-      return credentialsAuthenticator.authenticate(credentials, request, Method.BASIC);
+      return credentialsAuthentication.authenticate(credentials, request, Method.BASIC);
     }
   }
 
   private UserDto authenticateFromUserToken(String token) {
-    Optional<String> authenticatedUserUuid = userTokenAuthenticator.authenticate(token);
+    Optional<String> authenticatedUserUuid = userTokenAuthentication.authenticate(token);
     if (!authenticatedUserUuid.isPresent()) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.BASIC_TOKEN))

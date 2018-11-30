@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.Credentials;
-import org.sonar.server.authentication.CredentialsAuthenticator;
+import org.sonar.server.authentication.CredentialsAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -51,15 +51,15 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
   private static final String LOGIN_ACTION = "login";
   public static final String LOGIN_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + LOGIN_ACTION;
 
-  private final CredentialsAuthenticator credentialsAuthenticator;
+  private final CredentialsAuthentication credentialsAuthentication;
   private final JwtHttpHandler jwtHttpHandler;
   private final ThreadLocalUserSession threadLocalUserSession;
   private final AuthenticationEvent authenticationEvent;
   private final UserSessionFactory userSessionFactory;
 
-  public LoginAction(CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler,
-    ThreadLocalUserSession threadLocalUserSession, AuthenticationEvent authenticationEvent, UserSessionFactory userSessionFactory) {
-    this.credentialsAuthenticator = credentialsAuthenticator;
+  public LoginAction(CredentialsAuthentication credentialsAuthentication, JwtHttpHandler jwtHttpHandler,
+                     ThreadLocalUserSession threadLocalUserSession, AuthenticationEvent authenticationEvent, UserSessionFactory userSessionFactory) {
+    this.credentialsAuthentication = credentialsAuthentication;
     this.jwtHttpHandler = jwtHttpHandler;
     this.threadLocalUserSession = threadLocalUserSession;
     this.authenticationEvent = authenticationEvent;
@@ -118,7 +118,7 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
         .setMessage("Empty login and/or password")
         .build();
     }
-    return credentialsAuthenticator.authenticate(new Credentials(login, password), request, Method.FORM);
+    return credentialsAuthentication.authenticate(new Credentials(login, password), request, Method.FORM);
   }
 
   @Override

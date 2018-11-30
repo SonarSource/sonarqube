@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.server.authentication.BasicAuthenticator;
+import org.sonar.server.authentication.BasicAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.test.JsonAssert;
@@ -48,12 +48,12 @@ public class ValidateActionTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
   FilterChain chain = mock(FilterChain.class);
 
-  BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
+  BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
   JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
   MapSettings settings = new MapSettings();
 
-  ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthenticator, jwtHttpHandler);
+  ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthentication, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {
@@ -64,7 +64,7 @@ public class ValidateActionTest {
   @Test
   public void return_true_when_jwt_token_is_set() throws Exception {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(newUserDto()));
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
 
     underTest.doFilter(request, response, chain);
 
@@ -75,7 +75,7 @@ public class ValidateActionTest {
   @Test
   public void return_true_when_basic_auth() throws Exception {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(newUserDto()));
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.of(newUserDto()));
 
     underTest.doFilter(request, response, chain);
 
@@ -87,7 +87,7 @@ public class ValidateActionTest {
   public void return_true_when_no_jwt_nor_basic_auth_and_no_force_authentication() throws Exception {
     settings.setProperty("sonar.forceAuthentication", "false");
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
 
     underTest.doFilter(request, response, chain);
 
@@ -99,7 +99,7 @@ public class ValidateActionTest {
   public void return_false_when_no_jwt_nor_basic_auth_and_force_authentication_is_true() throws Exception {
     settings.setProperty("sonar.forceAuthentication", "true");
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
 
     underTest.doFilter(request, response, chain);
 
@@ -110,7 +110,7 @@ public class ValidateActionTest {
   @Test
   public void return_false_when_jwt_throws_unauthorized_exception() throws Exception {
     doThrow(AuthenticationException.class).when(jwtHttpHandler).validateToken(request, response);
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
 
     underTest.doFilter(request, response, chain);
 
@@ -121,7 +121,7 @@ public class ValidateActionTest {
   @Test
   public void return_false_when_basic_authenticator_throws_unauthorized_exception() throws Exception {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    doThrow(AuthenticationException.class).when(basicAuthenticator).authenticate(request);
+    doThrow(AuthenticationException.class).when(basicAuthentication).authenticate(request);
 
     underTest.doFilter(request, response, chain);
 

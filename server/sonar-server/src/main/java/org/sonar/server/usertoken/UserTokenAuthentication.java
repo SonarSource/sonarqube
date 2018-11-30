@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usertoken;
 
+import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserTokenDto;
@@ -26,11 +27,11 @@ import org.sonar.db.user.UserTokenDto;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-public class UserTokenAuthenticator {
+public class UserTokenAuthentication {
   private final TokenGenerator tokenGenerator;
   private final DbClient dbClient;
 
-  public UserTokenAuthenticator(TokenGenerator tokenGenerator, DbClient dbClient) {
+  public UserTokenAuthentication(TokenGenerator tokenGenerator, DbClient dbClient) {
     this.tokenGenerator = tokenGenerator;
     this.dbClient = dbClient;
   }
@@ -40,7 +41,7 @@ public class UserTokenAuthenticator {
    * The returned uuid is not validated. If database is corrupted (table USER_TOKENS badly purged
    * for instance), then the uuid may not relate to a valid user.
    */
-  public java.util.Optional<String> authenticate(String token) {
+  public Optional<String> authenticate(String token) {
     String tokenHash = tokenGenerator.hash(token);
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserTokenDto userToken = dbClient.userTokenDao().selectByTokenHash(dbSession, tokenHash);

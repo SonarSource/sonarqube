@@ -33,7 +33,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.BasicAuthenticator;
+import org.sonar.server.authentication.BasicAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.ws.ServletFilterHandler;
@@ -49,11 +49,11 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
 
   private final Configuration config;
   private final JwtHttpHandler jwtHttpHandler;
-  private final BasicAuthenticator basicAuthenticator;
+  private final BasicAuthentication basicAuthentication;
 
-  public ValidateAction(Configuration config, BasicAuthenticator basicAuthenticator, JwtHttpHandler jwtHttpHandler) {
+  public ValidateAction(Configuration config, BasicAuthentication basicAuthentication, JwtHttpHandler jwtHttpHandler) {
     this.config = config;
-    this.basicAuthenticator = basicAuthenticator;
+    this.basicAuthentication = basicAuthentication;
     this.jwtHttpHandler = jwtHttpHandler;
   }
 
@@ -92,7 +92,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
       if (user.isPresent()) {
         return true;
       }
-      user = basicAuthenticator.authenticate(request);
+      user = basicAuthentication.authenticate(request);
       if (user.isPresent()) {
         return true;
       }

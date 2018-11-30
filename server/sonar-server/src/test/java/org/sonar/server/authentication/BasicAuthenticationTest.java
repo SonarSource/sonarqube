@@ -31,7 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.authentication.event.AuthenticationEvent;
-import org.sonar.server.usertoken.UserTokenAuthenticator;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class BasicAuthenticatorTest {
+public class BasicAuthenticationTest {
 
   private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
@@ -65,24 +65,24 @@ public class BasicAuthenticatorTest {
 
   private DbClient dbClient = db.getDbClient();
 
-  private CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
-  private UserTokenAuthenticator userTokenAuthenticator = mock(UserTokenAuthenticator.class);
+  private CredentialsAuthentication credentialsAuthentication = mock(CredentialsAuthentication.class);
+  private UserTokenAuthentication userTokenAuthentication = mock(UserTokenAuthentication.class);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private BasicAuthenticator underTest = new BasicAuthenticator(dbClient, credentialsAuthenticator, userTokenAuthenticator, authenticationEvent);
+  private BasicAuthentication underTest = new BasicAuthentication(dbClient, credentialsAuthentication, userTokenAuthentication, authenticationEvent);
 
   @Test
   public void authenticate_from_basic_http_header() {
     when(request.getHeader("Authorization")).thenReturn("Basic " + CREDENTIALS_IN_BASE64);
     Credentials credentials = new Credentials(A_LOGIN, A_PASSWORD);
-    when(credentialsAuthenticator.authenticate(credentials, request, BASIC)).thenReturn(USER);
+    when(credentialsAuthentication.authenticate(credentials, request, BASIC)).thenReturn(USER);
 
     underTest.authenticate(request);
 
-    verify(credentialsAuthenticator).authenticate(credentials, request, BASIC);
+    verify(credentialsAuthentication).authenticate(credentials, request, BASIC);
     verifyNoMoreInteractions(authenticationEvent);
   }
 
@@ -90,11 +90,11 @@ public class BasicAuthenticatorTest {
   public void authenticate_from_basic_http_header_with_password_containing_semi_colon() {
     String password = "!ascii-only:-)@";
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(A_LOGIN + ":" + password));
-    when(credentialsAuthenticator.authenticate(new Credentials(A_LOGIN, password), request, BASIC)).thenReturn(USER);
+    when(credentialsAuthentication.authenticate(new Credentials(A_LOGIN, password), request, BASIC)).thenReturn(USER);
 
     underTest.authenticate(request);
 
-    verify(credentialsAuthenticator).authenticate(new Credentials(A_LOGIN, password), request, BASIC);
+    verify(credentialsAuthentication).authenticate(new Credentials(A_LOGIN, password), request, BASIC);
     verifyNoMoreInteractions(authenticationEvent);
   }
 
@@ -102,7 +102,7 @@ public class BasicAuthenticatorTest {
   public void does_not_authenticate_when_no_authorization_header() {
     underTest.authenticate(request);
 
-    verifyZeroInteractions(credentialsAuthenticator, authenticationEvent);
+    verifyZeroInteractions(credentialsAuthentication, authenticationEvent);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class BasicAuthenticatorTest {
 
     underTest.authenticate(request);
 
-    verifyZeroInteractions(credentialsAuthenticator, authenticationEvent);
+    verifyZeroInteractions(credentialsAuthentication, authenticationEvent);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class BasicAuthenticatorTest {
   @Test
   public void authenticate_from_user_token() {
     UserDto user = db.users().insertUser();
-    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
+    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     Optional<UserDto> userAuthenticated = underTest.authenticate(request);
@@ -150,7 +150,7 @@ public class BasicAuthenticatorTest {
 
   @Test
   public void does_not_authenticate_from_user_token_when_token_is_invalid() {
-    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.empty());
+    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.empty());
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
@@ -163,7 +163,7 @@ public class BasicAuthenticatorTest {
 
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_existing_user() {
-    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of("Unknown user"));
+    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of("Unknown user"));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
@@ -177,7 +177,7 @@ public class BasicAuthenticatorTest {
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
     UserDto user = db.users().insertDisabledUser();
-    when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
+    when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin().andNoPublicMessage());

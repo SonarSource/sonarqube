@@ -30,15 +30,15 @@ import org.sonar.server.user.UserSessionFactory;
 public class RequestAuthenticatorImpl implements RequestAuthenticator {
 
   private final JwtHttpHandler jwtHttpHandler;
-  private final BasicAuthenticator basicAuthenticator;
-  private final HttpHeadersAuthenticator httpHeadersAuthenticator;
+  private final BasicAuthentication basicAuthentication;
+  private final HttpHeadersAuthentication httpHeadersAuthentication;
   private final UserSessionFactory userSessionFactory;
 
-  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator, HttpHeadersAuthenticator httpHeadersAuthenticator,
-    UserSessionFactory userSessionFactory) throws AuthenticationException {
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
+                                  UserSessionFactory userSessionFactory) throws AuthenticationException {
     this.jwtHttpHandler = jwtHttpHandler;
-    this.basicAuthenticator = basicAuthenticator;
-    this.httpHeadersAuthenticator = httpHeadersAuthenticator;
+    this.basicAuthentication = basicAuthentication;
+    this.httpHeadersAuthentication = httpHeadersAuthentication;
     this.userSessionFactory = userSessionFactory;
   }
 
@@ -55,7 +55,7 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
     // Try first to authenticate from SSO, then JWT token, then try from basic http header
 
     // SSO authentication should come first in order to update JWT if user from header is not the same is user from JWT
-    Optional<UserDto> user = httpHeadersAuthenticator.authenticate(request, response);
+    Optional<UserDto> user = httpHeadersAuthentication.authenticate(request, response);
     if (user.isPresent()) {
       return user;
     }
@@ -63,6 +63,6 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
     if (user.isPresent()) {
       return user;
     }
-    return basicAuthenticator.authenticate(request);
+    return basicAuthentication.authenticate(request);
   }
 }

@@ -49,9 +49,12 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
-public class RealmAuthenticator implements Startable {
+/**
+ * Delegates the validation of credentials to an external system, e.g. LDAP.
+ */
+public class CredentialsExternalAuthentication implements Startable {
 
-  private static final Logger LOG = Loggers.get(RealmAuthenticator.class);
+  private static final Logger LOG = Loggers.get(CredentialsExternalAuthentication.class);
 
   private final Configuration config;
   private final SecurityRealmFactory securityRealmFactory;
@@ -63,7 +66,7 @@ public class RealmAuthenticator implements Startable {
   private ExternalUsersProvider externalUsersProvider;
   private ExternalGroupsProvider externalGroupsProvider;
 
-  public RealmAuthenticator(Configuration config, SecurityRealmFactory securityRealmFactory,
+  public CredentialsExternalAuthentication(Configuration config, SecurityRealmFactory securityRealmFactory,
     UserIdentityAuthenticator userIdentityAuthenticator, AuthenticationEvent authenticationEvent) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;

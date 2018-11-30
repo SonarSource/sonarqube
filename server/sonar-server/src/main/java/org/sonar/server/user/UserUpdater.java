@@ -39,7 +39,7 @@ import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationUpdater;
@@ -82,11 +82,11 @@ public class UserUpdater {
   private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
-  private final LocalAuthentication localAuthentication;
+  private final CredentialsLocalAuthentication localAuthentication;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, Configuration config,
-    LocalAuthentication localAuthentication) {
+    CredentialsLocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;

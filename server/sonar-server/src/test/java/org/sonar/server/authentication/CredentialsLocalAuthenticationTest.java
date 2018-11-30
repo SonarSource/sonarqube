@@ -35,10 +35,10 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.LocalAuthentication.HashMethod.BCRYPT;
-import static org.sonar.server.authentication.LocalAuthentication.HashMethod.SHA1;
+import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.BCRYPT;
+import static org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod.SHA1;
 
-public class LocalAuthenticationTest {
+public class CredentialsLocalAuthenticationTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -46,7 +46,7 @@ public class LocalAuthenticationTest {
 
   private static final Random RANDOM = new Random();
 
-  private LocalAuthentication underTest = new LocalAuthentication(db.getDbClient());
+  private CredentialsLocalAuthentication underTest = new CredentialsLocalAuthentication(db.getDbClient());
 
   @Test
   public void incorrect_hash_should_throw_AuthenticationException() {

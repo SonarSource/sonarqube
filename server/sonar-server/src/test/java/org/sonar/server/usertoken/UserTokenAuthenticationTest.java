@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserTokenAuthenticatorTest {
+public class UserTokenAuthenticationTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -41,7 +41,7 @@ public class UserTokenAuthenticatorTest {
 
   private TokenGenerator tokenGenerator = mock(TokenGenerator.class);
 
-  private UserTokenAuthenticator underTest = new UserTokenAuthenticator(tokenGenerator, db.getDbClient());
+  private UserTokenAuthentication underTest = new UserTokenAuthentication(tokenGenerator, db.getDbClient());
 
   @Test
   public void return_login_when_token_hash_found_in_db() {

@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.authentication.LocalAuthentication;
+import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -44,9 +44,9 @@ public class ChangePasswordAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
-  private final LocalAuthentication localAuthentication;
+  private final CredentialsLocalAuthentication localAuthentication;
 
-  public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, LocalAuthentication localAuthentication) {
+  public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, CredentialsLocalAuthentication localAuthentication) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;

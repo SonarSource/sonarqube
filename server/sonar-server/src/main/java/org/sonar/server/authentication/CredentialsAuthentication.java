@@ -30,18 +30,22 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
-public class CredentialsAuthenticator {
+/**
+ * Authentication based on the tuple {login, password}. Validation can be
+ * delegated to an external system, e.g. LDAP.
+ */
+public class CredentialsAuthentication {
 
   private final DbClient dbClient;
-  private final RealmAuthenticator externalAuthenticator;
   private final AuthenticationEvent authenticationEvent;
-  private final LocalAuthentication localAuthentication;
+  private final CredentialsExternalAuthentication externalAuthentication;
+  private final CredentialsLocalAuthentication localAuthentication;
 
-  public CredentialsAuthenticator(DbClient dbClient, RealmAuthenticator externalAuthenticator, AuthenticationEvent authenticationEvent,
-    LocalAuthentication localAuthentication) {
+  public CredentialsAuthentication(DbClient dbClient, AuthenticationEvent authenticationEvent,
+    CredentialsExternalAuthentication externalAuthentication, CredentialsLocalAuthentication localAuthentication) {
     this.dbClient = dbClient;
-    this.externalAuthenticator = externalAuthenticator;
     this.authenticationEvent = authenticationEvent;
+    this.externalAuthentication = externalAuthentication;
     this.localAuthentication = localAuthentication;
   }
 
@@ -59,7 +63,7 @@ public class CredentialsAuthenticator {
       authenticationEvent.loginSuccess(request, localUser.getLogin(), Source.local(method));
       return localUser;
     }
-    Optional<UserDto> externalUser = externalAuthenticator.authenticate(credentials, request, method);
+    Optional<UserDto> externalUser = externalAuthentication.authenticate(credentials, request, method);
     if (externalUser.isPresent()) {
       return externalUser.get();
     }

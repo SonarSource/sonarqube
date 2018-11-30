@@ -46,12 +46,12 @@ public class AuthenticationModule extends Module {
       OAuth2AuthenticationParametersImpl.class,
       LoginAction.class,
       LogoutAction.class,
-      CredentialsAuthenticator.class,
-      LocalAuthentication.class,
-      RealmAuthenticator.class,
-      BasicAuthenticator.class,
+      CredentialsAuthentication.class,
+      CredentialsLocalAuthentication.class,
+      CredentialsExternalAuthentication.class,
+      BasicAuthentication.class,
       ValidateAction.class,
-      HttpHeadersAuthenticator.class,
+      HttpHeadersAuthentication.class,
       RequestAuthenticatorImpl.class);
   }
 }

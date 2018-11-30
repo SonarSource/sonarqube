@@ -58,9 +58,13 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_NAME_HE
 import static org.sonar.process.ProcessProperties.Property.SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
-public class HttpHeadersAuthenticator implements Startable {
+/**
+ * Authentication based on the HTTP request headers. The front proxy
+ * is responsible for validating user identity.
+ */
+public class HttpHeadersAuthentication implements Startable {
 
-  private static final Logger LOG = Loggers.get(HttpHeadersAuthenticator.class);
+  private static final Logger LOG = Loggers.get(HttpHeadersAuthentication.class);
 
   private static final Splitter COMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
@@ -82,7 +86,7 @@ public class HttpHeadersAuthenticator implements Startable {
   private boolean enabled = false;
   private Map<String, String> settingsByKey = new HashMap<>();
 
-  public HttpHeadersAuthenticator(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
+  public HttpHeadersAuthentication(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
     JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.system2 = system2;
     this.config = config;

@@ -49,7 +49,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
-public class RealmAuthenticatorTest {
+public class CredentialsExternalAuthenticationTest {
 
   private static final String LOGIN = "LOGIN";
   private static final String PASSWORD = "PASSWORD";
@@ -72,7 +72,7 @@ public class RealmAuthenticatorTest {
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  private RealmAuthenticator underTest = new RealmAuthenticator(settings.asConfig(), securityRealmFactory, userIdentityAuthenticator, authenticationEvent);
+  private CredentialsExternalAuthentication underTest = new CredentialsExternalAuthentication(settings.asConfig(), securityRealmFactory, userIdentityAuthenticator, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {

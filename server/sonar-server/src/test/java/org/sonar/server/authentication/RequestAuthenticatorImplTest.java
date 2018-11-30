@@ -45,10 +45,10 @@ public class RequestAuthenticatorImplTest {
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  private BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
-  private HttpHeadersAuthenticator httpHeadersAuthenticator = mock(HttpHeadersAuthenticator.class);
+  private BasicAuthentication basicAuthentication = mock(BasicAuthentication.class);
+  private HttpHeadersAuthentication httpHeadersAuthentication = mock(HttpHeadersAuthentication.class);
   private UserSessionFactory sessionFactory = mock(UserSessionFactory.class);
-  private RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthenticator, httpHeadersAuthenticator, sessionFactory);
+  private RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, httpHeadersAuthentication, sessionFactory);
 
   @Before
   public void setUp() throws Exception {
@@ -58,7 +58,7 @@ public class RequestAuthenticatorImplTest {
 
   @Test
   public void authenticate_from_jwt_token() {
-    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(A_USER));
 
     assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
@@ -67,25 +67,25 @@ public class RequestAuthenticatorImplTest {
 
   @Test
   public void authenticate_from_basic_header() {
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.of(A_USER));
-    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.of(A_USER));
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
     assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
 
     verify(jwtHttpHandler).validateToken(request, response);
-    verify(basicAuthenticator).authenticate(request);
+    verify(basicAuthentication).authenticate(request);
     verify(response, never()).setStatus(anyInt());
   }
 
   @Test
   public void authenticate_from_sso() {
-    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.of(A_USER));
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.of(A_USER));
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
     assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
 
-    verify(httpHeadersAuthenticator).authenticate(request, response);
+    verify(httpHeadersAuthentication).authenticate(request, response);
     verify(jwtHttpHandler, never()).validateToken(request, response);
     verify(response, never()).setStatus(anyInt());
   }
@@ -93,8 +93,8 @@ public class RequestAuthenticatorImplTest {
   @Test
   public void return_empty_if_not_authenticated() {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    when(httpHeadersAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
-    when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
+    when(basicAuthentication.authenticate(request)).thenReturn(Optional.empty());
 
     UserSession session = underTest.authenticate(request, response);
     assertThat(session.isLoggedIn()).isFalse();
