@@ -33,13 +33,15 @@ public class ActiveRule {
   private final Map<String, String> params;
   private final String pluginKey;
   private final long updatedAt;
+  private final String qProfileKey;
 
-  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long updatedAt, @Nullable String pluginKey) {
+  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long updatedAt, @Nullable String pluginKey, @Nullable String qProfileKey) {
     this.ruleKey = ruleKey;
     this.severity = severity;
     this.pluginKey = pluginKey;
     this.params = ImmutableMap.copyOf(params);
     this.updatedAt = updatedAt;
+    this.qProfileKey = qProfileKey;
   }
 
   public RuleKey getRuleKey() {
@@ -61,5 +63,10 @@ public class ActiveRule {
   @CheckForNull
   public String getPluginKey() {
     return pluginKey;
+  }
+
+  @CheckForNull
+  public String getQProfileKey() {
+    return qProfileKey;
   }
 }

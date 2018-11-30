@@ -35,6 +35,8 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 public class LoadQualityProfilesStep implements ComputationStep {
 
   private final BatchReportReader batchReportReader;
@@ -55,8 +57,7 @@ public class LoadQualityProfilesStep implements ComputationStep {
         ScannerReport.ActiveRule scannerReportActiveRule = batchActiveRules.next();
         Optional<Rule> rule = ruleRepository.findByKey(RuleKey.of(scannerReportActiveRule.getRuleRepository(), scannerReportActiveRule.getRuleKey()));
         if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED && !rule.get().isExternal()) {
-          ActiveRule activeRule = convert(scannerReportActiveRule, rule.get());
-          activeRules.add(activeRule);
+          activeRules.add(convert(scannerReportActiveRule, rule.get()));
         }
       }
     }
@@ -73,6 +74,6 @@ public class LoadQualityProfilesStep implements ComputationStep {
     RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
     Map<String, String> params = new HashMap<>(input.getParamsByKeyMap());
     long updatedAt = input.getUpdatedAt();
-    return new ActiveRule(key, input.getSeverity().name(), params, updatedAt == 0 ? input.getCreatedAt() : updatedAt, rule.getPluginKey());
+    return new ActiveRule(key, input.getSeverity().name(), params, updatedAt == 0 ? input.getCreatedAt() : updatedAt, rule.getPluginKey(), emptyToNull(input.getQProfileKey()));
   }
 }

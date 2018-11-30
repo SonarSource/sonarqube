@@ -367,6 +367,6 @@ public class TrackerRawInputFactoryTest {
   }
 
   private void markRuleAsActive(RuleKey ruleKey) {
-    activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null));
+    activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null, "qp1"));
   }
 }

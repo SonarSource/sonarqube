@@ -44,6 +44,9 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.ce.task.projectanalysis.qualityprofile.MutableQProfileStatusRepository;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -60,6 +63,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.ADDED;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.REMOVED;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UNCHANGED;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UPDATED;
 
 public class QualityProfileEventsStepTest {
   @Rule
@@ -76,10 +83,11 @@ public class QualityProfileEventsStepTest {
   private LanguageRepository languageRepository = mock(LanguageRepository.class);
   private EventRepository eventRepository = mock(EventRepository.class);
   private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
+  private MutableQProfileStatusRepository qProfileStatusRepository = new QProfileStatusRepositoryImpl();
 
   private Metric qualityProfileMetric = mock(Metric.class);
 
-  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(treeRootHolder, metricRepository, measureRepository, languageRepository, eventRepository);
+  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(treeRootHolder, metricRepository, measureRepository, languageRepository, eventRepository, qProfileStatusRepository);
 
   @Before
   public void setUp() {
@@ -116,8 +124,9 @@ public class QualityProfileEventsStepTest {
   }
 
   @Test
-  public void added_event_if_one_new_qp() {
+  public void added_event_if_qp_is_added() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    qProfileStatusRepository.register(qp.getQpKey(), ADDED);
 
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
     mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
@@ -132,6 +141,7 @@ public class QualityProfileEventsStepTest {
   @Test
   public void added_event_uses_language_key_in_message_if_language_not_found() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    qProfileStatusRepository.register(qp.getQpKey(), ADDED);
 
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
     mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
@@ -144,8 +154,9 @@ public class QualityProfileEventsStepTest {
   }
 
   @Test
-  public void no_more_used_event_if_qp_no_more_listed() {
+  public void no_more_used_event_if_qp_is_removed() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
+    qProfileStatusRepository.register(qp.getQpKey(), REMOVED);
 
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
@@ -160,7 +171,7 @@ public class QualityProfileEventsStepTest {
   @Test
   public void no_more_used_event_uses_language_key_in_message_if_language_not_found() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
-
+    qProfileStatusRepository.register(qp.getQpKey(), REMOVED);
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
 
@@ -172,9 +183,9 @@ public class QualityProfileEventsStepTest {
   }
 
   @Test
-  public void no_event_if_same_qp_with_same_date() {
+  public void no_event_if_qp_is_unchanged() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date());
-
+    qProfileStatusRepository.register(qp.getQpKey(), UNCHANGED);
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), arrayOf(qp));
 
     underTest.execute(new TestComputationStepContext());
@@ -183,10 +194,10 @@ public class QualityProfileEventsStepTest {
   }
 
   @Test
-  public void changed_event_if_same_qp_but_no_same_date() {
+  public void changed_event_if_qp_has_been_updated() {
     QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"));
     QualityProfile qp2 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100"));
-
+    qProfileStatusRepository.register(qp2.getQpKey(), UPDATED);
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp1), arrayOf(qp2));
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
 
@@ -209,17 +220,21 @@ public class QualityProfileEventsStepTest {
     }).when(eventRepository).add(eq(treeRootHolder.getRoot()), any(Event.class));
 
     Date date = new Date();
+    QualityProfile qp1 = qp(QP_NAME_2, LANGUAGE_KEY_1, date);
+    QualityProfile qp2 = qp(QP_NAME_2, LANGUAGE_KEY_2, date);
+    QualityProfile qp3 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"));
+    QualityProfile qp3_updated = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100"));
+    QualityProfile qp4 = qp(QP_NAME_2, LANGUAGE_KEY_3, date);
+
     mockMeasures(
       treeRootHolder.getRoot(),
-      arrayOf(
-        qp(QP_NAME_2, LANGUAGE_KEY_1, date),
-        qp(QP_NAME_2, LANGUAGE_KEY_2, date),
-        qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"))),
-      arrayOf(
-        qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100")),
-        qp(QP_NAME_2, LANGUAGE_KEY_2, date),
-        qp(QP_NAME_2, LANGUAGE_KEY_3, date)));
+      arrayOf(qp1, qp2, qp3),
+      arrayOf(qp3_updated, qp2, qp4));
     mockNoLanguageInRepository();
+    qProfileStatusRepository.register(qp1.getQpKey(), REMOVED);
+    qProfileStatusRepository.register(qp2.getQpKey(), UNCHANGED);
+    qProfileStatusRepository.register(qp3.getQpKey(), UPDATED);
+    qProfileStatusRepository.register(qp4.getQpKey(), ADDED);
 
     underTest.execute(new TestComputationStepContext());
 
@@ -227,7 +242,6 @@ public class QualityProfileEventsStepTest {
       "Stop using '" + QP_NAME_2 + "' (" + LANGUAGE_KEY_1 + ")",
       "Use '" + QP_NAME_2 + "' (" + LANGUAGE_KEY_3 + ")",
       "Changes in '" + QP_NAME_1 + "' (" + LANGUAGE_KEY_1 + ")");
-
   }
 
   private Language mockLanguageInRepository(String languageKey) {

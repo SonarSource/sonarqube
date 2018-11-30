@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +42,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
@@ -60,6 +63,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UNCHANGED;
 
 @RunWith(DataProviderRunner.class)
 public class IssueCreationDateCalculatorTest {
@@ -84,6 +88,7 @@ public class IssueCreationDateCalculatorTest {
   private Map<String, ScannerPlugin> scannerPlugins = new HashMap<>();
   private RuleRepository ruleRepository = mock(RuleRepository.class);
   private AddedFileRepository addedFileRepository = mock(AddedFileRepository.class);
+  private QProfileStatusRepository qProfileStatusRepository = mock(QProfileStatusRepository.class);
   private ScmInfo scmInfo;
   private Rule rule = mock(Rule.class);
 
@@ -92,15 +97,14 @@ public class IssueCreationDateCalculatorTest {
     analysisMetadataHolder.setScannerPluginsByKey(scannerPlugins);
     analysisMetadataHolder.setAnalysisDate(new Date());
     when(component.getUuid()).thenReturn(COMPONENT_UUID);
-    underTest = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository, addedFileRepository);
+    underTest = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository, addedFileRepository, qProfileStatusRepository);
 
     when(ruleRepository.findByKey(ruleKey)).thenReturn(Optional.of(rule));
-    when(activeRulesHolder.get(any(RuleKey.class)))
-      .thenReturn(Optional.empty());
-    when(activeRulesHolder.get(ruleKey))
-      .thenReturn(Optional.of(activeRule));
-    when(issue.getRuleKey())
-      .thenReturn(ruleKey);
+    when(activeRulesHolder.get(any(RuleKey.class))).thenReturn(Optional.empty());
+    when(activeRulesHolder.get(ruleKey)).thenReturn(Optional.of(activeRule));
+    when(activeRule.getQProfileKey()).thenReturn("qpKey");
+    when(issue.getRuleKey()).thenReturn(ruleKey);
+    when(qProfileStatusRepository.get(any())).thenReturn(Optional.of(UNCHANGED));
   }
 
   @Test
@@ -251,6 +255,22 @@ public class IssueCreationDateCalculatorTest {
 
     assertChangeOfCreationDateTo(expectedDate);
   }
+
+  @Test
+  @UseDataProvider("backdatingDateAndChangedQPStatusCases")
+  public void should_backdate_if_qp_of_the_rule_which_raised_the_issue_has_changed(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate, QProfileStatusRepository.Status status) {
+    previousAnalysisWas(2000L);
+    currentAnalysisIs(3000L);
+
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+    changeQualityProfile(status);
+
+    run();
+
+    assertChangeOfCreationDateTo(expectedDate);
+  }
+
   @Test
   @UseDataProvider("backdatingDateCases")
   public void should_backdate_if_scm_is_available_and_plugin_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
@@ -300,6 +320,16 @@ public class IssueCreationDateCalculatorTest {
 
     assertChangeOfCreationDateTo(expectedDate);
     verifyZeroInteractions(activeRulesHolder);
+  }
+
+  @DataProvider
+  public static Object[][] backdatingDateAndChangedQPStatusCases() {
+    return Stream.of(backdatingDateCases())
+      .flatMap(datesCases ->
+        Stream.of(QProfileStatusRepository.Status.values())
+          .filter(s -> !UNCHANGED.equals(s))
+          .map(s -> ArrayUtils.add(datesCases, s)))
+      .toArray(Object[][]::new);
   }
 
   @DataProvider
@@ -399,6 +429,10 @@ public class IssueCreationDateCalculatorTest {
   private void makeIssueNotNew() {
     when(issue.isNew())
       .thenReturn(false);
+  }
+
+  private void changeQualityProfile(QProfileStatusRepository.Status status) {
+    when(qProfileStatusRepository.get(any())).thenReturn(Optional.of(status));
   }
 
   private void setIssueBelongToNonExistingRule() {

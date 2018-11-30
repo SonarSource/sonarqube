@@ -40,12 +40,16 @@ import org.sonar.ce.task.projectanalysis.language.LanguageRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.ADDED;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.REMOVED;
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UPDATED;
 
 /**
  * Computation of quality profile events
@@ -58,15 +62,17 @@ public class QualityProfileEventsStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
   private final LanguageRepository languageRepository;
+  private QProfileStatusRepository qProfileStatusRepository;
 
   public QualityProfileEventsStep(TreeRootHolder treeRootHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository, LanguageRepository languageRepository,
-    EventRepository eventRepository) {
+    EventRepository eventRepository, QProfileStatusRepository qProfileStatusRepository) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
     this.languageRepository = languageRepository;
+    this.qProfileStatusRepository = qProfileStatusRepository;
   }
 
   @Override
@@ -87,7 +93,7 @@ public class QualityProfileEventsStep implements ComputationStep {
       return;
     }
 
-    // Load base profiles
+    // Load profiles used in current analysis for which at least one file of the corresponding language exists
     Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
     if (!rawMeasure.isPresent()) {
       // No qualify profile computed on the project
@@ -97,7 +103,7 @@ public class QualityProfileEventsStep implements ComputationStep {
 
     Map<String, QualityProfile> baseProfiles = parseJsonData(baseMeasure.get());
     detectNewOrUpdatedProfiles(projectComponent, baseProfiles, rawProfiles);
-    detectNoMoreUsedProfiles(projectComponent, baseProfiles, rawProfiles);
+    detectNoMoreUsedProfiles(projectComponent, baseProfiles);
   }
 
   private static Map<String, QualityProfile> parseJsonData(Measure measure) {
@@ -108,9 +114,9 @@ public class QualityProfileEventsStep implements ComputationStep {
     return QPMeasureData.fromJson(data).getProfilesByKey();
   }
 
-  private void detectNoMoreUsedProfiles(Component context, Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles) {
+  private void detectNoMoreUsedProfiles(Component context, Map<String, QualityProfile> baseProfiles) {
     for (QualityProfile baseProfile : baseProfiles.values()) {
-      if (!rawProfiles.containsKey(baseProfile.getQpKey())) {
+      if (qProfileStatusRepository.get(baseProfile.getQpKey()).filter(REMOVED::equals).isPresent()) {
         markAsRemoved(context, baseProfile);
       }
     }
@@ -118,12 +124,13 @@ public class QualityProfileEventsStep implements ComputationStep {
 
   private void detectNewOrUpdatedProfiles(Component component, Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles) {
     for (QualityProfile profile : rawProfiles.values()) {
-      QualityProfile baseProfile = baseProfiles.get(profile.getQpKey());
-      if (baseProfile == null) {
-        markAsAdded(component, profile);
-      } else if (profile.getRulesUpdatedAt().after(baseProfile.getRulesUpdatedAt())) {
-        markAsChanged(component, baseProfile, profile);
-      }
+      qProfileStatusRepository.get(profile.getQpKey()).ifPresent(status -> {
+        if (status.equals(ADDED)) {
+          markAsAdded(component, profile);
+        } else if (status.equals(UPDATED)) {
+          markAsChanged(component, baseProfiles.get(profile.getQpKey()), profile);
+        }
+      });
     }
   }
 

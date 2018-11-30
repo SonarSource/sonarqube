@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SkippedTestRuleTest {
 
   private static final String PLUGIN_KEY = "java";
+  private static final String QP_KEY = "qp1";
 
   static RuleKey RULE_KEY = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), CommonRuleKeys.SKIPPED_UNIT_TESTS);
 
@@ -67,7 +68,7 @@ public class SkippedTestRuleTest {
 
   @Test
   public void issue_if_skipped_tests() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.SKIPPED_TESTS_KEY, Measure.newMeasureBuilder().create(2));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -80,7 +81,7 @@ public class SkippedTestRuleTest {
 
   @Test
   public void no_issues_if_zero_skipped_tests() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.SKIPPED_TESTS_KEY, Measure.newMeasureBuilder().create(0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -90,7 +91,7 @@ public class SkippedTestRuleTest {
 
   @Test
   public void no_issues_if_measure_is_absent() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY, QP_KEY));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

@@ -44,6 +44,7 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_P
 public class CommentDensityRuleTest {
 
   private static final String PLUGIN_KEY = "java";
+  private static final String QP_KEY = "qp1";
 
   static RuleKey RULE_KEY = RuleKey.of(CommonRuleKeys.commonRepositoryForLang(PLUGIN_KEY), CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY);
 
@@ -77,7 +78,7 @@ public class CommentDensityRuleTest {
 
   @Test
   public void no_issues_if_enough_comments() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25"), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(90.0, 1));
 
     DefaultIssue issue = underTest.processFile(FILE, PLUGIN_KEY);
@@ -135,7 +136,7 @@ public class CommentDensityRuleTest {
   }
 
   private void prepareForIssue(String minDensity, ReportComponent file, double commentLineDensity, int commentLines, int ncloc) {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, minDensity), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, minDensity), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(file.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(commentLineDensity, 1));
     measureRepository.addRawMeasure(file.getReportAttributes().getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(commentLines));
     measureRepository.addRawMeasure(file.getReportAttributes().getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(ncloc));

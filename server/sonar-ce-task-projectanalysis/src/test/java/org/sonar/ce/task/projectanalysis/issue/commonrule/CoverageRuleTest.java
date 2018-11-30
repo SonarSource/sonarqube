@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class CoverageRuleTest {
 
   private static final String PLUGIN_KEY = "java";
+  private static final String QP_KEY = "qp1";
 
   static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1)
     .setFileAttributes(new FileAttributes(false, "java", 1))
@@ -86,7 +87,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void no_issue_if_enough_coverage() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getCoverageMetricKey(), Measure.newMeasureBuilder().create(90.0, 1));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -96,7 +97,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void issue_if_coverage_is_too_low() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getCoverageMetricKey(), Measure.newMeasureBuilder().create(20.0, 1));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getUncoveredMetricKey(), Measure.newMeasureBuilder().create(40));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), getToCoverMetricKey(), Measure.newMeasureBuilder().create(50));
@@ -114,7 +115,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void no_issue_if_coverage_is_not_set() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65"), 1_000L, PLUGIN_KEY, QP_KEY));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

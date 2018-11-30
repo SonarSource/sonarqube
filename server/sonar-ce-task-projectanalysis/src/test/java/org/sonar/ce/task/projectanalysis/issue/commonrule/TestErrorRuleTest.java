@@ -43,6 +43,7 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_P
 public class TestErrorRuleTest {
 
   private static final String PLUGIN_KEY = "java";
+  private static final String QP_KEY = "qp1";
 
   static RuleKey RULE_KEY = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), CommonRuleKeys.FAILED_UNIT_TESTS);
 
@@ -69,7 +70,7 @@ public class TestErrorRuleTest {
 
   @Test
   public void issue_if_errors_or_failures() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(2));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(1));
 
@@ -83,7 +84,7 @@ public class TestErrorRuleTest {
 
   @Test
   public void no_issues_if_zero_errors_and_failures() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY, QP_KEY));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(0));
 
@@ -94,7 +95,7 @@ public class TestErrorRuleTest {
 
   @Test
   public void no_issues_if_test_measures_are_absent() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.emptyMap(), 1_000L, PLUGIN_KEY, QP_KEY));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

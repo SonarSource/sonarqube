@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
@@ -40,6 +41,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
+import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UNCHANGED;
 import static org.sonar.core.issue.IssueChangeContext.createScan;
 
 /**
@@ -55,10 +57,11 @@ public class IssueCreationDateCalculator extends IssueVisitor {
   private final ActiveRulesHolder activeRulesHolder;
   private final RuleRepository ruleRepository;
   private final AddedFileRepository addedFileRepository;
+  private QProfileStatusRepository qProfileStatusRepository;
 
   public IssueCreationDateCalculator(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository,
     IssueFieldsSetter issueUpdater, ActiveRulesHolder activeRulesHolder, RuleRepository ruleRepository,
-    AddedFileRepository addedFileRepository) {
+    AddedFileRepository addedFileRepository, QProfileStatusRepository qProfileStatusRepository) {
     this.scmInfoRepository = scmInfoRepository;
     this.issueUpdater = issueUpdater;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -66,6 +69,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
     this.activeRulesHolder = activeRulesHolder;
     this.addedFileRepository = addedFileRepository;
+    this.qProfileStatusRepository = qProfileStatusRepository;
   }
 
   @Override
@@ -89,10 +93,20 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       // Rule can't be inactive (see contract of IssueVisitor)
       ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
       if (activeRuleIsNewOrChanged(activeRule, lastAnalysisOptional.get())
-        || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())) {
+        || ruleImplementationChanged(activeRule.getRuleKey(), activeRule.getPluginKey(), lastAnalysisOptional.get())
+        || qualityProfileChanged(activeRule.getQProfileKey())) {
         backdateIssue(component, issue);
       }
     }
+  }
+
+  private boolean qualityProfileChanged(@Nullable String qpKey) {
+    // Support issue from report created before scanner protocol update -> no backdating
+    if (qpKey == null) {
+      return false;
+    }
+
+    return qProfileStatusRepository.get(qpKey).filter(s -> !s.equals(UNCHANGED)).isPresent();
   }
 
   private boolean isNewFile(Component component) {
