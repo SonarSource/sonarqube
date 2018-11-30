@@ -100,12 +100,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     }
   }
 
-  private boolean qualityProfileChanged(@Nullable String qpKey) {
-    // Support issue from report created before scanner protocol update -> no backdating
-    if (qpKey == null) {
-      return false;
-    }
-
+  private boolean qualityProfileChanged(String qpKey) {
     return qProfileStatusRepository.get(qpKey).filter(s -> !s.equals(UNCHANGED)).isPresent();
   }
 

@@ -35,7 +35,7 @@ public class ActiveRule {
   private final long updatedAt;
   private final String qProfileKey;
 
-  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long updatedAt, @Nullable String pluginKey, @Nullable String qProfileKey) {
+  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long updatedAt, @Nullable String pluginKey, String qProfileKey) {
     this.ruleKey = ruleKey;
     this.severity = severity;
     this.pluginKey = pluginKey;
@@ -65,7 +65,6 @@ public class ActiveRule {
     return pluginKey;
   }
 
-  @CheckForNull
   public String getQProfileKey() {
     return qProfileKey;
   }
