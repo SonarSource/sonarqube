@@ -41,6 +41,7 @@ public class NewActiveRule {
   final String internalKey;
   final String language;
   final String templateRuleKey;
+  final String qProfileKey;
 
   NewActiveRule(Builder builder) {
     this.ruleKey = builder.ruleKey;
@@ -52,6 +53,7 @@ public class NewActiveRule {
     this.internalKey = builder.internalKey;
     this.language = builder.language;
     this.templateRuleKey = builder.templateRuleKey;
+    this.qProfileKey = builder.qProfileKey;
   }
 
   public static class Builder {
@@ -64,6 +66,7 @@ public class NewActiveRule {
     private String internalKey;
     private String language;
     private String templateRuleKey;
+    private String qProfileKey;
 
     public Builder setRuleKey(RuleKey ruleKey) {
       this.ruleKey = ruleKey;
@@ -112,6 +115,11 @@ public class NewActiveRule {
 
     public Builder setTemplateRuleKey(@Nullable String templateRuleKey) {
       this.templateRuleKey = templateRuleKey;
+      return this;
+    }
+
+    public Builder setQProfileKey(String qProfileKey) {
+      this.qProfileKey = qProfileKey;
       return this;
     }
 

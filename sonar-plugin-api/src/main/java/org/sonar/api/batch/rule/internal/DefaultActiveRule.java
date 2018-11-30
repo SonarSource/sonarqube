@@ -36,6 +36,7 @@ public class DefaultActiveRule implements ActiveRule {
   private final Map<String, String> params;
   private final long createdAt;
   private final long updatedAt;
+  private final String qProfileKey;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
@@ -46,6 +47,7 @@ public class DefaultActiveRule implements ActiveRule {
     this.language = newActiveRule.language;
     this.createdAt = newActiveRule.createdAt;
     this.updatedAt = newActiveRule.updatedAt;
+    this.qProfileKey = newActiveRule.qProfileKey;
   }
 
   @Override
@@ -90,5 +92,10 @@ public class DefaultActiveRule implements ActiveRule {
 
   public long updatedAt() {
     return updatedAt;
+  }
+
+  @Override
+  public String qpKey() {
+    return qProfileKey;
   }
 }

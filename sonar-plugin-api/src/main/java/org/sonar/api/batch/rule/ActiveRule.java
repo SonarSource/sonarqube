@@ -72,4 +72,9 @@ public interface ActiveRule {
   @CheckForNull
   String templateRuleKey();
 
+  /**
+   * Key of the quality profile the rule belongs to.
+   * @since 7.5
+   */
+  String qpKey();
 }

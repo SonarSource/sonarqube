@@ -48,6 +48,7 @@ public class NewActiveRuleTest {
       .setInternalKey("internal_key")
       .setLanguage("language")
       .setTemplateRuleKey("templateRuleKey")
+      .setQProfileKey("qProfileKey")
       .build();
 
     assertThat(rule.ruleKey).isEqualTo(RuleKey.of("foo", "bar"));
@@ -59,6 +60,7 @@ public class NewActiveRuleTest {
     assertThat(rule.internalKey).isEqualTo("internal_key");
     assertThat(rule.language).isEqualTo("language");
     assertThat(rule.templateRuleKey).isEqualTo("templateRuleKey");
+    assertThat(rule.qProfileKey).isEqualTo("qProfileKey");
   }
 
   @Test

@@ -52,6 +52,7 @@ public class ActiveRulesPublisherTest {
       .setParam("p1", "v1")
       .setCreatedAt(1_000L)
       .setUpdatedAt(2_000L)
+      .setQProfileKey("qp1")
       .build();
     ActiveRules activeRules = new DefaultActiveRules(singletonList(ar));
 
@@ -66,6 +67,7 @@ public class ActiveRulesPublisherTest {
       assertThat(reportAr.getSeverity()).isEqualTo(Constants.Severity.BLOCKER);
       assertThat(reportAr.getCreatedAt()).isEqualTo(1_000L);
       assertThat(reportAr.getUpdatedAt()).isEqualTo(2_000L);
+      assertThat(reportAr.getQProfileKey()).isEqualTo("qp1");
       assertThat(reportAr.getParamsByKeyMap()).hasSize(1);
       assertThat(reportAr.getParamsByKeyMap().entrySet().iterator().next().getKey()).isEqualTo("p1");
       assertThat(reportAr.getParamsByKeyMap().entrySet().iterator().next().getValue()).isEqualTo("v1");

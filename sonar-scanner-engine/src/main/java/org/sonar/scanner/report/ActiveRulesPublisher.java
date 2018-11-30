@@ -47,6 +47,7 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
         builder.setSeverity(Constants.Severity.valueOf(input.severity()));
         builder.setCreatedAt(input.createdAt());
         builder.setUpdatedAt(input.updatedAt());
+        builder.setQProfileKey(input.qpKey());
         builder.getMutableParamsByKey().putAll(input.params());
         return builder.build();
       }).collect(toList()));

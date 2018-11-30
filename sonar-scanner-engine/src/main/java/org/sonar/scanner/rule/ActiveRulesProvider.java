@@ -21,9 +21,10 @@ package org.sonar.scanner.rule;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -54,47 +55,43 @@ public class ActiveRulesProvider extends ProviderAdapter {
   private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
 
     Collection<String> qProfileKeys = getKeys(qProfiles);
-    Map<RuleKey, LoadedActiveRule> loadedRulesByKey = new HashMap<>();
+    Set<RuleKey> loadedRulesKey = new HashSet<>();
+    ActiveRulesBuilder builder = new ActiveRulesBuilder();
 
     for (String qProfileKey : qProfileKeys) {
-      Collection<LoadedActiveRule> qProfileRules;
-      qProfileRules = load(loader, qProfileKey);
+      Collection<LoadedActiveRule> qProfileRules = load(loader, qProfileKey);
 
       for (LoadedActiveRule r : qProfileRules) {
-        if (!loadedRulesByKey.containsKey(r.getRuleKey())) {
-          loadedRulesByKey.put(r.getRuleKey(), r);
+        if (!loadedRulesKey.contains(r.getRuleKey())) {
+          loadedRulesKey.add(r.getRuleKey());
+          builder.addRule(transform(r, qProfileKey));
         }
       }
     }
 
-    return transform(loadedRulesByKey.values());
+    return builder.build();
   }
 
-  private static ActiveRules transform(Collection<LoadedActiveRule> loadedRules) {
-    ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
-
-    for (LoadedActiveRule activeRule : loadedRules) {
-      NewActiveRule.Builder builder = new NewActiveRule.Builder();
-      builder
-        .setRuleKey(activeRule.getRuleKey())
-        .setName(activeRule.getName())
-        .setSeverity(activeRule.getSeverity())
-        .setCreatedAt(activeRule.getCreatedAt())
-        .setUpdatedAt(activeRule.getUpdatedAt())
-        .setLanguage(activeRule.getLanguage())
-        .setInternalKey(activeRule.getInternalKey())
-        .setTemplateRuleKey(activeRule.getTemplateRuleKey());
-
-      // load parameters
-      if (activeRule.getParams() != null) {
-        for (Map.Entry<String, String> params : activeRule.getParams().entrySet()) {
-          builder.setParam(params.getKey(), params.getValue());
-        }
+  private static NewActiveRule transform(LoadedActiveRule activeRule, String qProfileKey) {
+    NewActiveRule.Builder builder = new NewActiveRule.Builder();
+    builder
+      .setRuleKey(activeRule.getRuleKey())
+      .setName(activeRule.getName())
+      .setSeverity(activeRule.getSeverity())
+      .setCreatedAt(activeRule.getCreatedAt())
+      .setUpdatedAt(activeRule.getUpdatedAt())
+      .setLanguage(activeRule.getLanguage())
+      .setInternalKey(activeRule.getInternalKey())
+      .setTemplateRuleKey(activeRule.getTemplateRuleKey())
+      .setQProfileKey(qProfileKey);
+    // load parameters
+    if (activeRule.getParams() != null) {
+      for (Map.Entry<String, String> params : activeRule.getParams().entrySet()) {
+        builder.setParam(params.getKey(), params.getValue());
       }
-
-      activeRulesBuilder.addRule(builder.build());
     }
-    return activeRulesBuilder.build();
+
+    return builder.build();
   }
 
   private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) {

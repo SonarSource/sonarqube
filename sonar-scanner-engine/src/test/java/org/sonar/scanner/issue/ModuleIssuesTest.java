@@ -116,7 +116,7 @@ public class ModuleIssuesTest {
   @Test
   public void ignore_null_rule_of_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(SQUID_RULE_KEY).build());
+    activeRulesBuilder.addRule(new NewActiveRule.Builder().setRuleKey(SQUID_RULE_KEY).setQProfileKey("qp-1").build());
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
@@ -134,6 +134,7 @@ public class ModuleIssuesTest {
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.INFO)
+      .setQProfileKey("qp-1")
       .build());
     initModuleIssues();
 
@@ -176,6 +177,7 @@ public class ModuleIssuesTest {
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.INFO)
+      .setQProfileKey("qp-1")
       .build());
     initModuleIssues();
 
@@ -197,6 +199,7 @@ public class ModuleIssuesTest {
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.INFO)
       .setName(SQUID_RULE_NAME)
+      .setQProfileKey("qp-1")
       .build());
     initModuleIssues();
 
@@ -219,6 +222,7 @@ public class ModuleIssuesTest {
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
       .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.INFO)
+      .setQProfileKey("qp-1")
       .build());
     initModuleIssues();
 
