@@ -61,7 +61,7 @@ public class ComponentUuidFactory {
 
   private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Supplier<Map<String, String>> reportModulesPath) {
     List<ComponentDto> moduleDtos = dbClient.componentDao()
-      .selectEnabledModulesFromProjectKey(dbSession, rootKey, false).stream()
+      .selectModulesFromProjectKey(dbSession, rootKey, false).stream()
       .filter(c -> Qualifiers.MODULE.equals(c.qualifier()))
       .collect(Collectors.toList());
 

@@ -20,6 +20,8 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Date;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,9 +37,13 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ValidateProjectStepTest {
 
@@ -62,6 +68,52 @@ public class ValidateProjectStepTest {
   DbClient dbClient = dbTester.getDbClient();
 
   ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
+
+  @Test
+  public void fail_if_pr_is_targeting_branch_with_modules() {
+    ComponentDto masterProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD")
+      .setDbKey(PROJECT_KEY);
+    ComponentDto branchProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "DEFG")
+      .setDbKey(PROJECT_KEY + ":BRANCH:branch");
+    dbClient.componentDao().insert(dbTester.getSession(), masterProject);
+    dbClient.componentDao().insert(dbTester.getSession(), branchProject);
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
+    setBranch(BranchType.SHORT, masterProject.uuid());
+    dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
+      .setKey(branchProject.getDbKey())
+      .build());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Due to an upgrade, you need to re-analyze the target branch before analyzing this branch.");
+    underTest.execute(new TestComputationStepContext());
+  }
+
+  @Test
+  public void dont_fail_if_pr_is_targeting_branch_without_modules() {
+    ComponentDto masterProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD")
+      .setDbKey(PROJECT_KEY);
+    ComponentDto branchProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "DEFG")
+      .setDbKey(PROJECT_KEY + ":BRANCH:branch");
+    dbClient.componentDao().insert(dbTester.getSession(), masterProject);
+    dbClient.componentDao().insert(dbTester.getSession(), branchProject);
+    setBranch(BranchType.SHORT, masterProject.uuid());
+    dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
+      .setKey(branchProject.getDbKey())
+      .build());
+
+    underTest.execute(new TestComputationStepContext());
+  }
+
+  private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(type);
+    when(branch.getMergeBranchUuid()).thenReturn(Optional.ofNullable(mergeBranchUuid));
+    analysisMetadataHolder.setBranch(branch);
+  }
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {

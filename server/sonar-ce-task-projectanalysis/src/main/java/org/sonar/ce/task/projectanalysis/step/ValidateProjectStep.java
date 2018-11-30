@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -40,7 +41,6 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -51,6 +51,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
  * <li>module key already exists in another project (same module key cannot exists in different projects)</li>
  * <li>module key is already used as a project key</li>
  * <li>date of the analysis is before last analysis</li>
+ * <li>short living branch or PR targets a branch that still contains modules</li>
  * </ol>
  */
 public class ValidateProjectStep implements ComputationStep {
@@ -70,15 +71,27 @@ public class ValidateProjectStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      validateTargetBranch(dbSession);
       Component root = treeRootHolder.getRoot();
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getDbKey());
-      Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(ComponentDto::getDbKey);
+      Map<String, ComponentDto> baseModulesByKey = baseModules.stream().collect(Collectors.toMap(ComponentDto::getDbKey, x -> x));
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
       if (!visitor.validationMessages.isEmpty()) {
         throw MessageException.of("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
       }
+    }
+  }
+
+  private void validateTargetBranch(DbSession session) {
+    if (!analysisMetadataHolder.isShortLivingBranch() && !analysisMetadataHolder.isPullRequest()) {
+      return;
+    }
+    String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid().get();
+    int moduleCount = dbClient.componentDao().countEnabledModulesByProjectUuid(session, mergeBranchUuid);
+    if (moduleCount > 0) {
+      throw MessageException.of("Due to an upgrade, you need to re-analyze the target branch before analyzing this branch.");
     }
   }
 
@@ -97,14 +110,12 @@ public class ValidateProjectStep implements ComputationStep {
       super(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
-
       this.baseModulesByKey = baseModulesByKey;
     }
 
     @Override
     public void visitProject(Component rawProject) {
       String rawProjectKey = rawProject.getDbKey();
-
       Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
       validateAnalysisDate(baseProject);
     }

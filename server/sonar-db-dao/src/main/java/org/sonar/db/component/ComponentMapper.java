@@ -66,11 +66,13 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectComponentsByQualifiers(@Param("qualifiers") Collection<String> qualifiers);
 
+  int countEnabledModulesByProjectUuid(@Param("projectUuid") String projectUuid);
+
   /**
    * Counts the number of components with the specified id belonging to the specified organization.
    *
    * @return 1 or 0. Either because the organization uuid is not the one of the component or because the component does
-   *         not exist.
+   * not exist.
    */
   int countComponentByOrganizationAndId(@Param("organizationUuid") String organizationUuid, @Param("componentId") long componentId);
 

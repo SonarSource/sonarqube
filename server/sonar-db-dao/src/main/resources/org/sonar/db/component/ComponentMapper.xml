@@ -279,6 +279,15 @@
       </foreach>
   </select>
 
+  <select id="countEnabledModulesByProjectUuid" resultType="int">
+    select
+      count(1)
+    from projects p
+    where
+      p.project_uuid = #{projectUuid}
+      and p.qualifier = 'BRC'
+  </select>
+
   <select id="countComponentByOrganizationAndId" resultType="int">
     select
       count(1)

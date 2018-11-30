@@ -183,12 +183,16 @@ public class ComponentDao implements Dao {
     return mapper(session).selectUuidsByKeyFromProjectKey(projectKey);
   }
 
-  public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey, boolean excludeDisabled) {
+  public List<ComponentDto> selectModulesFromProjectKey(DbSession session, String projectKey, boolean excludeDisabled) {
     return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, excludeDisabled);
   }
 
+  public int countEnabledModulesByProjectUuid(DbSession session, String projectUuid) {
+    return mapper(session).countEnabledModulesByProjectUuid(projectUuid);
+  }
+
   public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey) {
-    return selectEnabledModulesFromProjectKey(session, projectKey, true);
+    return selectModulesFromProjectKey(session, projectKey, true);
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
