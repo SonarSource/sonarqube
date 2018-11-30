@@ -5,11 +5,6 @@ jdk: oraclejdk8
 script: ./travis.sh
 dist: trusty
 
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
-
 branches:
   except:
   - /^dogfood\/.*$/
