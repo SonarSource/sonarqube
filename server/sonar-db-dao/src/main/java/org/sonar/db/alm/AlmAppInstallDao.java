@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -61,6 +62,12 @@ public class AlmAppInstallDao implements Dao {
     AlmAppInstallMapper mapper = getMapper(dbSession);
     return Optional.ofNullable(mapper.selectByInstallationId(alm.getId(), installationId));
   }
+
+  public Optional<AlmAppInstallDto> selectByOrganization(DbSession dbSession, ALM alm, OrganizationDto organization) {
+    AlmAppInstallMapper mapper = getMapper(dbSession);
+    return Optional.ofNullable(mapper.selectByOrganizationUuid(alm.getId(), organization.getUuid()));
+  }
+
 
   public List<AlmAppInstallDto> selectUnboundByUserExternalId(DbSession dbSession, String userExternalId) {
     return getMapper(dbSession).selectUnboundByUserExternalId(userExternalId);

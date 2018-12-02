@@ -150,6 +150,20 @@ public class AlmAppInstallDaoTest {
   }
 
   @Test
+  public void selectByOrganization() {
+    OrganizationDto organization = db.organizations().insert();
+    db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), ALM.GITHUB, "the-owner", false, "123456", null);
+    // could be improved, insertOrUpdate should return the DTO with its uuid
+    Optional<AlmAppInstallDto> install = db.getDbClient().almAppInstallDao().selectByOwnerId(db.getSession(), ALM.GITHUB, "the-owner");
+    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, install.get(), "xxx", "xxx");
+    db.commit();
+
+    assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, organization).get().getUuid()).isEqualTo(install.get().getUuid());
+    assertThat(underTest.selectByOrganization(db.getSession(), BITBUCKETCLOUD, organization)).isEmpty();
+    assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, new OrganizationDto().setUuid("other-organization"))).isEmpty();
+  }
+
+  @Test
   public void insert_throws_NPE_if_alm_is_null() {
     expectAlmNPE();
 

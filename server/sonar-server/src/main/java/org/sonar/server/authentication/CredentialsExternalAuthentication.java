@@ -88,7 +88,7 @@ public class CredentialsExternalAuthentication implements Startable {
     if (realm == null) {
       return Optional.empty();
     }
-    return Optional.of(doAuthenticate(sanitize(credentials), request, method));
+    return Optional.of(doAuthenticate(fixCase(credentials), request, method));
   }
 
   private UserDto doAuthenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
@@ -153,7 +153,7 @@ public class CredentialsExternalAuthentication implements Startable {
         .build());
   }
 
-  private Credentials sanitize(Credentials credentials) {
+  private Credentials fixCase(Credentials credentials) {
     if (config.getBoolean("sonar.authenticator.downcase").orElse(false)) {
       return new Credentials(credentials.getLogin().toLowerCase(Locale.ENGLISH), credentials.getPassword());
     }

@@ -35,6 +35,9 @@ public interface AlmAppInstallMapper {
   @CheckForNull
   AlmAppInstallDto selectByUuid(@Param("uuid") String uuid);
 
+  @CheckForNull
+  AlmAppInstallDto selectByOrganizationUuid(@Param("almId") String almId, @Param("organizationUuid") String organizationUuid);
+
   List<AlmAppInstallDto> selectUnboundByUserExternalId(@Param("userExternalId") String userExternalId);
 
   void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("ownerId") String ownerId,

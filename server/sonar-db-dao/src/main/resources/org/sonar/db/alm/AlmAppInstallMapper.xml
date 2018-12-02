@@ -40,11 +40,21 @@
       uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByOrganizationUuid" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
+    select <include refid="sqlColumns"/>
+    from
+    alm_app_installs aai
+    inner join organization_alm_bindings oab on oab.alm_app_install_uuid = aai.uuid
+    where
+    oab.alm_id = #{almId, jdbcType=VARCHAR}
+    and oab.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectUnboundByUserExternalId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from
     alm_app_installs aai
-    left outer join organization_alm_bindings bind on bind.alm_app_install_uuid =  aai.uuid
+    left outer join organization_alm_bindings bind on bind.alm_app_install_uuid = aai.uuid
     where
     aai.user_external_id = #{userExternalId, jdbcType=VARCHAR}
     and bind.uuid is null
