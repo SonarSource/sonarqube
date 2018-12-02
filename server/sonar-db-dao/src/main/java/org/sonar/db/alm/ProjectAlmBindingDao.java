@@ -67,7 +67,7 @@ public class ProjectAlmBindingDao implements Dao {
    * <p>Results may be in a different order as input ids.</p>
    */
   public List<ProjectAlmBindingDto> selectByRepoIds(final DbSession session, ALM alm, Collection<String> repoIds) {
-    return executeLargeInputs(repoIds, partionnedIds -> getMapper(session).selectByRepoIds(alm.getId(), partionnedIds));
+    return executeLargeInputs(repoIds, partitionedIds -> getMapper(session).selectByRepoIds(alm.getId(), partitionedIds));
   }
 
   public Optional<ProjectAlmBindingDto> selectByRepoId(final DbSession session, ALM alm, String repoId) {
