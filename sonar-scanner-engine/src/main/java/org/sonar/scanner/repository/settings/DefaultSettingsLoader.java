@@ -57,7 +57,7 @@ public class DefaultSettingsLoader implements SettingsLoader {
     Profiler profiler = Profiler.create(LOG);
     if (componentKey != null) {
       url += "?component=" + ScannerUtils.encodeForUrl(componentKey);
-      profiler.startInfo("Load settings for component '" + componentKey + "'");
+      profiler.startInfo("Load project settings");
     } else {
       profiler.startInfo("Load global settings");
     }

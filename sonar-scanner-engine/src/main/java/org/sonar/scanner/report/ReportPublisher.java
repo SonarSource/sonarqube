@@ -127,16 +127,13 @@ public class ReportPublisher implements Startable {
   }
 
   public void execute() {
-    // If this is a issues mode analysis then we should not upload reports
     String taskId = null;
-    if (!analysisMode.isIssues()) {
-      File report = generateReportFile();
-      if (properties.shouldKeepReport()) {
-        LOG.info("Analysis report generated in " + reportDir);
-      }
-      if (!analysisMode.isMediumTest()) {
-        taskId = upload(report);
-      }
+    File report = generateReportFile();
+    if (properties.shouldKeepReport()) {
+      LOG.info("Analysis report generated in " + reportDir);
+    }
+    if (!analysisMode.isMediumTest()) {
+      taskId = upload(report);
     }
     logSuccess(taskId);
   }
@@ -154,7 +151,7 @@ public class ReportPublisher implements Startable {
       File reportZip = temp.newFile("scanner-report", ".zip");
       ZipUtils.zipDir(reportDir.toFile(), reportZip);
       stopTime = System.currentTimeMillis();
-      LOG.info("Analysis reports compressed in {}ms, zip size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
+      LOG.info("Analysis report compressed in {}ms, zip size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare analysis report", e);

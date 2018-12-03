@@ -53,7 +53,9 @@ public class CoreExtensionsLoader {
     ensureNoDuplicateName(coreExtensions);
 
     coreExtensionRepository.setLoadedCoreExtensions(coreExtensions);
-    LOG.info("Loaded core extensions: {}", coreExtensions.stream().map(CoreExtension::getName).collect(Collectors.joining(", ")));
+    if (!coreExtensions.isEmpty()) {
+      LOG.info("Loaded core extensions: {}", coreExtensions.stream().map(CoreExtension::getName).collect(Collectors.joining(", ")));
+    }
   }
 
   private static void ensureNoDuplicateName(Set<CoreExtension> coreExtensions) {

@@ -29,15 +29,19 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.phases.ModuleCoverageExclusions;
 import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.util.ProgressReport;
@@ -92,12 +96,40 @@ public class ProjectFileIndexer {
 
   private void index(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
     if (componentStore.allModules().size() > 1) {
-      LOG.info("Indexing files from module {}", module.getName());
+      LOG.info("  Indexing files from module {}", module.getName());
+      LOG.info("    Base dir: {}", module.getBaseDir().toAbsolutePath().toString());
+      logPaths("    Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
+      logPaths("    Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
     }
     ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(module);
     ModuleCoverageExclusions moduleCoverageExclusions = new ModuleCoverageExclusions(module);
     indexFiles(module, moduleExclusionFilters, moduleCoverageExclusions, module.getSourceDirsOrFiles(), Type.MAIN, excludedByPatternsCount);
     indexFiles(module, moduleExclusionFilters, moduleCoverageExclusions, module.getTestDirsOrFiles(), Type.TEST, excludedByPatternsCount);
+  }
+
+  private static void logPaths(String label, Path baseDir, List<Path> paths) {
+    if (!paths.isEmpty()) {
+      StringBuilder sb = new StringBuilder(label);
+      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
+        Path file = it.next();
+        Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
+        if (!relativePathToBaseDir.isPresent()) {
+          sb.append(file);
+        } else if (StringUtils.isBlank(relativePathToBaseDir.get())) {
+          sb.append(".");
+        } else {
+          sb.append(relativePathToBaseDir.get());
+        }
+        if (it.hasNext()) {
+          sb.append(", ");
+        }
+      }
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(sb.toString());
+      } else {
+        LOG.info(StringUtils.abbreviate(sb.toString(), 80));
+      }
+    }
   }
 
   private static String pluralizeFiles(int count) {

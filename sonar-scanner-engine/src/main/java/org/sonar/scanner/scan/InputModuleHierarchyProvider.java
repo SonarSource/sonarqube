@@ -19,19 +19,13 @@
  */
 package org.sonar.scanner.scan;
 
-import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
@@ -72,31 +66,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
     LOG.debug("    Base dir: {}", module.getBaseDir().toAbsolutePath().toString());
     LOG.debug("    Working dir: {}", module.getWorkDir().toAbsolutePath().toString());
     LOG.debug("    Module global encoding: {}, default locale: {}", module.getEncoding().displayName(), Locale.getDefault());
-    logPaths("    Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
-    logPaths("    Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
     return module;
   }
-
-  private static void logPaths(String label, Path baseDir, List<Path> paths) {
-    if (!paths.isEmpty()) {
-      StringBuilder sb = new StringBuilder(label);
-      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
-        Path file = it.next();
-        Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
-        if (!relativePathToBaseDir.isPresent()) {
-          sb.append(file);
-        } else if (StringUtils.isBlank(relativePathToBaseDir.get())) {
-          sb.append(".");
-        } else {
-          sb.append(relativePathToBaseDir.get());
-        }
-        if (it.hasNext()) {
-          sb.append(", ");
-        }
-      }
-      LOG.info(sb.toString());
-    }
-  }
-
 
 }

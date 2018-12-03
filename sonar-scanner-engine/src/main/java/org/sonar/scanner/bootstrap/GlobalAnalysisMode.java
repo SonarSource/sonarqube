@@ -47,8 +47,6 @@ public class GlobalAnalysisMode {
     } else if (issues) {
       LOG.info("Issues mode");
       LOG.warn("The use of the issues mode (sonar.analysis.mode=issues) is deprecated. This mode will be dropped in the future.");
-    } else {
-      LOG.info("Publish mode");
     }
     if (mediumTestMode) {
       LOG.info("Medium test mode");

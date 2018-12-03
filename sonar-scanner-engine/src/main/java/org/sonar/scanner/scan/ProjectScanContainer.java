@@ -329,8 +329,6 @@ public class ProjectScanContainer extends ComponentContainer {
     ScanProperties properties = getComponentByType(ScanProperties.class);
     properties.validate();
 
-    LOG.info("Project key: {}", tree.root().key());
-    LOG.info("Project base dir: {}", tree.root().getBaseDir());
     properties.organizationKey().ifPresent(k -> LOG.info("Organization key: {}", k));
 
     String branch = tree.root().definition().getBranch();
@@ -360,14 +358,13 @@ public class ProjectScanContainer extends ComponentContainer {
     if (analysisMode.isIssues()) {
       getComponentByType(IssueTransition.class).execute();
       getComponentByType(JSONReport.class).execute();
+      LOG.info("ANALYSIS SUCCESSFUL");
     } else {
       getComponentByType(CpdExecutor.class).execute();
       getComponentByType(ReportPublisher.class).execute();
     }
 
     getComponentByType(PostJobsExecutor.class).execute();
-
-    LOG.info("ANALYSIS SUCCESSFUL");
 
     if (analysisMode.isMediumTest()) {
       getComponentByType(AnalysisObservers.class).notifyEndOfScanTask();

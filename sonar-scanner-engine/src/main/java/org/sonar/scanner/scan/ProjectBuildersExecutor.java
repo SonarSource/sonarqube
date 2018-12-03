@@ -49,6 +49,7 @@ public class ProjectBuildersExecutor {
 
       for (ProjectBuilder projectBuilder : projectBuilders) {
         try {
+          LOG.debug("Execute project builder: {}", projectBuilder.getClass().getName());
           projectBuilder.build(context);
         } catch (Exception e) {
           throw MessageException.of("Failed to execute project builder: " + getDescription(projectBuilder), e);
