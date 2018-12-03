@@ -84,6 +84,10 @@ public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
     this.db = db;
   }
 
+  public T getDb() {
+    return db;
+  }
+
   public void executeUpdateSql(String sql, Object... params) {
     try (Connection connection = getConnection()) {
       new QueryRunner().update(connection, sql, params);

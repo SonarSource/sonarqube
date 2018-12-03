@@ -23,6 +23,10 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -139,11 +143,16 @@ import org.sonar.db.webhook.WebhookDeliveryMapper;
 import org.sonar.db.webhook.WebhookMapper;
 
 public class MyBatis implements Startable {
-
+  private final List<MyBatisConfExtension> confExtensions;
   private final Database database;
   private SqlSessionFactory sessionFactory;
 
   public MyBatis(Database database) {
+    this(database, null);
+  }
+
+  public MyBatis(Database database, @Nullable MyBatisConfExtension[] confExtensions) {
+    this.confExtensions = confExtensions == null ? Collections.emptyList() : Arrays.asList(confExtensions);
     this.database = database;
   }
 
@@ -202,6 +211,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("User", UserDto.class);
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
+    confExtensions.forEach(ext -> ext.loadAliases(confBuilder::loadAlias));
 
     // keep them sorted alphabetically
     Class<?>[] mappers = {
@@ -268,6 +278,9 @@ public class MyBatis implements Startable {
       WebhookDeliveryMapper.class
     };
     confBuilder.loadMappers(mappers);
+    confExtensions.stream()
+      .flatMap(MyBatisConfExtension::getMapperClasses)
+      .forEach(confBuilder::loadMapper);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(confBuilder.build());
   }

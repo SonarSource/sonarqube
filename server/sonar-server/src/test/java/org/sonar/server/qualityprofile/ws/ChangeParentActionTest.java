@@ -78,7 +78,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ChangeParentActionTest {
 
   @Rule
-  public DbTester db = new DbTester(System2.INSTANCE, null);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public EsTester es = EsTester.create();
   @Rule

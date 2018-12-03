@@ -26,6 +26,7 @@ import java.net.URI;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -61,17 +62,18 @@ class CoreTestDb {
   private IDatabaseTester tester;
   private boolean isDefault;
 
-  static CoreTestDb create(@Nullable String schemaPath) {
-    if (schemaPath == null) {
-      if (DEFAULT == null) {
-        DEFAULT = new CoreTestDb(null);
-      }
-      return DEFAULT;
-    }
-    return new CoreTestDb(schemaPath);
+  protected CoreTestDb() {
+    // use static factory method
   }
 
-  CoreTestDb(@Nullable String schemaPath) {
+  protected CoreTestDb(CoreTestDb base) {
+    this.db = base.db;
+    this.isDefault = base.isDefault;
+    this.commands = base.commands;
+    this.tester = base.tester;
+  }
+
+  CoreTestDb init(@Nullable String schemaPath, BiConsumer<Database, Boolean> extendedStart) {
     if (db == null) {
       Settings settings = new MapSettings().addProperties(System.getProperties());
       if (isNotEmpty(settings.getString("orchestrator.configUrl"))) {
@@ -102,16 +104,23 @@ class CoreTestDb {
       commands = DatabaseCommands.forDialect(db.getDialect());
       tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);
 
-      extendStart(db);
+      extendedStart.accept(db, true);
+    } else {
+      extendedStart.accept(db, false);
     }
+    return this;
   }
 
-  /**
-   * to be overridden by subclasses to extend what's done when db is created
-   * @param db
-   */
-  protected void extendStart(Database db) {
-    // nothing done here
+  static CoreTestDb create(@Nullable String schemaPath) {
+    if (schemaPath == null) {
+      if (DEFAULT == null) {
+        DEFAULT = new CoreTestDb().init(null, (db, created) -> {
+        });
+      }
+      return DEFAULT;
+    }
+    return new CoreTestDb().init(schemaPath, (db, created) -> {
+    });
   }
 
   public void start() {

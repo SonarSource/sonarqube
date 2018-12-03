@@ -21,8 +21,11 @@ package org.sonar.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
@@ -90,8 +93,8 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final WebhookDeliveryDbTester webhookDeliveryDbTester;
   private final AlmDbTester almDbTester;
 
-  public DbTester(System2 system2, @Nullable String schemaPath) {
-    super(TestDb.create(schemaPath));
+  private DbTester(System2 system2, @Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
+    super(TestDb.create(schemaPath, confExtensions));
     this.system2 = system2;
 
     initDbClient();
@@ -123,6 +126,14 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public static DbTester create(System2 system2) {
     return new DbTester(system2, null);
+  }
+
+  public static DbTester createWithExtensionMappers(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
+    return new DbTester(System2.INSTANCE, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
+  }
+
+  public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
+    return new DbTester(system2, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
   public static DbTester createForSchema(System2 system2, Class testClass, String filename) {
@@ -257,7 +268,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     return pluginDbTester;
   }
 
-  public WebhookDbTester webhooks(){
+  public WebhookDbTester webhooks() {
     return webhookDbTester;
   }
 
@@ -355,4 +366,38 @@ public class DbTester extends AbstractDbTester<TestDb> {
     }
   }
 
+  private static class DbTesterMyBatisConfExtension implements MyBatisConfExtension {
+    // do not replace with a lambda to allow cache of MyBatis instances in TestDb to work
+    private final Class<?>[] mapperClasses;
+
+    public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
+      this.mapperClasses = Stream.concat(
+        Stream.of(firstMapperClass),
+        Arrays.stream(otherMapperClasses))
+        .sorted(Comparator.comparing(Class::getName))
+        .toArray(Class<?>[]::new);
+    }
+
+    @Override
+    public Stream<Class<?>> getMapperClasses() {
+      return Arrays.stream(mapperClasses);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      DbTesterMyBatisConfExtension that = (DbTesterMyBatisConfExtension) o;
+      return Arrays.equals(mapperClasses, that.mapperClasses);
+    }
+
+    @Override
+    public int hashCode() {
+      return Arrays.hashCode(mapperClasses);
+    }
+  }
 }

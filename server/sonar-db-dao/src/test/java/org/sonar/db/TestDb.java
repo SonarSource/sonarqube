@@ -19,32 +19,48 @@
  */
 package org.sonar.db;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 
 class TestDb extends CoreTestDb {
 
-  private static TestDb SINGLETON;
+  private static TestDb defaultSchemaBaseTestDb;
+  // instantiating MyBatis objects is costly => we cache them for default schema
+  private static final Map<MyBatisConfExtension[], TestDb> defaultSchemaTestDbsWithExtensions = new HashMap<>();
 
   private MyBatis myBatis;
 
-  private TestDb(@Nullable String schemaPath) {
-    super(schemaPath);
+  private TestDb(@Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
+    super();
+    init(schemaPath, (db, created) -> myBatis = newMyBatis(db, confExtensions));
   }
 
-  static TestDb create(@Nullable String schemaPath) {
+  private TestDb(TestDb base, MyBatis myBatis) {
+    super(base);
+    this.myBatis = myBatis;
+  }
+
+  private static MyBatis newMyBatis(Database db, MyBatisConfExtension[] extensions) {
+    MyBatis newMyBatis = new MyBatis(db, extensions);
+    newMyBatis.start();
+    return newMyBatis;
+  }
+
+  static TestDb create(@Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
+    MyBatisConfExtension[] extensionArray = confExtensions == null || confExtensions.length == 0 ? null : confExtensions;
     if (schemaPath == null) {
-      if (SINGLETON == null) {
-        SINGLETON = new TestDb(null);
+      if (defaultSchemaBaseTestDb == null) {
+        defaultSchemaBaseTestDb = new TestDb((String) null);
       }
-      return SINGLETON;
+      if (extensionArray != null) {
+        return defaultSchemaTestDbsWithExtensions.computeIfAbsent(
+          extensionArray,
+          extensions -> new TestDb(defaultSchemaBaseTestDb, newMyBatis(defaultSchemaBaseTestDb.getDatabase(), extensions)));
+      }
+      return defaultSchemaBaseTestDb;
     }
-    return new TestDb(schemaPath);
-  }
-
-  @Override
-  protected void extendStart(Database db) {
-    myBatis = new MyBatis(db);
-    myBatis.start();
+    return new TestDb(schemaPath, confExtensions);
   }
 
   MyBatis getMyBatis() {
