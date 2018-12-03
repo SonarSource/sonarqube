@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.db.KeyLongValue;
 
 public interface ComponentMapper {
 
@@ -78,10 +77,6 @@ public interface ComponentMapper {
   List<ComponentDto> selectByQuery(@Nullable @Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query, RowBounds rowBounds);
 
   int countByQuery(@Nullable @Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query);
-
-  List<KeyLongValue> countByNclocRanges();
-
-  long countPublicNcloc();
 
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
 

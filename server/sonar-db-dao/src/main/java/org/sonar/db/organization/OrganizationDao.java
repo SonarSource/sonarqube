@@ -26,7 +26,6 @@ import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.KeyLongValue;
 import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.KeyType;
@@ -57,18 +56,6 @@ public class OrganizationDao implements Dao {
   public int countByQuery(DbSession dbSession, OrganizationQuery organizationQuery) {
     requireNonNull(organizationQuery, "organizationQuery can't be null");
     return getMapper(dbSession).countByQuery(organizationQuery);
-  }
-
-  public List<KeyLongValue> countTeamsByMembers(DbSession dbSession) {
-    return getMapper(dbSession).countTeamsByMembers();
-  }
-
-  public List<KeyLongValue> countTeamsByProjects(DbSession dbSession) {
-    return getMapper(dbSession).countTeamsByProjects();
-  }
-
-  public List<KeyLongValue> countTeamsByNclocRanges(DbSession dbSession) {
-    return getMapper(dbSession).countTeamsByNclocRanges();
   }
 
   public List<OrganizationDto> selectByQuery(DbSession dbSession, OrganizationQuery organizationQuery, Pagination pagination) {
