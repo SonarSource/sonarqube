@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as key from 'keymaster';
 import Breadcrumb from './Breadcrumb';
 import { getBreadcrumbs } from '../../../api/components';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 
 interface Props {
   backToFirst: boolean;
@@ -42,13 +42,16 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchBreadcrumbs(this.props);
+    this.fetchBreadcrumbs();
     this.attachShortcuts();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.props.component !== nextProps.component) {
-      this.fetchBreadcrumbs(nextProps);
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.component !== prevProps.component ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike)
+    ) {
+      this.fetchBreadcrumbs();
     }
   }
 
@@ -72,7 +75,8 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
     key.unbind('left', 'measures-files');
   }
 
-  fetchBreadcrumbs = ({ branchLike, component, rootComponent }: Props) => {
+  fetchBreadcrumbs = () => {
+    const { branchLike, component, rootComponent } = this.props;
     const isRoot = component.key === rootComponent.key;
     if (isRoot) {
       if (this.mounted) {

@@ -1,140 +1,138 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should renders correctly 1`] = `
-<Fragment>
-  <table
-    className="data zebra zebra-hover"
-  >
-    <tbody>
-      <ComponentsListRow
-        component={
-          Object {
-            "key": "foo",
-            "measures": Array [],
-            "name": "Foo",
-            "organization": "foo",
-            "qualifier": "TRK",
-          }
+<table
+  className="data zebra zebra-hover"
+>
+  <tbody>
+    <ComponentsListRow
+      component={
+        Object {
+          "key": "foo",
+          "measures": Array [],
+          "name": "Foo",
+          "organization": "foo",
+          "qualifier": "TRK",
         }
-        isSelected={false}
-        key="foo"
-        metric={
-          Object {
-            "id": "2",
-            "key": "new_bugs",
-            "name": "New Bugs",
-            "type": "INT",
-          }
+      }
+      isSelected={false}
+      key="foo"
+      metric={
+        Object {
+          "id": "2",
+          "key": "new_bugs",
+          "name": "New Bugs",
+          "type": "INT",
         }
-        onClick={[MockFunction]}
-        otherMetrics={Array []}
-        rootComponent={
-          Object {
-            "key": "foo",
-            "measures": Array [],
-            "name": "Foo",
-            "organization": "foo",
-            "qualifier": "TRK",
-          }
+      }
+      onClick={[MockFunction]}
+      otherMetrics={Array []}
+      rootComponent={
+        Object {
+          "key": "foo",
+          "measures": Array [],
+          "name": "Foo",
+          "organization": "foo",
+          "qualifier": "TRK",
         }
-      />
-    </tbody>
-  </table>
-</Fragment>
+      }
+      view="tree"
+    />
+  </tbody>
+</table>
 `;
 
 exports[`should renders empty 1`] = `<EmptyResult />`;
 
 exports[`should renders with multiple measures 1`] = `
-<Fragment>
-  <table
-    className="data zebra zebra-hover"
-  >
-    <thead>
-      <tr>
-        <th>
-           
-        </th>
-        <th
-          className="text-right"
+<table
+  className="data zebra zebra-hover"
+>
+  <thead>
+    <tr>
+      <th>
+         
+      </th>
+      <th
+        className="text-right"
+      >
+        <span
+          className="small"
         >
-          <span
-            className="small"
-          >
-            Coverage
-          </span>
-        </th>
-        <th
-          className="text-right"
-          key="uncovered_lines"
+          Coverage
+        </span>
+      </th>
+      <th
+        className="text-right"
+        key="uncovered_lines"
+      >
+        <span
+          className="small"
         >
-          <span
-            className="small"
-          >
-            Lines
-          </span>
-        </th>
-        <th
-          className="text-right"
-          key="uncovered_conditions"
+          Lines
+        </span>
+      </th>
+      <th
+        className="text-right"
+        key="uncovered_conditions"
+      >
+        <span
+          className="small"
         >
-          <span
-            className="small"
-          >
-            Conditions
-          </span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <ComponentsListRow
-        component={
+          Conditions
+        </span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <ComponentsListRow
+      component={
+        Object {
+          "key": "foo",
+          "measures": Array [],
+          "name": "Foo",
+          "organization": "foo",
+          "qualifier": "TRK",
+        }
+      }
+      isSelected={false}
+      key="foo"
+      metric={
+        Object {
+          "id": "1",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
+        }
+      }
+      onClick={[MockFunction]}
+      otherMetrics={
+        Array [
           Object {
-            "key": "foo",
-            "measures": Array [],
-            "name": "Foo",
-            "organization": "foo",
-            "qualifier": "TRK",
-          }
-        }
-        isSelected={false}
-        key="foo"
-        metric={
+            "id": "3",
+            "key": "uncovered_lines",
+            "name": "Lines",
+            "type": "INT",
+          },
           Object {
-            "id": "1",
-            "key": "coverage",
-            "name": "Coverage",
-            "type": "PERCENT",
-          }
+            "id": "4",
+            "key": "uncovered_conditions",
+            "name": "Conditions",
+            "type": "INT",
+          },
+        ]
+      }
+      rootComponent={
+        Object {
+          "key": "foo",
+          "measures": Array [],
+          "name": "Foo",
+          "organization": "foo",
+          "qualifier": "TRK",
         }
-        onClick={[MockFunction]}
-        otherMetrics={
-          Array [
-            Object {
-              "id": "3",
-              "key": "uncovered_lines",
-              "name": "Lines",
-              "type": "INT",
-            },
-            Object {
-              "id": "4",
-              "key": "uncovered_conditions",
-              "name": "Conditions",
-              "type": "INT",
-            },
-          ]
-        }
-        rootComponent={
-          Object {
-            "key": "foo",
-            "measures": Array [],
-            "name": "Foo",
-            "organization": "foo",
-            "qualifier": "TRK",
-          }
-        }
-      />
-    </tbody>
-  </table>
-</Fragment>
+      }
+      view="tree"
+    />
+  </tbody>
+</table>
 `;

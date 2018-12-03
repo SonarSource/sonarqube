@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
+import { View } from '../utils';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -30,6 +31,7 @@ interface Props {
   otherMetrics: T.Metric[];
   metric: T.Metric;
   rootComponent: T.ComponentMeasure;
+  view: View;
 }
 
 export default function ComponentsListRow(props: Props) {
@@ -49,6 +51,7 @@ export default function ComponentsListRow(props: Props) {
         metric={props.metric}
         onClick={props.onClick}
         rootComponent={rootComponent}
+        view={props.view}
       />
 
       <MeasureCell component={component} metric={props.metric} />

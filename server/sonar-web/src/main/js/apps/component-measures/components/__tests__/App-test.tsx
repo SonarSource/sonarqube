@@ -19,43 +19,65 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import App from '../App';
+import { Location } from 'history';
+import { App } from '../App';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { getMeasuresAndMeta } from '../../../../api/measures';
+
+jest.mock('../../../../api/metrics', () => ({
+  getAllMetrics: jest.fn().mockResolvedValue([
+    {
+      id: '1',
+      key: 'lines_to_cover',
+      type: 'INT',
+      name: 'Lines to Cover',
+      domain: 'Coverage'
+    },
+    {
+      id: '2',
+      key: 'coverage',
+      type: 'PERCENT',
+      name: 'Coverage',
+      domain: 'Coverage'
+    },
+    {
+      id: '3',
+      key: 'duplicated_lines_density',
+      type: 'PERCENT',
+      name: 'Duplicated Lines (%)',
+      domain: 'Duplications'
+    },
+    {
+      id: '4',
+      key: 'new_bugs',
+      type: 'INT',
+      name: 'New Bugs',
+      domain: 'Reliability'
+    }
+  ])
+}));
+
+jest.mock('../../../../api/measures', () => ({
+  getMeasuresAndMeta: jest.fn()
+}));
 
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
-
-const METRICS = {
-  lines_to_cover: {
-    id: '1',
-    key: 'lines_to_cover',
-    type: 'INT',
-    name: 'Lines to Cover',
-    domain: 'Coverage'
-  },
-  coverage: { id: '2', key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
-  duplicated_lines_density: {
-    id: '3',
-    key: 'duplicated_lines_density',
-    type: 'PERCENT',
-    name: 'Duplicated Lines (%)',
-    domain: 'Duplications'
-  },
-  new_bugs: { id: '4', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
-};
 
 const PROPS: App['props'] = {
   branchLike: { isMain: true, name: 'master' },
   component: COMPONENT,
-  location: { pathname: '/component_measures', query: { metric: 'coverage' } },
-  fetchMeasures: jest.fn().mockResolvedValue({
-    component: COMPONENT,
-    measures: [{ metric: 'coverage', value: '80.0' }]
-  }),
-  fetchMetrics: jest.fn(),
-  metrics: METRICS,
-  metricsKey: ['lines_to_cover', 'coverage', 'duplicated_lines_density', 'new_bugs'],
-  router: { push: jest.fn() } as any
+  location: { pathname: '/component_measures', query: { metric: 'coverage' } } as Location,
+  params: {},
+  router: { push: jest.fn() } as any,
+  routes: []
 };
+
+beforeEach(() => {
+  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+    component: { measures: [{ metric: 'coverage', value: '80.0' }] },
+    periods: [{ index: '1' }]
+  });
+});
 
 it('should render correctly', async () => {
   const wrapper = shallow(<App {...PROPS} />);
@@ -68,7 +90,7 @@ it('should render a measure overview', async () => {
   const wrapper = shallow(
     <App
       {...PROPS}
-      location={{ pathname: '/component_measures', query: { metric: 'Reliability' } }}
+      location={{ pathname: '/component_measures', query: { metric: 'Reliability' } } as Location}
     />
   );
   expect(wrapper.find('.spinner')).toHaveLength(1);
@@ -77,8 +99,11 @@ it('should render a measure overview', async () => {
 });
 
 it('should render a message when there are no measures', async () => {
-  const fetchMeasures = jest.fn().mockResolvedValue({ component: COMPONENT, measures: [] });
-  const wrapper = shallow(<App {...PROPS} fetchMeasures={fetchMeasures} />);
+  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+    component: { measures: [] },
+    periods: [{ index: '1' }]
+  });
+  const wrapper = shallow(<App {...PROPS} />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

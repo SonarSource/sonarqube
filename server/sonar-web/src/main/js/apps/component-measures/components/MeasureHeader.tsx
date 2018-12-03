@@ -34,13 +34,13 @@ interface Props {
   branchLike?: T.BranchLike;
   component: T.ComponentMeasure;
   leakPeriod?: T.Period;
-  measure?: T.MeasureEnhanced;
+  measureValue?: string;
   metric: T.Metric;
-  secondaryMeasure?: T.MeasureEnhanced;
+  secondaryMeasure?: T.Measure;
 }
 
 export default function MeasureHeader(props: Props) {
-  const { branchLike, component, leakPeriod, measure, metric, secondaryMeasure } = props;
+  const { branchLike, component, leakPeriod, measureValue, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
   const hasHistory =
     component.qualifier !== 'FIL' && component.qualifier !== 'UTS' && hasFullMeasures(branchLike);
@@ -53,20 +53,12 @@ export default function MeasureHeader(props: Props) {
           {getLocalizedMetricName(metric)}
           <span className="measure-details-value spacer-left">
             <strong>
-              {isDiff ? (
-                <Measure
-                  className="leak-box"
-                  metricKey={metric.key}
-                  metricType={metric.type}
-                  value={measure && measure.leak}
-                />
-              ) : (
-                <Measure
-                  metricKey={metric.key}
-                  metricType={metric.type}
-                  value={measure && measure.value}
-                />
-              )}
+              <Measure
+                className={isDiff ? 'leak-box' : undefined}
+                metricKey={metric.key}
+                metricType={metric.type}
+                value={measureValue}
+              />
             </strong>
           </span>
           {!isDiff &&
@@ -88,7 +80,7 @@ export default function MeasureHeader(props: Props) {
         </div>
       </div>
       {secondaryMeasure &&
-        secondaryMeasure.metric.key === 'ncloc_language_distribution' &&
+        secondaryMeasure.metric === 'ncloc_language_distribution' &&
         secondaryMeasure.value !== undefined && (
           <div className="measure-details-secondary">
             <LanguageDistributionContainer

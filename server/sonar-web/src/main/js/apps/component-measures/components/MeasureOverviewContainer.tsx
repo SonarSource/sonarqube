@@ -23,7 +23,7 @@ import MeasureOverview from './MeasureOverview';
 import { getComponentShow } from '../../../api/components';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isViewType, Query } from '../utils';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -56,17 +56,18 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchComponent(this.props);
+    this.fetchComponent();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    const { component } = this.state;
-    const componentChanged =
-      !component ||
-      nextProps.rootComponent.key !== component.key ||
-      nextProps.selected !== component.key;
-    if (componentChanged || nextProps.domain !== this.props.domain) {
-      this.fetchComponent(nextProps);
+  componentDidUpdate(prevProps: Props) {
+    const prevComponentKey = prevProps.selected || prevProps.rootComponent.key;
+    const componentKey = this.props.selected || this.props.rootComponent.key;
+    if (
+      prevComponentKey !== componentKey ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
+      prevProps.domain !== this.props.domain
+    ) {
+      this.fetchComponent();
     }
   }
 
@@ -74,7 +75,8 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
     this.mounted = false;
   }
 
-  fetchComponent = ({ branchLike, rootComponent, selected }: Props) => {
+  fetchComponent = () => {
+    const { branchLike, rootComponent, selected } = this.props;
     if (!selected || rootComponent.key === selected) {
       this.setState({ component: rootComponent });
       this.updateLoading({ component: false });

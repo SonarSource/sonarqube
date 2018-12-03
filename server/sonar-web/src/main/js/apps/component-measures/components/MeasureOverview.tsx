@@ -26,7 +26,7 @@ import BubbleChart from '../drilldown/BubbleChart';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
@@ -55,16 +55,17 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchComponents(this.props);
+    this.fetchComponents();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (
-      nextProps.component !== this.props.component ||
-      nextProps.metrics !== this.props.metrics ||
-      nextProps.domain !== this.props.domain
+      prevProps.component !== this.props.component ||
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
+      prevProps.metrics !== this.props.metrics ||
+      prevProps.domain !== this.props.domain
     ) {
-      this.fetchComponents(nextProps);
+      this.fetchComponents();
     }
   }
 
@@ -72,8 +73,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchComponents = (props: Props) => {
-    const { branchLike, component, domain, metrics } = props;
+  fetchComponents = () => {
+    const { branchLike, component, domain, metrics } = this.props;
     if (isFileType(component)) {
       this.setState({ components: [], paging: undefined });
       return;

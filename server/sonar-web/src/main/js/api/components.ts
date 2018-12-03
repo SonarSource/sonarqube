@@ -94,6 +94,7 @@ export function getComponentTree(
   metrics: string[] = [],
   additional: RequestData = {}
 ): Promise<{
+  baseComponent: T.ComponentMeasure;
   components: T.ComponentMeasure[];
   metrics: T.Metric[];
   paging: T.Paging;

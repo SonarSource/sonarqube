@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 import DomainFacet from './DomainFacet';
-import { getDefaultView, groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
+import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
 
 interface Props {
   hasOverview: boolean;
@@ -34,31 +34,12 @@ interface State {
 }
 
 export default class Sidebar extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { openFacets: this.getOpenFacets({}, props) };
+  static getDerivedStateFromProps(props: Props, state: State) {
+    return { openFacets: getOpenFacets(state.openFacets, props) };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.selectedMetric !== this.props.selectedMetric) {
-      this.setState(({ openFacets }) => ({
-        openFacets: this.getOpenFacets(openFacets, nextProps)
-      }));
-    }
-  }
-
-  getOpenFacets = (
-    openFacets: { [metric: string]: boolean },
-    { measures, selectedMetric }: Props
-  ) => {
-    const newOpenFacets = { ...openFacets };
-    const measure = measures.find(measure => measure.metric.key === selectedMetric);
-    if (measure && measure.metric && measure.metric.domain) {
-      newOpenFacets[measure.metric.domain] = true;
-    } else if (KNOWN_DOMAINS.includes(selectedMetric)) {
-      newOpenFacets[selectedMetric] = true;
-    }
-    return newOpenFacets;
+  state: State = {
+    openFacets: {}
   };
 
   toggleFacet = (name: string) => {
@@ -67,10 +48,9 @@ export default class Sidebar extends React.PureComponent<Props, State> {
     }));
   };
 
-  resetSelection = (metric: string) => ({ selected: undefined, view: getDefaultView(metric) });
-
-  changeMetric = (metric: string) =>
-    this.props.updateQuery({ metric, ...this.resetSelection(metric) });
+  changeMetric = (metric: string) => {
+    this.props.updateQuery({ metric });
+  };
 
   render() {
     const { hasOverview } = this.props;
@@ -97,4 +77,18 @@ export default class Sidebar extends React.PureComponent<Props, State> {
       </div>
     );
   }
+}
+
+function getOpenFacets(
+  openFacets: { [metric: string]: boolean },
+  { measures, selectedMetric }: Props
+) {
+  const newOpenFacets = { ...openFacets };
+  const measure = measures.find(measure => measure.metric.key === selectedMetric);
+  if (measure && measure.metric && measure.metric.domain) {
+    newOpenFacets[measure.metric.domain] = true;
+  } else if (KNOWN_DOMAINS.includes(selectedMetric)) {
+    newOpenFacets[selectedMetric] = true;
+  }
+  return newOpenFacets;
 }

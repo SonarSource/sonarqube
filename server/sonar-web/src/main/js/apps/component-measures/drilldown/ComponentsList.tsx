@@ -22,6 +22,7 @@ import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
+import { View } from '../utils';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -31,6 +32,7 @@ interface Props {
   metrics: { [metric: string]: T.Metric };
   rootComponent: T.ComponentMeasure;
   selectedComponent?: string;
+  view: View;
 }
 
 export default function ComponentsList({ components, metric, metrics, ...props }: Props) {
@@ -40,37 +42,35 @@ export default function ComponentsList({ components, metric, metrics, ...props }
 
   const otherMetrics = (complementary[metric.key] || []).map(key => metrics[key]);
   return (
-    <React.Fragment>
-      <table className="data zebra zebra-hover">
-        {otherMetrics.length > 0 && (
-          <thead>
-            <tr>
-              <th>&nbsp;</th>
-              <th className="text-right">
+    <table className="data zebra zebra-hover">
+      {otherMetrics.length > 0 && (
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th className="text-right">
+              <span className="small">{getLocalizedMetricName(metric)}</span>
+            </th>
+            {otherMetrics.map(metric => (
+              <th className="text-right" key={metric.key}>
                 <span className="small">{getLocalizedMetricName(metric)}</span>
               </th>
-              {otherMetrics.map(metric => (
-                <th className="text-right" key={metric.key}>
-                  <span className="small">{getLocalizedMetricName(metric)}</span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-        )}
+            ))}
+          </tr>
+        </thead>
+      )}
 
-        <tbody>
-          {components.map(component => (
-            <ComponentsListRow
-              component={component}
-              isSelected={component.key === props.selectedComponent}
-              key={component.key}
-              metric={metric}
-              otherMetrics={otherMetrics}
-              {...props}
-            />
-          ))}
-        </tbody>
-      </table>
-    </React.Fragment>
+      <tbody>
+        {components.map(component => (
+          <ComponentsListRow
+            component={component}
+            isSelected={component.key === props.selectedComponent}
+            key={component.key}
+            metric={metric}
+            otherMetrics={otherMetrics}
+            {...props}
+          />
+        ))}
+      </tbody>
+    </table>
   );
 }

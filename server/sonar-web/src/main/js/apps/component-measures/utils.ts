@@ -87,7 +87,7 @@ export function addMeasureCategories(domainName: string, measures: T.MeasureEnha
 
 export function enhanceComponent(
   component: T.ComponentMeasure,
-  metric: T.Metric | undefined,
+  metric: Pick<T.Metric, 'key'> | undefined,
   metrics: { [key: string]: T.Metric }
 ): T.ComponentMeasureEnhanced {
   if (!component.measures) {
@@ -123,13 +123,6 @@ export const groupByDomains = memoize((measures: T.MeasureEnhanced[]) => {
     'name'
   ]);
 });
-
-export function getDefaultView(metric: string): View {
-  if (!hasList(metric)) {
-    return 'tree';
-  }
-  return DEFAULT_VIEW;
-}
 
 export function hasList(metric: string): boolean {
   return !['releasability_rating', 'releasability_effort'].includes(metric);

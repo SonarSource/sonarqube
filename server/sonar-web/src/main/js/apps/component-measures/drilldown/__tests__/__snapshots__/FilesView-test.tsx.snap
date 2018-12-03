@@ -42,6 +42,7 @@ exports[`should render with best values hidden 1`] = `
         "qualifier": "TRK",
       }
     }
+    view="tree"
   />
   <Alert
     className="spacer-top"
@@ -100,6 +101,7 @@ exports[`should renders correctly 1`] = `
         "qualifier": "TRK",
       }
     }
+    view="tree"
   />
   <ListFooter
     count={1}

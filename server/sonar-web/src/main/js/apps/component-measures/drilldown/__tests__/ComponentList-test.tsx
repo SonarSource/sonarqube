@@ -47,6 +47,7 @@ it('should renders correctly', () => {
         metrics={METRICS}
         onClick={jest.fn()}
         rootComponent={COMPONENTS[0]}
+        view="tree"
       />
     )
   ).toMatchSnapshot();
@@ -61,6 +62,7 @@ it('should renders empty', () => {
         metrics={METRICS}
         onClick={jest.fn()}
         rootComponent={COMPONENTS[0]}
+        view="tree"
       />
     )
   ).toMatchSnapshot();
@@ -75,6 +77,7 @@ it('should renders with multiple measures', () => {
         metrics={METRICS}
         onClick={jest.fn()}
         rootComponent={COMPONENTS[0]}
+        view="tree"
       />
     )
   ).toMatchSnapshot();

@@ -73,46 +73,11 @@ exports[`should render correctly 1`] = `
     >
       <Component />
     </ScreenPositionHelper>
-    <MeasureContentContainer
+    <MeasureContent
       branchLike={
         Object {
           "isMain": true,
           "name": "master",
-        }
-      }
-      className="layout-page-main"
-      fetchMeasures={
-        [MockFunction] {
-          "calls": Array [
-            Array [
-              "foo",
-              Array [
-                "lines_to_cover",
-                "coverage",
-                "duplicated_lines_density",
-                "new_bugs",
-              ],
-              Object {
-                "isMain": true,
-                "name": "master",
-              },
-            ],
-          ],
-          "results": Array [
-            Object {
-              "isThrow": false,
-              "value": Promise {},
-            },
-          ],
-        }
-      }
-      metric={
-        Object {
-          "domain": "Coverage",
-          "id": "2",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
         }
       }
       metrics={
@@ -145,6 +110,15 @@ exports[`should render correctly 1`] = `
             "name": "New Bugs",
             "type": "INT",
           },
+        }
+      }
+      requestedMetric={
+        Object {
+          "domain": "Coverage",
+          "id": "2",
+          "key": "coverage",
+          "name": "Coverage",
+          "type": "PERCENT",
         }
       }
       rootComponent={

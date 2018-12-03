@@ -73,6 +73,7 @@ function getWrapper(props = {}) {
         organization: 'foo',
         qualifier: 'TRK'
       }}
+      view="tree"
       {...props}
     />
   );

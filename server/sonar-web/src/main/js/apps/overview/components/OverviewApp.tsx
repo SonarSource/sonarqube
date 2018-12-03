@@ -27,7 +27,6 @@ import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
 import MetaContainer from '../meta/MetaContainer';
 import QualityGate from '../qualityGate/QualityGate';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
@@ -150,8 +149,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
           });
         }
       },
-      error => {
-        throwGlobalError(error);
+      () => {
         if (this.mounted) {
           this.setState({ loading: false });
         }

@@ -30,6 +30,7 @@ import {
   getProjectUrl
 } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
+import { View } from '../utils';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -37,6 +38,7 @@ interface Props {
   onClick: (component: string) => void;
   metric: T.Metric;
   rootComponent: T.ComponentMeasure;
+  view: View;
 }
 
 export default class ComponentCell extends React.PureComponent<Props> {
@@ -54,33 +56,34 @@ export default class ComponentCell extends React.PureComponent<Props> {
     const { component } = this.props;
     let head = '';
     let tail = component.name;
-    let branchComponent = null;
 
-    if (['DIR', 'FIL', 'UTS'].includes(component.qualifier) && component.path) {
+    if (
+      this.props.view === 'list' &&
+      ['FIL', 'UTS', 'DIR'].includes(component.qualifier) &&
+      component.path
+    ) {
       ({ head, tail } = splitPath(component.path));
     }
 
-    if (this.props.rootComponent.qualifier === 'APP') {
-      branchComponent = (
-        <>
-          {component.branch ? (
-            <>
-              <LongLivingBranchIcon className="spacer-left little-spacer-right" />
-              <span className="note">{component.branch}</span>
-            </>
-          ) : (
-            <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
-          )}
-        </>
-      );
-    }
+    const isApp = this.props.rootComponent.qualifier === 'APP';
+
     return (
       <span title={componentKey}>
-        <QualifierIcon qualifier={component.qualifier} />
-        &nbsp;
+        <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
         {head.length > 0 && <span className="note">{head}/</span>}
         <span>{tail}</span>
-        {branchComponent}
+        {isApp && (
+          <>
+            {component.branch ? (
+              <>
+                <LongLivingBranchIcon className="spacer-left little-spacer-right" />
+                <span className="note">{component.branch}</span>
+              </>
+            ) : (
+              <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
+            )}
+          </>
+        )}
       </span>
     );
   }

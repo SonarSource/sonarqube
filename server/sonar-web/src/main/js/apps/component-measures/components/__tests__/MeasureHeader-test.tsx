@@ -28,13 +28,6 @@ const METRIC = {
   name: 'Reliability Rating'
 };
 
-const MEASURE = {
-  value: '3.0',
-  periods: [{ index: 1, value: '0.0' }],
-  metric: METRIC,
-  leak: '0.0'
-};
-
 const LEAK_METRIC = {
   id: '2',
   key: 'new_reliability_rating',
@@ -42,20 +35,11 @@ const LEAK_METRIC = {
   name: 'Reliability Rating on New Code'
 };
 
-const LEAK_MEASURE = {
-  periods: [{ index: 1, value: '3.0' }],
-  metric: LEAK_METRIC,
-  leak: '3.0'
-};
+const LEAK_MEASURE = '3.0';
 
 const SECONDARY = {
   value: 'java=175123;js=26382',
-  metric: {
-    id: '3',
-    key: 'ncloc_language_distribution',
-    type: 'DATA',
-    name: 'Lines of Code Per Language'
-  }
+  metric: 'ncloc_language_distribution'
 };
 
 const PROPS = {
@@ -66,7 +50,7 @@ const PROPS = {
     mode: 'previous_version',
     parameter: '6,4'
   } as T.Period,
-  measure: MEASURE,
+  measureValue: '3.0',
   metric: METRIC
 };
 
@@ -76,7 +60,7 @@ it('should render correctly', () => {
 
 it('should render correctly for leak', () => {
   expect(
-    shallow(<MeasureHeader {...PROPS} measure={LEAK_MEASURE} metric={LEAK_METRIC} />)
+    shallow(<MeasureHeader {...PROPS} measureValue={LEAK_MEASURE} metric={LEAK_METRIC} />)
   ).toMatchSnapshot();
 });
 
@@ -94,7 +78,7 @@ it('should render with short living branch', () => {
       <MeasureHeader
         {...PROPS}
         branchLike={shortBranch}
-        measure={LEAK_MEASURE}
+        measureValue={LEAK_MEASURE}
         metric={LEAK_METRIC}
       />
     )
@@ -121,5 +105,5 @@ it('should display secondary measure too', () => {
 });
 
 it('should work with measure without value', () => {
-  expect(shallow(<MeasureHeader {...PROPS} measure={undefined} />)).toMatchSnapshot();
+  expect(shallow(<MeasureHeader {...PROPS} measureValue={undefined} />)).toMatchSnapshot();
 });

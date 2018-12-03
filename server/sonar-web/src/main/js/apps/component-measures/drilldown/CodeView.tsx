@@ -26,7 +26,6 @@ interface Props {
   component: T.ComponentMeasure;
   components: T.ComponentMeasureEnhanced[];
   leakPeriod?: T.Period;
-  metric: T.Metric;
   selectedIdx?: number;
   updateSelected: (component: string) => void;
 }

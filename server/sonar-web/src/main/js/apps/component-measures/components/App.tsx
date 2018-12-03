@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import * as key from 'keymaster';
-import { InjectedRouter } from 'react-router';
+import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
-import MeasureContentContainer from './MeasureContentContainer';
+import { keyBy } from 'lodash';
+import MeasureContent from './MeasureContent';
 import MeasuresEmpty from './MeasuresEmpty';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
@@ -35,7 +36,9 @@ import {
   hasFullMeasures,
   getMeasuresPageMetricKeys,
   groupByDomains,
-  sortMeasures
+  sortMeasures,
+  hasTreemap,
+  hasTree
 } from '../utils';
 import {
   isSameBranchLike,
@@ -55,62 +58,59 @@ import {
   removeSideBarClass,
   removeWhitePageClass
 } from '../../../helpers/pages';
-import { RawQuery } from '../../../helpers/query';
 import '../../../components/search-navigator.css';
 import '../style.css';
+import { getAllMetrics } from '../../../api/metrics';
+import { getMeasuresAndMeta } from '../../../api/measures';
+import { enhanceMeasure } from '../../../components/measure/utils';
+import { getLeakPeriod } from '../../../helpers/periods';
 
-interface Props {
+interface Props extends WithRouterProps {
   branchLike?: T.BranchLike;
   component: T.ComponentMeasure;
-  location: { pathname: string; query: RawQuery };
-  fetchMeasures: (
-    component: string,
-    metricsKey: string[],
-    branchLike?: T.BranchLike
-  ) => Promise<{
-    component: T.ComponentMeasure;
-    measures: T.MeasureEnhanced[];
-    leakPeriod?: T.Period;
-  }>;
-  fetchMetrics: () => void;
-  metrics: { [metric: string]: T.Metric };
-  metricsKey: string[];
-  router: InjectedRouter;
 }
 
 interface State {
+  leakPeriod?: T.Period;
   loading: boolean;
   measures: T.MeasureEnhanced[];
-  leakPeriod?: T.Period;
+  metrics: { [metric: string]: T.Metric };
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { loading: true, measures: [] };
-  }
+  state: State = {
+    loading: true,
+    measures: [],
+    metrics: {}
+  };
 
   componentDidMount() {
     this.mounted = true;
 
     key.setScope('measures-files');
-    this.props.fetchMetrics();
-    this.fetchMeasures(this.props);
+    getAllMetrics().then(
+      metrics => {
+        const byKey = keyBy(metrics, 'key');
+        this.setState({ metrics: byKey });
+        this.fetchMeasures(byKey);
+      },
+      () => {}
+    );
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const prevQuery = parseQuery(prevProps.location.query);
+    const query = parseQuery(this.props.location.query);
+
     if (
-      !isSameBranchLike(nextProps.branchLike, this.props.branchLike) ||
-      nextProps.component.key !== this.props.component.key ||
-      nextProps.metrics !== this.props.metrics
+      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
+      prevProps.component.key !== this.props.component.key ||
+      prevQuery.selected !== query.selected
     ) {
-      this.fetchMeasures(nextProps);
+      this.fetchMeasures(this.state.metrics);
     }
-  }
 
-  componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.measures.length === 0 && this.state.measures.length > 0) {
       addWhitePageClass();
       addSideBarClass();
@@ -124,13 +124,40 @@ export default class App extends React.PureComponent<Props, State> {
     key.deleteScope('measures-files');
   }
 
-  fetchMeasures = ({ branchLike, component, fetchMeasures, metrics }: Props) => {
-    this.setState({ loading: true });
+  fetchMeasures(metrics: State['metrics']) {
+    const { branchLike } = this.props;
+    const query = parseQuery(this.props.location.query);
+    const componentKey = query.selected || this.props.component.key;
 
     const filteredKeys = getMeasuresPageMetricKeys(metrics, branchLike);
-    fetchMeasures(component.key, filteredKeys, branchLike).then(
-      ({ measures, leakPeriod }) => {
+
+    const banQualityGate = ({ measures = [], qualifier }: T.ComponentMeasure) => {
+      const bannedMetrics: string[] = [];
+      if (!['VW', 'SVW'].includes(qualifier)) {
+        bannedMetrics.push('alert_status');
+      }
+      if (qualifier === 'APP') {
+        bannedMetrics.push('releasability_rating', 'releasability_effort');
+      }
+      return measures.filter(measure => !bannedMetrics.includes(measure.metric));
+    };
+
+    getMeasuresAndMeta(componentKey, filteredKeys, {
+      additionalFields: 'periods',
+      ...getBranchLikeQuery(branchLike)
+    }).then(
+      ({ component, periods }) => {
         if (this.mounted) {
+          const measures = banQualityGate(component).map(measure =>
+            enhanceMeasure(measure, metrics)
+          );
+
+          const newBugs = measures.find(measure => measure.metric.key === 'new_bugs');
+          const applicationPeriods = newBugs ? [{ index: 1 } as T.Period] : [];
+          const leakPeriod = getLeakPeriod(
+            component.qualifier === 'APP' ? applicationPeriods : periods
+          );
+
           this.setState({
             loading: false,
             leakPeriod,
@@ -146,7 +173,7 @@ export default class App extends React.PureComponent<Props, State> {
         }
       }
     );
-  };
+  }
 
   getHelmetTitle = (query: Query, displayOverview: boolean, metric?: T.Metric) => {
     if (displayOverview && query.metric) {
@@ -164,7 +191,7 @@ export default class App extends React.PureComponent<Props, State> {
     if (displayOverview) {
       return undefined;
     }
-    const metric = this.props.metrics[query.metric];
+    const metric = this.state.metrics[query.metric];
     if (!metric) {
       const domainMeasures = groupByDomains(this.state.measures);
       const firstMeasure =
@@ -177,14 +204,21 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   updateQuery = (newQuery: Partial<Query>) => {
-    const query = serializeQuery({
-      ...parseQuery(this.props.location.query),
-      ...newQuery
-    });
+    const query: Query = { ...parseQuery(this.props.location.query), ...newQuery };
+
+    const metric = this.getSelectedMetric(query, false);
+    if (metric) {
+      if (query.view === 'treemap' && !hasTreemap(metric.key, metric.type)) {
+        query.view = 'tree';
+      } else if (query.view === 'tree' && !hasTree(metric.key)) {
+        query.view = 'list';
+      }
+    }
+
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
-        ...query,
+        ...serializeQuery(query),
         ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component.key
       }
@@ -192,7 +226,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   renderContent = (displayOverview: boolean, query: Query, metric?: T.Metric) => {
-    const { branchLike, component, fetchMeasures, metrics } = this.props;
+    const { branchLike, component } = this.props;
     const { leakPeriod } = this.state;
     if (displayOverview) {
       return (
@@ -201,7 +235,7 @@ export default class App extends React.PureComponent<Props, State> {
           className="layout-page-main"
           domain={query.metric}
           leakPeriod={leakPeriod}
-          metrics={metrics}
+          metrics={this.state.metrics}
           rootComponent={component}
           router={this.props.router}
           selected={query.selected}
@@ -229,13 +263,11 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <MeasureContentContainer
+      <MeasureContent
         branchLike={branchLike}
-        className="layout-page-main"
-        fetchMeasures={fetchMeasures}
         leakPeriod={leakPeriod}
-        metric={metric}
-        metrics={metrics}
+        metrics={this.state.metrics}
+        requestedMetric={metric}
         rootComponent={component}
         router={this.props.router}
         selected={query.selected}
@@ -246,16 +278,17 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const isLoading = this.state.loading || this.props.metricsKey.length <= 0;
-    if (isLoading) {
+    if (this.state.loading) {
       return <i className="spinner spinner-margin" />;
     }
+
     const { branchLike } = this.props;
     const { measures } = this.state;
     const query = parseQuery(this.props.location.query);
     const hasOverview = hasFullMeasures(branchLike);
     const displayOverview = hasOverview && hasBubbleChart(query.metric);
     const metric = this.getSelectedMetric(query, displayOverview);
+
     return (
       <div id="component-measures">
         <Suggestions suggestions="component_measures" />
@@ -288,3 +321,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(App);

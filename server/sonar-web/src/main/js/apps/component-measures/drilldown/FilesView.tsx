@@ -27,6 +27,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isPeriodBestValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { Alert } from '../../../components/ui/Alert';
+import { View } from '../utils';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -42,11 +43,14 @@ interface Props {
   rootComponent: T.ComponentMeasure;
   selectedKey?: string;
   selectedIdx?: number;
+  view: View;
 }
 
 interface State {
   showBestMeasures: boolean;
 }
+
+const keyScope = 'measures-files';
 
 export default class FilesView extends React.PureComponent<Props, State> {
   listContainer?: HTMLElement | null;
@@ -79,22 +83,22 @@ export default class FilesView extends React.PureComponent<Props, State> {
   }
 
   attachShortcuts() {
-    key('up', 'measures-files', () => {
+    key('up', keyScope, () => {
       this.selectPrevious();
       return false;
     });
-    key('down', 'measures-files', () => {
+    key('down', keyScope, () => {
       this.selectNext();
       return false;
     });
-    key('right', 'measures-files', () => {
+    key('right', keyScope, () => {
       this.openSelected();
       return false;
     });
   }
 
   detachShortcuts() {
-    ['up', 'down', 'right'].forEach(action => key.unbind(action, 'measures-files'));
+    ['up', 'down', 'right'].forEach(action => key.unbind(action, keyScope));
   }
 
   getVisibleComponents = (components: T.ComponentMeasureEnhanced[], showBestMeasures: boolean) => {
@@ -170,6 +174,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
           onClick={this.props.handleOpen}
           rootComponent={this.props.rootComponent}
           selectedComponent={this.props.selectedKey}
+          view={this.props.view}
         />
         {hidingBestMeasures && (
           <Alert className="spacer-top" variant="info">

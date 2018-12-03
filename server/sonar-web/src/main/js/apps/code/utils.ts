@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { without } from 'lodash';
 import {
   addComponent,
   getComponent as getComponentFromBucket,
@@ -59,59 +58,10 @@ const LEAK_METRICS = [
 
 const PAGE_SIZE = 100;
 
-function requestChildren(
-  componentKey: string,
-  metrics: string[],
-  page: number,
-  branchLike?: T.BranchLike
-): Promise<T.ComponentMeasure[]> {
-  return getChildren(componentKey, metrics, {
-    p: page,
-    ps: PAGE_SIZE,
-    ...getBranchLikeQuery(branchLike)
-  }).then(r => {
-    if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
-      return requestChildren(componentKey, metrics, page + 1, branchLike).then(moreComponents => {
-        return [...r.components, ...moreComponents];
-      });
-    }
-    return r.components;
-  });
-}
-
-function requestAllChildren(
-  componentKey: string,
-  metrics: string[],
-  branchLike?: T.BranchLike
-): Promise<T.ComponentMeasure[]> {
-  return requestChildren(componentKey, metrics, 1, branchLike);
-}
-
 interface Children {
   components: T.ComponentMeasure[];
   page: number;
   total: number;
-}
-
-interface ExpandRootDirFunc {
-  (children: Children): Promise<Children>;
-}
-
-function expandRootDir(metrics: string[], branchLike?: T.BranchLike): ExpandRootDirFunc {
-  return function({ components, total, ...other }) {
-    const rootDir = components.find(
-      (component: T.ComponentMeasure) => component.qualifier === 'DIR' && component.name === '/'
-    );
-    if (rootDir) {
-      return requestAllChildren(rootDir.key, metrics, branchLike).then(rootDirComponents => {
-        const nextComponents = without([...rootDirComponents, ...components], rootDir);
-        const nextTotal = total + rootDirComponents.length - /* root dir */ 1;
-        return { components: nextComponents, total: nextTotal, ...other };
-      });
-    } else {
-      return Promise.resolve({ components, total, ...other });
-    }
-  };
 }
 
 function prepareChildren(r: any): Children {
@@ -202,7 +152,6 @@ export function retrieveComponentChildren(
     ...getBranchLikeQuery(branchLike)
   })
     .then(prepareChildren)
-    .then(expandRootDir(metrics, branchLike))
     .then(r => {
       addComponentChildren(componentKey, r.components, r.total, r.page);
       storeChildrenBase(r.components);
@@ -268,7 +217,6 @@ export function loadMoreChildren(
     ...getBranchLikeQuery(branchLike)
   })
     .then(prepareChildren)
-    .then(expandRootDir(metrics, branchLike))
     .then(r => {
       addComponentChildren(componentKey, r.components, r.total, r.page);
       storeChildrenBase(r.components);

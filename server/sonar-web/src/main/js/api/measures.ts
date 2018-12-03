@@ -31,8 +31,11 @@ export function getMeasuresAndMeta(
   metrics: string[],
   additional: RequestData = {}
 ): Promise<{ component: T.ComponentMeasure; metrics?: T.Metric[]; periods?: T.Period[] }> {
-  const data = { ...additional, component, metricKeys: metrics.join(',') };
-  return getJSON('/api/measures/component', data);
+  return getJSON('/api/measures/component', {
+    ...additional,
+    component,
+    metricKeys: metrics.join(',')
+  }).catch(throwGlobalError);
 }
 
 interface MeasuresForProjects {
