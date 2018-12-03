@@ -115,7 +115,6 @@ public class ComponentUpdater {
       .setModuleUuidPath(ComponentDto.UUID_PATH_SEPARATOR + uuid + ComponentDto.UUID_PATH_SEPARATOR)
       .setProjectUuid(uuid)
       .setDbKey(keyWithBranch)
-      .setDeprecatedKey(keyWithBranch)
       .setName(newComponent.name())
       .setLongName(newComponent.name())
       .setScope(Scopes.PROJECT)

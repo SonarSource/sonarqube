@@ -100,16 +100,16 @@ public class PersistComponentsStep implements ComputationStep {
       // safeguard, reset all rows to b-changed=false
       dbClient.componentDao().resetBChangedForRootComponentUuid(dbSession, projectUuid);
 
-      Map<String, ComponentDto> existingDtosByKeys = indexExistingDtosByKey(dbSession);
-      boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot(), existingDtosByKeys);
+      Map<String, ComponentDto> existingDtosByUuids = indexExistingDtosByUuids(dbSession);
+      boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot(), existingDtosByUuids);
       String mainBranchProjectUuid = loadProjectUuidOfMainBranch();
 
-      // Insert or update the components in database. They are removed from existingDtosByKeys
+      // Insert or update the components in database. They are removed from existingDtosByUuids
       // at the same time.
-      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession, mainBranchProjectUuid))
+      new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByUuids, dbSession, mainBranchProjectUuid))
         .visit(treeRootHolder.getRoot());
 
-      disableRemainingComponents(dbSession, existingDtosByKeys.values());
+      disableRemainingComponents(dbSession, existingDtosByUuids.values());
       ensureConsistentVisibility(dbSession, projectUuid, isRootPrivate);
 
       dbSession.commit();
@@ -141,14 +141,13 @@ public class PersistComponentsStep implements ComputationStep {
     dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate);
   }
 
-  private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByKeys) {
-    String rootKey = root.getDbKey();
-    ComponentDto rootDto = existingDtosByKeys.get(rootKey);
+  private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByUuids) {
+    ComponentDto rootDto = existingDtosByUuids.get(root.getUuid());
     if (rootDto == null) {
       if (Component.Type.VIEW == root.getType()) {
         return false;
       }
-      throw new IllegalStateException(String.format("The project '%s' is not stored in the database, during a project analysis.", rootKey));
+      throw new IllegalStateException(String.format("The project '%s' is not stored in the database, during a project analysis.", root.getDbKey()));
     }
     return rootDto.isPrivate();
   }
@@ -157,20 +156,20 @@ public class PersistComponentsStep implements ComputationStep {
    * Returns a mutable map of the components currently persisted in database for the project, including
    * disabled components.
    */
-  private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
+  private Map<String, ComponentDto> indexExistingDtosByUuids(DbSession session) {
     return dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getDbKey())
       .stream()
-      .collect(Collectors.toMap(ComponentDto::getDbKey, Function.identity()));
+      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
   }
 
   private class PersistComponentStepsVisitor extends PathAwareVisitorAdapter<ComponentDtoHolder> {
 
-    private final Map<String, ComponentDto> existingComponentDtosByKey;
+    private final Map<String, ComponentDto> existingComponentDtosByUuids;
     private final DbSession dbSession;
     @Nullable
     private final String mainBranchProjectUuid;
 
-    PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByKey, DbSession dbSession, @Nullable String mainBranchProjectUuid) {
+    PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByUuids, DbSession dbSession, @Nullable String mainBranchProjectUuid) {
       super(
         CrawlerDepthLimit.LEAVES,
         PRE_ORDER,
@@ -192,7 +191,7 @@ public class PersistComponentsStep implements ComputationStep {
             return null;
           }
         });
-      this.existingComponentDtosByKey = existingComponentDtosByKey;
+      this.existingComponentDtosByUuids = existingComponentDtosByUuids;
       this.dbSession = dbSession;
       this.mainBranchProjectUuid = mainBranchProjectUuid;
     }
@@ -240,7 +239,7 @@ public class PersistComponentsStep implements ComputationStep {
     }
 
     private ComponentDto persistComponent(ComponentDto componentDto) {
-      ComponentDto existingComponent = existingComponentDtosByKey.remove(componentDto.getDbKey());
+      ComponentDto existingComponent = existingComponentDtosByUuids.remove(componentDto.uuid());
       if (existingComponent == null) {
         dbClient.componentDao().insert(dbSession, componentDto);
         return componentDto;
@@ -252,6 +251,7 @@ public class PersistComponentsStep implements ComputationStep {
 
         // update the fields in memory in order the PathAwareVisitor.Path
         // to be up-to-date
+        existingComponent.setDbKey(updateDto.getBKey());
         existingComponent.setCopyComponentUuid(updateDto.getBCopyComponentUuid());
         existingComponent.setDescription(updateDto.getBDescription());
         existingComponent.setEnabled(updateDto.isBEnabled());
@@ -371,7 +371,6 @@ public class PersistComponentsStep implements ComputationStep {
       componentDto.setOrganizationUuid(analysisMetadataHolder.getOrganization().getUuid());
       componentDto.setUuid(componentUuid);
       componentDto.setDbKey(componentKey);
-      componentDto.setDeprecatedKey(componentKey);
       componentDto.setMainBranchProjectUuid(mainBranchProjectUuid);
       componentDto.setEnabled(true);
       componentDto.setCreatedAt(new Date(system2.now()));
@@ -415,6 +414,7 @@ public class PersistComponentsStep implements ComputationStep {
   private static Optional<ComponentUpdateDto> compareForUpdate(ComponentDto existing, ComponentDto target) {
     boolean hasDifferences = !StringUtils.equals(existing.getCopyResourceUuid(), target.getCopyResourceUuid()) ||
       !StringUtils.equals(existing.description(), target.description()) ||
+      !StringUtils.equals(existing.getDbKey(), target.getDbKey()) ||
       !existing.isEnabled() ||
       !StringUtils.equals(existing.getUuidPath(), target.getUuidPath()) ||
       !StringUtils.equals(existing.language(), target.language()) ||

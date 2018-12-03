@@ -30,6 +30,10 @@ public class ComponentUpdateDto {
    * See https://jira.sonarsource.com/browse/SONAR-7700
    */
   private boolean bChanged;
+  /**
+   * Component keys are normally immutable. But in SQ 7.6 we have to migrate component keys to drop modules.
+   */
+  private String bKey;
   private String bCopyComponentUuid;
   private String bDescription;
   private boolean bEnabled;
@@ -53,6 +57,10 @@ public class ComponentUpdateDto {
 
   public boolean isBChanged() {
     return bChanged;
+  }
+
+  public String getBKey() {
+    return bKey;
   }
 
   @CheckForNull
@@ -110,6 +118,11 @@ public class ComponentUpdateDto {
 
   public ComponentUpdateDto setBChanged(boolean b) {
     this.bChanged = b;
+    return this;
+  }
+
+  public ComponentUpdateDto setBKey(String s) {
+    this.bKey = s;
     return this;
   }
 
@@ -175,6 +188,7 @@ public class ComponentUpdateDto {
     return new ComponentUpdateDto()
       .setUuid(from.uuid())
       .setBChanged(false)
+      .setBKey(from.getDbKey())
       .setBCopyComponentUuid(from.getCopyResourceUuid())
       .setBDescription(from.description())
       .setBEnabled(from.isEnabled())

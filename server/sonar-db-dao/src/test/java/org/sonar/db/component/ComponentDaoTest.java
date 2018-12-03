@@ -1338,6 +1338,7 @@ public class ComponentDaoTest {
 
     underTest.update(dbSession, new ComponentUpdateDto()
       .setUuid("U1")
+      .setBKey("key")
       .setBCopyComponentUuid("copy")
       .setBChanged(true)
       .setBDescription("desc")
@@ -1354,6 +1355,7 @@ public class ComponentDaoTest {
 
     Map<String, Object> row = selectBColumnsForUuid("U1");
     assertThat(row.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
+    assertThat(row.get("bKey")).isEqualTo("key");
     assertThat(row.get("bCopyComponentUuid")).isEqualTo("copy");
     assertThat(row.get("bDescription")).isEqualTo("desc");
     assertThat(row.get("bEnabled")).isIn(true, /* for Oracle */1L, 1);
@@ -1379,6 +1381,7 @@ public class ComponentDaoTest {
 
     Map<String, Object> row1 = selectBColumnsForUuid("U1");
     assertThat(row1.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
+    assertThat(row1.get("bKey")).isEqualTo(dto1.getDbKey());
     assertThat(row1.get("bCopyComponentUuid")).isEqualTo(dto1.getCopyResourceUuid());
     assertThat(row1.get("bDescription")).isEqualTo(dto1.description());
     assertThat(row1.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
@@ -1393,6 +1396,7 @@ public class ComponentDaoTest {
 
     Map<String, Object> row2 = selectBColumnsForUuid("U2");
     assertThat(row2.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
+    assertThat(row2.get("bKey")).isEqualTo(dto2.getDbKey());
     assertThat(row2.get("bCopyComponentUuid")).isEqualTo(dto2.getCopyResourceUuid());
     assertThat(row2.get("bDescription")).isEqualTo(dto2.description());
     assertThat(row2.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
@@ -1411,7 +1415,7 @@ public class ComponentDaoTest {
 
   private Map<String, Object> selectBColumnsForUuid(String uuid) {
     return db.selectFirst(
-      "select b_changed as \"bChanged\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as \"bDescription\", " +
+      "select b_changed as \"bChanged\", deprecated_kee as \"bKey\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as \"bDescription\", " +
         "b_enabled as \"bEnabled\", b_uuid_path as \"bUuidPath\", b_language as \"bLanguage\", b_long_name as \"bLongName\"," +
         "b_module_uuid as \"bModuleUuid\", b_module_uuid_path as \"bModuleUuidPath\", b_name as \"bName\", " +
         "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +

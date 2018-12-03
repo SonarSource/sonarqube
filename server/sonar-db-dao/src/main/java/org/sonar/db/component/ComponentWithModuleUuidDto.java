@@ -26,11 +26,13 @@ public class ComponentWithModuleUuidDto {
   private final String uuid;
   private final String moduleUuid;
   private final String path;
+  private final String scope;
 
-  public ComponentWithModuleUuidDto(String uuid, String moduleUuid, String path) {
+  public ComponentWithModuleUuidDto(String uuid, String moduleUuid, String path, String scope) {
     this.uuid = uuid;
     this.moduleUuid = moduleUuid;
     this.path = path;
+    this.scope = scope;
   }
 
   public String path() {
@@ -43,5 +45,9 @@ public class ComponentWithModuleUuidDto {
 
   public String uuid() {
     return uuid;
+  }
+
+  public String scope() {
+    return scope;
   }
 }

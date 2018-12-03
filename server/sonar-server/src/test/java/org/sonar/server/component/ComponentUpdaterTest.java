@@ -82,7 +82,6 @@ public class ComponentUpdaterTest {
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getDbKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(loaded.deprecatedKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(loaded.name()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(loaded.qualifier()).isEqualTo(Qualifiers.PROJECT);

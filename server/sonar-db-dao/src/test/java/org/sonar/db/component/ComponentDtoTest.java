@@ -34,7 +34,6 @@ public class ComponentDtoTest {
     ComponentDto componentDto = new ComponentDto()
       .setId(1L)
       .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
       .setQualifier("FIL")
@@ -47,7 +46,6 @@ public class ComponentDtoTest {
 
     assertThat(componentDto.getId()).isEqualTo(1L);
     assertThat(componentDto.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(componentDto.deprecatedKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.getBranch()).isNull();
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
     assertThat(componentDto.longName()).isEqualTo("org.struts.RequestContext");

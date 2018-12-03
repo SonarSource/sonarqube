@@ -23,10 +23,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -38,28 +40,65 @@ import org.sonar.db.component.KeyWithUuidDto;
 public class ComponentUuidFactory {
   private final Map<String, String> uuidsByKey = new HashMap<>();
 
-  public ComponentUuidFactory(DbClient dbClient, DbSession dbSession, String rootKey, Supplier<Map<String, String>> reportModulesPath) {
-    Map<String, String> modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey, reportModulesPath);
+  public ComponentUuidFactory(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> reportModulesPath) {
+    Map<String, String> modulePathsByUuid;
 
-    if (modulePathsByUuid.isEmpty()) {
-      // only contains root project or we don't have relative paths for other modules anyway
-      List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
-      keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
+    if (reportModulesPath.isEmpty()) {
+      noMigration(dbClient, dbSession, rootKey);
     } else {
-      List<ComponentWithModuleUuidDto> dtos = loadComponentsWithModuleUuid(dbClient, dbSession, rootKey);
-      for (ComponentWithModuleUuidDto dto : dtos) {
-        String pathFromRootProject = modulePathsByUuid.get(dto.moduleUuid());
-        String componentPath = StringUtils.isEmpty(pathFromRootProject) ? dto.path() : (pathFromRootProject + "/" + dto.path());
+      modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey, reportModulesPath);
+
+      if (modulePathsByUuid.isEmpty()) {
+        noMigration(dbClient, dbSession, rootKey);
+      } else {
+        doMigration(dbClient, dbSession, rootKey, modulePathsByUuid);
+      }
+    }
+  }
+
+  private void noMigration(DbClient dbClient, DbSession dbSession, String rootKey) {
+    List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
+  }
+
+  private void doMigration(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> modulePathsByUuid) {
+    List<ComponentWithModuleUuidDto> dtos = loadComponentsWithModuleUuid(dbClient, dbSession, rootKey);
+    for (ComponentWithModuleUuidDto dto : dtos) {
+      if ("/".equals(dto.path())) {
+        // skip root folders
+        continue;
+      }
+
+      if (Scopes.PROJECT.equals(dto.scope())) {
+        String modulePathFromRootProject = modulePathsByUuid.get(dto.uuid());
+        uuidsByKey.put(ComponentKeys.createEffectiveKey(rootKey, modulePathFromRootProject), dto.uuid());
+      } else {
+        String modulePathFromRootProject = modulePathsByUuid.get(dto.moduleUuid());
+        String componentPath = createComponentPath(dto, modulePathFromRootProject);
         uuidsByKey.put(ComponentKeys.createEffectiveKey(rootKey, componentPath), dto.uuid());
       }
     }
+  }
+
+  @CheckForNull
+  private static String createComponentPath(ComponentWithModuleUuidDto dto, @Nullable String modulePathFromRootProject) {
+    if (StringUtils.isEmpty(modulePathFromRootProject)) {
+      return dto.path();
+    }
+
+    if (StringUtils.isEmpty(dto.path())) {
+      // will be the case for modules
+      return modulePathFromRootProject;
+    }
+
+    return modulePathFromRootProject + "/" + dto.path();
   }
 
   private static List<ComponentWithModuleUuidDto> loadComponentsWithModuleUuid(DbClient dbClient, DbSession dbSession, String rootKey) {
     return dbClient.componentDao().selectComponentsWithModuleUuidFromProjectKey(dbSession, rootKey);
   }
 
-  private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Supplier<Map<String, String>> reportModulesPath) {
+  private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> pathByModuleKey) {
     List<ComponentDto> moduleDtos = dbClient.componentDao()
       .selectModulesFromProjectKey(dbSession, rootKey, false).stream()
       .filter(c -> Qualifiers.MODULE.equals(c.qualifier()))
@@ -69,7 +108,6 @@ public class ComponentUuidFactory {
       return Collections.emptyMap();
     }
 
-    Map<String, String> pathByModuleKey = reportModulesPath.get();
     Map<String, String> modulePathByUuid = new HashMap<>();
     for (ComponentDto dto : moduleDtos) {
       String relativePath = pathByModuleKey.get(dto.getKey());

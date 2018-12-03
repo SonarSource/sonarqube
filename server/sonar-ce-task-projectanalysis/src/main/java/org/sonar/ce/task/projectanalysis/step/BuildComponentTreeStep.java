@@ -79,7 +79,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       String rootKey = keyGenerator.generateKey(reportProject, null);
 
       // loads the UUIDs from database. If they don't exist, then generate new ones
-      ComponentUuidFactory componentUuidFactory = new ComponentUuidFactory(dbClient, dbSession, rootKey, reportModulesPath);
+      ComponentUuidFactory componentUuidFactory = new ComponentUuidFactory(dbClient, dbSession, rootKey, reportModulesPath.get());
 
       String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
       SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
