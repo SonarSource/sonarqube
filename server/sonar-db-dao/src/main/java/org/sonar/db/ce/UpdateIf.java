@@ -26,7 +26,7 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-final class UpdateIf {
+public final class UpdateIf {
   private UpdateIf() {
     // just a wrapping class, prevent instantiation
   }
@@ -38,7 +38,7 @@ final class UpdateIf {
     private final Long startedAt;
     private final long updatedAt;
 
-    NewProperties(CeQueueDto.Status status, @Nullable String workerUuid,
+    public NewProperties(CeQueueDto.Status status, @Nullable String workerUuid,
       long startedAt, long updatedAt) {
       checkArgument(workerUuid == null || workerUuid.length() <= 40, "worker uuid is too long: %s", workerUuid);
       this.status = requireNonNull(status, "status can't be null");
@@ -69,7 +69,7 @@ final class UpdateIf {
   public static class OldProperties {
     private final CeQueueDto.Status status;
 
-    OldProperties(CeQueueDto.Status status) {
+    public OldProperties(CeQueueDto.Status status) {
       this.status = requireNonNull(status, "status can't be null");
     }
 
