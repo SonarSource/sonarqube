@@ -67,6 +67,7 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
             }
             onComment={[Function]}
             placeholder=""
+            placement="bottom-right"
             toggleComment={[Function]}
           />
         }
@@ -191,6 +192,7 @@ exports[`should render correctly a comment that is updatable 1`] = `
             }
             onComment={[Function]}
             placeholder=""
+            placement="bottom-right"
             toggleComment={[Function]}
           />
         }

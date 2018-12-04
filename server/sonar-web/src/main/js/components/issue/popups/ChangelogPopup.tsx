@@ -24,6 +24,7 @@ import Avatar from '../../ui/Avatar';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import IssueChangelogDiff, { ChangelogDiff } from '../components/IssueChangelogDiff';
 import { DropdownOverlay } from '../../controls/Dropdown';
+import { PopupPlacement } from '../../ui/popups';
 
 interface Changelog {
   avatar?: string;
@@ -71,7 +72,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
     const { issue } = this.props;
     const { author } = issue;
     return (
-      <DropdownOverlay>
+      <DropdownOverlay placement={PopupPlacement.BottomRight}>
         <div className="menu is-container issue-changelog">
           <table className="spaced">
             <tbody>

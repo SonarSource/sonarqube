@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render the comment delete popup correctly 1`] = `
-<DropdownOverlay>
+<DropdownOverlay
+  placement="bottom-right"
+>
   <div
     className="menu is-container"
   >

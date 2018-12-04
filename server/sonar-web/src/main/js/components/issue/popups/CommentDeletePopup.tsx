@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Button } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
+import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   onDelete: () => void;
@@ -28,7 +29,7 @@ interface Props {
 
 export default function CommentDeletePopup({ onDelete }: Props) {
   return (
-    <DropdownOverlay>
+    <DropdownOverlay placement={PopupPlacement.BottomRight}>
       <div className="menu is-container">
         <div className="spacer-bottom">{translate('issue.comment.delete_confirm_message')}</div>
         <Button className="button-red" onClick={onDelete}>

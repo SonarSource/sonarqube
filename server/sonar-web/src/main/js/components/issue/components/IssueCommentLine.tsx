@@ -24,6 +24,7 @@ import { EditButton, DeleteButton } from '../../ui/buttons';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
 import DateFromNow from '../../intl/DateFromNow';
+import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   comment: T.IssueComment;
@@ -104,6 +105,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
                     comment={comment}
                     onComment={this.handleEdit}
                     placeholder=""
+                    placement={PopupPlacement.BottomRight}
                     toggleComment={this.toggleEditPopup}
                   />
                 }>

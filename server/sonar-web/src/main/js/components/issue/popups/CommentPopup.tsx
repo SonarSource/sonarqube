@@ -22,13 +22,14 @@ import MarkdownTips from '../../common/MarkdownTips';
 import { Button, ResetButtonLink } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
+import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
   comment?: Pick<T.IssueComment, 'markdown'>;
   onComment: (text: string) => void;
   toggleComment: (visible: boolean) => void;
   placeholder: string;
-  popupPosition?: {};
+  placement?: PopupPlacement;
 }
 
 interface State {
@@ -70,7 +71,7 @@ export default class CommentPopup extends React.PureComponent<Props, State> {
   render() {
     const { comment } = this.props;
     return (
-      <DropdownOverlay>
+      <DropdownOverlay placement={this.props.placement}>
         <div className="issue-comment-bubble-popup">
           <div className="issue-comment-form-text">
             <textarea
