@@ -123,8 +123,7 @@
 }
 
 .issue-comment {
-  display: table;
-  width: 100%;
+  display: flex;
 }
 
 .issue-comment + .issue-comment {
@@ -132,10 +131,8 @@
 }
 
 .issue-comment-author {
-  display: table-cell;
-  vertical-align: top;
+  flex-shrink: 0;
   max-width: 130px;
-  width: 1px;
   line-height: 18px;
   color: var(--secondFontColor);
   font-weight: 600;
@@ -145,29 +142,26 @@
 }
 
 .issue-comment-age {
-  display: table-cell;
-  vertical-align: top;
-  width: 1px;
+  flex-shrink: 0;
   line-height: 18px;
   white-space: nowrap;
   color: var(--secondFontColor);
 }
 
 .issue-comment-text {
-  display: table-cell;
-  vertical-align: top;
-  padding-left: 5px;
-  padding-right: 5px;
+  flex: 1;
+  min-width: 0;
+  margin-left: 5px;
+  margin-right: 5px;
   line-height: 18px;
   line-height: 1.5;
+  overflow: hidden;
   outline: none;
   word-break: break-all;
 }
 
 .issue-comment-actions {
-  display: table-cell;
-  vertical-align: top;
-  width: 1px;
+  flex-shrink: 0;
   padding-left: 5px;
   line-height: 18px;
   white-space: nowrap;
