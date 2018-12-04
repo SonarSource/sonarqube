@@ -89,7 +89,6 @@ public class PersistLiveMeasuresStep implements ComputationStep {
       Component root = treeRootHolder.getRoot();
       MeasureVisitor visitor = new MeasureVisitor(dbSession, supportUpsert);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
-      dbSession.commit();
 
       context.getStatistics().add("insertsOrUpdates", visitor.insertsOrUpdates);
     }
@@ -138,6 +137,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
       // when the coverage on a file goes to the "best value" 100%.
       // The measures on deleted components are deleted by the step PurgeDatastoresStep
       dao.deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
+      dbSession.commit();
     }
   }
 
