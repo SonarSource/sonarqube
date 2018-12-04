@@ -26,6 +26,7 @@ dependencies {
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.microsoft.sqlserver:mssql-jdbc'
   testCompile 'com.oracle.jdbc:ojdbc8'
+  testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
   testCompile 'mysql:mysql-connector-java'
   testCompile 'org.assertj:assertj-core'
