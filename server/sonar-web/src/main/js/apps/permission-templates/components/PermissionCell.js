@@ -19,7 +19,9 @@
  */
 import React from 'react';
 import { PermissionType } from '../propTypes';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 
 export default class PermissionCell extends React.PureComponent {
   static propTypes = {
@@ -34,8 +36,16 @@ export default class PermissionCell extends React.PureComponent {
         <div className="permission-column-inner">
           <ul>
             {p.withProjectCreator && (
-              <li className="little-spacer-bottom">
+              <li className="little-spacer-bottom display-flex-center">
                 {translate('permission_templates.project_creators')}
+                <HelpTooltip
+                  className="little-spacer-left"
+                  overlay={translate(
+                    isSonarCloud()
+                      ? 'permission_templates.project_creators.explanation.sonarcloud'
+                      : 'permission_templates.project_creators.explanation'
+                  )}
+                />
               </li>
             )}
             <li className="little-spacer-bottom">

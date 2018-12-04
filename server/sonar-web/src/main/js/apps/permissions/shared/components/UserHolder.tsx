@@ -23,6 +23,7 @@ import PermissionCell from './PermissionCell';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../utils';
+import { isSonarCloud } from '../../../../helpers/system';
 
 interface Props {
   onToggle: (user: T.PermissionUser, permission: string) => Promise<void>;
@@ -84,7 +85,11 @@ export default class UserHolder extends React.PureComponent<Props, State> {
                 <strong>{user.name}</strong>
               </div>
               <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-                {translate('permission_templates.project_creators.explanation')}
+                {translate(
+                  isSonarCloud()
+                    ? 'permission_templates.project_creators.explanation.sonarcloud'
+                    : 'permission_templates.project_creators.explanation'
+                )}
               </div>
             </div>
           </td>
