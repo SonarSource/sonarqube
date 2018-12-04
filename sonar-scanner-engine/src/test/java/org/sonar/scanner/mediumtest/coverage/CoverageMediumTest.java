@@ -202,49 +202,6 @@ public class CoverageMediumTest {
   }
 
   @Test
-  public void warn_user_for_outdated_module_exclusions_for_multi_module_project() throws IOException {
-
-    File baseDir = temp.getRoot();
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
-    File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
-
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    File xooUtCoverageFileA = new File(srcDirA, "sample.xoo.coverage");
-    FileUtils.write(xooFileA, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
-    FileUtils.write(xooUtCoverageFileA, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    File xooUtCoverageFileB = new File(srcDirB, "sample.xoo.coverage");
-    FileUtils.write(xooFileB, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
-    FileUtils.write(xooUtCoverageFileB, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
-
-    AnalysisResult result = tester.newAnalysis()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.sources", "src")
-        .put("sonar.modules", "moduleA,moduleB")
-        .put("moduleB.sonar.coverage.exclusions", "src/sample.xoo")
-        .build())
-      .execute();
-
-    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
-    assertThat(result.coverageFor(fileA, 2)).isNotNull();
-
-    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
-    assertThat(result.coverageFor(fileB, 2)).isNull();
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Defining coverage exclusions at module level is deprecated. " +
-      "Move 'sonar.coverage.exclusions' from module 'moduleB' " +
-      "to the root project and update patterns to refer to project relative paths");
-  }
-
-  @Test
   public void fallbackOnExecutableLines() throws IOException {
 
     File baseDir = temp.getRoot();

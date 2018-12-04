@@ -162,10 +162,6 @@ public class FileIndexer {
         warnOnceDeprecatedCoverageExclusion(
           "File '" + inputFile + "' was excluded from coverage because patterns are still evaluated using module relative paths but this is deprecated. " +
             "Please update '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' configuration so that patterns refer to project relative paths");
-      } else {
-        warnOnceDeprecatedCoverageExclusion("Defining coverage exclusions at module level is deprecated. " +
-          "Move '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' from module '" + module.getName() + "' " +
-          "to the root project and update patterns to refer to project relative paths");
       }
       LOG.debug("File {} excluded for coverage", inputFile);
     }
