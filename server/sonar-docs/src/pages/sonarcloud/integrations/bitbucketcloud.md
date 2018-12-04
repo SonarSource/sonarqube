@@ -28,8 +28,6 @@ script:
 
 When this change on `bitbucket-pipelines.yml` is committed and pushed, Pipelines should automatically run a new build and therefore trigger the analysis of the repository. Shortly after, your project will appear on SonarCloud in your organization.
 
-4.  Once you see your project in SonarCloud, go to the Bitbucket Cloud "Settings > SonarCloud" page. If the dropdown is empty, find your project in the select box to link it.
-
 From now on, everytime Pipelines triggers a build, SonarCloud will:
 
 * Analyze every new branch that contains the change on the `bitbucket-pipelines.yml` file.
@@ -38,18 +36,6 @@ From now on, everytime Pipelines triggers a build, SonarCloud will:
 ## Quality widget
 
 SonarCloud provides a widget that shows the current quality metrics of your project directly on the repository's Overview page on Bitbucket Cloud.
-
-If you have configured the analysis with Pipelines as described above, you will see this widget on the "Overview" page of your repository.
-
-If you haven't configured the analysis with Pipelines (maybe because you are using another CI tool), follow these few steps:
-
-1.  Go to the repository where you want to display the widget. On the "Overview" page, you should see an empty SonarCloud widget. Click on the link inside the empty widget or just go directly to your repository's "Settings > SonarCloud Settings".
-
-2.  If you're not already logged in on SonarCloud, do it by using the options provided there. You can log in with Bitbucket Cloud by clicking on the blue button.
-
-3.  Once you're logged in on SonarCloud, you should see a dropdown allowing you to choose one of the projects you administer. Just choose the one you want to link to this Bitbucket repository and click "Save".
-
-4.  You can now go back to your repository's Overview page on Bitbucket and see the widget with all current SonarCloud metrics displayed.
 
 If you want to hide this widget (e.g. because your repository is not analyzed on SonarCloud), you can go to the "Settings > SonarCloud" page of your repository and check "Hide repository overview widget".
 
