@@ -42,6 +42,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -720,6 +721,22 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);
+  }
+
+  @Test
+  public void deprecated_global_sensor_should_see_project_relative_paths() {
+    File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property(DeprecatedGlobalSensor.ENABLE_PROP, "true")
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(4);
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains(
+      "Deprecated Global Sensor: module_a/module_a1/src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
+      "Deprecated Global Sensor: module_a/module_a2/src/main/xoo/com/sonar/it/samples/modules/a2/HelloA2.xoo",
+      "Deprecated Global Sensor: module_b/module_b1/src/main/xoo/com/sonar/it/samples/modules/b1/HelloB1.xoo",
+      "Deprecated Global Sensor: module_b/module_b2/src/main/xoo/com/sonar/it/samples/modules/b2/HelloB2.xoo");
   }
 
   @Test

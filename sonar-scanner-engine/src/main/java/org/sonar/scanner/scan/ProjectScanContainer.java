@@ -68,7 +68,6 @@ import org.sonar.scanner.issue.tracking.ServerIssueRepository;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.AnalysisObservers;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
-import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobsExecutor;
@@ -112,6 +111,7 @@ import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGenerator;
+import org.sonar.scanner.scan.filesystem.ProjectCoverageExclusions;
 import org.sonar.scanner.scan.filesystem.ProjectExclusionFilters;
 import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
@@ -123,6 +123,10 @@ import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
+import org.sonar.scanner.sensor.ProjectSensorContext;
+import org.sonar.scanner.sensor.ProjectSensorExtensionDictionnary;
+import org.sonar.scanner.sensor.ProjectSensorOptimizer;
+import org.sonar.scanner.sensor.ProjectSensorsExecutor;
 import org.sonar.scanner.storage.Storages;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
@@ -272,6 +276,10 @@ public class ProjectScanContainer extends ComponentContainer {
       // Sensors
       DefaultSensorStorage.class,
       DefaultFileLinesContextFactory.class,
+      ProjectSensorContext.class,
+      ProjectSensorOptimizer.class,
+      ProjectSensorsExecutor.class,
+      ProjectSensorExtensionDictionnary.class,
 
       // Filesystem
       DefaultProjectFileSystem.class,
@@ -350,8 +358,10 @@ public class ProjectScanContainer extends ComponentContainer {
     // Log detected languages and their profiles after FS is indexed and languages detected
     getComponentByType(QProfileVerifier.class).execute();
 
-    LOG.debug("Start recursive analysis of project modules");
     scanRecursively(tree, tree.root());
+
+    LOG.info("------------- Run sensors on project");
+    getComponentByType(ProjectSensorsExecutor.class).execute();
 
     getComponentByType(ScmPublisher.class).publish();
 
@@ -390,6 +400,7 @@ public class ProjectScanContainer extends ComponentContainer {
     for (DefaultInputModule child : tree.children(module)) {
       scanRecursively(tree, child);
     }
+    LOG.info("------------- Run sensors on module {}", module.definition().getName());
     scan(module);
   }
 

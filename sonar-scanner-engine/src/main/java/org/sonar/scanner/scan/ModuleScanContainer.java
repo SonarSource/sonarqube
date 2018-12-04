@@ -19,26 +19,23 @@
  */
 package org.sonar.scanner.scan;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
-import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
-import org.sonar.scanner.phases.SensorsExecutor;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
-import org.sonar.scanner.sensor.DefaultSensorContext;
-import org.sonar.scanner.sensor.SensorOptimizer;
+import org.sonar.scanner.sensor.ModuleSensorContext;
+import org.sonar.scanner.sensor.ModuleSensorExtensionDictionnary;
+import org.sonar.scanner.sensor.ModuleSensorOptimizer;
+import org.sonar.scanner.sensor.ModuleSensorsExecutor;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_PROJECT;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 
 public class ModuleScanContainer extends ComponentContainer {
-  private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final DefaultInputModule module;
 
   public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module) {
@@ -48,7 +45,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    LOG.info("-------------  Scan {}", module.definition().getName());
     addCoreComponents();
     addExtensions();
   }
@@ -60,17 +56,17 @@ public class ModuleScanContainer extends ComponentContainer {
       MutableModuleSettings.class,
       new ModuleConfigurationProvider(),
 
-      SensorsExecutor.class,
+      ModuleSensorsExecutor.class,
 
       // file system
       ModuleInputComponentStore.class,
       FileExclusions.class,
       DefaultModuleFileSystem.class,
 
-      SensorOptimizer.class,
+      ModuleSensorOptimizer.class,
 
-      DefaultSensorContext.class,
-      SensorExtensionDictionnary.class,
+      ModuleSensorContext.class,
+      ModuleSensorExtensionDictionnary.class,
 
       // Perspectives
       ScannerPerspectives.class);
@@ -83,7 +79,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    getComponentByType(SensorsExecutor.class).execute();
+    getComponentByType(ModuleSensorsExecutor.class).execute();
   }
 
 }

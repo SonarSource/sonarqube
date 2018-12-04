@@ -42,8 +42,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.scanner.phases.ModuleCoverageExclusions;
-import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.util.ProgressReport;
 
 /**

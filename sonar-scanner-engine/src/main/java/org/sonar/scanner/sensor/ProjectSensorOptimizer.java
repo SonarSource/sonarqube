@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.phases;
+package org.sonar.scanner.sensor;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.scanner.scan.ProjectConfiguration;
+import org.sonar.scanner.scan.filesystem.DefaultProjectFileSystem;
 
-@Immutable
-public class ProjectCoverageExclusions extends AbstractCoverageExclusions {
+public class ProjectSensorOptimizer extends AbstractSensorOptimizer {
 
-  public ProjectCoverageExclusions(ProjectConfiguration projectConfig) {
-    super(projectConfig::getStringArray, DefaultInputFile::getProjectRelativePath);
-    log();
+  public ProjectSensorOptimizer(DefaultProjectFileSystem fs, ActiveRules activeRules, ProjectConfiguration config) {
+    super(fs, activeRules, config);
   }
+
 }

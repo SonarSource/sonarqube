@@ -59,13 +59,13 @@ public interface SensorContext {
   Settings settings();
 
   /**
-   * Get settings of the current module, or of the project for a global Sensor.
+   * Get settings of the project.
    * @since 6.5
    */
   Configuration config();
 
   /**
-   * Get filesystem of the current module.
+   * Get filesystem of the project.
    */
   FileSystem fileSystem();
 
@@ -77,6 +77,7 @@ public interface SensorContext {
   /**
    * @since 5.5
    * @deprecated since 7.6 modules are deprecated. Use {@link #project()} instead.
+   * @throws UnsupportedOperationException for global {@link org.sonar.api.scanner.sensor.Sensor}s
    */
   @Deprecated
   InputModule module();

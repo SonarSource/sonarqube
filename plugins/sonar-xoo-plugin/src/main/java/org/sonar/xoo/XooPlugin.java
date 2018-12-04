@@ -31,6 +31,7 @@ import org.sonar.xoo.coverage.UtCoverageSensor;
 import org.sonar.xoo.extensions.XooIssueFilter;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
+import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalSensor;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 import org.sonar.xoo.lang.LineMeasureSensor;
@@ -170,6 +171,9 @@ public class XooPlugin implements Plugin {
       context.addExtension(XooBuiltInQualityProfilesDefinition.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6, 4))) {
+      context.addExtension(DeprecatedGlobalSensor.class);
+    }
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 6))) {
       context.addExtension(GlobalSensor.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2))) {

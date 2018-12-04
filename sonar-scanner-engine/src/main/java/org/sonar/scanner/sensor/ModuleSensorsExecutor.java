@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.phases;
+package org.sonar.scanner.sensor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,20 +29,18 @@ import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
-import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.scanner.sensor.SensorWrapper;
 
-public class SensorsExecutor {
-  private static final Logger LOG = Loggers.get(SensorsExecutor.class);
+public class ModuleSensorsExecutor {
+  private static final Logger LOG = Loggers.get(ModuleSensorsExecutor.class);
   private static final Profiler profiler = Profiler.create(LOG);
-  private final SensorExtensionDictionnary selector;
+  private final ModuleSensorExtensionDictionnary selector;
   private final SensorStrategy strategy;
   private final ScannerPluginRepository pluginRepo;
   private final boolean isRoot;
 
-  public SensorsExecutor(SensorExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
-                         SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
+  public ModuleSensorsExecutor(ModuleSensorExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
+                               SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
     this.strategy = strategy;
     this.pluginRepo = pluginRepo;
@@ -50,22 +48,22 @@ public class SensorsExecutor {
   }
 
   public void execute() {
-    Collection<SensorWrapper> moduleSensors = new ArrayList<>();
+    Collection<ModuleSensorWrapper> moduleSensors = new ArrayList<>();
     withModuleStrategy(() -> moduleSensors.addAll(selector.selectSensors(false)));
-    Collection<SensorWrapper> globalSensors = new ArrayList<>();
+    Collection<ModuleSensorWrapper> deprecatedGlobalSensors = new ArrayList<>();
     if (isRoot) {
-      globalSensors.addAll(selector.selectSensors(true));
+      deprecatedGlobalSensors.addAll(selector.selectSensors(true));
     }
 
-    printSensors(moduleSensors, globalSensors);
+    printSensors(moduleSensors, deprecatedGlobalSensors);
     withModuleStrategy(() -> execute(moduleSensors));
 
     if (isRoot) {
-      execute(globalSensors);
+      execute(deprecatedGlobalSensors);
     }
   }
 
-  private void printSensors(Collection<SensorWrapper> moduleSensors, Collection<SensorWrapper> globalSensors) {
+  private void printSensors(Collection<ModuleSensorWrapper> moduleSensors, Collection<ModuleSensorWrapper> globalSensors) {
     String sensors = Stream
       .concat(moduleSensors.stream(), globalSensors.stream())
       .map(Object::toString)
@@ -80,8 +78,8 @@ public class SensorsExecutor {
     strategy.setGlobal(orig);
   }
 
-  private void execute(Collection<SensorWrapper> sensors) {
-    for (SensorWrapper sensor : sensors) {
+  private void execute(Collection<ModuleSensorWrapper> sensors) {
+    for (ModuleSensorWrapper sensor : sensors) {
       String sensorName = getSensorName(sensor);
       profiler.startInfo("Sensor " + sensorName);
       sensor.analyse();
@@ -89,7 +87,7 @@ public class SensorsExecutor {
     }
   }
 
-  private String getSensorName(SensorWrapper sensor) {
+  private String getSensorName(ModuleSensorWrapper sensor) {
     ClassLoader cl = getSensorClassLoader(sensor);
     String pluginKey = pluginRepo.getPluginKey(cl);
     if (pluginKey != null) {
@@ -98,7 +96,7 @@ public class SensorsExecutor {
     return sensor.toString();
   }
 
-  private static ClassLoader getSensorClassLoader(SensorWrapper sensor) {
+  private static ClassLoader getSensorClassLoader(ModuleSensorWrapper sensor) {
     return sensor.wrappedSensor().getClass().getClassLoader();
   }
 }

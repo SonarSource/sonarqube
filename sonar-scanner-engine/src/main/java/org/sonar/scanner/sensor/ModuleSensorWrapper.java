@@ -23,20 +23,20 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 
-public class SensorWrapper {
+public class ModuleSensorWrapper {
   private final Sensor wrappedSensor;
   private final SensorContext context;
   private final DefaultSensorDescriptor descriptor;
-  private final SensorOptimizer optimizer;
+  private final ModuleSensorOptimizer optimizer;
 
-  public SensorWrapper(Sensor newSensor, SensorContext context, SensorOptimizer optimizer) {
-    this.wrappedSensor = newSensor;
+  public ModuleSensorWrapper(Sensor sensor, SensorContext context, ModuleSensorOptimizer optimizer) {
+    this.wrappedSensor = sensor;
     this.optimizer = optimizer;
     this.context = context;
     this.descriptor = new DefaultSensorDescriptor();
-    newSensor.describe(this.descriptor);
+    sensor.describe(this.descriptor);
     if (descriptor.name() == null) {
-      descriptor.name(newSensor.getClass().getName());
+      descriptor.name(sensor.getClass().getName());
     }
   }
 

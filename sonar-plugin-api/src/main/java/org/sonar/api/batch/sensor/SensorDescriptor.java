@@ -24,7 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 
 /**
- * Describe what a {@link Sensor} is doing. Information may be used by the platform
+ * Describe what a {@link org.sonar.api.scanner.sensor.Sensor} is doing. Information may be used by the platform
  * to log interesting information or perform some optimization.
  * See {@link Sensor#describe(SensorDescriptor)}
  * @since 5.1
@@ -88,11 +88,13 @@ public interface SensorDescriptor {
   /**
    * This sensor should be executed at the project level, instead of per-module.
    * @since 6.4
+   * @deprecated since 7.6 change your {@link Sensor} to a {@link org.sonar.api.scanner.sensor.Sensor} instead
    */
+  @Deprecated
   SensorDescriptor global();
 
   /**
-   * Predicate that will be evaluated on current module/project {@link Configuration} by the platform to decide if execution of the {@link Sensor} should be skipped.
+   * Predicate that will be evaluated on current project {@link Configuration} by the platform to decide if execution of the {@link Sensor} should be skipped.
    * @since 6.5
    */
   SensorDescriptor onlyWhenConfiguration(Predicate<Configuration> predicate);

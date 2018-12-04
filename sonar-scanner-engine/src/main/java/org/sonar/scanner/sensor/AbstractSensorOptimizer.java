@@ -27,15 +27,15 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.Configuration;
 
-public class SensorOptimizer {
+public abstract class AbstractSensorOptimizer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SensorOptimizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractSensorOptimizer.class);
 
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final Configuration config;
 
-  public SensorOptimizer(FileSystem fs, ActiveRules activeRules, Configuration config) {
+  public AbstractSensorOptimizer(FileSystem fs, ActiveRules activeRules, Configuration config) {
     this.fs = fs;
     this.activeRules = activeRules;
     this.config = config;

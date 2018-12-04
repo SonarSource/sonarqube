@@ -132,7 +132,7 @@ public abstract class AbstractExtensionDictionnary {
     }
   }
 
-  List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
+  public List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = new ArrayList<>();
     Class<?> aClass = extension.getClass();
     while (aClass != null) {

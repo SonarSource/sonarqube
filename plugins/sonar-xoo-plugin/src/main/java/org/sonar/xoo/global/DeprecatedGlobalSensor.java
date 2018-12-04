@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,26 +19,27 @@
  */
 package org.sonar.xoo.global;
 
-import org.sonar.api.scanner.sensor.Sensor;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-public class GlobalSensor implements Sensor {
+public class DeprecatedGlobalSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(GlobalSensor.class);
-  public static final String ENABLE_PROP = "sonar.scanner.mediumtest.globalSensor";
+  private static final Logger LOG = Loggers.get(DeprecatedGlobalSensor.class);
+  public static final String ENABLE_PROP = "sonar.scanner.mediumtest.deprecatedGlobalSensor";
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("Global Sensor")
+      .name("Deprecated Global Sensor")
+      .global()
       .onlyWhenConfiguration(c -> c.hasKey(ENABLE_PROP));
   }
 
   @Override
   public void execute(SensorContext context) {
-    context.fileSystem().inputFiles(context.fileSystem().predicates().all()).forEach(inputFile -> LOG.info("Global Sensor: {}", inputFile.relativePath()));
+    context.fileSystem().inputFiles(context.fileSystem().predicates().all()).forEach(inputFile -> LOG.info("Deprecated Global Sensor: {}", inputFile.relativePath()));
   }
 }

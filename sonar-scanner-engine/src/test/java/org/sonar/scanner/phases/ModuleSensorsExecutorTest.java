@@ -31,9 +31,10 @@ import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.scanner.bootstrap.SensorExtensionDictionnary;
+import org.sonar.scanner.sensor.ModuleSensorExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.scanner.sensor.SensorWrapper;
+import org.sonar.scanner.sensor.ModuleSensorsExecutor;
+import org.sonar.scanner.sensor.ModuleSensorWrapper;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -41,17 +42,17 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class SensorsExecutorTest {
+public class ModuleSensorsExecutorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private SensorsExecutor rootModuleExecutor;
-  private SensorsExecutor subModuleExecutor;
+  private ModuleSensorsExecutor rootModuleExecutor;
+  private ModuleSensorsExecutor subModuleExecutor;
 
   private SensorStrategy strategy = new SensorStrategy();
 
-  private SensorWrapper perModuleSensor = mock(SensorWrapper.class);
-  private SensorWrapper globalSensor = mock(SensorWrapper.class);
+  private ModuleSensorWrapper perModuleSensor = mock(ModuleSensorWrapper.class);
+  private ModuleSensorWrapper globalSensor = mock(ModuleSensorWrapper.class);
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
   @Before
@@ -64,7 +65,7 @@ public class SensorsExecutorTest {
     when(globalSensor.shouldExecute()).thenReturn(true);
     when(globalSensor.wrappedSensor()).thenReturn(mock(Sensor.class));
 
-    SensorExtensionDictionnary selector = mock(SensorExtensionDictionnary.class);
+    ModuleSensorExtensionDictionnary selector = mock(ModuleSensorExtensionDictionnary.class);
     when(selector.selectSensors(false)).thenReturn(Collections.singleton(perModuleSensor));
     when(selector.selectSensors(true)).thenReturn(Collections.singleton(globalSensor));
 
@@ -77,8 +78,8 @@ public class SensorsExecutorTest {
     InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
     when(hierarchy.isRoot(rootModule)).thenReturn(true);
 
-    rootModuleExecutor = new SensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepository);
-    subModuleExecutor = new SensorsExecutor(selector, subModule, hierarchy, strategy, pluginRepository);
+    rootModuleExecutor = new ModuleSensorsExecutor(selector, rootModule, hierarchy, strategy, pluginRepository);
+    subModuleExecutor = new ModuleSensorsExecutor(selector, subModule, hierarchy, strategy, pluginRepository);
   }
 
   @Test

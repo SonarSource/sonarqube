@@ -40,7 +40,6 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 
@@ -48,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultSensorContextTest {
+public class ModuleSensorContextTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -58,7 +57,7 @@ public class DefaultSensorContextTest {
 
   private ActiveRules activeRules;
   private DefaultFileSystem fs;
-  private DefaultSensorContext adaptor;
+  private ModuleSensorContext adaptor;
   private MapSettings settings;
   private SensorStorage sensorStorage;
   private AnalysisMode analysisMode;
@@ -79,7 +78,7 @@ public class DefaultSensorContextTest {
     hierarchy = new DefaultInputModuleHierarchy(new DefaultInputModule(ProjectDefinition.create()
       .setWorkDir(temp.newFolder())
       .setBaseDir(temp.newFolder()).setKey("foo")));
-    adaptor = new DefaultSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
   }
 
   @Test
@@ -94,7 +93,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.newExternalIssue()).isNotNull();
     assertThat(adaptor.newAdHocRule()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
-    assertThat(adaptor.newAnalysisError()).isEqualTo(DefaultSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
+    assertThat(adaptor.newAnalysisError()).isEqualTo(ModuleSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
     assertThat(adaptor.isCancelled()).isFalse();
     assertThat(adaptor.newSignificantCode()).isNotNull();
   }
@@ -102,7 +101,7 @@ public class DefaultSensorContextTest {
   @Test
   public void shouldSkipSignificantCodeOnPreviewMode() {
     when(analysisMode.isIssues()).thenReturn(true);
-    assertThat(adaptor.newSignificantCode()).isEqualTo(DefaultSensorContext.NO_OP_NEW_SIGNIFICANT_CODE);
+    assertThat(adaptor.newSignificantCode()).isEqualTo(ModuleSensorContext.NO_OP_NEW_SIGNIFICANT_CODE);
 
   }
 
@@ -110,16 +109,16 @@ public class DefaultSensorContextTest {
   public void shouldSkipSeveralObjectsInPreviewMode() {
     when(analysisMode.isIssues()).thenReturn(true);
     when(analysisMode.isPreview()).thenReturn(true);
-    assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
-    assertThat(adaptor.newSymbolTable()).isEqualTo(DefaultSensorContext.NO_OP_NEW_SYMBOL_TABLE);
-    assertThat(adaptor.newExternalIssue()).isEqualTo(DefaultSensorContext.NO_OP_NEW_EXTERNAL_ISSUE);
-    assertThat(adaptor.newAdHocRule()).isEqualTo(DefaultSensorContext.NO_OP_NEW_AD_HOC_RULE);
-    assertThat(adaptor.newHighlighting()).isEqualTo(DefaultSensorContext.NO_OP_NEW_HIGHLIGHTING);
+    assertThat(adaptor.newCpdTokens()).isEqualTo(ModuleSensorContext.NO_OP_NEW_CPD_TOKENS);
+    assertThat(adaptor.newSymbolTable()).isEqualTo(ModuleSensorContext.NO_OP_NEW_SYMBOL_TABLE);
+    assertThat(adaptor.newExternalIssue()).isEqualTo(ModuleSensorContext.NO_OP_NEW_EXTERNAL_ISSUE);
+    assertThat(adaptor.newAdHocRule()).isEqualTo(ModuleSensorContext.NO_OP_NEW_AD_HOC_RULE);
+    assertThat(adaptor.newHighlighting()).isEqualTo(ModuleSensorContext.NO_OP_NEW_HIGHLIGHTING);
   }
 
   @Test
   public void shouldSkipDupsOnIssuesMode() {
     when(analysisMode.isIssues()).thenReturn(true);
-    assertThat(adaptor.newCpdTokens()).isEqualTo(DefaultSensorContext.NO_OP_NEW_CPD_TOKENS);
+    assertThat(adaptor.newCpdTokens()).isEqualTo(ModuleSensorContext.NO_OP_NEW_CPD_TOKENS);
   }
 }

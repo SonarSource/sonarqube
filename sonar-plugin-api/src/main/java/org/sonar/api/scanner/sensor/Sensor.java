@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,28 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo.global;
+package org.sonar.api.scanner.sensor;
 
-import org.sonar.api.scanner.sensor.Sensor;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
-public class GlobalSensor implements Sensor {
+/**
+ * <p>
+ * A sensor is invoked once for each project analysis. Sensors are mainly used to add measures and issues on {@link org.sonar.api.batch.fs.InputFile}s.
+ * <p>
+ * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
+ * 
+ * For testing purpose you can use {@link SensorContextTester}
+ * @since 7.6
+ */
+@ScannerSide
+@SonarLintSide
+@ExtensionPoint
+public interface Sensor {
 
-  private static final Logger LOG = Loggers.get(GlobalSensor.class);
-  public static final String ENABLE_PROP = "sonar.scanner.mediumtest.globalSensor";
+  /**
+   * Populate {@link SensorDescriptor} of this sensor.
+   */
+  void describe(SensorDescriptor descriptor);
 
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .name("Global Sensor")
-      .onlyWhenConfiguration(c -> c.hasKey(ENABLE_PROP));
-  }
+  /**
+   * The actual sensor code.
+   */
+  void execute(SensorContext context);
 
-  @Override
-  public void execute(SensorContext context) {
-    context.fileSystem().inputFiles(context.fileSystem().predicates().all()).forEach(inputFile -> LOG.info("Global Sensor: {}", inputFile.relativePath()));
-  }
 }

@@ -38,8 +38,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.scanner.phases.ModuleCoverageExclusions;
-import org.sonar.scanner.phases.ProjectCoverageExclusions;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.util.ProgressReport;
 

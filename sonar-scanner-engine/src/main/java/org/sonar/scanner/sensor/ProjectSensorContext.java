@@ -63,7 +63,7 @@ import org.sonar.scanner.sensor.noop.NoOpNewSignificantCode;
 import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
 
 @ThreadSafe
-public class DefaultSensorContext implements SensorContext {
+public class ProjectSensorContext implements SensorContext {
 
   static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
   static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
@@ -79,14 +79,12 @@ public class DefaultSensorContext implements SensorContext {
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
   private final DefaultInputProject project;
-  private final InputModule module;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
 
-  public DefaultSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
+  public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
                               AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     this.project = project;
-    this.module = module;
     this.config = config;
     this.mutableSettings = mutableSettings;
     this.fs = fs;
@@ -118,7 +116,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public InputModule module() {
-    return module;
+    throw new UnsupportedOperationException("No modules for global Sensors");
   }
 
   @Override

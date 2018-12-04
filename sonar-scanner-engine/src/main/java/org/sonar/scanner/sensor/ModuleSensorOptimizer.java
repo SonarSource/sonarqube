@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.phases;
+package org.sonar.scanner.sensor;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.config.Configuration;
 
-import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
+public class ModuleSensorOptimizer extends AbstractSensorOptimizer {
 
-@Immutable
-public class ModuleCoverageExclusions extends AbstractCoverageExclusions {
-
-  public ModuleCoverageExclusions(DefaultInputModule module) {
-    super(k -> {
-      String value = module.properties().get(k);
-      return value != null ? parseAsCsv(k, value) : new String[0];
-    }, DefaultInputFile::getModuleRelativePath);
+  public ModuleSensorOptimizer(FileSystem fs, ActiveRules activeRules, Configuration config) {
+    super(fs, activeRules, config);
   }
+
 }

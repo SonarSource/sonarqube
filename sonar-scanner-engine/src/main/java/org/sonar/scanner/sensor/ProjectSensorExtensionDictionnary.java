@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.scanner.sensor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.scanner.sensor.Sensor;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.sensor.SensorOptimizer;
-import org.sonar.scanner.sensor.SensorWrapper;
+import org.sonar.scanner.bootstrap.AbstractExtensionDictionnary;
 
-public class SensorExtensionDictionnary extends AbstractExtensionDictionnary {
+public class ProjectSensorExtensionDictionnary extends AbstractExtensionDictionnary {
 
   private final SensorContext sensorContext;
-  private final SensorOptimizer sensorOptimizer;
+  private final AbstractSensorOptimizer sensorOptimizer;
 
-  public SensorExtensionDictionnary(ComponentContainer componentContainer, SensorContext sensorContext, SensorOptimizer sensorOptimizer) {
+  public ProjectSensorExtensionDictionnary(ComponentContainer componentContainer, ProjectSensorContext sensorContext, ProjectSensorOptimizer sensorOptimizer) {
     super(componentContainer);
     this.sensorContext = sensorContext;
     this.sensorOptimizer = sensorOptimizer;
   }
 
-  public Collection<SensorWrapper> selectSensors(boolean global) {
+  public List<ProjectSensorWrapper> selectSensors() {
     Collection<Sensor> result = sort(getFilteredExtensions(Sensor.class, null));
     return result.stream()
-      .map(s -> new SensorWrapper(s, sensorContext, sensorOptimizer))
-      .filter(s -> global == s.isGlobal() && s.shouldExecute())
+      .map(s -> new ProjectSensorWrapper(s, sensorContext, sensorOptimizer))
+      .filter(s -> s.shouldExecute())
       .collect(Collectors.toList());
   }
 }

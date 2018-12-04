@@ -33,6 +33,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * 
  * For testing purpose you can use {@link SensorContextTester}
  * @since 5.1
+ * @since 7.6 use {@link org.sonar.api.scanner.sensor.Sensor} instead to make your Sensor run only once per analysis, and no more once per module
  */
 @ScannerSide
 @SonarLintSide
