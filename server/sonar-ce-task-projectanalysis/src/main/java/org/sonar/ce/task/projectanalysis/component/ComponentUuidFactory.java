@@ -71,7 +71,10 @@ public class ComponentUuidFactory {
 
       if (Scopes.PROJECT.equals(dto.scope())) {
         String modulePathFromRootProject = modulePathsByUuid.get(dto.uuid());
-        uuidsByKey.put(ComponentKeys.createEffectiveKey(rootKey, modulePathFromRootProject), dto.uuid());
+        if (modulePathFromRootProject != null || StringUtils.isEmpty(dto.moduleUuid())) {
+          // means that it's a root or a module with a valid path (to avoid overwriting key of root)
+          uuidsByKey.put(ComponentKeys.createEffectiveKey(rootKey, modulePathFromRootProject), dto.uuid());
+        }
       } else {
         String modulePathFromRootProject = modulePathsByUuid.get(dto.moduleUuid());
         String componentPath = createComponentPath(dto, modulePathFromRootProject);

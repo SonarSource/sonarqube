@@ -122,6 +122,24 @@ public class ComponentUuidFactoryTest {
   }
 
   @Test
+  public void dont_override_root_uuid_if_module_path_is_not_sent() {
+    ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
+    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
+      .setDbKey("project:module1")
+      .setEnabled(false));
+    ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
+      .setDbKey("project:module2")
+      .setEnabled(false));
+    Map<String, String> modulesRelativePaths = new HashMap<>();
+    modulesRelativePaths.put("project", "");
+    modulesRelativePaths.put("project:module2", "module2");
+    ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), project.getDbKey(), modulesRelativePaths);
+
+    // check root project.
+    assertThat(underTest.getOrCreateForKey("project")).isEqualTo(project.uuid());
+  }
+
+  @Test
   public void generate_uuid_if_it_does_not_exist_in_db() {
     ComponentUuidFactory underTest = new ComponentUuidFactory(db.getDbClient(), db.getSession(), "theProjectKey", Collections.emptyMap());
 
