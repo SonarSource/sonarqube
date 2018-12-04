@@ -91,3 +91,18 @@ it('should count all code locations', () => {
   );
   expect(element.find('LocationIndex')).toMatchSnapshot();
 });
+
+it('should have a correct permalink for security hotspots', () => {
+  const wrapper = shallow(
+    <IssueTitleBar issue={{ ...issue, type: 'SECURITY_HOTSPOT' }} togglePopup={jest.fn()} />
+  );
+  expect(wrapper.find('.js-issue-permalink').prop('to')).toEqual({
+    pathname: '/project/issues',
+    query: {
+      id: 'myproject',
+      issues: 'AVsae-CQS-9G3txfbFN2',
+      open: 'AVsae-CQS-9G3txfbFN2',
+      types: 'SECURITY_HOTSPOT'
+    }
+  });
+});

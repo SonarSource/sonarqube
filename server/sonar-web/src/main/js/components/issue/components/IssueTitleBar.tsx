@@ -63,7 +63,8 @@ export default function IssueTitleBar(props: Props) {
   const issueUrl = getComponentIssuesUrl(issue.project, {
     ...getBranchLikeQuery(props.branchLike),
     issues: issue.key,
-    open: issue.key
+    open: issue.key,
+    types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined
   });
 
   return (

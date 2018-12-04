@@ -92,6 +92,7 @@ exports[`should render the titlebar correctly 1`] = `
                 "id": "myproject",
                 "issues": "AVsae-CQS-9G3txfbFN2",
                 "open": "AVsae-CQS-9G3txfbFN2",
+                "types": undefined,
               },
             }
           }
@@ -189,6 +190,7 @@ exports[`should render the titlebar with the filter 1`] = `
                 "id": "myproject",
                 "issues": "AVsae-CQS-9G3txfbFN2",
                 "open": "AVsae-CQS-9G3txfbFN2",
+                "types": undefined,
               },
             }
           }
