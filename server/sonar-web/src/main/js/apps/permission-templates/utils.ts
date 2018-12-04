@@ -28,22 +28,14 @@ export const PERMISSIONS_ORDER = [
   'scan'
 ];
 
-/**
- * Sort list of permissions based on predefined order
- * @param {Array} permissions
- * @returns {Array}
- */
-export function sortPermissions(permissions) {
+export function sortPermissions(permissions: T.Permission[]) {
   return sortBy(permissions, p => PERMISSIONS_ORDER.indexOf(p.key));
 }
 
-/**
- * Populate permissions' details in the list of permission templates
- * @param {Array} permissionTemplates
- * @param {Array} basePermissions
- * @returns {Array}
- */
-export function mergePermissionsToTemplates(permissionTemplates, basePermissions) {
+export function mergePermissionsToTemplates(
+  permissionTemplates: T.PermissionTemplate[],
+  basePermissions: T.Permission[]
+): T.PermissionTemplate[] {
   return permissionTemplates.map(permissionTemplate => {
     // it's important to keep the order of the permission template's permissions
     // the same as the order of base permissions
@@ -58,15 +50,12 @@ export function mergePermissionsToTemplates(permissionTemplates, basePermissions
   });
 }
 
-/**
- * Mark default templates
- * @param {Array} permissionTemplates
- * @param {Array} defaultTemplates
- * @returns {Array}
- */
-export function mergeDefaultsToTemplates(permissionTemplates, defaultTemplates = []) {
+export function mergeDefaultsToTemplates(
+  permissionTemplates: T.PermissionTemplate[],
+  defaultTemplates: Array<{ templateId: string; qualifier: string }> = []
+): T.PermissionTemplate[] {
   return permissionTemplates.map(permissionTemplate => {
-    const defaultFor = [];
+    const defaultFor: string[] = [];
 
     defaultTemplates.forEach(defaultTemplate => {
       if (defaultTemplate.templateId === permissionTemplate.id) {

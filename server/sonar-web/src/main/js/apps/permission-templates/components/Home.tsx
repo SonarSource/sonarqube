@@ -17,42 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import Header from './Header';
 import List from './List';
 import { translate } from '../../../helpers/l10n';
 
-export default class Home extends React.PureComponent {
-  static propTypes = {
-    organization: PropTypes.object,
-    topQualifiers: PropTypes.array.isRequired,
-    permissions: PropTypes.array.isRequired,
-    permissionTemplates: PropTypes.array.isRequired,
-    ready: PropTypes.bool.isRequired,
-    refresh: PropTypes.func.isRequired
-  };
+interface Props {
+  organization: T.Organization | undefined;
+  permissionTemplates: T.PermissionTemplate[];
+  permissions: T.Permission[];
+  ready: boolean;
+  refresh: () => Promise<void>;
+  topQualifiers: string[];
+}
 
-  render() {
-    return (
-      <div className="page page-limited">
-        <Helmet title={translate('permission_templates.page')} />
+export default function Home(props: Props) {
+  return (
+    <div className="page page-limited">
+      <Helmet title={translate('permission_templates.page')} />
 
-        <Header
-          organization={this.props.organization}
-          ready={this.props.ready}
-          refresh={this.props.refresh}
-        />
+      <Header organization={props.organization} ready={props.ready} refresh={props.refresh} />
 
-        <List
-          organization={this.props.organization}
-          permissions={this.props.permissions}
-          permissionTemplates={this.props.permissionTemplates}
-          refresh={this.props.refresh}
-          topQualifiers={this.props.topQualifiers}
-        />
-      </div>
-    );
-  }
+      <List
+        organization={props.organization}
+        permissionTemplates={props.permissionTemplates}
+        permissions={props.permissions}
+        refresh={props.refresh}
+        topQualifiers={props.topQualifiers}
+      />
+    </div>
+  );
 }

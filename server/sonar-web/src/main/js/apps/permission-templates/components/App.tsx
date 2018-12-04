@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Location } from 'history';
 import Home from './Home';
 import Template from './Template';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
@@ -28,14 +28,21 @@ import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates 
 import { translate } from '../../../helpers/l10n';
 import '../../permissions/styles.css';
 
-export default class App extends React.PureComponent {
-  static propTypes = {
-    location: PropTypes.object.isRequired,
-    organization: PropTypes.object,
-    topQualifiers: PropTypes.array.isRequired
-  };
+interface Props {
+  location: Location;
+  organization: T.Organization | undefined;
+  topQualifiers: string[];
+}
 
-  state = {
+interface State {
+  ready: boolean;
+  permissions: T.Permission[];
+  permissionTemplates: T.PermissionTemplate[];
+}
+
+export default class App extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = {
     ready: false,
     permissions: [],
     permissionTemplates: []
@@ -62,21 +69,21 @@ export default class App extends React.PureComponent {
           mergePermissionsToTemplates(r.permissionTemplates, permissions),
           r.defaultTemplates
         );
-        this.setState({
-          ready: true,
-          permissionTemplates,
-          permissions
-        });
+        this.setState({ ready: true, permissionTemplates, permissions });
       }
     });
   };
 
-  renderTemplate(id) {
+  renderTemplate(id: string) {
     if (!this.state.ready) {
       return null;
     }
 
     const template = this.state.permissionTemplates.find(t => t.id === id);
+    if (!template) {
+      return null;
+    }
+
     return (
       <Template
         organization={this.props.organization}
@@ -91,8 +98,8 @@ export default class App extends React.PureComponent {
     return (
       <Home
         organization={this.props.organization}
-        permissions={this.state.permissions}
         permissionTemplates={this.state.permissionTemplates}
+        permissions={this.state.permissions}
         ready={this.state.ready}
         refresh={this.requestPermissions}
         topQualifiers={this.props.topQualifiers}

@@ -538,6 +538,12 @@ declare namespace T {
 
   export type PeriodMode = 'days' | 'date' | 'version' | 'previous_analysis' | 'previous_version';
 
+  export interface Permission {
+    description: string;
+    key: string;
+    name: string;
+  }
+
   export interface PermissionDefinition {
     key: string;
     name: string;

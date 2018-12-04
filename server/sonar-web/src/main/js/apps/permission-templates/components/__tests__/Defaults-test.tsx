@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import Defaults from '../Defaults';
 
-const SAMPLE = {
+const SAMPLE: T.PermissionTemplate = {
+  createdAt: '2018-01-01',
+  defaultFor: [],
   id: 'id',
   name: 'name',
   permissions: []
@@ -29,26 +31,26 @@ const SAMPLE = {
 
 it('should render one qualifier', () => {
   const sample = { ...SAMPLE, defaultFor: ['DEV'] };
-  const output = shallow(<Defaults permissionTemplate={sample} />);
+  const output = shallow(<Defaults organization={undefined} template={sample} />);
   expect(output).toMatchSnapshot();
 });
 
 it('should render several qualifiers', () => {
   const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const output = shallow(<Defaults permissionTemplate={sample} />);
+  const output = shallow(<Defaults organization={undefined} template={sample} />);
   expect(output).toMatchSnapshot();
 });
 
 it('should render several qualifiers for default organization', () => {
   const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const organization = { isDefault: true };
-  const output = shallow(<Defaults organization={organization} permissionTemplate={sample} />);
+  const organization: T.Organization = { isDefault: true, key: 'org', name: 'org' };
+  const output = shallow(<Defaults organization={organization} template={sample} />);
   expect(output).toMatchSnapshot();
 });
 
 it('should render only projects for custom organization', () => {
   const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const organization = { isDefault: false };
-  const output = shallow(<Defaults organization={organization} permissionTemplate={sample} />);
+  const organization: T.Organization = { isDefault: false, key: 'org', name: 'org' };
+  const output = shallow(<Defaults organization={organization} template={sample} />);
   expect(output).toMatchSnapshot();
 });

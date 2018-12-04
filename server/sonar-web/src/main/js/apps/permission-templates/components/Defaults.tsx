@@ -17,34 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { sortBy } from 'lodash';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { PermissionTemplateType } from '../propTypes';
 
-export default class Defaults extends React.PureComponent {
-  static propTypes = {
-    organization: PropTypes.object,
-    permissionTemplate: PermissionTemplateType.isRequired
-  };
+interface Props {
+  organization: T.Organization | undefined;
+  template: T.PermissionTemplate;
+}
 
-  render() {
-    const qualifiersToDisplay =
-      this.props.organization && !this.props.organization.isDefault
-        ? ['TRK']
-        : this.props.permissionTemplate.defaultFor;
+export default function Defaults({ organization, template }: Props) {
+  const qualifiersToDisplay =
+    organization && !organization.isDefault ? ['TRK'] : template.defaultFor;
 
-    const qualifiers = sortBy(qualifiersToDisplay)
-      .map(qualifier => translate('qualifiers', qualifier))
-      .join(', ');
+  const qualifiers = sortBy(qualifiersToDisplay)
+    .map(qualifier => translate('qualifiers', qualifier))
+    .join(', ');
 
-    return (
-      <div>
-        <span className="badge spacer-right">
-          {translateWithParameters('permission_template.default_for', qualifiers)}
-        </span>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <span className="badge spacer-right">
+        {translateWithParameters('permission_template.default_for', qualifiers)}
+      </span>
+    </div>
+  );
 }

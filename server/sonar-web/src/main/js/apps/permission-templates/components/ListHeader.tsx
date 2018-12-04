@@ -17,21 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { Alert } from '../../../components/ui/Alert';
 
-export default class ListHeader extends React.PureComponent {
-  static propTypes = {
-    organization: PropTypes.object,
-    permissions: PropTypes.array.isRequired
-  };
+interface Props {
+  organization: T.Organization | undefined;
+  permissions: T.Permission[];
+}
 
-  renderTooltip = permission =>
-    permission.key === 'user' || permission.key === 'codeviewer' ? (
+export default class ListHeader extends React.PureComponent<Props> {
+  renderTooltip(permission: T.Permission) {
+    return permission.key === 'user' || permission.key === 'codeviewer' ? (
       <div>
         <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />
         <Alert className="spacer-top" variant="warning">
@@ -41,6 +40,7 @@ export default class ListHeader extends React.PureComponent {
     ) : (
       <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />
     );
+  }
 
   render() {
     const cells = this.props.permissions.map(permission => (

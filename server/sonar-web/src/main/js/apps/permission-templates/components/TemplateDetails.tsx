@@ -17,11 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import App from './App';
-import forSingleOrganization from '../../organizations/forSingleOrganization';
-import { getAppState } from '../../../store/rootReducer';
+import * as React from 'react';
+import Defaults from './Defaults';
 
-const mapStateToProps = state => ({ topQualifiers: getAppState(state).qualifiers });
+interface Props {
+  organization: T.Organization | undefined;
+  template: T.PermissionTemplate;
+}
 
-export default forSingleOrganization(connect(mapStateToProps)(App));
+export default function TemplateDetails({ organization, template }: Props) {
+  return (
+    <div className="big-spacer-bottom">
+      {template.defaultFor.length > 0 && (
+        <div className="spacer-top js-defaults">
+          <Defaults organization={organization} template={template} />
+        </div>
+      )}
+
+      {!!template.description && (
+        <div className="spacer-top js-description">{template.description}</div>
+      )}
+
+      {!!template.projectKeyPattern && (
+        <div className="spacer-top js-project-key-pattern">
+          Project Key Pattern: <code>{template.projectKeyPattern}</code>
+        </div>
+      )}
+    </div>
+  );
+}
