@@ -35,6 +35,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndexer;
 
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdHocRuleCreatorTest {
@@ -97,6 +98,24 @@ public class AdHocRuleCreatorTest {
     assertThat(rule.getMetadata().getAdHocDescription()).isEqualTo("A description");
     assertThat(rule.getMetadata().getAdHocSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.getMetadata().getAdHocType()).isEqualTo(RuleType.BUG.getDbConstant());
+  }
+
+  @Test
+  public void truncate_metadata_name_and_desc_if_longer_than_max_value() {
+    OrganizationDto organization = db.organizations().insert();
+    NewAdHocRule addHocRule = new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
+      .setEngineId("eslint")
+      .setRuleId("no-cond-assign")
+      .setName(repeat("a", 201))
+      .setDescription(repeat("a", 16_777_216))
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setType(ScannerReport.IssueType.BUG)
+      .build());
+
+    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule, organization);
+
+    assertThat(rule.getMetadata().getAdHocName()).isEqualTo(repeat("a", 200));
+    assertThat(rule.getMetadata().getAdHocDescription()).isEqualTo(repeat("a", 16_777_215));
   }
 
   @Test

@@ -34,11 +34,14 @@ import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.substring;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.db.rule.RuleDto.Scope.ALL;
 
 public class AdHocRuleCreator {
 
+  private static final int MAX_LENGTH_AD_HOC_NAME = 200;
+  private static final int MAX_LENGTH_AD_HOC_DESC = 16_777_215;
   private final DbClient dbClient;
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
@@ -82,11 +85,11 @@ public class AdHocRuleCreator {
     if (adHoc.hasDetails()) {
       boolean changed = false;
       if (!Objects.equals(metadata.getAdHocName(), adHoc.getName())) {
-        metadata.setAdHocName(adHoc.getName());
+        metadata.setAdHocName(substring(adHoc.getName(), 0, MAX_LENGTH_AD_HOC_NAME));
         changed = true;
       }
       if (!Objects.equals(metadata.getAdHocDescription(), adHoc.getDescription())) {
-        metadata.setAdHocDescription(adHoc.getDescription());
+        metadata.setAdHocDescription(substring(adHoc.getDescription(), 0, MAX_LENGTH_AD_HOC_DESC));
         changed = true;
       }
       if (!Objects.equals(metadata.getAdHocSeverity(), adHoc.getSeverity())) {
