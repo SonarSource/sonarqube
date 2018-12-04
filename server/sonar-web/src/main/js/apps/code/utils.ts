@@ -148,15 +148,15 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: T.Breadc
 
 export function getCodeMetrics(qualifier: string, branchLike?: T.BranchLike) {
   if (['VW', 'SVW'].includes(qualifier)) {
-    return PORTFOLIO_METRICS;
+    return [...PORTFOLIO_METRICS];
   }
   if (qualifier === 'APP') {
-    return APPLICATION_METRICS;
+    return [...APPLICATION_METRICS];
   }
   if (showLeakMeasure(branchLike)) {
-    return LEAK_METRICS;
+    return [...LEAK_METRICS];
   }
-  return METRICS;
+  return [...METRICS];
 }
 
 function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: T.BranchLike) {
@@ -192,6 +192,9 @@ export function retrieveComponentChildren(
   }
 
   const metrics = getCodeMetrics(qualifier, branchLike);
+  if (['VW', 'SVW'].includes(qualifier)) {
+    metrics.push('alert_status');
+  }
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
