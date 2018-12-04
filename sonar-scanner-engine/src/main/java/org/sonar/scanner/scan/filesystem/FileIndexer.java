@@ -110,10 +110,6 @@ public class FileIndexer {
       if (projectExclusionFilters.equals(moduleExclusionFilters)) {
         warnOnceDeprecatedExclusion("File '" + projectRelativePath + "' was excluded because patterns are still evaluated using module relative paths but this is deprecated. " +
           "Please update file inclusion/exclusion configuration so that patterns refer to project relative paths.");
-      } else {
-        warnOnceDeprecatedExclusion("Defining inclusion/exclusions at module level is deprecated. " +
-          "Move file inclusion/exclusion configuration from module '" + module.getName() + "' " +
-          "to the root project and update patterns to refer to project relative paths.");
       }
       excludedByPatternsCount.incrementAndGet();
       return;

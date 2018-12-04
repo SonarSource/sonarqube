@@ -580,45 +580,6 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void warn_user_for_outdated_module_exclusions_for_multi_module_project() throws IOException {
-
-    File baseDir = temp.getRoot();
-    File baseDirModuleA = new File(baseDir, "moduleA");
-    File baseDirModuleB = new File(baseDir, "moduleB");
-    File srcDirA = new File(baseDirModuleA, "src");
-    srcDirA.mkdirs();
-    File srcDirB = new File(baseDirModuleB, "src");
-    srcDirB.mkdirs();
-
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    AnalysisResult result = tester.newAnalysis()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.sources", "src")
-        .put("sonar.modules", "moduleA,moduleB")
-        .put("moduleB.sonar.exclusions", "src/sample.xoo")
-        .build())
-      .execute();
-
-    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
-    assertThat(fileA).isNotNull();
-
-    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
-    assertThat(fileB).isNull();
-
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Defining inclusion/exclusions at module level is deprecated. " +
-        "Move file inclusion/exclusion configuration from module 'moduleB' to the root project and update patterns to refer to project relative paths.");
-  }
-
-  @Test
   public void failForDuplicateInputFile() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
