@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { keyBy, sortBy, groupBy } from 'lodash';
 import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
-import MeasuresOverlayTestCases from './MeasuresOverlayTestCases';
 import { Button } from '../../ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
@@ -419,13 +418,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           ) : (
             <>
               {sourceViewerFile.q === 'UTS' ? (
-                <>
-                  {this.renderTests()}
-                  <MeasuresOverlayTestCases
-                    branchLike={branchLike}
-                    componentKey={sourceViewerFile.key}
-                  />
-                </>
+                this.renderTests()
               ) : (
                 <div className="source-viewer-measures">
                   {this.renderLines()}

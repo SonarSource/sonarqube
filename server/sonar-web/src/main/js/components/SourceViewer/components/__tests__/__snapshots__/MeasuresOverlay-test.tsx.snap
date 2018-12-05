@@ -1494,17 +1494,6 @@ exports[`should render test file 1`] = `
         </div>
       </div>
     </div>
-    <MeasuresOverlayTestCases
-      branchLike={
-        Object {
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature",
-          "type": "SHORT",
-        }
-      }
-      componentKey="component-key"
-    />
     <div
       className="spacer-top"
     >
