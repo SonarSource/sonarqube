@@ -96,7 +96,7 @@ export default class HeadingsLink extends React.Component {
       return;
     }
 
-    const scrollTop = window.pageYOffset | document.body.scrollTop;
+    const scrollTop = window.pageYOffset || document.body.scrollTop;
     this.highlightHeading(scrollTop);
   };
 
@@ -119,8 +119,8 @@ export default class HeadingsLink extends React.Component {
               <HeadingAnchor
                 active={this.state.activeIndex === index}
                 clickHandler={this.clickHandler}
-                key={index}
                 index={index + 1}
+                key={index}
                 value={header.value}
               />
             );

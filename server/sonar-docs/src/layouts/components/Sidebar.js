@@ -23,9 +23,9 @@ import CategoryLink from './CategoryLink';
 import VersionSelect from './VersionSelect';
 import Search from './Search';
 import SearchEntryResult from './SearchEntryResult';
-import NavigationTree from '../../../static/StaticNavigationTree.json';
 import { ExternalLink } from './ExternalLink';
 import DownloadIcon from './icons/DownloadIcon';
+import NavigationTree from '../../../static/StaticNavigationTree.json';
 
 export default class Sidebar extends React.PureComponent {
   constructor(props) {
@@ -61,11 +61,12 @@ export default class Sidebar extends React.PureComponent {
   }
 
   loadVersions() {
-    fetch('/DocsVersions.json').then(response =>
-      response.json().then(json => {
+    fetch('/DocsVersions.json')
+      .then(response => response.json())
+      .then(json => {
         this.setState({ loaded: true, versions: json });
       })
-    );
+      .catch(() => {});
   }
 
   getNodeFromUrl = url => {
@@ -76,19 +77,23 @@ export default class Sidebar extends React.PureComponent {
     this.setState(state => ({ openBlockTitle: state.openBlockTitle === title ? '' : title }));
   };
 
+  handleSearch = (results, query) => {
+    this.setState({ results, query });
+  };
+
   renderCategories = tree => {
     const items = tree.map(item => {
       if (typeof item === 'object') {
         if (item.children) {
           return (
             <CategoryLink
-              children={item.children.map(child => this.getNodeFromUrl(child))}
               key={item.title}
               location={this.props.location}
               onToggle={this.handleToggle}
               open={item.title === this.state.openBlockTitle}
-              title={item.title}
-            />
+              title={item.title}>
+              {item.children.map(child => this.getNodeFromUrl(child))}
+            </CategoryLink>
           );
         } else {
           return <ExternalLink external={item.url} key={item.title} title={item.title} />;
@@ -116,10 +121,6 @@ export default class Sidebar extends React.PureComponent {
         ))}
       </div>
     );
-  };
-
-  handleSearch = (results, query) => {
-    this.setState({ results, query });
   };
 
   render() {
@@ -167,21 +168,21 @@ export default class Sidebar extends React.PureComponent {
             <DownloadIcon /> SonarQube
           </a>
           <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
-            <img src={`/${this.props.version}/images/community.svg`} alt="Community" /> Community
+            <img alt="Community" src={`/${this.props.version}/images/community.svg`} /> Community
           </a>
           <a
             className="icon-only"
             href="https://twitter.com/SonarQube"
             rel="noopener noreferrer"
             target="_blank">
-            <img src={`/${this.props.version}/images/twitter.svg`} alt="Twitter" />
+            <img alt="Twitter" src={`/${this.props.version}/images/twitter.svg`} />
           </a>
           <a
             className="icon-only"
             href="https://www.sonarsource.com/resources/product-news/"
             rel="noopener noreferrer"
             target="_blank">
-            <img src={`/${this.props.version}/images/newspaper.svg`} alt="Product News" />
+            <img alt="Product News" src={`/${this.props.version}/images/newspaper.svg`} />
             <span className="tooltip">Product News</span>
           </a>
         </div>

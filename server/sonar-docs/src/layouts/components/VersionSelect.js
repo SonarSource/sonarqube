@@ -45,7 +45,7 @@ export default class VersionSelect extends React.PureComponent {
 
     return (
       <div className="version-select">
-        <button onClick={this.handleClick}>
+        <button onClick={this.handleClick} type="button">
           Docs <span className={isOnCurrentVersion ? 'current' : ''}>{versionLabel}</span>
           {hasVersions && !this.state.open && <ChevronDownIcon size={10} />}
           {hasVersions && this.state.open && <ChevronUpIcon size={10} />}

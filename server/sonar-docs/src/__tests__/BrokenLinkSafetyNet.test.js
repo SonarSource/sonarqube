@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const remark = require('remark');
 const fs = require('fs');
 const path = require('path');
+const remark = require('remark');
 const glob = require('glob-promise');
 const visit = require('unist-util-visit');
 
 const rootPath = path.resolve(path.join(__dirname, '/..'));
-let files, parsedFiles;
+let files;
+let parsedFiles;
 
 beforeAll(async () => {
   files = await loadGlobFiles('/pages/**/*.md');
@@ -34,14 +35,15 @@ beforeAll(async () => {
 });
 
 it('should have at least one instance of all possible frontmatter fields', () => {
-  let pageWithTitle = parsedFiles.find(file => file.frontmatter.title !== undefined);
-  let pageWithNav = parsedFiles.find(file => file.frontmatter.nav !== undefined);
-  let pageWithUrl = parsedFiles.find(file => file.frontmatter.url !== undefined);
+  const pageWithTitle = parsedFiles.find(file => file.frontmatter.title !== undefined);
+  const pageWithNav = parsedFiles.find(file => file.frontmatter.nav !== undefined);
+  const pageWithUrl = parsedFiles.find(file => file.frontmatter.url !== undefined);
   expect(pageWithTitle).toBeDefined();
   expect(pageWithNav).toBeDefined();
   expect(pageWithUrl).toBeDefined();
 });
 
+/* eslint-disable no-console */
 it('should have valid links in trees files', () => {
   const trees = [
     'SonarCloudNavigationTree.json',
@@ -57,17 +59,15 @@ it('should have valid links in trees files', () => {
           leaf.children.forEach(child => {
             // Check children markdown file path validity
             if (!urlExists(parsedFiles, child)) {
-              console.log('[', child, '] is not a valid link, in', file);
+              console.log(`[${child}] is not a valid link, in ${file}`);
               hasErrors = true;
             }
           });
         }
-      } else {
+      } else if (!urlExists(parsedFiles, leaf)) {
         // Check markdown file path validity
-        if (!urlExists(parsedFiles, leaf)) {
-          console.log('[', leaf, '] is not a valid link, in', file);
-          hasErrors = true;
-        }
+        console.log(`[${leaf}] is not a valid link, in ${file}`);
+        hasErrors = true;
       }
     });
   });
@@ -81,10 +81,10 @@ it('should have valid links in suggestions file', () => {
   Object.keys(suggestions).forEach(key => {
     suggestions[key].forEach(suggestion => {
       if (!suggestion.link.startsWith('/documentation/')) {
-        console.log('[', suggestion.link, '] should starts with "/documentation/", in', file);
+        console.log(`[${suggestion.link}] should starts with "/documentation/", in ${file}`);
         hasErrors = true;
       } else if (!urlExists(parsedFiles, suggestion.link.replace('/documentation', ''))) {
-        console.log('[', suggestion.link, '] is not a valid link, in', file);
+        console.log(`[${suggestion.link}] is not a valid link, in ${file}`);
         hasErrors = true;
       }
     });
@@ -97,12 +97,12 @@ it('should have valid and uniq links in url metadata field', () => {
   let hasErrors = false;
   parsedFiles.forEach(file => {
     if (!file.frontmatter.url) {
-      console.log('[', file.path, '] has no url metadata');
+      console.log(`[${file.path}] has no url metadata`);
       hasErrors = true;
     } else if (!checkUrlFormat(file.frontmatter.url, file.path)) {
       hasErrors = true;
     } else if (urlLists.includes(file.frontmatter.url)) {
-      console.log('[', file.path, '] has an url that is not unique', file.frontmatter.url);
+      console.log(`[${file.path}] has an url that is not unique ${file.frontmatter.url}`);
       hasErrors = true;
     }
 
@@ -158,7 +158,7 @@ function urlExists(files, url) {
 }
 
 function checkUrlFormat(url, file) {
-  const noError = true;
+  let noError = true;
 
   if (!url.startsWith('/')) {
     console.log('[', file, '] should starts with a slash', url);

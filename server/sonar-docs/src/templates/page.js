@@ -35,8 +35,8 @@ export default class Page extends React.PureComponent {
     for (let i = 0; i < collaspables.length; i++) {
       collaspables[i].classList.add('close');
       collaspables[i].firstChild.outerHTML = collaspables[i].firstChild.outerHTML
-        .replace(/\<h2/gi, '<a href="#"')
-        .replace(/\<\/h2\>/gi, '</a>');
+        .replace(/<h2/gi, '<a href="#"')
+        .replace(/<\/h2>/gi, '</a>');
       collaspables[i].firstChild.addEventListener('click', e => {
         e.currentTarget.parentNode.classList.toggle('close');
         e.preventDefault();
@@ -47,7 +47,7 @@ export default class Page extends React.PureComponent {
   render() {
     const page = this.props.data.markdownRemark;
     let htmlWithInclusions = cutSonarCloudContent(page.html).replace(
-      /\<p\>@include (.*)\<\/p\>/,
+      /<p>@include (.*)<\/p>/,
       (_, path) => {
         const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
         return chunk ? chunk.node.html : '';
@@ -67,10 +67,10 @@ export default class Page extends React.PureComponent {
       <div css={{ paddingTop: 24, paddingBottom: 24 }}>
         <Helmet title={page.frontmatter.title || 'Documentation'}>
           <html lang="en" />
-          <link rel="icon" href={`/${version}/favicon.ico`} />
+          <link href={`/${version}/favicon.ico`} rel="icon" />
           <link
-            rel="canonical"
             href={this.baseUrl + this.props.location.pathname.replace(version, 'latest')}
+            rel="canonical"
           />
         </Helmet>
         <HeaderList headers={realHeadingsList} />
@@ -122,7 +122,7 @@ function replaceInstanceTag(content) {
 function replaceImageLinks(content) {
   const version = process.env.GATSBY_DOCS_VERSION || '';
   if (version !== '') {
-    content = content.replace(/\<img src="\/images\/(.*)"/gim, `<img src="/${version}/images/$1"`);
+    content = content.replace(/<img src="\/images\/(.*)"/gim, `<img src="/${version}/images/$1"`);
   }
   return content;
 }
@@ -130,12 +130,12 @@ function replaceImageLinks(content) {
 function replaceDynamicLinks(content) {
   // Make outside link open in a new tab
   content = content.replace(
-    /\<a href="http(.*)"\>(.*)\<\/a\>/gim,
+    /<a href="http(.*)">(.*)<\/a>/gim,
     '<a href="http$1" target="_blank">$2</a>'
   );
 
   return content.replace(
-    /\<a href="(.*)\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*"\>(.*)\<\/a\>/gim,
+    /<a href="(.*)\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*">(.*)<\/a>/gim,
     '$2'
   );
 }
@@ -165,8 +165,8 @@ function removeSonarCloudHeadings(content, headings) {
 
 function createAnchorForHeadings(content, headings) {
   let counter = 1;
-  headings.map(h => {
-    if (h.depth == 2) {
+  headings.forEach(h => {
+    if (h.depth === 2) {
       content = content.replace(
         `<h${h.depth}>${h.value}</h${h.depth}>`,
         `<h${h.depth} id="header-${counter}">${h.value}</h${h.depth}>`

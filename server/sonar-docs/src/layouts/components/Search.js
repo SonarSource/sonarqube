@@ -93,7 +93,7 @@ export default class Search extends Component {
   handleChange = event => {
     const { value } = event.currentTarget;
     this.setState({ value });
-    if (value != '') {
+    if (value !== '') {
       const results = this.getFormattedResults(value, this.index.search(`${value}~1 ${value}*`));
       this.props.onResultsChange(results, value);
     } else {
@@ -114,7 +114,7 @@ export default class Search extends Component {
           value={this.state.value}
         />
         {this.state.value && (
-          <button onClick={this.handleClear}>
+          <button onClick={this.handleClear} type="button">
             <ClearIcon size="8" />
           </button>
         )}

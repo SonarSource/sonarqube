@@ -46,8 +46,8 @@ export default class CategoryLink extends React.PureComponent {
         {node ? (
           <Link
             className={isCurrentPage || open ? 'page-indexes-link active' : 'page-indexes-link'}
-            to={url}
-            title={linkTitle}>
+            title={linkTitle}
+            to={url}>
             {linkTitle}
           </Link>
         ) : (

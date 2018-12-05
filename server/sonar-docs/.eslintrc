@@ -1,0 +1,8 @@
+{
+  "extends": "sonarqube",
+
+  "rules": {
+    // some dependencies are implictly provided by gatsby
+    "import/no-extraneous-dependencies": "off"
+  }
+}
