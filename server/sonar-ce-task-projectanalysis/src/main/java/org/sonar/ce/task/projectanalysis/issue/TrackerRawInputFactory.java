@@ -156,7 +156,8 @@ public class TrackerRawInputFactory {
     private DefaultIssue toIssue(LineHashSequence lineHashSeq, ScannerReport.Issue reportIssue) {
       DefaultIssue issue = new DefaultIssue();
       init(issue);
-      issue.setRuleKey(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
+      RuleKey ruleKey = RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey());
+      issue.setRuleKey(ruleKey);
       if (reportIssue.hasTextRange()) {
         int startLine = reportIssue.getTextRange().getStartLine();
         issue.setLine(startLine);
@@ -166,6 +167,9 @@ public class TrackerRawInputFactory {
       }
       if (isNotEmpty(reportIssue.getMsg())) {
         issue.setMessage(reportIssue.getMsg());
+      } else {
+        Rule rule = ruleRepository.getByKey(ruleKey);
+        issue.setMessage(rule.getName());
       }
       if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         issue.setSeverity(reportIssue.getSeverity().name());

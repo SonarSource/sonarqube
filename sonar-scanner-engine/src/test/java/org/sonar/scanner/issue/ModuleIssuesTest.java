@@ -68,39 +68,6 @@ public class ModuleIssuesTest {
   ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
 
   @Test
-  public void fail_on_unknown_rule() {
-    initModuleIssues();
-    DefaultIssue issue = new DefaultIssue()
-      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(SQUID_RULE_KEY);
-    try {
-      moduleIssues.initAndAddIssue(issue);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class);
-    }
-
-    verifyZeroInteractions(reportPublisher);
-  }
-
-  @Test
-  public void fail_if_rule_has_no_name_and_issue_has_no_message() {
-    ruleBuilder.add(SQUID_RULE_KEY).setInternalKey(SQUID_RULE_KEY.rule());
-    initModuleIssues();
-    DefaultIssue issue = new DefaultIssue()
-      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
-      .forRule(SQUID_RULE_KEY);
-    try {
-      moduleIssues.initAndAddIssue(issue);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class);
-    }
-
-    verifyZeroInteractions(reportPublisher);
-  }
-
-  @Test
   public void ignore_null_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
@@ -193,30 +160,6 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void use_rule_name_if_no_message() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.addRule(new NewActiveRule.Builder()
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.INFO)
-      .setName(SQUID_RULE_NAME)
-      .setQProfileKey("qp-1")
-      .build());
-    initModuleIssues();
-
-    DefaultIssue issue = new DefaultIssue()
-      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
-      .forRule(SQUID_RULE_KEY);
-    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
-
-    boolean added = moduleIssues.initAndAddIssue(issue);
-
-    assertThat(added).isTrue();
-    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
-    assertThat(argument.getValue().getMsg()).isEqualTo("Avoid Cycle");
-  }
-
-  @Test
   public void filter_issue() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.addRule(new NewActiveRule.Builder()
@@ -242,7 +185,7 @@ public class ModuleIssuesTest {
    * Every rules and active rules has to be added in builders before creating ModuleIssues
    */
   private void initModuleIssues() {
-    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), filters, reportPublisher);
+    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), filters, reportPublisher);
   }
 
 }

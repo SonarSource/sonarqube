@@ -79,11 +79,12 @@ public class ChecksMediumTest {
       .execute();
 
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    // If the message is the rule name. it's set by the CE. See SONAR-11531
     assertThat(issues)
       .extracting("msg", "textRange.startLine")
       .containsOnly(
-        tuple("A template rule", 1),
-        tuple("Another template rule", 2));
+        tuple("", 1),
+        tuple("", 2));
 
   }
 

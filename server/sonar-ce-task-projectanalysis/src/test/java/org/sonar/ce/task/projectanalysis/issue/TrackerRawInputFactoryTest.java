@@ -139,6 +139,33 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.effort()).isNull();
   }
 
+  @Test
+  public void set_rule_name_as_message_when_issue_message_from_report_is_empty() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "Rule 1");
+    when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setMsg("")
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    // fields set by analysis report
+    assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+
+    // fields set by compute engine
+    assertInitializedIssue(issue);
+    assertThat(issue.message()).isEqualTo("Rule 1");
+  }
+
   // SONAR-10781
   @Test
   public void load_issues_from_report_missing_secondary_location_component() {
@@ -369,4 +396,12 @@ public class TrackerRawInputFactoryTest {
   private void markRuleAsActive(RuleKey ruleKey) {
     activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null, "qp1"));
   }
+
+  private void registerRule(RuleKey ruleKey, String name) {
+    DumbRule dumbRule = new DumbRule(ruleKey);
+    dumbRule.setName(name);
+    ruleRepository.add(dumbRule);
+  }
+
+
 }

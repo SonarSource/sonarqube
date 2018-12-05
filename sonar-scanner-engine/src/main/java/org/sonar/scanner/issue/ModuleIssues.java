@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.issue;
 
-import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.function.Consumer;
 import javax.annotation.concurrent.ThreadSafe;
@@ -27,18 +26,16 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Rule;
-import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.scanner.report.ReportPublisher;
+
+import static com.google.common.base.Strings.nullToEmpty;
 
 /**
  * Initialize the issues raised during scan.
@@ -47,13 +44,11 @@ import org.sonar.scanner.report.ReportPublisher;
 public class ModuleIssues {
 
   private final ActiveRules activeRules;
-  private final Rules rules;
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
 
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher) {
+  public ModuleIssues(ActiveRules activeRules, IssueFilters filters, ReportPublisher reportPublisher) {
     this.activeRules = activeRules;
-    this.rules = rules;
     this.filters = filters;
     this.reportPublisher = reportPublisher;
   }
@@ -61,14 +56,13 @@ public class ModuleIssues {
   public boolean initAndAddIssue(Issue issue) {
     DefaultInputComponent inputComponent = (DefaultInputComponent) issue.primaryLocation().inputComponent();
 
-    Rule rule = validateRule(issue);
     ActiveRule activeRule = activeRules.find(issue.ruleKey());
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
     }
 
-    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.batchId(), rule.name(), activeRule.severity());
+    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.batchId(), activeRule.severity());
 
     if (filters.accept(inputComponent.key(), rawIssue)) {
       write(inputComponent.batchId(), rawIssue);
@@ -83,8 +77,8 @@ public class ModuleIssues {
     write(inputComponent.batchId(), rawExternalIssue);
   }
 
-  private static ScannerReport.Issue createReportIssue(Issue issue, int componentRef, String ruleName, String activeRuleSeverity) {
-    String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? ruleName : issue.primaryLocation().message();
+  private static ScannerReport.Issue createReportIssue(Issue issue, int componentRef, String activeRuleSeverity) {
+    String primaryMessage = nullToEmpty(issue.primaryLocation().message());
     org.sonar.api.batch.rule.Severity overriddenSeverity = issue.overriddenSeverity();
     Severity severity = overriddenSeverity != null ? Severity.valueOf(overriddenSeverity.name()) : Severity.valueOf(activeRuleSeverity);
 
@@ -174,18 +168,6 @@ public class ModuleIssues {
     textRangeBuilder.setEndLine(primaryTextRange.end().line());
     textRangeBuilder.setEndOffset(primaryTextRange.end().lineOffset());
     return textRangeBuilder.build();
-  }
-
-  private Rule validateRule(Issue issue) {
-    RuleKey ruleKey = issue.ruleKey();
-    Rule rule = rules.find(ruleKey);
-    if (rule == null) {
-      throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
-    }
-    if (Strings.isNullOrEmpty(rule.name()) && Strings.isNullOrEmpty(issue.primaryLocation().message())) {
-      throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
-    }
-    return rule;
   }
 
   public void write(int batchId, ScannerReport.Issue rawIssue) {
