@@ -28,16 +28,15 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
-import { BranchLike, ComponentMeasure, MeasureEnhanced, Metric, Period } from '../../../app/types';
 import { hasFullMeasures } from '../utils';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasure;
-  leakPeriod?: Period;
-  measure?: MeasureEnhanced;
-  metric: Metric;
-  secondaryMeasure?: MeasureEnhanced;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasure;
+  leakPeriod?: T.Period;
+  measure?: T.MeasureEnhanced;
+  metric: T.Metric;
+  secondaryMeasure?: T.MeasureEnhanced;
 }
 
 export default function MeasureHeader(props: Props) {

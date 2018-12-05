@@ -23,13 +23,12 @@ import { copyQualityGate } from '../../../api/quality-gates';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { QualityGate } from '../../../app/types';
 
 interface Props {
   onClose: () => void;
   onCopy: () => Promise<void>;
   organization?: string;
-  qualityGate: QualityGate;
+  qualityGate: T.QualityGate;
 }
 
 interface State {

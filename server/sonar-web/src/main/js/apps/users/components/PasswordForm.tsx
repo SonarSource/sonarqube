@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import { User } from '../../../app/types';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import Modal from '../../../components/controls/Modal';
@@ -30,7 +29,7 @@ import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   isCurrentUser: boolean;
-  user: User;
+  user: T.User;
   onClose: () => void;
 }
 

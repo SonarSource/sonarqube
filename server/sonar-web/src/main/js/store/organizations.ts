@@ -20,7 +20,6 @@
 import { combineReducers } from 'redux';
 import { omit, uniq, without } from 'lodash';
 import { ActionType } from './utils/actions';
-import { Organization, OrganizationBase } from '../app/types';
 
 type ReceiveOrganizationsAction =
   | ActionType<typeof receiveOrganizations, 'RECEIVE_ORGANIZATIONS'>
@@ -33,23 +32,23 @@ type Action =
   | ActionType<typeof deleteOrganization, 'DELETE_ORGANIZATION'>;
 
 export interface State {
-  byKey: { [key: string]: Organization };
+  byKey: { [key: string]: T.Organization };
   my: string[];
 }
 
-export function receiveOrganizations(organizations: Organization[]) {
+export function receiveOrganizations(organizations: T.Organization[]) {
   return { type: 'RECEIVE_ORGANIZATIONS', organizations };
 }
 
-export function receiveMyOrganizations(organizations: Organization[]) {
+export function receiveMyOrganizations(organizations: T.Organization[]) {
   return { type: 'RECEIVE_MY_ORGANIZATIONS', organizations };
 }
 
-export function createOrganization(organization: Organization) {
+export function createOrganization(organization: T.Organization) {
   return { type: 'CREATE_ORGANIZATION', organization };
 }
 
-export function updateOrganization(key: string, changes: OrganizationBase) {
+export function updateOrganization(key: string, changes: T.OrganizationBase) {
   return { type: 'UPDATE_ORGANIZATION', key, changes };
 }
 

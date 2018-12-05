@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Component, BranchLike } from '../types';
 
 interface ComponentContextType {
-  branchLike: BranchLike | undefined;
-  component: Component | undefined;
+  branchLike: T.BranchLike | undefined;
+  component: T.Component | undefined;
 }
 
 export const ComponentContext = React.createContext<ComponentContextType>({

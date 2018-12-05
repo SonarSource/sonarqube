@@ -20,17 +20,16 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { getCoveredFiles } from '../../../api/tests';
-import { TestCase, CoveredFile } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import DeferredSpinner from '../../common/DeferredSpinner';
 
 interface Props {
-  testCase: TestCase;
+  testCase: T.TestCase;
 }
 
 interface State {
-  coveredFiles?: CoveredFile[];
+  coveredFiles?: T.CoveredFile[];
   loading: boolean;
 }
 

@@ -25,12 +25,11 @@ import ProjectActivityDateInput from './ProjectActivityDateInput';
 import { EVENT_TYPES, APPLICATION_EVENT_TYPES, Query } from '../utils';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../../../app/types';
 
 interface Props {
   category?: string;
   from?: Date;
-  project: Pick<Component, 'qualifier'>;
+  project: Pick<T.Component, 'qualifier'>;
   to?: Date;
   updateQuery: (changes: Partial<Query>) => void;
 }

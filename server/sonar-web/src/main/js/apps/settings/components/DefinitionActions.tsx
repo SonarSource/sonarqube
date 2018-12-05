@@ -22,7 +22,6 @@ import Modal from '../../../components/controls/Modal';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { isEmptyValue, getDefaultValue, getSettingValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { Setting } from '../../../app/types';
 
 type Props = {
   changedValue: string;
@@ -32,7 +31,7 @@ type Props = {
   onCancel: () => void;
   onReset: () => void;
   onSave: () => void;
-  setting: Setting;
+  setting: T.Setting;
 };
 
 type State = { reseting: boolean };

@@ -28,11 +28,10 @@ import OrganizationListItem from '../../../components/ui/OrganizationListItem';
 import { Button } from '../../../components/ui/buttons';
 import { getMyOrganizations, Store } from '../../../store/rootReducer';
 import { isSonarCloud } from '../../../helpers/system';
-import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface StateProps {
-  organizations: Organization[];
+  organizations: T.Organization[];
 }
 
 export class NoFavoriteProjects extends React.PureComponent<StateProps> {

@@ -27,12 +27,11 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { differenceInDays } from '../../../helpers/dates';
-import { ComponentMeasure, Period, PeriodMode } from '../../../app/types';
 
 interface Props {
   className?: string;
-  component: ComponentMeasure;
-  period: Period;
+  component: T.ComponentMeasure;
+  period: T.Period;
 }
 
 export default class LeakPeriodLegend extends React.PureComponent<Props> {
@@ -62,7 +61,7 @@ export default class LeakPeriodLegend extends React.PureComponent<Props> {
       </div>
     );
 
-    if (period.mode === PeriodMode.Days) {
+    if (period.mode === 'days') {
       return label;
     }
 

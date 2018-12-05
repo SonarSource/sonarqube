@@ -27,7 +27,6 @@ import {
   deletePermissionTemplate,
   updatePermissionTemplate
 } from '../../../api/permissions';
-import { PermissionTemplate } from '../../../app/types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
@@ -35,7 +34,7 @@ import { translate } from '../../../helpers/l10n';
 export interface Props {
   fromDetails?: boolean;
   organization?: { isDefault?: boolean; key: string };
-  permissionTemplate: PermissionTemplate;
+  permissionTemplate: T.PermissionTemplate;
   refresh: () => void;
   topQualifiers: string[];
 }

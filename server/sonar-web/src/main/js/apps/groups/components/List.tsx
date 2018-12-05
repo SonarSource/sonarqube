@@ -20,11 +20,10 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import ListItem from './ListItem';
-import { Group } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  groups: Group[];
+  groups: T.Group[];
   onDelete: (name: string) => Promise<void>;
   onEdit: (data: { description?: string; id: number; name?: string }) => Promise<void>;
   onEditMembers: () => void;

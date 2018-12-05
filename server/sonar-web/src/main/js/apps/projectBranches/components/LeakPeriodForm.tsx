@@ -22,7 +22,6 @@ import SettingForm from './SettingForm';
 import { translate } from '../../../helpers/l10n';
 import { getValues } from '../../../api/settings';
 import Modal from '../../../components/controls/Modal';
-import { SettingValue } from '../../../app/types';
 
 interface Props {
   branch: string;
@@ -32,7 +31,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  setting?: SettingValue;
+  setting?: T.SettingValue;
   submitting: boolean;
   value?: string;
 }

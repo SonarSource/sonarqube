@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchStatus from '../BranchStatus';
-import { BranchType, LongLivingBranch, ShortLivingBranch, MainBranch } from '../../../app/types';
 
 it('renders status of short-living branches', () => {
   checkShort('OK', 0, 0, 0);
@@ -34,32 +33,32 @@ it('renders status of short-living branches', () => {
     codeSmells: number,
     vulnerabilities: number
   ) {
-    const shortBranch: ShortLivingBranch = {
+    const shortBranch: T.ShortLivingBranch = {
       isMain: false,
       mergeBranch: 'master',
       name: 'foo',
       status: { bugs, codeSmells, qualityGateStatus, vulnerabilities },
-      type: BranchType.SHORT
+      type: 'SHORT'
     };
     expect(shallow(<BranchStatus branchLike={shortBranch} />)).toMatchSnapshot();
   }
 });
 
 it('renders status of long-living branches', () => {
-  const branch: LongLivingBranch = { isMain: false, name: 'foo', type: BranchType.LONG };
+  const branch: T.LongLivingBranch = { isMain: false, name: 'foo', type: 'LONG' };
   expect(getWrapper(branch).type()).toBeNull();
   expect(getWrapper(branch, 'OK')).toMatchSnapshot();
   expect(getWrapper(branch, 'ERROR')).toMatchSnapshot();
 });
 
 it('renders status of main branch', () => {
-  const branch: MainBranch = { isMain: true, name: 'foo' };
+  const branch: T.MainBranch = { isMain: true, name: 'foo' };
   expect(getWrapper(branch).type()).toBeNull();
   expect(getWrapper(branch, 'OK')).toMatchSnapshot();
   expect(getWrapper(branch, 'ERROR')).toMatchSnapshot();
 });
 
-function getWrapper(branch: MainBranch | LongLivingBranch, qualityGateStatus?: string) {
+function getWrapper(branch: T.MainBranch | T.LongLivingBranch, qualityGateStatus?: string) {
   if (qualityGateStatus) {
     branch.status = { qualityGateStatus };
   }

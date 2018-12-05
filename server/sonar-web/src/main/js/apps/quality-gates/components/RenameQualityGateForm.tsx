@@ -21,13 +21,12 @@ import * as React from 'react';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { renameQualityGate } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
-import { QualityGate } from '../../../app/types';
 
 interface Props {
   onClose: () => void;
   onRename: () => Promise<void>;
   organization?: string;
-  qualityGate: QualityGate;
+  qualityGate: T.QualityGate;
 }
 
 interface State {

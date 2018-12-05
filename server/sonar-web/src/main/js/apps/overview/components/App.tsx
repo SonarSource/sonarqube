@@ -24,7 +24,6 @@ import EmptyOverview from './EmptyOverview';
 import OverviewApp from './OverviewApp';
 import SonarCloudEmptyOverview from './SonarCloudEmptyOverview';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Component, BranchLike } from '../../../app/types';
 import { isShortLivingBranch } from '../../../helpers/branches';
 import {
   getShortLivingBranchUrl,
@@ -36,12 +35,12 @@ import {
 import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
-  component: Component;
+  branchLike?: T.BranchLike;
+  branchLikes: T.BranchLike[];
+  component: T.Component;
   isInProgress?: boolean;
   isPending?: boolean;
-  onComponentChange: (changes: Partial<Component>) => void;
+  onComponentChange: (changes: Partial<T.Component>) => void;
 }
 
 export default class App extends React.PureComponent<Props> {

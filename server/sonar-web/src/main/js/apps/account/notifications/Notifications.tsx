@@ -25,7 +25,6 @@ import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
 import { NotificationProject } from './types';
 import * as api from '../../../api/notifications';
-import { Notification } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { Alert } from '../../../components/ui/Alert';
@@ -38,7 +37,7 @@ interface State {
   channels: string[];
   globalTypes: string[];
   loading: boolean;
-  notifications: Notification[];
+  notifications: T.Notification[];
   perProjectTypes: string[];
 }
 
@@ -94,13 +93,13 @@ export default class Notifications extends React.PureComponent<Props, State> {
     );
   };
 
-  addNotificationToState = (added: Notification) => {
+  addNotificationToState = (added: T.Notification) => {
     this.setState(state => ({
       notifications: uniqWith([...state.notifications, added], areNotificationsEqual)
     }));
   };
 
-  removeNotificationFromState = (removed: Notification) => {
+  removeNotificationFromState = (removed: T.Notification) => {
     this.setState(state => ({
       notifications: state.notifications.filter(
         notification => !areNotificationsEqual(notification, removed)
@@ -108,7 +107,7 @@ export default class Notifications extends React.PureComponent<Props, State> {
     }));
   };
 
-  addNotification = (added: Notification) => {
+  addNotification = (added: T.Notification) => {
     // optimistic update
     this.addNotificationToState(added);
 
@@ -119,7 +118,7 @@ export default class Notifications extends React.PureComponent<Props, State> {
     });
   };
 
-  removeNotification = (removed: Notification) => {
+  removeNotification = (removed: T.Notification) => {
     // optimistic update
     this.removeNotificationFromState(removed);
 
@@ -175,6 +174,6 @@ export default class Notifications extends React.PureComponent<Props, State> {
   }
 }
 
-function areNotificationsEqual(a: Notification, b: Notification) {
+function areNotificationsEqual(a: T.Notification, b: T.Notification) {
   return a.channel === b.channel && a.type === b.type && a.project === b.project;
 }

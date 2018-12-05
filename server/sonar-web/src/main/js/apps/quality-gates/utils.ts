@@ -18,30 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { QualityGate, Condition } from '../../app/types';
-
-export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
+export function checkIfDefault(qualityGate: T.QualityGate, list: T.QualityGate[]): boolean {
   const finding = list.find(candidate => candidate.id === qualityGate.id);
   return (finding && finding.isDefault) || false;
 }
 
-export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
+export function addCondition(qualityGate: T.QualityGate, condition: T.Condition): T.QualityGate {
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
   return { ...qualityGate, conditions };
 }
 
-export function deleteCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
+export function deleteCondition(qualityGate: T.QualityGate, condition: T.Condition): T.QualityGate {
   const conditions =
     qualityGate.conditions && qualityGate.conditions.filter(candidate => candidate !== condition);
   return { ...qualityGate, conditions };
 }
 
 export function replaceCondition(
-  qualityGate: QualityGate,
-  newCondition: Condition,
-  oldCondition: Condition
-): QualityGate {
+  qualityGate: T.QualityGate,
+  newCondition: T.Condition,
+  oldCondition: T.Condition
+): T.QualityGate {
   const conditions =
     qualityGate.conditions &&
     qualityGate.conditions.map(candidate => {

@@ -23,10 +23,9 @@ import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import SeverityIcon from '../../icons-components/SeverityIcon';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import { Issue } from '../../../app/types';
 
 type Props = {
-  issue: Pick<Issue, 'severity'>;
+  issue: Pick<T.Issue, 'severity'>;
   onSelect: (severity: string) => void;
 };
 

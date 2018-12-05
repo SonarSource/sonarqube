@@ -22,15 +22,14 @@ import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 import { complementary } from '../config/complementary';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
-import { ComponentMeasure, ComponentMeasureEnhanced, Metric, BranchLike } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  components: ComponentMeasureEnhanced[];
+  branchLike?: T.BranchLike;
+  components: T.ComponentMeasureEnhanced[];
   onClick: (component: string) => void;
-  metric: Metric;
-  metrics: { [metric: string]: Metric };
-  rootComponent: ComponentMeasure;
+  metric: T.Metric;
+  metrics: { [metric: string]: T.Metric };
+  rootComponent: T.ComponentMeasure;
   selectedComponent?: string;
 }
 

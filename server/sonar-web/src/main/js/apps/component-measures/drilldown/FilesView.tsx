@@ -23,29 +23,22 @@ import { throttle } from 'lodash';
 import ComponentsList from './ComponentsList';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Button } from '../../../components/ui/buttons';
-import {
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  Metric,
-  Paging,
-  BranchLike
-} from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isPeriodBestValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  branchLike?: BranchLike;
-  components: ComponentMeasureEnhanced[];
+  branchLike?: T.BranchLike;
+  components: T.ComponentMeasureEnhanced[];
   fetchMore: () => void;
   handleSelect: (component: string) => void;
   handleOpen: (component: string) => void;
   loadingMore: boolean;
-  metric: Metric;
-  metrics: { [metric: string]: Metric };
-  paging?: Paging;
-  rootComponent: ComponentMeasure;
+  metric: T.Metric;
+  metrics: { [metric: string]: T.Metric };
+  paging?: T.Paging;
+  rootComponent: T.ComponentMeasure;
   selectedKey?: string;
   selectedIdx?: number;
 }
@@ -103,7 +96,7 @@ export default class ListView extends React.PureComponent<Props, State> {
     ['up', 'down', 'right'].forEach(action => key.unbind(action, 'measures-files'));
   }
 
-  getVisibleComponents = (components: ComponentMeasureEnhanced[], showBestMeasures: boolean) => {
+  getVisibleComponents = (components: T.ComponentMeasureEnhanced[], showBestMeasures: boolean) => {
     if (showBestMeasures) {
       return components;
     }
@@ -118,7 +111,7 @@ export default class ListView extends React.PureComponent<Props, State> {
     this.setState({ showBestMeasures: true });
   };
 
-  hasBestValue = (component: ComponentMeasureEnhanced) => {
+  hasBestValue = (component: T.ComponentMeasureEnhanced) => {
     const { metric } = this.props;
     const focusedMeasure = component.measures.find(measure => measure.metric.key === metric.key);
     if (focusedMeasure && isDiffMetric(metric.key)) {

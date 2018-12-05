@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { parseIssueFromResponse } from '../../helpers/issues';
-import { Issue } from '../../app/types';
 import { IssueResponse } from '../../api/issues';
 
 export const updateIssue = (
-  onChange: (issue: Issue) => void,
+  onChange: (issue: T.Issue) => void,
   resultPromise: Promise<IssueResponse>,
-  oldIssue?: Issue,
-  newIssue?: Issue
+  oldIssue?: T.Issue,
+  newIssue?: T.Issue
 ) => {
   const optimisticUpdate = oldIssue !== undefined && newIssue !== undefined;
   if (optimisticUpdate) {

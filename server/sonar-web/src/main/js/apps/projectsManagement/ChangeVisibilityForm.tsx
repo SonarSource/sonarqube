@@ -21,25 +21,24 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import Modal from '../../components/controls/Modal';
-import { Organization, Visibility } from '../../app/types';
 import { Button, ResetButtonLink } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { Alert } from '../../components/ui/Alert';
 
 export interface Props {
   onClose: () => void;
-  onConfirm: (visiblity: Visibility) => void;
-  organization: Organization;
+  onConfirm: (visiblity: T.Visibility) => void;
+  organization: T.Organization;
 }
 
 interface State {
-  visibility: Visibility;
+  visibility: T.Visibility;
 }
 
 export default class ChangeVisibilityForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { visibility: props.organization.projectVisibility as Visibility };
+    this.state = { visibility: props.organization.projectVisibility as T.Visibility };
   }
 
   handleConfirmClick = () => {
@@ -50,7 +49,7 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
   handleVisibilityClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    const visibility = event.currentTarget.dataset.visibility as Visibility;
+    const visibility = event.currentTarget.dataset.visibility as T.Visibility;
     this.setState({ visibility });
   };
 
@@ -63,11 +62,10 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
         </header>
 
         <div className="modal-body">
-          {[Visibility.Public, Visibility.Private].map(visibility => (
+          {['public', 'private'].map(visibility => (
             <div className="big-spacer-bottom" key={visibility}>
               <p>
-                {visibility === Visibility.Private &&
-                !organization.canUpdateProjectsVisibilityToPrivate ? (
+                {visibility === 'private' && !organization.canUpdateProjectsVisibilityToPrivate ? (
                   <span className="text-muted cursor-not-allowed">
                     <i
                       className={classNames('icon-radio', 'spacer-right', {

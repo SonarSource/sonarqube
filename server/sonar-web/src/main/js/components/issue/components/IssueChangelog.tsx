@@ -25,11 +25,10 @@ import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import Toggler from '../../controls/Toggler';
 import Tooltip from '../../controls/Tooltip';
 import { Button } from '../../ui/buttons';
-import { Issue } from '../../../app/types';
 
 interface Props {
   isOpen: boolean;
-  issue: Pick<Issue, 'author' | 'creationDate' | 'key'>;
+  issue: Pick<T.Issue, 'author' | 'creationDate' | 'key'>;
   creationDate: string;
   togglePopup: (popup: string, show?: boolean) => void;
 }

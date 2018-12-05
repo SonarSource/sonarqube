@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { find, without } from 'lodash';
-import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import SelectList, { Filter } from '../../../components/SelectList/SelectList';
 import { translate } from '../../../helpers/l10n';
@@ -29,7 +28,7 @@ import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 interface Props {
   onClose: () => void;
   onUpdateUsers: () => void;
-  user: User;
+  user: T.User;
 }
 
 interface State {

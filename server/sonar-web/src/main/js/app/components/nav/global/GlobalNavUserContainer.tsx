@@ -19,11 +19,10 @@
  */
 import { connect } from 'react-redux';
 import GlobalNavUser from './GlobalNavUser';
-import { Organization } from '../../../types';
 import { getMyOrganizations, Store } from '../../../../store/rootReducer';
 
 interface StateProps {
-  organizations: Organization[];
+  organizations: T.Organization[];
 }
 
 const mapStateToProps = (state: Store): StateProps => ({

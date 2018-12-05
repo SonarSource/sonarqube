@@ -21,12 +21,11 @@ import * as React from 'react';
 import ProjectCard from './ProjectCard';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
-import { MyProject } from '../../../app/types';
 
 interface Props {
   loading: boolean;
   loadMore: () => void;
-  projects: MyProject[];
+  projects: T.MyProject[];
   total?: number;
 }
 

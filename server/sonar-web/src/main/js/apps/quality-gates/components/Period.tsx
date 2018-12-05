@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
-import { Metric } from '../../../app/types';
 import { isDiffMetric } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   canEdit: boolean;
-  metric: Metric;
+  metric: T.Metric;
   onPeriodChange?: (checked: boolean) => void;
   period: boolean;
 }

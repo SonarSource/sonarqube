@@ -19,10 +19,9 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { Component } from '../../app/types';
 
 interface Props {
-  component: Pick<Component, 'qualifier'>;
+  component: Pick<T.Component, 'qualifier'>;
 }
 
 export default function Header(props: Props) {

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { CreateProjectPage } from '../CreateProjectPage';
-import { LoggedInUser } from '../../../../app/types';
 import { waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
 import { getAlmAppInfo } from '../../../../api/alm-integration';
 
@@ -36,7 +35,7 @@ jest.mock('../../../../api/alm-integration', () => ({
   })
 }));
 
-const user: LoggedInUser = {
+const user: T.LoggedInUser = {
   externalProvider: 'github',
   groups: [],
   isLoggedIn: true,

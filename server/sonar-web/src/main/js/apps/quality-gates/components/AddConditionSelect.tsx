@@ -21,11 +21,10 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import Select from '../../../components/controls/Select';
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
-import { Metric } from '../../../app/types';
 
 interface Props {
-  metrics: Metric[];
-  onAddCondition: (metric: Metric) => void;
+  metrics: T.Metric[];
+  onAddCondition: (metric: T.Metric) => void;
 }
 
 interface State {

@@ -27,7 +27,6 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchQualityGates } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { Organization, QualityGate } from '../../../app/types';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
@@ -36,13 +35,13 @@ interface Props {
     organization?: string;
     refreshQualityGates: () => Promise<void>;
   }>;
-  organization: Pick<Organization, 'key'>;
+  organization: Pick<T.Organization, 'key'>;
 }
 
 interface State {
   canCreate: boolean;
   loading: boolean;
-  qualityGates: QualityGate[];
+  qualityGates: T.QualityGate[];
 }
 
 export default class QualityGatesApp extends React.PureComponent<Props, State> {
@@ -102,7 +101,7 @@ export default class QualityGatesApp extends React.PureComponent<Props, State> {
     );
   };
 
-  handleSetDefault = (qualityGate: QualityGate) => {
+  handleSetDefault = (qualityGate: T.QualityGate) => {
     this.setState(({ qualityGates }) => {
       return {
         qualityGates: qualityGates.map(candidate => {

@@ -42,10 +42,9 @@ import {
   ReferencedRule,
   STANDARDS
 } from '../utils';
-import { Component } from '../../../app/types';
 
 export interface Props {
-  component: Component | undefined;
+  component: T.Component | undefined;
   facets: { [facet: string]: Facet };
   hideAuthorFacet?: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;

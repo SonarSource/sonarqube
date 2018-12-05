@@ -19,19 +19,18 @@
  */
 import * as React from 'react';
 import { isProvided, getLinkName } from './utils';
-import { ProjectLink } from '../../app/types';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import ProjectLinkIcon from '../../components/icons-components/ProjectLinkIcon';
 import { Button } from '../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
-  link: ProjectLink;
+  link: T.ProjectLink;
   onDelete: (linkId: string) => Promise<void>;
 }
 
 export default class LinkRow extends React.PureComponent<Props> {
-  renderNameForProvided = (link: ProjectLink) => {
+  renderNameForProvided = (link: T.ProjectLink) => {
     return (
       <div className="display-inline-block text-top">
         <div>
@@ -44,7 +43,7 @@ export default class LinkRow extends React.PureComponent<Props> {
     );
   };
 
-  renderName = (link: ProjectLink) => {
+  renderName = (link: T.ProjectLink) => {
     return (
       <div>
         <ProjectLinkIcon className="little-spacer-right" type={link.type} />
@@ -59,7 +58,7 @@ export default class LinkRow extends React.PureComponent<Props> {
     );
   };
 
-  renderDeleteButton = (link: ProjectLink) => {
+  renderDeleteButton = (link: T.ProjectLink) => {
     if (isProvided(link)) {
       return null;
     }

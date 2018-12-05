@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
 import { groupBy, sortBy } from 'lodash';
-import { BranchLike, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import QualifierIcon from '../../icons-components/QualifierIcon';
 import { PopupPlacement } from '../../ui/popups';
@@ -33,13 +32,13 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { Alert } from '../../ui/Alert';
 
 interface Props {
-  blocks: DuplicationBlock[];
-  branchLike: BranchLike | undefined;
-  duplicatedFiles?: { [ref: string]: DuplicatedFile };
+  blocks: T.DuplicationBlock[];
+  branchLike: T.BranchLike | undefined;
+  duplicatedFiles?: { [ref: string]: T.DuplicatedFile };
   inRemovedComponent: boolean;
   onClose: () => void;
   popupPosition?: any;
-  sourceViewerFile: SourceViewerFile;
+  sourceViewerFile: T.SourceViewerFile;
 }
 
 export default class DuplicationPopup extends React.PureComponent<Props> {
@@ -75,7 +74,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     this.props.onClose();
   };
 
-  renderDuplication(file: DuplicatedFile, children: React.ReactNode, line?: number) {
+  renderDuplication(file: T.DuplicatedFile, children: React.ReactNode, line?: number) {
     return this.shouldLink() ? (
       <a
         data-key={file.key}

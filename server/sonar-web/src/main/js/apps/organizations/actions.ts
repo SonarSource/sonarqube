@@ -22,7 +22,6 @@ import * as api from '../../api/organizations';
 import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { Organization, OrganizationBase } from '../../app/types';
 
 export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
   return Promise.all([api.getOrganization(key), api.getOrganizationNavigation(key)]).then(
@@ -35,8 +34,10 @@ export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
   );
 };
 
-export const createOrganization = (organization: OrganizationBase) => (dispatch: Dispatch<any>) => {
-  return api.createOrganization(organization).then((organization: Organization) => {
+export const createOrganization = (organization: T.OrganizationBase) => (
+  dispatch: Dispatch<any>
+) => {
+  return api.createOrganization(organization).then((organization: T.Organization) => {
     dispatch(actions.createOrganization(organization));
     dispatch(
       addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name))
@@ -45,7 +46,7 @@ export const createOrganization = (organization: OrganizationBase) => (dispatch:
   });
 };
 
-export const updateOrganization = (key: string, changes: OrganizationBase) => (
+export const updateOrganization = (key: string, changes: T.OrganizationBase) => (
   dispatch: Dispatch<any>
 ) => {
   return api.updateOrganization(key, changes).then(() => {

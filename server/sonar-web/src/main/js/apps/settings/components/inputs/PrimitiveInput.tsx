@@ -30,20 +30,19 @@ import {
   DefaultInputProps,
   DefaultSpecializedInputProps
 } from '../../utils';
-import { SettingType } from '../../../../app/types';
 
 const typeMapping: {
-  [type in SettingType]?:
+  [type in T.SettingType]?:
     | React.ComponentClass<DefaultSpecializedInputProps>
     | React.StatelessComponent<DefaultSpecializedInputProps>
 } = {
-  [SettingType.String]: InputForString,
-  [SettingType.Text]: InputForText,
-  [SettingType.Password]: InputForPassword,
-  [SettingType.Boolean]: InputForBoolean,
-  [SettingType.Integer]: InputForNumber,
-  [SettingType.Long]: InputForNumber,
-  [SettingType.Float]: InputForNumber
+  STRING: InputForString,
+  TEXT: InputForText,
+  PASSWORD: InputForPassword,
+  BOOLEAN: InputForBoolean,
+  INTEGER: InputForNumber,
+  LONG: InputForNumber,
+  FLOAT: InputForNumber
 };
 
 interface Props extends DefaultInputProps {
@@ -57,7 +56,7 @@ export default class PrimitiveInput extends React.PureComponent<Props> {
 
     const name = this.props.name || getUniqueName(definition);
 
-    if (definition.type === SettingType.SingleSelectList) {
+    if (definition.type === 'SINGLE_SELECT_LIST') {
       return (
         <InputForSingleSelectList
           isDefault={isDefaultOrInherited(setting)}

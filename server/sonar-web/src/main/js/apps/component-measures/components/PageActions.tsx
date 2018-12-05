@@ -20,12 +20,11 @@
 import * as React from 'react';
 import FilesCounter from './FilesCounter';
 import { translate } from '../../../helpers/l10n';
-import { Paging } from '../../../app/types';
 
 interface Props {
   current?: number;
   isFile?: boolean;
-  paging?: Paging;
+  paging?: T.Paging;
   totalLoadedComponents?: number;
   view?: string;
 }

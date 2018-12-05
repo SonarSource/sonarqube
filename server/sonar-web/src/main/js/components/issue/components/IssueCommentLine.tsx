@@ -24,10 +24,9 @@ import { EditButton, DeleteButton } from '../../ui/buttons';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
 import DateFromNow from '../../intl/DateFromNow';
-import { IssueComment } from '../../../app/types';
 
 interface Props {
-  comment: IssueComment;
+  comment: T.IssueComment;
   onDelete: (comment: string) => void;
   onEdit: (comment: string, text: string) => void;
 }

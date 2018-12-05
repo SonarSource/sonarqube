@@ -20,11 +20,11 @@
 
 import * as React from 'react';
 import EditionBox from './components/EditionBox';
-import { EDITIONS, EditionKey } from './utils';
+import { EDITIONS } from './utils';
 import { getMarketplaceNavigation } from '../../api/nav';
 
 export interface Props {
-  currentEdition?: EditionKey;
+  currentEdition?: T.EditionKey;
 }
 
 interface State {

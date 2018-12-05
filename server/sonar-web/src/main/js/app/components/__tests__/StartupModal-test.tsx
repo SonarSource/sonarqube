@@ -27,7 +27,6 @@ import { save, get } from '../../../helpers/storage';
 import { hasMessage } from '../../../helpers/l10n';
 import { waitAndUpdate, mockRouter } from '../../../helpers/testUtils';
 import { differenceInDays, toShortNotSoISOString } from '../../../helpers/dates';
-import { LoggedInUser } from '../../types';
 import { EditionKey } from '../../../apps/marketplace/utils';
 
 jest.mock('../../../api/marketplace', () => ({
@@ -49,7 +48,7 @@ jest.mock('../../../helpers/dates', () => ({
   toShortNotSoISOString: jest.fn().mockReturnValue('short-not-iso-date')
 }));
 
-const LOGGED_IN_USER: LoggedInUser = {
+const LOGGED_IN_USER: T.LoggedInUser = {
   groups: [],
   isLoggedIn: true,
   login: 'luke',

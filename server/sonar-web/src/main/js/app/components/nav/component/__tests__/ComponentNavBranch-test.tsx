@@ -20,28 +20,20 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBranch from '../ComponentNavBranch';
-import {
-  BranchType,
-  ShortLivingBranch,
-  MainBranch,
-  Component,
-  LongLivingBranch,
-  PullRequest
-} from '../../../../types';
 import { click } from '../../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../../helpers/system';
 
 jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
-const mainBranch: MainBranch = { isMain: true, name: 'master' };
-const fooBranch: LongLivingBranch = { isMain: false, name: 'foo', type: BranchType.LONG };
+const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
+const fooBranch: T.LongLivingBranch = { isMain: false, name: 'foo', type: 'LONG' };
 
 beforeEach(() => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
 });
 
 it('renders main branch', () => {
-  const component = {} as Component;
+  const component = {} as T.Component;
   expect(
     shallow(
       <ComponentNavBranch
@@ -55,14 +47,14 @@ it('renders main branch', () => {
 });
 
 it('renders short-living branch', () => {
-  const branch: ShortLivingBranch = {
+  const branch: T.ShortLivingBranch = {
     isMain: false,
     mergeBranch: 'master',
     name: 'foo',
     status: { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 },
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
-  const component = {} as Component;
+  const component = {} as T.Component;
   expect(
     shallow(
       <ComponentNavBranch
@@ -76,14 +68,14 @@ it('renders short-living branch', () => {
 });
 
 it('renders pull request', () => {
-  const pullRequest: PullRequest = {
+  const pullRequest: T.PullRequest = {
     base: 'master',
     branch: 'feature',
     key: '1234',
     title: 'Feature PR',
     url: 'https://example.com/pull/1234'
   };
-  const component = {} as Component;
+  const component = {} as T.Component;
   expect(
     shallow(
       <ComponentNavBranch
@@ -97,7 +89,7 @@ it('renders pull request', () => {
 });
 
 it('opens menu', () => {
-  const component = {} as Component;
+  const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
       branchLikes={[mainBranch, fooBranch]}
@@ -112,7 +104,7 @@ it('opens menu', () => {
 });
 
 it('renders single branch popup', () => {
-  const component = {} as Component;
+  const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
       branchLikes={[mainBranch]}
@@ -125,7 +117,7 @@ it('renders single branch popup', () => {
 });
 
 it('renders no branch support popup', () => {
-  const component = {} as Component;
+  const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
       branchLikes={[mainBranch, fooBranch]}
@@ -139,7 +131,7 @@ it('renders no branch support popup', () => {
 
 it('renders nothing on SonarCloud without branch support', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  const component = {} as Component;
+  const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
       branchLikes={[mainBranch]}

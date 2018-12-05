@@ -25,10 +25,9 @@ import GraphsLegendStatic from './GraphsLegendStatic';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import { MeasureHistory, Serie } from '../utils';
-import { AnalysisEvent } from '../../../app/types';
 
 interface Props {
-  events: AnalysisEvent[];
+  events: T.AnalysisEvent[];
   graph: string;
   graphEndDate?: Date;
   graphStartDate?: Date;

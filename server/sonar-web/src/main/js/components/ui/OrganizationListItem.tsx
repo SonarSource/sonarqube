@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import OrganizationLink from './OrganizationLink';
-import { Organization } from '../../app/types';
 import OrganizationAvatar from '../common/OrganizationAvatar';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
-  organization: Organization;
+  organization: T.Organization;
 }
 
 export default function OrganizationListItem({ organization }: Props) {

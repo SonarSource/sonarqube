@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
-import { Issue, FlowLocation } from '../../../app/types';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 
 interface Props {
-  issue: Pick<Issue, 'key'>;
-  locations: FlowLocation[];
+  issue: Pick<T.Issue, 'key'>;
+  locations: T.FlowLocation[];
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
   selectedLocationIndex: number | undefined;
@@ -39,7 +38,7 @@ interface LocationGroup {
   component: string | undefined;
   componentName: string | undefined;
   firstLocationIndex: number;
-  locations: FlowLocation[];
+  locations: T.FlowLocation[];
 }
 
 export default class CrossFileLocationsNavigator extends React.PureComponent<Props, State> {
@@ -68,10 +67,10 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
     this.setState({ collapsed: false });
   };
 
-  groupByFile = (locations: FlowLocation[]) => {
+  groupByFile = (locations: T.FlowLocation[]) => {
     const groups: LocationGroup[] = [];
 
-    let currentLocations: FlowLocation[] = [];
+    let currentLocations: T.FlowLocation[] = [];
     let currentComponent: string | undefined;
     let currentComponentName: string | undefined;
     let currentFirstLocationIndex = 0;

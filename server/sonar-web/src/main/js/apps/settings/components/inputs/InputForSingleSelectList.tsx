@@ -20,9 +20,8 @@
 import * as React from 'react';
 import Select from '../../../../components/controls/Select';
 import { DefaultSpecializedInputProps } from '../../utils';
-import { SettingCategoryDefinition } from '../../../../app/types';
 
-type Props = DefaultSpecializedInputProps & Pick<SettingCategoryDefinition, 'options'>;
+type Props = DefaultSpecializedInputProps & Pick<T.SettingCategoryDefinition, 'options'>;
 
 export default class InputForSingleSelectList extends React.PureComponent<Props> {
   handleInputChange = ({ value }: { value: string }) => {

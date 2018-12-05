@@ -20,20 +20,19 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Input from '../Input';
-import { SettingType } from '../../../../../app/types';
 import { DefaultInputProps } from '../../../utils';
 
 const settingValue = {
   key: 'example'
 };
 
-const settingDefinition = {
+const settingDefinition: T.SettingCategoryDefinition = {
   category: 'general',
   fields: [],
   key: 'example',
   options: [],
   subCategory: 'Branches',
-  type: SettingType.String
+  type: 'STRING'
 };
 
 it('should render PrimitiveInput', () => {
@@ -58,9 +57,9 @@ it('should render MultiValueInput', () => {
 });
 
 it('should render PropertySetInput', () => {
-  const setting = {
+  const setting: T.Setting = {
     ...settingValue,
-    definition: { ...settingDefinition, type: SettingType.PropertySet, fields: [] }
+    definition: { ...settingDefinition, type: 'PROPERTY_SET', fields: [] }
   };
 
   const onChange = jest.fn();

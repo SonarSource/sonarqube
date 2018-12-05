@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { BranchLike, Issue as IssueType } from '../../../app/types';
 import Issue from '../../issue/Issue';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   issuePopup: { issue: string; name: string } | undefined;
-  issues: IssueType[];
-  onIssueChange: (issue: IssueType) => void;
+  issues: T.Issue[];
+  onIssueChange: (issue: T.Issue) => void;
   onIssueClick: (issueKey: string) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   selectedIssue: string | undefined;

@@ -27,23 +27,17 @@ import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { SubmitButton } from '../../../components/ui/buttons';
-import {
-  AlmApplication,
-  AlmOrganization,
-  AlmUnboundApplication,
-  OrganizationBase
-} from '../../../app/types';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
-  almApplication: AlmApplication;
+  almApplication: T.AlmApplication;
   almInstallId?: string;
-  almOrganization?: AlmOrganization;
-  almUnboundApplications: AlmUnboundApplication[];
-  boundOrganization?: OrganizationBase;
+  almOrganization?: T.AlmOrganization;
+  almUnboundApplications: T.AlmUnboundApplication[];
+  boundOrganization?: T.OrganizationBase;
 }
 
 interface State {
@@ -72,11 +66,11 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
     save(ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP, Date.now().toString(10));
   };
 
-  handleInstallationChange = ({ installationId }: AlmUnboundApplication) => {
+  handleInstallationChange = ({ installationId }: T.AlmUnboundApplication) => {
     this.setState({ unboundInstallationId: installationId });
   };
 
-  renderOption = (organization: AlmUnboundApplication) => {
+  renderOption = (organization: T.AlmUnboundApplication) => {
     const { almApplication } = this.props;
     return (
       <span>

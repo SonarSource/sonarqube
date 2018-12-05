@@ -22,13 +22,12 @@ import { groupBy, isEqual, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 import { getSubCategoryName, getSubCategoryDescription } from '../utils';
-import { Component, SettingCategoryDefinition, Setting } from '../../../app/types';
 
 interface Props {
   category: string;
-  component?: Component;
+  component?: T.Component;
   fetchValues: Function;
-  settings: Array<Setting & { definition: SettingCategoryDefinition }>;
+  settings: Array<T.Setting & { definition: T.SettingCategoryDefinition }>;
 }
 
 export default class SubCategoryDefinitionsList extends React.PureComponent<Props> {

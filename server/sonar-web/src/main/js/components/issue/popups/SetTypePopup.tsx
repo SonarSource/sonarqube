@@ -23,14 +23,13 @@ import IssueTypeIcon from '../../ui/IssueTypeIcon';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import { Issue, IssueType } from '../../../app/types';
 
 interface Props {
-  issue: Pick<Issue, 'type'>;
-  onSelect: (type: IssueType) => void;
+  issue: Pick<T.Issue, 'type'>;
+  onSelect: (type: T.IssueType) => void;
 }
 
-const TYPES = [IssueType.Bug, IssueType.Vulnerability, IssueType.CodeSmell];
+const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
 export default function SetTypePopup({ issue, onSelect }: Props) {
   return (

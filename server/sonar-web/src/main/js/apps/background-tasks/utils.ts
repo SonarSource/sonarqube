@@ -19,7 +19,6 @@
  */
 import { STATUSES, CURRENTS, ALL_TYPES } from './constants';
 import { toShortNotSoISOString } from '../../helpers/dates';
-import { Task } from '../../app/types';
 
 export interface Query {
   currents: string;
@@ -30,7 +29,7 @@ export interface Query {
   taskType: string;
 }
 
-export function updateTask(tasks: Task[], newTask: Task) {
+export function updateTask(tasks: T.Task[], newTask: T.Task) {
   return tasks.map(task => (task.id === newTask.id ? newTask : task));
 }
 

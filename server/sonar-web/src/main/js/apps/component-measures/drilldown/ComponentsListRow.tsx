@@ -21,16 +21,15 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
-import { ComponentMeasure, Metric, ComponentMeasureEnhanced, BranchLike } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasureEnhanced;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasureEnhanced;
   isSelected: boolean;
   onClick: (component: string) => void;
-  otherMetrics: Metric[];
-  metric: Metric;
-  rootComponent: ComponentMeasure;
+  otherMetrics: T.Metric[];
+  metric: T.Metric;
+  rootComponent: T.ComponentMeasure;
 }
 
 export default function ComponentsListRow(props: Props) {

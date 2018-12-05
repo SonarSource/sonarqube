@@ -25,7 +25,6 @@ import { getIssuesUrl } from '../../../helpers/urls';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
-import { IssueType } from '../../../app/types';
 
 interface Props {
   bugs?: number;
@@ -46,11 +45,7 @@ export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabili
               <td className="about-page-issue-type-number">
                 <Link
                   className="about-page-issue-type-link"
-                  to={getIssuesUrl({
-                    resolved: 'false',
-                    types: IssueType.Bug,
-                    s: 'CREATION_DATE'
-                  })}>
+                  to={getIssuesUrl({ resolved: 'false', types: 'BUG', s: 'CREATION_DATE' })}>
                   {formatMeasure(bugs, 'SHORT_INT')}
                 </Link>
               </td>
@@ -67,7 +62,7 @@ export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabili
                   className="about-page-issue-type-link"
                   to={getIssuesUrl({
                     resolved: 'false',
-                    types: IssueType.Vulnerability,
+                    types: 'VULNERABILITY',
                     s: 'CREATION_DATE'
                   })}>
                   {formatMeasure(vulnerabilities, 'SHORT_INT')}
@@ -84,11 +79,7 @@ export default function EntryIssueTypes({ bugs, codeSmells, loading, vulnerabili
               <td className="about-page-issue-type-number">
                 <Link
                   className="about-page-issue-type-link"
-                  to={getIssuesUrl({
-                    resolved: 'false',
-                    types: IssueType.CodeSmell,
-                    s: 'CREATION_DATE'
-                  })}>
+                  to={getIssuesUrl({ resolved: 'false', types: 'CODE_SMELL', s: 'CREATION_DATE' })}>
                   {formatMeasure(codeSmells, 'SHORT_INT')}
                 </Link>
               </td>

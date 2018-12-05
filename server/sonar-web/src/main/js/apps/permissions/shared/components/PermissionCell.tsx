@@ -19,20 +19,14 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import {
-  PermissionDefinition,
-  PermissionDefinitionGroup,
-  PermissionGroup,
-  PermissionUser
-} from '../../../../app/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import Checkbox from '../../../../components/controls/Checkbox';
 
 interface Props {
   loading: string[];
   onCheck: (checked: boolean, permission?: string) => void;
-  permission: PermissionDefinition | PermissionDefinitionGroup;
-  permissionItem: PermissionGroup | PermissionUser;
+  permission: T.PermissionDefinition | T.PermissionDefinitionGroup;
+  permissionItem: T.PermissionGroup | T.PermissionUser;
   selectedPermission?: string;
 }
 

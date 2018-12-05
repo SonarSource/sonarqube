@@ -21,11 +21,10 @@ import * as React from 'react';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 import DomainFacet from './DomainFacet';
 import { getDefaultView, groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
-import { MeasureEnhanced } from '../../../app/types';
 
 interface Props {
   hasOverview: boolean;
-  measures: MeasureEnhanced[];
+  measures: T.MeasureEnhanced[];
   selectedMetric: string;
   updateQuery: (query: Partial<Query>) => void;
 }

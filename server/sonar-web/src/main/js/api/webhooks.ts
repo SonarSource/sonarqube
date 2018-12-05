@@ -19,14 +19,13 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Webhook, WebhookDelivery, Paging } from '../app/types';
 
 export function createWebhook(data: {
   name: string;
   organization: string | undefined;
   project?: string;
   url: string;
-}): Promise<{ webhook: Webhook }> {
+}): Promise<{ webhook: T.Webhook }> {
   return postJSON('/api/webhooks/create', data).catch(throwGlobalError);
 }
 
@@ -37,7 +36,7 @@ export function deleteWebhook(data: { webhook: string }): Promise<void | Respons
 export function searchWebhooks(data: {
   organization: string | undefined;
   project?: string;
-}): Promise<{ webhooks: Webhook[] }> {
+}): Promise<{ webhooks: T.Webhook[] }> {
   return getJSON('/api/webhooks/list', data).catch(throwGlobalError);
 }
 
@@ -56,14 +55,14 @@ export function searchDeliveries(data: {
   p?: number;
   ps?: number;
 }): Promise<{
-  deliveries: WebhookDelivery[];
-  paging: Paging;
+  deliveries: T.WebhookDelivery[];
+  paging: T.Paging;
 }> {
   return getJSON('/api/webhooks/deliveries', data).catch(throwGlobalError);
 }
 
 export function getDelivery(data: {
   deliveryId: string;
-}): Promise<{ delivery: WebhookDelivery & { payload: string } }> {
+}): Promise<{ delivery: T.WebhookDelivery & { payload: string } }> {
   return getJSON('/api/webhooks/delivery', data).catch(throwGlobalError);
 }

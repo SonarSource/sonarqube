@@ -24,13 +24,12 @@ import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { Component, BranchLike, MeasureEnhanced } from '../../../app/types';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Pick<Component, 'key' | 'qualifier'>;
-  measures: MeasureEnhanced[];
+  branchLike?: T.BranchLike;
+  component: Pick<T.Component, 'key' | 'qualifier'>;
+  measures: T.MeasureEnhanced[];
 }
 
 export default function QualityGate({ branchLike, component, measures }: Props) {
@@ -89,6 +88,6 @@ function parseQualityGateDetails(rawDetails: string) {
   return JSON.parse(rawDetails);
 }
 
-function isProject(component: Pick<Component, 'qualifier'>) {
+function isProject(component: Pick<T.Component, 'qualifier'>) {
   return component.qualifier === 'TRK';
 }

@@ -26,7 +26,7 @@ import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import PluginsList from './PluginsList';
 import Search from './Search';
-import { filterPlugins, parseQuery, Query, serializeQuery, EditionKey } from './utils';
+import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import {
   getAvailablePlugins,
@@ -41,7 +41,7 @@ import { translate } from '../../helpers/l10n';
 import './style.css';
 
 export interface Props {
-  currentEdition?: EditionKey;
+  currentEdition?: T.EditionKey;
   fetchPendingPlugins: () => void;
   location: { pathname: string; query: RawQuery };
   pendingPlugins: PluginPendingResult;

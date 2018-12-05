@@ -22,7 +22,6 @@ import * as classNames from 'classnames';
 import DeleteBranchModal from './DeleteBranchModal';
 import LeakPeriodForm from './LeakPeriodForm';
 import RenameBranchModal from './RenameBranchModal';
-import { BranchLike } from '../../../app/types';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
 import {
@@ -40,7 +39,7 @@ import ActionsDropdown, {
 } from '../../../components/controls/ActionsDropdown';
 
 interface Props {
-  branchLike: BranchLike;
+  branchLike: T.BranchLike;
   component: string;
   isOrphan?: boolean;
   onChange: () => void;

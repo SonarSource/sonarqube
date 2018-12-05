@@ -29,15 +29,14 @@ import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueType, BranchLike, Issue } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   currentPopup?: string;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
-  issue: Issue;
-  onFilter?: (property: string, issue: Issue) => void;
+  issue: T.Issue;
+  onFilter?: (property: string, issue: T.Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
@@ -71,7 +70,7 @@ export default function IssueTitleBar(props: Props) {
     <div className="issue-row">
       <IssueMessage
         engine={issue.externalRuleEngine}
-        manualVulnerability={issue.fromHotspot && issue.type === IssueType.Vulnerability}
+        manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
         message={issue.message}
         organization={issue.organization}
         rule={issue.rule}

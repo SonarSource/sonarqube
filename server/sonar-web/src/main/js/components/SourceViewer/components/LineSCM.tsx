@@ -19,14 +19,13 @@
  */
 import * as React from 'react';
 import SCMPopup from './SCMPopup';
-import { SourceLine } from '../../../app/types';
 import Toggler from '../../controls/Toggler';
 
 interface Props {
-  line: SourceLine;
+  line: T.SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
   popupOpen: boolean;
-  previousLine: SourceLine | undefined;
+  previousLine: T.SourceLine | undefined;
 }
 
 export default class LineSCM extends React.PureComponent<Props> {
@@ -74,7 +73,7 @@ export default class LineSCM extends React.PureComponent<Props> {
   }
 }
 
-function isSCMChanged(s: SourceLine, p: SourceLine | undefined) {
+function isSCMChanged(s: T.SourceLine, p: T.SourceLine | undefined) {
   let changed = true;
   if (p != null && s.scmRevision != null && p.scmRevision != null) {
     changed = s.scmRevision !== p.scmRevision || s.scmDate !== p.scmDate;

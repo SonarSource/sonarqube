@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentMeasure, Breadcrumb } from '../../app/types';
 
-let bucket: { [key: string]: ComponentMeasure } = {};
+let bucket: { [key: string]: T.ComponentMeasure } = {};
 let childrenBucket: {
   [key: string]: {
-    children: ComponentMeasure[];
+    children: T.ComponentMeasure[];
     page: number;
     total: number;
   };
 } = {};
-let breadcrumbsBucket: { [key: string]: Breadcrumb[] } = {};
+let breadcrumbsBucket: { [key: string]: T.Breadcrumb[] } = {};
 
-export function addComponent(component: ComponentMeasure): void {
+export function addComponent(component: T.ComponentMeasure): void {
   bucket[component.key] = component;
 }
 
-export function getComponent(componentKey: string): ComponentMeasure {
+export function getComponent(componentKey: string): T.ComponentMeasure {
   return bucket[componentKey];
 }
 
 export function addComponentChildren(
   componentKey: string,
-  children: ComponentMeasure[],
+  children: T.ComponentMeasure[],
   total: number,
   page: number
 ): void {
@@ -53,18 +52,18 @@ export function addComponentChildren(
 export function getComponentChildren(
   componentKey: string
 ): {
-  children: ComponentMeasure[];
+  children: T.ComponentMeasure[];
   page: number;
   total: number;
 } {
   return childrenBucket[componentKey];
 }
 
-export function addComponentBreadcrumbs(componentKey: string, breadcrumbs: Breadcrumb[]): void {
+export function addComponentBreadcrumbs(componentKey: string, breadcrumbs: T.Breadcrumb[]): void {
   breadcrumbsBucket[componentKey] = breadcrumbs;
 }
 
-export function getComponentBreadcrumbs(componentKey: string): Breadcrumb[] {
+export function getComponentBreadcrumbs(componentKey: string): T.Breadcrumb[] {
   return breadcrumbsBucket[componentKey];
 }
 

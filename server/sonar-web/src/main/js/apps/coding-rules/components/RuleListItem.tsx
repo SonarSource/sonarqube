@@ -25,7 +25,6 @@ import RuleInheritanceIcon from './RuleInheritanceIcon';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Activation, Query } from '../query';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
-import { Rule, RuleInheritance } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
@@ -42,7 +41,7 @@ interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
   onOpen: (ruleKey: string) => void;
   organization: string | undefined;
-  rule: Rule;
+  rule: T.Rule;
   selected: boolean;
   selectedProfile?: Profile;
 }
@@ -63,7 +62,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (this.props.selectedProfile) {
       this.props.onActivate(this.props.selectedProfile.key, this.props.rule.key, {
         severity,
-        inherit: RuleInheritance.NotInherited
+        inherit: 'NONE'
       });
     }
     return Promise.resolve();
@@ -93,7 +92,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         {selectedProfile &&
           selectedProfile.parentName && (
             <>
-              {activation.inherit === RuleInheritance.Overridden && (
+              {activation.inherit === 'OVERRIDES' && (
                 <Tooltip
                   overlay={translateWithParameters(
                     'coding_rules.overrides',
@@ -106,7 +105,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   />
                 </Tooltip>
               )}
-              {activation.inherit === RuleInheritance.Inherited && (
+              {activation.inherit === 'INHERITED' && (
                 <Tooltip
                   overlay={translateWithParameters(
                     'coding_rules.inherits',

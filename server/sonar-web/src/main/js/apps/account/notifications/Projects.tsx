@@ -22,17 +22,16 @@ import { differenceWith } from 'lodash';
 import ProjectNotifications from './ProjectNotifications';
 import { NotificationProject } from './types';
 import { getSuggestions } from '../../../api/components';
-import { Notification } from '../../../app/types';
 import { AsyncSelect } from '../../../components/controls/Select';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
 
 export interface Props {
-  addNotification: (n: Notification) => void;
+  addNotification: (n: T.Notification) => void;
   channels: string[];
-  notificationsByProject: { [project: string]: Notification[] };
+  notificationsByProject: { [project: string]: T.Notification[] };
   projects: NotificationProject[];
-  removeNotification: (n: Notification) => void;
+  removeNotification: (n: T.Notification) => void;
   types: string[];
 }
 

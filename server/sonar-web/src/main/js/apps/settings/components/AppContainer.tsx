@@ -29,12 +29,11 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchSettings } from '../store/actions';
 import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../../../app/types';
 import '../styles.css';
 import '../side-tabs.css';
 
 interface Props {
-  component?: Component;
+  component?: T.Component;
   defaultCategory: string;
   fetchSettings(component?: string): Promise<void>;
 }

@@ -48,18 +48,17 @@ import {
 } from '../../../helpers/branches';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
-import { BranchLike, Component, Metric, MeasureEnhanced, Period } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 interface OwnProps {
-  branchLike?: BranchLike;
-  component: Component;
+  branchLike?: T.BranchLike;
+  component: T.Component;
   onComponentChange: (changes: {}) => void;
 }
 
 interface StateToProps {
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
 }
 
 interface DispatchToProps {
@@ -74,8 +73,8 @@ interface State {
   };
   historyStartDate?: Date;
   loading: boolean;
-  measures: MeasureEnhanced[];
-  periods?: Period[];
+  measures: T.MeasureEnhanced[];
+  periods?: T.Period[];
 }
 
 export class OverviewApp extends React.PureComponent<Props, State> {
@@ -162,7 +161,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
 
   getApplicationLeakPeriod = () =>
     this.state.measures.find(measure => measure.metric.key === 'new_bugs')
-      ? ({ index: 1 } as Period)
+      ? ({ index: 1 } as T.Period)
       : undefined;
 
   isEmpty = () =>

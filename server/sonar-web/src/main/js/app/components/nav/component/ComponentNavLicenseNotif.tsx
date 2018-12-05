@@ -23,10 +23,9 @@ import * as PropTypes from 'prop-types';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import { translate } from '../../../../helpers/l10n';
 import { isValidLicense } from '../../../../api/marketplace';
-import { Task } from '../../../types';
 
 interface Props {
-  currentTask?: Task;
+  currentTask?: T.Task;
 }
 
 interface State {

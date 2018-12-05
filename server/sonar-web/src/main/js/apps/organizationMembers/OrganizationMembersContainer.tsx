@@ -19,7 +19,6 @@
  */
 import { connect } from 'react-redux';
 import OrganizationMembers from './OrganizationMembers';
-import { Organization } from '../../app/types';
 import { getOrganizationByKey, Store } from '../../store/rootReducer';
 
 interface OwnProps {
@@ -27,7 +26,7 @@ interface OwnProps {
 }
 
 interface StateProps {
-  organization: Organization;
+  organization: T.Organization;
 }
 
 const mapStateToProps = (state: Store, ownProps: OwnProps): StateProps => {

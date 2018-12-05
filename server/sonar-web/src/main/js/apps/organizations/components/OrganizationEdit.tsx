@@ -24,15 +24,14 @@ import { debounce } from 'lodash';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { updateOrganization } from '../actions';
-import { Organization, OrganizationBase } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface DispatchProps {
-  updateOrganization: (organization: string, changes: OrganizationBase) => Promise<any>;
+  updateOrganization: (organization: string, changes: T.OrganizationBase) => Promise<any>;
 }
 
 interface OwnProps {
-  organization: Organization;
+  organization: T.Organization;
 }
 
 type Props = OwnProps & DispatchProps;

@@ -22,11 +22,10 @@ import { Link } from 'react-router';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { QualityGate } from '../../../app/types';
 
 interface Props {
   organization?: string;
-  qualityGates: QualityGate[];
+  qualityGates: T.QualityGate[];
 }
 
 export default function List({ organization, qualityGates }: Props) {

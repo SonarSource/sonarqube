@@ -36,33 +36,23 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { isDiffMetric } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import {
-  BranchLike,
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  CurrentUser,
-  Metric,
-  Paging,
-  MeasureEnhanced,
-  Period
-} from '../../../app/types';
 import { RequestData } from '../../../helpers/request';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   className?: string;
-  component: ComponentMeasure;
-  currentUser: CurrentUser;
+  component: T.ComponentMeasure;
+  currentUser: T.CurrentUser;
   loading: boolean;
   loadingMore: boolean;
-  leakPeriod?: Period;
-  measure?: MeasureEnhanced;
-  metric: Metric;
-  metrics: { [metric: string]: Metric };
-  rootComponent: ComponentMeasure;
+  leakPeriod?: T.Period;
+  measure?: T.MeasureEnhanced;
+  metric: T.Metric;
+  metrics: { [metric: string]: T.Metric };
+  rootComponent: T.ComponentMeasure;
   router: InjectedRouter;
-  secondaryMeasure?: MeasureEnhanced;
+  secondaryMeasure?: T.MeasureEnhanced;
   updateLoading: (param: { [key: string]: boolean }) => void;
   updateSelected: (component: string) => void;
   updateView: (view: string) => void;
@@ -70,9 +60,9 @@ interface Props {
 }
 
 interface State {
-  components: ComponentMeasureEnhanced[];
-  metric?: Metric;
-  paging?: Paging;
+  components: T.ComponentMeasureEnhanced[];
+  metric?: T.Metric;
+  paging?: T.Paging;
   selected?: string;
   view?: string;
 }
@@ -109,7 +99,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   };
 
-  getComponentRequestParams = (view: string, metric: Metric, options: Object = {}) => {
+  getComponentRequestParams = (view: string, metric: T.Metric, options: Object = {}) => {
     const strategy = view === 'list' ? 'leaves' : 'children';
     const metricKeys = [metric.key];
     const opts: RequestData = {

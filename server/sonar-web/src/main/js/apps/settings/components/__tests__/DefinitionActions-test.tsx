@@ -21,9 +21,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DefinitionActions from '../DefinitionActions';
-import { SettingType } from '../../../../app/types';
 
-const definition = {
+const definition: T.SettingCategoryDefinition = {
   category: 'baz',
   description: 'lorem',
   fields: [],
@@ -31,7 +30,7 @@ const definition = {
   name: 'foobar',
   options: [],
   subCategory: 'bar',
-  type: SettingType.String
+  type: 'STRING'
 };
 
 const settings = {

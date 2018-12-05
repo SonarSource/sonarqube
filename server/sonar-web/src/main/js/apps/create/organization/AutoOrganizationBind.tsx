@@ -20,13 +20,12 @@
 import * as React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import OrganizationSelect from '../components/OrganizationSelect';
-import { Organization } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onBindOrganization: (organization: string) => Promise<void>;
-  unboundOrganizations: Organization[];
+  unboundOrganizations: T.Organization[];
 }
 
 interface State {
@@ -57,7 +56,7 @@ export default class AutoOrganizationBind extends React.PureComponent<Props, Sta
     return '';
   }
 
-  handleChange = ({ key }: Organization) => {
+  handleChange = ({ key }: T.Organization) => {
     this.setState({ organization: key });
   };
 

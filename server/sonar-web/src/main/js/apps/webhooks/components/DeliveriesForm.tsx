@@ -23,19 +23,18 @@ import { Button } from '../../../components/ui/buttons';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
-import { Webhook, WebhookDelivery, Paging } from '../../../app/types';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { searchDeliveries } from '../../../api/webhooks';
 
 interface Props {
   onClose: () => void;
-  webhook: Webhook;
+  webhook: T.Webhook;
 }
 
 interface State {
-  deliveries: WebhookDelivery[];
+  deliveries: T.WebhookDelivery[];
   loading: boolean;
-  paging?: Paging;
+  paging?: T.Paging;
 }
 
 const PAGE_SIZE = 10;

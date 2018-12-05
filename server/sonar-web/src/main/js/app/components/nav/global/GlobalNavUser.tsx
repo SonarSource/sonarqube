@@ -22,7 +22,6 @@ import { sortBy } from 'lodash';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import * as theme from '../../../theme';
-import { CurrentUser, LoggedInUser, Organization } from '../../../types';
 import Avatar from '../../../../components/ui/Avatar';
 import OrganizationListItem from '../../../../components/ui/OrganizationListItem';
 import { translate } from '../../../../helpers/l10n';
@@ -32,8 +31,8 @@ import { isLoggedIn } from '../../../../helpers/users';
 
 interface Props {
   appState: { organizationsEnabled?: boolean };
-  currentUser: CurrentUser;
-  organizations: Organization[];
+  currentUser: T.CurrentUser;
+  organizations: T.Organization[];
 }
 
 export default class GlobalNavUser extends React.PureComponent<Props> {
@@ -60,7 +59,7 @@ export default class GlobalNavUser extends React.PureComponent<Props> {
 
   renderAuthenticated() {
     const { organizations } = this.props;
-    const currentUser = this.props.currentUser as LoggedInUser;
+    const currentUser = this.props.currentUser as T.LoggedInUser;
     const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
     return (
       <Dropdown

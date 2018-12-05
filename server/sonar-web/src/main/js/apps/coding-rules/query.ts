@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleInheritance } from '../../app/types';
 import {
   RawQuery,
   parseAsString,
@@ -38,7 +37,7 @@ export interface Query {
   activationSeverities: string[];
   availableSince: Date | undefined;
   compareToProfile: string | undefined;
-  inheritance: RuleInheritance | undefined;
+  inheritance: T.RuleInheritance | undefined;
   languages: string[];
   profile: string | undefined;
   repositories: string[];
@@ -62,7 +61,7 @@ export type Facets = { [F in FacetKey]?: Facet };
 export type OpenFacets = { [F in FacetKey]?: boolean };
 
 export interface Activation {
-  inherit: string;
+  inherit: T.RuleInheritance;
   severity: string;
 }
 
@@ -141,18 +140,14 @@ export function getOpen(query: RawQuery) {
   return query.open;
 }
 
-function parseAsInheritance(value?: string): RuleInheritance | undefined {
-  if (value === RuleInheritance.Inherited) {
-    return RuleInheritance.Inherited;
-  } else if (value === RuleInheritance.NotInherited) {
-    return RuleInheritance.NotInherited;
-  } else if (value === RuleInheritance.Overridden) {
-    return RuleInheritance.Overridden;
+function parseAsInheritance(value?: string): T.RuleInheritance | undefined {
+  if (value === 'INHERITED' || value === 'NONE' || value === 'OVERRIDES') {
+    return value;
   } else {
     return undefined;
   }
 }
 
-function serializeInheritance(value: RuleInheritance | undefined): string | undefined {
+function serializeInheritance(value: T.RuleInheritance | undefined): string | undefined {
   return value;
 }

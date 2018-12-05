@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMenu from '../ComponentNavMenu';
-import { ShortLivingBranch, BranchType, LongLivingBranch, MainBranch } from '../../../../types';
 
-const mainBranch: MainBranch = { isMain: true, name: 'master' };
+const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
 const baseComponent = {
   breadcrumbs: [],
@@ -65,11 +64,11 @@ it('should work with multiple extensions', () => {
 });
 
 it('should work for short-living branches', () => {
-  const branch: ShortLivingBranch = {
+  const branch: T.ShortLivingBranch = {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature',
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
   const component = {
     ...baseComponent,
@@ -84,7 +83,7 @@ it('should work for short-living branches', () => {
 });
 
 it('should work for long-living branches', () => {
-  const branch: LongLivingBranch = { isMain: false, name: 'release', type: BranchType.LONG };
+  const branch: T.LongLivingBranch = { isMain: false, name: 'release', type: 'LONG' };
   [true, false].forEach(showSettings =>
     expect(
       shallow(

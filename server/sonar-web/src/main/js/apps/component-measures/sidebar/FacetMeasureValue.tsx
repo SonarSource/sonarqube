@@ -20,10 +20,9 @@
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
-import { MeasureEnhanced } from '../../../app/types';
 
 interface Props {
-  measure: MeasureEnhanced;
+  measure: T.MeasureEnhanced;
 }
 
 export default function FacetMeasureValue({ measure }: Props) {

@@ -21,7 +21,6 @@ import * as React from 'react';
 import BadgeButton from './BadgeButton';
 import BadgeParams from './BadgeParams';
 import { BadgeType, BadgeOptions, getBadgeUrl } from './utils';
-import { Metric, BranchLike } from '../../../app/types';
 import CodeSnippet from '../../../components/common/CodeSnippet';
 import Modal from '../../../components/controls/Modal';
 import { getBranchLikeQuery } from '../../../helpers/branches';
@@ -31,8 +30,8 @@ import { isSonarCloud } from '../../../helpers/system';
 import './styles.css';
 
 interface Props {
-  branchLike?: BranchLike;
-  metrics: { [key: string]: Metric };
+  branchLike?: T.BranchLike;
+  metrics: { [key: string]: T.Metric };
   project: string;
   qualifier: string;
 }

@@ -26,7 +26,6 @@ import { MeasureHistory, Query, ParsedAnalysis } from '../utils';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Metric, Component } from '../../../app/types';
 import './projectActivity.css';
 
 interface Props {
@@ -39,8 +38,8 @@ interface Props {
   deleteEvent: (analysis: string, event: string) => Promise<void>;
   graphLoading: boolean;
   initializing: boolean;
-  project: Pick<Component, 'configuration' | 'leakPeriodDate' | 'qualifier'>;
-  metrics: Metric[];
+  project: Pick<T.Component, 'configuration' | 'leakPeriodDate' | 'qualifier'>;
+  metrics: T.Metric[];
   measuresHistory: MeasureHistory[];
   query: Query;
   updateQuery: (changes: Partial<Query>) => void;

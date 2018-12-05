@@ -25,16 +25,15 @@ import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
 import { updateIssue } from '../actions';
-import { IssueType as IssueTypes, Issue } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { IssueResponse } from '../../../api/issues';
 
 interface Props {
-  issue: Issue;
+  issue: T.Issue;
   currentPopup?: string;
   onAssign: (login: string) => void;
-  onChange: (issue: Issue) => void;
+  onChange: (issue: T.Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
@@ -48,7 +47,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   };
 
   setIssueProperty = (
-    property: keyof Issue,
+    property: keyof T.Issue,
     popup: string,
     apiCall: (query: RawQuery) => Promise<IssueResponse>,
     value: string
@@ -71,11 +70,11 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     this.props.togglePopup('comment', open);
   };
 
-  handleTransition = (issue: Issue) => {
+  handleTransition = (issue: T.Issue) => {
     this.props.onChange(issue);
     if (
       issue.resolution === 'FALSE-POSITIVE' ||
-      (issue.resolution === 'WONTFIX' && issue.type !== IssueTypes.Hotspot)
+      (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
     ) {
       this.toggleComment(true, translate('issue.comment.tell_why'));
     }
@@ -89,7 +88,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     const canSetType = issue.actions.includes('set_type');
     const canSetTags = issue.actions.includes('set_tags');
     const hasTransitions = issue.transitions && issue.transitions.length > 0;
-    const isSecurityHotspot = issue.type === IssueTypes.Hotspot;
+    const isSecurityHotspot = issue.type === 'SECURITY_HOTSPOT';
 
     return (
       <div className="issue-actions">

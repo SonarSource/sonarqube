@@ -24,14 +24,13 @@ import languages, * as fromLanguages from './languages';
 import metrics, * as fromMetrics from './metrics';
 import organizations, * as fromOrganizations from './organizations';
 import users, * as fromUsers from './users';
-import { AppState, Languages } from '../app/types';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
 import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 
 export type Store = {
-  appState: AppState;
+  appState: T.AppState;
   globalMessages: fromGlobalMessages.State;
-  languages: Languages;
+  languages: T.Languages;
   metrics: fromMetrics.State;
   organizations: fromOrganizations.State;
   users: fromUsers.State;

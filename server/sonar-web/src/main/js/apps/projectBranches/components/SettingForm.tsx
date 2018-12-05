@@ -21,14 +21,13 @@ import * as React from 'react';
 import { setSimpleSettingValue, resetSettingValue } from '../../../api/settings';
 import { Button, SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { SettingValue } from '../../../app/types';
 
 interface Props {
   branch?: string;
   onClose: () => void;
   onChange: () => void;
   project: string;
-  setting: SettingValue;
+  setting: T.SettingValue;
 }
 
 interface State {

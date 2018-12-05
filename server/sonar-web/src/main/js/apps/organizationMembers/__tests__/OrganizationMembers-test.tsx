@@ -23,7 +23,6 @@ import OrganizationMembers from '../OrganizationMembers';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { searchMembers, addMember, removeMember } from '../../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
-import { OrganizationMember } from '../../../app/types';
 
 jest.mock('../../../api/organizations', () => ({
   addMember: jest.fn().mockResolvedValue({ login: 'bar', name: 'Bar', groupCount: 1 }),
@@ -103,7 +102,7 @@ it('should add new member', async () => {
   expect(
     wrapper
       .find('MembersList')
-      .prop<OrganizationMember[]>('members')
+      .prop<T.OrganizationMember[]>('members')
       .find(m => m.login === 'bar')
   ).toBeDefined();
   expect(wrapper.find('ListFooter').prop('total')).toEqual(4);
@@ -120,7 +119,7 @@ it('should remove member', async () => {
   expect(
     wrapper
       .find('MembersList')
-      .prop<OrganizationMember[]>('members')
+      .prop<T.OrganizationMember[]>('members')
       .find(m => m.login === 'john')
   ).toBeUndefined();
   expect(wrapper.find('ListFooter').prop('total')).toEqual(2);
@@ -140,7 +139,7 @@ it('should update groups', async () => {
   await waitAndUpdate(wrapper);
   const john = wrapper
     .find('MembersList')
-    .prop<OrganizationMember[]>('members')
+    .prop<T.OrganizationMember[]>('members')
     .find(m => m.login === 'john');
   expect(john && john.groupCount).toBe(2);
   expect(addUserToGroup).toHaveBeenCalledTimes(2);

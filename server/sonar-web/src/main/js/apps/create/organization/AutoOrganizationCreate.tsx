@@ -26,13 +26,6 @@ import OrganizationDetailsForm from './OrganizationDetailsForm';
 import { Query } from './utils';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { DeleteButton } from '../../../components/ui/buttons';
-import {
-  AlmApplication,
-  AlmOrganization,
-  AlmUnboundApplication,
-  Organization,
-  OrganizationBase
-} from '../../../app/types';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
@@ -44,17 +37,17 @@ export enum Filters {
 }
 
 interface Props {
-  almApplication: AlmApplication;
+  almApplication: T.AlmApplication;
   almInstallId?: string;
-  almOrganization?: AlmOrganization;
-  almUnboundApplications: AlmUnboundApplication[];
-  boundOrganization?: OrganizationBase;
+  almOrganization?: T.AlmOrganization;
+  almUnboundApplications: T.AlmUnboundApplication[];
+  boundOrganization?: T.OrganizationBase;
   className?: string;
   createOrganization: (
-    organization: OrganizationBase & { installationId?: string }
-  ) => Promise<Organization>;
+    organization: T.OrganizationBase & { installationId?: string }
+  ) => Promise<T.Organization>;
   onOrgCreated: (organization: string, justCreated?: boolean) => void;
-  unboundOrganizations: Organization[];
+  unboundOrganizations: T.Organization[];
   updateUrlQuery: (query: Partial<Query>) => void;
 }
 
@@ -84,7 +77,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
     this.props.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
   };
 
-  handleCreateOrganization = (organization: Required<OrganizationBase>) => {
+  handleCreateOrganization = (organization: Required<T.OrganizationBase>) => {
     return this.props
       .createOrganization({
         avatar: organization.avatar,
@@ -101,7 +94,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
     this.setState({ filter });
   };
 
-  renderContent = (almOrganization: AlmOrganization) => {
+  renderContent = (almOrganization: T.AlmOrganization) => {
     const { almApplication, unboundOrganizations } = this.props;
 
     const { filter } = this.state;

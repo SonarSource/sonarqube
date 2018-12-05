@@ -28,7 +28,6 @@ import {
   postJSON,
   RequestData
 } from '../helpers/request';
-import { Paging } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface ProfileActions {
@@ -193,7 +192,7 @@ export interface SearchUsersResponse {
     name: string;
     selected?: boolean;
   }>;
-  paging: Paging;
+  paging: T.Paging;
 }
 
 export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<SearchUsersResponse> {
@@ -202,7 +201,7 @@ export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<Se
 
 export interface SearchGroupsResponse {
   groups: Array<{ name: string }>;
-  paging: Paging;
+  paging: T.Paging;
 }
 
 export function searchGroups(

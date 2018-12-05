@@ -34,16 +34,15 @@ import { getChildren } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics, Store } from '../../../store/rootReducer';
-import { Metric, Component } from '../../../app/types';
 import '../styles.css';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 interface OwnProps {
-  component: Component;
+  component: T.Component;
 }
 
 interface StateToProps {
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
 }
 
 interface DispatchToProps {

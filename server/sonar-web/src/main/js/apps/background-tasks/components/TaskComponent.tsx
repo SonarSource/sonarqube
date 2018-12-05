@@ -31,10 +31,9 @@ import {
 import ShortLivingBranchIcon from '../../../components/icons-components/ShortLivingBranchIcon';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
 import PullRequestIcon from '../../../components/icons-components/PullRequestIcon';
-import { Task } from '../../../app/types';
 
 interface Props {
-  task: Task;
+  task: T.Task;
 }
 
 export default function TaskComponent({ task }: Props) {
@@ -88,7 +87,7 @@ export default function TaskComponent({ task }: Props) {
   );
 }
 
-function getTaskComponentUrl(componentKey: string, task: Task) {
+function getTaskComponentUrl(componentKey: string, task: T.Task) {
   if (task.branch) {
     if (task.branchType === 'SHORT') {
       return getShortLivingBranchUrl(componentKey, task.branch);

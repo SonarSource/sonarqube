@@ -21,12 +21,11 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { Languages } from '../../../app/types';
 
 interface Props {
   className?: string;
   distribution?: string;
-  languages: Languages;
+  languages: T.Languages;
 }
 
 export default function ProjectCardLanguages({ className, distribution, languages }: Props) {
@@ -65,7 +64,7 @@ export default function ProjectCardLanguages({ className, distribution, language
   );
 }
 
-function getLanguageName(languages: Languages, key: string): string {
+function getLanguageName(languages: T.Languages, key: string): string {
   if (key === '<null>') {
     return translate('unknown');
   }

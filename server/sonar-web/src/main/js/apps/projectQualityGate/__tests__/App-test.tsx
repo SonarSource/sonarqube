@@ -36,7 +36,6 @@ jest.mock('../../../app/utils/handleRequiredAuthorization', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App from '../App';
-import { Component } from '../../../app/types';
 
 const associateGateWithProject = require('../../../api/quality-gates')
   .associateGateWithProject as jest.Mock<any>;
@@ -63,7 +62,7 @@ const component = {
   organization: 'org',
   qualifier: 'TRK',
   version: '0.0.1'
-} as Component;
+} as T.Component;
 
 beforeEach(() => {
   associateGateWithProject.mockClear();
@@ -75,7 +74,7 @@ it('checks permissions', () => {
   handleRequiredAuthorization.mockClear();
   shallow(
     <App
-      component={{ ...component, configuration: undefined } as Component}
+      component={{ ...component, configuration: undefined } as T.Component}
       onComponentChange={jest.fn()}
     />
   );

@@ -19,14 +19,13 @@
  */
 import * as React from 'react';
 import CustomRuleFormModal from './CustomRuleFormModal';
-import { RuleDetails } from '../../../app/types';
 
 interface Props {
   children: (props: { onClick: () => void }) => React.ReactNode;
-  customRule?: RuleDetails;
-  onDone: (newRuleDetails: RuleDetails) => void;
+  customRule?: T.RuleDetails;
+  onDone: (newRuleDetails: T.RuleDetails) => void;
   organization: string | undefined;
-  templateRule: RuleDetails;
+  templateRule: T.RuleDetails;
 }
 
 interface State {
@@ -55,7 +54,7 @@ export default class CustomRuleButton extends React.PureComponent<Props, State> 
     }
   };
 
-  handleDone = (newRuleDetails: RuleDetails) => {
+  handleDone = (newRuleDetails: T.RuleDetails) => {
     this.handleModalClose();
     this.props.onDone(newRuleDetails);
   };

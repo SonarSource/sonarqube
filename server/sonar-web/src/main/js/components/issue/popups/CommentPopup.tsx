@@ -22,10 +22,9 @@ import MarkdownTips from '../../common/MarkdownTips';
 import { Button, ResetButtonLink } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import { IssueComment } from '../../../app/types';
 
 interface Props {
-  comment?: Pick<IssueComment, 'markdown'>;
+  comment?: Pick<T.IssueComment, 'markdown'>;
   onComment: (text: string) => void;
   toggleComment: (visible: boolean) => void;
   placeholder: string;

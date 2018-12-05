@@ -20,16 +20,15 @@
 import * as React from 'react';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 import { updateRule } from '../../../api/rules';
-import { RuleDetails } from '../../../app/types';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   canWrite: boolean | undefined;
-  onChange: (newRuleDetails: RuleDetails) => void;
+  onChange: (newRuleDetails: T.RuleDetails) => void;
   organization: string | undefined;
-  ruleDetails: RuleDetails;
+  ruleDetails: T.RuleDetails;
 }
 
 interface State {

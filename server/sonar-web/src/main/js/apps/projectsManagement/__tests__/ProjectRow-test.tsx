@@ -20,13 +20,12 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectRow from '../ProjectRow';
-import { Visibility } from '../../../app/types';
 
 const project = {
   key: 'project',
   name: 'Project',
   qualifier: 'TRK',
-  visibility: Visibility.Private
+  visibility: 'private'
 };
 
 it('renders', () => {

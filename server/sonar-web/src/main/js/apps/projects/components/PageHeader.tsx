@@ -23,7 +23,6 @@ import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
 import Tooltip from '../../../components/controls/Tooltip';
-import { CurrentUser, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -32,7 +31,7 @@ import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   isFavorite: boolean;
   loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
@@ -104,9 +103,7 @@ export default function PageHeader(props: Props) {
       {showHomePageSelect && (
         <HomePageSelect
           className="huge-spacer-left"
-          currentPage={
-            isSonarCloud() ? { type: HomePageType.MyProjects } : { type: HomePageType.Projects }
-          }
+          currentPage={isSonarCloud() ? { type: 'MY_PROJECTS' } : { type: 'PROJECTS' }}
         />
       )}
     </header>

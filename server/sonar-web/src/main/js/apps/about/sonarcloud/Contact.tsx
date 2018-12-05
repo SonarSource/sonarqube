@@ -24,7 +24,6 @@ import { Location } from 'history';
 import SQPageContainer from './components/SQPageContainer';
 import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
-import { Organization } from '../../../app/types';
 import { isLoggedIn } from '../../../helpers/users';
 import './style.css';
 
@@ -57,7 +56,7 @@ export default class Contact extends React.PureComponent<Props, State> {
     };
   }
 
-  getOrganizations = (organizations?: Organization[]) => {
+  getOrganizations = (organizations?: T.Organization[]) => {
     return (organizations || []).map(org => ({
       label: org.name,
       value: org.key

@@ -21,13 +21,12 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
-import { IdentityProvider } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import './LoginSonarCloud.css';
 
 interface Props {
-  identityProviders: IdentityProvider[];
+  identityProviders: T.IdentityProvider[];
   onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
   showForm?: boolean;

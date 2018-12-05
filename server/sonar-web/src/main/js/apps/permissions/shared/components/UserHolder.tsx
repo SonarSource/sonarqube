@@ -22,14 +22,13 @@ import { without } from 'lodash';
 import PermissionCell from './PermissionCell';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
-import { PermissionDefinitions, PermissionUser } from '../../../../app/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {
-  onToggle: (user: PermissionUser, permission: string) => Promise<void>;
-  permissions: PermissionDefinitions;
+  onToggle: (user: T.PermissionUser, permission: string) => Promise<void>;
+  permissions: T.PermissionDefinitions;
   selectedPermission?: string;
-  user: PermissionUser;
+  user: T.PermissionUser;
 }
 
 interface State {

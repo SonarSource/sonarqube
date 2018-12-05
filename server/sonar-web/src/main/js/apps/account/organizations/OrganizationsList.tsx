@@ -20,11 +20,10 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import OrganizationCard from './OrganizationCard';
-import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  organizations: Organization[];
+  organizations: T.Organization[];
 }
 
 export default function OrganizationsList({ organizations }: Props) {

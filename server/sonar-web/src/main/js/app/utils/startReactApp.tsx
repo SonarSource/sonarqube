@@ -69,7 +69,6 @@ import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 import { lazyLoad } from '../../components/lazyLoad';
 import { isSonarCloud } from '../../helpers/system';
-import { CurrentUser, AppState } from '../types';
 
 function handleUpdate(this: { state: { location: Location } }) {
   const { action } = this.state.location;
@@ -86,8 +85,8 @@ const RouteWithChildRoutes = Route as React.ComponentClass<
 
 export default function startReactApp(
   lang: string,
-  currentUser?: CurrentUser,
-  appState?: AppState
+  currentUser?: T.CurrentUser,
+  appState?: T.AppState
 ) {
   const el = document.getElementById('content');
 

@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CustomMeasure } from '../../../app/types';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  measure: CustomMeasure;
+  measure: T.CustomMeasure;
 }
 
 export default function MeasureDate({ measure }: Props) {

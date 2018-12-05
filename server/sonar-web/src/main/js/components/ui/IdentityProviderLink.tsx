@@ -21,13 +21,12 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { isDarkColor } from '../../helpers/colors';
 import { getBaseUrl } from '../../helpers/urls';
-import { IdentityProvider } from '../../app/types';
 import './IdentityProviderLink.css';
 
 interface Props {
   children: React.ReactNode;
   className?: string;
-  identityProvider: IdentityProvider;
+  identityProvider: T.IdentityProvider;
   onClick?: () => void;
   small?: boolean;
   url: string | undefined;

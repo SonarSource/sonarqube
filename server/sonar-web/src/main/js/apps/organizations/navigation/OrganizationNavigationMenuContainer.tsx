@@ -22,7 +22,6 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import OrganizationNavigationExtensions from './OrganizationNavigationExtensions';
 import OrganizationNavigationAdministration from './OrganizationNavigationAdministration';
-import { Organization, CurrentUser } from '../../../app/types';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
@@ -30,13 +29,13 @@ import { hasPrivateAccess, isCurrentUserMemberOf } from '../../../helpers/organi
 import { getCurrentUser, getMyOrganizations, Store } from '../../../store/rootReducer';
 
 interface StateToProps {
-  currentUser: CurrentUser;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  userOrganizations: T.Organization[];
 }
 
 interface OwnProps {
   location: { pathname: string };
-  organization: Organization;
+  organization: T.Organization;
 }
 
 type Props = OwnProps & StateToProps;

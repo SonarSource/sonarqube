@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardLeak from '../ProjectCardLeak';
-import { Visibility } from '../../../../app/types';
+import { Project } from '../../types';
 
 jest.mock(
   'date-fns/difference_in_milliseconds',
@@ -34,7 +34,7 @@ const MEASURES = {
   new_bugs: '12'
 };
 
-const PROJECT = {
+const PROJECT: Project = {
   analysisDate: '2017-01-01',
   leakPeriodDate: '2016-12-01',
   key: 'foo',
@@ -42,7 +42,7 @@ const PROJECT = {
   name: 'Foo',
   organization: { key: 'org', name: 'org' },
   tags: [],
-  visibility: Visibility.Public
+  visibility: 'public'
 };
 
 it('should display analysis date and leak start date', () => {
@@ -68,7 +68,7 @@ it('should display tags', () => {
 });
 
 it('should display private badge', () => {
-  const project = { ...PROJECT, visibility: Visibility.Private };
+  const project: Project = { ...PROJECT, visibility: 'private' };
   expect(
     shallow(<ProjectCardLeak height={100} organization={undefined} project={project} />)
       .find('Connect(PrivacyBadge)')

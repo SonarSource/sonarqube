@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MeasureEnhanced } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 export interface QualityGateStatusCondition {
@@ -32,7 +31,7 @@ export interface QualityGateStatusCondition {
 
 // long name to not mix with Condition from /app/types.ts
 export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCondition {
-  measure: MeasureEnhanced;
+  measure: T.MeasureEnhanced;
 }
 
 export const METRICS = [

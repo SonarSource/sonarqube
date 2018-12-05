@@ -21,17 +21,16 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import BadgesModal from '../BadgesModal';
 import { click } from '../../../../helpers/testUtils';
-import { ShortLivingBranch, BranchType } from '../../../../app/types';
 import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../helpers/urls', () => ({ getHostUrl: () => 'host' }));
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
-const shortBranch: ShortLivingBranch = {
+const shortBranch: T.ShortLivingBranch = {
   isMain: false,
   mergeBranch: '',
   name: 'branch-6.6',
-  type: BranchType.SHORT
+  type: 'SHORT'
 };
 
 it('should display the modal after click on sonar cloud', () => {

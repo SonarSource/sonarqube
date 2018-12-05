@@ -23,7 +23,6 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
 import DocTooltip from '../../../../components/docs/DocTooltip';
-import { BranchLike, Component } from '../../../types';
 import * as theme from '../../../theme';
 import BranchIcon from '../../../../components/icons-components/BranchIcon';
 import {
@@ -41,9 +40,9 @@ import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl } from '../../../../helpers/urls';
 
 interface Props {
-  branchLikes: BranchLike[];
-  component: Component;
-  currentBranchLike: BranchLike;
+  branchLikes: T.BranchLike[];
+  component: T.Component;
+  currentBranchLike: T.BranchLike;
   location?: any;
 }
 

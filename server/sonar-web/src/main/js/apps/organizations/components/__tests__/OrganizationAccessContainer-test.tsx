@@ -21,7 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { Location } from 'history';
 import { hasAdminAccess, OrganizationAccess } from '../OrganizationAccessContainer';
-import { Visibility } from '../../../../app/types';
 
 jest.mock('../../../../app/utils/handleRequiredAuthorization', () => ({ default: jest.fn() }));
 
@@ -38,14 +37,14 @@ const loggedInUser = {
   showOnboardingTutorial: false
 };
 
-const organization = {
+const organization: T.Organization = {
   actions: { admin: false },
   key: 'foo',
   name: 'Foo',
-  projectVisibility: Visibility.Public
+  projectVisibility: 'public'
 };
 
-const adminOrganization = { ...organization, actions: { admin: true } };
+const adminOrganization: T.Organization = { ...organization, actions: { admin: true } };
 
 describe('component', () => {
   it('should render children', () => {

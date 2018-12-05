@@ -23,7 +23,6 @@ import { connect } from 'react-redux';
 import * as theme from '../../app/theme';
 import Tooltip from '../controls/Tooltip';
 import { translate } from '../../helpers/l10n';
-import { Visibility, Organization, CurrentUser } from '../../app/types';
 import { isSonarCloud } from '../../helpers/system';
 import { isCurrentUserMemberOf, isPaidOrganization } from '../../helpers/organizations';
 import {
@@ -36,21 +35,21 @@ import VisibleIcon from '../icons-components/VisibleIcon';
 import DocTooltip from '../docs/DocTooltip';
 
 interface StateToProps {
-  currentUser: CurrentUser;
-  organization?: Organization;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  organization?: T.Organization;
+  userOrganizations: T.Organization[];
 }
 
 interface OwnProps {
   className?: string;
-  organization: Organization | string | undefined;
+  organization: T.Organization | string | undefined;
   qualifier: string;
   tooltipProps?: { projectKey: string };
-  visibility: Visibility;
+  visibility: T.Visibility;
 }
 
 interface Props extends OwnProps, StateToProps {
-  organization: Organization | undefined;
+  organization: T.Organization | undefined;
 }
 
 export function PrivacyBadge({
@@ -64,14 +63,14 @@ export function PrivacyBadge({
 }: Props) {
   const onSonarCloud = isSonarCloud();
   if (
-    visibility !== Visibility.Private &&
+    visibility !== 'private' &&
     (!onSonarCloud || !isCurrentUserMemberOf(currentUser, organization, userOrganizations))
   ) {
     return null;
   }
 
   let icon = null;
-  if (isPaidOrganization(organization) && visibility === Visibility.Public) {
+  if (isPaidOrganization(organization) && visibility === 'public') {
     icon = <VisibleIcon className="little-spacer-right" fill={theme.blue} />;
   }
 
@@ -117,10 +116,10 @@ const mapStateToProps = (state: Store, { organization }: OwnProps) => {
 
 export default connect(mapStateToProps)(PrivacyBadge);
 
-function getDoc(visibility: Visibility, icon: JSX.Element | null, organization: Organization) {
+function getDoc(visibility: T.Visibility, icon: JSX.Element | null, organization: T.Organization) {
   let doc;
   const { actions = {} } = organization;
-  if (visibility === Visibility.Private) {
+  if (visibility === 'private') {
     doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-private.md');
   } else if (icon) {
     if (actions.admin) {

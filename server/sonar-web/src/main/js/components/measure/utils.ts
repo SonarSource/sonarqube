@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getRatingTooltip as nextGetRatingTooltip, isDiffMetric } from '../../helpers/measures';
-import { Metric, Measure, MeasureEnhanced } from '../../app/types';
 import { getLeakPeriod } from '../../helpers/periods';
 
 const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
 
 export function enhanceMeasure(
-  measure: Measure,
-  metrics: { [key: string]: Metric }
-): MeasureEnhanced {
+  measure: T.Measure,
+  metrics: { [key: string]: T.Metric }
+): T.MeasureEnhanced {
   return {
     ...measure,
     metric: metrics[measure.metric],
@@ -34,7 +33,7 @@ export function enhanceMeasure(
   };
 }
 
-export function getLeakValue(measure: Measure | undefined): string | undefined {
+export function getLeakValue(measure: T.Measure | undefined): string | undefined {
   if (!measure || !measure.periods) {
     return undefined;
   }

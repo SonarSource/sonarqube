@@ -27,7 +27,6 @@ import {
   updateCustomMeasure,
   deleteCustomMeasure
 } from '../../../api/measures';
-import { Paging, CustomMeasure } from '../../../app/types';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
@@ -38,8 +37,8 @@ interface Props {
 
 interface State {
   loading: boolean;
-  measures?: CustomMeasure[];
-  paging?: Paging;
+  measures?: T.CustomMeasure[];
+  paging?: T.Paging;
 }
 
 const PAGE_SIZE = 50;

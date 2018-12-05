@@ -20,7 +20,6 @@
 import * as React from 'react';
 import IssuesCounter from './IssuesCounter';
 import TotalEffort from './TotalEffort';
-import { HomePageType, Paging } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import ReloadButton from '../../../components/controls/ReloadButton';
 import { translate } from '../../../helpers/l10n';
@@ -30,7 +29,7 @@ interface Props {
   canSetHome: boolean;
   effortTotal: number | undefined;
   onReload: () => void;
-  paging: Paging | undefined;
+  paging: T.Paging | undefined;
   selectedIndex: number | undefined;
 }
 
@@ -71,9 +70,7 @@ export default class PageActions extends React.PureComponent<Props> {
         {this.props.canSetHome && (
           <HomePageSelect
             className="huge-spacer-left"
-            currentPage={
-              isSonarCloud() ? { type: HomePageType.MyIssues } : { type: HomePageType.Issues }
-            }
+            currentPage={isSonarCloud() ? { type: 'MY_ISSUES' } : { type: 'ISSUES' }}
           />
         )}
       </div>

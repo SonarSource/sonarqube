@@ -24,20 +24,19 @@ import IssueActionsBar from './components/IssueActionsBar';
 import IssueCommentLine from './components/IssueCommentLine';
 import { updateIssue } from './actions';
 import { deleteIssueComment, editIssueComment } from '../../api/issues';
-import { Issue, BranchLike } from '../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   checked?: boolean;
   currentPopup?: string;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
-  issue: Issue;
+  issue: T.Issue;
   onAssign: (login: string) => void;
-  onChange: (issue: Issue) => void;
+  onChange: (issue: T.Issue) => void;
   onCheck?: (issue: string, event: { shiftKey?: boolean }) => void;
   onClick: (issueKey: string) => void;
-  onFilter?: (property: string, issue: Issue) => void;
+  onFilter?: (property: string, issue: T.Issue) => void;
   selected: boolean;
   togglePopup: (popup: string, show: boolean | void) => void;
 }

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import * as theme from '../../app/theme';
-import { Omit } from '../../app/types';
 import ClearIcon from '../icons-components/ClearIcon';
 import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
@@ -77,12 +76,12 @@ export class Button extends React.PureComponent<ButtonProps> {
   }
 }
 
-export function SubmitButton(props: Omit<ButtonProps, 'type'>) {
+export function SubmitButton(props: T.Omit<ButtonProps, 'type'>) {
   // do not prevent default to actually submit a form
   return <Button {...props} preventDefault={false} type="submit" />;
 }
 
-export function ResetButtonLink({ className, ...props }: Omit<ButtonProps, 'type'>) {
+export function ResetButtonLink({ className, ...props }: T.Omit<ButtonProps, 'type'>) {
   return <Button {...props} className={classNames('button-link', className)} type="reset" />;
 }
 

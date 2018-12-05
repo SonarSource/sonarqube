@@ -21,13 +21,12 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import { BranchLike } from '../../../app/types';
 import { isBranch, isLongLivingBranch } from '../../../helpers/branches';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
+  branchLike?: T.BranchLike;
+  branchLikes: T.BranchLike[];
   component: string;
   showWarning?: boolean;
 }

@@ -21,13 +21,12 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ChangeVisibilityForm from '../ChangeVisibilityForm';
 import { click } from '../../../helpers/testUtils';
-import { Visibility } from '../../../app/types';
 
-const organization = {
+const organization: T.Organization = {
   canUpdateProjectsVisibilityToPrivate: true,
   key: 'org',
   name: 'org',
-  projectVisibility: Visibility.Public
+  projectVisibility: 'public'
 };
 
 it('renders disabled', () => {
@@ -53,13 +52,13 @@ it('changes visibility', () => {
   click(wrapper.find('a[data-visibility="private"]'), {
     currentTarget: {
       blur() {},
-      dataset: { visibility: Visibility.Private }
+      dataset: { visibility: 'private' }
     }
   });
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-confirm'));
-  expect(onConfirm).toBeCalledWith(Visibility.Private);
+  expect(onConfirm).toBeCalledWith('private');
 });
 
 function shallowRender(props: Partial<ChangeVisibilityForm['props']> = {}) {

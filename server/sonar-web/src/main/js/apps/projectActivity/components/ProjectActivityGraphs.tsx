@@ -39,14 +39,13 @@ import {
   Point,
   ParsedAnalysis
 } from '../utils';
-import { Metric } from '../../../app/types';
 
 interface Props {
   analyses: ParsedAnalysis[];
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];
-  metrics: Metric[];
+  metrics: T.Metric[];
   query: Query;
   updateQuery: (changes: Partial<Query>) => void;
 }

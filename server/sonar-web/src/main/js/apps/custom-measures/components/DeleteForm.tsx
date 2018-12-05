@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CustomMeasure } from '../../../app/types';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  measure: CustomMeasure;
+  measure: T.CustomMeasure;
   onClose: () => void;
   onSubmit: () => Promise<void>;
 }

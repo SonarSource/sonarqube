@@ -39,19 +39,18 @@ import {
   isSettingsAppLoading,
   Store
 } from '../../../store/rootReducer';
-import { Component, Setting } from '../../../app/types';
 
 interface Props {
   cancelChange: (key: string) => void;
   changedValue: any;
   changeValue: (key: string, value: any) => void;
   checkValue: (key: string) => boolean;
-  component?: Component;
+  component?: T.Component;
   loading: boolean;
   passValidation: (key: string) => void;
   resetValue: (key: string, component?: string) => Promise<void>;
   saveValue: (key: string, component?: string) => Promise<void>;
-  setting: Setting;
+  setting: T.Setting;
   validationMessage?: string;
 }
 

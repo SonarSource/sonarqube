@@ -19,14 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { BranchLike, ComponentMeasure } from '../../../app/types';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import { translate } from '../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasure;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasure;
 }
 
 export default function ComponentLink({ component, branchLike }: Props) {

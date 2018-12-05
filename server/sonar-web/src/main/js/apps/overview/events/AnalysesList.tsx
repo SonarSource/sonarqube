@@ -23,22 +23,21 @@ import Analysis from './Analysis';
 import { getProjectActivity } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
-import { Metric, Component, BranchLike, Analysis as AnalysisType } from '../../../app/types';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
 import { getActivityUrl } from '../../../helpers/urls';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Component;
+  branchLike?: T.BranchLike;
+  component: T.Component;
   history?: {
     [metric: string]: Array<{ date: Date; value?: string }>;
   };
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
   qualifier: string;
 }
 
 interface State {
-  analyses: AnalysisType[];
+  analyses: T.Analysis[];
   loading: boolean;
 }
 
@@ -99,7 +98,7 @@ export default class AnalysesList extends React.PureComponent<Props, State> {
     );
   };
 
-  renderList(analyses: AnalysisType[]) {
+  renderList(analyses: T.Analysis[]) {
     if (!analyses.length) {
       return <p className="spacer-top note">{translate('no_results')}</p>;
     }

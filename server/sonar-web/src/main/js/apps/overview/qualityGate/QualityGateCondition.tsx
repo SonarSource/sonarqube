@@ -28,11 +28,10 @@ import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/me
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import { IssueType, BranchLike, Component } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Pick<Component, 'key'>;
+  branchLike?: T.BranchLike;
+  component: Pick<T.Component, 'key'>;
   condition: QualityGateStatusConditionEnhanced;
 }
 
@@ -60,7 +59,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
   };
 
   getUrlForCodeSmells(sinceLeakPeriod: boolean) {
-    return this.getIssuesUrl(sinceLeakPeriod, { types: IssueType.CodeSmell });
+    return this.getIssuesUrl(sinceLeakPeriod, { types: 'CODE_SMELL' });
   }
 
   getUrlForBugsOrVulnerabilities(type: string, sinceLeakPeriod: boolean) {
@@ -81,7 +80,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
   }
 
   getUrlForType(type: string, sinceLeakPeriod: boolean) {
-    return type === IssueType.CodeSmell
+    return type === 'CODE_SMELL'
       ? this.getUrlForCodeSmells(sinceLeakPeriod)
       : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
   }
@@ -98,12 +97,12 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const metricKey = condition.measure.metric.key;
 
     const RATING_METRICS_MAPPING: { [metric: string]: [string, boolean] } = {
-      reliability_rating: [IssueType.Bug, false],
-      new_reliability_rating: [IssueType.Bug, true],
-      security_rating: [IssueType.Vulnerability, false],
-      new_security_rating: [IssueType.Vulnerability, true],
-      sqale_rating: [IssueType.CodeSmell, false],
-      new_maintainability_rating: [IssueType.CodeSmell, true]
+      reliability_rating: ['BUG', false],
+      new_reliability_rating: ['BUG', true],
+      security_rating: ['VULNERABILITY', false],
+      new_security_rating: ['VULNERABILITY', true],
+      sqale_rating: ['CODE_SMELL', false],
+      new_maintainability_rating: ['CODE_SMELL', true]
     };
 
     return RATING_METRICS_MAPPING[metricKey] ? (

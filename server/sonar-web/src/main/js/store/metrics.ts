@@ -20,15 +20,14 @@
 import { keyBy } from 'lodash';
 import { combineReducers } from 'redux';
 import { ActionType } from './utils/actions';
-import { Metric } from '../app/types';
 
-export function receiveMetrics(metrics: Metric[]) {
+export function receiveMetrics(metrics: T.Metric[]) {
   return { type: 'RECEIVE_METRICS', metrics };
 }
 
 type Action = ActionType<typeof receiveMetrics, 'RECEIVE_METRICS'>;
 
-export type State = { byKey: { [key: string]: Metric }; keys: string[] };
+export type State = { byKey: { [key: string]: T.Metric }; keys: string[] };
 
 const byKey = (state: State['byKey'] = {}, action: Action) => {
   if (action.type === 'RECEIVE_METRICS') {

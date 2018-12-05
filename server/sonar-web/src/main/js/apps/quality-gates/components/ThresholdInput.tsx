@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import Select from '../../../components/controls/Select';
-import { Metric } from '../../../app/types';
 
 interface Props {
   name: string;
   value: string;
-  metric: Metric;
+  metric: T.Metric;
   onChange: (value: string) => void;
 }
 

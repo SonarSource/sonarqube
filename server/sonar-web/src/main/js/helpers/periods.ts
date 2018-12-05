@@ -19,21 +19,20 @@
  */
 import { translate, translateWithParameters } from './l10n';
 import { parseDate } from './dates';
-import { Period, PeriodMode, PeriodMeasure } from '../app/types';
 
-function getPeriod<T extends Period | PeriodMeasure>(periods: T[] | undefined, index: number) {
+function getPeriod<T extends T.Period | T.PeriodMeasure>(periods: T[] | undefined, index: number) {
   if (!Array.isArray(periods)) {
     return undefined;
   }
   return periods.find(period => period.index === index);
 }
 
-export function getLeakPeriod<T extends Period | PeriodMeasure>(periods: T[] | undefined) {
+export function getLeakPeriod<T extends T.Period | T.PeriodMeasure>(periods: T[] | undefined) {
   return getPeriod(periods, 1);
 }
 
 export function getPeriodLabel(
-  period: Period | undefined,
+  period: T.Period | undefined,
   dateFormatter: (date: string) => string
 ) {
   if (!period) {
@@ -41,11 +40,11 @@ export function getPeriodLabel(
   }
 
   let parameter = period.modeParam || period.parameter;
-  if (period.mode === PeriodMode.PreviousVersion && !parameter) {
+  if (period.mode === 'previous_version' && !parameter) {
     return translate('overview.period.previous_version_only_date');
   }
 
-  if (period.mode === PeriodMode.Date && parameter) {
+  if (period.mode === 'date' && parameter) {
     parameter = dateFormatter(parameter);
   }
 

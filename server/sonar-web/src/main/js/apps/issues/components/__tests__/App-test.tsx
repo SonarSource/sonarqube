@@ -20,14 +20,13 @@
 import * as React from 'react';
 import App from '../App';
 import { shallowWithIntl, waitAndUpdate } from '../../../../helpers/testUtils';
-import { Issue } from '../../../../app/types';
 
 const replace = jest.fn();
 const issues = [
-  { key: 'foo' } as Issue,
-  { key: 'bar' } as Issue,
-  { key: 'third' } as Issue,
-  { key: 'fourth' } as Issue
+  { key: 'foo' } as T.Issue,
+  { key: 'bar' } as T.Issue,
+  { key: 'third' } as T.Issue,
+  { key: 'fourth' } as T.Issue
 ];
 const facets = [{ property: 'severities', values: [{ val: 'MINOR', count: 4 }] }];
 const paging = { pageIndex: 1, pageSize: 100, total: 4 };

@@ -21,7 +21,6 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { Measure, BranchLike } from '../../app/types';
 import { getLeakValue } from '../measure/utils';
 import CoverageRating from '../ui/CoverageRating';
 import { formatMeasure } from '../../helpers/measures';
@@ -31,9 +30,9 @@ import DuplicationsRating from '../ui/DuplicationsRating';
 import { getComponentDrilldownUrl } from '../../helpers/urls';
 
 interface Props {
-  branchLike: BranchLike;
+  branchLike: T.BranchLike;
   componentKey: string;
-  measures: Measure[];
+  measures: T.Measure[];
 }
 
 export default function BranchMeasures({ branchLike, componentKey, measures }: Props) {
@@ -59,10 +58,10 @@ export default function BranchMeasures({ branchLike, componentKey, measures }: P
 }
 
 interface MeasureProps {
-  branchLike: BranchLike;
+  branchLike: T.BranchLike;
   className?: string;
   componentKey: string;
-  measure: Measure | undefined;
+  measure: T.Measure | undefined;
 }
 
 export function BranchCoverage({ branchLike, className, componentKey, measure }: MeasureProps) {

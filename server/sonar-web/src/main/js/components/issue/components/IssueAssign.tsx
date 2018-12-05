@@ -24,11 +24,10 @@ import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
 import { Button } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Issue } from '../../../app/types';
 
 interface Props {
   isOpen: boolean;
-  issue: Pick<Issue, 'assignee' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'>;
+  issue: Pick<T.Issue, 'assignee' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'>;
   canAssign: boolean;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;

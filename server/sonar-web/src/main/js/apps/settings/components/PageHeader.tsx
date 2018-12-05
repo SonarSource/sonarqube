@@ -20,10 +20,9 @@
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../../../app/types';
 
 interface Props {
-  component?: Component;
+  component?: T.Component;
 }
 
 export default function PageHeader({ component }: Props) {

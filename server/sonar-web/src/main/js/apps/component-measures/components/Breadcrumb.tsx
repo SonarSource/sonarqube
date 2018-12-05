@@ -20,11 +20,10 @@
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-import { ComponentMeasure } from '../../../app/types';
 
 interface Props {
   canBrowse: boolean;
-  component: ComponentMeasure;
+  component: T.ComponentMeasure;
   isLast: boolean;
   handleSelect: (component: string) => void;
 }

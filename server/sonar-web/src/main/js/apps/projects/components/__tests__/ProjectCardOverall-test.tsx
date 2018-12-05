@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCardOverall from '../ProjectCardOverall';
-import { Visibility } from '../../../../app/types';
+import { Project } from '../../types';
 
 const MEASURES = {
   alert_status: 'OK',
@@ -29,14 +29,14 @@ const MEASURES = {
   new_bugs: '12'
 };
 
-const PROJECT = {
+const PROJECT: Project = {
   analysisDate: '2017-01-01',
   key: 'foo',
   measures: MEASURES,
   name: 'Foo',
   organization: { key: 'org', name: 'org' },
   tags: [],
-  visibility: Visibility.Public
+  visibility: 'public'
 };
 
 it('should display analysis date (and not leak period) when defined', () => {
@@ -77,7 +77,7 @@ it('should display tags', () => {
 });
 
 it('should display private badge', () => {
-  const project = { ...PROJECT, visibility: Visibility.Private };
+  const project: Project = { ...PROJECT, visibility: 'private' };
   expect(
     shallow(<ProjectCardOverall height={100} organization={undefined} project={project} />)
       .find('Connect(PrivacyBadge)')

@@ -21,7 +21,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
 import forSingleOrganization from '../organizations/forSingleOrganization';
-import { Organization, LoggedInUser, Visibility } from '../../app/types';
 import { getAppState, getOrganizationByKey, getCurrentUser, Store } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
@@ -29,18 +28,18 @@ import { fetchOrganization } from '../organizations/actions';
 
 interface StateProps {
   appState: { defaultOrganization: string; qualifiers: string[] };
-  currentUser: LoggedInUser;
-  organization?: Organization;
+  currentUser: T.LoggedInUser;
+  organization?: T.Organization;
 }
 
 interface DispatchProps {
   fetchOrganization: (organization: string) => void;
-  onVisibilityChange: (organization: Organization, visibility: Visibility) => void;
+  onVisibilityChange: (organization: T.Organization, visibility: T.Visibility) => void;
 }
 
 interface OwnProps {
   onRequestFail: (error: any) => void;
-  organization: Organization;
+  organization: T.Organization;
 }
 
 class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchProps> {
@@ -52,7 +51,7 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
     }
   }
 
-  handleVisibilityChange = (visibility: Visibility) => {
+  handleVisibilityChange = (visibility: T.Visibility) => {
     if (this.props.organization) {
       this.props.onVisibilityChange(this.props.organization, visibility);
     }
@@ -82,12 +81,12 @@ class AppContainer extends React.PureComponent<OwnProps & StateProps & DispatchP
 
 const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
   appState: getAppState(state),
-  currentUser: getCurrentUser(state) as LoggedInUser,
+  currentUser: getCurrentUser(state) as T.LoggedInUser,
   organization:
     ownProps.organization || getOrganizationByKey(state, getAppState(state).defaultOrganization)
 });
 
-const onVisibilityChange = (organization: Organization, visibility: Visibility) => (
+const onVisibilityChange = (organization: T.Organization, visibility: T.Visibility) => (
   dispatch: Function
 ) => {
   const currentVisibility = organization.projectVisibility;
@@ -99,7 +98,7 @@ const onVisibilityChange = (organization: Organization, visibility: Visibility) 
 
 const mapDispatchToProps = (dispatch: Function) => ({
   fetchOrganization: (key: string) => dispatch(fetchOrganization(key)),
-  onVisibilityChange: (organization: Organization, visibility: Visibility) =>
+  onVisibilityChange: (organization: T.Organization, visibility: T.Visibility) =>
     dispatch(onVisibilityChange(organization, visibility))
 });
 

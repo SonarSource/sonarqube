@@ -36,7 +36,6 @@ jest.mock('../../../../api/components', () => ({
 import * as React from 'react';
 import { mount } from 'enzyme';
 import DefaultPageSelector from '../DefaultPageSelector';
-import { CurrentUser } from '../../../../app/types';
 import { doAsync } from '../../../../helpers/testUtils';
 
 const get = require('../../../../helpers/storage').get as jest.Mock<any>;
@@ -83,7 +82,7 @@ it('fetches favorites', () => {
 });
 
 function mountRender(
-  currentUser: CurrentUser = { isLoggedIn: true },
+  currentUser: T.CurrentUser = { isLoggedIn: true },
   query: any = {},
   replace: any = jest.fn()
 ) {

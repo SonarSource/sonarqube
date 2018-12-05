@@ -21,7 +21,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import ComponentNavBranch from './ComponentNavBranch';
-import { Component, Organization, BranchLike, Breadcrumb } from '../../../types';
 import QualifierIcon from '../../../../components/icons-components/QualifierIcon';
 import {
   getOrganizationByKey,
@@ -37,14 +36,14 @@ import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isSonarCloud } from '../../../../helpers/system';
 
 interface StateProps {
-  organization?: Organization;
+  organization?: T.Organization;
   shouldOrganizationBeDisplayed?: boolean;
 }
 
 interface OwnProps {
-  branchLikes: BranchLike[];
-  component: Component;
-  currentBranchLike: BranchLike | undefined;
+  branchLikes: T.BranchLike[];
+  component: T.Component;
+  currentBranchLike: T.BranchLike | undefined;
   location?: any;
 }
 
@@ -101,7 +100,7 @@ export function ComponentNavHeader(props: Props) {
   );
 }
 
-function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
+function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[]) {
   const lastItem = breadcrumbs[breadcrumbs.length - 1];
   return breadcrumbs.map((item, index) => {
     const isPath = item.qualifier === 'DIR';

@@ -26,12 +26,11 @@ import ActionsDropdown, {
   ActionsDropdownDivider
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
-import { Webhook } from '../../../app/types';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
   onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhook: Webhook;
+  webhook: T.Webhook;
 }
 
 interface State {

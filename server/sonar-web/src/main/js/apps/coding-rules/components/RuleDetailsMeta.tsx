@@ -22,7 +22,6 @@ import { Link } from 'react-router';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 import SimilarRulesFilter from './SimilarRulesFilter';
 import { Query } from '../query';
-import { RuleDetails, RuleScope } from '../../../app/types';
 import { getRuleUrl } from '../../../helpers/urls';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
@@ -44,7 +43,7 @@ interface Props {
   onTagsChange: (tags: string[]) => void;
   organization: string | undefined;
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
-  ruleDetails: RuleDetails;
+  ruleDetails: T.RuleDetails;
 }
 
 const EXTERNAL_RULE_REPO_PREFIX = 'external_';
@@ -201,7 +200,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
   };
 
   renderScope = () => {
-    const scope = this.props.ruleDetails.scope || RuleScope.Main;
+    const scope = this.props.ruleDetails.scope || 'MAIN';
     return (
       <Tooltip overlay={translate('coding_rules.scope.title')}>
         <li className="coding-rules-detail-property">

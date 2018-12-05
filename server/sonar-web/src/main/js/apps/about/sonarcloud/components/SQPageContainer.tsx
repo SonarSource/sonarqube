@@ -22,12 +22,11 @@ import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Footer from './Footer';
 import { getCurrentUser, getMyOrganizations, Store } from '../../../../store/rootReducer';
-import { CurrentUser, Organization } from '../../../../app/types';
 import GlobalContainer from '../../../../app/components/GlobalContainer';
 
 interface StateProps {
-  currentUser: CurrentUser;
-  userOrganizations?: Organization[];
+  currentUser: T.CurrentUser;
+  userOrganizations?: T.Organization[];
 }
 
 interface OwnProps {

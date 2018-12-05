@@ -25,13 +25,12 @@ import Toggler from '../../controls/Toggler';
 import TagsList from '../../tags/TagsList';
 import { Button } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Issue } from '../../../app/types';
 
 interface Props {
   canSetTags: boolean;
   isOpen: boolean;
-  issue: Pick<Issue, 'key' | 'projectOrganization' | 'tags'>;
-  onChange: (issue: Issue) => void;
+  issue: Pick<T.Issue, 'key' | 'projectOrganization' | 'tags'>;
+  onChange: (issue: T.Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
@@ -46,8 +45,8 @@ export default class IssueTags extends React.PureComponent<Props> {
     updateIssue(
       this.props.onChange,
       setIssueTags({ issue: issue.key, tags: tags.join(',') }),
-      issue as Issue,
-      newIssue as Issue
+      issue as T.Issue,
+      newIssue as T.Issue
     );
   };
 

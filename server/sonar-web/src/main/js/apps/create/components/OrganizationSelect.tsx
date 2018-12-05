@@ -20,16 +20,15 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import Select from '../../../components/controls/Select';
-import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
   hideIcons?: boolean;
-  onChange: (organization: Organization) => void;
+  onChange: (organization: T.Organization) => void;
   organization: string;
-  organizations: Organization[];
+  organizations: T.Organization[];
 }
 
 export default function OrganizationSelect({
@@ -59,7 +58,7 @@ export default function OrganizationSelect({
 }
 
 export function getOptionRenderer(hideIcons?: boolean) {
-  return function optionRenderer(organization: Organization) {
+  return function optionRenderer(organization: T.Organization) {
     const icon = organization.alm
       ? `sonarcloud/${sanitizeAlmId(organization.alm.key)}`
       : 'sonarcloud-square-logo';

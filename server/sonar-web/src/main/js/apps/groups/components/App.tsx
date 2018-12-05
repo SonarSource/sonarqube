@@ -24,7 +24,6 @@ import List from './List';
 import forSingleOrganization from '../../organizations/forSingleOrganization';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { searchUsersGroups, deleteGroup, updateGroup, createGroup } from '../../../api/user_groups';
-import { Group, Paging } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
@@ -34,9 +33,9 @@ interface Props {
 }
 
 interface State {
-  groups?: Group[];
+  groups?: T.Group[];
   loading: boolean;
-  paging?: Paging;
+  paging?: T.Paging;
   query: string;
 }
 

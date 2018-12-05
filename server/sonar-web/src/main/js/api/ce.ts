@@ -19,7 +19,6 @@
  */
 import { getJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Task } from '../app/types';
 
 export function getAnalysisStatus(data: {
   component: string;
@@ -38,7 +37,7 @@ export function getAnalysisStatus(data: {
   return getJSON('/api/ce/analysis_status', data).catch(throwGlobalError);
 }
 
-export function getActivity(data: RequestData): Promise<{ tasks: Task[] }> {
+export function getActivity(data: RequestData): Promise<{ tasks: T.Task[] }> {
   return getJSON('/api/ce/activity', data);
 }
 
@@ -52,7 +51,7 @@ export function getStatus(
   return getJSON('/api/ce/activity_status', data);
 }
 
-export function getTask(id: string, additionalFields?: string[]): Promise<Task> {
+export function getTask(id: string, additionalFields?: string[]): Promise<T.Task> {
   return getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
 }
 
@@ -66,7 +65,7 @@ export function cancelAllTasks(): Promise<any> {
 
 export function getTasksForComponent(
   componentKey: string
-): Promise<{ queue: Task[]; current: Task }> {
+): Promise<{ queue: T.Task[]; current: T.Task }> {
   return getJSON('/api/ce/component', { componentKey }).catch(throwGlobalError);
 }
 

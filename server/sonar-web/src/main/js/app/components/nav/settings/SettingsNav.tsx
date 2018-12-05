@@ -25,13 +25,12 @@ import * as theme from '../../../theme';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import Dropdown from '../../../../components/controls/Dropdown';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import { Extension } from '../../../types';
 import { PluginPendingResult } from '../../../../api/plugins';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  extensions: Extension[];
+  extensions: T.Extension[];
   fetchPendingPlugins: () => void;
   location: {};
   organizationsEnabled?: boolean;
@@ -73,7 +72,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
     return this.isSomethingActive(urls);
   }
 
-  renderExtension = ({ key, name }: Extension) => {
+  renderExtension = ({ key, name }: T.Extension) => {
     return (
       <li key={key}>
         <Link activeClassName="active" to={`/admin/extension/${key}`}>

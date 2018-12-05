@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
-import { Metric, ComponentMeasure as IComponentMeasure } from '../../../app/types';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
 
 interface Props {
-  component: IComponentMeasure;
-  metric: Metric;
+  component: T.ComponentMeasure;
+  metric: T.Metric;
 }
 
 export default function ComponentMeasure({ component, metric }: Props) {

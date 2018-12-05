@@ -23,13 +23,6 @@ import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import ListFooter from '../../../../components/controls/ListFooter';
 import {
-  AppState,
-  Organization,
-  Paging,
-  PermissionGroup,
-  PermissionUser
-} from '../../../../app/types';
-import {
   PERMISSIONS_ORDER_GLOBAL,
   convertToPermissionDefinitions,
   PERMISSIONS_ORDER_GLOBAL_GOV
@@ -37,32 +30,32 @@ import {
 import { Store, getAppState } from '../../../../store/rootReducer';
 
 interface StateProps {
-  appState: Pick<AppState, 'qualifiers'>;
+  appState: Pick<T.AppState, 'qualifiers'>;
 }
 
 interface OwnProps {
   filter: string;
   grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
   grantPermissionToUser: (login: string, permission: string) => Promise<void>;
-  groups: PermissionGroup[];
-  groupsPaging?: Paging;
+  groups: T.PermissionGroup[];
+  groupsPaging?: T.Paging;
   loadHolders: () => void;
   loading?: boolean;
   onLoadMore: () => void;
   onFilter: (filter: string) => void;
   onSearch: (query: string) => void;
-  organization?: Organization;
+  organization?: T.Organization;
   query: string;
   revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
   revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
-  users: PermissionUser[];
-  usersPaging?: Paging;
+  users: T.PermissionUser[];
+  usersPaging?: T.Paging;
 }
 
 type Props = StateProps & OwnProps;
 
 export class AllHoldersList extends React.PureComponent<Props> {
-  handleToggleUser = (user: PermissionUser, permission: string) => {
+  handleToggleUser = (user: T.PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
     if (hasPermission) {
       return this.props.revokePermissionFromUser(user.login, permission);
@@ -71,7 +64,7 @@ export class AllHoldersList extends React.PureComponent<Props> {
     }
   };
 
-  handleToggleGroup = (group: PermissionGroup, permission: string) => {
+  handleToggleGroup = (group: T.PermissionGroup, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {

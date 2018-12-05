@@ -23,7 +23,6 @@ import Stacktrace from './Stacktrace';
 import { STATUSES } from '../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
-import { Task } from '../../../app/types';
 import { lazyLoad } from '../../../components/lazyLoad';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 
@@ -34,9 +33,9 @@ const AnalysisWarningsModal = lazyLoad(
 
 interface Props {
   component?: unknown;
-  onCancelTask: (task: Task) => Promise<void>;
-  onFilterTask: (task: Task) => void;
-  task: Task;
+  onCancelTask: (task: T.Task) => Promise<void>;
+  onFilterTask: (task: T.Task) => void;
+  task: T.Task;
 }
 
 interface State {

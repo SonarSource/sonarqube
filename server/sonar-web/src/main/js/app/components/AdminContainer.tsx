@@ -27,16 +27,15 @@ import { getAppState, Store } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState';
 import { translate } from '../../helpers/l10n';
-import { Extension, AppState } from '../types';
 import { PluginPendingResult, getPendingPlugins } from '../../api/plugins';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 interface StateProps {
-  appState: Pick<AppState, 'adminPages' | 'organizationsEnabled'>;
+  appState: Pick<T.AppState, 'adminPages' | 'organizationsEnabled'>;
 }
 
 interface DispatchToProps {
-  setAdminPages: (adminPages: Extension[]) => void;
+  setAdminPages: (adminPages: T.Extension[]) => void;
 }
 
 interface OwnProps {

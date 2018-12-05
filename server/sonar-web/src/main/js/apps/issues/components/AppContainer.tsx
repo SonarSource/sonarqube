@@ -22,7 +22,6 @@ import { Dispatch } from 'redux';
 import { uniq } from 'lodash';
 import { searchIssues } from '../../../api/issues';
 import { getOrganizations } from '../../../api/organizations';
-import { CurrentUser, Organization } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import {
   getCurrentUser,
@@ -36,8 +35,8 @@ import { RawQuery } from '../../../helpers/query';
 import { receiveOrganizations } from '../../../store/organizations';
 
 interface StateProps {
-  currentUser: CurrentUser;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  userOrganizations: T.Organization[];
 }
 
 const mapStateToProps = (state: Store): StateProps => ({

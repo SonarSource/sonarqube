@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { Query } from '../query';
-import { Rule } from '../../../app/types';
 import Dropdown from '../../../components/controls/Dropdown';
 import { translate } from '../../../helpers/l10n';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -29,7 +28,7 @@ import TagsIcon from '../../../components/icons-components/TagsIcon';
 
 interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
-  rule: Rule;
+  rule: T.Rule;
 }
 
 export default class SimilarRulesFilter extends React.PureComponent<Props> {

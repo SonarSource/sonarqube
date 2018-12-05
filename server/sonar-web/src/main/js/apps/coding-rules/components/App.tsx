@@ -60,14 +60,6 @@ import {
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { scrollToElement } from '../../../helpers/scrolling';
-import {
-  CurrentUser,
-  Languages,
-  Paging,
-  Organization,
-  Rule,
-  RuleActivation
-} from '../../../app/types';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 import { hasPrivateAccess } from '../../../helpers/organizations';
@@ -76,13 +68,13 @@ const PAGE_SIZE = 100;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface StateToProps {
-  currentUser: CurrentUser;
-  languages: Languages;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  languages: T.Languages;
+  userOrganizations: T.Organization[];
 }
 
 interface OwnProps extends WithRouterProps {
-  organization: Organization | undefined;
+  organization: T.Organization | undefined;
 }
 
 type Props = OwnProps & StateToProps;
@@ -93,12 +85,12 @@ interface State {
   facets?: Facets;
   loading: boolean;
   openFacets: OpenFacets;
-  openRule?: Rule;
-  paging?: Paging;
+  openRule?: T.Rule;
+  paging?: T.Paging;
   query: Query;
   referencedProfiles: { [profile: string]: Profile };
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
-  rules: Rule[];
+  rules: T.Rule[];
   selected?: string;
 }
 
@@ -197,7 +189,7 @@ export class App extends React.PureComponent<Props, State> {
 
   detachShortcuts = () => key.deleteScope('coding-rules');
 
-  getOpenRule = (props: Props, rules: Rule[]) => {
+  getOpenRule = (props: Props, rules: T.Rule[]) => {
     const open = getOpen(props.location.query);
     return open && rules.find(rule => rule.key === open);
   };
@@ -450,7 +442,7 @@ export class App extends React.PureComponent<Props, State> {
   handleReset = () => this.props.router.push({ pathname: this.props.location.pathname });
 
   /** Tries to take rule by index, or takes the last one  */
-  pickRuleAround = (rules: Rule[], selectedIndex: number | undefined) => {
+  pickRuleAround = (rules: T.Rule[], selectedIndex: number | undefined) => {
     if (selectedIndex === undefined || rules.length === 0) {
       return undefined;
     }
@@ -627,7 +619,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-function parseActives(rawActives: { [rule: string]: RuleActivation[] }) {
+function parseActives(rawActives: { [rule: string]: T.RuleActivation[] }) {
   const actives: Actives = {};
   for (const [rule, activations] of Object.entries(rawActives)) {
     actives[rule] = {};

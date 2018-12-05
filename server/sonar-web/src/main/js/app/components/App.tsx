@@ -21,7 +21,6 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { AppState, CurrentUser } from '../types';
 import { fetchLanguages } from '../../store/rootActions';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { getInstance, isSonarCloud } from '../../helpers/system';
@@ -32,8 +31,8 @@ import { isLoggedIn } from '../../helpers/users';
 const PageTracker = lazyLoad(() => import('./PageTracker'));
 
 interface StateProps {
-  appState: AppState | undefined;
-  currentUser: CurrentUser | undefined;
+  appState: T.AppState | undefined;
+  currentUser: T.CurrentUser | undefined;
   enableGravatar: boolean;
   gravatarServerUrl: string;
 }

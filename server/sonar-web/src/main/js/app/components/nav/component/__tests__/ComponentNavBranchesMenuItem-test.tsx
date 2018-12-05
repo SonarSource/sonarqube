@@ -20,19 +20,18 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBranchesMenuItem, { Props } from '../ComponentNavBranchesMenuItem';
-import { BranchType, MainBranch, ShortLivingBranch, Component } from '../../../../types';
 
-const component = { key: 'component' } as Component;
+const component = { key: 'component' } as T.Component;
 
-const shortBranch: ShortLivingBranch = {
+const shortBranch: T.ShortLivingBranch = {
   isMain: false,
   mergeBranch: 'master',
   name: 'foo',
   status: { bugs: 1, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
-  type: BranchType.SHORT
+  type: 'SHORT'
 };
 
-const mainBranch: MainBranch = { isMain: true, name: 'master' };
+const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
 it('renders main branch', () => {
   expect(shallowRender({ branchLike: mainBranch })).toMatchSnapshot();
@@ -43,7 +42,7 @@ it('renders short-living branch', () => {
 });
 
 it('renders short-living orhpan branch', () => {
-  const orhpan: ShortLivingBranch = { ...shortBranch, isOrphan: true };
+  const orhpan: T.ShortLivingBranch = { ...shortBranch, isOrphan: true };
   expect(shallowRender({ branchLike: orhpan })).toMatchSnapshot();
 });
 

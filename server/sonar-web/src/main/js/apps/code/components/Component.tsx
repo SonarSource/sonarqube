@@ -23,19 +23,18 @@ import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
-import { BranchLike, Metric, ComponentMeasure as IComponentMeasure } from '../../../app/types';
 
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   canBrowse?: boolean;
-  component: IComponentMeasure;
+  component: T.ComponentMeasure;
   isLeak: boolean;
-  metrics: Metric[];
-  previous?: IComponentMeasure;
-  rootComponent: IComponentMeasure;
+  metrics: T.Metric[];
+  previous?: T.ComponentMeasure;
+  rootComponent: T.ComponentMeasure;
   selected?: boolean;
 }
 

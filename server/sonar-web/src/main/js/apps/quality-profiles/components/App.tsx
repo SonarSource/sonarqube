@@ -24,12 +24,11 @@ import { sortProfiles } from '../utils';
 import { Exporter, Profile } from '../types';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import { translate } from '../../../helpers/l10n';
-import { Languages } from '../../../app/types';
 import '../styles.css';
 
 interface Props {
   children: React.ReactElement<any>;
-  languages: Languages;
+  languages: T.Languages;
   organization: { name: string; key: string } | undefined;
 }
 

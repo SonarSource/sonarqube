@@ -20,26 +20,19 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchRow from '../BranchRow';
-import {
-  MainBranch,
-  ShortLivingBranch,
-  BranchType,
-  PullRequest,
-  BranchLike
-} from '../../../../app/types';
 import { click } from '../../../../helpers/testUtils';
 
-const mainBranch: MainBranch = { isMain: true, name: 'master' };
+const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
-const shortBranch: ShortLivingBranch = {
+const shortBranch: T.ShortLivingBranch = {
   analysisDate: '2017-09-27T00:05:19+0000',
   isMain: false,
   name: 'feature',
   mergeBranch: 'foo',
-  type: BranchType.SHORT
+  type: 'SHORT'
 };
 
-const pullRequest: PullRequest = {
+const pullRequest: T.PullRequest = {
   base: 'master',
   branch: 'feature',
   key: '1234',
@@ -85,7 +78,7 @@ it('deletes pull request', () => {
   expect(onChange).toBeCalled();
 });
 
-function shallowRender(branchLike: BranchLike, onChange: () => void = jest.fn()) {
+function shallowRender(branchLike: T.BranchLike, onChange: () => void = jest.fn()) {
   const wrapper = shallow(
     <BranchRow branchLike={branchLike} component="foo" isOrphan={false} onChange={onChange} />
   );

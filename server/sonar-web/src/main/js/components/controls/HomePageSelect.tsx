@@ -22,23 +22,22 @@ import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import Tooltip from './Tooltip';
 import HomeIcon from '../icons-components/HomeIcon';
-import { CurrentUser, HomePage, isSameHomePage } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { setHomePage } from '../../store/users';
 import { isLoggedIn } from '../../helpers/users';
 
 interface StateProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
 }
 
 interface DispatchProps {
-  setHomePage: (homepage: HomePage) => void;
+  setHomePage: (homepage: T.HomePage) => void;
 }
 
 interface Props extends StateProps, DispatchProps {
   className?: string;
-  currentPage: HomePage;
+  currentPage: T.HomePage;
 }
 
 class HomePageSelect extends React.PureComponent<Props> {
@@ -92,3 +91,12 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(HomePageSelect);
+
+function isSameHomePage(a: T.HomePage, b: T.HomePage) {
+  return (
+    a.type === b.type &&
+    (a as any).branch === (b as any).branch &&
+    (a as any).component === (b as any).component &&
+    (a as any).organization === (b as any).organization
+  );
+}

@@ -25,7 +25,6 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
 import { deleteOrganization } from '../actions';
-import { Organization } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import { getOrganizationBilling } from '../../../api/organizations';
 import { isSonarCloud } from '../../../helpers/system';
@@ -36,7 +35,7 @@ interface DispatchToProps {
 }
 
 interface OwnProps {
-  organization: Pick<Organization, 'key' | 'name'>;
+  organization: Pick<T.Organization, 'key' | 'name'>;
 }
 
 type Props = OwnProps & DispatchToProps;

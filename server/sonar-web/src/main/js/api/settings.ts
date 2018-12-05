@@ -19,17 +19,10 @@
  */
 import { omitBy } from 'lodash';
 import { getJSON, RequestData, post, postJSON } from '../helpers/request';
-import {
-  BranchParameters,
-  SettingCategoryDefinition,
-  SettingValue,
-  SettingType,
-  SettingDefinition
-} from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { isCategoryDefinition } from '../apps/settings/utils';
 
-export function getDefinitions(component?: string): Promise<SettingCategoryDefinition[]> {
+export function getDefinitions(component?: string): Promise<T.SettingCategoryDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
     r => r.definitions,
     throwGlobalError
@@ -37,13 +30,13 @@ export function getDefinitions(component?: string): Promise<SettingCategoryDefin
 }
 
 export function getValues(
-  data: { keys: string; component?: string } & BranchParameters
-): Promise<SettingValue[]> {
+  data: { keys: string; component?: string } & T.BranchParameters
+): Promise<T.SettingValue[]> {
   return getJSON('/api/settings/values', data).then(r => r.settings);
 }
 
 export function setSettingValue(
-  definition: SettingDefinition,
+  definition: T.SettingDefinition,
   value: any,
   component?: string
 ): Promise<void> {
@@ -52,7 +45,7 @@ export function setSettingValue(
 
   if (isCategoryDefinition(definition) && definition.multiValues) {
     data.values = value;
-  } else if (definition.type === SettingType.PropertySet) {
+  } else if (definition.type === 'PROPERTY_SET') {
     data.fieldValues = value
       .map((fields: any) => omitBy(fields, value => value == null))
       .map(JSON.stringify);
@@ -64,13 +57,13 @@ export function setSettingValue(
 }
 
 export function setSimpleSettingValue(
-  data: { component?: string; value: string; key: string } & BranchParameters
+  data: { component?: string; value: string; key: string } & T.BranchParameters
 ): Promise<void | Response> {
   return post('/api/settings/set', data).catch(throwGlobalError);
 }
 
 export function resetSettingValue(
-  data: { keys: string; component?: string } & BranchParameters
+  data: { keys: string; component?: string } & T.BranchParameters
 ): Promise<void> {
   return post('/api/settings/reset', data);
 }

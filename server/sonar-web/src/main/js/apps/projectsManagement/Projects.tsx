@@ -20,7 +20,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import ProjectRow from './ProjectRow';
-import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 import { Project } from '../../api/components';
 
@@ -28,7 +27,7 @@ interface Props {
   currentUser: { login: string };
   onProjectDeselected: (project: string) => void;
   onProjectSelected: (project: string) => void;
-  organization: Organization;
+  organization: T.Organization;
   projects: Project[];
   ready?: boolean;
   selection: string[];

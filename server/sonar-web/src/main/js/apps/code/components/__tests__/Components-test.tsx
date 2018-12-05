@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Components from '../Components';
-import { BranchType } from '../../../../app/types';
 
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
 const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };
@@ -29,7 +28,7 @@ const BRANCH = {
   isMain: false,
   name: 'feature',
   mergeBranch: 'master',
-  type: BranchType.SHORT
+  type: 'SHORT'
 };
 
 it('renders correctly', () => {

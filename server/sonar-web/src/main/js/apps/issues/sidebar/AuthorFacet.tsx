@@ -24,10 +24,9 @@ import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { searchIssueAuthors } from '../../../api/issues';
 import { highlightTerm } from '../../../helpers/search';
-import { Component } from '../../../app/types';
 
 interface Props {
-  component: Component | undefined;
+  component: T.Component | undefined;
   fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;

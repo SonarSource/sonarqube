@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  line: SourceLine;
-  onClick: (line: SourceLine) => void;
+  line: T.SourceLine;
+  onClick: (line: T.SourceLine) => void;
 }
 
 export default class LineDuplications extends React.PureComponent<Props> {

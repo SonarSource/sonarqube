@@ -20,11 +20,10 @@
 import * as React from 'react';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { translate } from '../../../helpers/l10n';
-import { AnalysisEvent } from '../../../app/types';
 
 interface Props {
   addSeparator: boolean;
-  events: AnalysisEvent[];
+  events: T.AnalysisEvent[];
 }
 
 export default function GraphsTooltipsContentEvents({ addSeparator, events }: Props) {

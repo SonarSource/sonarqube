@@ -20,16 +20,15 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { getSelectedLocation } from '../utils';
-import { BranchLike, Component, Issue } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { getBranchLikeUrl, getCodeUrl } from '../../../helpers/urls';
 
 interface Props {
-  branchLike?: BranchLike;
-  component?: Component;
+  branchLike?: T.BranchLike;
+  component?: T.Component;
   issue: Pick<
-    Issue,
+    T.Issue,
     | 'component'
     | 'componentLongName'
     | 'flows'

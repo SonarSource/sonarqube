@@ -19,14 +19,13 @@
  */
 import * as React from 'react';
 import NotificationsList from './NotificationsList';
-import { Notification } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  addNotification: (n: Notification) => void;
+  addNotification: (n: T.Notification) => void;
   channels: string[];
-  notifications: Notification[];
-  removeNotification: (n: Notification) => void;
+  notifications: T.Notification[];
+  removeNotification: (n: T.Notification) => void;
   types: string[];
 }
 

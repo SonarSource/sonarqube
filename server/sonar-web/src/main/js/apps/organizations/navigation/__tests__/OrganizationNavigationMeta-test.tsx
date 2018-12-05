@@ -20,11 +20,10 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationMeta from '../OrganizationNavigationMeta';
-import { OrganizationSubscription } from '../../../../app/types';
 
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: () => true }));
 
-const organization = { key: 'foo', name: 'Foo', subscription: OrganizationSubscription.Free };
+const organization: T.Organization = { key: 'foo', name: 'Foo', subscription: 'FREE' };
 
 it('renders', () => {
   expect(
@@ -43,7 +42,7 @@ it('renders with private badge', () => {
     shallow(
       <OrganizationNavigationMeta
         currentUser={{ isLoggedIn: true }}
-        organization={{ ...organization, subscription: OrganizationSubscription.Paid }}
+        organization={{ ...organization, subscription: 'PAID' }}
         userOrganizations={[organization]}
       />
     )

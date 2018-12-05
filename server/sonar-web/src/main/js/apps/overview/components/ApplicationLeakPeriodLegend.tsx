@@ -25,11 +25,10 @@ import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter'
 import { getApplicationLeak } from '../../../api/application';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { LightComponent, LongLivingBranch } from '../../../app/types';
 
 interface Props {
-  branch?: LongLivingBranch;
-  component: LightComponent;
+  branch?: T.LongLivingBranch;
+  component: T.LightComponent;
 }
 
 interface State {

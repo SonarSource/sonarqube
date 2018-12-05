@@ -28,19 +28,10 @@ import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import {
-  BranchLike,
-  ComponentMeasure,
-  CurrentUser,
-  Measure,
-  MeasureEnhanced,
-  Metric,
-  Period
-} from '../../../app/types';
 
 interface StateToProps {
-  currentUser: CurrentUser;
-  metrics: { [metric: string]: Metric };
+  currentUser: T.CurrentUser;
+  metrics: { [metric: string]: T.Metric };
   metricsKey: string[];
 }
 
@@ -48,14 +39,18 @@ interface DispatchToProps {
   fetchMeasures: (
     component: string,
     metricsKey: string[],
-    branchLike?: BranchLike
-  ) => Promise<{ component: ComponentMeasure; measures: MeasureEnhanced[]; leakPeriod?: Period }>;
+    branchLike?: T.BranchLike
+  ) => Promise<{
+    component: T.ComponentMeasure;
+    measures: T.MeasureEnhanced[];
+    leakPeriod?: T.Period;
+  }>;
   fetchMetrics: () => void;
 }
 
 interface OwnProps {
-  branchLike?: BranchLike;
-  component: ComponentMeasure;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasure;
 }
 
 const mapStateToProps = (state: any): StateToProps => ({
@@ -64,7 +59,7 @@ const mapStateToProps = (state: any): StateToProps => ({
   metricsKey: getMetricsKey(state)
 });
 
-function banQualityGate({ measures = [], qualifier }: ComponentMeasure): Measure[] {
+function banQualityGate({ measures = [], qualifier }: T.ComponentMeasure): T.Measure[] {
   const bannedMetrics: string[] = [];
   if (!['VW', 'SVW'].includes(qualifier)) {
     bannedMetrics.push('alert_status');
@@ -75,7 +70,7 @@ function banQualityGate({ measures = [], qualifier }: ComponentMeasure): Measure
   return measures.filter(measure => !bannedMetrics.includes(measure.metric));
 }
 
-const fetchMeasures = (component: string, metricsKey: string[], branchLike?: BranchLike) => (
+const fetchMeasures = (component: string, metricsKey: string[], branchLike?: T.BranchLike) => (
   _dispatch: Dispatch,
   getState: () => any
 ) => {
@@ -92,7 +87,7 @@ const fetchMeasures = (component: string, metricsKey: string[], branchLike?: Bra
     );
 
     const newBugs = measures.find(measure => measure.metric.key === 'new_bugs');
-    const applicationPeriods = newBugs ? [{ index: 1 } as Period] : [];
+    const applicationPeriods = newBugs ? [{ index: 1 } as T.Period] : [];
     const leakPeriod = getLeakPeriod(component.qualifier === 'APP' ? applicationPeriods : periods);
     return { component, measures, leakPeriod };
   }, throwGlobalError);

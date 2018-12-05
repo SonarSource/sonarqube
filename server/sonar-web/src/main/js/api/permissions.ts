@@ -18,13 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BaseSearchProjectsParameters } from './components';
-import {
-  Paging,
-  PermissionGroup,
-  PermissionTemplate,
-  PermissionUser,
-  Visibility
-} from '../app/types';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
@@ -67,7 +60,7 @@ export function revokePermissionFromGroup(data: {
 }
 
 interface GetPermissionTemplatesResponse {
-  permissionTemplates: PermissionTemplate[];
+  permissionTemplates: T.PermissionTemplate[];
   defaultTemplates: Array<{ templateId: string; qualifier: string }>;
   permissions: Array<{ key: string; name: string; description: string }>;
 }
@@ -150,7 +143,7 @@ export function getPermissionsUsersForComponent(data: {
   organization?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: Paging; users: PermissionUser[] }> {
+}): Promise<{ paging: T.Paging; users: T.PermissionUser[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -164,7 +157,7 @@ export function getPermissionsGroupsForComponent(data: {
   organization?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+}): Promise<{ paging: T.Paging; groups: T.PermissionGroup[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -177,7 +170,7 @@ export function getGlobalPermissionsUsers(data: {
   organization?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: Paging; users: PermissionUser[] }> {
+}): Promise<{ paging: T.Paging; users: T.PermissionUser[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -190,7 +183,7 @@ export function getGlobalPermissionsGroups(data: {
   organization?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+}): Promise<{ paging: T.Paging; groups: T.PermissionGroup[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -237,14 +230,14 @@ export function getPermissionTemplateGroups(
 
 export function changeProjectVisibility(
   project: string,
-  visibility: Visibility
+  visibility: T.Visibility
 ): Promise<void | Response> {
   return post('/api/projects/update_visibility', { project, visibility }).catch(throwGlobalError);
 }
 
 export function changeProjectDefaultVisibility(
   organization: string,
-  projectVisibility: Visibility
+  projectVisibility: T.Visibility
 ): Promise<void | Response> {
   return post('/api/projects/update_default_visibility', { organization, projectVisibility }).catch(
     throwGlobalError

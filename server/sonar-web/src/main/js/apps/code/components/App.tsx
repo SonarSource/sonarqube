@@ -26,7 +26,6 @@ import Breadcrumbs from './Breadcrumbs';
 import Search from './Search';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
-import { Breadcrumb, Component, ComponentMeasure, BranchLike, Metric } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
@@ -37,7 +36,7 @@ import { translate } from '../../../helpers/l10n';
 import '../code.css';
 
 interface StateToProps {
-  metrics: { [metric: string]: Metric };
+  metrics: { [metric: string]: T.Metric };
 }
 
 interface DispatchToProps {
@@ -45,21 +44,21 @@ interface DispatchToProps {
 }
 
 interface OwnProps {
-  branchLike?: BranchLike;
-  component: Component;
+  branchLike?: T.BranchLike;
+  component: T.Component;
   location: { query: { [x: string]: string } };
 }
 
 type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
-  baseComponent?: ComponentMeasure;
-  breadcrumbs: Breadcrumb[];
-  components?: ComponentMeasure[];
+  baseComponent?: T.ComponentMeasure;
+  breadcrumbs: T.Breadcrumb[];
+  components?: T.ComponentMeasure[];
   loading: boolean;
   page: number;
-  searchResults?: ComponentMeasure[];
-  sourceViewer?: ComponentMeasure;
+  searchResults?: T.ComponentMeasure[];
+  sourceViewer?: T.ComponentMeasure;
   total: number;
 }
 

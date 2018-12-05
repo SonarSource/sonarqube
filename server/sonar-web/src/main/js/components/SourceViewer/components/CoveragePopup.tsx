@@ -21,7 +21,6 @@ import * as React from 'react';
 import { groupBy } from 'lodash';
 import * as PropTypes from 'prop-types';
 import { getTests } from '../../../api/components';
-import { BranchLike, SourceLine, TestCase } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import TestStatusIcon from '../../icons-components/TestStatusIcon';
 import { PopupPlacement } from '../../ui/popups';
@@ -36,15 +35,15 @@ import { translate } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   componentKey: string;
-  line: SourceLine;
+  line: T.SourceLine;
   onClose: () => void;
 }
 
 interface State {
   loading: boolean;
-  testCases: TestCase[];
+  testCases: T.TestCase[];
 }
 
 export default class CoveragePopup extends React.PureComponent<Props, State> {

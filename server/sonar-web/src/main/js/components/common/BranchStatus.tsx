@@ -26,7 +26,6 @@ import CodeSmellIcon from '../icons-components/CodeSmellIcon';
 import HelpTooltip from '../controls/HelpTooltip';
 import Tooltip from '../controls/Tooltip';
 import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
-import { BranchLike } from '../../app/types';
 import {
   getBranchQualityGateColor,
   isShortLivingBranch,
@@ -39,7 +38,7 @@ import { formatMeasure } from '../../helpers/measures';
 import './BranchStatus.css';
 
 interface Props {
-  branchLike: BranchLike;
+  branchLike: T.BranchLike;
   concise?: boolean;
   helpTooltipClassName?: string;
 }

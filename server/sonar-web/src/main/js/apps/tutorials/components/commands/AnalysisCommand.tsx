@@ -25,11 +25,10 @@ import Msvc from './Msvc';
 import ClangGCC from './ClangGCC';
 import Other from './Other';
 import { getHostUrl } from '../../../../helpers/urls';
-import { Component } from '../../../../app/types';
 import { LanguageConfig } from '../../utils';
 
 interface Props {
-  component?: Component;
+  component?: T.Component;
   organization?: string;
   languageConfig: LanguageConfig;
   small?: boolean;

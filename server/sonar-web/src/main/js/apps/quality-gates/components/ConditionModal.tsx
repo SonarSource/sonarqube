@@ -23,7 +23,6 @@ import ConditionOperator from './ConditionOperator';
 import ThresholdInput from './ThresholdInput';
 import Period from './Period';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import { Metric, QualityGate, Condition, Omit } from '../../../app/types';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { parseError } from '../../../helpers/request';
@@ -31,20 +30,20 @@ import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  condition?: Condition;
-  metric?: Metric;
-  metrics?: Metric[];
+  condition?: T.Condition;
+  metric?: T.Metric;
+  metrics?: T.Metric[];
   header: string;
-  onAddCondition: (condition: Condition) => void;
+  onAddCondition: (condition: T.Condition) => void;
   onClose: () => void;
   organization?: string;
-  qualityGate: QualityGate;
+  qualityGate: T.QualityGate;
 }
 
 interface State {
   error: string;
   errorMessage?: string;
-  metric?: Metric;
+  metric?: T.Metric;
   op?: string;
   period: boolean;
   warning: string;
@@ -72,8 +71,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  getUpdatedCondition = (metric: Metric) => {
-    const data: Omit<Condition, 'id'> = {
+  getUpdatedCondition = (metric: T.Metric) => {
+    const data: T.Omit<T.Condition, 'id'> = {
       metric: metric.key,
       op: metric.type === 'RATING' ? 'GT' : this.state.op,
       warning: this.state.warning,
@@ -95,7 +94,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     if (this.state.metric) {
       const { condition, qualityGate, organization } = this.props;
       const newCondition = this.getUpdatedCondition(this.state.metric);
-      let submitPromise: Promise<Condition>;
+      let submitPromise: Promise<T.Condition>;
       if (condition) {
         submitPromise = updateCondition({ organization, id: condition.id, ...newCondition });
       } else {
@@ -113,7 +112,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     return Promise.reject('No metric selected');
   };
 
-  handleChooseType = (metric: Metric) => {
+  handleChooseType = (metric: T.Metric) => {
     this.setState({ metric });
   };
 

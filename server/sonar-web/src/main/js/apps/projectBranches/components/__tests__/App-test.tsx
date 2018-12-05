@@ -25,13 +25,6 @@ jest.mock('../../../../api/settings', () => ({
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import App from '../App';
-import {
-  BranchType,
-  LongLivingBranch,
-  ShortLivingBranch,
-  MainBranch,
-  PullRequest
-} from '../../../../app/types';
 
 const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
 
@@ -41,22 +34,22 @@ beforeEach(() => {
 
 it('renders sorted list of branches', () => {
   const branchLikes: [
-    MainBranch,
-    LongLivingBranch,
-    ShortLivingBranch,
-    PullRequest,
-    ShortLivingBranch
+    T.MainBranch,
+    T.LongLivingBranch,
+    T.ShortLivingBranch,
+    T.PullRequest,
+    T.ShortLivingBranch
   ] = [
     { isMain: true, name: 'master' },
-    { isMain: false, name: 'branch-1.0', type: BranchType.LONG },
-    { isMain: false, mergeBranch: 'master', name: 'feature', type: BranchType.SHORT },
+    { isMain: false, name: 'branch-1.0', type: 'LONG' },
+    { isMain: false, mergeBranch: 'master', name: 'feature', type: 'SHORT' },
     { base: 'master', branch: 'feature', key: '1234', title: 'Feature PR' },
     {
       isMain: false,
       mergeBranch: 'foobar',
       isOrphan: true,
       name: 'feature',
-      type: BranchType.SHORT
+      type: 'SHORT'
     }
   ];
   const wrapper = shallow(

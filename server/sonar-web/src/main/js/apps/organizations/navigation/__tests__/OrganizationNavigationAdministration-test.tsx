@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationAdministration from '../OrganizationNavigationAdministration';
-import { Visibility } from '../../../../app/types';
 
 it('renders', () => {
   const wrapper = shallow(
@@ -29,7 +28,7 @@ it('renders', () => {
       organization={{
         key: 'foo',
         name: 'Foo',
-        projectVisibility: Visibility.Public
+        projectVisibility: 'public'
       }}
     />
   );

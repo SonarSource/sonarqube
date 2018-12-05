@@ -20,7 +20,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { CurrentUser, AppState, Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
@@ -30,8 +29,8 @@ import { isSonarCloud } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
 
 interface Props {
-  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
-  currentUser: CurrentUser;
+  appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
+  currentUser: T.CurrentUser;
   location: { pathname: string };
 }
 
@@ -144,7 +143,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderGlobalPageLink = ({ key, name }: Extension) => {
+  renderGlobalPageLink = ({ key, name }: T.Extension) => {
     return (
       <li key={key}>
         <Link to={`/extension/${key}`}>{name}</Link>

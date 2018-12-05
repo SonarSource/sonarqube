@@ -21,7 +21,6 @@ import * as React from 'react';
 import LoginLink from './LoginLink';
 import SonarCloudIcon from './SonarCloudIcon';
 import * as theme from '../../../../../sonar-web/src/main/js/app/theme';
-import { IdentityProvider } from '../../../../../sonar-web/src/main/js/app/types';
 import { getIdentityProviders } from '../../../../../sonar-web/src/main/js/api/users';
 import { getTextColor } from '../../../../../sonar-web/src/main/js/helpers/colors';
 import { getBaseUrl } from '../../../../../sonar-web/src/main/js/helpers/urls';
@@ -32,7 +31,7 @@ interface Props {
 }
 
 interface State {
-  identityProviders?: IdentityProvider[];
+  identityProviders?: T.IdentityProvider[];
 }
 
 export default class LoginForm extends React.PureComponent<Props, State> {

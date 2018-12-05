@@ -22,16 +22,15 @@ import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { formatPrice } from './utils';
-import { OrganizationBase, Organization, SubscriptionPlan } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  createOrganization: (organization: OrganizationBase) => Promise<Organization>;
+  createOrganization: (organization: T.OrganizationBase) => Promise<T.Organization>;
   className?: string;
   deleteOrganization: (key: string) => Promise<void>;
   onOrgCreated: (organization: string) => void;
   onlyPaid?: boolean;
-  subscriptionPlans?: SubscriptionPlan[];
+  subscriptionPlans?: T.SubscriptionPlan[];
 }
 
 enum Step {
@@ -40,7 +39,7 @@ enum Step {
 }
 
 interface State {
-  organization?: Organization;
+  organization?: T.Organization;
   step: Step;
 }
 
@@ -60,7 +59,7 @@ export default class ManualOrganizationCreate extends React.PureComponent<Props,
     this.setState({ step: Step.OrganizationDetails });
   };
 
-  handleOrganizationDetailsFinish = (organization: Required<OrganizationBase>) => {
+  handleOrganizationDetailsFinish = (organization: Required<T.OrganizationBase>) => {
     this.setState({ organization, step: Step.Plan });
     return Promise.resolve();
   };

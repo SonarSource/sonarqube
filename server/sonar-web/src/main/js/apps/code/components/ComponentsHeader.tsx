@@ -20,13 +20,12 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { translate } from '../../../helpers/l10n';
-import { ComponentMeasure } from '../../../app/types';
 
 interface Props {
-  baseComponent?: ComponentMeasure;
+  baseComponent?: T.ComponentMeasure;
   isLeak: boolean;
   metrics: string[];
-  rootComponent: ComponentMeasure;
+  rootComponent: T.ComponentMeasure;
 }
 
 const SHORT_NAME_METRICS = [

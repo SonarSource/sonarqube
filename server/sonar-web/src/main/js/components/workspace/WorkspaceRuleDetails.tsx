@@ -24,11 +24,10 @@ import DeferredSpinner from '../common/DeferredSpinner';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import { getRuleDetails, getRulesApp } from '../../api/rules';
-import { RuleDetails, AppState } from '../../app/types';
 import '../../apps/coding-rules/styles.css';
 
 interface Props {
-  appState: Pick<AppState, 'organizationsEnabled'>;
+  appState: Pick<T.AppState, 'organizationsEnabled'>;
   onLoad: (details: { name: string }) => void;
   organizationKey: string | undefined;
   ruleKey: string;
@@ -37,7 +36,7 @@ interface Props {
 interface State {
   loading: boolean;
   referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
-  ruleDetails?: RuleDetails;
+  ruleDetails?: T.RuleDetails;
 }
 
 export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {

@@ -20,12 +20,11 @@
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
-import { Metric, MeasureEnhanced, ComponentMeasureEnhanced } from '../../../app/types';
 
 interface Props {
-  component: ComponentMeasureEnhanced;
-  measure?: MeasureEnhanced;
-  metric: Metric;
+  component: T.ComponentMeasureEnhanced;
+  measure?: T.MeasureEnhanced;
+  metric: T.Metric;
 }
 
 export default function MeasureCell({ component, measure, metric }: Props) {

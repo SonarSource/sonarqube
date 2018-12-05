@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isLoggedIn } from './users';
-import { CurrentUser, AlmOrganization } from '../app/types';
 
-export function hasAdvancedALMIntegration(user: CurrentUser) {
+export function hasAdvancedALMIntegration(user: T.CurrentUser) {
   return (
     isLoggedIn(user) && (isBitbucket(user.externalProvider) || isGithub(user.externalProvider))
   );
@@ -38,7 +37,7 @@ export function isVSTS(almKey?: string) {
   return almKey === 'microsoft';
 }
 
-export function isPersonal(organization?: AlmOrganization) {
+export function isPersonal(organization?: T.AlmOrganization) {
   return Boolean(organization && organization.personal);
 }
 

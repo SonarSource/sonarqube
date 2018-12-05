@@ -21,14 +21,13 @@ import * as React from 'react';
 import DeliveryItem from './DeliveryItem';
 import { Button } from '../../../components/ui/buttons';
 import Modal from '../../../components/controls/Modal';
-import { Webhook, WebhookDelivery } from '../../../app/types';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getDelivery } from '../../../api/webhooks';
 
 interface Props {
-  delivery: WebhookDelivery;
+  delivery: T.WebhookDelivery;
   onClose: () => void;
-  webhook: Webhook;
+  webhook: T.Webhook;
 }
 
 interface State {

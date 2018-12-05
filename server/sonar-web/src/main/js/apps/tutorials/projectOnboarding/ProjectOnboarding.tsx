@@ -27,7 +27,6 @@ import OrganizationStep from '../components/OrganizationStep';
 import TokenStep from '../components/TokenStep';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
-import { CurrentUser } from '../../../app/types';
 import { ResetButtonLink } from '../../../components/ui/buttons';
 import { getProjectUrl } from '../../../helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -41,7 +40,7 @@ interface OwnProps {
 }
 
 interface StateProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   organizationsEnabled?: boolean;
 }
 
@@ -199,7 +198,7 @@ export class ProjectOnboarding extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: Store): StateProps => {
   return {
-    currentUser: getCurrentUser(state),
+    currentUser: getCurrentUser(state) as T.LoggedInUser,
     organizationsEnabled: areThereCustomOrganizations(state)
   };
 };

@@ -20,11 +20,10 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import Item from './Item';
-import { CustomMeasure } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  measures: CustomMeasure[];
+  measures: T.CustomMeasure[];
   onDelete: (measureId: string) => Promise<void>;
   onEdit: (data: { description: string; id: string; value: string }) => Promise<void>;
 }

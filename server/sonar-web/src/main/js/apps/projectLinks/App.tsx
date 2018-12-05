@@ -22,16 +22,15 @@ import Helmet from 'react-helmet';
 import Header from './Header';
 import Table from './Table';
 import { getProjectLinks, createLink, deleteLink } from '../../api/projectLinks';
-import { ProjectLink, Component } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
 
 interface Props {
-  component: Pick<Component, 'key'>;
+  component: Pick<T.Component, 'key'>;
 }
 
 interface State {
-  links?: ProjectLink[];
+  links?: T.ProjectLink[];
   loading: boolean;
 }
 

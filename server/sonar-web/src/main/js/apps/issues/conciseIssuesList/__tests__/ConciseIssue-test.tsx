@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssue from '../ConciseIssue';
-import { Issue, IssueType } from '../../../../app/types';
 
-const issue: Issue = {
+const issue: T.Issue = {
   actions: [],
   component: '',
   componentLongName: 'src/file.js',
@@ -44,7 +43,7 @@ const issue: Issue = {
   severity: '',
   status: '',
   transitions: [],
-  type: IssueType.Bug
+  type: 'BUG'
 };
 
 it('should render', () => {

@@ -21,13 +21,12 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 import { Button } from '../../../components/ui/buttons';
-import { Organization, CurrentUser } from '../../../app/types';
 import { isSonarCloud } from '../../../helpers/system';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 
 interface Props {
-  organization?: Organization;
-  currentUser: CurrentUser;
+  organization?: T.Organization;
+  currentUser: T.CurrentUser;
 }
 
 export default class EmptyInstance extends React.PureComponent<Props> {

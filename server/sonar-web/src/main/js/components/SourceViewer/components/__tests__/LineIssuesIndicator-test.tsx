@@ -21,9 +21,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { click } from '../../../../helpers/testUtils';
 import LineIssuesIndicator from '../LineIssuesIndicator';
-import { Issue, IssueType } from '../../../../app/types';
 
-const issueBase: Issue = {
+const issueBase: T.Issue = {
   actions: [],
   component: '',
   componentLongName: '',
@@ -45,7 +44,7 @@ const issueBase: Issue = {
   severity: '',
   status: '',
   transitions: [],
-  type: IssueType.Bug
+  type: 'BUG'
 };
 
 it('render highest severity', () => {
@@ -68,7 +67,7 @@ it('render highest severity', () => {
 
 it('no issues', () => {
   const line = { line: 3 };
-  const issues: Issue[] = [];
+  const issues: T.Issue[] = [];
   const onClick = jest.fn();
   const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();

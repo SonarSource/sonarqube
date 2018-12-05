@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate } from '../../helpers/l10n';
-import { PermissionDefinition, PermissionDefinitionGroup } from '../../app/types';
 
 export const PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE = [
   'user',
@@ -66,7 +65,7 @@ function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
 export function convertToPermissionDefinitions(
   permissions: Array<string | { category: string; permissions: string[] }>,
   l10nPrefix: string
-): Array<PermissionDefinition | PermissionDefinitionGroup> {
+): Array<T.PermissionDefinition | T.PermissionDefinitionGroup> {
   return permissions.map(permission => {
     if (typeof permission === 'object') {
       return {
@@ -81,7 +80,7 @@ export function convertToPermissionDefinitions(
 }
 
 export function isPermissionDefinitionGroup(
-  permission?: PermissionDefinition | PermissionDefinitionGroup
-): permission is PermissionDefinitionGroup {
-  return Boolean(permission && (permission as PermissionDefinitionGroup).category);
+  permission?: T.PermissionDefinition | T.PermissionDefinitionGroup
+): permission is T.PermissionDefinitionGroup {
+  return Boolean(permission && (permission as T.PermissionDefinitionGroup).category);
 }

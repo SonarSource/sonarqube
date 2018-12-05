@@ -20,14 +20,13 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 
 interface Props {
   location: { pathname: string };
-  organization: Organization;
+  organization: T.Organization;
 }
 
 const ADMIN_PATHS = [

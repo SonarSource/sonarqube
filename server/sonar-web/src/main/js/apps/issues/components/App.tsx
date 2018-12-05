@@ -53,14 +53,6 @@ import {
   STANDARDS,
   ReferencedRule
 } from '../utils';
-import {
-  Component,
-  CurrentUser,
-  Issue,
-  Paging,
-  BranchLike,
-  Organization
-} from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import Dropdown from '../../../components/controls/Dropdown';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -89,24 +81,24 @@ interface FetchIssuesPromise {
   components: ReferencedComponent[];
   effortTotal: number;
   facets: RawFacet[];
-  issues: Issue[];
+  issues: T.Issue[];
   languages: ReferencedLanguage[];
-  paging: Paging;
+  paging: T.Paging;
   rules: ReferencedRule[];
   users: ReferencedUser[];
 }
 
 interface Props {
-  branchLike?: BranchLike;
-  component?: Component;
-  currentUser: CurrentUser;
+  branchLike?: T.BranchLike;
+  component?: T.Component;
+  currentUser: T.CurrentUser;
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
   location: { pathname: string; query: RawQuery };
   myIssues?: boolean;
   onBranchesChange: () => void;
   organization?: { key: string };
-  userOrganizations: Organization[];
+  userOrganizations: T.Organization[];
 }
 
 export interface State {
@@ -114,7 +106,7 @@ export interface State {
   checked: string[];
   effortTotal?: number;
   facets: { [facet: string]: Facet };
-  issues: Issue[];
+  issues: T.Issue[];
   lastChecked?: string;
   loading: boolean;
   loadingFacets: { [key: string]: boolean };
@@ -122,9 +114,9 @@ export interface State {
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: { [facet: string]: boolean };
-  openIssue?: Issue;
+  openIssue?: T.Issue;
   openPopup?: { issue: string; name: string };
-  paging?: Paging;
+  paging?: T.Paging;
   query: Query;
   referencedComponentsById: { [id: string]: ReferencedComponent };
   referencedComponentsByKey: { [key: string]: ReferencedComponent };
@@ -321,7 +313,7 @@ export default class App extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   }
 
-  getOpenIssue = (props: Props, issues: Issue[]) => {
+  getOpenIssue = (props: Props, issues: T.Issue[]) => {
     const open = getOpen(props.location.query);
     return open ? issues.find(issue => issue.key === open) : undefined;
   };
@@ -508,8 +500,8 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchIssuesUntil = (
     p: number,
-    done: (issues: Issue[], paging: Paging) => boolean
-  ): Promise<{ issues: Issue[]; paging: Paging }> => {
+    done: (issues: T.Issue[], paging: T.Paging) => boolean
+  ): Promise<{ issues: T.Issue[]; paging: T.Paging }> => {
     return this.fetchIssuesPage(p).then(response => {
       const { issues, paging } = response;
 
@@ -559,9 +551,9 @@ export default class App extends React.PureComponent<Props, State> {
       return Promise.reject(undefined);
     }
 
-    const isSameComponent = (issue: Issue) => issue.component === openIssue.component;
+    const isSameComponent = (issue: T.Issue) => issue.component === openIssue.component;
 
-    const done = (issues: Issue[], paging: Paging) => {
+    const done = (issues: T.Issue[], paging: T.Paging) => {
       if (paging.total <= paging.pageIndex * paging.pageSize) {
         return true;
       }
@@ -636,7 +628,7 @@ export default class App extends React.PureComponent<Props, State> {
   getCheckedIssues = () => {
     const issues = this.state.checked
       .map(checked => this.state.issues.find(issue => issue.key === checked))
-      .filter((issue): issue is Issue => issue !== undefined);
+      .filter((issue): issue is T.Issue => issue !== undefined);
     const paging = { pageIndex: 1, pageSize: issues.length, total: issues.length };
     return Promise.resolve({ issues, paging });
   };
@@ -769,7 +761,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  handleIssueChange = (issue: Issue) => {
+  handleIssueChange = (issue: T.Issue) => {
     this.setState(state => ({
       issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
     }));
@@ -850,7 +842,7 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState(actions.selectPreviousFlow);
   };
 
-  renderBulkChange(openIssue: Issue | undefined) {
+  renderBulkChange(openIssue: T.Issue | undefined) {
     const { component, currentUser } = this.props;
     const { bulkChange, checked, paging, issues } = this.state;
 
@@ -999,7 +991,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderSide(openIssue: Issue | undefined) {
+  renderSide(openIssue: T.Issue | undefined) {
     return (
       <ScreenPositionHelper className="layout-page-side-outer">
         {({ top }) => (

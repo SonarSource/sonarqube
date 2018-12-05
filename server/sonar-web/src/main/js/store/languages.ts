@@ -19,7 +19,6 @@
  */
 import { keyBy } from 'lodash';
 import { ActionType } from './utils/actions';
-import { Languages } from '../app/types';
 
 export function receiveLanguages(languages: Array<{ key: string; name: string }>) {
   return { type: 'RECEIVE_LANGUAGES', languages };
@@ -27,7 +26,7 @@ export function receiveLanguages(languages: Array<{ key: string; name: string }>
 
 type Action = ActionType<typeof receiveLanguages, 'RECEIVE_LANGUAGES'>;
 
-export default function(state: Languages = {}, action: Action): Languages {
+export default function(state: T.Languages = {}, action: Action): T.Languages {
   if (action.type === 'RECEIVE_LANGUAGES') {
     return keyBy(action.languages, 'key');
   }
@@ -35,10 +34,10 @@ export default function(state: Languages = {}, action: Action): Languages {
   return state;
 }
 
-export function getLanguages(state: Languages) {
+export function getLanguages(state: T.Languages) {
   return state;
 }
 
-export function getLanguageByKey(state: Languages, key: string) {
+export function getLanguageByKey(state: T.Languages, key: string) {
   return state[key];
 }

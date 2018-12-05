@@ -21,7 +21,6 @@ import * as React from 'react';
 import QGWidget from './QGWidget';
 import LoginForm from './LoginForm';
 import { getMeasuresAndMeta } from '../../../../../sonar-web/src/main/js/api/measures';
-import { Metric, ComponentMeasure } from '../../../../../sonar-web/src/main/js/app/types';
 import { Settings } from '../utils';
 
 interface Props {
@@ -29,9 +28,9 @@ interface Props {
 }
 
 interface State {
-  component?: ComponentMeasure;
+  component?: T.ComponentMeasure;
   loading: boolean;
-  metrics?: Metric[];
+  metrics?: T.Metric[];
   unauthorized: boolean;
 }
 export default class Widget extends React.PureComponent<Props, State> {

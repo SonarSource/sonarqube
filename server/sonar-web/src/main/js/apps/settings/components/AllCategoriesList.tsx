@@ -23,7 +23,6 @@ import { connect } from 'react-redux';
 import { sortBy } from 'lodash';
 import { IndexLink } from 'react-router';
 import { getCategoryName } from '../utils';
-import { Component } from '../../../app/types';
 import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 
 interface Category {
@@ -33,7 +32,7 @@ interface Category {
 
 interface Props {
   categories: string[];
-  component?: Component;
+  component?: T.Component;
   defaultCategory: string;
   selectedCategory: string;
 }

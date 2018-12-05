@@ -21,7 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { DefinitionChangeEventInner, DefinitionChangeEvent } from '../DefinitionChangeEventInner';
 import { click } from '../../../../helpers/testUtils';
-import { LongLivingBranch, BranchType } from '../../../../app/types';
 
 it('should render', () => {
   const event: DefinitionChangeEvent = {
@@ -44,7 +43,7 @@ it('should render', () => {
 });
 
 it('should render for a branch', () => {
-  const branch: LongLivingBranch = { name: 'feature-x', isMain: false, type: BranchType.LONG };
+  const branch: T.LongLivingBranch = { name: 'feature-x', isMain: false, type: 'LONG' };
   const event: DefinitionChangeEvent = {
     category: 'DEFINITION_CHANGE',
     key: 'foo1234',

@@ -23,12 +23,11 @@ import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import { hasPrivateAccess, isPaidOrganization } from '../../../helpers/organizations';
-import { CurrentUser, HomePageType, Organization } from '../../../app/types';
 
 interface Props {
-  currentUser: CurrentUser;
-  organization: Organization;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  organization: T.Organization;
+  userOrganizations: T.Organization[];
 }
 
 export default function OrganizationNavigationMeta({
@@ -62,9 +61,7 @@ export default function OrganizationNavigationMeta({
       </div>
       {onSonarCloud && (
         <div className="navbar-context-meta-secondary">
-          <HomePageSelect
-            currentPage={{ type: HomePageType.Organization, organization: organization.key }}
-          />
+          <HomePageSelect currentPage={{ type: 'ORGANIZATION', organization: organization.key }} />
         </div>
       )}
     </div>

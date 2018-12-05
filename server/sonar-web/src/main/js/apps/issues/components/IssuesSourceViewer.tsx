@@ -19,18 +19,17 @@
  */
 import * as React from 'react';
 import { getLocations, getSelectedLocation } from '../utils';
-import { BranchLike, Issue } from '../../../app/types';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
 
 interface Props {
-  branchLike: BranchLike | undefined;
-  loadIssues: (component: string, from: number, to: number) => Promise<Issue[]>;
+  branchLike: T.BranchLike | undefined;
+  loadIssues: (component: string, from: number, to: number) => Promise<T.Issue[]>;
   locationsNavigator: boolean;
-  onIssueChange: (issue: Issue) => void;
+  onIssueChange: (issue: T.Issue) => void;
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;
-  openIssue: Issue;
+  openIssue: T.Issue;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;
 }

@@ -26,12 +26,11 @@ import {
   associateGateWithProject,
   dissociateGateWithProject
 } from '../../../api/quality-gates';
-import { QualityGate } from '../../../app/types';
 
 interface Props {
   canEdit?: boolean;
   organization?: string;
-  qualityGate: QualityGate;
+  qualityGate: T.QualityGate;
 }
 
 interface State {

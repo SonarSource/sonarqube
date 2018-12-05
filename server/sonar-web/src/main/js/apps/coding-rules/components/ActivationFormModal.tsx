@@ -22,7 +22,6 @@ import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { activateRule, Profile as BaseProfile } from '../../../api/quality-profiles';
-import { Rule, RuleDetails, RuleActivation } from '../../../app/types';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sortProfiles } from '../../quality-profiles/utils';
@@ -30,13 +29,13 @@ import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  activation?: RuleActivation;
+  activation?: T.RuleActivation;
   modalHeader: string;
   onClose: () => void;
   onDone: (severity: string) => Promise<void>;
   organization: string | undefined;
   profiles: BaseProfile[];
-  rule: Rule | RuleDetails;
+  rule: T.Rule | T.RuleDetails;
   updateMode?: boolean;
 }
 
@@ -150,7 +149,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const { profile, severity, submitting } = this.state;
     const { params = [] } = rule;
     const profilesWithDepth = this.getQualityProfilesWithDepth();
-    const isCustomRule = !!(rule as RuleDetails).templateKey;
+    const isCustomRule = !!(rule as T.RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
 

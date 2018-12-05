@@ -20,26 +20,25 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ComponentNavHeader } from '../ComponentNavHeader';
-import { Visibility } from '../../../../types';
 import { isSonarCloud } from '../../../../../helpers/system';
 
 jest.mock('../../../../../helpers/system', () => ({
   isSonarCloud: jest.fn().mockReturnValue(false)
 }));
 
-const component = {
+const component: T.Component = {
   breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
   key: 'my-project',
   name: 'My Project',
   organization: 'foo',
   qualifier: 'TRK',
-  visibility: Visibility.Public
+  visibility: 'public'
 };
 
-const organization = {
+const organization: T.Organization = {
   key: 'foo',
   name: 'The Foo Organization',
-  projectVisibility: Visibility.Public
+  projectVisibility: 'public'
 };
 
 it('should not render breadcrumbs with one element', () => {

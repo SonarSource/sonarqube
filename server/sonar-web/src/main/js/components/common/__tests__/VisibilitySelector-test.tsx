@@ -21,37 +21,28 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import VisibilitySelector from '../VisibilitySelector';
 import { click } from '../../../helpers/testUtils';
-import { Visibility } from '../../../app/types';
 
 it('changes visibility', () => {
   const onChange = jest.fn();
   const wrapper = shallow(
-    <VisibilitySelector
-      canTurnToPrivate={true}
-      onChange={onChange}
-      visibility={Visibility.Public}
-    />
+    <VisibilitySelector canTurnToPrivate={true} onChange={onChange} visibility="public" />
   );
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('#visibility-private'));
-  expect(onChange).toBeCalledWith(Visibility.Private);
+  expect(onChange).toBeCalledWith('private');
 
-  wrapper.setProps({ visibility: Visibility.Private });
+  wrapper.setProps({ visibility: 'private' });
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('#visibility-public'));
-  expect(onChange).toBeCalledWith(Visibility.Public);
+  expect(onChange).toBeCalledWith('public');
 });
 
 it('renders disabled', () => {
   expect(
     shallow(
-      <VisibilitySelector
-        canTurnToPrivate={false}
-        onChange={jest.fn()}
-        visibility={Visibility.Public}
-      />
+      <VisibilitySelector canTurnToPrivate={false} onChange={jest.fn()} visibility="public" />
     )
   ).toMatchSnapshot();
 });

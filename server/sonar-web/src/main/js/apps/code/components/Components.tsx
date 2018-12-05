@@ -22,16 +22,15 @@ import * as classNames from 'classnames';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
-import { BranchLike, ComponentMeasure, Metric } from '../../../app/types';
 import { getCodeMetrics, showLeakMeasure } from '../utils';
 
 interface Props {
-  baseComponent?: ComponentMeasure;
-  branchLike?: BranchLike;
-  components: ComponentMeasure[];
-  metrics: { [metric: string]: Metric };
-  rootComponent: ComponentMeasure;
-  selected?: ComponentMeasure;
+  baseComponent?: T.ComponentMeasure;
+  branchLike?: T.BranchLike;
+  components: T.ComponentMeasure[];
+  metrics: { [metric: string]: T.Metric };
+  rootComponent: T.ComponentMeasure;
+  selected?: T.ComponentMeasure;
 }
 
 export default function Components(props: Props) {

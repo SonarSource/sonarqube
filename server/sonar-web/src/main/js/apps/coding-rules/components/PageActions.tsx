@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Paging } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import PageCounter from '../../../components/common/PageCounter';
@@ -27,7 +26,7 @@ import ReloadButton from '../../../components/controls/ReloadButton';
 interface Props {
   loading: boolean;
   onReload: () => void;
-  paging?: Paging;
+  paging?: T.Paging;
   selectedIndex?: number;
 }
 

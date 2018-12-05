@@ -20,14 +20,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ComponentNavWarnings from './ComponentNavWarnings';
-import {
-  BranchLike,
-  Component,
-  CurrentUser,
-  HomePageType,
-  HomePage,
-  Measure
-} from '../../../types';
 import BranchMeasures from '../../../../components/common/BranchMeasures';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
@@ -46,13 +38,13 @@ import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
 
 interface StateProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
 }
 
 interface Props extends StateProps {
-  branchLike?: BranchLike;
-  branchMeasures?: Measure[];
-  component: Component;
+  branchLike?: T.BranchLike;
+  branchMeasures?: T.Measure[];
+  component: T.Component;
   warnings: string[];
 }
 
@@ -129,17 +121,17 @@ export function ComponentNavMeta({
   );
 }
 
-function getCurrentPage(component: Component, branchLike: BranchLike | undefined) {
-  let currentPage: HomePage | undefined;
+function getCurrentPage(component: T.Component, branchLike: T.BranchLike | undefined) {
+  let currentPage: T.HomePage | undefined;
   if (component.qualifier === 'VW' || component.qualifier === 'SVW') {
-    currentPage = { type: HomePageType.Portfolio, component: component.key };
+    currentPage = { type: 'PORTFOLIO', component: component.key };
   } else if (component.qualifier === 'APP') {
     const branch = isLongLivingBranch(branchLike) ? branchLike.name : undefined;
-    currentPage = { type: HomePageType.Application, component: component.key, branch };
+    currentPage = { type: 'APPLICATION', component: component.key, branch };
   } else if (component.qualifier === 'TRK') {
     // when home page is set to the default branch of a project, its name is returned as `undefined`
     const branch = isLongLivingBranch(branchLike) ? branchLike.name : undefined;
-    currentPage = { type: HomePageType.Project, component: component.key, branch };
+    currentPage = { type: 'PROJECT', component: component.key, branch };
   }
   return currentPage;
 }

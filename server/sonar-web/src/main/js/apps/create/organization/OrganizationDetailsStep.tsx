@@ -21,14 +21,13 @@ import * as React from 'react';
 import Step from '../../tutorials/components/Step';
 import { translate } from '../../../helpers/l10n';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
-import { OrganizationBase } from '../../../app/types';
 
 interface Props {
   children: React.ReactNode;
   finished: boolean;
   onOpen: () => void;
   open: boolean;
-  organization?: OrganizationBase & { key: string };
+  organization?: T.OrganizationBase & { key: string };
 }
 export default class OrganizationDetailsStep extends React.PureComponent<Props> {
   renderForm = () => {

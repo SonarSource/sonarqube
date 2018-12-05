@@ -20,15 +20,14 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import Task from './Task';
-import { Task as TaskType } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  tasks: TaskType[];
+  tasks: T.Task[];
   component?: unknown;
   loading: boolean;
-  onCancelTask: (task: TaskType) => Promise<void>;
-  onFilterTask: (task: TaskType) => void;
+  onCancelTask: (task: T.Task) => Promise<void>;
+  onFilterTask: (task: T.Task) => void;
 }
 
 export default function Tasks({ tasks, component, loading, onCancelTask, onFilterTask }: Props) {

@@ -20,10 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssuesList from '../ConciseIssuesList';
-import { Issue } from '../../../../app/types';
 
 it('should render', () => {
-  const issues = [{ key: 'foo' }, { key: 'bar' }] as Issue[];
+  const issues = [{ key: 'foo' }, { key: 'bar' }] as T.Issue[];
   expect(
     shallow(
       <ConciseIssuesList

@@ -28,33 +28,24 @@ import { getComponentLeaves } from '../../../api/components';
 import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import {
-  BranchLike,
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  CurrentUser,
-  Metric,
-  Paging,
-  Period
-} from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   className?: string;
-  component: ComponentMeasure;
-  currentUser: CurrentUser;
+  component: T.ComponentMeasure;
+  currentUser: T.CurrentUser;
   domain: string;
-  leakPeriod?: Period;
+  leakPeriod?: T.Period;
   loading: boolean;
-  metrics: { [metric: string]: Metric };
-  rootComponent: ComponentMeasure;
+  metrics: { [metric: string]: T.Metric };
+  rootComponent: T.ComponentMeasure;
   updateLoading: (param: { [key: string]: boolean }) => void;
   updateSelected: (component: string) => void;
 }
 
 interface State {
-  components: ComponentMeasureEnhanced[];
-  paging?: Paging;
+  components: T.ComponentMeasureEnhanced[];
+  paging?: T.Paging;
 }
 
 const BUBBLES_LIMIT = 500;

@@ -24,7 +24,6 @@ import { differenceBy } from 'lodash';
 import { ComponentContext } from './ComponentContext';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
-import { Component, BranchLike, Measure, Task } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getTasksForComponent, getAnalysisStatus } from '../../api/ce';
@@ -51,14 +50,14 @@ interface Props {
 }
 
 interface State {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
-  branchMeasures?: Measure[];
-  component?: Component;
-  currentTask?: Task;
+  branchLike?: T.BranchLike;
+  branchLikes: T.BranchLike[];
+  branchMeasures?: T.Measure[];
+  component?: T.Component;
+  currentTask?: T.Task;
   isPending: boolean;
   loading: boolean;
-  tasksInProgress?: Task[];
+  tasksInProgress?: T.Task[];
   warnings: string[];
 }
 
@@ -97,7 +96,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     window.clearTimeout(this.watchStatusTimer);
   }
 
-  addQualifier = (component: Component) => ({
+  addQualifier = (component: T.Component) => ({
     ...component,
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
   });
@@ -147,11 +146,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 
   fetchBranches = (
-    component: Component
+    component: T.Component
   ): Promise<{
-    branchLike?: BranchLike;
-    branchLikes: BranchLike[];
-    component: Component;
+    branchLike?: T.BranchLike;
+    branchLikes: T.BranchLike[];
+    component: T.Component;
   }> => {
     const application = component.breadcrumbs.find(({ qualifier }) => qualifier === 'APP');
     if (application) {
@@ -182,14 +181,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     branchLikes,
     component
   }: {
-    branchLike: BranchLike;
-    branchLikes: BranchLike[];
-    component: Component;
+    branchLike: T.BranchLike;
+    branchLikes: T.BranchLike[];
+    component: T.Component;
   }): Promise<{
-    branchLike?: BranchLike;
-    branchLikes: BranchLike[];
-    branchMeasures?: Measure[];
-    component: Component;
+    branchLike?: T.BranchLike;
+    branchLikes: T.BranchLike[];
+    branchMeasures?: T.Measure[];
+    component: T.Component;
   }> => {
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     if (project && (isShortLivingBranch(branchLike) || isPullRequest(branchLike))) {
@@ -204,7 +203,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return Promise.resolve({ branchLike, branchLikes, component });
   };
 
-  fetchStatus = (component: Component) => {
+  fetchStatus = (component: T.Component) => {
     getTasksForComponent(component.key).then(
       ({ current, queue }) => {
         if (this.mounted) {
@@ -257,7 +256,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  fetchWarnings = (component: Component, branchLike?: BranchLike) => {
+  fetchWarnings = (component: T.Component, branchLike?: T.BranchLike) => {
     if (component.qualifier === 'TRK') {
       getAnalysisStatus({
         component: component.key,
@@ -271,14 +270,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  getCurrentBranchLike = (branchLikes: BranchLike[]) => {
+  getCurrentBranchLike = (branchLikes: T.BranchLike[]) => {
     const { query } = this.props.location;
     return query.pullRequest
       ? branchLikes.find(b => isPullRequest(b) && b.key === query.pullRequest)
       : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
   };
 
-  getCurrentTask = (current: Task, branchLike?: BranchLike) => {
+  getCurrentTask = (current: T.Task, branchLike?: T.BranchLike) => {
     if (!current) {
       return undefined;
     }
@@ -288,13 +287,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       : undefined;
   };
 
-  getPendingTasks = (pendingTasks: Task[], branchLike?: BranchLike) => {
+  getPendingTasks = (pendingTasks: T.Task[], branchLike?: T.BranchLike) => {
     return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
   };
 
   isSameBranch = (
-    task: Pick<Task, 'branch' | 'branchType' | 'pullRequest'>,
-    branchLike?: BranchLike
+    task: Pick<T.Task, 'branch' | 'branchType' | 'pullRequest'>,
+    branchLike?: T.BranchLike
   ) => {
     if (branchLike && !isMainBranch(branchLike)) {
       if (isPullRequest(branchLike)) {
@@ -307,11 +306,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return !task.branch && !task.pullRequest;
   };
 
-  handleComponentChange = (changes: Partial<Component>) => {
+  handleComponentChange = (changes: Partial<T.Component>) => {
     if (this.mounted) {
       this.setState(state => {
         if (state.component) {
-          const newComponent: Component = { ...state.component, ...changes };
+          const newComponent: T.Component = { ...state.component, ...changes };
           return { component: newComponent };
         }
         return null;

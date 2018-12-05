@@ -39,14 +39,13 @@ import {
   getComponentIssuesUrl,
   getMeasureHistoryUrl
 } from '../../../helpers/urls';
-import { Component, BranchLike, MeasureEnhanced, Period } from '../../../app/types';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 export interface EnhanceProps {
-  branchLike?: BranchLike;
-  component: Component;
-  measures: MeasureEnhanced[];
-  leakPeriod?: Period;
+  branchLike?: T.BranchLike;
+  component: T.Component;
+  measures: T.MeasureEnhanced[];
+  leakPeriod?: T.Period;
   history?: {
     [metric: string]: Array<{ date: Date; value?: string }>;
   };
@@ -54,11 +53,11 @@ export interface EnhanceProps {
 }
 
 export interface ComposedProps extends EnhanceProps {
-  getValue: (measure: MeasureEnhanced) => string | undefined;
+  getValue: (measure: T.MeasureEnhanced) => string | undefined;
   renderHeader: (domain: string, label: string) => React.ReactNode;
   renderMeasure: (metricKey: string) => React.ReactNode;
   renderRating: (metricKey: string) => React.ReactNode;
-  renderIssues: (metric: string, type: string) => React.ReactNode;
+  renderIssues: (metric: string, type: T.IssueType) => React.ReactNode;
   renderHistoryLink: (metricKey: string) => React.ReactNode;
   renderTimeline: (metricKey: string, range: string, children?: React.ReactNode) => React.ReactNode;
 }
@@ -67,7 +66,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
   return class extends React.PureComponent<EnhanceProps> {
     static displayName = `enhance(${ComposedComponent.displayName})}`;
 
-    getValue = (measure: MeasureEnhanced) => {
+    getValue = (measure: T.MeasureEnhanced) => {
       const { leakPeriod } = this.props;
       if (!measure) {
         return '0';

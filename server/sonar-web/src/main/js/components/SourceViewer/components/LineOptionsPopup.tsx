@@ -19,16 +19,15 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { BranchLike, SourceLine } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import { PopupPlacement } from '../../ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   componentKey: string;
-  line: SourceLine;
+  line: T.SourceLine;
 }
 
 export default function LineOptionsPopup({ branchLike, componentKey, line }: Props) {

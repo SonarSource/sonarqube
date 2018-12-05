@@ -19,11 +19,10 @@
  */
 import * as React from 'react';
 import Definition from './Definition';
-import { Component, Setting } from '../../../app/types';
 
 interface Props {
-  component?: Component;
-  settings: Setting[];
+  component?: T.Component;
+  settings: T.Setting[];
 }
 
 export default function DefinitionsList({ component, settings }: Props) {

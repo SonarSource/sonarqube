@@ -26,16 +26,15 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
 import { getLanguages, Store } from '../../../store/rootReducer';
-import { ComponentQualityProfile, Languages } from '../../../app/types';
 
 interface StateProps {
-  languages: Languages;
+  languages: T.Languages;
 }
 
 interface OwnProps {
   headerClassName?: string;
   organization?: string;
-  profiles: ComponentQualityProfile[];
+  profiles: T.ComponentQualityProfile[];
 }
 
 interface State {
@@ -90,7 +89,7 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
     return count || 0;
   }
 
-  renderProfile(profile: ComponentQualityProfile) {
+  renderProfile(profile: T.ComponentQualityProfile) {
     const languageFromStore = this.props.languages[profile.language];
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
 

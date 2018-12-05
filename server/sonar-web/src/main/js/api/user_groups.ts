@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON } from '../helpers/request';
-import { Paging, Group } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function searchUsersGroups(data: {
@@ -27,7 +26,7 @@ export function searchUsersGroups(data: {
   p?: number;
   ps?: number;
   q?: string;
-}): Promise<{ groups: Group[]; paging: Paging }> {
+}): Promise<{ groups: T.Group[]; paging: T.Paging }> {
   return getJSON('/api/user_groups/search', data).catch(throwGlobalError);
 }
 
@@ -45,7 +44,7 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ paging: Paging; users: GroupUser[] }> {
+}): Promise<{ paging: T.Paging; users: GroupUser[] }> {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 
@@ -71,7 +70,7 @@ export function createGroup(data: {
   description?: string;
   organization: string | undefined;
   name: string;
-}): Promise<Group> {
+}): Promise<T.Group> {
   return postJSON('/api/user_groups/create', data).then(r => r.group, throwGlobalError);
 }
 

@@ -44,12 +44,11 @@ jest.mock('../Report', () => ({
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import { App } from '../App';
-import { Component } from '../../../../app/types';
 
 const getMeasures = require('../../../../api/measures').getMeasures as jest.Mock<any>;
 const getChildren = require('../../../../api/components').getChildren as jest.Mock<any>;
 
-const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' } as Component;
+const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' } as T.Component;
 
 it('renders', () => {
   const wrapper = shallow(<App component={component} fetchMetrics={jest.fn()} metrics={{}} />);

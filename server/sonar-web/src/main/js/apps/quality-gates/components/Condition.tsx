@@ -21,7 +21,6 @@ import * as React from 'react';
 import ConditionOperator from './ConditionOperator';
 import Period from './Period';
 import ConditionModal from './ConditionModal';
-import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { translate, getLocalizedMetricName, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -29,13 +28,13 @@ import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { deleteCondition } from '../../../api/quality-gates';
 
 interface Props {
-  condition: ICondition;
+  condition: T.Condition;
   canEdit: boolean;
-  metric: Metric;
+  metric: T.Metric;
   organization?: string;
-  onRemoveCondition: (Condition: ICondition) => void;
-  onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
-  qualityGate: QualityGate;
+  onRemoveCondition: (Condition: T.Condition) => void;
+  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
+  qualityGate: T.QualityGate;
 }
 
 interface State {
@@ -60,7 +59,7 @@ export default class Condition extends React.PureComponent<Props, State> {
     };
   }
 
-  handleUpdateCondition = (newCondition: ICondition) => {
+  handleUpdateCondition = (newCondition: T.Condition) => {
     this.props.onSaveCondition(newCondition, this.props.condition);
   };
 
@@ -80,7 +79,7 @@ export default class Condition extends React.PureComponent<Props, State> {
     this.setState({ deleteFormOpen: false });
   };
 
-  removeCondition = (condition: ICondition) => {
+  removeCondition = (condition: T.Condition) => {
     deleteCondition({ id: condition.id, organization: this.props.organization }).then(
       () => this.props.onRemoveCondition(condition),
       () => {}

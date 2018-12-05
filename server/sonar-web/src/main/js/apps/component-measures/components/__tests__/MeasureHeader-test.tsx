@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasureHeader from '../MeasureHeader';
-import { PeriodMode } from '../../../../app/types';
 
 const METRIC = {
   id: '1',
@@ -64,9 +63,9 @@ const PROPS = {
   leakPeriod: {
     date: '2017-05-16T13:50:02+0200',
     index: 1,
-    mode: PeriodMode.PreviousVersion,
+    mode: 'previous_version',
     parameter: '6,4'
-  },
+  } as T.Period,
   measure: MEASURE,
   metric: METRIC
 };

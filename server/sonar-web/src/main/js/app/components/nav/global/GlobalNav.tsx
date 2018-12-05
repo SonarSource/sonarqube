@@ -27,7 +27,6 @@ import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
-import { CurrentUser, AppState } from '../../../types';
 import NavBar from '../../../../components/nav/NavBar';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
@@ -39,8 +38,8 @@ import './GlobalNav.css';
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
 
 interface StateProps {
-  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
-  currentUser: CurrentUser;
+  appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
+  currentUser: T.CurrentUser;
 }
 
 interface OwnProps {

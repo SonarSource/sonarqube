@@ -27,14 +27,13 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
 } from '../../components/controls/ActionsDropdown';
-import { Group, Organization, OrganizationMember } from '../../app/types';
 
 interface Props {
-  member: OrganizationMember;
-  organization: Organization;
-  organizationGroups: Group[];
-  removeMember: (member: OrganizationMember) => void;
-  updateMemberGroups: (member: OrganizationMember, add: string[], remove: string[]) => void;
+  member: T.OrganizationMember;
+  organization: T.Organization;
+  organizationGroups: T.Group[];
+  removeMember: (member: T.OrganizationMember) => void;
+  updateMemberGroups: (member: T.OrganizationMember, add: string[], remove: string[]) => void;
 }
 
 interface State {

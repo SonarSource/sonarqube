@@ -27,7 +27,6 @@ import {
   getComponentBreadcrumbs
 } from './bucket';
 import { getChildren, getComponent, getBreadcrumbs } from '../../api/components';
-import { BranchLike, ComponentMeasure, Breadcrumb } from '../../app/types';
 import { getBranchLikeQuery, isShortLivingBranch, isPullRequest } from '../../helpers/branches';
 
 const METRICS = [
@@ -64,8 +63,8 @@ function requestChildren(
   componentKey: string,
   metrics: string[],
   page: number,
-  branchLike?: BranchLike
-): Promise<ComponentMeasure[]> {
+  branchLike?: T.BranchLike
+): Promise<T.ComponentMeasure[]> {
   return getChildren(componentKey, metrics, {
     p: page,
     ps: PAGE_SIZE,
@@ -83,13 +82,13 @@ function requestChildren(
 function requestAllChildren(
   componentKey: string,
   metrics: string[],
-  branchLike?: BranchLike
-): Promise<ComponentMeasure[]> {
+  branchLike?: T.BranchLike
+): Promise<T.ComponentMeasure[]> {
   return requestChildren(componentKey, metrics, 1, branchLike);
 }
 
 interface Children {
-  components: ComponentMeasure[];
+  components: T.ComponentMeasure[];
   page: number;
   total: number;
 }
@@ -98,10 +97,10 @@ interface ExpandRootDirFunc {
   (children: Children): Promise<Children>;
 }
 
-function expandRootDir(metrics: string[], branchLike?: BranchLike): ExpandRootDirFunc {
+function expandRootDir(metrics: string[], branchLike?: T.BranchLike): ExpandRootDirFunc {
   return function({ components, total, ...other }) {
     const rootDir = components.find(
-      (component: ComponentMeasure) => component.qualifier === 'DIR' && component.name === '/'
+      (component: T.ComponentMeasure) => component.qualifier === 'DIR' && component.name === '/'
     );
     if (rootDir) {
       return requestAllChildren(rootDir.key, metrics, branchLike).then(rootDirComponents => {
@@ -123,21 +122,21 @@ function prepareChildren(r: any): Children {
   };
 }
 
-export function showLeakMeasure(branchLike?: BranchLike) {
+export function showLeakMeasure(branchLike?: T.BranchLike) {
   return isShortLivingBranch(branchLike) || isPullRequest(branchLike);
 }
 
-function skipRootDir(breadcrumbs: ComponentMeasure[]) {
+function skipRootDir(breadcrumbs: T.ComponentMeasure[]) {
   return breadcrumbs.filter(component => {
     return !(component.qualifier === 'DIR' && component.name === '/');
   });
 }
 
-function storeChildrenBase(children: ComponentMeasure[]) {
+function storeChildrenBase(children: T.ComponentMeasure[]) {
   children.forEach(addComponent);
 }
 
-function storeChildrenBreadcrumbs(parentComponentKey: string, children: Breadcrumb[]) {
+function storeChildrenBreadcrumbs(parentComponentKey: string, children: T.Breadcrumb[]) {
   const parentBreadcrumbs = getComponentBreadcrumbs(parentComponentKey);
   if (parentBreadcrumbs) {
     children.forEach(child => {
@@ -147,7 +146,7 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: Breadcru
   }
 }
 
-export function getCodeMetrics(qualifier: string, branchLike?: BranchLike) {
+export function getCodeMetrics(qualifier: string, branchLike?: T.BranchLike) {
   if (['VW', 'SVW'].includes(qualifier)) {
     return PORTFOLIO_METRICS;
   }
@@ -160,7 +159,7 @@ export function getCodeMetrics(qualifier: string, branchLike?: BranchLike) {
   return METRICS;
 }
 
-function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: BranchLike) {
+function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: T.BranchLike) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -181,8 +180,8 @@ function retrieveComponentBase(componentKey: string, qualifier: string, branchLi
 export function retrieveComponentChildren(
   componentKey: string,
   qualifier: string,
-  branchLike?: BranchLike
-): Promise<{ components: ComponentMeasure[]; page: number; total: number }> {
+  branchLike?: T.BranchLike
+): Promise<{ components: T.ComponentMeasure[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -211,8 +210,8 @@ export function retrieveComponentChildren(
 
 function retrieveComponentBreadcrumbs(
   component: string,
-  branchLike?: BranchLike
-): Promise<Breadcrumb[]> {
+  branchLike?: T.BranchLike
+): Promise<T.Breadcrumb[]> {
   const existing = getComponentBreadcrumbs(component);
   if (existing) {
     return Promise.resolve(existing);
@@ -229,11 +228,11 @@ function retrieveComponentBreadcrumbs(
 export function retrieveComponent(
   componentKey: string,
   qualifier: string,
-  branchLike?: BranchLike
+  branchLike?: T.BranchLike
 ): Promise<{
-  breadcrumbs: Breadcrumb[];
-  component: ComponentMeasure;
-  components: ComponentMeasure[];
+  breadcrumbs: T.Breadcrumb[];
+  component: T.ComponentMeasure;
+  components: T.ComponentMeasure[];
   page: number;
   total: number;
 }> {
@@ -256,7 +255,7 @@ export function loadMoreChildren(
   componentKey: string,
   page: number,
   qualifier: string,
-  branchLike?: BranchLike
+  branchLike?: T.BranchLike
 ): Promise<Children> {
   const metrics = getCodeMetrics(qualifier, branchLike);
 

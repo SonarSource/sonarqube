@@ -19,11 +19,10 @@
  */
 import * as React from 'react';
 import Facet, { BasicProps } from './Facet';
-import { Omit } from '../../../app/types';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate } from '../../../helpers/l10n';
 
-interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
+interface Props extends T.Omit<BasicProps, 'onChange' | 'values'> {
   onChange: (changes: { template: boolean | undefined }) => void;
   value: boolean | undefined;
 }

@@ -28,12 +28,11 @@ import TagsList from '../../../components/tags/TagsList';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
-import { Organization } from '../../../app/types';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   height: number;
-  organization: Organization | undefined;
+  organization: T.Organization | undefined;
   project: Project;
 }
 

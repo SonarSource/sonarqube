@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import { FormikActions, FormikProps, Formik } from 'formik';
-import { Omit } from '../../app/types';
 
-export type ChildrenProps<V> = Omit<FormikProps<V>, 'handleSubmit'>;
+export type ChildrenProps<V> = T.Omit<FormikProps<V>, 'handleSubmit'>;
 
 interface Props<V> {
   children: (props: ChildrenProps<V>) => React.ReactNode;

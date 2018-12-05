@@ -22,10 +22,9 @@ import { connect } from 'react-redux';
 import ExtensionContainer from './ExtensionContainer';
 import NotFound from '../NotFound';
 import { getAppState, Store } from '../../../store/rootReducer';
-import { Extension } from '../../types';
 
 interface Props {
-  globalPages: Extension[] | undefined;
+  globalPages: T.Extension[] | undefined;
   params: { extensionKey: string; pluginKey: string };
 }
 

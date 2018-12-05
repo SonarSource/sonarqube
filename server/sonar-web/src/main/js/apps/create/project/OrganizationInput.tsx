@@ -21,15 +21,14 @@ import * as React from 'react';
 import { WithRouterProps, withRouter } from 'react-router';
 import OrganizationSelect from '../components/OrganizationSelect';
 import { ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP } from '../organization/utils';
-import { Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 
 interface Props {
   autoImport?: boolean;
-  onChange: (organization: Organization) => void;
+  onChange: (organization: T.Organization) => void;
   organization: string;
-  organizations: Organization[];
+  organizations: T.Organization[];
 }
 
 export class OrganizationInput extends React.PureComponent<Props & WithRouterProps> {

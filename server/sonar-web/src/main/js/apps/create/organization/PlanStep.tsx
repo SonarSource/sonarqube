@@ -24,7 +24,6 @@ import Step from '../../tutorials/components/Step';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
 import { getExtensionStart } from '../../../app/components/extensions/utils';
-import { SubscriptionPlan } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
@@ -38,7 +37,7 @@ interface Props {
   onlyPaid?: boolean;
   open: boolean;
   startingPrice: string;
-  subscriptionPlans: SubscriptionPlan[];
+  subscriptionPlans: T.SubscriptionPlan[];
 }
 
 interface State {

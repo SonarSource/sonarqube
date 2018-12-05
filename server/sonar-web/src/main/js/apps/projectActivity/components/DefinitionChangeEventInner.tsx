@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import * as classNames from 'classnames';
-import { AnalysisEvent, BranchLike } from '../../../app/types';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { ResetButtonLink } from '../../../components/ui/buttons';
@@ -31,15 +30,15 @@ import LongLivingBranchIcon from '../../../components/icons-components/LongLivin
 import { isMainBranch } from '../../../helpers/branches';
 import { limitComponentName } from '../../../helpers/path';
 
-export type DefinitionChangeEvent = AnalysisEvent &
-  Required<Pick<AnalysisEvent, 'definitionChange'>>;
+export type DefinitionChangeEvent = T.AnalysisEvent &
+  Required<Pick<T.AnalysisEvent, 'definitionChange'>>;
 
-export function isDefinitionChangeEvent(event: AnalysisEvent): event is DefinitionChangeEvent {
+export function isDefinitionChangeEvent(event: T.AnalysisEvent): event is DefinitionChangeEvent {
   return event.category === 'DEFINITION_CHANGE' && event.definitionChange !== undefined;
 }
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   event: DefinitionChangeEvent;
 }
 

@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
-import { Organization, Visibility } from '../../app/types';
 import { EditButton, Button } from '../../components/ui/buttons';
 import { translate } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
@@ -27,8 +26,8 @@ import { isSonarCloud } from '../../helpers/system';
 export interface Props {
   hasProvisionPermission?: boolean;
   onProjectCreate: () => void;
-  onVisibilityChange: (visibility: Visibility) => void;
-  organization: Organization;
+  onVisibilityChange: (visibility: T.Visibility) => void;
+  organization: T.Organization;
 }
 
 interface State {

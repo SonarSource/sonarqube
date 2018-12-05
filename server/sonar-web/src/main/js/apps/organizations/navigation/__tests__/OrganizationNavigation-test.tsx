@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigation from '../OrganizationNavigation';
-import { Visibility } from '../../../../app/types';
 
 it('render', () => {
   expect(
@@ -31,7 +30,7 @@ it('render', () => {
         organization={{
           key: 'foo',
           name: 'Foo',
-          projectVisibility: Visibility.Public
+          projectVisibility: 'public'
         }}
         userOrganizations={[]}
       />

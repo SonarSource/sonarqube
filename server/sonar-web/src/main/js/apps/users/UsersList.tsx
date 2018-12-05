@@ -19,16 +19,15 @@
  */
 import * as React from 'react';
 import UserListItem from './components/UserListItem';
-import { IdentityProvider, User } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
   currentUser: { isLoggedIn: boolean; login?: string };
-  identityProviders: IdentityProvider[];
+  identityProviders: T.IdentityProvider[];
   onUpdateUsers: () => void;
   organizationsEnabled?: boolean;
   updateTokensCount: (login: string, tokensCount: number) => void;
-  users: User[];
+  users: T.User[];
 }
 
 export default function UsersList({

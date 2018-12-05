@@ -19,7 +19,6 @@
  */
 import { flatten, sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
-import { Issue, FlowLocation, TextRange, Omit } from '../app/types';
 
 interface Comment {
   login: string;
@@ -49,7 +48,7 @@ export interface RawIssue extends IssueBase {
   component: string;
   flows?: Array<{
     // `componentName` is not available in RawIssue
-    locations?: Array<Omit<FlowLocation, 'componentName'>>;
+    locations?: Array<T.Omit<T.FlowLocation, 'componentName'>>;
   }>;
   key: string;
   line?: number;
@@ -57,10 +56,10 @@ export interface RawIssue extends IssueBase {
   rule: string;
   status: string;
   subProject?: string;
-  textRange?: TextRange;
+  textRange?: T.TextRange;
 }
 
-export function sortBySeverity(issues: Issue[]): Issue[] {
+export function sortBySeverity(issues: T.Issue[]): T.Issue[] {
   return sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
 }
 
@@ -100,15 +99,15 @@ function injectCommentsRelational(issue: RawIssue, users?: User[]) {
 
 function prepareClosed(
   issue: RawIssue,
-  secondaryLocations: FlowLocation[],
-  flows: FlowLocation[][]
+  secondaryLocations: T.FlowLocation[],
+  flows: T.FlowLocation[][]
 ) {
   return issue.status === 'CLOSED'
     ? { flows: [], line: undefined, textRange: undefined, secondaryLocations: [] }
     : { flows, secondaryLocations };
 }
 
-function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
+function ensureTextRange(issue: RawIssue): { textRange?: T.TextRange } {
   return issue.line && !issue.textRange
     ? {
         textRange: {
@@ -121,7 +120,7 @@ function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
     : {};
 }
 
-function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
+function reverseLocations(locations: T.FlowLocation[]): T.FlowLocation[] {
   const x = [...locations];
   x.reverse();
   return x;
@@ -130,8 +129,8 @@ function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
 function splitFlows(
   issue: RawIssue,
   components: Component[] = []
-): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][] } {
-  const parsedFlows: FlowLocation[][] = (issue.flows || [])
+): { secondaryLocations: T.FlowLocation[]; flows: T.FlowLocation[][] } {
+  const parsedFlows: T.FlowLocation[][] = (issue.flows || [])
     .filter(flow => flow.locations !== undefined)
     .map(flow => flow.locations!.filter(location => location.textRange != null))
     .map(flow =>
@@ -148,7 +147,7 @@ function splitFlows(
     : { secondaryLocations: [], flows: parsedFlows.map(reverseLocations) };
 }
 
-function orderLocations(locations: FlowLocation[]) {
+function orderLocations(locations: T.FlowLocation[]) {
   return sortBy(
     locations,
     location => location.textRange && location.textRange.startLine,
@@ -161,7 +160,7 @@ export function parseIssueFromResponse(
   components?: Component[],
   users?: User[],
   rules?: Rule[]
-): Issue {
+): T.Issue {
   const { secondaryLocations, flows } = splitFlows(issue, components);
   return {
     ...issue,
@@ -173,5 +172,5 @@ export function parseIssueFromResponse(
     ...injectCommentsRelational(issue, users),
     ...prepareClosed(issue, secondaryLocations, flows),
     ...ensureTextRange(issue)
-  } as Issue;
+  } as T.Issue;
 }

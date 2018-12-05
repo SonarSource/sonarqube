@@ -23,20 +23,19 @@ import MultiValueInput from '../MultiValueInput';
 import PrimitiveInput from '../PrimitiveInput';
 import { click } from '../../../../../helpers/testUtils';
 import { DefaultInputProps } from '../../../utils';
-import { SettingType } from '../../../../../app/types';
 
 const settingValue = {
   key: 'example'
 };
 
-const settingDefinition = {
+const settingDefinition: T.SettingCategoryDefinition = {
   category: 'general',
   fields: [],
   key: 'example',
   multiValues: true,
   options: [],
   subCategory: 'Branches',
-  type: SettingType.String
+  type: 'STRING'
 };
 
 const assertValues = (inputs: ShallowWrapper<any>, values: string[]) => {

@@ -42,12 +42,11 @@ import {
 } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
-import { IssueType, AppState, CurrentUser } from '../../../app/types';
 import '../styles.css';
 
 interface Props {
-  appState: Pick<AppState, 'defaultOrganization' | 'organizationsEnabled'>;
-  currentUser: CurrentUser;
+  appState: Pick<T.AppState, 'defaultOrganization' | 'organizationsEnabled'>;
+  currentUser: T.CurrentUser;
   customText?: string;
   fetchAboutPageSettings: () => Promise<void>;
   location: Location;
@@ -121,10 +120,9 @@ class AboutApp extends React.PureComponent<Props, State> {
     let vulnerabilities;
     let codeSmells;
     if (!loading && issueTypes) {
-      bugs = issueTypes[IssueType.Bug] && issueTypes[IssueType.Bug].count;
-      vulnerabilities =
-        issueTypes[IssueType.Vulnerability] && issueTypes[IssueType.Vulnerability].count;
-      codeSmells = issueTypes[IssueType.CodeSmell] && issueTypes[IssueType.CodeSmell].count;
+      bugs = issueTypes['BUG'] && issueTypes['BUG'].count;
+      vulnerabilities = issueTypes['VULNERABILITY'] && issueTypes['VULNERABILITY'].count;
+      codeSmells = issueTypes['CODE_SMELL'] && issueTypes['CODE_SMELL'].count;
     }
 
     return (

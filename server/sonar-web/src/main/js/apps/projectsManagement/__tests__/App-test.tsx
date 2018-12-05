@@ -21,7 +21,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import App, { Props } from '../App';
-import { Visibility } from '../../../app/types';
 
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
@@ -33,7 +32,7 @@ jest.mock('../../../api/components', () => ({ getComponents: jest.fn() }));
 
 const getComponents = require('../../../api/components').getComponents as jest.Mock<any>;
 
-const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
+const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
 const defaultSearchParameters = {
   organization: 'org',
@@ -129,8 +128,8 @@ it('creates project', () => {
 it('changes default project visibility', () => {
   const onVisibilityChange = jest.fn();
   const wrapper = shallowRender({ onVisibilityChange });
-  wrapper.find('Header').prop<Function>('onVisibilityChange')(Visibility.Private);
-  expect(onVisibilityChange).toBeCalledWith(Visibility.Private);
+  wrapper.find('Header').prop<Function>('onVisibilityChange')('private');
+  expect(onVisibilityChange).toBeCalledWith('private');
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

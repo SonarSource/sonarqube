@@ -23,24 +23,23 @@ import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
-import { Condition as ICondition, Metric, QualityGate } from '../../../app/types';
 import ModalButton from '../../../components/controls/ModalButton';
 import { Button } from '../../../components/ui/buttons';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   canEdit: boolean;
-  conditions: ICondition[];
-  metrics: { [key: string]: Metric };
-  onAddCondition: (condition: ICondition) => void;
-  onSaveCondition: (newCondition: ICondition, oldCondition: ICondition) => void;
-  onRemoveCondition: (Condition: ICondition) => void;
+  conditions: T.Condition[];
+  metrics: { [key: string]: T.Metric };
+  onAddCondition: (condition: T.Condition) => void;
+  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
+  onRemoveCondition: (Condition: T.Condition) => void;
   organization?: string;
-  qualityGate: QualityGate;
+  qualityGate: T.QualityGate;
 }
 
 export default class Conditions extends React.PureComponent<Props> {
-  getConditionKey = (condition: ICondition, index: number) => {
+  getConditionKey = (condition: T.Condition, index: number) => {
     return condition.id ? condition.id : `new-${index}`;
   };
 
@@ -54,7 +53,7 @@ export default class Conditions extends React.PureComponent<Props> {
       condition => metrics[condition.metric] && metrics[condition.metric].name
     );
 
-    const duplicates: ICondition[] = [];
+    const duplicates: T.Condition[] = [];
     const savedConditions = existingConditions.filter(condition => condition.id != null);
     savedConditions.forEach(condition => {
       const sameCount = savedConditions.filter(

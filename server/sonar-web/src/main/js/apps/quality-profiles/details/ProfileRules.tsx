@@ -29,11 +29,10 @@ import { getQualityProfile } from '../../../api/quality-profiles';
 import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
-import { RuleType } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
-const TYPES = [RuleType.Bug, RuleType.Vulnerability, RuleType.CodeSmell, RuleType.Hotspot];
+const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 
 interface Props {
   organization: string | null;

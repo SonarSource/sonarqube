@@ -19,11 +19,10 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { LoggedInUser } from '../../../app/types';
 
 interface Props {
   scmAccounts: string[];
-  user: LoggedInUser;
+  user: T.LoggedInUser;
 }
 
 export default function UserScmAccounts({ user, scmAccounts }: Props) {

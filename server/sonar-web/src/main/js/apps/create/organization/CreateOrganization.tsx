@@ -50,15 +50,6 @@ import {
   listUnboundApplications
 } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
-import {
-  AlmApplication,
-  AlmOrganization,
-  AlmUnboundApplication,
-  LoggedInUser,
-  Organization,
-  OrganizationBase,
-  SubscriptionPlan
-} from '../../../app/types';
 import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { get, remove } from '../../../helpers/storage';
@@ -72,26 +63,26 @@ import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
   createOrganization: (
-    organization: OrganizationBase & { installationId?: string }
-  ) => Promise<Organization>;
-  currentUser: LoggedInUser;
+    organization: T.OrganizationBase & { installationId?: string }
+  ) => Promise<T.Organization>;
+  currentUser: T.LoggedInUser;
   deleteOrganization: (key: string) => Promise<void>;
   updateOrganization: (
-    organization: OrganizationBase & { installationId?: string }
-  ) => Promise<Organization>;
-  userOrganizations: Organization[];
+    organization: T.OrganizationBase & { installationId?: string }
+  ) => Promise<T.Organization>;
+  userOrganizations: T.Organization[];
   skipOnboarding: () => void;
 }
 
 interface State {
-  almApplication?: AlmApplication;
-  almOrganization?: AlmOrganization;
+  almApplication?: T.AlmApplication;
+  almOrganization?: T.AlmOrganization;
   almOrgLoading: boolean;
-  almUnboundApplications: AlmUnboundApplication[];
-  boundOrganization?: OrganizationBase;
+  almUnboundApplications: T.AlmUnboundApplication[];
+  boundOrganization?: T.OrganizationBase;
   loading: boolean;
-  organization?: Organization;
-  subscriptionPlans?: SubscriptionPlan[];
+  organization?: T.Organization;
+  subscriptionPlans?: T.SubscriptionPlan[];
 }
 
 type StateWithAutoImport = State & Required<Pick<State, 'almApplication'>>;
@@ -168,7 +159,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     return Boolean(state.almApplication && !paid);
   }
 
-  setValidOrgKey = (almOrganization: AlmOrganization) => {
+  setValidOrgKey = (almOrganization: T.AlmOrganization) => {
     const key = slugify(almOrganization.key);
     const keys = [key, ...times(9, i => `${key}-${i + 1}`)];
     return api
@@ -273,7 +264,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     });
   };
 
-  renderContent = (almInstallId?: string, importPersonalOrg?: Organization) => {
+  renderContent = (almInstallId?: string, importPersonalOrg?: T.Organization) => {
     const { currentUser, location } = this.props;
     const { state } = this;
     const { almOrganization } = state;
@@ -396,9 +387,9 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   }
 }
 
-function createOrganization(organization: OrganizationBase & { installationId?: string }) {
+function createOrganization(organization: T.OrganizationBase & { installationId?: string }) {
   return (dispatch: Dispatch) => {
-    return api.createOrganization(organization).then((organization: Organization) => {
+    return api.createOrganization(organization).then((organization: T.Organization) => {
       dispatch(actions.createOrganization(organization));
       return organization;
     });
@@ -406,7 +397,7 @@ function createOrganization(organization: OrganizationBase & { installationId?: 
 }
 
 function updateOrganization(
-  organization: OrganizationBase & { key: string; installationId?: string }
+  organization: T.OrganizationBase & { key: string; installationId?: string }
 ) {
   return (dispatch: Dispatch) => {
     const { key, installationId, ...changes } = organization;

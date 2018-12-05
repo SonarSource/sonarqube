@@ -21,7 +21,6 @@ import * as React from 'react';
 import { uniq } from 'lodash';
 import UserScmAccountInput from './UserScmAccountInput';
 import { createUser, updateUser } from '../../../api/users';
-import { User } from '../../../app/types';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import Modal from '../../../components/controls/Modal';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
@@ -30,7 +29,7 @@ import { parseError } from '../../../helpers/request';
 import { Alert } from '../../../components/ui/Alert';
 
 export interface Props {
-  user?: User;
+  user?: T.User;
   onClose: () => void;
   onUpdateUsers: () => void;
 }

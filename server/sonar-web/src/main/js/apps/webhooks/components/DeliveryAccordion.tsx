@@ -24,10 +24,9 @@ import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessI
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import { getDelivery } from '../../../api/webhooks';
-import { WebhookDelivery } from '../../../app/types';
 
 interface Props {
-  delivery: WebhookDelivery;
+  delivery: T.WebhookDelivery;
 }
 
 interface State {

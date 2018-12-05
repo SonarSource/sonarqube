@@ -24,16 +24,6 @@ import { getBranches, getPullRequests } from '../../../api/branches';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
-import {
-  ShortLivingBranch,
-  MainBranch,
-  LongLivingBranch,
-  PullRequest,
-  BranchType,
-  Visibility,
-  Task,
-  Component
-} from '../../types';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getMeasures } from '../../../api/measures';
@@ -93,12 +83,12 @@ it('changes component', () => {
   wrapper.instance().mounted = true;
   wrapper.setState({
     branchLikes: [{ isMain: true, name: 'master' }],
-    component: { qualifier: 'TRK', visibility: Visibility.Public } as Component,
+    component: { qualifier: 'TRK', visibility: 'public' } as T.Component,
     loading: false
   });
 
-  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: Visibility.Private });
-  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: Visibility.Private });
+  (wrapper.find(Inner).prop('onComponentChange') as Function)({ visibility: 'private' });
+  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
 });
 
 it("loads branches for module's project", async () => {
@@ -164,7 +154,7 @@ it('updates the branch measures', async () => {
     key: 'foo'
   });
   (getBranches as jest.Mock<any>).mockResolvedValueOnce([
-    { isMain: false, mergeBranch: 'master', name: 'feature', type: BranchType.SHORT }
+    { isMain: false, mergeBranch: 'master', name: 'feature', type: 'SHORT' }
   ]);
   (getPullRequests as jest.Mock<any>).mockResolvedValueOnce([]);
   const wrapper = shallow(
@@ -229,15 +219,19 @@ it('filters correctly the pending tasks for a main branch', () => {
   );
 
   const component = wrapper.instance() as ComponentContainer;
-  const mainBranch: MainBranch = { isMain: true, name: 'master' };
-  const shortBranch: ShortLivingBranch = {
+  const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
+  const shortBranch: T.ShortLivingBranch = {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature',
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
-  const longBranch: LongLivingBranch = { isMain: false, name: 'branch-7.2', type: BranchType.LONG };
-  const pullRequest: PullRequest = {
+  const longBranch: T.LongLivingBranch = {
+    isMain: false,
+    name: 'branch-7.2',
+    type: 'LONG'
+  };
+  const pullRequest: T.PullRequest = {
     base: 'feature',
     branch: 'feature',
     key: 'pr-89',
@@ -264,12 +258,12 @@ it('filters correctly the pending tasks for a main branch', () => {
   ).toBeFalsy();
   expect(component.isSameBranch({ pullRequest: 'pr-89' }, pullRequest)).toBeTruthy();
 
-  const currentTask = { pullRequest: 'pr-89', status: STATUSES.IN_PROGRESS } as Task;
+  const currentTask = { pullRequest: 'pr-89', status: STATUSES.IN_PROGRESS } as T.Task;
   const failedTask = { ...currentTask, status: STATUSES.FAILED };
   const pendingTasks = [
     currentTask,
-    { branch: 'feature', branchType: 'SHORT' } as Task,
-    {} as Task
+    { branch: 'feature', branchType: 'SHORT' } as T.Task,
+    {} as T.Task
   ];
   expect(component.getCurrentTask(currentTask, undefined)).toBe(undefined);
   expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
@@ -281,7 +275,7 @@ it('filters correctly the pending tasks for a main branch', () => {
 
 it('reload component after task progress finished', async () => {
   jest.useFakeTimers();
-  const inProgressTask = { id: 'foo', status: STATUSES.IN_PROGRESS } as Task;
+  const inProgressTask = { id: 'foo', status: STATUSES.IN_PROGRESS } as T.Task;
   (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({ queue: [inProgressTask] });
   const wrapper = shallow(
     <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>

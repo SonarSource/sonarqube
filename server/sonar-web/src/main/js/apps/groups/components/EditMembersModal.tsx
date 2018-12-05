@@ -29,11 +29,10 @@ import {
   addUserToGroup,
   getUsersInGroup
 } from '../../../api/user_groups';
-import { Group } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
-  group: Group;
+  group: T.Group;
   onClose: () => void;
   organization: string | undefined;
 }

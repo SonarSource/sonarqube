@@ -24,10 +24,9 @@ import { Profile } from '../../../api/quality-profiles';
 import Dropdown from '../../../components/controls/Dropdown';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Languages } from '../../../app/types';
 
 interface Props {
-  languages: Languages;
+  languages: T.Languages;
   organization: string | undefined;
   query: Query;
   referencedProfiles: { [profile: string]: Profile };

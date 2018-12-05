@@ -23,21 +23,14 @@ import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { PERMISSIONS_ORDER_BY_QUALIFIER, convertToPermissionDefinitions } from '../../utils';
-import {
-  Component,
-  Paging,
-  PermissionGroup,
-  PermissionUser,
-  Visibility
-} from '../../../../app/types';
 
 interface Props {
-  component: Component;
+  component: T.Component;
   filter: string;
   grantPermissionToGroup: (group: string, permission: string) => Promise<void>;
   grantPermissionToUser: (user: string, permission: string) => Promise<void>;
-  groups: PermissionGroup[];
-  groupsPaging?: Paging;
+  groups: T.PermissionGroup[];
+  groupsPaging?: T.Paging;
   onLoadMore: () => void;
   onFilterChange: (filter: string) => void;
   onPermissionSelect: (permissions?: string) => void;
@@ -46,13 +39,13 @@ interface Props {
   revokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
   revokePermissionFromUser: (user: string, permission: string) => Promise<void>;
   selectedPermission?: string;
-  users: PermissionUser[];
-  usersPaging?: Paging;
-  visibility?: Visibility;
+  users: T.PermissionUser[];
+  usersPaging?: T.Paging;
+  visibility?: T.Visibility;
 }
 
 export default class AllHoldersList extends React.PureComponent<Props> {
-  handleToggleUser = (user: PermissionUser, permission: string) => {
+  handleToggleUser = (user: T.PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
@@ -62,7 +55,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     }
   };
 
-  handleToggleGroup = (group: PermissionGroup, permission: string) => {
+  handleToggleGroup = (group: T.PermissionGroup, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
@@ -79,7 +72,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   render() {
     const { filter, groups, groupsPaging, users, usersPaging } = this.props;
     let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
-    if (this.props.visibility === Visibility.Public) {
+    if (this.props.visibility === 'public') {
       order = without(order, 'user', 'codeviewer');
     }
     const permissions = convertToPermissionDefinitions(order, 'projects_role');

@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
-import { BranchLike, Component, Extension } from '../../../types';
 import Dropdown from '../../../../components/controls/Dropdown';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
@@ -50,8 +49,8 @@ const SETTINGS_URLS = [
 ];
 
 interface Props {
-  branchLike: BranchLike | undefined;
-  component: Component;
+  branchLike: T.BranchLike | undefined;
+  component: T.Component;
   location?: any;
 }
 
@@ -443,7 +442,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderExtension = ({ key, name }: Extension, isAdmin: boolean) => {
+  renderExtension = ({ key, name }: T.Extension, isAdmin: boolean) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
     const query = { id: this.props.component.key, qualifier: this.props.component.qualifier };
     return (

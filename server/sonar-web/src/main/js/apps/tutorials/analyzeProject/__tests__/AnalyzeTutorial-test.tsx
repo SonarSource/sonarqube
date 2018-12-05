@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import AnalyzeTutorial from '../AnalyzeTutorial';
-import { LoggedInUser } from '../../../../app/types';
 
 Date.now = jest.fn().mockReturnValue(1540457859031);
 
@@ -34,7 +33,7 @@ const component = {
   version: '0.0.1'
 };
 
-const loggedInUser: LoggedInUser = {
+const loggedInUser: T.LoggedInUser = {
   groups: [],
   isLoggedIn: true,
   login: 'luke',

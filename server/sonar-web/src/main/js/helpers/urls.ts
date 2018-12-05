@@ -26,7 +26,6 @@ import {
   getBranchLikeQuery
 } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
-import { BranchLike, HomePage, HomePageType } from '../app/types';
 
 interface Query {
   [x: string]: string | undefined;
@@ -65,7 +64,7 @@ export function getComponentBackgroundTaskUrl(componentKey: string, status?: str
   return { pathname: '/project/background_tasks', query: { id: componentKey, status } };
 }
 
-export function getBranchLikeUrl(project: string, branchLike?: BranchLike): Location {
+export function getBranchLikeUrl(project: string, branchLike?: T.BranchLike): Location {
   if (isPullRequest(branchLike)) {
     return getPullRequestUrl(project, branchLike.key);
   } else if (isShortLivingBranch(branchLike)) {
@@ -110,7 +109,7 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
 export function getComponentDrilldownUrl(options: {
   componentKey: string;
   metric: string;
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   selectionKey?: string;
   treemapView?: boolean;
 }): Location {
@@ -129,7 +128,7 @@ export function getComponentDrilldownUrlWithSelection(
   componentKey: string,
   selectionKey: string,
   metric: string,
-  branchLike?: BranchLike
+  branchLike?: T.BranchLike
 ): Location {
   return getComponentDrilldownUrl({ componentKey, selectionKey, metric, branchLike });
 }
@@ -138,7 +137,7 @@ export function getMeasureTreemapUrl(componentKey: string, metric: string) {
   return getComponentDrilldownUrl({ componentKey, metric, treemapView: true });
 }
 
-export function getActivityUrl(component: string, branchLike?: BranchLike) {
+export function getActivityUrl(component: string, branchLike?: T.BranchLike) {
   return {
     pathname: '/project/activity',
     query: { id: component, ...getBranchLikeQuery(branchLike) }
@@ -148,7 +147,7 @@ export function getActivityUrl(component: string, branchLike?: BranchLike) {
 /**
  * Generate URL for a component's measure history
  */
-export function getMeasureHistoryUrl(component: string, metric: string, branchLike?: BranchLike) {
+export function getMeasureHistoryUrl(component: string, metric: string, branchLike?: T.BranchLike) {
   return {
     pathname: '/project/activity',
     query: {
@@ -218,7 +217,7 @@ export function getMarkdownHelpUrl(): string {
   return getBaseUrl() + '/markdown/help';
 }
 
-export function getCodeUrl(project: string, branchLike?: BranchLike, selected?: string) {
+export function getCodeUrl(project: string, branchLike?: T.BranchLike, selected?: string) {
   return { pathname: '/code', query: { id: project, ...getBranchLikeQuery(branchLike), selected } };
 }
 
@@ -226,26 +225,26 @@ export function getOrganizationUrl(organization: string) {
   return `/organizations/${organization}`;
 }
 
-export function getHomePageUrl(homepage: HomePage) {
+export function getHomePageUrl(homepage: T.HomePage) {
   switch (homepage.type) {
-    case HomePageType.Application:
+    case 'APPLICATION':
       return homepage.branch
         ? getProjectUrl(homepage.component, homepage.branch)
         : getProjectUrl(homepage.component);
-    case HomePageType.Project:
+    case 'PROJECT':
       return homepage.branch
         ? getLongLivingBranchUrl(homepage.component, homepage.branch)
         : getProjectUrl(homepage.component);
-    case HomePageType.Organization:
+    case 'ORGANIZATION':
       return getOrganizationUrl(homepage.organization);
-    case HomePageType.Portfolio:
+    case 'PORTFOLIO':
       return getPortfolioUrl(homepage.component);
-    case HomePageType.Portfolios:
+    case 'PORTFOLIOS':
       return '/portfolios';
-    case HomePageType.MyProjects:
+    case 'MY_PROJECTS':
       return '/projects';
-    case HomePageType.Issues:
-    case HomePageType.MyIssues:
+    case 'ISSUES':
+    case 'MY_ISSUES':
       return { pathname: '/issues', query: { resolved: 'false' } };
   }
 

@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BranchLike } from '../../app/types';
 
 export interface ComponentDescriptor {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   key: string;
   line?: number;
   name?: string;

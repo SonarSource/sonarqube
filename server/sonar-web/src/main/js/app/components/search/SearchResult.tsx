@@ -25,10 +25,9 @@ import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import ClockIcon from '../../../components/icons-components/ClockIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getProjectUrl } from '../../../helpers/urls';
-import { AppState } from '../../types';
 
 interface Props {
-  appState: Pick<AppState, 'organizationsEnabled'>;
+  appState: Pick<T.AppState, 'organizationsEnabled'>;
   component: ComponentResult;
   innerRef: (componentKey: string, node: HTMLElement | null) => void;
   onClose: () => void;

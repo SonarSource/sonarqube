@@ -20,12 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import GenericAvatar from '../ui/GenericAvatar';
-import { OrganizationBase } from '../../app/types';
 import './OrganizationAvatar.css';
 
 interface Props {
   className?: string;
-  organization: Pick<OrganizationBase, 'avatar' | 'name'>;
+  organization: Pick<T.OrganizationBase, 'avatar' | 'name'>;
   small?: boolean;
 }
 

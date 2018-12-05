@@ -42,13 +42,12 @@ import {
   getSettingsAppChangedValue,
   Store
 } from '../../../store/rootReducer';
-import { SettingType } from '../../../app/types';
 
 export function fetchSettings(component?: string) {
   return (dispatch: Dispatch) => {
     return getDefinitions(component).then(definitions => {
       const filtered = definitions
-        .filter(definition => definition.type !== SettingType.License)
+        .filter(definition => definition.type !== 'LICENSE')
         // do not display this setting on project level
         .filter(
           definition => !component || definition.key !== 'sonar.branch.longLivedBranches.regex'

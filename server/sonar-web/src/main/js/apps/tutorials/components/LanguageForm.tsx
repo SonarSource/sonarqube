@@ -23,11 +23,10 @@ import NewProjectForm from './NewProjectForm';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
-import { Component } from '../../../app/types';
 import { isLanguageConfigured, LanguageConfig } from '../utils';
 
 interface Props {
-  component?: Component;
+  component?: T.Component;
   config?: LanguageConfig;
   onDone: (config: LanguageConfig) => void;
   onReset: () => void;

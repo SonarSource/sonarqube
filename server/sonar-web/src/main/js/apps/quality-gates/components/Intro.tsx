@@ -20,12 +20,11 @@
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { translate } from '../../../helpers/l10n';
-import { QualityGate } from '../../../app/types';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
 interface Props {
   organization?: string;
-  qualityGates: QualityGate[];
+  qualityGates: T.QualityGate[];
   router: InjectedRouter;
 }
 

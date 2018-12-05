@@ -22,14 +22,13 @@ import { omit } from 'lodash';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedComponent, Facet } from '../utils';
 import { searchProjects, getTree } from '../../../api/components';
-import { Component, Paging } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
-  component: Component | undefined;
+  component: T.Component | undefined;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -52,7 +51,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
   handleSearch = (
     query: string,
     page = 1
-  ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
+  ): Promise<{ results: SearchedProject[]; paging: T.Paging }> => {
     const { component, organization } = this.props;
     if (component && ['VW', 'SVW', 'APP'].includes(component.qualifier)) {
       return getTree({

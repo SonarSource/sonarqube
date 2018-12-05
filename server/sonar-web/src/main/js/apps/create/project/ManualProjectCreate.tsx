@@ -22,16 +22,15 @@ import OrganizationInput from './OrganizationInput';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { createProject } from '../../../api/components';
-import { LoggedInUser, Organization } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import ProjectKeyInput from '../components/ProjectKeyInput';
 import ProjectNameInput from '../components/ProjectNameInput';
 
 interface Props {
-  currentUser: LoggedInUser;
+  currentUser: T.LoggedInUser;
   onProjectCreate: (projectKeys: string[]) => void;
   organization?: string;
-  userOrganizations: Organization[];
+  userOrganizations: T.Organization[];
 }
 
 interface State {
@@ -96,7 +95,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     }
   };
 
-  handleOrganizationSelect = ({ key }: Organization) => {
+  handleOrganizationSelect = ({ key }: T.Organization) => {
     this.setState({ selectedOrganization: key });
   };
 

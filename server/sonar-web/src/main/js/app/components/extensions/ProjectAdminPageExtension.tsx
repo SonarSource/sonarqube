@@ -23,10 +23,9 @@ import { Location } from 'history';
 import ExtensionContainer from './ExtensionContainer';
 import NotFound from '../NotFound';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
-import { Component } from '../../types';
 
 interface Props {
-  component: Component;
+  component: T.Component;
   location: Location;
   params: { extensionKey: string; pluginKey: string };
 }

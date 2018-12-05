@@ -26,10 +26,9 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { differenceInDays } from '../../../helpers/dates';
-import { Period, PeriodMode } from '../../../app/types';
 
 interface Props {
-  period: Period;
+  period: T.Period;
 }
 
 export default class LeakPeriodLegend extends React.PureComponent<Props> {
@@ -48,7 +47,7 @@ export default class LeakPeriodLegend extends React.PureComponent<Props> {
       return null;
     }
 
-    if (period.mode === PeriodMode.Days) {
+    if (period.mode === 'days') {
       return (
         <div className="overview-legend overview-legend-spaced-line">
           {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
@@ -64,7 +63,7 @@ export default class LeakPeriodLegend extends React.PureComponent<Props> {
     const formattedDateFunction = (formattedLeakPeriodDate: string) => (
       <span>
         {translateWithParameters(
-          period.mode === PeriodMode.PreviousAnalysis
+          period.mode === 'previous_analysis'
             ? 'overview.previous_analysis_on_x'
             : 'overview.started_on_x',
           formattedLeakPeriodDate
@@ -90,7 +89,7 @@ export default class LeakPeriodLegend extends React.PureComponent<Props> {
             {fromNow => (
               <span className="note">
                 {translateWithParameters(
-                  period.mode === PeriodMode.PreviousAnalysis
+                  period.mode === 'previous_analysis'
                     ? 'overview.previous_analysis_x'
                     : 'overview.started_x',
                   fromNow

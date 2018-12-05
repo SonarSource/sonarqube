@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Notification } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post } from '../helpers/request';
 
 export function getNotifications(): Promise<{
   channels: string[];
   globalTypes: string[];
-  notifications: Notification[];
+  notifications: T.Notification[];
   perProjectTypes: string[];
 }> {
   return getJSON('/api/notifications/list').catch(throwGlobalError);

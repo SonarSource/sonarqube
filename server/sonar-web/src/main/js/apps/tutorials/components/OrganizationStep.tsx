@@ -32,7 +32,7 @@ import { Button } from '../../../components/ui/buttons';
 type Selection = 'personal' | 'existing' | 'new';
 
 interface Props {
-  currentUser: { login: string; isLoggedIn: boolean };
+  currentUser: T.CurrentUser;
   finished: boolean;
   onOpen: () => void;
   onContinue: (organization: string) => void;

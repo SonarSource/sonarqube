@@ -26,14 +26,13 @@ import {
 } from '../../projectActivity/utils';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { getAllTimeMachineData } from '../../../api/time-machine';
-import { Metric } from '../../../app/types';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { get } from '../../../helpers/storage';
 
 interface Props {
   component: string;
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
 }
 
 interface State {

@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { SourceLine } from '../../../app/types';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import DateFormatter from '../../intl/DateFormatter';
 import { PopupPlacement } from '../../ui/popups';
 
 interface Props {
-  line: SourceLine;
+  line: T.SourceLine;
 }
 
 export default function SCMPopup({ line }: Props) {

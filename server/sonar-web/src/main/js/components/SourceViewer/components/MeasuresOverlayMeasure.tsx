@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Metric } from '../../../app/types';
 import Measure from '../../measure/Measure';
 import IssueTypeIcon from '../../ui/IssueTypeIcon';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 
 export interface MeasureWithMetric {
-  metric: Metric;
+  metric: T.Metric;
   value?: string;
 }
 

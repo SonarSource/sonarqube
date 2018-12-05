@@ -20,12 +20,11 @@
 import * as React from 'react';
 import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 import WebhookActions from './WebhookActions';
-import { Webhook } from '../../../app/types';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
   onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhook: Webhook;
+  webhook: T.Webhook;
 }
 
 export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {

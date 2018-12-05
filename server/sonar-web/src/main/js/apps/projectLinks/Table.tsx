@@ -20,11 +20,10 @@
 import * as React from 'react';
 import LinkRow from './LinkRow';
 import { orderLinks } from './utils';
-import { ProjectLink } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
-  links: ProjectLink[];
+  links: T.ProjectLink[];
   onDelete: (linkId: string) => Promise<void>;
 }
 

@@ -24,7 +24,6 @@ import { Link } from 'react-router';
 import VulnerabilityList from './VulnerabilityList';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { Component, BranchLike, SecurityHotspot } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Checkbox from '../../../components/controls/Checkbox';
 import { RawQuery } from '../../../helpers/query';
@@ -37,15 +36,15 @@ import { Alert } from '../../../components/ui/Alert';
 import '../style.css';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Component;
+  branchLike?: T.BranchLike;
+  component: T.Component;
   location: { pathname: string; query: RawQuery };
   params: { type: string };
 }
 
 interface State {
   loading: boolean;
-  findings: Array<SecurityHotspot>;
+  findings: T.SecurityHotspot[];
   hasVulnerabilities: boolean;
   type: StandardType;
   showCWE: boolean;

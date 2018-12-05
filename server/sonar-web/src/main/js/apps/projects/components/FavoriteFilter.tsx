@@ -20,14 +20,13 @@
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
-import { CurrentUser } from '../../../app/types';
 import { save } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
 import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   organization?: { key: string };
   query?: RawQuery;
 }

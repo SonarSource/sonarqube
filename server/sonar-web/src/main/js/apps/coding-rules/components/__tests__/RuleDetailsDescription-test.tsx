@@ -21,13 +21,12 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import RuleDetailsDescription from '../RuleDetailsDescription';
 import { click, change, waitAndUpdate } from '../../../../helpers/testUtils';
-import { RuleType } from '../../../../app/types';
 
 jest.mock('../../../../api/rules', () => ({
   updateRule: jest.fn().mockResolvedValue('updatedrule')
 }));
 
-const RULE = {
+const RULE: T.RuleDetails = {
   key: 'squid:S1133',
   repo: 'squid',
   name: 'Deprecated code should be removed',
@@ -38,27 +37,30 @@ const RULE = {
   status: 'READY',
   lang: 'java',
   langName: 'Java',
-  type: RuleType.CodeSmell
+  type: 'CODE_SMELL'
 };
 
-const EXTERNAL_RULE = {
+const EXTERNAL_RULE: T.RuleDetails = {
+  createdAt: '2013-07-26T09:40:51+0200',
   key: 'external_xoo:OneExternalIssuePerLine',
   repo: 'external_xoo',
   name: 'xoo:OneExternalIssuePerLine',
+  severity: 'MAJOR',
   status: 'READY',
   isExternal: true,
-  type: RuleType.Unknown
+  type: 'UNKNOWN'
 };
 
-const EXTERNAL_RULE_WITH_DATA = {
+const EXTERNAL_RULE_WITH_DATA: T.RuleDetails = {
   key: 'external_xoo:OneExternalIssueWithDetailsPerLine',
   repo: 'external_xoo',
   name: 'One external issue per line',
   createdAt: '2018-05-31T11:19:51+0200',
   htmlDesc: '<p>Html Description</p>',
+  severity: 'MAJOR',
   status: 'READY',
   isExternal: true,
-  type: RuleType.Bug
+  type: 'BUG'
 };
 
 it('should display correctly', () => {

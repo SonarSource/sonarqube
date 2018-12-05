@@ -19,20 +19,10 @@
  */
 import { getJSON, RequestData, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import {
-  BranchParameters,
-  ComponentMeasure,
-  CustomMeasure,
-  Measure,
-  Metric,
-  Paging,
-  Period,
-  PeriodMeasure
-} from '../app/types';
 
 export function getMeasures(
-  data: { componentKey: string; metricKeys: string } & BranchParameters
-): Promise<Measure[]> {
+  data: { componentKey: string; metricKeys: string } & T.BranchParameters
+): Promise<T.Measure[]> {
   return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
 }
 
@@ -40,7 +30,7 @@ export function getMeasuresAndMeta(
   componentKey: string,
   metrics: string[],
   additional: RequestData = {}
-): Promise<{ component: ComponentMeasure; metrics?: Metric[]; periods?: Period[] }> {
+): Promise<{ component: T.ComponentMeasure; metrics?: T.Metric[]; periods?: T.Period[] }> {
   const data = { ...additional, componentKey, metricKeys: metrics.join(',') };
   return getJSON('/api/measures/component', data);
 }
@@ -48,7 +38,7 @@ export function getMeasuresAndMeta(
 interface MeasuresForProjects {
   component: string;
   metric: string;
-  periods?: PeriodMeasure[];
+  periods?: T.PeriodMeasure[];
   value?: string;
 }
 
@@ -67,7 +57,7 @@ export function getCustomMeasures(data: {
   p?: number;
   projectKey: string;
   ps?: number;
-}): Promise<{ customMeasures: CustomMeasure[]; paging: Paging }> {
+}): Promise<{ customMeasures: T.CustomMeasure[]; paging: T.Paging }> {
   return getJSON('/api/custom_measures/search', data).then(
     r =>
       ({
@@ -83,7 +73,7 @@ export function createCustomMeasure(data: {
   metricKey: string;
   projectKey: string;
   value: string;
-}): Promise<CustomMeasure> {
+}): Promise<T.CustomMeasure> {
   return postJSON('/api/custom_measures/create', data).catch(throwGlobalError);
 }
 

@@ -21,11 +21,10 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import Header from './Header';
 import Form from './Form';
-import { Component } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
-  component: Pick<Component, 'key' | 'name' | 'qualifier'>;
+  component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;
 }
 
 export default function App(props: Props) {

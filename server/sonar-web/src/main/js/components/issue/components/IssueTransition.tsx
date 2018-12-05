@@ -25,13 +25,12 @@ import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
 import StatusHelper from '../../shared/StatusHelper';
 import { Button } from '../../ui/buttons';
-import { Issue } from '../../../app/types';
 
 interface Props {
   hasTransitions: boolean;
   isOpen: boolean;
-  issue: Pick<Issue, 'key' | 'resolution' | 'status' | 'transitions'>;
-  onChange: (issue: Issue) => void;
+  issue: Pick<T.Issue, 'key' | 'resolution' | 'status' | 'transitions'>;
+  onChange: (issue: T.Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 

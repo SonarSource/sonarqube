@@ -20,14 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasureViewSelect from '../MeasureViewSelect';
-import { Metric } from '../../../../app/types';
 
 it('should display correctly with treemap option', () => {
   expect(
     shallow(
       <MeasureViewSelect
         handleViewChange={() => {}}
-        metric={{ type: 'PERCENT' } as Metric}
+        metric={{ type: 'PERCENT' } as T.Metric}
         view="tree"
       />
     )

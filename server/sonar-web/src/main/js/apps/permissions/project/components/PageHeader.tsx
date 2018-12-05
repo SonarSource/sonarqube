@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import ApplyTemplate from './ApplyTemplate';
-import { Component } from '../../../../app/types';
 import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  component: Component;
+  component: T.Component;
   loadHolders: () => void;
   loading: boolean;
 }

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationNavigationMenu } from '../OrganizationNavigationMenuContainer';
-import { Visibility } from '../../../../app/types';
 import { isCurrentUserMemberOf, hasPrivateAccess } from '../../../../helpers/organizations';
 
 jest.mock('../../../../helpers/organizations', () => ({
@@ -28,10 +27,10 @@ jest.mock('../../../../helpers/organizations', () => ({
   hasPrivateAccess: jest.fn().mockReturnValue(true)
 }));
 
-const organization = {
+const organization: T.Organization = {
   key: 'foo',
   name: 'Foo',
-  projectVisibility: Visibility.Public
+  projectVisibility: 'public'
 };
 
 const loggedInUser = {

@@ -28,7 +28,7 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import { IssueType } from '../../../app/types';
+import { ISSUE_TYPES } from '../../../helpers/constants';
 
 interface Props {
   fetching: boolean;
@@ -38,8 +38,6 @@ interface Props {
   stats: { [x: string]: number } | undefined;
   types: string[];
 }
-
-const TYPES = [IssueType.Bug, IssueType.Vulnerability, IssueType.CodeSmell, IssueType.Hotspot];
 
 export default class TypeFacet extends React.PureComponent<Props> {
   property = 'types';
@@ -81,8 +79,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
       // type is selected explicitly
       types.includes(type) ||
       // bugs, vulnerabilities and code smells are selected implicitly by default
-      (types.length === 0 &&
-        [IssueType.Bug, IssueType.Vulnerability, IssueType.CodeSmell].includes(type as IssueType))
+      (types.length === 0 && ['BUG', 'VULNERABILITY', 'CODE_SMELL'].includes(type))
     );
   }
 
@@ -126,7 +123,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
         <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && (
           <>
-            <FacetItemsList>{TYPES.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList>{ISSUE_TYPES.map(this.renderItem)}</FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={types.length} />
           </>
         )}

@@ -20,15 +20,14 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineOptionsPopup from '../LineOptionsPopup';
-import { BranchType, ShortLivingBranch } from '../../../../app/types';
 
 it('should render', () => {
   const line = { line: 3 };
-  const branch: ShortLivingBranch = {
+  const branch: T.ShortLivingBranch = {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature',
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
   const wrapper = shallow(<LineOptionsPopup branchLike={branch} componentKey="foo" line={line} />);
   expect(wrapper).toMatchSnapshot();

@@ -20,15 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import IssueTitleBar from '../IssueTitleBar';
-import {
-  ShortLivingBranch,
-  Issue,
-  BranchType,
-  IssueType,
-  FlowLocation
-} from '../../../../app/types';
 
-const issue: Issue = {
+const issue: T.Issue = {
   actions: [],
   component: 'main.js',
   componentLongName: 'main.js',
@@ -52,16 +45,16 @@ const issue: Issue = {
   status: 'OPEN',
   textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
   transitions: [],
-  type: IssueType.Bug
+  type: 'BUG'
 };
 
-const issueWithLocations: Issue = {
+const issueWithLocations: T.Issue = {
   ...issue,
   flows: [[loc(), loc(), loc()], [loc(), loc()]],
   secondaryLocations: [loc(), loc()]
 };
 
-function loc(): FlowLocation {
+function loc(): T.FlowLocation {
   return {
     component: 'main.js',
     textRange: { startLine: 1, startOffset: 1, endLine: 2, endOffset: 2 }
@@ -69,11 +62,11 @@ function loc(): FlowLocation {
 }
 
 it('should render the titlebar correctly', () => {
-  const branch: ShortLivingBranch = {
+  const branch: T.ShortLivingBranch = {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature-1.0',
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
   const element = shallow(
     <IssueTitleBar branchLike={branch} issue={issue} togglePopup={jest.fn()} />

@@ -26,10 +26,9 @@ import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH, MeasureHistory, Serie } from '../utils';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { Popup, PopupPlacement } from '../../../components/ui/popups';
-import { AnalysisEvent } from '../../../app/types';
 
 interface Props {
-  events: AnalysisEvent[];
+  events: T.AnalysisEvent[];
   formatValue: (tick: number | string) => string;
   graph: string;
   graphWidth: number;

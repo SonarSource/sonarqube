@@ -21,9 +21,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import IssueCommentLine from '../IssueCommentLine';
 import { click } from '../../../../helpers/testUtils';
-import { IssueComment } from '../../../../app/types';
 
-const comment: IssueComment = {
+const comment: T.IssueComment = {
   authorAvatar: 'gravatarhash',
   authorName: 'John Doe',
   createdAt: '2017-03-01T09:36:01+0100',

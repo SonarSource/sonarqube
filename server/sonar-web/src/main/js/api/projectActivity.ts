@@ -19,11 +19,10 @@
  */
 import { getJSON, postJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, BranchParameters, Analysis } from '../app/types';
 
 export function getProjectActivity(
-  data: { project: string; category?: string; p?: number; ps?: number } & BranchParameters
-): Promise<{ analyses: Analysis[]; paging: Paging }> {
+  data: { project: string; category?: string; p?: number; ps?: number } & T.BranchParameters
+): Promise<{ analyses: T.Analysis[]; paging: T.Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
 

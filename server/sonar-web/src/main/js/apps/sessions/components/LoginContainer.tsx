@@ -23,7 +23,6 @@ import Login from './Login';
 import LoginSonarCloud from './LoginSonarCloud';
 import { doLogin } from '../../../store/rootActions';
 import { getIdentityProviders } from '../../../api/users';
-import { IdentityProvider } from '../../../app/types';
 import { getReturnUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 
@@ -42,7 +41,7 @@ interface DispatchToProps {
 type Props = OwnProps & DispatchToProps;
 
 interface State {
-  identityProviders?: IdentityProvider[];
+  identityProviders?: T.IdentityProvider[];
 }
 
 class LoginContainer extends React.PureComponent<Props, State> {

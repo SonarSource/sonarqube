@@ -22,7 +22,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as PropTypes from 'prop-types';
 import MeasuresOverlay from './components/MeasuresOverlay';
-import { SourceViewerFile, BranchLike } from '../../app/types';
 import QualifierIcon from '../icons-components/QualifierIcon';
 import Dropdown from '../controls/Dropdown';
 import Favorite from '../controls/Favorite';
@@ -43,8 +42,8 @@ import { formatMeasure } from '../../helpers/measures';
 import { omitNil } from '../../helpers/request';
 
 interface Props {
-  branchLike: BranchLike | undefined;
-  sourceViewerFile: SourceViewerFile;
+  branchLike: T.BranchLike | undefined;
+  sourceViewerFile: T.SourceViewerFile;
 }
 
 interface State {

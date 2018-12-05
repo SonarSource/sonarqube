@@ -19,15 +19,14 @@
  */
 import * as React from 'react';
 import CoveragePopup from './CoveragePopup';
-import { BranchLike, SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
 import Toggler from '../../controls/Toggler';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   componentKey: string;
-  line: SourceLine;
+  line: T.SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
   popupOpen: boolean;
 }

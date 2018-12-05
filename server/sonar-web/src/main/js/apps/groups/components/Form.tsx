@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Group } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
@@ -26,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   confirmButtonText: string;
-  group?: Group;
+  group?: T.Group;
   header: string;
   onClose: () => void;
   onSubmit: (data: { description: string; name: string }) => Promise<void>;

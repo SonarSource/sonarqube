@@ -21,28 +21,20 @@ import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import MeasureContent from './MeasureContent';
 import { Query } from '../utils';
-import {
-  ComponentMeasure,
-  Metric,
-  BranchLike,
-  CurrentUser,
-  MeasureEnhanced,
-  Period
-} from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   className?: string;
-  currentUser: CurrentUser;
-  rootComponent: ComponentMeasure;
+  currentUser: T.CurrentUser;
+  rootComponent: T.ComponentMeasure;
   fetchMeasures: (
     component: string,
     metricsKey: string[],
-    branchLike?: BranchLike
-  ) => Promise<{ component: ComponentMeasure; measures: MeasureEnhanced[] }>;
-  leakPeriod?: Period;
-  metric: Metric;
-  metrics: { [metric: string]: Metric };
+    branchLike?: T.BranchLike
+  ) => Promise<{ component: T.ComponentMeasure; measures: T.MeasureEnhanced[] }>;
+  leakPeriod?: T.Period;
+  metric: T.Metric;
+  metrics: { [metric: string]: T.Metric };
   router: InjectedRouter;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
@@ -56,10 +48,10 @@ interface LoadingState {
 }
 
 interface State {
-  component?: ComponentMeasure;
+  component?: T.ComponentMeasure;
   loading: LoadingState;
-  measure?: MeasureEnhanced;
-  secondaryMeasure?: MeasureEnhanced;
+  measure?: T.MeasureEnhanced;
+  secondaryMeasure?: T.MeasureEnhanced;
 }
 
 export default class MeasureContentContainer extends React.PureComponent<Props, State> {

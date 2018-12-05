@@ -24,11 +24,10 @@ import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
 import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import { LoggedInUser } from '../../../app/types';
 
 interface Props {
   customOrganizations?: boolean;
-  user: LoggedInUser;
+  user: T.LoggedInUser;
 }
 
 function Profile({ customOrganizations, user }: Props) {
@@ -69,7 +68,7 @@ function Profile({ customOrganizations, user }: Props) {
 
 const mapStateToProps = (state: Store) => ({
   customOrganizations: areThereCustomOrganizations(state),
-  user: getCurrentUser(state) as LoggedInUser
+  user: getCurrentUser(state) as T.LoggedInUser
 });
 
 export default connect(mapStateToProps)(Profile);

@@ -26,19 +26,18 @@ import DetailsContent from './DetailsContent';
 import { getMetrics, Store } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
 import { fetchQualityGate } from '../../../api/quality-gates';
-import { Metric, QualityGate, Condition } from '../../../app/types';
 import { checkIfDefault, addCondition, replaceCondition, deleteCondition } from '../utils';
 
 interface OwnProps {
-  onSetDefault: (qualityGate: QualityGate) => void;
+  onSetDefault: (qualityGate: T.QualityGate) => void;
   organization?: string;
   params: { id: number };
-  qualityGates: QualityGate[];
+  qualityGates: T.QualityGate[];
   refreshQualityGates: () => Promise<void>;
 }
 
 interface StateToProps {
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
 }
 
 interface DispatchToProps {
@@ -49,7 +48,7 @@ type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
   loading: boolean;
-  qualityGate?: QualityGate;
+  qualityGate?: T.QualityGate;
 }
 
 export class DetailsApp extends React.PureComponent<Props, State> {
@@ -93,7 +92,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
     );
   };
 
-  handleAddCondition = (condition: Condition) => {
+  handleAddCondition = (condition: T.Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
         return null;
@@ -102,7 +101,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
     });
   };
 
-  handleSaveCondition = (newCondition: Condition, oldCondition: Condition) => {
+  handleSaveCondition = (newCondition: T.Condition, oldCondition: T.Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
         return null;
@@ -111,7 +110,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
     });
   };
 
-  handleRemoveCondition = (condition: Condition) => {
+  handleRemoveCondition = (condition: T.Condition) => {
     this.setState(({ qualityGate }) => {
       if (!qualityGate) {
         return null;
@@ -126,7 +125,7 @@ export class DetailsApp extends React.PureComponent<Props, State> {
         return null;
       }
       this.props.onSetDefault(qualityGate);
-      const newQualityGate: QualityGate = {
+      const newQualityGate: T.QualityGate = {
         ...qualityGate,
         actions: { ...qualityGate.actions, delete: false, setAsDefault: false }
       };

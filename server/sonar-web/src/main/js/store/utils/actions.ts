@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Omit } from '../../app/types';
 
 type ActionCreator = (...args: any[]) => { type: string };
 
-export type ActionType<F extends ActionCreator, T> = Omit<ReturnType<F>, 'type'> & { type: T };
+export type ActionType<F extends ActionCreator, T> = T.Omit<ReturnType<F>, 'type'> & { type: T };

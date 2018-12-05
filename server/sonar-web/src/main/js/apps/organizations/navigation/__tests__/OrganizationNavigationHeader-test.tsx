@@ -20,13 +20,12 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationHeader from '../OrganizationNavigationHeader';
-import { Visibility } from '../../../../app/types';
 
 it('renders', () => {
   expect(
     shallow(
       <OrganizationNavigationHeader
-        organization={{ key: 'foo', name: 'Foo', projectVisibility: Visibility.Public }}
+        organization={{ key: 'foo', name: 'Foo', projectVisibility: 'public' }}
         organizations={[]}
       />
     )
@@ -41,7 +40,7 @@ it('renders with alm integration', () => {
           alm: { key: 'github', url: 'https://github.com/foo' },
           key: 'foo',
           name: 'Foo',
-          projectVisibility: Visibility.Public
+          projectVisibility: 'public'
         }}
         organizations={[]}
       />
@@ -50,16 +49,16 @@ it('renders with alm integration', () => {
 });
 
 it('renders dropdown', () => {
-  const organizations = [
-    { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: Visibility.Public },
-    { actions: { admin: false }, key: 'org2', name: 'org2', projectVisibility: Visibility.Public }
+  const organizations: T.Organization[] = [
+    { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: 'public' },
+    { actions: { admin: false }, key: 'org2', name: 'org2', projectVisibility: 'public' }
   ];
   const wrapper = shallow(
     <OrganizationNavigationHeader
       organization={{
         key: 'foo',
         name: 'Foo',
-        projectVisibility: Visibility.Public
+        projectVisibility: 'public'
       }}
       organizations={organizations}
     />

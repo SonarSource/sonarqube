@@ -26,7 +26,6 @@ import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import Visualizations from '../visualizations/Visualizations';
-import { CurrentUser, Organization } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -43,10 +42,10 @@ import '../../../components/search-navigator.css';
 import '../styles.css';
 
 export interface Props {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   isFavorite: boolean;
   location: { pathname: string; query: RawQuery };
-  organization: Organization | undefined;
+  organization: T.Organization | undefined;
   organizationsEnabled?: boolean;
   storageOptionsSuffix?: string;
 }

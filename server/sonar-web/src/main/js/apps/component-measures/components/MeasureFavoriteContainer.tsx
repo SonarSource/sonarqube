@@ -21,12 +21,11 @@ import * as React from 'react';
 import Favorite from '../../../components/controls/Favorite';
 import { getComponentForSourceViewer } from '../../../api/components';
 import { isMainBranch } from '../../../helpers/branches';
-import { BranchLike, SourceViewerFile } from '../../../app/types';
 
-type FavComponent = Pick<SourceViewerFile, 'canMarkAsFavorite' | 'fav' | 'key' | 'q'>;
+type FavComponent = Pick<T.SourceViewerFile, 'canMarkAsFavorite' | 'fav' | 'key' | 'q'>;
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   className?: string;
   component: string;
 }

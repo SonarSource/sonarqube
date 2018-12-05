@@ -28,7 +28,6 @@ import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import { skipOnboarding } from '../../../store/users';
-import { LoggedInUser, AlmApplication, Organization } from '../../../app/types';
 import { getAlmAppInfo } from '../../../api/alm-integration';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
@@ -36,13 +35,13 @@ import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
 import '../../../app/styles/sonarcloud.css';
 
 interface Props {
-  currentUser: LoggedInUser;
+  currentUser: T.LoggedInUser;
   skipOnboarding: () => void;
-  userOrganizations: Organization[];
+  userOrganizations: T.Organization[];
 }
 
 interface State {
-  almApplication?: AlmApplication;
+  almApplication?: T.AlmApplication;
   loading: boolean;
 }
 

@@ -30,17 +30,16 @@ import {
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { Component, QualityGate } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
-  component: Component;
+  component: T.Component;
   onComponentChange: (changes: {}) => void;
 }
 
 interface State {
-  allGates?: QualityGate[];
-  gate?: QualityGate;
+  allGates?: T.QualityGate[];
+  gate?: T.QualityGate;
   loading: boolean;
 }
 

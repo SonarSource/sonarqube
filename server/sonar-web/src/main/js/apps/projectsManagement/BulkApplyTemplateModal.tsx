@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { getPermissionTemplates, bulkApplyTemplate } from '../../api/permissions';
-import { PermissionTemplate } from '../../app/types';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
@@ -42,7 +41,7 @@ interface State {
   done: boolean;
   loading: boolean;
   permissionTemplate?: string;
-  permissionTemplates?: PermissionTemplate[];
+  permissionTemplates?: T.PermissionTemplate[];
   submitting: boolean;
 }
 

@@ -21,13 +21,12 @@ import * as React from 'react';
 import SettingForm from './SettingForm';
 import { translate } from '../../../helpers/l10n';
 import Modal from '../../../components/controls/Modal';
-import { SettingValue } from '../../../app/types';
 
 interface Props {
   onChange: () => void;
   onClose: () => void;
   project: string;
-  setting: SettingValue;
+  setting: T.SettingValue;
 }
 
 export default function LongBranchesPatternForm(props: Props) {

@@ -23,14 +23,13 @@ import { FormattedMessage } from 'react-intl';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import PendingIcon from '../../../../components/icons-components/PendingIcon';
-import { Component, Task } from '../../../types';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
 import { hasMessage, translate } from '../../../../helpers/l10n';
 
 interface Props {
-  component: Component;
-  currentTask?: Task;
+  component: T.Component;
+  currentTask?: T.Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;

@@ -20,14 +20,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import AppContainer from './components/AppContainer';
-import { CurrentUser } from '../../app/types';
 import { RawQuery } from '../../helpers/query';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
 
 interface StateProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
 }
 
 interface Props extends StateProps {

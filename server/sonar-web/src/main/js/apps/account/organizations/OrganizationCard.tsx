@@ -21,10 +21,9 @@ import * as React from 'react';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import OrganizationLink from '../../../components/ui/OrganizationLink';
 import { translate } from '../../../helpers/l10n';
-import { Organization } from '../../../app/types';
 
 interface Props {
-  organization: Organization;
+  organization: T.Organization;
 }
 
 export default function OrganizationCard({ organization }: Props) {

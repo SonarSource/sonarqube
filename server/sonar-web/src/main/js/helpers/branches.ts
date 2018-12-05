@@ -18,54 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
-import {
-  BranchLike,
-  Branch,
-  BranchType,
-  ShortLivingBranch,
-  LongLivingBranch,
-  PullRequest,
-  MainBranch,
-  BranchParameters
-} from '../app/types';
 
-export function isBranch(branchLike?: BranchLike): branchLike is Branch {
-  return branchLike !== undefined && (branchLike as Branch).isMain !== undefined;
+export function isBranch(branchLike?: T.BranchLike): branchLike is T.Branch {
+  return branchLike !== undefined && (branchLike as T.Branch).isMain !== undefined;
 }
 
-export function isShortLivingBranch(branchLike?: BranchLike): branchLike is ShortLivingBranch {
+export function isShortLivingBranch(branchLike?: T.BranchLike): branchLike is T.ShortLivingBranch {
   return (
     isBranch(branchLike) &&
     !branchLike.isMain &&
-    (branchLike as ShortLivingBranch).type === BranchType.SHORT
+    (branchLike as T.ShortLivingBranch).type === 'SHORT'
   );
 }
 
-export function isLongLivingBranch(branchLike?: BranchLike): branchLike is LongLivingBranch {
+export function isLongLivingBranch(branchLike?: T.BranchLike): branchLike is T.LongLivingBranch {
   return (
-    isBranch(branchLike) &&
-    !branchLike.isMain &&
-    (branchLike as LongLivingBranch).type === BranchType.LONG
+    isBranch(branchLike) && !branchLike.isMain && (branchLike as T.LongLivingBranch).type === 'LONG'
   );
 }
 
-export function isMainBranch(branchLike?: BranchLike): branchLike is MainBranch {
+export function isMainBranch(branchLike?: T.BranchLike): branchLike is T.MainBranch {
   return isBranch(branchLike) && branchLike.isMain;
 }
 
-export function isPullRequest(branchLike?: BranchLike): branchLike is PullRequest {
-  return branchLike !== undefined && (branchLike as PullRequest).key !== undefined;
+export function isPullRequest(branchLike?: T.BranchLike): branchLike is T.PullRequest {
+  return branchLike !== undefined && (branchLike as T.PullRequest).key !== undefined;
 }
 
-export function getPullRequestDisplayName(pullRequest: PullRequest) {
+export function getPullRequestDisplayName(pullRequest: T.PullRequest) {
   return `${pullRequest.key} – ${pullRequest.title}`;
 }
 
-export function getBranchLikeDisplayName(branchLike: BranchLike) {
+export function getBranchLikeDisplayName(branchLike: T.BranchLike) {
   return isPullRequest(branchLike) ? getPullRequestDisplayName(branchLike) : branchLike.name;
 }
 
-export function getBranchLikeKey(branchLike: BranchLike) {
+export function getBranchLikeKey(branchLike: T.BranchLike) {
   return isPullRequest(branchLike) ? `pull-request-${branchLike.key}` : `branch-${branchLike.name}`;
 }
 
@@ -81,7 +69,7 @@ export function getBranchQualityGateColor(status: string) {
   return indicatorColor;
 }
 
-export function isSameBranchLike(a: BranchLike | undefined, b: BranchLike | undefined) {
+export function isSameBranchLike(a: T.BranchLike | undefined, b: T.BranchLike | undefined) {
   // main branches are always equal
   if (isMainBranch(a) && isMainBranch(b)) {
     return true;
@@ -104,8 +92,8 @@ export function isSameBranchLike(a: BranchLike | undefined, b: BranchLike | unde
   return a === b;
 }
 
-export function sortBranchesAsTree(branchLikes: BranchLike[]) {
-  const result: BranchLike[] = [];
+export function sortBranchesAsTree(branchLikes: T.BranchLike[]) {
+  const result: T.BranchLike[] = [];
 
   const mainBranch = branchLikes.find(isMainBranch);
   const longLivingBranches = branchLikes.filter(isLongLivingBranch);
@@ -140,7 +128,7 @@ export function sortBranchesAsTree(branchLikes: BranchLike[]) {
 
   /** Get all short-living branches (possibly nested) which should be merged to a given branch */
   function getNestedShortLivingBranches(mergeBranch: string) {
-    const found: ShortLivingBranch[] = shortLivingBranches.filter(
+    const found: T.ShortLivingBranch[] = shortLivingBranches.filter(
       branch => branch.mergeBranch === mergeBranch
     );
 
@@ -159,7 +147,7 @@ export function sortBranchesAsTree(branchLikes: BranchLike[]) {
   }
 }
 
-export function getBranchLikeQuery(branchLike?: BranchLike): BranchParameters {
+export function getBranchLikeQuery(branchLike?: T.BranchLike): T.BranchParameters {
   if (isShortLivingBranch(branchLike) || isLongLivingBranch(branchLike)) {
     return { branch: branchLike.name };
   } else if (isPullRequest(branchLike)) {
@@ -173,16 +161,16 @@ export function getBranchLikeQuery(branchLike?: BranchLike): BranchParameters {
 export function fillBranchLike(
   branch?: string,
   pullRequest?: string
-): ShortLivingBranch | PullRequest | undefined {
+): T.ShortLivingBranch | T.PullRequest | undefined {
   if (branch) {
     return {
       isMain: false,
       mergeBranch: '',
       name: branch,
-      type: BranchType.SHORT
-    } as ShortLivingBranch;
+      type: 'SHORT'
+    } as T.ShortLivingBranch;
   } else if (pullRequest) {
-    return { base: '', branch: '', key: pullRequest, title: '' } as PullRequest;
+    return { base: '', branch: '', key: pullRequest, title: '' } as T.PullRequest;
   }
   return undefined;
 }

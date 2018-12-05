@@ -23,12 +23,11 @@ import AllProjectsContainer from './AllProjectsContainer';
 import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
 import { get } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
-import { CurrentUser } from '../../../app/types';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface Props {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   location: { pathname: string; query: { [x: string]: string } };
 }
 

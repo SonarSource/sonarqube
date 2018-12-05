@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import Select from '../../../components/controls/Select';
-import { Metric } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   op?: string;
   canEdit: boolean;
-  metric: Metric;
+  metric: T.Metric;
   onOperatorChange?: (op: string) => void;
 }
 

@@ -20,10 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationJustCreated } from '../OrganizationJustCreated';
-import { Organization } from '../../../../app/types';
 import { click } from '../../../../helpers/testUtils';
 
-const organization: Organization = { key: 'foo', name: 'Foo' };
+const organization: T.Organization = { key: 'foo', name: 'Foo' };
 
 it('should render', () => {
   // @ts-ignore

@@ -24,12 +24,11 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { Button } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
-import { QualityGate } from '../../../app/types';
 
 interface Props {
   onDelete: () => Promise<void>;
   organization?: string;
-  qualityGate: QualityGate;
+  qualityGate: T.QualityGate;
 }
 
 export default class DeleteQualityGateForm extends React.PureComponent<Props> {

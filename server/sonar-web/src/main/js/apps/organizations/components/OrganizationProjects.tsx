@@ -20,11 +20,10 @@
 import * as React from 'react';
 import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization } from '../../../app/types';
 
 interface Props {
   location: { pathname: string; query: { [x: string]: string } };
-  organization: Organization;
+  organization: T.Organization;
 }
 
 export default function OrganizationProjects(props: Props) {

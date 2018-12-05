@@ -24,7 +24,6 @@ import Avatar from '../../ui/Avatar';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import IssueChangelogDiff, { ChangelogDiff } from '../components/IssueChangelogDiff';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import { Issue } from '../../../app/types';
 
 interface Changelog {
   avatar?: string;
@@ -35,7 +34,7 @@ interface Changelog {
 }
 
 interface Props {
-  issue: Pick<Issue, 'author' | 'creationDate' | 'key'>;
+  issue: Pick<T.Issue, 'author' | 'creationDate' | 'key'>;
 }
 
 interface State {

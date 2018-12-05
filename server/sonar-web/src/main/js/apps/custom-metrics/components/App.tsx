@@ -32,7 +32,6 @@ import {
   createMetric,
   MetricsResponse
 } from '../../../api/metrics';
-import { Metric, Paging } from '../../../app/types';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 
@@ -41,8 +40,8 @@ interface Props {}
 interface State {
   domains?: string[];
   loading: boolean;
-  metrics?: Metric[];
-  paging?: Paging;
+  metrics?: T.Metric[];
+  paging?: T.Paging;
   types?: string[];
 }
 
@@ -104,7 +103,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  getPaging = (response: MetricsResponse): Paging => ({
+  getPaging = (response: MetricsResponse): T.Paging => ({
     pageIndex: response.p,
     pageSize: response.ps,
     total: response.total

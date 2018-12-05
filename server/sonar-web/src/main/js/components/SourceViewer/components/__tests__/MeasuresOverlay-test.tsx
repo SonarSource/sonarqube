@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MeasuresOverlay from '../MeasuresOverlay';
-import { SourceViewerFile, ShortLivingBranch, BranchType } from '../../../../app/types';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/issues', () => ({
@@ -136,7 +135,7 @@ jest.mock('../../../../api/metrics', () => ({
     ])
 }));
 
-const sourceViewerFile: SourceViewerFile = {
+const sourceViewerFile: T.SourceViewerFile = {
   key: 'component-key',
   measures: {},
   path: 'src/file.js',
@@ -148,11 +147,11 @@ const sourceViewerFile: SourceViewerFile = {
   uuid: 'abcd123'
 };
 
-const branchLike: ShortLivingBranch = {
+const branchLike: T.ShortLivingBranch = {
   isMain: false,
   mergeBranch: 'master',
   name: 'feature',
-  type: BranchType.SHORT
+  type: 'SHORT'
 };
 
 it('should render source file', async () => {

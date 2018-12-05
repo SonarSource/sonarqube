@@ -19,36 +19,29 @@
  */
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import {
-  Organization,
-  OrganizationBase,
-  Paging,
-  OrganizationMember,
-  Extension
-} from '../app/types';
 
 export function getOrganizations(data: {
   organizations?: string;
   member?: boolean;
 }): Promise<{
-  organizations: Organization[];
-  paging: Paging;
+  organizations: T.Organization[];
+  paging: T.Paging;
 }> {
   return getJSON('/api/organizations/search', data).catch(throwGlobalError);
 }
 
-export function getOrganization(key: string): Promise<Organization | undefined> {
+export function getOrganization(key: string): Promise<T.Organization | undefined> {
   return getJSON('/api/organizations/search', { organizations: key }).then(
-    r => r.organizations.find((o: Organization) => o.key === key),
+    r => r.organizations.find((o: T.Organization) => o.key === key),
     throwGlobalError
   );
 }
 
 interface GetOrganizationNavigation {
-  adminPages: Extension[];
+  adminPages: T.Extension[];
   canUpdateProjectsVisibilityToPrivate: boolean;
   isDefault: boolean;
-  pages: Extension[];
+  pages: T.Extension[];
 }
 
 export function getOrganizationNavigation(key: string): Promise<GetOrganizationNavigation> {
@@ -59,12 +52,12 @@ export function getOrganizationNavigation(key: string): Promise<GetOrganizationN
 }
 
 export function createOrganization(
-  data: OrganizationBase & { installationId?: string }
-): Promise<Organization> {
+  data: T.OrganizationBase & { installationId?: string }
+): Promise<T.Organization> {
   return postJSON('/api/organizations/create', data).then(r => r.organization, throwGlobalError);
 }
 
-export function updateOrganization(key: string, changes: OrganizationBase) {
+export function updateOrganization(key: string, changes: T.OrganizationBase) {
   return post('/api/organizations/update', { key, ...changes }).catch(throwGlobalError);
 }
 
@@ -78,14 +71,14 @@ export function searchMembers(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ paging: Paging; users: OrganizationMember[] }> {
+}): Promise<{ paging: T.Paging; users: T.OrganizationMember[] }> {
   return getJSON('/api/organizations/search_members', data).catch(throwGlobalError);
 }
 
 export function addMember(data: {
   login: string;
   organization: string;
-}): Promise<OrganizationMember> {
+}): Promise<T.OrganizationMember> {
   return postJSON('/api/organizations/add_member', data).then(r => r.user, throwGlobalError);
 }
 

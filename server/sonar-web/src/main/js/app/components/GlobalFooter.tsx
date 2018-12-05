@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import InstanceMessage from '../../components/common/InstanceMessage';
-import { EDITIONS, EditionKey } from '../../apps/marketplace/utils';
+import { EDITIONS } from '../../apps/marketplace/utils';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
 import { Alert } from '../../components/ui/Alert';
@@ -30,7 +30,7 @@ import { Alert } from '../../components/ui/Alert';
 interface Props {
   hideLoggedInInfo?: boolean;
   productionDatabase: boolean;
-  sonarqubeEdition?: EditionKey;
+  sonarqubeEdition?: T.EditionKey;
   sonarqubeVersion?: string;
 }
 

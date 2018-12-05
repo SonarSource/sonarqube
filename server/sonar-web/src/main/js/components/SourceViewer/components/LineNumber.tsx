@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import LineOptionsPopup from './LineOptionsPopup';
-import { BranchLike, SourceLine } from '../../../app/types';
 import Toggler from '../../controls/Toggler';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   componentKey: string;
-  line: SourceLine;
+  line: T.SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
   popupOpen: boolean;
 }

@@ -78,14 +78,13 @@ jest.mock('../../../../api/security-reports', () => ({
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Component } from '../../../../app/types';
 import App from '../App';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const getSecurityHotspots = require('../../../../api/security-reports')
   .getSecurityHotspots as jest.Mock<any>;
 
-const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' } as Component;
+const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' } as T.Component;
 const context = { router: { push: jest.fn() } };
 const location = { pathname: 'foo', query: {} };
 const locationWithCWE = { pathname: 'foo', query: { showCWE: 'true' } };

@@ -21,7 +21,6 @@ import * as React from 'react';
 import DeleteForm from './DeleteForm';
 import EditMembers from './EditMembers';
 import Form from './Form';
-import { Group } from '../../../app/types';
 import ActionsDropdown, {
   ActionsDropdownItem,
   ActionsDropdownDivider
@@ -30,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
 
 interface Props {
-  group: Group;
+  group: T.Group;
   onDelete: (name: string) => Promise<void>;
   onEdit: (data: { description?: string; id: number; name?: string }) => Promise<void>;
   onEditMembers: () => void;

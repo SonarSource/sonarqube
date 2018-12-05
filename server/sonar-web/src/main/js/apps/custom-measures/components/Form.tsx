@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { getAllMetrics } from '../../../api/metrics';
-import { CustomMeasure, Metric } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Select from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
@@ -30,7 +29,7 @@ import { Alert } from '../../../components/ui/Alert';
 interface Props {
   confirmButtonText: string;
   header: string;
-  measure?: CustomMeasure;
+  measure?: T.CustomMeasure;
   onClose: () => void;
   onSubmit: (data: { description: string; metricKey: string; value: string }) => Promise<void>;
   skipMetrics?: string[];
@@ -40,7 +39,7 @@ interface State {
   description: string;
   loading: boolean;
   metricKey?: string;
-  metrics?: Metric[];
+  metrics?: T.Metric[];
   value: string;
 }
 

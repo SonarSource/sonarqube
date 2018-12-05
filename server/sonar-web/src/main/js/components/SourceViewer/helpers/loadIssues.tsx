@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { searchIssues } from '../../../api/issues';
-import { BranchLike, Issue } from '../../../app/types';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { RawQuery } from '../../../helpers/query';
@@ -26,7 +25,7 @@ import { RawQuery } from '../../../helpers/query';
 // maximum possible value
 const PAGE_SIZE = 500;
 
-function buildQuery(component: string, branchLike: BranchLike | undefined) {
+function buildQuery(component: string, branchLike: T.BranchLike | undefined) {
   return {
     additionalFields: '_all',
     resolved: 'false',
@@ -36,7 +35,7 @@ function buildQuery(component: string, branchLike: BranchLike | undefined) {
   };
 }
 
-export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
+export function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<T.Issue[]> {
   return searchIssues({
     ...query,
     p: page,
@@ -51,7 +50,7 @@ export function loadPageAndNext(
   toLine: number,
   page: number,
   pageSize = PAGE_SIZE
-): Promise<Issue[]> {
+): Promise<T.Issue[]> {
   return loadPage(query, page).then(issues => {
     if (issues.length === 0) {
       return [];
@@ -76,8 +75,8 @@ export default function loadIssues(
   component: string,
   _fromLine: number,
   toLine: number,
-  branchLike: BranchLike | undefined
-): Promise<Issue[]> {
+  branchLike: T.BranchLike | undefined
+): Promise<T.Issue[]> {
   const query = buildQuery(component, branchLike);
   return new Promise(resolve => {
     loadPageAndNext(query, toLine, 1).then(issues => {

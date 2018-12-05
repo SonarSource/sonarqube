@@ -24,13 +24,12 @@ import { QualityGateStatusCondition, QualityGateStatusConditionEnhanced } from '
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
-import { BranchLike, Component, MeasureEnhanced } from '../../../app/types';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Pick<Component, 'key'>;
+  branchLike?: T.BranchLike;
+  component: Pick<T.Component, 'key'>;
   conditions: QualityGateStatusCondition[];
 }
 
@@ -126,7 +125,7 @@ export default class QualityGateConditions extends React.PureComponent<Props, St
 
 function enhanceConditions(
   conditions: QualityGateStatusCondition[],
-  measures: MeasureEnhanced[]
+  measures: T.MeasureEnhanced[]
 ): QualityGateStatusConditionEnhanced[] {
   return conditions.map(condition => {
     const measure = measures.find(measure => measure.metric.key === condition.metric)!;

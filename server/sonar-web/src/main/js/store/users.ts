@@ -21,10 +21,9 @@ import { uniq } from 'lodash';
 import { Dispatch, combineReducers } from 'redux';
 import { ActionType } from './utils/actions';
 import * as api from '../api/users';
-import { CurrentUser, HomePage, LoggedInUser } from '../app/types';
 import { isLoggedIn } from '../helpers/users';
 
-export function receiveCurrentUser(user: CurrentUser) {
+export function receiveCurrentUser(user: T.CurrentUser) {
   return { type: 'RECEIVE_CURRENT_USER', user };
 }
 
@@ -39,11 +38,11 @@ export function skipOnboarding() {
       .then(() => dispatch(skipOnboardingAction()), () => dispatch(skipOnboardingAction()));
 }
 
-function setHomePageAction(homepage: HomePage) {
+function setHomePageAction(homepage: T.HomePage) {
   return { type: 'SET_HOMEPAGE', homepage };
 }
 
-export function setHomePage(homepage: HomePage) {
+export function setHomePage(homepage: T.HomePage) {
   return (dispatch: Dispatch) => {
     api.setHomePage(homepage).then(
       () => {
@@ -62,7 +61,7 @@ type Action =
 export interface State {
   usersByLogin: { [login: string]: any };
   userLogins: string[];
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
 }
 
 function usersByLogin(state: State['usersByLogin'] = {}, action: Action): State['usersByLogin'] {
@@ -89,10 +88,10 @@ function currentUser(
     return action.user;
   }
   if (action.type === 'SKIP_ONBOARDING' && isLoggedIn(state)) {
-    return { ...state, showOnboardingTutorial: false } as LoggedInUser;
+    return { ...state, showOnboardingTutorial: false } as T.LoggedInUser;
   }
   if (action.type === 'SET_HOMEPAGE' && isLoggedIn(state)) {
-    return { ...state, homepage: action.homepage } as LoggedInUser;
+    return { ...state, homepage: action.homepage } as T.LoggedInUser;
   }
   return state;
 }

@@ -20,11 +20,10 @@
 import * as React from 'react';
 import Select from '../../components/controls/Select';
 import { translate } from '../../helpers/l10n';
-import { QualityGate } from '../../app/types';
 
 interface Props {
-  allGates: QualityGate[];
-  gate?: QualityGate;
+  allGates: T.QualityGate[];
+  gate?: T.QualityGate;
   onChange: (oldGate?: number, newGate?: number) => Promise<void>;
 }
 

@@ -27,7 +27,7 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { Project } from '../types';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 
-export interface Metric {
+interface Metric {
   key: string;
   type: string;
 }

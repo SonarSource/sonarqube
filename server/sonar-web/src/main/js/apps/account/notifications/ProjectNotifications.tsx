@@ -21,17 +21,16 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import NotificationsList from './NotificationsList';
 import { NotificationProject } from './types';
-import { Notification } from '../../../app/types';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
-  addNotification: (n: Notification) => void;
+  addNotification: (n: T.Notification) => void;
   channels: string[];
-  notifications: Notification[];
+  notifications: T.Notification[];
   project: NotificationProject;
-  removeNotification: (n: Notification) => void;
+  removeNotification: (n: T.Notification) => void;
   types: string[];
 }
 

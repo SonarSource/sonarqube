@@ -22,7 +22,6 @@ import PropertySetInput from './PropertySetInput';
 import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
 import { DefaultInputProps, isCategoryDefinition } from '../../utils';
-import { SettingType } from '../../../../app/types';
 
 export default function Input(props: DefaultInputProps) {
   const { definition } = props.setting;
@@ -31,7 +30,7 @@ export default function Input(props: DefaultInputProps) {
     return <MultiValueInput {...props} />;
   }
 
-  if (definition.type === SettingType.PropertySet) {
+  if (definition.type === 'PROPERTY_SET') {
     return <PropertySetInput {...props} />;
   }
 

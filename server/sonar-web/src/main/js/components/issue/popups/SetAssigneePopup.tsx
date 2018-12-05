@@ -29,7 +29,6 @@ import { searchUsers } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { DropdownOverlay } from '../../controls/Dropdown';
-import { Issue, CurrentUser, OrganizationMember } from '../../../app/types';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 
@@ -41,8 +40,8 @@ interface User {
 }
 
 interface Props {
-  currentUser: CurrentUser;
-  issue: Pick<Issue, 'projectOrganization'>;
+  currentUser: T.CurrentUser;
+  issue: Pick<T.Issue, 'projectOrganization'>;
   onSelect: (login: string) => void;
 }
 
@@ -84,7 +83,7 @@ class SetAssigneePopup extends React.PureComponent<Props, State> {
     searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, () => {});
   };
 
-  handleSearchResult = (response: { users: OrganizationMember[] }) => {
+  handleSearchResult = (response: { users: T.OrganizationMember[] }) => {
     this.setState({
       users: response.users,
       currentUser: response.users.length > 0 ? response.users[0].login : ''

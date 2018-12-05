@@ -21,17 +21,19 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Store, getMyOrganizations } from '../../store/rootReducer';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
-import { Organization } from '../../app/types';
 
 export function withUserOrganizations<P>(
   WrappedComponent: React.ComponentClass<
     P & {
-      personalOrganization?: Organization;
-      userOrganizations: Organization[];
+      personalOrganization?: T.Organization;
+      userOrganizations: T.Organization[];
     }
   >
 ) {
-  type Props = P & { fetchMyOrganizations: () => Promise<void>; userOrganizations: Organization[] };
+  type Props = P & {
+    fetchMyOrganizations: () => Promise<void>;
+    userOrganizations: T.Organization[];
+  };
   const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
   class Wrapper extends React.Component<Props> {

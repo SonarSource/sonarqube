@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { SourceLine } from '../../../app/types';
 import Tooltip from '../../controls/Tooltip';
 import Toggler from '../../controls/Toggler';
 import { translate } from '../../../helpers/l10n';
@@ -27,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   duplicated: boolean;
   index: number;
-  line: SourceLine;
+  line: T.SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
   popupOpen: boolean;
   renderDuplicationPopup: (index: number, line: number) => JSX.Element;

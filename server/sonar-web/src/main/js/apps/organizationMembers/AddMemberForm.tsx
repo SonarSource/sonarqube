@@ -23,17 +23,16 @@ import { searchMembers } from '../../api/organizations';
 import Modal from '../../components/controls/Modal';
 import { translate } from '../../helpers/l10n';
 import { SubmitButton, ResetButtonLink, Button } from '../../components/ui/buttons';
-import { Organization, OrganizationMember } from '../../app/types';
 
 interface Props {
-  addMember: (member: OrganizationMember) => void;
-  organization: Organization;
+  addMember: (member: T.OrganizationMember) => void;
+  organization: T.Organization;
   memberLogins: string[];
 }
 
 interface State {
   open: boolean;
-  selectedMember?: OrganizationMember;
+  selectedMember?: T.OrganizationMember;
 }
 
 export default class AddMemberForm extends React.PureComponent<Props, State> {
@@ -65,7 +64,7 @@ export default class AddMemberForm extends React.PureComponent<Props, State> {
     }
   };
 
-  selectedMemberChange = (member: OrganizationMember) => {
+  selectedMemberChange = (member: T.OrganizationMember) => {
     this.setState({ selectedMember: member });
   };
 

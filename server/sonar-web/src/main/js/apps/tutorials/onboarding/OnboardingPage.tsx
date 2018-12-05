@@ -24,7 +24,6 @@ import { InjectedRouter } from 'react-router';
 import OnboardingModal from './OnboardingModal';
 import { skipOnboarding } from '../../../store/users';
 import TeamOnboardingModal from '../teamOnboarding/TeamOnboardingModal';
-import { Organization } from '../../../app/types';
 
 interface DispatchProps {
   skipOnboarding: () => void;
@@ -55,7 +54,7 @@ export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps
     this.props.router.replace('/');
   };
 
-  closeOrganizationOnboarding = ({ key }: Pick<Organization, 'key'>) => {
+  closeOrganizationOnboarding = ({ key }: Pick<T.Organization, 'key'>) => {
     this.closeOnboarding();
     this.props.router.push(`/organizations/${key}`);
   };

@@ -19,14 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { AnalysisEvent } from '../../../app/types';
 import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
 import { isDefinitionChangeEvent } from '../../projectActivity/components/DefinitionChangeEventInner';
 
 interface Props {
-  event: AnalysisEvent;
+  event: T.AnalysisEvent;
 }
 
 export default function Event({ event }: Props) {

@@ -22,19 +22,18 @@ import * as key from 'keymaster';
 import IssueView from './IssueView';
 import { updateIssue } from './actions';
 import { setIssueAssignee } from '../../api/issues';
-import { BranchLike, Issue as IssueType } from '../../app/types';
 import './Issue.css';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   checked?: boolean;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
-  issue: IssueType;
-  onChange: (issue: IssueType) => void;
+  issue: T.Issue;
+  onChange: (issue: T.Issue) => void;
   onCheck?: (issue: string, event: { shiftKey?: boolean }) => void;
   onClick: (issueKey: string) => void;
-  onFilter?: (property: string, issue: IssueType) => void;
+  onFilter?: (property: string, issue: T.Issue) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup?: string;
   selected: boolean;

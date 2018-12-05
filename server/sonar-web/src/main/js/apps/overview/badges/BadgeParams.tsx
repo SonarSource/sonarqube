@@ -22,11 +22,10 @@ import { BadgeColors, BadgeType, BadgeOptions } from './utils';
 import Select from '../../../components/controls/Select';
 import { fetchWebApi } from '../../../api/web-api';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
-import { Metric } from '../../../app/types';
 
 interface Props {
   className?: string;
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
   options: BadgeOptions;
   type: BadgeType;
   updateOptions: (options: Partial<BadgeOptions>) => void;

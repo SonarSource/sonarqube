@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { createProject } from '../../api/components';
-import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import Modal from '../../components/controls/Modal';
@@ -33,7 +32,7 @@ import { Alert } from '../../components/ui/Alert';
 interface Props {
   onClose: () => void;
   onProjectCreated: () => void;
-  organization: Organization;
+  organization: T.Organization;
 }
 
 interface State {
@@ -41,7 +40,7 @@ interface State {
   key: string;
   loading: boolean;
   name: string;
-  visibility?: Visibility;
+  visibility?: T.Visibility;
   // add index declaration to be able to do `this.setState({ [name]: value });`
   [x: string]: any;
 }
@@ -82,7 +81,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     this.setState({ [name]: value });
   };
 
-  handleVisibilityChange = (visibility: Visibility) => {
+  handleVisibilityChange = (visibility: T.Visibility) => {
     this.setState({ visibility });
   };
 

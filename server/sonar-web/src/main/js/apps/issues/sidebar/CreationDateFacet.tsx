@@ -21,7 +21,6 @@ import * as React from 'react';
 import { max } from 'lodash';
 import { intlShape } from 'react-intl';
 import { Query } from '../utils';
-import { Component } from '../../../app/types';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -36,7 +35,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
-  component: Component | undefined;
+  component: T.Component | undefined;
   createdAfter: Date | undefined;
   createdAt: string;
   createdBefore: Date | undefined;

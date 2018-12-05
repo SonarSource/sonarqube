@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { getPermissionTemplates, applyTemplateToProject } from '../../../../api/permissions';
-import { PermissionTemplate } from '../../../../app/types';
 import DeferredSpinner from '../../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import Select from '../../../../components/controls/Select';
@@ -38,7 +37,7 @@ interface State {
   done: boolean;
   loading: boolean;
   permissionTemplate?: string;
-  permissionTemplates?: PermissionTemplate[];
+  permissionTemplates?: T.PermissionTemplate[];
 }
 
 export default class ApplyTemplate extends React.PureComponent<Props, State> {

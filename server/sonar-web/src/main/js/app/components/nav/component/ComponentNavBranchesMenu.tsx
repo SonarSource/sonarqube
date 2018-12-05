@@ -21,7 +21,6 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
-import { BranchLike, Component } from '../../../types';
 import {
   sortBranchesAsTree,
   isLongLivingBranch,
@@ -39,16 +38,16 @@ import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import { DropdownOverlay } from '../../../../components/controls/Dropdown';
 
 interface Props {
-  branchLikes: BranchLike[];
+  branchLikes: T.BranchLike[];
   canAdmin?: boolean;
-  component: Component;
-  currentBranchLike: BranchLike;
+  component: T.Component;
+  currentBranchLike: T.BranchLike;
   onClose: () => void;
 }
 
 interface State {
   query: string;
-  selected: BranchLike | undefined;
+  selected: T.BranchLike | undefined;
 }
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
@@ -136,7 +135,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     }
   };
 
-  handleSelect = (branchLike: BranchLike) => {
+  handleSelect = (branchLike: T.BranchLike) => {
     this.setState({ selected: branchLike });
   };
 
@@ -157,10 +156,10 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     return undefined;
   };
 
-  getProjectBranchUrl = (branchLike: BranchLike) =>
+  getProjectBranchUrl = (branchLike: T.BranchLike) =>
     getBranchLikeUrl(this.props.component.key, branchLike);
 
-  isOrphan = (branchLike: BranchLike) => {
+  isOrphan = (branchLike: T.BranchLike) => {
     return (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && branchLike.isOrphan;
   };
 

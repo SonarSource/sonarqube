@@ -23,7 +23,6 @@ import ProfileRules from '../ProfileRules';
 import * as apiRules from '../../../../api/rules';
 import * as apiQP from '../../../../api/quality-profiles';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { RuleType } from '../../../../app/types';
 
 const PROFILE = {
   activeRuleCount: 68,
@@ -49,10 +48,10 @@ const apiResponseAll = {
     {
       property: 'types',
       values: [
-        { val: RuleType.CodeSmell, count: 168 },
-        { val: RuleType.Bug, count: 68 },
-        { val: RuleType.Vulnerability, count: 7 },
-        { val: RuleType.Hotspot, count: 10 }
+        { val: 'CODE_SMELL', count: 168 },
+        { val: 'BUG', count: 68 },
+        { val: 'VULNERABILITY', count: 7 },
+        { val: 'SECURITY_HOTSPOT', count: 10 }
       ]
     }
   ]
@@ -64,10 +63,10 @@ const apiResponseActive = {
     {
       property: 'types',
       values: [
-        { val: RuleType.Bug, count: 68 },
-        { val: RuleType.CodeSmell, count: 0 },
-        { val: RuleType.Vulnerability, count: 0 },
-        { val: RuleType.Hotspot, count: 0 }
+        { val: 'BUG', count: 68 },
+        { val: 'CODE_SMELL', count: 0 },
+        { val: 'VULNERABILITY', count: 0 },
+        { val: 'SECURITY_HOTSPOT', count: 0 }
       ]
     }
   ]

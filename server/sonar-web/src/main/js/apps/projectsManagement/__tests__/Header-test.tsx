@@ -20,10 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Header, { Props } from '../Header';
-import { Visibility } from '../../../app/types';
 import { click } from '../../../helpers/testUtils';
 
-const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
+const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -44,8 +43,8 @@ it('changes default visibility', () => {
 
   const modalWrapper = wrapper.find('ChangeVisibilityForm');
   expect(modalWrapper).toMatchSnapshot();
-  modalWrapper.prop<Function>('onConfirm')(Visibility.Private);
-  expect(onVisibilityChange).toBeCalledWith(Visibility.Private);
+  modalWrapper.prop<Function>('onConfirm')('private');
+  expect(onVisibilityChange).toBeCalledWith('private');
 
   modalWrapper.prop<Function>('onClose')();
   wrapper.update();

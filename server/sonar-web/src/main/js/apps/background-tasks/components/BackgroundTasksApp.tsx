@@ -43,7 +43,6 @@ import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import '../background-tasks.css';
-import { Task } from '../../../app/types';
 
 interface Props {
   component?: { id: string };
@@ -54,7 +53,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  tasks: Task[];
+  tasks: T.Task[];
   types?: string[];
   query: string;
   pendingCount: number;
@@ -171,7 +170,7 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
     });
   };
 
-  handleCancelTask = (task: Task) => {
+  handleCancelTask = (task: T.Task) => {
     this.setState({ loading: true });
 
     return cancelTaskAPI(task.id).then(nextTask => {
@@ -184,7 +183,7 @@ class BackgroundTasksApp extends React.PureComponent<Props, State> {
     }, this.stopLoading);
   };
 
-  handleFilterTask = (task: Task) => {
+  handleFilterTask = (task: T.Task) => {
     this.handleFilterUpdate({ query: task.componentKey });
   };
 

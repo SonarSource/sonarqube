@@ -20,10 +20,9 @@
 import { flatten } from 'lodash';
 import { splitByTokens } from './highlight';
 import { getLinearLocations } from './issueLocations';
-import { Duplication, Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 
-export function issuesByLine(issues: Issue[]) {
-  const index: { [line: number]: Issue[] } = {};
+export function issuesByLine(issues: T.Issue[]) {
+  const index: { [line: number]: T.Issue[] } = {};
   issues.forEach(issue => {
     const line = issue.textRange ? issue.textRange.endLine : 0;
     if (!(line in index)) {
@@ -34,8 +33,8 @@ export function issuesByLine(issues: Issue[]) {
   return index;
 }
 
-export function locationsByLine(issues: Issue[]) {
-  const index: { [line: number]: LinearIssueLocation[] } = {};
+export function locationsByLine(issues: T.Issue[]) {
+  const index: { [line: number]: T.LinearIssueLocation[] } = {};
   issues.forEach(issue => {
     getLinearLocations(issue.textRange).forEach(location => {
       if (!(location.line in index)) {
@@ -47,7 +46,7 @@ export function locationsByLine(issues: Issue[]) {
   return index;
 }
 
-export function duplicationsByLine(duplications: Duplication[] | undefined) {
+export function duplicationsByLine(duplications: T.Duplication[] | undefined) {
   if (duplications == null) {
     return {};
   }
@@ -71,7 +70,7 @@ export function duplicationsByLine(duplications: Duplication[] | undefined) {
   return duplicationsByLine;
 }
 
-export function symbolsByLine(sources: SourceLine[]) {
+export function symbolsByLine(sources: T.SourceLine[]) {
   const index: { [line: number]: string[] } = {};
   sources.forEach(line => {
     const tokens = splitByTokens(line.code || '');

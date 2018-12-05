@@ -20,14 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchMeasures, { BranchCoverage, BranchDuplications } from '../BranchMeasures';
-import { PullRequest } from '../../../app/types';
 
 const MEASURES = [
   { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
   { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
 ];
 
-const pr: PullRequest = { base: 'master', branch: 'feature-x', key: '5', title: '' };
+const pr: T.PullRequest = { base: 'master', branch: 'feature-x', key: '5', title: '' };
 
 describe('BranchMeasures', () => {
   it('should render coverage and duplications', () => {

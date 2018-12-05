@@ -30,9 +30,8 @@ import {
 } from '../../helpers/query';
 import { parseDate, startOfDay } from '../../helpers/dates';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
-import { Metric, Analysis, Omit } from '../../app/types';
 
-export type ParsedAnalysis = Omit<Analysis, 'date'> & { date: Date };
+export type ParsedAnalysis = T.Omit<T.Analysis, 'date'> & { date: Date };
 
 export interface Query {
   category: string;
@@ -142,7 +141,7 @@ export function generateCoveredLinesMetric(
   };
 }
 
-function findMetric(key: string, metrics: Metric[] | { [key: string]: Metric }) {
+function findMetric(key: string, metrics: T.Metric[] | { [key: string]: T.Metric }) {
   if (Array.isArray(metrics)) {
     return metrics.find(metric => metric.key === key);
   }
@@ -152,7 +151,7 @@ function findMetric(key: string, metrics: Metric[] | { [key: string]: Metric }) 
 export function generateSeries(
   measuresHistory: MeasureHistory[],
   graph: string,
-  metrics: Metric[] | { [key: string]: Metric },
+  metrics: T.Metric[] | { [key: string]: T.Metric },
   displayedMetrics: string[]
 ): Serie[] {
   if (displayedMetrics.length <= 0 || typeof measuresHistory === 'undefined') {

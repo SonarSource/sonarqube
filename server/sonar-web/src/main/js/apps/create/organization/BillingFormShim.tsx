@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { CurrentUser, SubscriptionPlan } from '../../../app/types';
 
 interface ChildrenProps {
   onSubmit: React.FormEventHandler;
@@ -29,11 +28,11 @@ interface ChildrenProps {
 interface Props {
   children: (props: ChildrenProps) => React.ReactElement<any>;
   initialCountry?: string;
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   onCommit: () => void;
   onFailToUpgrade?: () => void;
   organizationKey: string | (() => Promise<string>);
-  subscriptionPlans: SubscriptionPlan[];
+  subscriptionPlans: T.SubscriptionPlan[];
 }
 
 export default class BillingFormShim extends React.Component<Props> {

@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { hasPrivateAccess, isCurrentUserMemberOf } from '../organizations';
-import { OrganizationSubscription } from '../../app/types';
 
-const org = { key: 'foo', name: 'Foo', subscription: OrganizationSubscription.Paid };
+const org: T.Organization = { key: 'foo', name: 'Foo', subscription: 'PAID' };
 const adminOrg = { actions: { admin: true }, key: 'bar', name: 'Bar' };
 const randomOrg = { key: 'bar', name: 'Bar' };
 

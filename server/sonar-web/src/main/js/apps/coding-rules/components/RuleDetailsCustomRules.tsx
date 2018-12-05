@@ -22,7 +22,6 @@ import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import CustomRuleButton from './CustomRuleButton';
 import { searchRules, deleteRule } from '../../../api/rules';
-import { Rule, RuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -33,12 +32,12 @@ import { getRuleUrl } from '../../../helpers/urls';
 interface Props {
   canChange?: boolean;
   organization: string | undefined;
-  ruleDetails: RuleDetails;
+  ruleDetails: T.RuleDetails;
 }
 
 interface State {
   loading: boolean;
-  rules?: Rule[];
+  rules?: T.Rule[];
 }
 
 export default class RuleDetailsCustomRules extends React.PureComponent<Props, State> {
@@ -80,7 +79,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     );
   };
 
-  handleRuleCreate = (newRuleDetails: RuleDetails) => {
+  handleRuleCreate = (newRuleDetails: T.RuleDetails) => {
     if (this.mounted) {
       this.setState(({ rules = [] }: State) => ({
         rules: [...rules, newRuleDetails]
@@ -98,7 +97,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     });
   };
 
-  renderRule = (rule: Rule) => (
+  renderRule = (rule: T.Rule) => (
     <tr data-rule={rule.key} key={rule.key}>
       <td className="coding-rules-detail-list-name">
         <Link to={getRuleUrl(rule.key, this.props.organization)}>{rule.name}</Link>

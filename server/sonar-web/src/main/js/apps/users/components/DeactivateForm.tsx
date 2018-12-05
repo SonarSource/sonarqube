@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { deactivateUser } from '../../../api/users';
-import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -27,7 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export interface Props {
   onClose: () => void;
   onUpdateUsers: () => void;
-  user: User;
+  user: T.User;
 }
 
 interface State {

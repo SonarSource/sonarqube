@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { withRouter, WithRouterProps } from 'react-router';
-import { Organization } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import OnboardingProjectIcon from '../../../components/icons-components/OnboardingProjectIcon';
 import OnboardingAddMembersIcon from '../../../components/icons-components/OnboardingAddMembersIcon';
@@ -28,7 +27,7 @@ import '../../tutorials/styles.css';
 import './OrganizationJustCreated.css';
 
 interface Props {
-  organization: Organization;
+  organization: T.Organization;
 }
 
 export class OrganizationJustCreated extends React.PureComponent<Props & WithRouterProps> {

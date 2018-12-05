@@ -20,16 +20,15 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import MembersListItem from './MembersListItem';
-import { Group, Organization, OrganizationMember } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
-  members: OrganizationMember[];
-  organizationGroups: Group[];
-  organization: Organization;
-  removeMember: (member: OrganizationMember) => void;
+  members: T.OrganizationMember[];
+  organizationGroups: T.Group[];
+  organization: T.Organization;
+  removeMember: (member: T.OrganizationMember) => void;
   updateMemberGroups: (
-    member: OrganizationMember,
+    member: T.OrganizationMember,
     add: Array<string>,
     remove: Array<string>
   ) => void;

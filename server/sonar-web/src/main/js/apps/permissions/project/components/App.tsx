@@ -27,30 +27,23 @@ import UpgradeOrganizationBox from '../../../../components/common/UpgradeOrganiz
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import * as api from '../../../../api/permissions';
 import { translate } from '../../../../helpers/l10n';
-import {
-  Component,
-  Paging,
-  PermissionGroup,
-  PermissionUser,
-  Visibility
-} from '../../../../app/types';
 import '../../styles.css';
 
 interface Props {
-  component: Component;
-  onComponentChange: (changes: Partial<Component>) => void;
+  component: T.Component;
+  onComponentChange: (changes: Partial<T.Component>) => void;
 }
 
 interface State {
   disclaimer: boolean;
   filter: string;
-  groups: PermissionGroup[];
-  groupsPaging?: Paging;
+  groups: T.PermissionGroup[];
+  groupsPaging?: T.Paging;
   loading: boolean;
   query: string;
   selectedPermission?: string;
-  users: PermissionUser[];
-  usersPaging?: Paging;
+  users: T.PermissionUser[];
+  usersPaging?: T.Paging;
 }
 
 export default class App extends React.PureComponent<Props, State> {
@@ -87,7 +80,7 @@ export default class App extends React.PureComponent<Props, State> {
     const { component } = this.props;
     const { filter, query, selectedPermission } = this.state;
 
-    const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
+    const getUsers: Promise<{ paging?: T.Paging; users: T.PermissionUser[] }> =
       filter !== 'groups'
         ? api.getPermissionsUsersForComponent({
             projectKey: component.key,
@@ -98,7 +91,7 @@ export default class App extends React.PureComponent<Props, State> {
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
+    const getGroups: Promise<{ paging?: T.Paging; groups: T.PermissionGroup[] }> =
       filter !== 'users'
         ? api.getPermissionsGroupsForComponent({
             projectKey: component.key,
@@ -307,7 +300,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   handleVisibilityChange = (visibility: string) => {
-    if (visibility === Visibility.Public) {
+    if (visibility === 'public') {
       this.openDisclaimer();
     } else {
       this.turnProjectToPrivate();
@@ -315,28 +308,28 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   turnProjectToPublic = () => {
-    this.props.onComponentChange({ visibility: Visibility.Public });
-    api.changeProjectVisibility(this.props.component.key, Visibility.Public).then(
+    this.props.onComponentChange({ visibility: 'public' });
+    api.changeProjectVisibility(this.props.component.key, 'public').then(
       () => {
         this.loadHolders();
       },
       () => {
         this.props.onComponentChange({
-          visibility: Visibility.Private
+          visibility: 'private'
         });
       }
     );
   };
 
   turnProjectToPrivate = () => {
-    this.props.onComponentChange({ visibility: Visibility.Private });
-    api.changeProjectVisibility(this.props.component.key, Visibility.Private).then(
+    this.props.onComponentChange({ visibility: 'private' });
+    api.changeProjectVisibility(this.props.component.key, 'private').then(
       () => {
         this.loadHolders();
       },
       () => {
         this.props.onComponentChange({
-          visibility: Visibility.Public
+          visibility: 'public'
         });
       }
     );

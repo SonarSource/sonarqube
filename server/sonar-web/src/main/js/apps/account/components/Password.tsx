@@ -21,11 +21,10 @@ import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { LoggedInUser } from '../../../app/types';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  user: LoggedInUser;
+  user: T.LoggedInUser;
 }
 
 interface State {

@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isLoggedIn } from './users';
-import { Organization, OrganizationSubscription, CurrentUser } from '../app/types';
 
-export function isPaidOrganization(organization: Organization | undefined): boolean {
-  return Boolean(organization && organization.subscription === OrganizationSubscription.Paid);
+export function isPaidOrganization(organization: T.Organization | undefined): boolean {
+  return Boolean(organization && organization.subscription === 'PAID');
 }
 
 export function hasPrivateAccess(
-  currentUser: CurrentUser,
-  organization: Organization | undefined,
-  userOrganizations: Organization[]
+  currentUser: T.CurrentUser,
+  organization: T.Organization | undefined,
+  userOrganizations: T.Organization[]
 ): boolean {
   return (
     !isPaidOrganization(organization) ||
@@ -36,9 +35,9 @@ export function hasPrivateAccess(
 }
 
 export function isCurrentUserMemberOf(
-  currentUser: CurrentUser,
-  organization: Organization | undefined,
-  userOrganizations: Organization[]
+  currentUser: T.CurrentUser,
+  organization: T.Organization | undefined,
+  userOrganizations: T.Organization[]
 ): boolean {
   return Boolean(
     organization &&

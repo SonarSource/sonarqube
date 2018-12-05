@@ -21,11 +21,10 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import SeverityIcon from '../../icons-components/SeverityIcon';
 import { sortBySeverity } from '../../../helpers/issues';
-import { Issue, SourceLine } from '../../../app/types';
 
 interface Props {
-  issues: Issue[];
-  line: SourceLine;
+  issues: T.Issue[];
+  line: T.SourceLine;
   onClick: () => void;
 }
 

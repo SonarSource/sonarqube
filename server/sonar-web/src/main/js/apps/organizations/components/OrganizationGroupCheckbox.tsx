@@ -20,10 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import Checkbox from '../../../components/controls/Checkbox';
-import { Group } from '../../../app/types';
 
 interface Props {
-  group: Group;
+  group: T.Group;
   checked: boolean;
   onCheck: (name: string, checked: boolean) => void;
 }

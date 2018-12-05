@@ -18,20 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, postJSON, post } from '../helpers/request';
-import {
-  AlmApplication,
-  AlmOrganization,
-  AlmRepository,
-  AlmUnboundApplication,
-  OrganizationBase
-} from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function bindAlmOrganization(data: { installationId: string; organization: string }) {
   return post('/api/alm_integration/bind_organization', data).catch(throwGlobalError);
 }
 
-export function getAlmAppInfo(): Promise<{ application: AlmApplication }> {
+export function getAlmAppInfo(): Promise<{ application: T.AlmApplication }> {
   return getJSON('/api/alm_integration/show_app_info').catch(throwGlobalError);
 }
 
@@ -53,8 +46,8 @@ function fetchAlmOrganization(data: { installationId: string }, remainingTries: 
 }
 
 export interface GetAlmOrganizationResponse {
-  almOrganization: AlmOrganization;
-  boundOrganization?: OrganizationBase;
+  almOrganization: T.AlmOrganization;
+  boundOrganization?: T.OrganizationBase;
 }
 
 export function getAlmOrganization(data: {
@@ -71,14 +64,14 @@ export function getAlmOrganization(data: {
 
 export function getRepositories(data: {
   organization: string;
-}): Promise<{ repositories: AlmRepository[] }> {
+}): Promise<{ repositories: T.AlmRepository[] }> {
   return getJSON('/api/alm_integration/list_repositories', data).catch(throwGlobalError);
 }
 
-export function listUnboundApplications(): Promise<AlmUnboundApplication[]> {
+export function listUnboundApplications(): Promise<T.AlmUnboundApplication[]> {
   return getJSON('/api/alm_integration/list_unbound_applications').then(
     ({ applications }) =>
-      applications.map((app: AlmUnboundApplication) => ({ ...app, name: app.name || app.key })),
+      applications.map((app: T.AlmUnboundApplication) => ({ ...app, name: app.name || app.key })),
     throwGlobalError
   );
 }

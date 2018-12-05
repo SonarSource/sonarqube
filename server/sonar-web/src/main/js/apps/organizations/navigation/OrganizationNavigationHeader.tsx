@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import { Organization } from '../../../app/types';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
@@ -28,8 +27,8 @@ import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
-  organization: Organization;
-  organizations: Organization[];
+  organization: T.Organization;
+  organizations: T.Organization[];
 }
 
 export default function OrganizationNavigationHeader({ organization, organizations }: Props) {

@@ -24,17 +24,16 @@ import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
 import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { LightComponent, Organization, Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  component?: LightComponent;
-  organization: Organization | undefined;
+  component?: T.LightComponent;
+  organization: T.Organization | undefined;
 }
 
 interface State {
   loading: boolean;
-  webhooks: Webhook[];
+  webhooks: T.Webhook[];
 }
 
 export default class App extends React.PureComponent<Props, State> {

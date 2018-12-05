@@ -21,7 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import BadgeParams from '../BadgeParams';
 import { BadgeType } from '../utils';
-import { Metric } from '../../../../app/types';
 
 jest.mock('../../../../api/web-api', () => ({
   fetchWebApi: () =>
@@ -39,8 +38,8 @@ jest.mock('../../../../api/web-api', () => ({
 }));
 
 const METRICS = {
-  alert_status: { key: 'alert_status', name: 'Quality Gate' } as Metric,
-  coverage: { key: 'coverage', name: 'Coverage' } as Metric
+  alert_status: { key: 'alert_status', name: 'Quality Gate' } as T.Metric,
+  coverage: { key: 'coverage', name: 'Coverage' } as T.Metric
 };
 
 it('should display marketing badge params', () => {

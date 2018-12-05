@@ -20,10 +20,9 @@
 import * as React from 'react';
 import ExtensionContainer from './ExtensionContainer';
 import NotFound from '../NotFound';
-import { Component } from '../../types';
 
 interface Props {
-  component: Component;
+  component: T.Component;
   location: { query: { id: string } };
   params: {
     extensionKey: string;

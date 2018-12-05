@@ -25,10 +25,9 @@ import {
   getPathUrlAsString,
   getProjectUrl
 } from '../../../../../sonar-web/src/main/js/helpers/urls';
-import { ComponentMeasure } from '../../../../../sonar-web/src/main/js/app/types';
 
 interface Props {
-  component: ComponentMeasure;
+  component: T.ComponentMeasure;
 }
 
 const QG_LEVELS: { [level: string]: string } = {

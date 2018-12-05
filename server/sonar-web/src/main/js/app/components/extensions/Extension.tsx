@@ -25,10 +25,9 @@ import { injectIntl, InjectedIntlProps } from 'react-intl';
 import { getExtensionStart } from './utils';
 import { translate } from '../../../helpers/l10n';
 import getStore from '../../utils/getStore';
-import { CurrentUser } from '../../types';
 
 interface OwnProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   extension: { key: string; name: string };
   onFail: (message: string) => void;
   options?: {};

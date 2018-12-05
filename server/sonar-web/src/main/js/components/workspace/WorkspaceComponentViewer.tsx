@@ -22,10 +22,9 @@ import { ComponentDescriptor } from './context';
 import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import SourceViewer from '../SourceViewer/SourceViewer';
-import { SourceViewerFile, Omit } from '../../app/types';
 import { scrollToElement } from '../../helpers/scrolling';
 
-export interface Props extends Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
+export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   component: ComponentDescriptor;
   height: number;
   onClose: (componentKey: string) => void;
@@ -51,7 +50,7 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
     this.props.onClose(this.props.component.key);
   };
 
-  handleLoaded = (component: SourceViewerFile) => {
+  handleLoaded = (component: T.SourceViewerFile) => {
     this.props.onLoad({
       key: this.props.component.key,
       name: component.path,

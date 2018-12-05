@@ -23,17 +23,16 @@ import ApplicationQualityGateProject from './ApplicationQualityGateProject';
 import Level from '../../../components/ui/Level';
 import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
-import { LightComponent, Metric, LongLivingBranch } from '../../../app/types';
 import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
-  branch?: LongLivingBranch;
-  component: LightComponent;
+  branch?: T.LongLivingBranch;
+  component: T.LightComponent;
 }
 
 type State = {
   loading: boolean;
-  metrics?: { [key: string]: Metric };
+  metrics?: { [key: string]: T.Metric };
   projects?: ApplicationProject[];
   status?: string;
 };

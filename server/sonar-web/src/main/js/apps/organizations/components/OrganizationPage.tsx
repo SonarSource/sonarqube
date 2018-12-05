@@ -26,7 +26,6 @@ import OrganizationNavigation from '../navigation/OrganizationNavigation';
 import { fetchOrganization } from '../actions';
 import NotFound from '../../../app/components/NotFound';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Organization, CurrentUser } from '../../../app/types';
 import {
   getOrganizationByKey,
   getCurrentUser,
@@ -41,9 +40,9 @@ interface OwnProps {
 }
 
 interface StateProps {
-  currentUser: CurrentUser;
-  organization?: Organization;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  organization?: T.Organization;
+  userOrganizations: T.Organization[];
 }
 
 interface DispatchToProps {
@@ -86,7 +85,7 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
     this.props.fetchOrganization(organizationKey).then(this.stopLoading, this.stopLoading);
   };
 
-  renderChildren(organization: Organization) {
+  renderChildren(organization: T.Organization) {
     const { location } = this.props;
     const justCreated = Boolean(location.state && location.state.justCreated);
     return justCreated ? (

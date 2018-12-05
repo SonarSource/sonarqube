@@ -27,11 +27,10 @@ import { getLanguageByKey } from '../../../store/languages';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
 import { RawQuery } from '../../../helpers/query';
-import { Languages } from '../../../app/types';
 
 interface Props {
   facet?: Facet;
-  languages: Languages;
+  languages: T.Languages;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
   organization?: { key: string };

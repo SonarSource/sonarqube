@@ -28,14 +28,13 @@ import EmptyFavoriteSearch from './EmptyFavoriteSearch';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { Project } from '../types';
 import { Query } from '../query';
-import { Organization, CurrentUser } from '../../../app/types';
 
 interface Props {
   cardType?: string;
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   isFavorite: boolean;
   isFiltered: boolean;
-  organization: Organization | undefined;
+  organization: T.Organization | undefined;
   projects: Project[];
   query: Query;
 }

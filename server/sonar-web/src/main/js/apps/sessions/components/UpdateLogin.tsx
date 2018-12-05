@@ -21,7 +21,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getIdentityProviders } from '../../../api/users';
 import * as theme from '../../../app/theme';
-import { IdentityProvider } from '../../../app/types';
 import { getTextColor } from '../../../helpers/colors';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
@@ -40,7 +39,7 @@ interface Props {
 }
 
 interface State {
-  identityProviders: IdentityProvider[];
+  identityProviders: T.IdentityProvider[];
   loading: boolean;
 }
 

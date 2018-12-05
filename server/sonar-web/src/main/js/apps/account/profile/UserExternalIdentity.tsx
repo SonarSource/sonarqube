@@ -21,15 +21,14 @@ import * as React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 import * as theme from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
-import { LoggedInUser, IdentityProvider } from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
-  user: LoggedInUser;
+  user: T.LoggedInUser;
 }
 
 interface State {
-  identityProvider?: IdentityProvider;
+  identityProvider?: T.IdentityProvider;
   loading: boolean;
 }
 

@@ -128,7 +128,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleGroupAdd = (addedGroup: Group) => {
+  handleGroupAdd = (addedGroup: T.Group) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         addUserForm: false,
@@ -137,7 +137,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleGroupDelete = (removedGroup: Group) => {
+  handleGroupDelete = (removedGroup: T.Group) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         groups: state.groups && state.groups.filter(group => group !== removedGroup)

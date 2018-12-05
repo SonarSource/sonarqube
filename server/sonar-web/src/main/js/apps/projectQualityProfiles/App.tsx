@@ -27,14 +27,13 @@ import {
   searchQualityProfiles,
   Profile
 } from '../../api/quality-profiles';
-import { Component } from '../../app/types';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
-  component: Component;
+  component: T.Component;
 }
 
 interface State {

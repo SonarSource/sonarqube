@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
-import { Visibility } from '../../../app/types';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
+import { Project } from '../../../api/components';
 
 jest.mock('../../../api/components', () => ({
   getComponentShow: jest.fn(() => Promise.reject(undefined))
@@ -31,13 +31,13 @@ jest.mock('../../../api/nav', () => ({
   getComponentNavigation: jest.fn(() => Promise.resolve())
 }));
 
-const project = {
+const project: Project = {
   id: '',
   key: 'project',
   name: 'Project',
   organization: 'org',
   qualifier: 'TRK',
-  visibility: Visibility.Private
+  visibility: 'private'
 };
 
 it('restores access', async () => {

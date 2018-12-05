@@ -23,13 +23,12 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
-import { IdentityProvider } from '../../../app/types';
 import './OAuthProviders.css';
 
 interface Props {
   className?: string;
   formatLabel?: (name: string) => React.ReactNode;
-  identityProviders: IdentityProvider[];
+  identityProviders: T.IdentityProvider[];
   returnTo: string;
 }
 
@@ -53,7 +52,7 @@ export default function OAuthProviders(props: Props) {
 
 interface ItemProps {
   format: (name: string) => React.ReactNode;
-  identityProvider: IdentityProvider;
+  identityProvider: T.IdentityProvider;
   returnTo: string;
 }
 

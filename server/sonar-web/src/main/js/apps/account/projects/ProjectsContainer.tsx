@@ -22,12 +22,11 @@ import Helmet from 'react-helmet';
 import Projects from './Projects';
 import { getMyProjects } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
-import { MyProject } from '../../../app/types';
 
 interface State {
   loading: boolean;
   page: number;
-  projects?: MyProject[];
+  projects?: T.MyProject[];
   total?: number;
 }
 

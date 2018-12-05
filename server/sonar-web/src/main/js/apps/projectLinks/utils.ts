@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { partition, sortBy } from 'lodash';
-import { ProjectLink } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
-type NameAndType = Pick<ProjectLink, 'name' | 'type'>;
+type NameAndType = Pick<T.ProjectLink, 'name' | 'type'>;
 
-export function isProvided(link: Pick<ProjectLink, 'type'>) {
+export function isProvided(link: Pick<T.ProjectLink, 'type'>) {
   return PROVIDED_TYPES.includes(link.type);
 }
 

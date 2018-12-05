@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { RuleDetails, RuleParameter, RuleType } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
@@ -33,11 +32,11 @@ import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  customRule?: RuleDetails;
+  customRule?: T.RuleDetails;
   onClose: () => void;
-  onDone: (newRuleDetails: RuleDetails) => void;
+  onDone: (newRuleDetails: T.RuleDetails) => void;
   organization: string | undefined;
-  templateRule: RuleDetails;
+  templateRule: T.RuleDetails;
 }
 
 interface State {
@@ -226,7 +225,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </tr>
   );
 
-  renderTypeOption = ({ value }: { value: RuleType }) => {
+  renderTypeOption = ({ value }: { value: T.RuleType }) => {
     return <TypeHelper type={value} />;
   };
 
@@ -302,7 +301,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </tr>
   );
 
-  renderParameterField = (param: RuleParameter) => (
+  renderParameterField = (param: T.RuleParameter) => (
     <tr className="property" key={param.key}>
       <th className="nowrap">
         <h3>{param.key}</h3>

@@ -21,9 +21,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Search, { Props } from '../Search';
 import { click } from '../../../helpers/testUtils';
-import { Visibility } from '../../../app/types';
 
-const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
+const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();

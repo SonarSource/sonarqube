@@ -22,13 +22,12 @@ import AddGraphMetric from './forms/AddGraphMetric';
 import { isCustomGraph, GRAPH_TYPES } from '../utils';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
-import { Metric } from '../../../app/types';
 
 interface Props {
   addCustomMetric: (metric: string) => void;
   removeCustomMetric: (metric: string) => void;
   graph: string;
-  metrics: Metric[];
+  metrics: T.Metric[];
   metricsTypeFilter?: string[];
   selectedMetrics: string[];
   updateGraph: (graphType: string) => void;

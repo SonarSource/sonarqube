@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, translateWithParameters, getCurrentLocale } from './l10n';
-import { Metric, Measure, MeasureEnhanced } from '../app/types';
 
 const HOURS_IN_DAY = 8;
 
@@ -52,18 +51,18 @@ export function getShortType(type: string): string {
 }
 
 export function enhanceMeasuresWithMetrics(
-  measures: Measure[],
-  metrics: Metric[]
-): MeasureEnhanced[] {
+  measures: T.Measure[],
+  metrics: T.Metric[]
+): T.MeasureEnhanced[] {
   return measures.map(measure => {
-    const metric = metrics.find(metric => metric.key === measure.metric) as Metric;
+    const metric = metrics.find(metric => metric.key === measure.metric) as T.Metric;
     return { ...measure, metric };
   });
 }
 
 /** Get period value of a measure */
 export function getPeriodValue(
-  measure: Measure | MeasureEnhanced,
+  measure: T.Measure | T.MeasureEnhanced,
   periodIndex: number
 ): string | undefined {
   const { periods } = measure;
@@ -72,7 +71,7 @@ export function getPeriodValue(
 }
 
 export function isPeriodBestValue(
-  measure: Measure | MeasureEnhanced,
+  measure: T.Measure | T.MeasureEnhanced,
   periodIndex: number
 ): boolean {
   const { periods } = measure;
@@ -356,6 +355,6 @@ export function getRatingTooltip(metricKey: string, value: number | string): str
     : translate('metric', finalMetricKey, 'tooltip', ratingLetter);
 }
 
-export function getDisplayMetrics(metrics: Metric[]) {
+export function getDisplayMetrics(metrics: T.Metric[]) {
   return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
 }

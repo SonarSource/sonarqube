@@ -21,10 +21,9 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineCoverage from '../LineCoverage';
 import { click } from '../../../../helpers/testUtils';
-import { SourceLine } from '../../../../app/types';
 
 it('render covered line', () => {
-  const line: SourceLine = { line: 3, coverageStatus: 'covered' };
+  const line: T.SourceLine = { line: 3, coverageStatus: 'covered' };
   const wrapper = shallow(
     <LineCoverage
       branchLike={undefined}
@@ -39,7 +38,7 @@ it('render covered line', () => {
 });
 
 it('render uncovered line', () => {
-  const line: SourceLine = { line: 3, coverageStatus: 'uncovered' };
+  const line: T.SourceLine = { line: 3, coverageStatus: 'uncovered' };
   const wrapper = shallow(
     <LineCoverage
       branchLike={undefined}
@@ -53,7 +52,7 @@ it('render uncovered line', () => {
 });
 
 it('render line with unknown coverage', () => {
-  const line: SourceLine = { line: 3 };
+  const line: T.SourceLine = { line: 3 };
   const wrapper = shallow(
     <LineCoverage
       branchLike={undefined}
@@ -67,7 +66,7 @@ it('render line with unknown coverage', () => {
 });
 
 it('should open coverage popup', () => {
-  const line: SourceLine = { line: 3, coverageStatus: 'covered' };
+  const line: T.SourceLine = { line: 3, coverageStatus: 'covered' };
   const onPopupToggle = jest.fn();
   const wrapper = shallow(
     <LineCoverage

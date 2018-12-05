@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineIssuesList from '../LineIssuesList';
-import { Issue, IssueType } from '../../../../app/types';
 
-const issueBase: Issue = {
+const issueBase: T.Issue = {
   actions: [],
   component: '',
   componentLongName: '',
@@ -44,11 +43,11 @@ const issueBase: Issue = {
   severity: '',
   status: '',
   transitions: [],
-  type: IssueType.Bug
+  type: 'BUG'
 };
 
 it('render issues list', () => {
-  const issues: Issue[] = [{ ...issueBase, key: 'foo' }, { ...issueBase, key: 'bar' }];
+  const issues: T.Issue[] = [{ ...issueBase, key: 'foo' }, { ...issueBase, key: 'bar' }];
   const onIssueClick = jest.fn();
   const wrapper = shallow(
     <LineIssuesList

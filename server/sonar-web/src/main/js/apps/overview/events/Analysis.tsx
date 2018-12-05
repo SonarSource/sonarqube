@@ -21,11 +21,10 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import Event from './Event';
 import DateTooltipFormatter from '../../../components/intl/DateTooltipFormatter';
-import { Analysis as AnalysisType } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  analysis: AnalysisType;
+  analysis: T.Analysis;
   qualifier: string;
 }
 

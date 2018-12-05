@@ -28,11 +28,10 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import CreateProjectForm from '../CreateProjectForm';
 import { change, submit, waitAndUpdate } from '../../../helpers/testUtils';
-import { Visibility } from '../../../app/types';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
 
-const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
+const organization: T.Organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
 it('creates project', async () => {
   const wrapper = shallow(
@@ -51,7 +50,7 @@ it('creates project', async () => {
   change(wrapper.find('input[name="key"]'), 'key', {
     currentTarget: { name: 'key', value: 'key' }
   });
-  wrapper.find('VisibilitySelector').prop<Function>('onChange')(Visibility.Private);
+  wrapper.find('VisibilitySelector').prop<Function>('onChange')('private');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 
@@ -60,7 +59,7 @@ it('creates project', async () => {
     name: 'name',
     organization: 'org',
     project: 'key',
-    visibility: Visibility.Private
+    visibility: 'private'
   });
   expect(wrapper).toMatchSnapshot();
 

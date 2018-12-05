@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import * as theme from '../../../app/theme';
-import { IdentityProvider, User } from '../../../app/types';
 import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/urls';
 
 interface Props {
-  identityProvider?: IdentityProvider;
-  user: User;
+  identityProvider?: T.IdentityProvider;
+  user: T.User;
 }
 
 export default function UserListItemIdentity({ identityProvider, user }: Props) {

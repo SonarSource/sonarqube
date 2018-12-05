@@ -21,7 +21,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import { AnalysisEvent } from '../../../app/types';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import Level from '../../../components/ui/Level';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
@@ -29,9 +28,9 @@ import { ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 
-export type RichQualityGateEvent = AnalysisEvent & Required<Pick<AnalysisEvent, 'qualityGate'>>;
+export type RichQualityGateEvent = T.AnalysisEvent & Required<Pick<T.AnalysisEvent, 'qualityGate'>>;
 
-export function isRichQualityGateEvent(event: AnalysisEvent): event is RichQualityGateEvent {
+export function isRichQualityGateEvent(event: T.AnalysisEvent): event is RichQualityGateEvent {
   return event.category === 'QUALITY_GATE' && event.qualityGate !== undefined;
 }
 

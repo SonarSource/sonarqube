@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ComponentNavMeta } from '../ComponentNavMeta';
-import { BranchType, ShortLivingBranch, LongLivingBranch, PullRequest } from '../../../../types';
 
 const COMPONENT = {
   analysisDate: '2017-01-02T00:00:00.000Z',
@@ -38,12 +37,12 @@ const MEASURES = [
 ];
 
 it('renders status of short-living branch', () => {
-  const branch: ShortLivingBranch = {
+  const branch: T.ShortLivingBranch = {
     isMain: false,
     mergeBranch: 'master',
     name: 'feature',
     status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
   expect(
     shallow(
@@ -59,11 +58,11 @@ it('renders status of short-living branch', () => {
 });
 
 it('renders meta for long-living branch', () => {
-  const branch: LongLivingBranch = {
+  const branch: T.LongLivingBranch = {
     isMain: false,
     name: 'release',
     status: { qualityGateStatus: 'OK' },
-    type: BranchType.LONG
+    type: 'LONG'
   };
   expect(
     shallow(
@@ -78,7 +77,7 @@ it('renders meta for long-living branch', () => {
 });
 
 it('renders meta for pull request', () => {
-  const pullRequest: PullRequest = {
+  const pullRequest: T.PullRequest = {
     base: 'master',
     branch: 'feature',
     key: '1234',

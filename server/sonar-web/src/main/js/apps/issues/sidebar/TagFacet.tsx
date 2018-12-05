@@ -22,14 +22,13 @@ import { omit } from 'lodash';
 import { Query, Facet } from '../utils';
 import { searchIssueTags } from '../../../api/issues';
 import * as theme from '../../../app/theme';
-import { Component } from '../../../app/types';
 import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { highlightTerm } from '../../../helpers/search';
 
 interface Props {
-  component: Component | undefined;
+  component: T.Component | undefined;
   fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;

@@ -29,7 +29,6 @@ import Select from '../../components/controls/Select';
 import SearchBox from '../../components/controls/SearchBox';
 import { Button } from '../../components/ui/buttons';
 import { Project } from '../../api/components';
-import { Organization, Visibility } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {
@@ -42,7 +41,7 @@ export interface Props {
   onQualifierChanged: (qualifier: string) => void;
   onVisibilityChanged: (qualifier: string) => void;
   onSearch: (query: string) => void;
-  organization: Organization;
+  organization: T.Organization;
   projects: Project[];
   provisioned: boolean;
   qualifiers: string;
@@ -51,7 +50,7 @@ export interface Props {
   selection: any[];
   topLevelQualifiers: string[];
   total: number;
-  visibility?: Visibility;
+  visibility?: T.Visibility;
 }
 
 interface State {

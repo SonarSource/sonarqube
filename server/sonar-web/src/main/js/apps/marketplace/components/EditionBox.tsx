@@ -21,14 +21,14 @@ import * as React from 'react';
 import tooltipDCE from 'Docs/tooltips/editions/datacenter.md';
 import tooltipDE from 'Docs/tooltips/editions/developer.md';
 import tooltipEE from 'Docs/tooltips/editions/enterprise.md';
-import { Edition, getEditionUrl, EditionKey } from '../utils';
+import { Edition, getEditionUrl } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { lazyLoad } from '../../../components/lazyLoad';
 
 const DocMarkdownBlock = lazyLoad(() => import('../../../components/docs/DocMarkdownBlock'));
 
 interface Props {
-  currentEdition?: EditionKey;
+  currentEdition?: T.EditionKey;
   edition: Edition;
   ncloc?: number;
   serverId?: string;

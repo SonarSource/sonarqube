@@ -20,10 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { createStore } from 'redux';
-import { CurrentUser } from '../../../app/types';
 import { withCurrentUser } from '../withCurrentUser';
 
-class X extends React.Component<{ currentUser: CurrentUser }> {
+class X extends React.Component<{ currentUser: T.CurrentUser }> {
   render() {
     return <div />;
   }

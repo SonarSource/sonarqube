@@ -18,13 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBranchesAsTree, isSameBranchLike } from '../branches';
-import {
-  MainBranch,
-  BranchType,
-  ShortLivingBranch,
-  LongLivingBranch,
-  PullRequest
-} from '../../app/types';
 
 describe('#sortBranchesAsTree', () => {
   it('sorts main branch and short-living branches', () => {
@@ -102,28 +95,28 @@ describe('#isSameBranchLike', () => {
   });
 });
 
-function mainBranch(): MainBranch {
+function mainBranch(): T.MainBranch {
   return { isMain: true, name: 'master' };
 }
 
-function shortLivingBranch(overrides?: Partial<ShortLivingBranch>): ShortLivingBranch {
+function shortLivingBranch(overrides?: Partial<T.ShortLivingBranch>): T.ShortLivingBranch {
   const status = { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 };
   return {
     isMain: false,
     mergeBranch: 'master',
     name: 'foo',
     status,
-    type: BranchType.SHORT,
+    type: 'SHORT',
     ...overrides
   };
 }
 
-function longLivingBranch(overrides?: Partial<LongLivingBranch>): LongLivingBranch {
+function longLivingBranch(overrides?: Partial<T.LongLivingBranch>): T.LongLivingBranch {
   const status = { qualityGateStatus: 'OK' };
-  return { isMain: false, name: 'foo', status, type: BranchType.LONG, ...overrides };
+  return { isMain: false, name: 'foo', status, type: 'LONG', ...overrides };
 }
 
-function pullRequest(overrides?: Partial<PullRequest>): PullRequest {
+function pullRequest(overrides?: Partial<T.PullRequest>): T.PullRequest {
   const status = { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 };
   return {
     base: 'master',

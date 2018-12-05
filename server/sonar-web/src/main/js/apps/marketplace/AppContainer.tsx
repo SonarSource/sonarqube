@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
-import { EditionKey } from './utils';
 import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 import { RawQuery } from '../../helpers/query';
 import MarketplaceContext from '../../app/components/MarketplaceContext';
@@ -30,7 +29,7 @@ interface OwnProps {
 }
 
 interface StateToProps {
-  currentEdition?: EditionKey;
+  currentEdition?: T.EditionKey;
   standaloneMode?: boolean;
   updateCenterActive: boolean;
 }

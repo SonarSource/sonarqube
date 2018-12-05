@@ -20,17 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBranchesMenu from '../ComponentNavBranchesMenu';
-import {
-  BranchType,
-  MainBranch,
-  ShortLivingBranch,
-  LongLivingBranch,
-  Component,
-  PullRequest
-} from '../../../../types';
 import { elementKeydown } from '../../../../../helpers/testUtils';
 
-const component = { key: 'component' } as Component;
+const component = { key: 'component' } as T.Component;
 
 it('renders list', () => {
   expect(
@@ -90,26 +82,26 @@ it('selects next & previous', () => {
   expect(wrapper.state().selected).toEqual(shortBranch('foo'));
 });
 
-function mainBranch(): MainBranch {
+function mainBranch(): T.MainBranch {
   return { isMain: true, name: 'master' };
 }
 
-function shortBranch(name: string, isOrphan?: true): ShortLivingBranch {
+function shortBranch(name: string, isOrphan?: true): T.ShortLivingBranch {
   return {
     isMain: false,
     isOrphan,
     mergeBranch: 'master',
     name,
     status: { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 },
-    type: BranchType.SHORT
+    type: 'SHORT'
   };
 }
 
-function longBranch(name: string): LongLivingBranch {
-  return { isMain: false, name, type: BranchType.LONG };
+function longBranch(name: string): T.LongLivingBranch {
+  return { isMain: false, name, type: 'LONG' };
 }
 
-function pullRequest(title: string): PullRequest {
+function pullRequest(title: string): T.PullRequest {
   return {
     base: 'master',
     branch: 'feature',

@@ -23,7 +23,6 @@ import ReadMore from './ReadMore';
 import TagsIcon from '../../../components/icons-components/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import { AppState } from '../../../app/types';
 
 const link = 'https://redirect.sonarsource.com/doc/rules.html';
 
@@ -32,7 +31,7 @@ const owaspTags =
 const sans25Tags = 'sans-top25-porous,sans-top25-risky,sans-top25-insecure';
 
 interface Props {
-  appState: Pick<AppState, 'defaultOrganization' | 'organizationsEnabled'>;
+  appState: Pick<T.AppState, 'defaultOrganization' | 'organizationsEnabled'>;
 }
 
 export default function AboutStandards({ appState }: Props) {

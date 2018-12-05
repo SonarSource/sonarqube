@@ -22,7 +22,6 @@ import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import AnalyzeTutorial from '../../tutorials/analyzeProject/AnalyzeTutorial';
 import MetaContainer from '../meta/MetaContainer';
-import { BranchLike, Component, CurrentUser } from '../../../app/types';
 import { isLongLivingBranch, isBranch, isMainBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
@@ -31,15 +30,15 @@ import '../../../app/styles/sonarcloud.css';
 import { Alert } from '../../../components/ui/Alert';
 
 interface OwnProps {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
-  component: Component;
+  branchLike?: T.BranchLike;
+  branchLikes: T.BranchLike[];
+  component: T.Component;
   hasAnalyses?: boolean;
   onComponentChange: (changes: {}) => void;
 }
 
 interface StateProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
 }
 
 type Props = OwnProps & StateProps;
@@ -99,7 +98,7 @@ export function WarningMessage({
   branchLike,
   message
 }: {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   message: string;
 }) {
   if (!isBranch(branchLike)) {

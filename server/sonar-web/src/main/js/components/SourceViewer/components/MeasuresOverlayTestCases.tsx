@@ -23,12 +23,11 @@ import { orderBy } from 'lodash';
 import MeasuresOverlayCoveredFiles from './MeasuresOverlayCoveredFiles';
 import MeasuresOverlayTestCase from './MeasuresOverlayTestCase';
 import { getTests } from '../../../api/tests';
-import { TestCase, BranchLike } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   componentKey: string;
 }
 
@@ -37,7 +36,7 @@ interface State {
   selectedTestId?: string;
   sort?: string;
   sortAsc?: boolean;
-  testCases?: TestCase[];
+  testCases?: T.TestCase[];
 }
 
 export default class MeasuresOverlayTestCases extends React.PureComponent<Props, State> {
@@ -174,7 +173,7 @@ export default class MeasuresOverlayTestCases extends React.PureComponent<Props,
   }
 }
 
-function sortTestCases(testCases: TestCase[], sort: string, sortAsc: boolean) {
+function sortTestCases(testCases: T.TestCase[], sort: string, sortAsc: boolean) {
   const mainOrder = sortAsc ? 'asc' : 'desc';
   if (sort === 'duration') {
     return orderBy(testCases, ['durationInMs', 'name'], [mainOrder, 'asc']);

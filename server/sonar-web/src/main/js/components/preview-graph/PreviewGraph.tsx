@@ -37,16 +37,15 @@ import {
 import { get } from '../../helpers/storage';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
-import { BranchLike, Metric } from '../../app/types';
 
 interface History {
   [x: string]: Array<{ date: Date; value?: string }>;
 }
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   history?: History;
-  metrics: { [key: string]: Metric };
+  metrics: { [key: string]: T.Metric };
   project: string;
   renderWhenEmpty?: () => React.ReactNode;
 }
@@ -120,7 +119,7 @@ export default class PreviewGraph extends React.PureComponent<Props, State> {
     history: History | undefined,
     graph: string,
     customMetrics: string[],
-    metrics: { [x: string]: Metric }
+    metrics: { [x: string]: T.Metric }
   ) => {
     const myHistory = history;
     if (!myHistory) {

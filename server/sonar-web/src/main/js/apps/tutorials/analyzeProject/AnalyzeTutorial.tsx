@@ -21,7 +21,6 @@ import * as React from 'react';
 import AnalyzeTutorialSuggestion from './AnalyzeTutorialSuggestion';
 import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
 import TokenStep from '../components/TokenStep';
-import { Component, LoggedInUser } from '../../../app/types';
 import { isVSTS } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
@@ -32,8 +31,8 @@ enum Steps {
 }
 
 interface Props {
-  component: Component;
-  currentUser: LoggedInUser;
+  component: T.Component;
+  currentUser: T.LoggedInUser;
 }
 
 interface State {

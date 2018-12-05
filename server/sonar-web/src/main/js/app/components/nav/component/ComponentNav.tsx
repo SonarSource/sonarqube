@@ -24,17 +24,16 @@ import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
 import * as theme from '../../../theme';
-import { BranchLike, Component, Measure, Task } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
 interface Props {
-  branchLikes: BranchLike[];
-  branchMeasures?: Measure[];
-  currentBranchLike: BranchLike | undefined;
-  component: Component;
-  currentTask?: Task;
+  branchLikes: T.BranchLike[];
+  branchMeasures?: T.Measure[];
+  currentBranchLike: T.BranchLike | undefined;
+  component: T.Component;
+  currentTask?: T.Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;

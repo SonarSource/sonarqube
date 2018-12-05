@@ -24,14 +24,13 @@ import Modal from '../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import OrganizationGroupCheckbox from '../organizations/components/OrganizationGroupCheckbox';
 import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
-import { Organization, OrganizationMember, Group } from '../../app/types';
 
 interface Props {
   onClose: () => void;
-  member: OrganizationMember;
-  organization: Organization;
-  organizationGroups: Group[];
-  updateMemberGroups: (member: OrganizationMember, add: string[], remove: string[]) => void;
+  member: T.OrganizationMember;
+  organization: T.Organization;
+  organizationGroups: T.Group[];
+  updateMemberGroups: (member: T.OrganizationMember, add: string[], remove: string[]) => void;
 }
 
 interface State {

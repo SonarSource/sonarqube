@@ -18,17 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, hasMessage } from '../../helpers/l10n';
-import {
-  Omit,
-  Setting,
-  SettingCategoryDefinition,
-  SettingType,
-  SettingDefinition
-} from '../../app/types';
 
 export const DEFAULT_CATEGORY = 'general';
 
-export type DefaultSpecializedInputProps = Omit<DefaultInputProps, 'setting'> & {
+export type DefaultSpecializedInputProps = T.Omit<DefaultInputProps, 'setting'> & {
   isDefault: boolean;
   name: string;
 };
@@ -38,16 +31,16 @@ export interface DefaultInputProps {
   onCancel?: () => void;
   onChange: (value: any) => void;
   onSave?: () => void;
-  setting: Setting;
+  setting: T.Setting;
   value: any;
 }
 
-export function getPropertyName(definition: SettingDefinition) {
+export function getPropertyName(definition: T.SettingDefinition) {
   const key = `property.${definition.key}.name`;
   return hasMessage(key) ? translate(key) : definition.name;
 }
 
-export function getPropertyDescription(definition: SettingDefinition) {
+export function getPropertyDescription(definition: T.SettingDefinition) {
   const key = `property.${definition.key}.description`;
   return hasMessage(key) ? translate(key) : definition.description;
 }
@@ -67,66 +60,68 @@ export function getSubCategoryDescription(category: string, subCategory: string)
   return hasMessage(key) ? translate(key) : null;
 }
 
-export function getUniqueName(definition: SettingDefinition, index?: string) {
+export function getUniqueName(definition: T.SettingDefinition, index?: string) {
   const indexSuffix = index ? `[${index}]` : '';
   return `settings[${definition.key}]${indexSuffix}`;
 }
 
-export function getSettingValue({ definition, fieldValues, value, values }: Setting) {
+export function getSettingValue({ definition, fieldValues, value, values }: T.Setting) {
   if (isCategoryDefinition(definition) && definition.multiValues) {
     return values;
-  } else if (definition.type === SettingType.PropertySet) {
+  } else if (definition.type === 'PROPERTY_SET') {
     return fieldValues;
   } else {
     return value;
   }
 }
 
-export function isEmptyValue(definition: SettingDefinition, value: any) {
+export function isEmptyValue(definition: T.SettingDefinition, value: any) {
   if (value == null) {
     return true;
-  } else if (definition.type === SettingType.Boolean) {
+  } else if (definition.type === 'BOOLEAN') {
     return false;
   } else {
     return value.length === 0;
   }
 }
 
-export function isCategoryDefinition(item: SettingDefinition): item is SettingCategoryDefinition {
+export function isCategoryDefinition(
+  item: T.SettingDefinition
+): item is T.SettingCategoryDefinition {
   return Boolean((item as any).fields);
 }
 
-export function getEmptyValue(item: SettingDefinition | SettingCategoryDefinition): any {
+export function getEmptyValue(item: T.SettingDefinition | T.SettingCategoryDefinition): any {
   if (isCategoryDefinition(item)) {
     if (item.multiValues) {
       return [getEmptyValue({ ...item, multiValues: false })];
     }
 
-    if (item.type === SettingType.PropertySet) {
+    if (item.type === 'PROPERTY_SET') {
       const value: { [key: string]: string } = {};
       item.fields.forEach(field => (value[field.key] = getEmptyValue(field)));
       return [value];
     }
   }
 
-  if (item.type === SettingType.Boolean || item.type === SettingType.SingleSelectList) {
+  if (item.type === 'BOOLEAN' || item.type === 'SINGLE_SELECT_LIST') {
     return null;
   }
   return '';
 }
 
-export function isDefaultOrInherited(setting: Setting) {
+export function isDefaultOrInherited(setting: T.Setting) {
   return Boolean(setting.inherited);
 }
 
-export function getDefaultValue(setting: Setting) {
+export function getDefaultValue(setting: T.Setting) {
   const { definition, parentFieldValues, parentValue, parentValues } = setting;
 
-  if (definition.type === SettingType.Password) {
+  if (definition.type === 'PASSWORD') {
     return translate('settings.default.password');
   }
 
-  if (definition.type === SettingType.Boolean && parentValue) {
+  if (definition.type === 'BOOLEAN' && parentValue) {
     const isTrue = parentValue === 'true';
     return isTrue ? translate('settings.boolean.true') : translate('settings.boolean.false');
   }
@@ -140,11 +135,7 @@ export function getDefaultValue(setting: Setting) {
     return parentValues.join(', ');
   }
 
-  if (
-    definition.type === SettingType.PropertySet &&
-    parentFieldValues &&
-    parentFieldValues.length > 0
-  ) {
+  if (definition.type === 'PROPERTY_SET' && parentFieldValues && parentFieldValues.length > 0) {
     return translate('settings.default.complex_value');
   }
 

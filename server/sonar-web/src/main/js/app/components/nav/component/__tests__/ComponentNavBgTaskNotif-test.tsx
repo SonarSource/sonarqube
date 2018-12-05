@@ -27,7 +27,6 @@ jest.mock('../../../../../helpers/l10n', () => {
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
-import { Task } from '../../../../types';
 
 const component = {
   analysisDate: '2017-01-02T00:00:00.000Z',
@@ -46,7 +45,7 @@ it('renders background task error correctly', () => {
 it('renders background task error correctly for a different branch/PR', () => {
   expect(
     getWrapper({
-      currentTask: { branch: 'my/branch', status: 'FAILED' } as Task,
+      currentTask: { branch: 'my/branch', status: 'FAILED' } as T.Task,
       currentTaskOnSameBranch: false
     })
   ).toMatchSnapshot();
@@ -56,7 +55,7 @@ it('renders background task error correctly for a different branch/PR', () => {
         pullRequest: '650',
         pullRequestTitle: 'feature/my_pr',
         status: 'FAILED'
-      } as Task,
+      } as T.Task,
       currentTaskOnSameBranch: false
     })
   ).toMatchSnapshot();
@@ -89,7 +88,7 @@ function getWrapper(props = {}) {
   return shallow(
     <ComponentNavBgTaskNotif
       component={component}
-      currentTask={{ status: 'FAILED' } as Task}
+      currentTask={{ status: 'FAILED' } as T.Task}
       {...props}
     />
   );

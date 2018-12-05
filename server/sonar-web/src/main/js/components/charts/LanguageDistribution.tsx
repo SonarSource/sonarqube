@@ -22,12 +22,11 @@ import { sortBy } from 'lodash';
 import Histogram from './Histogram';
 import { formatMeasure } from '../../helpers/measures';
 import { translate } from '../../helpers/l10n';
-import { Languages } from '../../app/types';
 
 interface Props {
   alignTicks?: boolean;
   distribution: string;
-  languages: Languages;
+  languages: T.Languages;
   width: number;
 }
 

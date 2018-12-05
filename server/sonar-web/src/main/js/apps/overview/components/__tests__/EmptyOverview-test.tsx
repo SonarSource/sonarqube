@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EmptyOverview from '../EmptyOverview';
-import { BranchType } from '../../../../app/types';
 
-const branch = { isMain: true, name: 'b', type: BranchType.LONG };
+const branch = { isMain: true, name: 'b', type: 'LONG' };
 
 it('renders', () => {
   expect(

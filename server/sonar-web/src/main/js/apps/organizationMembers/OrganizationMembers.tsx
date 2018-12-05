@@ -27,19 +27,18 @@ import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../components/controls/ListFooter';
 import DocTooltip from '../../components/docs/DocTooltip';
 import { translate } from '../../helpers/l10n';
-import { Group, Organization, OrganizationMember, Paging } from '../../app/types';
 import { searchMembers, addMember, removeMember } from '../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../api/user_groups';
 
 interface Props {
-  organization: Organization;
+  organization: T.Organization;
 }
 
 interface State {
-  groups: Group[];
+  groups: T.Group[];
   loading: boolean;
-  members?: OrganizationMember[];
-  paging?: Paging;
+  members?: T.OrganizationMember[];
+  paging?: T.Paging;
   query: string;
 }
 
@@ -123,7 +122,7 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
     }, this.stopLoading);
   };
 
-  handleAddMember = ({ login }: OrganizationMember) => {
+  handleAddMember = ({ login }: T.OrganizationMember) => {
     // TODO optimistic update
     addMember({ login, organization: this.props.organization.key }).then(
       member => {
@@ -138,7 +137,7 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
     );
   };
 
-  handleRemoveMember = ({ login }: OrganizationMember) => {
+  handleRemoveMember = ({ login }: T.OrganizationMember) => {
     // TODO optimistic update
     removeMember({ login, organization: this.props.organization.key }).then(
       () => {
@@ -153,13 +152,16 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
     );
   };
 
-  updateGroup = (login: string, updater: (member: OrganizationMember) => OrganizationMember) => {
+  updateGroup = (
+    login: string,
+    updater: (member: T.OrganizationMember) => T.OrganizationMember
+  ) => {
     this.setState(({ members }) => ({
       members: members && members.map(member => (member.login === login ? updater(member) : member))
     }));
   };
 
-  updateMemberGroups = ({ login }: OrganizationMember, add: string[], remove: string[]) => {
+  updateMemberGroups = ({ login }: T.OrganizationMember, add: string[], remove: string[]) => {
     // TODO optimistic update
     const promises = [
       ...add.map(name =>

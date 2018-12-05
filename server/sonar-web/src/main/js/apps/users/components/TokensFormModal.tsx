@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import TokensForm from './TokensForm';
-import { User } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  user: User;
+  user: T.User;
   onClose: () => void;
   updateTokensCount: (login: string, tokensCount: number) => void;
 }

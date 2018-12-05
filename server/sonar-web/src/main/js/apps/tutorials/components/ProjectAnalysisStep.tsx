@@ -22,11 +22,10 @@ import Step from './Step';
 import LanguageForm from './LanguageForm';
 import AnalysisCommand from './commands/AnalysisCommand';
 import { translate } from '../../../helpers/l10n';
-import { Component } from '../../../app/types';
 import { LanguageConfig } from '../utils';
 
 interface Props {
-  component?: Component;
+  component?: T.Component;
   displayRowLayout?: boolean;
   onFinish?: (projectKey?: string) => void;
   onReset?: () => void;

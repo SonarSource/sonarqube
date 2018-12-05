@@ -22,10 +22,9 @@ import { uniq } from 'lodash';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
 import CrossFileLocationsNavigator from './CrossFileLocationsNavigator';
 import { getLocations } from '../utils';
-import { Issue } from '../../../app/types';
 
 interface Props {
-  issue: Pick<Issue, 'component' | 'key' | 'flows' | 'secondaryLocations'>;
+  issue: Pick<T.Issue, 'component' | 'key' | 'flows' | 'secondaryLocations'>;
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
   selectedFlowIndex: number | undefined;

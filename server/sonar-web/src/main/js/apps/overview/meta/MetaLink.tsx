@@ -19,11 +19,10 @@
  */
 import * as React from 'react';
 import { getLinkName } from '../../projectLinks/utils';
-import { ProjectLink } from '../../../app/types';
 import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 
 interface Props {
-  link: ProjectLink;
+  link: T.ProjectLink;
 }
 
 export default function MetaLink({ link }: Props) {

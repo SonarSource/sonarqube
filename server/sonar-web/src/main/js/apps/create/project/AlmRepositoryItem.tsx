@@ -24,15 +24,14 @@ import * as theme from '../../../app/theme';
 import Checkbox from '../../../components/controls/Checkbox';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
 import Tooltip from '../../../components/controls/Tooltip';
-import { AlmRepository, IdentityProvider } from '../../../app/types';
 import { getBaseUrl, getProjectUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  identityProvider: IdentityProvider;
-  repository: AlmRepository;
+  identityProvider: T.IdentityProvider;
+  repository: T.AlmRepository;
   selected: boolean;
-  toggleRepository: (repository: AlmRepository) => void;
+  toggleRepository: (repository: T.AlmRepository) => void;
 }
 
 export default class AlmRepositoryItem extends React.PureComponent<Props> {

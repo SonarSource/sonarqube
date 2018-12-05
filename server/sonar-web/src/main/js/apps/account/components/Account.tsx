@@ -22,7 +22,6 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Nav from './Nav';
 import UserCard from './UserCard';
-import { CurrentUser, LoggedInUser } from '../../../app/types';
 import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
@@ -30,7 +29,7 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../account.css';
 
 interface Props {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   customOrganizations?: boolean;
 }
 
@@ -55,7 +54,7 @@ class Account extends React.PureComponent<Props> {
         <Helmet defaultTitle={title} titleTemplate={'%s - ' + title} />
         <header className="account-header">
           <div className="account-container clearfix">
-            <UserCard user={currentUser as LoggedInUser} />
+            <UserCard user={currentUser as T.LoggedInUser} />
             <Nav customOrganizations={this.props.customOrganizations} />
           </div>
         </header>

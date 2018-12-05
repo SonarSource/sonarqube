@@ -19,7 +19,6 @@
  */
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
-import { Issue, Paging } from '../../app/types';
 import { formatMeasure } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
 import {
@@ -215,7 +214,7 @@ export const searchAssignees = (
   query: string,
   organization: string | undefined,
   page = 1
-): Promise<{ paging: Paging; results: SearchedAssignee[] }> => {
+): Promise<{ paging: T.Paging; results: SearchedAssignee[] }> => {
   return organization
     ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
         paging,
@@ -235,7 +234,7 @@ export const saveMyIssues = (myIssues: boolean) =>
   save(ISSUES_DEFAULT, myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
 
 export function getLocations(
-  { flows, secondaryLocations }: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  { flows, secondaryLocations }: Pick<T.Issue, 'flows' | 'secondaryLocations'>,
   selectedFlowIndex: number | undefined
 ) {
   if (selectedFlowIndex !== undefined) {
@@ -246,7 +245,7 @@ export function getLocations(
 }
 
 export function getSelectedLocation(
-  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>,
   selectedFlowIndex: number | undefined,
   selectedLocationIndex: number | undefined
 ) {
@@ -263,7 +262,7 @@ export function getSelectedLocation(
 }
 
 export function allLocationsEmpty(
-  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
+  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>,
   selectedFlowIndex: number | undefined
 ) {
   return getLocations(issue, selectedFlowIndex).every(location => !location.msg);

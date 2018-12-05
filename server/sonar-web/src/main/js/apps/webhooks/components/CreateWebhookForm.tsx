@@ -22,13 +22,12 @@ import { FormikProps } from 'formik';
 import { isWebUri } from 'valid-url';
 import ValidationModal from '../../../components/controls/ValidationModal';
 import InputValidationField from '../../../components/controls/InputValidationField';
-import { Webhook } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;
   onDone: (data: { name: string; url: string }) => Promise<void>;
-  webhook?: Webhook;
+  webhook?: T.Webhook;
 }
 
 interface Values {

@@ -22,7 +22,6 @@ import { shallow } from 'enzyme';
 import ComponentNavLicenseNotif from '../ComponentNavLicenseNotif';
 import { isValidLicense } from '../../../../../api/marketplace';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
-import { Task } from '../../../../types';
 
 jest.mock('../../../../../helpers/l10n', () => {
   const l10n = require.requireActual('../../../../../helpers/l10n');
@@ -74,7 +73,7 @@ it('renders correctly for LICENSING_LOC error', async () => {
 function getWrapper(props = {}, context = {}) {
   return shallow(
     <ComponentNavLicenseNotif
-      currentTask={{ errorMessage: 'Foo', errorType: 'LICENSING' } as Task}
+      currentTask={{ errorMessage: 'Foo', errorType: 'LICENSING' } as T.Task}
       {...props}
     />,
     { context: { canAdmin: true, ...context } }

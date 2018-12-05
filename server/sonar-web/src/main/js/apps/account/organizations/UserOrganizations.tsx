@@ -30,12 +30,11 @@ import {
   getGlobalSettingValue,
   Store
 } from '../../../store/rootReducer';
-import { Organization } from '../../../app/types';
 
 interface StateProps {
   anyoneCanCreate: boolean;
   canAdmin?: boolean;
-  organizations: Organization[];
+  organizations: T.Organization[];
 }
 
 interface DispatchProps {

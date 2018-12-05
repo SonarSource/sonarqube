@@ -22,7 +22,6 @@ import { shallow } from 'enzyme';
 import RuleDetailsIssues from '../RuleDetailsIssues';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getFacet } from '../../../../api/issues';
-import { RuleType } from '../../../../app/types';
 
 jest.mock('../../../../api/issues', () => ({
   getFacet: jest.fn().mockResolvedValue({
@@ -39,14 +38,14 @@ beforeEach(() => {
 });
 
 it('should fetch issues and render', async () => {
-  await check(RuleType.Bug, undefined);
+  await check('BUG', undefined);
 });
 
 it('should handle hotspot rules', async () => {
-  await check(RuleType.Hotspot, [RuleType.Vulnerability, RuleType.Hotspot]);
+  await check('SECURITY_HOTSPOT', ['VULNERABILITY', 'SECURITY_HOTSPOT']);
 });
 
-async function check(ruleType: RuleType, requestedTypes: RuleType[] | undefined) {
+async function check(ruleType: T.RuleType, requestedTypes: T.RuleType[] | undefined) {
   const wrapper = shallow(
     <RuleDetailsIssues organization="org" ruleDetails={{ key: 'foo', type: ruleType }} />
   );

@@ -21,13 +21,12 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Location } from 'history';
-import { CurrentUser } from '../types';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { getHomePageUrl } from '../../helpers/urls';
 import { isLoggedIn } from '../../helpers/users';
 
 interface StateProps {
-  currentUser: CurrentUser | undefined;
+  currentUser: T.CurrentUser | undefined;
 }
 
 interface OwnProps {

@@ -22,14 +22,13 @@ import * as classNames from 'classnames';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { PermissionDefinition, PermissionDefinitionGroup } from '../../../../app/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   onSelectPermission?: (permission: string) => void;
-  permission: PermissionDefinition | PermissionDefinitionGroup;
+  permission: T.PermissionDefinition | T.PermissionDefinitionGroup;
   selectedPermission?: string;
   showPublicProjectsWarning?: boolean;
 }

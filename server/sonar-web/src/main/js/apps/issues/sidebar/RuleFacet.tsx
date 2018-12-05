@@ -22,7 +22,6 @@ import { omit } from 'lodash';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { Query, ReferencedRule, Facet } from '../utils';
 import { searchRules } from '../../../api/rules';
-import { Rule } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -57,7 +56,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
     }));
   };
 
-  loadSearchResultCount = (rules: Rule[]) => {
+  loadSearchResultCount = (rules: T.Rule[]) => {
     return this.props.loadSearchResultCount('rules', { rules: rules.map(rule => rule.key) });
   };
 
@@ -72,13 +71,13 @@ export default class RuleFacet extends React.PureComponent<Props> {
     return langName ? `(${langName}) ${name}` : name;
   };
 
-  renderSearchResult = (rule: Rule) => {
+  renderSearchResult = (rule: T.Rule) => {
     return this.formatRuleName(rule.name, rule.langName);
   };
 
   render() {
     return (
-      <ListStyleFacet<Rule>
+      <ListStyleFacet<T.Rule>
         facetHeader={translate('issues.facet.rules')}
         fetching={this.props.fetching}
         getFacetItemText={this.getRuleName}

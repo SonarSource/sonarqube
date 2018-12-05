@@ -24,10 +24,9 @@ import Password from './Password';
 import Tokens from './Tokens';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { LoggedInUser } from '../../../app/types';
 
 interface Props {
-  user: LoggedInUser;
+  user: T.LoggedInUser;
 }
 
 function Security({ user }: Props) {
@@ -41,7 +40,7 @@ function Security({ user }: Props) {
 }
 
 const mapStateToProps = (state: Store) => ({
-  user: getCurrentUser(state) as LoggedInUser
+  user: getCurrentUser(state) as T.LoggedInUser
 });
 
 export default connect(mapStateToProps)(Security);

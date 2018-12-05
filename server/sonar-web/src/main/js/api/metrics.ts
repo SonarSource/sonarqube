@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON } from '../helpers/request';
-import { Metric } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface MetricsResponse {
-  metrics: Metric[];
+  metrics: T.Metric[];
   p: number;
   ps: number;
   total: number;
@@ -40,13 +39,13 @@ export function getAllMetrics(data?: {
   isCustom?: boolean;
   p?: number;
   ps?: number;
-}): Promise<Metric[]> {
+}): Promise<T.Metric[]> {
   return inner(data);
 
   function inner(
     data: { p?: number; ps?: number } = { ps: 500 },
     prev?: MetricsResponse
-  ): Promise<Metric[]> {
+  ): Promise<T.Metric[]> {
     return getMetrics(data).then(r => {
       const result = prev ? prev.metrics.concat(r.metrics) : r.metrics;
       if (r.p * r.ps >= r.total) {
@@ -71,7 +70,7 @@ export function createMetric(data: {
   key: string;
   name: string;
   type: string;
-}): Promise<Metric> {
+}): Promise<T.Metric> {
   return postJSON('/api/metrics/create', data).catch(throwGlobalError);
 }
 

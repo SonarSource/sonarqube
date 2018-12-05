@@ -30,13 +30,12 @@ import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import { translate, translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
-import { BranchLike, ComponentMeasureEnhanced, Metric } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  components: ComponentMeasureEnhanced[];
+  branchLike?: T.BranchLike;
+  components: T.ComponentMeasureEnhanced[];
   handleSelect: (component: string) => void;
-  metric: Metric;
+  metric: T.Metric;
 }
 
 interface State {
@@ -105,7 +104,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
       .domain(['ERROR', 'WARN', 'OK', 'NONE'])
       .range(LEVEL_COLORS);
 
-  getPercentColorScale = (metric: Metric) => {
+  getPercentColorScale = (metric: T.Metric) => {
     const color = scaleLinear<string, string>().domain([0, 25, 50, 75, 100]);
     color.range(metric.direction === 1 ? [...COLORS].reverse() : COLORS);
     return color;
@@ -116,7 +115,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
       .domain([1, 2, 3, 4, 5])
       .range(COLORS);
 
-  getColorScale = (metric: Metric) => {
+  getColorScale = (metric: T.Metric) => {
     if (metric.type === 'LEVEL') {
       return this.getLevelColorScale();
     }
@@ -133,10 +132,10 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     sizeMetric,
     sizeValue
   }: {
-    colorMetric: Metric;
+    colorMetric: T.Metric;
     colorValue?: string;
     componentName: string;
-    sizeMetric: Metric;
+    sizeMetric: T.Metric;
     sizeValue: number;
   }) => {
     const formatted =

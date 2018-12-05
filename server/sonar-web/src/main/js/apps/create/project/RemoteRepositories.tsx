@@ -21,21 +21,20 @@ import * as React from 'react';
 import AlmRepositoryItem from './AlmRepositoryItem';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { getRepositories, provisionProject } from '../../../api/alm-integration';
-import { AlmApplication, AlmRepository } from '../../../app/types';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  almApplication: AlmApplication;
+  almApplication: T.AlmApplication;
   onProjectCreate: (projectKeys: string[], organization: string) => void;
   organization: string;
 }
 
-type SelectedRepositories = { [key: string]: AlmRepository | undefined };
+type SelectedRepositories = { [key: string]: T.AlmRepository | undefined };
 
 interface State {
   loading: boolean;
-  repositories: AlmRepository[];
+  repositories: T.AlmRepository[];
   selectedRepositories: SelectedRepositories;
   submitting: boolean;
 }
@@ -123,7 +122,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
     );
   };
 
-  toggleRepository = (repository: AlmRepository) => {
+  toggleRepository = (repository: T.AlmRepository) => {
     this.setState(({ selectedRepositories }) => ({
       selectedRepositories: {
         ...selectedRepositories,

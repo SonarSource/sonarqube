@@ -28,7 +28,6 @@ import RuleDetailsProfiles from './RuleDetailsProfiles';
 import { Query, Activation } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails, deleteRule, updateRule } from '../../../api/rules';
-import { RuleActivation, RuleDetails as IRuleDetails } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DocTooltip from '../../../components/docs/DocTooltip';
@@ -51,9 +50,9 @@ interface Props {
 }
 
 interface State {
-  actives?: RuleActivation[];
+  actives?: T.RuleActivation[];
   loading: boolean;
-  ruleDetails?: IRuleDetails;
+  ruleDetails?: T.RuleDetails;
 }
 
 export default class RuleDetails extends React.PureComponent<Props, State> {
@@ -95,7 +94,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       }
     );
 
-  handleRuleChange = (ruleDetails: IRuleDetails) => {
+  handleRuleChange = (ruleDetails: T.RuleDetails) => {
     if (this.mounted) {
       this.setState({ ruleDetails });
     }

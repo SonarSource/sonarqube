@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Metric } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
@@ -36,7 +35,7 @@ export interface MetricProps {
 interface Props {
   confirmButtonText: string;
   domains: string[];
-  metric?: Metric;
+  metric?: T.Metric;
   header: string;
   onClose: () => void;
   onSubmit: (data: MetricProps) => Promise<void>;

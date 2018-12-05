@@ -22,7 +22,6 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import BranchRow from './BranchRow';
 import LongBranchesPattern from './LongBranchesPattern';
-import { BranchLike } from '../../../app/types';
 import {
   sortBranchesAsTree,
   getBranchLikeKey,
@@ -35,7 +34,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 
 interface Props {
-  branchLikes: BranchLike[];
+  branchLikes: T.BranchLike[];
   canAdmin?: boolean;
   component: { key: string };
   onBranchesChange: () => void;
@@ -78,7 +77,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  isOrphan = (branchLike: BranchLike) => {
+  isOrphan = (branchLike: T.BranchLike) => {
     return (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && branchLike.isOrphan;
   };
 

@@ -22,13 +22,12 @@ import MetaTagsSelector from './MetaTagsSelector';
 import { setProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import TagsList from '../../../components/tags/TagsList';
-import { Component } from '../../../app/types';
 import { Button } from '../../../components/ui/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 
 interface Props {
-  component: Component;
+  component: T.Component;
   onComponentChange: (changes: {}) => void;
 }
 

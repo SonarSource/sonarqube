@@ -20,12 +20,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { createStore } from 'redux';
-import { Organization } from '../../../app/types';
 import { withUserOrganizations } from '../withUserOrganizations';
 
 jest.mock('../../../api/organizations', () => ({ getOrganizations: jest.fn() }));
 
-class X extends React.Component<{ userOrganizations: Organization[] }> {
+class X extends React.Component<{ userOrganizations: T.Organization[] }> {
   render() {
     return <div />;
   }

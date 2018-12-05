@@ -18,5 +18,5 @@
     },
     "sourceMap": true
   },
-  "include": ["./src/main/js/**/*"]
+  "include": ["./src/main/js/**/*", "../sonar-web/src/main/js/app/types.d.ts"]
 }

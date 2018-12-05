@@ -34,15 +34,14 @@ import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
-import { AppState, CurrentUser } from '../../types';
 import './Search.css';
 
 const SearchResults = lazyLoad(() => import('./SearchResults'));
 const SearchResult = lazyLoad(() => import('./SearchResult'));
 
 interface OwnProps {
-  appState: Pick<AppState, 'organizationsEnabled'>;
-  currentUser: CurrentUser;
+  appState: Pick<T.AppState, 'organizationsEnabled'>;
+  currentUser: T.CurrentUser;
 }
 
 type Props = OwnProps & WithRouterProps;

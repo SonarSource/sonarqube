@@ -21,11 +21,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import ExtensionContainer from './ExtensionContainer';
 import NotFound from '../NotFound';
-import { Extension } from '../../types';
 import { getAppState, Store } from '../../../store/rootReducer';
 
 interface Props {
-  adminPages: Extension[] | undefined;
+  adminPages: T.Extension[] | undefined;
   params: { extensionKey: string; pluginKey: string };
 }
 

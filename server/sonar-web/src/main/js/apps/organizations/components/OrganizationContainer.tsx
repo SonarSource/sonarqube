@@ -21,11 +21,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from 'react-router';
 import { getCurrentUser, getOrganizationByKey, Store } from '../../../store/rootReducer';
-import { Organization, CurrentUser } from '../../../app/types';
 
 interface StateToProps {
-  organization?: Organization;
-  currentUser: CurrentUser;
+  organization?: T.Organization;
+  currentUser: T.CurrentUser;
 }
 
 interface OwnProps extends RouterState {

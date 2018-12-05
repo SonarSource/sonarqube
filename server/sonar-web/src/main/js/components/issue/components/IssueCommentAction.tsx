@@ -24,13 +24,12 @@ import { Button } from '../../ui/buttons';
 import CommentPopup from '../popups/CommentPopup';
 import { addIssueComment } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import { Issue } from '../../../app/types';
 
 interface Props {
   commentPlaceholder: string;
   currentPopup?: string;
   issueKey: string;
-  onChange: (issue: Issue) => void;
+  onChange: (issue: T.Issue) => void;
   toggleComment: (open?: boolean, placeholder?: string) => void;
 }
 

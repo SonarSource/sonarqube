@@ -29,15 +29,6 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import BadgesModal from '../badges/BadgesModal';
 import AnalysesList from '../events/AnalysesList';
-import {
-  Visibility,
-  Component,
-  Metric,
-  BranchLike,
-  CurrentUser,
-  Organization,
-  MeasureEnhanced
-} from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { hasPrivateAccess } from '../../../helpers/organizations';
 import {
@@ -49,19 +40,19 @@ import {
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 interface StateToProps {
-  currentUser: CurrentUser;
-  organization?: Organization;
-  userOrganizations: Organization[];
+  currentUser: T.CurrentUser;
+  organization?: T.Organization;
+  userOrganizations: T.Organization[];
 }
 
 interface OwnProps {
-  branchLike?: BranchLike;
-  component: Component;
+  branchLike?: T.BranchLike;
+  component: T.Component;
   history?: {
     [metric: string]: Array<{ date: Date; value?: string }>;
   };
-  measures?: MeasureEnhanced[];
-  metrics?: { [key: string]: Metric };
+  measures?: T.MeasureEnhanced[];
+  metrics?: { [key: string]: T.Metric };
   onComponentChange: (changes: {}) => void;
 }
 
@@ -113,7 +104,7 @@ export class Meta extends React.PureComponent<Props> {
 
     const isProject = qualifier === 'TRK';
     const isApp = qualifier === 'APP';
-    const isPrivate = visibility === Visibility.Private;
+    const isPrivate = visibility === 'private';
     return (
       <div className="overview-meta">
         <div className="overview-meta-card">

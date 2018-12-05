@@ -25,7 +25,6 @@ import { getOrganizations } from '../../api/organizations';
 import { searchProjects, Facet } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { isDiffMetric, getPeriodValue } from '../../helpers/measures';
-import { Organization } from '../../app/types';
 
 interface SortingOption {
   class?: string;
@@ -164,7 +163,7 @@ export function parseSorting(sort: string): { sortValue: string; sortDesc: boole
 export function fetchProjects(
   query: Query,
   isFavorite: boolean,
-  organization: Organization | undefined,
+  organization: T.Organization | undefined,
   pageIndex = 1
 ) {
   const ps = query.view === 'visualizations' ? PAGE_SIZE_VISUALIZATIONS : PAGE_SIZE;
@@ -259,7 +258,7 @@ export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Qu
 
 export function fetchProjectOrganizations(
   projects: Array<{ organization: string }>,
-  organization: Organization | undefined
+  organization: T.Organization | undefined
 ) {
   if (organization) {
     return Promise.resolve([organization]);

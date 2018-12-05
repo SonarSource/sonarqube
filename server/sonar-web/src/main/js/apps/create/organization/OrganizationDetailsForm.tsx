@@ -25,16 +25,15 @@ import OrganizationDescriptionInput from '../components/OrganizationDescriptionI
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
 import OrganizationNameInput from '../components/OrganizationNameInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
-import { OrganizationBase } from '../../../app/types';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
-type RequiredOrganization = Required<OrganizationBase>;
+type RequiredOrganization = Required<T.OrganizationBase>;
 
 interface Props {
   keyReadOnly?: boolean;
   onContinue: (organization: RequiredOrganization) => Promise<void>;
-  organization?: OrganizationBase & { key: string };
+  organization?: T.OrganizationBase & { key: string };
   submitText: string;
 }
 

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationListItem from '../OrganizationListItem';
-import { Visibility } from '../../../app/types';
 
 it('renders', () => {
   expect(
@@ -30,7 +29,7 @@ it('renders', () => {
           actions: { admin: true },
           key: 'org',
           name: 'org',
-          projectVisibility: Visibility.Public
+          projectVisibility: 'public'
         }}
       />
     )

@@ -25,16 +25,15 @@ import SizeRating from '../../../components/ui/SizeRating';
 import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { LightComponent, BranchLike, MeasureEnhanced } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: LightComponent;
-  measures: MeasureEnhanced[];
+  branchLike?: T.BranchLike;
+  component: T.LightComponent;
+  measures: T.MeasureEnhanced[];
 }
 
 export default class MetaSize extends React.PureComponent<Props> {
-  renderLoC = (ncloc?: MeasureEnhanced) => (
+  renderLoC = (ncloc?: T.MeasureEnhanced) => (
     <div
       className={classNames('overview-meta-size-ncloc', {
         'is-half-width': this.props.component.qualifier === 'APP'

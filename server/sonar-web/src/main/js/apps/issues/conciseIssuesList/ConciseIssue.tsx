@@ -20,14 +20,13 @@
 import * as React from 'react';
 import ConciseIssueBox from './ConciseIssueBox';
 import ConciseIssueComponent from './ConciseIssueComponent';
-import { Issue } from '../../../app/types';
 
 interface Props {
-  issue: Issue;
+  issue: T.Issue;
   onFlowSelect: (index: number) => void;
   onLocationSelect: (index: number) => void;
   onSelect: (issueKey: string) => void;
-  previousIssue: Issue | undefined;
+  previousIssue: T.Issue | undefined;
   scroll: (element: Element) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;

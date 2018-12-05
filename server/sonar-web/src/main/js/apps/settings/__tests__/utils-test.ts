@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getEmptyValue, getDefaultValue } from '../utils';
-import { SettingFieldDefinition, SettingCategoryDefinition, SettingType } from '../../../app/types';
 
 const fields = [
-  { key: 'foo', type: SettingType.String } as SettingFieldDefinition,
-  { key: 'bar', type: SettingType.SingleSelectList } as SettingFieldDefinition
+  { key: 'foo', type: 'STRING' } as T.SettingFieldDefinition,
+  { key: 'bar', type: 'SINGLE_SELECT_LIST' } as T.SettingFieldDefinition
 ];
 
-const settingDefinition: SettingCategoryDefinition = {
+const settingDefinition: T.SettingCategoryDefinition = {
   category: 'test',
   fields: [],
   key: 'test',
@@ -35,25 +34,37 @@ const settingDefinition: SettingCategoryDefinition = {
 
 describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
-    const setting = { ...settingDefinition, type: SettingType.PropertySet, fields };
+    const setting: T.SettingCategoryDefinition = {
+      ...settingDefinition,
+      type: 'PROPERTY_SET',
+      fields
+    };
     expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
   });
 
   it('should work for multi values string', () => {
-    const setting = { ...settingDefinition, type: SettingType.String, multiValues: true };
+    const setting: T.SettingCategoryDefinition = {
+      ...settingDefinition,
+      type: 'STRING',
+      multiValues: true
+    };
     expect(getEmptyValue(setting)).toEqual(['']);
   });
 
   it('should work for multi values boolean', () => {
-    const setting = { ...settingDefinition, type: SettingType.Boolean, multiValues: true };
+    const setting: T.SettingCategoryDefinition = {
+      ...settingDefinition,
+      type: 'BOOLEAN',
+      multiValues: true
+    };
     expect(getEmptyValue(setting)).toEqual([null]);
   });
 });
 
 describe('#getDefaultValue()', () => {
   const check = (parentValue?: string, expected?: string) => {
-    const setting = {
-      definition: { key: 'test', options: [], type: SettingType.Boolean },
+    const setting: T.Setting = {
+      definition: { key: 'test', options: [], type: 'BOOLEAN' },
       parentValue,
       key: 'test'
     };

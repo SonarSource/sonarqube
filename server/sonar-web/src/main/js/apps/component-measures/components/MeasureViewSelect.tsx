@@ -24,11 +24,10 @@ import TreemapIcon from '../../../components/icons-components/TreemapIcon';
 import Select from '../../../components/controls/Select';
 import { hasList, hasTree, hasTreemap } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { Metric } from '../../../app/types';
 
 interface Props {
   className?: string;
-  metric: Metric;
+  metric: T.Metric;
   handleViewChange: (view: string) => void;
   view: string;
 }

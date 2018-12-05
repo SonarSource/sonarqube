@@ -50,37 +50,33 @@ import {
   translate
 } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
-import {
-  BranchLike,
-  ComponentMeasure,
-  CurrentUser,
-  MeasureEnhanced,
-  Metric,
-  Period
-} from '../../../app/types';
 import '../../../components/search-navigator.css';
 import '../style.css';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasure;
-  currentUser: CurrentUser;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasure;
+  currentUser: T.CurrentUser;
   location: { pathname: string; query: RawQuery };
   fetchMeasures: (
     component: string,
     metricsKey: string[],
-    branchLike?: BranchLike
-  ) => Promise<{ component: ComponentMeasure; measures: MeasureEnhanced[]; leakPeriod?: Period }>;
+    branchLike?: T.BranchLike
+  ) => Promise<{
+    component: T.ComponentMeasure;
+    measures: T.MeasureEnhanced[];
+    leakPeriod?: T.Period;
+  }>;
   fetchMetrics: () => void;
-  metrics: { [metric: string]: Metric };
+  metrics: { [metric: string]: T.Metric };
   metricsKey: string[];
   router: InjectedRouter;
 }
 
 interface State {
   loading: boolean;
-  measures: MeasureEnhanced[];
-  leakPeriod?: Period;
+  measures: T.MeasureEnhanced[];
+  leakPeriod?: T.Period;
 }
 
 export default class App extends React.PureComponent<Props, State> {
@@ -162,7 +158,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  getHelmetTitle = (query: Query, displayOverview: boolean, metric?: Metric) => {
+  getHelmetTitle = (query: Query, displayOverview: boolean, metric?: T.Metric) => {
     if (displayOverview && query.metric) {
       return isProjectOverview(query.metric)
         ? translate('component_measures.overview.project_overview.facet')
@@ -205,7 +201,7 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
-  renderContent = (displayOverview: boolean, query: Query, metric?: Metric) => {
+  renderContent = (displayOverview: boolean, query: Query, metric?: T.Metric) => {
     const { branchLike, component, fetchMeasures, metrics } = this.props;
     const { leakPeriod } = this.state;
     if (displayOverview) {

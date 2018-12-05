@@ -20,7 +20,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import LineIssuesList from './LineIssuesList';
-import { BranchLike, Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 import LocationIndex from '../../common/LocationIndex';
 import LocationMessage from '../../common/LocationMessage';
 import {
@@ -31,17 +30,17 @@ import {
 } from '../helpers/highlight';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
-  issueLocations: LinearIssueLocation[];
+  issueLocations: T.LinearIssueLocation[];
   issuePopup: { issue: string; name: string } | undefined;
-  issues: Issue[];
-  line: SourceLine;
-  onIssueChange: (issue: Issue) => void;
+  issues: T.Issue[];
+  line: T.SourceLine;
+  onIssueChange: (issue: T.Issue) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: ((index: number) => void) | undefined;

@@ -24,16 +24,15 @@ import { getComponentShow } from '../../../api/components';
 import { getProjectUrl } from '../../../helpers/urls';
 import { isViewType, Query } from '../utils';
 import { getBranchLikeQuery } from '../../../helpers/branches';
-import { BranchLike, ComponentMeasure, CurrentUser, Metric, Period } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
+  branchLike?: T.BranchLike;
   className?: string;
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   domain: string;
-  leakPeriod?: Period;
-  metrics: { [metric: string]: Metric };
-  rootComponent: ComponentMeasure;
+  leakPeriod?: T.Period;
+  metrics: { [metric: string]: T.Metric };
+  rootComponent: T.ComponentMeasure;
   router: InjectedRouter;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
@@ -45,7 +44,7 @@ interface LoadingState {
 }
 
 interface State {
-  component?: ComponentMeasure;
+  component?: T.ComponentMeasure;
   loading: LoadingState;
 }
 

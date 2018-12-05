@@ -37,10 +37,9 @@ import {
   getLocalizedMetricName,
   translate
 } from '../../../helpers/l10n';
-import { MeasureEnhanced } from '../../../app/types';
 
 interface Props {
-  domain: { name: string; measures: MeasureEnhanced[] };
+  domain: { name: string; measures: T.MeasureEnhanced[] };
   hasOverview: boolean;
   onChange: (metric: string) => void;
   onToggle: (property: string) => void;
@@ -63,7 +62,11 @@ export default class DomainFacet extends React.PureComponent<Props> {
     this.props.onToggle(this.props.domain.name);
   };
 
-  hasFacetSelected = (domain: { name: string }, measures: MeasureEnhanced[], selected: string) => {
+  hasFacetSelected = (
+    domain: { name: string },
+    measures: T.MeasureEnhanced[],
+    selected: string
+  ) => {
     const measureSelected = measures.find(measure => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && this.hasOverview(domain.name);
     return measureSelected || overviewSelected;
@@ -73,7 +76,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
     return this.props.hasOverview && hasBubbleChart(domain);
   };
 
-  renderItemFacetStat = (item: MeasureEnhanced) => {
+  renderItemFacetStat = (item: T.MeasureEnhanced) => {
     return hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null;
   };
 

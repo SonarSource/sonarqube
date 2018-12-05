@@ -19,9 +19,8 @@
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging, HomePage, CurrentUser, IdentityProvider, User } from '../app/types';
 
-export function getCurrentUser(): Promise<CurrentUser> {
+export function getCurrentUser(): Promise<T.CurrentUser> {
   return getJSON('/api/users/current');
 }
 
@@ -46,7 +45,7 @@ export function getUserGroups(
   organization?: string,
   query?: string,
   selected?: string
-): Promise<{ paging: Paging; groups: UserGroup[] }> {
+): Promise<{ paging: T.Paging; groups: UserGroup[] }> {
   const data: RequestData = { login };
   if (organization) {
     data.organization = organization;
@@ -60,7 +59,7 @@ export function getUserGroups(
   return getJSON('/api/users/groups', data);
 }
 
-export function getIdentityProviders(): Promise<{ identityProviders: IdentityProvider[] }> {
+export function getIdentityProviders(): Promise<{ identityProviders: T.IdentityProvider[] }> {
   return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }
 
@@ -68,7 +67,7 @@ export function searchUsers(data: {
   p?: number;
   ps?: number;
   q?: string;
-}): Promise<{ paging: Paging; users: User[] }> {
+}): Promise<{ paging: T.Paging; users: T.User[] }> {
   data.q = data.q || undefined;
   return getJSON('/api/users/search', data).catch(throwGlobalError);
 }
@@ -89,14 +88,14 @@ export function updateUser(data: {
   login: string;
   name?: string;
   scmAccount: string[];
-}): Promise<User> {
+}): Promise<T.User> {
   return postJSON('/api/users/update', {
     ...data,
     scmAccount: data.scmAccount.length > 0 ? data.scmAccount : ''
   });
 }
 
-export function deactivateUser(data: { login: string }): Promise<User> {
+export function deactivateUser(data: { login: string }): Promise<T.User> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 
@@ -104,6 +103,6 @@ export function skipOnboarding(): Promise<void | Response> {
   return post('/api/users/skip_onboarding_tutorial').catch(throwGlobalError);
 }
 
-export function setHomePage(homepage: HomePage): Promise<void | Response> {
+export function setHomePage(homepage: T.HomePage): Promise<void | Response> {
   return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
 }

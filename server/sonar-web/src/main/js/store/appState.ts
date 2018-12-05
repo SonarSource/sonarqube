@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ActionType } from './utils/actions';
-import { Extension, AppState } from '../app/types';
 import { EditionKey } from '../apps/marketplace/utils';
 
 export const enum Actions {
@@ -32,11 +31,11 @@ export type Action =
   | ActionType<typeof setAdminPages, Actions.SetAdminPages>
   | ActionType<typeof requireAuthorization, Actions.RequireAuthorization>;
 
-export function setAppState(appState: AppState) {
+export function setAppState(appState: T.AppState) {
   return { type: Actions.SetAppState, appState };
 }
 
-export function setAdminPages(adminPages: Extension[]) {
+export function setAdminPages(adminPages: T.Extension[]) {
   return { type: Actions.SetAdminPages, adminPages };
 }
 
@@ -44,7 +43,7 @@ export function requireAuthorization() {
   return { type: Actions.RequireAuthorization };
 }
 
-const defaultValue: AppState = {
+const defaultValue: T.AppState = {
   authenticationError: false,
   authorizationError: false,
   defaultOrganization: '',
@@ -56,7 +55,7 @@ const defaultValue: AppState = {
   version: ''
 };
 
-export default function(state: AppState = defaultValue, action: Action): AppState {
+export default function(state: T.AppState = defaultValue, action: Action): T.AppState {
   if (action.type === Actions.SetAppState) {
     return { ...state, ...action.appState };
   }

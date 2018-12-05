@@ -21,7 +21,6 @@ import * as React from 'react';
 import RemoteRepositories from './RemoteRepositories';
 import OrganizationInput from './OrganizationInput';
 import IdentityProviderLink from '../../../components/ui/IdentityProviderLink';
-import { AlmApplication, Organization } from '../../../app/types';
 import {
   ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP
@@ -30,8 +29,8 @@ import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 
 interface Props {
-  almApplication: AlmApplication;
-  boundOrganizations: Organization[];
+  almApplication: T.AlmApplication;
+  boundOrganizations: T.Organization[];
   onProjectCreate: (projectKeys: string[], organization: string) => void;
   organization?: string;
 }
@@ -61,7 +60,7 @@ export default class AutoProjectCreate extends React.PureComponent<Props, State>
     save(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP, Date.now().toString(10));
   };
 
-  handleOrganizationSelect = ({ key }: Organization) => {
+  handleOrganizationSelect = ({ key }: T.Organization) => {
     this.setState({ selectedOrganization: key });
   };
 

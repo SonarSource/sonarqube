@@ -19,10 +19,9 @@
  */
 import * as React from 'react';
 import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
-import { Issue } from '../../../app/types';
 
 interface Props {
-  issue: Pick<Issue, 'flows' | 'secondaryLocations'>;
+  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>;
   onFlowSelect: (index: number) => void;
   selectedFlowIndex: number | undefined;
 }

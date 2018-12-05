@@ -21,7 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import BulkChangeModal from '../BulkChangeModal';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { Issue, IssueType } from '../../../../app/types';
 
 jest.mock('../../../../api/issues', () => ({
   searchIssueTags: () => Promise.resolve([undefined, []])
@@ -57,14 +56,14 @@ it('should display form when issues are present', async () => {
       severity: 'foo',
       status: 'foo',
       transitions: [],
-      type: IssueType.Bug
+      type: 'BUG'
     }
   ]);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
-const getWrapper = (issues: Issue[]) => {
+const getWrapper = (issues: T.Issue[]) => {
   return shallow(
     <BulkChangeModal
       component={undefined}

@@ -19,7 +19,6 @@
  */
 import { post, getJSON, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Rule, RuleDetails, RuleActivation } from '../app/types';
 
 export interface GetRulesAppResponse {
   canWrite?: boolean;
@@ -33,11 +32,11 @@ export function getRulesApp(data: {
 }
 
 export interface SearchRulesResponse {
-  actives?: { [rule: string]: RuleActivation[] };
+  actives?: { [rule: string]: T.RuleActivation[] };
   facets?: { property: string; values: { count: number; val: string }[] }[];
   p: number;
   ps: number;
-  rules: Rule[];
+  rules: T.Rule[];
   total: number;
 }
 
@@ -57,7 +56,7 @@ export function getRuleDetails(parameters: {
   actives?: boolean;
   key: string;
   organization: string | undefined;
-}): Promise<{ actives?: RuleActivation[]; rule: RuleDetails }> {
+}): Promise<{ actives?: T.RuleActivation[]; rule: T.RuleDetails }> {
   return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
@@ -80,7 +79,7 @@ export function createRule(data: {
   status?: string;
   template_key: string;
   type?: string;
-}): Promise<RuleDetails> {
+}): Promise<T.RuleDetails> {
   return postJSON('/api/rules/create', data).then(
     r => r.rule,
     error => {
@@ -112,6 +111,6 @@ export function updateRule(data: {
   severity?: string;
   status?: string;
   tags?: string;
-}): Promise<RuleDetails> {
+}): Promise<T.RuleDetails> {
   return postJSON('/api/rules/update', data).then(r => r.rule, throwGlobalError);
 }

@@ -19,9 +19,8 @@
  */
 import { getJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { SubscriptionPlan } from '../app/types';
 
-export function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+export function getSubscriptionPlans(): Promise<T.SubscriptionPlan[]> {
   return getJSON('/api/billing/show_subscription_plans').then(
     ({ subscriptionPlans }) => subscriptionPlans,
     throwGlobalError

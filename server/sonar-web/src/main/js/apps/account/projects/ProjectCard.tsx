@@ -26,10 +26,9 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Level from '../../../components/ui/Level';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
-import { MyProject } from '../../../app/types';
 
 interface Props {
-  project: MyProject;
+  project: T.MyProject;
 }
 
 export default function ProjectCard({ project }: Props) {

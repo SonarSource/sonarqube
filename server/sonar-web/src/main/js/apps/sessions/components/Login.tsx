@@ -20,12 +20,11 @@
 import * as React from 'react';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
-import { IdentityProvider } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import './Login.css';
 
 interface Props {
-  identityProviders: IdentityProvider[];
+  identityProviders: T.IdentityProvider[];
   onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
 }

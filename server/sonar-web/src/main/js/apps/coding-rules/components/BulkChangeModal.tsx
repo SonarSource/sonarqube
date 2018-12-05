@@ -25,12 +25,11 @@ import Select from '../../../components/controls/Select';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { Languages } from '../../../app/types';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   action: string;
-  languages: Languages;
+  languages: T.Languages;
   onClose: () => void;
   organization: string | undefined;
   profile?: Profile;

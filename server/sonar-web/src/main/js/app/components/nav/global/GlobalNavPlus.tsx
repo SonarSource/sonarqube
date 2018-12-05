@@ -22,7 +22,6 @@ import { Link, withRouter, WithRouterProps } from 'react-router';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
 import Dropdown from '../../../../components/controls/Dropdown';
 import PlusIcon from '../../../../components/icons-components/PlusIcon';
-import { AppState, LoggedInUser } from '../../../types';
 import { getExtensionStart } from '../../extensions/utils';
 import { getComponentNavigation } from '../../../../api/nav';
 import { translate } from '../../../../helpers/l10n';
@@ -31,8 +30,8 @@ import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls'
 import { hasGlobalPermission } from '../../../../helpers/users';
 
 interface Props {
-  appState: Pick<AppState, 'qualifiers'>;
-  currentUser: LoggedInUser;
+  appState: Pick<T.AppState, 'qualifiers'>;
+  currentUser: T.LoggedInUser;
   openProjectOnboarding: () => void;
 }
 

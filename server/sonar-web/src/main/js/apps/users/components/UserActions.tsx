@@ -21,7 +21,6 @@ import * as React from 'react';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
-import { User } from '../../../app/types';
 import ActionsDropdown, {
   ActionsDropdownItem,
   ActionsDropdownDivider
@@ -31,7 +30,7 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
-  user: User;
+  user: T.User;
 }
 
 interface State {

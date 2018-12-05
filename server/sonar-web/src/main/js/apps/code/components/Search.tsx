@@ -22,22 +22,21 @@ import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import Components from './Components';
 import { getTree } from '../../../api/components';
-import { BranchLike, ComponentMeasure } from '../../../app/types';
 import SearchBox from '../../../components/controls/SearchBox';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasure;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasure;
   location: {};
 }
 
 interface State {
   query: string;
   loading: boolean;
-  results?: ComponentMeasure[];
+  results?: T.ComponentMeasure[];
   selectedIndex?: number;
 }
 

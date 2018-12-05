@@ -27,7 +27,6 @@ import ListStyleFacetFooter from './ListStyleFacetFooter';
 import MultipleSelectionHint from './MultipleSelectionHint';
 import { translate } from '../../helpers/l10n';
 import DeferredSpinner from '../common/DeferredSpinner';
-import { Paging } from '../../app/types';
 import SearchBox from '../controls/SearchBox';
 import ListFooter from '../controls/ListFooter';
 import { formatMeasure } from '../../helpers/measures';
@@ -37,7 +36,7 @@ import { Alert } from '../ui/Alert';
 interface SearchResponse<S> {
   maxResults?: boolean;
   results: S[];
-  paging?: Paging;
+  paging?: T.Paging;
 }
 
 export interface Props<S> {
@@ -72,7 +71,7 @@ interface State<S> {
   query: string;
   searching: boolean;
   searchMaxResults?: boolean;
-  searchPaging?: Paging;
+  searchPaging?: T.Paging;
   searchResults?: S[];
   searchResultsCounts: { [key: string]: number };
   showFullList: boolean;

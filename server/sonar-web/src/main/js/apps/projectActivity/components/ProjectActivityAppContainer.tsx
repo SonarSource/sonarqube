@@ -42,12 +42,11 @@ import {
   Query,
   ParsedAnalysis
 } from '../utils';
-import { Metric, Paging, BranchLike, Component } from '../../../app/types';
 import { RawQuery } from '../../../helpers/query';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Component;
+  branchLike?: T.BranchLike;
+  component: T.Component;
   location: Location;
   router: Pick<InjectedRouter, 'push' | 'replace'>;
 }
@@ -57,9 +56,9 @@ export interface State {
   analysesLoading: boolean;
   graphLoading: boolean;
   initialized: boolean;
-  metrics: Metric[];
+  metrics: T.Metric[];
   measuresHistory: MeasureHistory[];
-  paging?: Paging;
+  paging?: T.Paging;
   query: Query;
 }
 
@@ -188,8 +187,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
 
   loadAllActivities = (
     project: string,
-    prevResult?: { analyses: ParsedAnalysis[]; paging: Paging }
-  ): Promise<{ analyses: ParsedAnalysis[]; paging: Paging }> => {
+    prevResult?: { analyses: ParsedAnalysis[]; paging: T.Paging }
+  ): Promise<{ analyses: ParsedAnalysis[]; paging: T.Paging }> => {
     if (
       prevResult &&
       prevResult.paging.pageIndex * prevResult.paging.pageSize >= prevResult.paging.total
@@ -208,7 +207,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     });
   };
 
-  getTopLevelComponent = (component: Component) => {
+  getTopLevelComponent = (component: T.Component) => {
     let current = component.breadcrumbs.length - 1;
     while (
       current > 0 &&
@@ -219,7 +218,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     return component.breadcrumbs[current].key;
   };
 
-  firstLoadData(query: Query, component: Component) {
+  firstLoadData(query: Query, component: T.Component) {
     const graphMetrics = getHistoryMetrics(query.graph, query.customMetrics);
     const topLevelComponent = this.getTopLevelComponent(component);
     Promise.all([

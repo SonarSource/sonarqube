@@ -29,7 +29,6 @@ import {
   parseWidgetSettings
 } from '../utils';
 import { getCurrentUser } from '../../../../../sonar-web/src/main/js/api/users';
-import { CurrentUser } from '../../../../../sonar-web/src/main/js/app/types';
 
 interface Props {
   contribution: string;
@@ -37,7 +36,7 @@ interface Props {
 }
 
 interface State {
-  currentUser?: CurrentUser;
+  currentUser?: T.CurrentUser;
   loading: boolean;
   projects: Component[];
   settings: Settings;

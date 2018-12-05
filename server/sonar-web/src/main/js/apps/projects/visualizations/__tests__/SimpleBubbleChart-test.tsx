@@ -20,15 +20,15 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import SimpleBubbleChart from '../SimpleBubbleChart';
-import { Visibility } from '../../../../app/types';
+import { Project } from '../../types';
 
 it('renders', () => {
-  const project1 = {
+  const project1: Project = {
     key: 'foo',
     measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734', security_rating: '2' },
     name: 'Foo',
     tags: [],
-    visibility: Visibility.Public
+    visibility: 'public'
   };
   expect(
     shallow(

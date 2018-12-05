@@ -21,10 +21,9 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import IssueType from '../IssueType';
 import { click } from '../../../../helpers/testUtils';
-import { IssueType as Type } from '../../../../app/types';
 
-const issue = {
-  type: Type.Bug
+const issue: Pick<T.Issue, 'type'> = {
+  type: 'BUG'
 };
 
 it('should render without the action when the correct rights are missing', () => {

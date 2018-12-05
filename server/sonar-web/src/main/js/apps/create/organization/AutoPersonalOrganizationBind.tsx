@@ -22,26 +22,20 @@ import { FormattedMessage } from 'react-intl';
 import OrganizationDetailsForm from './OrganizationDetailsForm';
 import { Query } from './utils';
 import { DeleteButton } from '../../../components/ui/buttons';
-import {
-  AlmApplication,
-  AlmOrganization,
-  OrganizationBase,
-  Organization
-} from '../../../app/types';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 
 interface Props {
-  almApplication: AlmApplication;
+  almApplication: T.AlmApplication;
   almInstallId?: string;
-  almOrganization: AlmOrganization;
-  importPersonalOrg: Organization;
+  almOrganization: T.AlmOrganization;
+  importPersonalOrg: T.Organization;
   onOrgCreated: (organization: string) => void;
   updateOrganization: (
-    organization: OrganizationBase & { installationId?: string }
-  ) => Promise<Organization>;
+    organization: T.OrganizationBase & { installationId?: string }
+  ) => Promise<T.Organization>;
   updateUrlQuery: (query: Partial<Query>) => void;
 }
 
@@ -50,7 +44,7 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
     this.props.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
   };
 
-  handleCreateOrganization = (organization: Required<OrganizationBase>) => {
+  handleCreateOrganization = (organization: Required<T.OrganizationBase>) => {
     return this.props
       .updateOrganization({
         avatar: organization.avatar,

@@ -20,20 +20,13 @@
 import * as React from 'react';
 import * as key from 'keymaster';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import {
-  BranchLike,
-  ComponentMeasure,
-  ComponentMeasureEnhanced,
-  Metric,
-  Period
-} from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasure;
-  components: Array<ComponentMeasureEnhanced>;
-  leakPeriod?: Period;
-  metric: Metric;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasure;
+  components: T.ComponentMeasureEnhanced[];
+  leakPeriod?: T.Period;
+  metric: T.Metric;
   selectedIdx?: number;
   updateSelected: (component: string) => void;
 }

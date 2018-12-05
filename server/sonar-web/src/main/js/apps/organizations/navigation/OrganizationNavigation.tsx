@@ -23,13 +23,12 @@ import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
 import * as theme from '../../../app/theme';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
-import { Organization, CurrentUser } from '../../../app/types';
 
 interface Props {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
   location: { pathname: string };
-  organization: Organization;
-  userOrganizations: Organization[];
+  organization: T.Organization;
+  userOrganizations: T.Organization[];
 }
 
 export default function OrganizationNavigation({

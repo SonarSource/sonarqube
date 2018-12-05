@@ -23,7 +23,6 @@ import { Location } from 'history';
 import { shallow } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
 import { mockRouter, waitAndUpdate } from '../../../../helpers/testUtils';
-import { LoggedInUser } from '../../../../app/types';
 import {
   getAlmAppInfo,
   getAlmOrganization,
@@ -71,7 +70,7 @@ jest.mock('../../../../helpers/storage', () => ({
   remove: jest.fn()
 }));
 
-const user: LoggedInUser = {
+const user: T.LoggedInUser = {
   groups: [],
   isLoggedIn: true,
   login: 'luke',

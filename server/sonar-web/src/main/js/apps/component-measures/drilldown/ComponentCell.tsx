@@ -30,14 +30,13 @@ import {
   getProjectUrl
 } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import { BranchLike, ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../app/types';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: ComponentMeasureEnhanced;
+  branchLike?: T.BranchLike;
+  component: T.ComponentMeasureEnhanced;
   onClick: (component: string) => void;
-  metric: Metric;
-  rootComponent: ComponentMeasure;
+  metric: T.Metric;
+  rootComponent: T.ComponentMeasure;
 }
 
 export default class ComponentCell extends React.PureComponent<Props> {

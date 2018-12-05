@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import EditMembersModal from './EditMembersModal';
-import { Group } from '../../../app/types';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import { ButtonIcon } from '../../../components/ui/buttons';
 
 interface Props {
-  group: Group;
+  group: T.Group;
   onEdit: () => void;
   organization: string | undefined;
 }

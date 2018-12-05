@@ -23,11 +23,10 @@ import { sendTestEmail } from '../../../api/settings';
 import { parseError } from '../../../helpers/request';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { Alert } from '../../../components/ui/Alert';
-import { LoggedInUser } from '../../../app/types';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 
 interface Props {
-  currentUser: LoggedInUser;
+  currentUser: T.LoggedInUser;
 }
 
 interface State {

@@ -27,10 +27,9 @@ import LineDuplications from './LineDuplications';
 import LineDuplicationBlock from './LineDuplicationBlock';
 import LineIssuesIndicator from './LineIssuesIndicator';
 import LineCode from './LineCode';
-import { BranchLike, Issue, LinearIssueLocation, SourceLine } from '../../../app/types';
 
 interface Props {
-  branchLike: BranchLike | undefined;
+  branchLike: T.BranchLike | undefined;
   componentKey: string;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
@@ -44,24 +43,24 @@ interface Props {
   highlighted: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
-  issueLocations: LinearIssueLocation[];
+  issueLocations: T.LinearIssueLocation[];
   issuePopup: { issue: string; name: string } | undefined;
-  issues: Issue[];
+  issues: T.Issue[];
   last: boolean;
-  line: SourceLine;
+  line: T.SourceLine;
   linePopup: { index?: number; line: number; name: string } | undefined;
-  loadDuplications: (line: SourceLine) => void;
+  loadDuplications: (line: T.SourceLine) => void;
   onLinePopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
-  onIssueChange: (issue: Issue) => void;
+  onIssueChange: (issue: T.Issue) => void;
   onIssuePopupToggle: (issueKey: string, popupName: string, open?: boolean) => void;
-  onIssuesClose: (line: SourceLine) => void;
+  onIssuesClose: (line: T.SourceLine) => void;
   onIssueSelect: (issueKey: string) => void;
-  onIssuesOpen: (line: SourceLine) => void;
+  onIssuesOpen: (line: T.SourceLine) => void;
   onIssueUnselect: () => void;
   onLocationSelect: ((x: number) => void) | undefined;
   onSymbolClick: (symbols: string[]) => void;
   openIssues: boolean;
-  previousLine: SourceLine | undefined;
+  previousLine: T.SourceLine | undefined;
   renderDuplicationPopup: (index: number, line: number) => JSX.Element;
   scroll?: (element: HTMLElement) => void;
   secondaryIssueLocations: Array<{

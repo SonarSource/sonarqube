@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { State } from './components/ProjectActivityAppContainer';
-import { AnalysisEvent } from '../../app/types';
 
-export function addCustomEvent(analysis: string, event: AnalysisEvent) {
+export function addCustomEvent(analysis: string, event: T.AnalysisEvent) {
   return (state: State) => ({
     analyses: state.analyses.map(item => {
       if (item.key !== analysis) {
@@ -42,7 +41,7 @@ export function deleteEvent(analysis: string, event: string) {
   });
 }
 
-export function changeEvent(analysis: string, event: AnalysisEvent) {
+export function changeEvent(analysis: string, event: T.AnalysisEvent) {
   return (state: State) => ({
     analyses: state.analyses.map(item => {
       if (item.key !== analysis) {

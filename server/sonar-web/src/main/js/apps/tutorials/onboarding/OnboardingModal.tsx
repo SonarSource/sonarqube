@@ -26,7 +26,6 @@ import OnboardingProjectIcon from '../../../components/icons-components/Onboardi
 import OnboardingTeamIcon from '../../../components/icons-components/OnboardingTeamIcon';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { CurrentUser } from '../../../app/types';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { isLoggedIn } from '../../../helpers/users';
 import '../styles.css';
@@ -39,7 +38,7 @@ interface OwnProps {
 }
 
 interface StateProps {
-  currentUser: CurrentUser;
+  currentUser: T.CurrentUser;
 }
 
 type Props = OwnProps & StateProps;

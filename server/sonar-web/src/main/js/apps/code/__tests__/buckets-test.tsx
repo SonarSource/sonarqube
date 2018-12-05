@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { addComponent, getComponent, addComponentChildren, getComponentChildren } from '../bucket';
-import { ComponentMeasure } from '../../../app/types';
 
-const component: ComponentMeasure = { key: 'frodo', name: 'frodo', qualifier: 'frodo' };
+const component: T.ComponentMeasure = { key: 'frodo', name: 'frodo', qualifier: 'frodo' };
 
 const componentKey: string = 'foo';
-const childrenA: ComponentMeasure[] = [
+const childrenA: T.ComponentMeasure[] = [
   { key: 'foo', name: 'foo', qualifier: 'foo' },
   { key: 'bar', name: 'bar', qualifier: 'bar' }
 ];
-const childrenB: ComponentMeasure[] = [
+const childrenB: T.ComponentMeasure[] = [
   { key: 'bart', name: 'bart', qualifier: 'bart' },
   { key: 'simpson', name: 'simpson', qualifier: 'simpson' }
 ];

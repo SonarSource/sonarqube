@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import App from '../App';
-import { BranchType, LongLivingBranch } from '../../../../app/types';
 import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
@@ -66,7 +65,7 @@ it('should render SonarCloudEmptyOverview', () => {
 });
 
 it('redirects on Code page for files', () => {
-  const branch: LongLivingBranch = { isMain: false, name: 'b', type: BranchType.LONG };
+  const branch: T.LongLivingBranch = { isMain: false, name: 'b', type: 'LONG' };
   const newComponent = {
     ...component,
     breadcrumbs: [

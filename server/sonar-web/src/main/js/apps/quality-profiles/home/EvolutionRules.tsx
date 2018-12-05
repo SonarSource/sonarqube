@@ -25,11 +25,13 @@ import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { formatMeasure } from '../../../helpers/measures';
-import { Rule, RuleActivation } from '../../../app/types';
 
 const RULES_LIMIT = 10;
 
-function parseRules(rules: Rule[], actives?: { [rule: string]: RuleActivation[] }): ExtendedRule[] {
+function parseRules(
+  rules: T.Rule[],
+  actives?: { [rule: string]: T.RuleActivation[] }
+): ExtendedRule[] {
   return rules.map(rule => {
     const activations = actives && actives[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };
@@ -40,7 +42,7 @@ interface Props {
   organization: string | null;
 }
 
-interface ExtendedRule extends Rule {
+interface ExtendedRule extends T.Rule {
   activations: number;
 }
 
