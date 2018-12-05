@@ -36,9 +36,9 @@ interface Props {
 interface State {
   formOpen: boolean;
   loading: boolean;
+  loadingMore: boolean;
   page: number;
-  projects: Array<{ key: string; name: string; uuid: string }> | null;
-  ready: boolean;
+  projects: Array<{ key: string; name: string }>;
   total: number;
 }
 
@@ -48,9 +48,9 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   state: State = {
     formOpen: false,
     loading: true,
+    loadingMore: false,
     page: 1,
-    projects: null,
-    ready: true,
+    projects: [],
     total: 0
   };
 
@@ -60,8 +60,8 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.profile !== this.props.profile) {
-      this.setState({ projects: null, page: 1 }, this.loadProjects);
+    if (prevProps.profile.key !== this.props.profile.key) {
+      this.loadProjects();
     }
   }
 
@@ -69,30 +69,43 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
   loadProjects() {
     if (this.props.profile.isDefault) {
-      this.setState({ loading: false });
+      this.setState({ loading: false, projects: [] });
       return;
     }
 
+    this.setState({ loading: true });
     const data = { key: this.props.profile.key, page: this.state.page };
-    getProfileProjects(data).then(
-      (r: any) => {
-        if (this.mounted) {
-          this.setState(state => ({
-            projects: state.projects ? [...state.projects, ...r.results] : r.results,
-            total: r.paging.total,
-            loading: false,
-            ready: true
-          }));
-        }
-      },
-      () => {}
-    );
+    getProfileProjects(data).then(({ paging, results }) => {
+      if (this.mounted) {
+        this.setState({
+          projects: results,
+          total: paging.total,
+          loading: false
+        });
+      }
+    }, this.stopLoading);
   }
 
   loadMore = () => {
-    this.setState(state => ({ ready: false, page: state.page + 1 }), this.loadProjects);
+    this.setState({ loadingMore: true });
+    const data = { key: this.props.profile.key, page: this.state.page + 1 };
+    getProfileProjects(data).then(({ paging, results }) => {
+      if (this.mounted) {
+        this.setState(state => ({
+          projects: [...state.projects, ...results],
+          total: paging.total,
+          loadingMore: false
+        }));
+      }
+    }, this.stopLoading);
   };
 
   handleChangeClick = () => {
@@ -105,10 +118,6 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   };
 
   renderDefault() {
-    if (this.state.loading) {
-      return <i className="spinner" />;
-    }
-
     return (
       <div>
         <span className="badge spacer-right">{translate('default')}</span>
@@ -124,10 +133,6 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
     const { projects } = this.state;
 
-    if (projects == null) {
-      return null;
-    }
-
     if (projects.length === 0) {
       return <div>{translate('quality_profiles.no_projects_associated_to_profile')}</div>;
     }
@@ -136,7 +141,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
       <>
         <ul>
           {projects.map(project => (
-            <li className="spacer-top js-profile-project" data-key={project.key} key={project.uuid}>
+            <li className="spacer-top js-profile-project" data-key={project.key} key={project.key}>
               <Link
                 className="link-with-icon"
                 to={{ pathname: '/dashboard', query: { id: project.key } }}>
@@ -148,7 +153,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         <ListFooter
           count={projects.length}
           loadMore={this.loadMore}
-          ready={this.state.ready}
+          ready={!this.state.loadingMore}
           total={this.state.total}
         />
       </>

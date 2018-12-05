@@ -62,7 +62,6 @@ exports[`renders with edit permission 1`] = `
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
-        exporters={Array []}
         organization="org"
         profile={
           Object {
@@ -71,7 +70,6 @@ exports[`renders with edit permission 1`] = `
             },
           }
         }
-        profiles={Array []}
         updateProfiles={[MockFunction]}
       />
     </div>
@@ -113,10 +111,8 @@ exports[`renders without permissions 1`] = `
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
-        exporters={Array []}
         organization="org"
         profile={Object {}}
-        profiles={Array []}
         updateProfiles={[MockFunction]}
       />
     </div>

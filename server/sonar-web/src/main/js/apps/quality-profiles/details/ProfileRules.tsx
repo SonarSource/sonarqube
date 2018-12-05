@@ -71,7 +71,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.profile !== this.props.profile) {
+    if (prevProps.profile.key !== this.props.profile.key) {
       this.loadRules();
     }
   }

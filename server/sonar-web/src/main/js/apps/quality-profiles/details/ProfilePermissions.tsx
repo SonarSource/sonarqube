@@ -29,6 +29,7 @@ import {
 } from '../../../api/quality-profiles';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Profile } from '../types';
 
 export interface User {
   avatar?: string;
@@ -42,7 +43,7 @@ export interface Group {
 
 interface Props {
   organization?: string;
-  profile: { language: string; name: string };
+  profile: Pick<Profile, 'key' | 'language' | 'name'>;
 }
 
 interface State {
@@ -64,7 +65,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   componentDidUpdate(prevProps: Props) {
     if (
       prevProps.organization !== this.props.organization ||
-      prevProps.profile !== this.props.profile
+      prevProps.profile.key !== this.props.profile.key
     ) {
       this.fetchUsersAndGroups();
     }

@@ -117,7 +117,7 @@ export interface ProfileProject {
 
 export function getProfileProjects(
   data: RequestData
-): Promise<{ more: boolean; results: ProfileProject[] }> {
+): Promise<{ more: boolean; paging: T.Paging; results: ProfileProject[] }> {
   return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
 

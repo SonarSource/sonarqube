@@ -52,7 +52,11 @@ export default function ProfileDetails(props: Props) {
         </div>
         <div className="quality-profile-grid-right">
           <ProfileInheritance {...props} />
-          <ProfileProjects {...props} />
+          <ProfileProjects
+            organization={props.organization}
+            profile={profile}
+            updateProfiles={props.updateProfiles}
+          />
         </div>
       </div>
     </div>

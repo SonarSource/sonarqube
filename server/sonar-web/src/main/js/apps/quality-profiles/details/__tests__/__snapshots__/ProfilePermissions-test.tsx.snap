@@ -49,6 +49,7 @@ exports[`renders 2`] = `
         onDelete={[Function]}
         profile={
           Object {
+            "key": "sonar-way",
             "language": "js",
             "name": "Sonar way",
           }
@@ -70,6 +71,7 @@ exports[`renders 2`] = `
         onDelete={[Function]}
         profile={
           Object {
+            "key": "sonar-way",
             "language": "js",
             "name": "Sonar way",
           }
