@@ -62,7 +62,7 @@ exports[`renders sorted list of branches 1`] = `
             branch
           </th>
           <th
-            className="thin nowrap text-right"
+            className="thin nowrap"
           >
             status
           </th>

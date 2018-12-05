@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import StatusIndicator from './StatusIndicator';
 import Level from '../ui/Level';
 import BugIcon from '../icons-components/BugIcon';
@@ -40,10 +39,9 @@ import './BranchStatus.css';
 interface Props {
   branchLike: T.BranchLike;
   concise?: boolean;
-  helpTooltipClassName?: string;
 }
 
-export default function BranchStatus({ branchLike, concise = false, helpTooltipClassName }: Props) {
+export default function BranchStatus({ branchLike, concise = false }: Props) {
   if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
     if (!branchLike.status) {
       return null;
@@ -89,7 +87,7 @@ export default function BranchStatus({ branchLike, concise = false, helpTooltipC
         </li>
         {shouldDisplayHelper && (
           <HelpTooltip
-            className={classNames('spacer-left', helpTooltipClassName)}
+            className="spacer-left"
             overlay={translateWithParameters(
               'branches.short_lived.quality_gate.description',
               totalIssues
