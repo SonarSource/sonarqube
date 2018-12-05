@@ -28,18 +28,15 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.report.AnalysisContextReportPublisher;
 
 public class ModuleConfigurationProvider extends ProviderAdapter {
 
   private ModuleConfiguration moduleConfiguration;
 
-  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectServerSettings projectServerSettings,
-                                     GlobalAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
+  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectServerSettings projectServerSettings, GlobalAnalysisMode analysisMode) {
     if (moduleConfiguration == null) {
 
-      Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(projectServerSettings.properties());
+      Map<String, String> settings = new LinkedHashMap<>(projectServerSettings.properties());
       addScannerSideProperties(settings, module.definition());
 
       moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), analysisMode, settings);

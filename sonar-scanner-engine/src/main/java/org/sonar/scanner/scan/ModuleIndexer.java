@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan;
 
 import org.picocontainer.Startable;
-import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;

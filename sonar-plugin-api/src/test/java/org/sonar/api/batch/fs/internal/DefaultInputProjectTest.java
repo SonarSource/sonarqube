@@ -21,6 +21,8 @@ package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -46,23 +48,42 @@ public class DefaultInputProjectTest {
     def.setWorkDir(workDir);
     def.setSources("file1");
     def.setTests("test1");
-    AbstractProjectOrModule module = new DefaultInputProject(def);
+    AbstractProjectOrModule project = new DefaultInputProject(def);
 
-    assertThat(module.key()).isEqualTo("projectKey");
-    assertThat(module.getName()).isEqualTo("projectName");
-    assertThat(module.getOriginalName()).isEqualTo("projectName");
-    assertThat(module.definition()).isEqualTo(def);
-    assertThat(module.getBranch()).isNull();
-    assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath());
-    assertThat(module.getKeyWithBranch()).isEqualTo("projectKey");
-    assertThat(module.getVersion()).isEqualTo("version");
-    assertThat(module.getOriginalVersion()).isEqualTo("version");
-    assertThat(module.getDescription()).isEqualTo("desc");
-    assertThat(module.getWorkDir()).isEqualTo(workDir.toPath());
+    assertThat(project.key()).isEqualTo("projectKey");
+    assertThat(project.getName()).isEqualTo("projectName");
+    assertThat(project.getOriginalName()).isEqualTo("projectName");
+    assertThat(project.definition()).isEqualTo(def);
+    assertThat(project.getBranch()).isNull();
+    assertThat(project.getBaseDir()).isEqualTo(baseDir.toPath());
+    assertThat(project.getKeyWithBranch()).isEqualTo("projectKey");
+    assertThat(project.getVersion()).isEqualTo("version");
+    assertThat(project.getOriginalVersion()).isEqualTo("version");
+    assertThat(project.getDescription()).isEqualTo("desc");
+    assertThat(project.getWorkDir()).isEqualTo(workDir.toPath());
+    assertThat(project.getEncoding()).isEqualTo(Charset.defaultCharset());
 
-    assertThat(module.properties()).hasSize(6);
+    assertThat(project.properties()).hasSize(6);
 
-    assertThat(module.isFile()).isFalse();
+    assertThat(project.isFile()).isFalse();
+  }
+
+  @Test
+  public void testEncoding() throws IOException {
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setKey("projectKey");
+    def.setName("projectName");
+    File baseDir = temp.newFolder();
+    def.setBaseDir(baseDir);
+    def.setVersion("version");
+    def.setDescription("desc");
+    File workDir = temp.newFolder();
+    def.setWorkDir(workDir);
+    def.setSources("file1");
+    def.setProperty("sonar.sourceEncoding", "UTF-16");
+    AbstractProjectOrModule project = new DefaultInputProject(def);
+
+    assertThat(project.getEncoding()).isEqualTo(StandardCharsets.UTF_16);
   }
 
 }

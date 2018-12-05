@@ -38,7 +38,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide
 @ExtensionPoint
-public interface Sensor {
+public interface ProjectSensor {
 
   /**
    * Populate {@link SensorDescriptor} of this sensor.

@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
@@ -51,8 +50,11 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   public ProjectRepositories load(String projectKey, boolean issuesMode, @Nullable String branchBase) {
     GetRequest request = new GetRequest(getUrl(projectKey, issuesMode, branchBase));
     try (WsResponse response = wsClient.call(request)) {
-      InputStream is = response.contentStream();
-      return processStream(is, projectKey);
+      try (InputStream is = response.contentStream()) {
+        return processStream(is);
+      } catch (IOException e) {
+        throw new IllegalStateException("Couldn't load project repository for " + projectKey, e);
+      }
     } catch (RuntimeException e) {
       if (shouldThrow(e)) {
         throw e;
@@ -91,26 +93,20 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     return false;
   }
 
-  private ProjectRepositories processStream(InputStream is, String projectKey) {
-    try {
-      WsProjectResponse response = WsProjectResponse.parseFrom(is);
-      if (response.getFileDataByModuleAndPathCount() == 0) {
-        return new SingleProjectRepository(constructFileDataMap(response.getFileDataByPathMap()), new Date(response.getLastAnalysisDate()));
-      } else {
-        final Map<String, SingleProjectRepository> repositoriesPerModule = new HashMap<>();
-        response.getFileDataByModuleAndPathMap().keySet().forEach(moduleKey -> {
-          WsProjectResponse.FileDataByPath filePaths = response.getFileDataByModuleAndPathMap().get(moduleKey);
-          repositoriesPerModule.put(moduleKey, new SingleProjectRepository(
-            constructFileDataMap(filePaths.getFileDataByPathMap()), new Date(response.getLastAnalysisDate())));
-        });
-        return new MultiModuleProjectRepository(repositoriesPerModule, new Date(response.getLastAnalysisDate()));
-      }
-
-    } catch (IOException e) {
-      throw new IllegalStateException("Couldn't load project repository for " + projectKey, e);
-    } finally {
-      IOUtils.closeQuietly(is);
+  private static ProjectRepositories processStream(InputStream is) throws IOException {
+    WsProjectResponse response = WsProjectResponse.parseFrom(is);
+    if (response.getFileDataByModuleAndPathCount() == 0) {
+      return new SingleProjectRepository(constructFileDataMap(response.getFileDataByPathMap()), new Date(response.getLastAnalysisDate()));
+    } else {
+      final Map<String, SingleProjectRepository> repositoriesPerModule = new HashMap<>();
+      response.getFileDataByModuleAndPathMap().keySet().forEach(moduleKey -> {
+        WsProjectResponse.FileDataByPath filePaths = response.getFileDataByModuleAndPathMap().get(moduleKey);
+        repositoriesPerModule.put(moduleKey, new SingleProjectRepository(
+          constructFileDataMap(filePaths.getFileDataByPathMap()), new Date(response.getLastAnalysisDate())));
+      });
+      return new MultiModuleProjectRepository(repositoriesPerModule, new Date(response.getLastAnalysisDate()));
     }
+
   }
 
   private static Map<String, FileData> constructFileDataMap(Map<String, WsProjectResponse.FileData> content) {

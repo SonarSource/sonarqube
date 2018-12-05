@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.util.ProgressReport;
@@ -51,21 +50,17 @@ public class ProjectFileIndexer {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectFileIndexer.class);
   private final AbstractExclusionFilters projectExclusionFilters;
-  private final DefaultInputProject project;
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
-  private final ProjectCoverageExclusions projectCoverageExclusions;
   private final FileIndexer fileIndexer;
 
   private ProgressReport progressReport;
 
-  public ProjectFileIndexer(DefaultInputProject project, InputComponentStore componentStore, AbstractExclusionFilters exclusionFilters,
-    InputModuleHierarchy inputModuleHierarchy, ProjectCoverageExclusions projectCoverageExclusions,
+  public ProjectFileIndexer(InputComponentStore componentStore, AbstractExclusionFilters exclusionFilters,
+    InputModuleHierarchy inputModuleHierarchy,
     FileIndexer fileIndexer) {
-    this.project = project;
     this.componentStore = componentStore;
     this.inputModuleHierarchy = inputModuleHierarchy;
-    this.projectCoverageExclusions = projectCoverageExclusions;
     this.fileIndexer = fileIndexer;
     this.projectExclusionFilters = exclusionFilters;
   }
@@ -95,7 +90,7 @@ public class ProjectFileIndexer {
   private void index(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
     if (componentStore.allModules().size() > 1) {
       LOG.info("  Indexing files from module {}", module.getName());
-      LOG.info("    Base dir: {}", module.getBaseDir().toAbsolutePath().toString());
+      LOG.info("    Base dir: {}", module.getBaseDir().toAbsolutePath());
       logPaths("    Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
       logPaths("    Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
     }
@@ -108,7 +103,7 @@ public class ProjectFileIndexer {
   private static void logPaths(String label, Path baseDir, List<Path> paths) {
     if (!paths.isEmpty()) {
       StringBuilder sb = new StringBuilder(label);
-      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
+      for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
         Path file = it.next();
         Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
         if (!relativePathToBaseDir.isPresent()) {
@@ -204,7 +199,7 @@ public class ProjectFileIndexer {
     }
 
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
       return FileVisitResult.CONTINUE;
     }
   }

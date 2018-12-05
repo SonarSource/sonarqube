@@ -22,9 +22,7 @@ package org.sonar.scanner.postjob;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
@@ -40,9 +38,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultPostJobContextTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   private IssueCache issueCache;
   private InputComponentStore componentStore;

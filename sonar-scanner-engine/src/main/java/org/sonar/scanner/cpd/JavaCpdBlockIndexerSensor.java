@@ -61,8 +61,7 @@ public class JavaCpdBlockIndexerSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("Java CPD Block Indexer")
-      .onlyOnLanguage("java")
-      .global();
+      .onlyOnLanguage("java");
   }
 
   @Override

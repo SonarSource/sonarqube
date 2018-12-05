@@ -19,42 +19,12 @@
  */
 package org.sonar.scanner.sensor;
 
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.scanner.sensor.Sensor;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 
-public class ProjectSensorWrapper {
-  private final Sensor wrappedSensor;
-  private final SensorContext context;
-  private final DefaultSensorDescriptor descriptor;
-  private final AbstractSensorOptimizer optimizer;
+public class ProjectSensorWrapper extends AbstractSensorWrapper<ProjectSensor> {
 
-  public ProjectSensorWrapper(Sensor sensor, SensorContext context, AbstractSensorOptimizer optimizer) {
-    this.wrappedSensor = sensor;
-    this.optimizer = optimizer;
-    this.context = context;
-    this.descriptor = new DefaultSensorDescriptor();
-    sensor.describe(this.descriptor);
-    if (descriptor.name() == null) {
-      descriptor.name(sensor.getClass().getName());
-    }
-  }
-
-  public boolean shouldExecute() {
-    return optimizer.shouldExecute(descriptor);
-  }
-
-  public void analyse() {
-    wrappedSensor.execute(context);
-  }
-
-  public Sensor wrappedSensor() {
-    return wrappedSensor;
-  }
-
-  @Override
-  public String toString() {
-    return descriptor.name();
+  public ProjectSensorWrapper(ProjectSensor sensor, ProjectSensorContext context, ProjectSensorOptimizer optimizer) {
+    super(sensor, context, optimizer);
   }
 
 }

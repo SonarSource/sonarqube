@@ -22,15 +22,14 @@ package org.sonar.scanner.sensor;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.scanner.sensor.Sensor;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.AbstractExtensionDictionnary;
 
 public class ProjectSensorExtensionDictionnary extends AbstractExtensionDictionnary {
 
-  private final SensorContext sensorContext;
-  private final AbstractSensorOptimizer sensorOptimizer;
+  private final ProjectSensorContext sensorContext;
+  private final ProjectSensorOptimizer sensorOptimizer;
 
   public ProjectSensorExtensionDictionnary(ComponentContainer componentContainer, ProjectSensorContext sensorContext, ProjectSensorOptimizer sensorOptimizer) {
     super(componentContainer);
@@ -39,10 +38,10 @@ public class ProjectSensorExtensionDictionnary extends AbstractExtensionDictionn
   }
 
   public List<ProjectSensorWrapper> selectSensors() {
-    Collection<Sensor> result = sort(getFilteredExtensions(Sensor.class, null));
+    Collection<ProjectSensor> result = sort(getFilteredExtensions(ProjectSensor.class, null));
     return result.stream()
       .map(s -> new ProjectSensorWrapper(s, sensorContext, sensorOptimizer))
-      .filter(s -> s.shouldExecute())
+      .filter(ProjectSensorWrapper::shouldExecute)
       .collect(Collectors.toList());
   }
 }

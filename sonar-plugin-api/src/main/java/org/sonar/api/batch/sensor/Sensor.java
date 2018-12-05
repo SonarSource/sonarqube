@@ -20,8 +20,10 @@
 package org.sonar.api.batch.sensor;
 
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
@@ -33,12 +35,13 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * 
  * For testing purpose you can use {@link SensorContextTester}
  * @since 5.1
- * @since 7.6 use {@link org.sonar.api.scanner.sensor.Sensor} instead to make your Sensor run only once per analysis, and no more once per module
+ * @since 7.6 use {@link ProjectSensor} instead to make your Sensor run only once per analysis, and no more once per module
  */
 @ScannerSide
+@InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
 @SonarLintSide
 @ExtensionPoint
-public interface Sensor {
+public interface Sensor extends ProjectSensor {
 
   /**
    * Populate {@link SensorDescriptor} of this sensor.

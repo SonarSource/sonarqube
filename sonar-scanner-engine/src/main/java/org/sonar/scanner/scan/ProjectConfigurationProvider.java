@@ -31,8 +31,8 @@ public class ProjectConfigurationProvider extends ProviderAdapter {
 
   private ProjectConfiguration projectConfig;
 
-  public ProjectConfiguration provide(DefaultInputProject project, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
-                                      GlobalAnalysisMode mode, MutableProjectSettings projectSettings) {
+  public ProjectConfiguration provide(DefaultInputProject project, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings,
+    ProjectServerSettings projectServerSettings, GlobalAnalysisMode mode, MutableProjectSettings projectSettings) {
     if (projectConfig == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();

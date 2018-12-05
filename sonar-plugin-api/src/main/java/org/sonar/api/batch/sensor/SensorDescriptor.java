@@ -22,9 +22,10 @@ package org.sonar.api.batch.sensor;
 import java.util.function.Predicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 
 /**
- * Describe what a {@link org.sonar.api.scanner.sensor.Sensor} is doing. Information may be used by the platform
+ * Describe what a {@link Sensor} is doing. Information may be used by the platform
  * to log interesting information or perform some optimization.
  * See {@link Sensor#describe(SensorDescriptor)}
  * @since 5.1
@@ -88,7 +89,7 @@ public interface SensorDescriptor {
   /**
    * This sensor should be executed at the project level, instead of per-module.
    * @since 6.4
-   * @deprecated since 7.6 change your {@link Sensor} to a {@link org.sonar.api.scanner.sensor.Sensor} instead
+   * @deprecated since 7.6 change your {@link Sensor} to a {@link ProjectSensor} instead
    */
   @Deprecated
   SensorDescriptor global();

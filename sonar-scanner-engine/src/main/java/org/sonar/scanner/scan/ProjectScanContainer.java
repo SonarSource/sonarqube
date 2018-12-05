@@ -261,7 +261,6 @@ public class ProjectScanContainer extends ComponentContainer {
       CpdExecutor.class,
       CpdSettings.class,
       SonarCpdBlockIndex.class,
-      JavaCpdBlockIndexerSensor.class,
 
       // PostJobs
       PostJobsExecutor.class,
@@ -327,7 +326,12 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @VisibleForTesting
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
-    return extension -> isScannerSide(extension) || (isDeprecatedScannerSide(extension) && isInstantiationStrategy(extension, PER_BATCH));
+    return extension -> {
+      if (isDeprecatedScannerSide(extension)) {
+        return isInstantiationStrategy(extension, PER_BATCH);
+      }
+      return isScannerSide(extension);
+    };
   }
 
   @Override

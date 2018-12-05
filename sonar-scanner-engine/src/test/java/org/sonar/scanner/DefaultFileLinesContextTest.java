@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -51,9 +50,6 @@ public class DefaultFileLinesContextTest {
   private static final String HITS_METRIC_KEY = "hits";
   private static final String AUTHOR_METRIC_KEY = "author";
   private static final String BRANCHES_METRIC_KEY = "branches";
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

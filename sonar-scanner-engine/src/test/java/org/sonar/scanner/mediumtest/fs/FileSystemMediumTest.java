@@ -43,7 +43,7 @@ import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
-import org.sonar.xoo.global.GlobalSensor;
+import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static java.util.stream.Collectors.joining;
@@ -705,7 +705,7 @@ public class FileSystemMediumTest {
     File projectDir = new File("test-resources/mediumtest/xoo/multi-modules-sample");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
-      .property(GlobalSensor.ENABLE_PROP, "true")
+      .property(GlobalProjectSensor.ENABLE_PROP, "true")
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);

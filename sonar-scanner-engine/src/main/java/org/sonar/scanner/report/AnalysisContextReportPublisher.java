@@ -64,10 +64,8 @@ public class AnalysisContextReportPublisher {
   private final InputModuleHierarchy hierarchy;
   private final InputComponentStore store;
 
-  private ScannerReportWriter writer;
-
   public AnalysisContextReportPublisher(ProjectServerSettings projectServerSettings, AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-                                        GlobalServerSettings globalServerSettings, InputModuleHierarchy hierarchy, InputComponentStore store) {
+    GlobalServerSettings globalServerSettings, InputModuleHierarchy hierarchy, InputComponentStore store) {
     this.projectServerSettings = projectServerSettings;
     this.mode = mode;
     this.pluginRepo = pluginRepo;
@@ -81,7 +79,6 @@ public class AnalysisContextReportPublisher {
     if (mode.isIssues()) {
       return;
     }
-    this.writer = writer;
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8)) {
       if (LOG.isDebugEnabled()) {

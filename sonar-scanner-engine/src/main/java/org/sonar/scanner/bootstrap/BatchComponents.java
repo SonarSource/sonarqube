@@ -25,6 +25,7 @@ import java.util.List;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.tracking.Tracker;
+import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
 import org.sonar.scanner.externalissue.ExternalIssuesImportSensor;
 import org.sonar.scanner.genericcoverage.GenericCoverageSensor;
 import org.sonar.scanner.genericcoverage.GenericTestExecutionSensor;
@@ -44,6 +45,7 @@ public class BatchComponents {
     components.addAll(CorePropertyDefinitions.all());
     if (!analysisMode.isIssues()) {
       components.add(ZeroCoverageSensor.class);
+      components.add(JavaCpdBlockIndexerSensor.class);
 
       // Generic coverage
       components.add(GenericCoverageSensor.class);

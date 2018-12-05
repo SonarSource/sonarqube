@@ -64,9 +64,9 @@ public abstract class AbstractExtensionDictionnary {
   protected <T> List<T> getFilteredExtensions(Class<T> type, @Nullable ExtensionMatcher matcher) {
     List<T> result = new ArrayList<>();
 
-    for (Object extension : getExtensions(type)) {
+    for (T extension : getExtensions(type)) {
       if (shouldKeep(type, extension, matcher)) {
-        result.add((T) extension);
+        result.add(extension);
       }
     }
     return result;

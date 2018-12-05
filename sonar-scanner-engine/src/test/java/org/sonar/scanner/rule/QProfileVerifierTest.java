@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
@@ -36,9 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class QProfileVerifierTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

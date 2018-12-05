@@ -43,6 +43,7 @@ import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scanner.fs.InputProject;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.Version;
 
 /**
@@ -77,7 +78,7 @@ public interface SensorContext {
   /**
    * @since 5.5
    * @deprecated since 7.6 modules are deprecated. Use {@link #project()} instead.
-   * @throws UnsupportedOperationException for global {@link org.sonar.api.scanner.sensor.Sensor}s
+   * @throws UnsupportedOperationException for global {@link ProjectSensor}s
    */
   @Deprecated
   InputModule module();

@@ -19,15 +19,15 @@
  */
 package org.sonar.xoo.global;
 
-import org.sonar.api.scanner.sensor.Sensor;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-public class GlobalSensor implements Sensor {
+public class GlobalProjectSensor implements ProjectSensor {
 
-  private static final Logger LOG = Loggers.get(GlobalSensor.class);
+  private static final Logger LOG = Loggers.get(GlobalProjectSensor.class);
   public static final String ENABLE_PROP = "sonar.scanner.mediumtest.globalSensor";
 
   @Override

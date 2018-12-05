@@ -32,7 +32,7 @@ import org.sonar.xoo.extensions.XooIssueFilter;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
-import org.sonar.xoo.global.GlobalSensor;
+import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 import org.sonar.xoo.lang.LineMeasureSensor;
 import org.sonar.xoo.lang.MeasureSensor;
@@ -174,7 +174,7 @@ public class XooPlugin implements Plugin {
       context.addExtension(DeprecatedGlobalSensor.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 6))) {
-      context.addExtension(GlobalSensor.class);
+      context.addExtension(GlobalProjectSensor.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2))) {
       context.addExtensions(

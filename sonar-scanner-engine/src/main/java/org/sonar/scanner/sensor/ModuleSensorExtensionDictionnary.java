@@ -22,16 +22,15 @@ package org.sonar.scanner.sensor;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.AbstractExtensionDictionnary;
 
 public class ModuleSensorExtensionDictionnary extends AbstractExtensionDictionnary {
 
-  private final SensorContext sensorContext;
+  private final ModuleSensorContext sensorContext;
   private final ModuleSensorOptimizer sensorOptimizer;
 
-  public ModuleSensorExtensionDictionnary(ComponentContainer componentContainer, SensorContext sensorContext, ModuleSensorOptimizer sensorOptimizer) {
+  public ModuleSensorExtensionDictionnary(ComponentContainer componentContainer, ModuleSensorContext sensorContext, ModuleSensorOptimizer sensorOptimizer) {
     super(componentContainer);
     this.sensorContext = sensorContext;
     this.sensorOptimizer = sensorOptimizer;

@@ -136,7 +136,7 @@ public class FileIndexer {
       issueExclusionsLoader.addMulticriteriaPatterns(inputFile.getProjectRelativePath(), inputFile.key());
     }
     LOG.debug("'{}' indexed {}with language '{}'", projectRelativePath, type == Type.TEST ? "as test " : "", inputFile.language());
-    evaluateCoverageExclusions(module, moduleCoverageExclusions, inputFile);
+    evaluateCoverageExclusions(moduleCoverageExclusions, inputFile);
     if (properties.preloadFileMetadata()) {
       inputFile.checkMetadata();
     }
@@ -151,7 +151,7 @@ public class FileIndexer {
     }
   }
 
-  private void evaluateCoverageExclusions(DefaultInputModule module, ModuleCoverageExclusions moduleCoverageExclusions, DefaultInputFile inputFile) {
+  private void evaluateCoverageExclusions(ModuleCoverageExclusions moduleCoverageExclusions, DefaultInputFile inputFile) {
     boolean excludedByProjectConfiguration = projectCoverageExclusions.isExcluded(inputFile);
     if (excludedByProjectConfiguration) {
       inputFile.setExcludedForCoverage(true);
