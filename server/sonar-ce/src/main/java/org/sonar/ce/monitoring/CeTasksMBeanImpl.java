@@ -19,19 +19,29 @@
  */
 package org.sonar.ce.monitoring;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.picocontainer.Startable;
+import org.sonar.ce.configuration.CeConfiguration;
+import org.sonar.ce.taskprocessor.CeWorker;
+import org.sonar.ce.taskprocessor.CeWorkerFactory;
+import org.sonar.ce.taskprocessor.EnabledCeWorkerController;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.ce.configuration.CeConfiguration;
 
 public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSection {
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
+  private final CeWorkerFactory ceWorkerFactory;
+  private final EnabledCeWorkerController enabledCeWorkerController;
 
-  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration) {
+  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration, CeWorkerFactory ceWorkerFactory, EnabledCeWorkerController enabledCeWorkerController) {
     this.queueStatus = queueStatus;
     this.ceConfiguration = ceConfiguration;
+    this.ceWorkerFactory = ceWorkerFactory;
+    this.enabledCeWorkerController = enabledCeWorkerController;
   }
 
   @Override
@@ -80,6 +90,25 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   @Override
   public int getWorkerCount() {
     return ceConfiguration.getWorkerCount();
+  }
+
+  @Override
+  public List<String> getWorkerUuids() {
+    Set<CeWorker> workers = ceWorkerFactory.getWorkers();
+    return workers.stream()
+      .map(CeWorker::getUUID)
+      .sorted()
+      .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<String> getEnabledWorkerUuids() {
+    Set<CeWorker> workers = ceWorkerFactory.getWorkers();
+    return workers.stream()
+      .filter(enabledCeWorkerController::isEnabled)
+      .map(CeWorker::getUUID)
+      .sorted()
+      .collect(Collectors.toList());
   }
 
   @Override

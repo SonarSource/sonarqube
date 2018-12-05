@@ -257,7 +257,7 @@ public class CeProcessingSchedulerImplTest {
     }
 
     @Override
-    public Set<String> getWorkerUUIDs() {
+    public Set<CeWorker> getWorkers() {
       return emptySet();
     }
   }

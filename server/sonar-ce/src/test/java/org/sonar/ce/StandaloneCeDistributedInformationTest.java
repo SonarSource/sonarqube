@@ -20,14 +20,16 @@
 package org.sonar.ce;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,25 +48,30 @@ public class StandaloneCeDistributedInformationTest {
     StandaloneCeDistributedInformation ceCluster = new StandaloneCeDistributedInformation(ceWorkerFactory);
 
     ceCluster.broadcastWorkerUUIDs();
-    verify(ceWorkerFactory).getWorkerUUIDs();
+
+    verify(ceWorkerFactory).getWorkers();
   }
 
   @Test
   public void getWorkerUUIDs_must_be_retrieved_from_ceworkerfactory() {
     CeWorkerFactory ceWorkerFactory = mock(CeWorkerFactory.class);
-    Set<String> workerUUIDs = ImmutableSet.of("1", "2", "3");
-    when(ceWorkerFactory.getWorkerUUIDs()).thenReturn(workerUUIDs);
+    CeWorker[] ceWorkers = IntStream.range(0, new Random().nextInt(10))
+      .mapToObj(i -> {
+        CeWorker ceWorker = mock(CeWorker.class);
+        when(ceWorker.getUUID()).thenReturn("uuid_" + i);
+        return ceWorker;
+      })
+      .toArray(CeWorker[]::new);
+    when(ceWorkerFactory.getWorkers()).thenReturn(ImmutableSet.copyOf(ceWorkers));
     StandaloneCeDistributedInformation ceCluster = new StandaloneCeDistributedInformation(ceWorkerFactory);
 
     ceCluster.broadcastWorkerUUIDs();
-    assertThat(ceCluster.getWorkerUUIDs()).isEqualTo(workerUUIDs);
+    assertThat(ceCluster.getWorkerUUIDs()).isEqualTo(Arrays.stream(ceWorkers).map(CeWorker::getUUID).collect(Collectors.toSet()));
   }
 
   @Test
-  public void when_broadcastWorkerUUIDs_is_not_called_getWorkerUUIDs_is_null() {
+  public void getWorkerUUIDs_throws_ISE_if_broadcastWorkerUUIDs_has_not_been_called_before() {
     CeWorkerFactory ceWorkerFactory = mock(CeWorkerFactory.class);
-    Set<String> workerUUIDs = ImmutableSet.of("1", "2", "3");
-    when(ceWorkerFactory.getWorkerUUIDs()).thenReturn(workerUUIDs);
     StandaloneCeDistributedInformation ceCluster = new StandaloneCeDistributedInformation(ceWorkerFactory);
 
     expectedException.expect(IllegalStateException.class);

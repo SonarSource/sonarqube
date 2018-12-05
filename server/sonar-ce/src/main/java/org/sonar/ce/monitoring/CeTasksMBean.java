@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.monitoring;
 
+import java.util.List;
+
 public interface CeTasksMBean {
 
   String OBJECT_NAME = "SonarQube:name=ComputeEngineTasks";
@@ -57,4 +59,8 @@ public interface CeTasksMBean {
    * Configured number of Workers.
    */
   int getWorkerCount();
+
+  List<String> getWorkerUuids();
+
+  List<String> getEnabledWorkerUuids();
 }

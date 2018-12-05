@@ -25,7 +25,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
+import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
@@ -42,8 +45,7 @@ public class CeDistributedInformationImplTest {
   private Map workerMap = ImmutableMap.of(
     clientUUID1, ImmutableSet.of("1", "2"),
     clientUUID2, ImmutableSet.of("3"),
-    clientUUID3, ImmutableSet.of("4", "5", "6")
-  );
+    clientUUID3, ImmutableSet.of("4", "5", "6"));
 
   private HazelcastMember hzClientWrapper = mock(HazelcastMember.class);
 
@@ -79,14 +81,18 @@ public class CeDistributedInformationImplTest {
     when(hzClientWrapper.getReplicatedMap(WORKER_UUIDS)).thenReturn(modifiableWorkerMap);
 
     CeWorkerFactory ceWorkerFactory = mock(CeWorkerFactory.class);
-    when(ceWorkerFactory.getWorkerUUIDs()).thenReturn(ImmutableSet.of("a10", "a11"));
+    Set<CeWorker> ceWorkers = Stream.of("a10", "a11").map(uuid -> {
+      CeWorker res = mock(CeWorker.class);
+      when(res.getUUID()).thenReturn(uuid);
+      return res;
+    }).collect(Collectors.toSet());
+    when(ceWorkerFactory.getWorkers()).thenReturn(ceWorkers);
     CeDistributedInformationImpl ceDistributedInformation = new CeDistributedInformationImpl(hzClientWrapper, ceWorkerFactory);
 
     try {
       ceDistributedInformation.broadcastWorkerUUIDs();
       assertThat(modifiableWorkerMap).containsExactly(
-        entry(clientUUID1, ImmutableSet.of("a10", "a11"))
-      );
+        entry(clientUUID1, ImmutableSet.of("a10", "a11")));
     } finally {
       ceDistributedInformation.stop();
     }
@@ -109,7 +115,6 @@ public class CeDistributedInformationImplTest {
     ceDistributedInformation.stop();
     assertThat(modifiableWorkerMap).containsExactly(
       entry(clientUUID2, ImmutableSet.of("3")),
-      entry(clientUUID3, ImmutableSet.of("4", "5", "6"))
-    );
+      entry(clientUUID3, ImmutableSet.of("4", "5", "6")));
   }
 }

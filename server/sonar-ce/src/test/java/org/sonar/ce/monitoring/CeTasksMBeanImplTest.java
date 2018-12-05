@@ -19,16 +19,30 @@
  */
 package org.sonar.ce.monitoring;
 
+import com.google.common.collect.ImmutableSet;
 import java.lang.management.ManagementFactory;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.sonar.ce.configuration.CeConfiguration;
+import org.sonar.ce.taskprocessor.CeWorker;
+import org.sonar.ce.taskprocessor.CeWorkerFactory;
+import org.sonar.ce.taskprocessor.EnabledCeWorkerController;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CeTasksMBeanImplTest {
   private static final long PENDING_COUNT = 2;
@@ -38,8 +52,17 @@ public class CeTasksMBeanImplTest {
   private static final long PROCESSING_TIME = 987;
   private static final int WORKER_MAX_COUNT = 666;
   private static final int WORKER_COUNT = 56;
+  private static final Set<CeWorker> WORKERS = IntStream.range(0, 2 + new Random().nextInt(10))
+    .mapToObj(i -> RandomStringUtils.randomAlphabetic(15))
+    .map(uuid -> {
+      CeWorker res = mock(CeWorker.class);
+      when(res.getUUID()).thenReturn(uuid);
+      return res;
+    })
+    .collect(MoreCollectors.toSet());
 
-  private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration());
+  private EnabledCeWorkerController enabledCeWorkerController = mock(EnabledCeWorkerController.class);
+  private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), enabledCeWorkerController);
 
   @Test
   public void register_and_unregister() throws Exception {
@@ -85,11 +108,43 @@ public class CeTasksMBeanImplTest {
   }
 
   @Test
+  public void getWorkerUuids_returns_ordered_list_of_uuids_of_worker_from_CeWorkerFactory_instance() {
+    List<String> workerUuids = underTest.getWorkerUuids();
+
+    assertThat(workerUuids).isEqualTo(WORKERS.stream().map(CeWorker::getUUID).sorted().collect(Collectors.toList()));
+    // ImmutableSet can not be serialized
+    assertThat(workerUuids).isNotInstanceOf(ImmutableSet.class);
+  }
+
+  @Test
+  public void getEnabledWorkerUuids_returns_ordered_list_of_uuids_of_worker_from_CeWorkerFactory_instance_filtered_on_enabled_ones() {
+    int enabledWorkerCount = new Random().nextInt(WORKERS.size());
+    int i = 0;
+    CeWorker[] enabledWorkers = new CeWorker[enabledWorkerCount];
+    for (CeWorker worker : WORKERS) {
+      if (i < enabledWorkerCount) {
+        enabledWorkers[i] = worker;
+        when(enabledCeWorkerController.isEnabled(worker)).thenReturn(true);
+      } else {
+        when(enabledCeWorkerController.isEnabled(worker)).thenReturn(false);
+      }
+      i++;
+    }
+
+    List<String> enabledWorkerUuids = underTest.getEnabledWorkerUuids();
+
+    assertThat(enabledWorkerUuids).isEqualTo(Stream.of(enabledWorkers).map(CeWorker::getUUID).sorted().collect(Collectors.toList()));
+    // ImmutableSet can not be serialized
+    assertThat(enabledWorkerUuids).isNotInstanceOf(ImmutableSet.class);
+  }
+
+  @Test
   public void export_system_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Tasks");
     assertThat(section.getAttributesCount()).isEqualTo(8);
   }
+
   private static class DumbCEQueueStatus implements CEQueueStatus {
 
     @Override
@@ -174,5 +229,17 @@ public class CeTasksMBeanImplTest {
       return 40_000;
     }
 
+  }
+
+  private static class DumbCeWorkerFactory implements CeWorkerFactory {
+    @Override
+    public CeWorker create(int ordinal) {
+      throw new UnsupportedOperationException("create should not be called");
+    }
+
+    @Override
+    public Set<CeWorker> getWorkers() {
+      return WORKERS;
+    }
   }
 }

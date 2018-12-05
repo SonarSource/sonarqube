@@ -26,6 +26,7 @@ import java.util.concurrent.locks.Lock;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.logging.Loggers;
 import org.picocontainer.Startable;
+import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastObjects;
@@ -64,7 +65,9 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
 
   @Override
   public void broadcastWorkerUUIDs() {
-    getClusteredWorkerUUIDs().put(hazelcastMember.getUuid(), ceCeWorkerFactory.getWorkerUUIDs());
+    Set<CeWorker> workers = ceCeWorkerFactory.getWorkers();
+    Set<String> workerUuids = workers.stream().map(CeWorker::getUUID).collect(toSet(workers.size()));
+    getClusteredWorkerUUIDs().put(hazelcastMember.getUuid(), workerUuids);
   }
 
   @Override

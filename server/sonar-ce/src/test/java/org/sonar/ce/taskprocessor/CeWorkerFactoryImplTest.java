@@ -91,18 +91,17 @@ public class CeWorkerFactoryImplTest {
   }
 
   @Test
-  public void CeWorkerFactory_has_an_empty_set_of_uuids_when_created() {
-    assertThat(underTest.getWorkerUUIDs()).isEmpty();
+  public void getWorkers_returns_empty_if_create_has_not_been_called_before() {
+    assertThat(underTest.getWorkers()).isEmpty();
   }
 
   @Test
-  public void CeWorkerFactory_must_returns_the_uuids_of_worker() {
-    Set<String> ceWorkerUUIDs = new HashSet<>();
-
-    for (int i = 0; i < 10; i++) {
-      ceWorkerUUIDs.add(underTest.create(i).getUUID());
+  public void CeWorkerFactory_must_returns_the_workers_returned_by_created() {
+    Set<CeWorker> expected = new HashSet<>();
+    for (int i = 0; i < 1 + new Random().nextInt(10); i++) {
+      expected.add(underTest.create(i));
     }
 
-    assertThat(underTest.getWorkerUUIDs()).isEqualTo(ceWorkerUUIDs);
+    assertThat(underTest.getWorkers()).isEqualTo(expected);
   }
 }

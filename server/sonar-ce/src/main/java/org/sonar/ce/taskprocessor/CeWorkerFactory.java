@@ -27,14 +27,15 @@ import java.util.Set;
 public interface CeWorkerFactory {
   /**
    * Create a new CeWorker object with the specified ordinal.
-   * Each {@link CeWorker} returned by this method will have a different UUID from the others and all of these UUIDS will be returned by {@link #getWorkerUUIDs()}.
+   * Each {@link CeWorker} returned by this method will have a different UUID from the others.
+   * All returned {@link CeWorker} will be returned by {@link #getWorkers()}.
    *
    * @return the CeWorker
    */
   CeWorker create(int ordinal);
 
   /**
-   * @return  the UUIDs of each {@link CeWorker} object returned by {@link #create}.
+   * @return each {@link CeWorker} object returned by {@link #create}.
    */
-  Set<String> getWorkerUUIDs();
+  Set<CeWorker> getWorkers();
 }
