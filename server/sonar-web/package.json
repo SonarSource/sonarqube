@@ -102,7 +102,6 @@
     "eslint-plugin-react": "7.11.1",
     "eslint-plugin-sonarjs": "0.2.0",
     "expose-loader": "0.7.5",
-    "flow-bin": "^0.52.0",
     "glob": "7.1.3",
     "glob-promise": "3.4.0",
     "html-webpack-plugin": "3.2.0",
@@ -137,11 +136,10 @@
     "format-check": "prettier --list-different 'src/main/js/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
-    "flow-check": "flow check src/main/js",
     "ts-check": "tsc --noEmit",
-    "validate": "yarn lint && yarn flow-check && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn flow-check && yarn ts-check && yarn format-check && yarn test",
-    "precommit": "yarn ts-check && lint-staged && yarn flow-check"
+    "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
+    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test",
+    "precommit": "yarn ts-check && lint-staged"
   },
   "engines": {
     "node": ">=6"
