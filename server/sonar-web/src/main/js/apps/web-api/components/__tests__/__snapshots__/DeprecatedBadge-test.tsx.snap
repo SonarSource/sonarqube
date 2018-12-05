@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with malformed version 1`] = `
+<Tooltip
+  overlay="api_documentation.deprecation_tooltip"
+>
+  <span
+    className="badge badge-warning"
+  >
+    api_documentation.deprecated_since_x.foo
+  </span>
+</Tooltip>
+`;
+
+exports[`should render with version 1`] = `
+<Tooltip
+  overlay="api_documentation.will_be_removed_in_x.7.0"
+>
+  <span
+    className="badge badge-warning"
+  >
+    api_documentation.deprecated_since_x.5.6
+  </span>
+</Tooltip>
+`;
+
+exports[`should render without version 1`] = `
+<Tooltip
+  overlay="api_documentation.deprecation_tooltip"
+>
+  <span
+    className="badge badge-warning"
+  >
+    api_documentation.deprecated
+  </span>
+</Tooltip>
+`;

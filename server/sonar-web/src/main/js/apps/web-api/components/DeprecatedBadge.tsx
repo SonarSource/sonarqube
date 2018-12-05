@@ -22,12 +22,25 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default function DeprecatedBadge({ since }: { since?: string }) {
+  const version = since && parseVersion(since);
+  const overlay = version
+    ? translateWithParameters('api_documentation.will_be_removed_in_x', `${version.major + 2}.0`)
+    : translate('api_documentation.deprecation_tooltip');
   const label = since
     ? translateWithParameters('api_documentation.deprecated_since_x', since)
     : translate('api_documentation.deprecated');
   return (
-    <Tooltip overlay={translate('api_documentation.deprecation_tooltip')}>
+    <Tooltip overlay={overlay}>
       <span className="badge badge-warning">{label}</span>
     </Tooltip>
   );
+}
+
+function parseVersion(version: string) {
+  const match = /(\d+)\.(\d+)/.exec(version);
+  if (match) {
+    return { major: Number(match[1]), minor: Number(match[2]) };
+  } else {
+    return undefined;
+  }
 }
