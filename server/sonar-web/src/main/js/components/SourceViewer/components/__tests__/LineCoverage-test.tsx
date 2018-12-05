@@ -20,63 +20,21 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineCoverage from '../LineCoverage';
-import { click } from '../../../../helpers/testUtils';
 
 it('render covered line', () => {
   const line: T.SourceLine = { line: 3, coverageStatus: 'covered' };
-  const wrapper = shallow(
-    <LineCoverage
-      branchLike={undefined}
-      componentKey="foo"
-      line={line}
-      onPopupToggle={jest.fn()}
-      popupOpen={false}
-    />
-  );
+  const wrapper = shallow(<LineCoverage line={line} />);
   expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('[tabIndex]'));
 });
 
 it('render uncovered line', () => {
   const line: T.SourceLine = { line: 3, coverageStatus: 'uncovered' };
-  const wrapper = shallow(
-    <LineCoverage
-      branchLike={undefined}
-      componentKey="foo"
-      line={line}
-      onPopupToggle={jest.fn()}
-      popupOpen={false}
-    />
-  );
+  const wrapper = shallow(<LineCoverage line={line} />);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('render line with unknown coverage', () => {
   const line: T.SourceLine = { line: 3 };
-  const wrapper = shallow(
-    <LineCoverage
-      branchLike={undefined}
-      componentKey="foo"
-      line={line}
-      onPopupToggle={jest.fn()}
-      popupOpen={false}
-    />
-  );
+  const wrapper = shallow(<LineCoverage line={line} />);
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should open coverage popup', () => {
-  const line: T.SourceLine = { line: 3, coverageStatus: 'covered' };
-  const onPopupToggle = jest.fn();
-  const wrapper = shallow(
-    <LineCoverage
-      branchLike={undefined}
-      componentKey="foo"
-      line={line}
-      onPopupToggle={onPopupToggle}
-      popupOpen={false}
-    />
-  );
-  click(wrapper.find('[role="button"]'));
-  expect(onPopupToggle).toBeCalledWith({ line: 3, name: 'coverage' });
 });

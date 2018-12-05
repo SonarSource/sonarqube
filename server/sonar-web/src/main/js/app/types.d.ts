@@ -752,7 +752,7 @@ declare namespace T {
   export interface SourceLine {
     code?: string;
     conditions?: number;
-    coverageStatus?: string;
+    coverageStatus?: SourceLineCoverageStatus;
     coveredConditions?: number;
     duplicated?: boolean;
     isNew?: boolean;
@@ -762,6 +762,8 @@ declare namespace T {
     scmDate?: string;
     scmRevision?: string;
   }
+
+  export type SourceLineCoverageStatus = 'uncovered' | 'partially-covered' | 'covered';
 
   export interface SourceViewerFile {
     canMarkAsFavorite?: boolean;

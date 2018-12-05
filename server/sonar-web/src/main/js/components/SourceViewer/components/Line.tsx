@@ -126,15 +126,7 @@ export default class Line extends React.PureComponent<Props> {
           previousLine={this.props.previousLine}
         />
 
-        {this.props.displayCoverage && (
-          <LineCoverage
-            branchLike={this.props.branchLike}
-            componentKey={this.props.componentKey}
-            line={line}
-            onPopupToggle={this.props.onLinePopupToggle}
-            popupOpen={this.isPopupOpen('coverage')}
-          />
-        )}
+        {this.props.displayCoverage && <LineCoverage line={line} />}
 
         {this.props.displayDuplications && (
           <LineDuplications line={line} onClick={this.props.loadDuplications} />

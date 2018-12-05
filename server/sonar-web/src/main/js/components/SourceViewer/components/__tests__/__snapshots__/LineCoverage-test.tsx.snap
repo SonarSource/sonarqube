@@ -5,34 +5,14 @@ exports[`render covered line 1`] = `
   className="source-meta source-line-coverage source-line-covered"
   data-line-number={3}
 >
-  <Toggler
-    onRequestClose={[Function]}
-    open={false}
-    overlay={
-      <CoveragePopup
-        componentKey="foo"
-        line={
-          Object {
-            "coverageStatus": "covered",
-            "line": 3,
-          }
-        }
-        onClose={[Function]}
-      />
-    }
+  <Tooltip
+    overlay="source_viewer.tooltip.covered"
+    placement="right"
   >
-    <Tooltip
-      overlay="source_viewer.tooltip.covered"
-      placement="right"
-    >
-      <div
-        className="source-line-bar"
-        onClick={[Function]}
-        role="button"
-        tabIndex={0}
-      />
-    </Tooltip>
-  </Toggler>
+    <div
+      className="source-line-bar"
+    />
+  </Tooltip>
 </td>
 `;
 
@@ -41,9 +21,13 @@ exports[`render line with unknown coverage 1`] = `
   className="source-meta source-line-coverage"
   data-line-number={3}
 >
-  <div
-    className="source-line-bar"
-  />
+  <Tooltip
+    placement="right"
+  >
+    <div
+      className="source-line-bar"
+    />
+  </Tooltip>
 </td>
 `;
 

@@ -18,85 +18,49 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CoveragePopup from './CoveragePopup';
 import Tooltip from '../../controls/Tooltip';
-import Toggler from '../../controls/Toggler';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
-  componentKey: string;
   line: T.SourceLine;
-  onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
-  popupOpen: boolean;
 }
 
-export default class LineCoverage extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.blur();
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'coverage' });
-  };
-
-  handleTogglePopup = (open: boolean) => {
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'coverage', open });
-  };
-
-  closePopup = () => {
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'coverage', open: false });
-  };
-
-  render() {
-    const { branchLike, componentKey, line, popupOpen } = this.props;
-
-    const className =
-      'source-meta source-line-coverage' +
-      (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
-
-    const hasPopup =
-      line.coverageStatus === 'covered' || line.coverageStatus === 'partially-covered';
-
-    const bar = hasPopup ? (
-      <div className="source-line-bar" onClick={this.handleClick} role="button" tabIndex={0} />
-    ) : (
-      <div className="source-line-bar" />
-    );
-
-    const cell = line.coverageStatus ? (
-      <Tooltip
-        overlay={popupOpen ? undefined : translate('source_viewer.tooltip', line.coverageStatus)}
-        placement="right">
-        {bar}
+export default function LineCoverage({ line }: Props) {
+  const className =
+    'source-meta source-line-coverage' +
+    (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
+  return (
+    <td className={className} data-line-number={line.line}>
+      <Tooltip overlay={getStatusTooltip(line)} placement="right">
+        <div className="source-line-bar" />
       </Tooltip>
-    ) : (
-      bar
-    );
+    </td>
+  );
+}
 
-    if (hasPopup) {
-      return (
-        <td className={className} data-line-number={line.line}>
-          <Toggler
-            onRequestClose={this.closePopup}
-            open={popupOpen}
-            overlay={
-              <CoveragePopup
-                branchLike={branchLike}
-                componentKey={componentKey}
-                line={line}
-                onClose={this.closePopup}
-              />
-            }>
-            {cell}
-          </Toggler>
-        </td>
-      );
+function getStatusTooltip(line: T.SourceLine) {
+  if (line.coverageStatus === 'uncovered') {
+    if (line.conditions) {
+      return translateWithParameters('source_viewer.tooltip.uncovered.conditions', line.conditions);
+    } else {
+      return translate('source_viewer.tooltip.uncovered');
     }
-
-    return (
-      <td className={className} data-line-number={line.line}>
-        {cell}
-      </td>
-    );
+  } else if (line.coverageStatus === 'covered') {
+    if (line.conditions) {
+      return translateWithParameters('source_viewer.tooltip.covered.conditions', line.conditions);
+    } else {
+      return translate('source_viewer.tooltip.covered');
+    }
+  } else if (line.coverageStatus === 'partially-covered') {
+    if (line.conditions) {
+      return translateWithParameters(
+        'source_viewer.tooltip.partially-covered.conditions',
+        line.coveredConditions || 0,
+        line.conditions
+      );
+    } else {
+      return translate('source_viewer.tooltip.partially-covered');
+    }
   }
+  return undefined;
 }

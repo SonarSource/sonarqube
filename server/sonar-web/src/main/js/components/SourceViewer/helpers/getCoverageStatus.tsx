@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export default function getCoverageStatus(s: T.SourceLine): string | undefined {
-  let status: string | undefined;
+export default function getCoverageStatus(s: T.SourceLine): T.SourceLineCoverageStatus | undefined {
+  let status: T.SourceLineCoverageStatus | undefined;
   if (s.lineHits != null && s.lineHits > 0) {
     status = 'partially-covered';
   }
