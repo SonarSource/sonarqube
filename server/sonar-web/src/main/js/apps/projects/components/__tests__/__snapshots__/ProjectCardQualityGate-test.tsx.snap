@@ -2,7 +2,7 @@
 
 exports[`renders 1`] = `
 <div
-  className="project-card-measure project-card-quality-gate spacer-left"
+  className="project-card-quality-gate big-spacer-left"
 >
   <Tooltip
     overlay="overview.quality_gate_x.ERROR"

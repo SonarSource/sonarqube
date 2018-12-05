@@ -38,7 +38,7 @@ export default function ProjectCardQualityGate({ status }: Props) {
   );
 
   return (
-    <div className="project-card-measure project-card-quality-gate spacer-left">
+    <div className="project-card-quality-gate big-spacer-left">
       <Tooltip overlay={tooltip}>
         <div className="project-card-measure-inner">
           <Level level={status} small={true} />
