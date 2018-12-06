@@ -53,6 +53,7 @@ public class MigrateModulePropertiesTest {
     underTest.execute();
 
     verifyMultiModuleProjectMigration();
+    assertThat(getRemainingProperties()).hasSize(3);
   }
 
   @Test
@@ -63,8 +64,7 @@ public class MigrateModulePropertiesTest {
     underTest.execute();
 
     verifyMultiModuleProjectMigration();
-    List<Map<String, Object>> remainingProperties = db.select("select ID from properties");
-    assertThat(remainingProperties).hasSize(3);
+    assertThat(getRemainingProperties()).hasSize(3);
   }
 
   @Test
@@ -93,6 +93,11 @@ public class MigrateModulePropertiesTest {
 
     verifyMultiModuleProjectMigration();
     verifySecondMultiModuleProjectMigration();
+    assertThat(getRemainingProperties()).hasSize(5);
+  }
+
+  private List<Map<String, Object>> getRemainingProperties() {
+    return db.select("select ID from properties");
   }
 
   private void insertComponent(long id, String uuid, @Nullable String rootUuid, String projectUuid, String qualifier, String name) {
@@ -137,15 +142,15 @@ public class MigrateModulePropertiesTest {
   }
 
   private void verifyMultiModuleProjectMigration() {
-    final String expectedResult = "# previous settings for sub-project Multi-module project::Module\n" +
+    final String expectedResult = "# Settings from 'Multi-module project::Module'\n" +
       "sonar.coverage.exclusions=ModuleA.java\n" +
       "sonar.cpd.exclusions=ModuleB.java\n" +
       "\n" +
-      "# previous settings for sub-project Multi-module project::Submodule 1\n" +
+      "# Settings from 'Multi-module project::Submodule 1'\n" +
       "sonar.coverage.exclusions=Module1A.java\n" +
       "sonar.cpd.exclusions=Moddule1B.java\n" +
       "\n" +
-      "# previous settings for sub-project Multi-module project::Submodule 2\n" +
+      "# Settings from 'Multi-module project::Submodule 2'\n" +
       "sonar.coverage.exclusions=Module2A.java\n" +
       "sonar.cpd.exclusions=Module2B.java\n";
 
@@ -169,7 +174,7 @@ public class MigrateModulePropertiesTest {
   }
 
   private void verifySecondMultiModuleProjectMigration() {
-    final String expectedResult = "# previous settings for sub-project Another multi-module project::Module X\n" +
+    final String expectedResult = "# Settings from 'Another multi-module project::Module X'\n" +
       "sonar.coverage.exclusions=InModule.java\n";
 
     List<Map<String, Object>> properties = db.select(String.format("select ID, TEXT_VALUE, CLOB_VALUE " +

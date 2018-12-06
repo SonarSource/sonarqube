@@ -33,8 +33,10 @@ public class ProjectServerSettingsProvider extends ProviderAdapter {
 
   private static final Logger LOG = Loggers.get(ProjectConfigurationProvider.class);
 
-  private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = String.format("Please configure the settings listed in " +
-    "`%s` at project level and remove that setting to prevent the analysis from displaying a warning.", CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS);
+  private static final String MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING = "Settings that were previously configured at " +
+    "sub-project level are not used anymore. Transition the settings listed in ‘General Settings -> General -> " +
+    "Archived Sub-Projects Settings' at project level, and clear the property to prevent the analysis from " +
+    "displaying this warning.";
 
   private ProjectServerSettings singleton = null;
 

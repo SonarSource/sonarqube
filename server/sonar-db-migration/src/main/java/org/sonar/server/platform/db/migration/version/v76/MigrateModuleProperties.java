@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v76;
 
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
@@ -80,12 +81,12 @@ public class MigrateModuleProperties extends DataChange {
           if (currentModuleUuid.get() != null && builder.length() != 0) {
             builder.append("\n");
           }
-          builder.append("# previous settings for sub-project ").append(projectName).append("::").append(moduleName).append("\n");
+          builder.append("# Settings from '").append(projectName).append("::").append(moduleName).append("'\n");
           currentModuleUuid.set(moduleUuid);
         }
 
-        String propertyValue = propertyTextValue == null ? propertyClobValue : propertyTextValue;
-        builder.append(propertyKey).append("=").append(propertyValue).append("\n");
+        Optional.ofNullable(Optional.ofNullable(propertyTextValue).orElse(propertyClobValue))
+          .ifPresent(value -> builder.append(propertyKey).append("=").append(value).append("\n"));
       });
 
     if (builder.length() > 0) {
@@ -105,7 +106,7 @@ public class MigrateModuleProperties extends DataChange {
   }
 
   private static void removeModuleProperties(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("remove module properties");
+    MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("module level properties");
     massUpdate.select("select prop.id as property_id " +
       "from properties prop " +
       "left join projects mod on mod.id = prop.resource_id " +

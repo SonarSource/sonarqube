@@ -29,7 +29,7 @@ public class DbVersion76 implements DbVersion {
     registry
       .add(2500, "Create table USER_PROPERTIES", CreateUserPropertiesTable.class)
       .add(2501, "Add index in table USER_PROPERTIES", AddUniqueIndexInUserPropertiesTable.class)
-      .add(2502, "Move module and directory properties to a project level property", MigrateModuleProperties.class)
+      .add(2502, "Archive module properties in a new project level property", MigrateModuleProperties.class)
       .add(2505, "Fix the direction values of certain metrics (prepare for migration of conditions)", FixDirectionOfMetrics.class)
       .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class);
   }
