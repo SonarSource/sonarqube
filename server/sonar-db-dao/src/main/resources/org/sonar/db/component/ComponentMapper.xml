@@ -283,7 +283,8 @@
       count(1)
     from projects p
     where
-      p.project_uuid = #{projectUuid}
+      p.enabled = true
+      and p.project_uuid = #{projectUuid}
       and p.qualifier = 'BRC'
   </select>
 
