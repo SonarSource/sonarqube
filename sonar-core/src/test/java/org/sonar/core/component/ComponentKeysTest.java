@@ -48,22 +48,22 @@ public class ComponentKeysTest {
 
   @Test
   public void isValidModuleKey() {
-    assertThat(ComponentKeys.isValidModuleKey("")).isFalse();
-    assertThat(ComponentKeys.isValidModuleKey("abc")).isTrue();
-    assertThat(ComponentKeys.isValidModuleKey("0123")).isFalse();
-    assertThat(ComponentKeys.isValidModuleKey("ab 12")).isFalse();
-    assertThat(ComponentKeys.isValidModuleKey("ab_12")).isTrue();
-    assertThat(ComponentKeys.isValidModuleKey("ab/12")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("abc")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKey("0123")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKey("ab_12")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKey("ab/12")).isFalse();
   }
 
   @Test
   public void isValidModuleKeyIssuesMode() {
-    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("")).isFalse();
-    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("abc")).isTrue();
-    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("0123")).isFalse();
-    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("ab 12")).isFalse();
-    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("ab_12")).isTrue();
-    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("ab/12")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKeyIssuesMode("")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKeyIssuesMode("abc")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKeyIssuesMode("0123")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKeyIssuesMode("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidProjectKeyIssuesMode("ab_12")).isTrue();
+    assertThat(ComponentKeys.isValidProjectKeyIssuesMode("ab/12")).isTrue();
   }
 
   @Test
@@ -80,8 +80,8 @@ public class ComponentKeysTest {
 
   @Test
   public void checkModuleKey_with_correct_keys() {
-    ComponentKeys.checkModuleKey("abc");
-    ComponentKeys.checkModuleKey("a-b_1.:2");
+    ComponentKeys.checkProjectKey("abc");
+    ComponentKeys.checkProjectKey("a-b_1.:2");
   }
 
   @Test
@@ -89,27 +89,27 @@ public class ComponentKeysTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Malformed key for '0123'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    ComponentKeys.checkModuleKey("0123");
+    ComponentKeys.checkProjectKey("0123");
   }
 
   @Test
   public void checkModuleKey_fail_if_key_is_empty() {
     expectedException.expect(IllegalArgumentException.class);
 
-    ComponentKeys.checkModuleKey("");
+    ComponentKeys.checkProjectKey("");
   }
 
   @Test
   public void checkModuleKey_fail_if_space() {
     expectedException.expect(IllegalArgumentException.class);
 
-    ComponentKeys.checkModuleKey("ab 12");
+    ComponentKeys.checkProjectKey("ab 12");
   }
 
   @Test
   public void checkModuleKey_fail_if_special_characters_not_allowed() {
     expectedException.expect(IllegalArgumentException.class);
 
-    ComponentKeys.checkModuleKey("ab/12");
+    ComponentKeys.checkProjectKey("ab/12");
   }
 }

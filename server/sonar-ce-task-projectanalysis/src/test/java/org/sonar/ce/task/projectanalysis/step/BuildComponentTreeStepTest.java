@@ -437,15 +437,22 @@ public class BuildComponentTreeStepTest {
   public void return_existing_uuids_when_components_were_removed() {
     setAnalysisMetadataHolder();
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    ComponentDto removedModule = insertComponent(newModuleDto("BCDE", project).setDbKey(REPORT_MODULE_KEY).setEnabled(false));
-    ComponentDto removedDirectory = insertComponent(newDirectory(removedModule, "CDEF", REPORT_DIR_PATH_1).setDbKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_PATH_1).setEnabled(false));
-    insertComponent(newFileDto(removedModule, removedDirectory, "DEFG").setDbKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_PATH_1).setEnabled(false));
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD")
+      .setDbKey(REPORT_PROJECT_KEY));
+    ComponentDto removedModule = insertComponent(newModuleDto("BCDE", project)
+      .setDbKey(REPORT_MODULE_KEY).setEnabled(false));
+    ComponentDto removedDirectory = insertComponent(newDirectory(removedModule, "CDEF", REPORT_DIR_PATH_1)
+      .setDbKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_PATH_1).setEnabled(false));
+    insertComponent(newFileDto(removedModule, removedDirectory, "DEFG")
+      .setDbKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_PATH_1).setPath(REPORT_FILE_PATH_1).setEnabled(false));
 
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
-    reportReader.putComponent(component(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
-    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_PATH_1, FILE_1_REF));
-    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, "module/" + REPORT_FILE_PATH_1));
+
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
+      .putModulesProjectRelativePathByKey(REPORT_PROJECT_KEY, "")
+      .putModulesProjectRelativePathByKey(REPORT_MODULE_KEY, "module")
+      .build());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -453,9 +460,8 @@ public class BuildComponentTreeStepTest {
 
     // No new UUID is generated on removed components
     verifyComponentMissingByRef(MODULE_REF);
-    // TODO migrate modules
-    //verifyComponentByRef(DIR_REF_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "CDEF");
-    //verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, "DEFG");
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, "CDEF");
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":module/" + REPORT_FILE_PATH_1, "DEFG");
   }
 
   @Test
@@ -594,7 +600,9 @@ public class BuildComponentTreeStepTest {
   }
 
   private static void feedComponentByRef(Component component, Map<Integer, Component> map) {
-    map.put(component.getReportAttributes().getRef(), component);
+    if (component.getReportAttributes().getRef() != null) {
+      map.put(component.getReportAttributes().getRef(), component);
+    }
     for (Component child : component.getChildren()) {
       feedComponentByRef(child, map);
     }

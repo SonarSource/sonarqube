@@ -41,8 +41,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.component.ComponentKeys.checkModuleKey;
-import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
+import static org.sonar.core.component.ComponentKeys.checkProjectKey;
+import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 
 /**
  * Class used to rename the key of a project and its resources.
@@ -94,7 +94,7 @@ public class ComponentKeyUpdaterDao implements Dao {
         ResourceDto::getKey,
         component -> {
           String newKey = computeNewKey(component.getKey(), stringToReplace, replacementString);
-          checkModuleKey(newKey);
+          checkProjectKey(newKey);
           return newKey;
         }));
   }
@@ -233,7 +233,7 @@ public class ComponentKeyUpdaterDao implements Dao {
   private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ComponentKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
       String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
-      checkArgument(isValidModuleKey(newKey), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", newKey);
+      checkArgument(isValidProjectKey(newKey), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", newKey);
       if (mapper.countResourceByKey(newKey) > 0) {
         throw new IllegalArgumentException("Impossible to update key: a component with key \"" + newKey + "\" already exists.");
       }

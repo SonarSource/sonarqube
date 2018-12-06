@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
@@ -28,7 +29,7 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
-import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactory;
+import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactoryWithMigration;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
@@ -77,15 +78,15 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       // root key of branch, not necessarily of project
       String rootKey = keyGenerator.generateKey(reportProject, null);
-
+      Function<String, String> pathToKey = path -> keyGenerator.generateKey(reportProject, path);
       // loads the UUIDs from database. If they don't exist, then generate new ones
-      ComponentUuidFactory componentUuidFactory = new ComponentUuidFactory(dbClient, dbSession, rootKey, reportModulesPath.get());
+      ComponentUuidFactoryWithMigration componentUuidFactoryWithMigration = new ComponentUuidFactoryWithMigration(dbClient, dbSession, rootKey, pathToKey, reportModulesPath.get());
 
-      String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
+      String rootUuid = componentUuidFactoryWithMigration.getOrCreateForKey(rootKey);
       SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
 
       ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator, publicKeyGenerator,
-        componentUuidFactory::getOrCreateForKey,
+        componentUuidFactoryWithMigration::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),

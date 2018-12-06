@@ -32,9 +32,9 @@ public final class ComponentKeys {
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
    */
-  private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+  private static final String VALID_PROJECT_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
 
-  private static final String VALID_MODULE_KEY_ISSUES_MODE_REGEXP = "[\\p{Alnum}\\-_.:/]*[\\p{Alpha}\\-_.:/]+[\\p{Alnum}\\-_.:/]*";
+  private static final String VALID_PROJECT_KEY_ISSUES_MODE_REGEXP = "[\\p{Alnum}\\-_.:/]*[\\p{Alpha}\\-_.:/]+[\\p{Alnum}\\-_.:/]*";
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and '/'
    */
@@ -60,62 +60,66 @@ public final class ComponentKeys {
   }
 
   /**
-   * <p>Test if given parameter is valid for a project/module. Valid format is:</p>
+   * <p>Test if given parameter is valid for a project. Valid format is:</p>
    * <ul>
-   *  <li>Allowed characters:
-   *    <ul>
-   *      <li>Uppercase ASCII letters A-Z</li>
-   *      <li>Lowercase ASCII letters a-z</li>
-   *      <li>ASCII digits 0-9</li>
-   *      <li>Punctuation signs dash '-', underscore '_', period '.' and colon ':'</li>
-   *    </ul>
-   *  </li>
-   *  <li>At least one non-digit</li>
+   * <li>Allowed characters:
+   * <ul>
+   * <li>Uppercase ASCII letters A-Z</li>
+   * <li>Lowercase ASCII letters a-z</li>
+   * <li>ASCII digits 0-9</li>
+   * <li>Punctuation signs dash '-', underscore '_', period '.' and colon ':'</li>
    * </ul>
+   * </li>
+   * <li>At least one non-digit</li>
+   * </ul>
+   *
    * @param keyCandidate
-   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project/module
+   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project
    */
-  public static boolean isValidModuleKey(String keyCandidate) {
-    return keyCandidate.matches(VALID_MODULE_KEY_REGEXP);
+  public static boolean isValidProjectKey(String keyCandidate) {
+    return keyCandidate.matches(VALID_PROJECT_KEY_REGEXP);
   }
 
   /**
-   * Checks if given parameter is valid for a project/module following {@link #isValidModuleKey(String)} contract.
+   * Checks if given parameter is valid for a project following {@link #isValidProjectKey(String)} contract.
    *
    * @throws IllegalArgumentException if the format is incorrect
    */
-  public static void checkModuleKey(String keyCandidate) {
-    checkArgument(isValidModuleKey(keyCandidate), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", keyCandidate);
+  public static void checkProjectKey(String keyCandidate) {
+    checkArgument(isValidProjectKey(keyCandidate), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
+      keyCandidate);
   }
 
   /**
-   * Same as {@link #isValidModuleKey(String)}, but allows additionally '/'.
+   * Same as {@link #isValidProjectKey(String)}, but allows additionally '/'.
    */
-  public static boolean isValidModuleKeyIssuesMode(String keyCandidate) {
-    return keyCandidate.matches(VALID_MODULE_KEY_ISSUES_MODE_REGEXP);
+  public static boolean isValidProjectKeyIssuesMode(String keyCandidate) {
+    return keyCandidate.matches(VALID_PROJECT_KEY_ISSUES_MODE_REGEXP);
   }
 
   /**
    * <p>Test if given parameter is valid for a branch. Valid format is:</p>
    * <ul>
-   *  <li>Allowed characters:
-   *    <ul>
-   *      <li>Uppercase ASCII letters A-Z</li>
-   *      <li>Lowercase ASCII letters a-z</li>
-   *      <li>ASCII digits 0-9</li>
-   *      <li>Punctuation signs dash '-', underscore '_', period '.', and '/'</li>
-   *    </ul>
-   *  </li>
+   * <li>Allowed characters:
+   * <ul>
+   * <li>Uppercase ASCII letters A-Z</li>
+   * <li>Lowercase ASCII letters a-z</li>
+   * <li>ASCII digits 0-9</li>
+   * <li>Punctuation signs dash '-', underscore '_', period '.', and '/'</li>
    * </ul>
+   * </li>
+   * </ul>
+   *
    * @param branchCandidate
-   * @return <code>true</code> if <code>branchCandidate</code> can be used for a project/module
+   * @return <code>true</code> if <code>branchCandidate</code> can be used for a project
    */
   public static boolean isValidBranch(String branchCandidate) {
     return branchCandidate.matches(VALID_BRANCH_REGEXP);
   }
 
   /**
-   * Return the project/module key with potential branch
+   * Return the project key with potential branch
+   *
    * @param keyWithoutBranch
    * @param branch
    * @return
@@ -128,8 +132,8 @@ public final class ComponentKeys {
     }
   }
 
-  public static String createKey(String moduleKey, @Nullable String path, @Nullable String branch) {
-    String key = createKey(moduleKey, branch);
+  public static String createKey(String projectKey, @Nullable String path, @Nullable String branch) {
+    String key = createKey(projectKey, branch);
     return createEffectiveKey(key, path);
   }
 }

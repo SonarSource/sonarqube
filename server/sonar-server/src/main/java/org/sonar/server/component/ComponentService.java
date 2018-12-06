@@ -40,7 +40,7 @@ import org.sonar.server.user.UserSession;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
+import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -102,7 +102,7 @@ public class ComponentService {
   }
 
   private static void checkProjectOrModuleKeyFormat(String key) {
-    checkRequest(isValidModuleKey(key), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", key);
+    checkRequest(isValidProjectKey(key), "Malformed key for '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", key);
   }
 
 }

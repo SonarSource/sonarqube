@@ -109,14 +109,14 @@ public class ProjectReactorValidator {
   }
 
   private static void validateModuleIssuesMode(ProjectDefinition moduleDef, List<String> validationMessages) {
-    if (!ComponentKeys.isValidModuleKeyIssuesMode(moduleDef.getKey())) {
+    if (!ComponentKeys.isValidProjectKeyIssuesMode(moduleDef.getKey())) {
       validationMessages.add(format("\"%s\" is not a valid project or module key. "
         + "Allowed characters in issues mode are alphanumeric, '-', '_', '.', '/' and ':', with at least one non-digit.", moduleDef.getKey()));
     }
   }
 
   private static void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {
-    if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
+    if (!ComponentKeys.isValidProjectKey(moduleDef.getKey())) {
       validationMessages.add(format("\"%s\" is not a valid project or module key. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
     }
