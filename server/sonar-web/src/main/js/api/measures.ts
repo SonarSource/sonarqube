@@ -21,17 +21,17 @@ import { getJSON, RequestData, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getMeasures(
-  data: { componentKey: string; metricKeys: string } & T.BranchParameters
+  data: { component: string; metricKeys: string } & T.BranchParameters
 ): Promise<T.Measure[]> {
   return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
 }
 
 export function getMeasuresAndMeta(
-  componentKey: string,
+  component: string,
   metrics: string[],
   additional: RequestData = {}
 ): Promise<{ component: T.ComponentMeasure; metrics?: T.Metric[]; periods?: T.Period[] }> {
-  const data = { ...additional, componentKey, metricKeys: metrics.join(',') };
+  const data = { ...additional, component, metricKeys: metrics.join(',') };
   return getJSON('/api/measures/component', data);
 }
 

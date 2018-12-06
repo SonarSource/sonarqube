@@ -96,7 +96,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
 
       // eslint-disable-next-line promise/no-nesting
       return getMeasures({
-        componentKey: this.props.sourceViewerFile.key,
+        component: this.props.sourceViewerFile.key,
         metricKeys: metricKeys.join(),
         ...getBranchLikeQuery(this.props.branchLike)
       }).then(measures => {

@@ -109,7 +109,7 @@ it("loads branches for module's project", async () => {
   expect(getBranches).toBeCalledWith('projectKey');
   expect(getPullRequests).toBeCalledWith('projectKey');
   expect(getComponentData).toBeCalledWith({ component: 'moduleKey', branch: undefined });
-  expect(getComponentNavigation).toBeCalledWith({ componentKey: 'moduleKey', branch: undefined });
+  expect(getComponentNavigation).toBeCalledWith({ component: 'moduleKey', branch: undefined });
 });
 
 it("doesn't load branches portfolio", async () => {
@@ -123,10 +123,7 @@ it("doesn't load branches portfolio", async () => {
   expect(getBranches).not.toBeCalled();
   expect(getPullRequests).not.toBeCalled();
   expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
-  expect(getComponentNavigation).toBeCalledWith({
-    componentKey: 'portfolioKey',
-    branch: undefined
-  });
+  expect(getComponentNavigation).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
   wrapper.update();
   expect(wrapper.find(Inner).exists()).toBeTruthy();
 });
@@ -176,7 +173,7 @@ it('updates the branch measures', async () => {
 
   await new Promise(setImmediate);
   expect(getMeasures).toBeCalledWith({
-    componentKey: 'foo',
+    component: 'foo',
     metricKeys: 'new_coverage,new_duplicated_lines_density',
     branch: 'feature'
   });

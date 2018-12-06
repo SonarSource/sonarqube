@@ -82,7 +82,7 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
   };
 
   handleCreatePortfolio = ({ key, qualifier }: { key: string; qualifier: string }) => {
-    return getComponentNavigation({ componentKey: key }).then(data => {
+    return getComponentNavigation({ component: key }).then(data => {
       if (
         data.configuration &&
         data.configuration.extensions &&

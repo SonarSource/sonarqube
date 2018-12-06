@@ -168,7 +168,7 @@ function retrieveComponentBase(componentKey: string, qualifier: string, branchLi
   const metrics = getCodeMetrics(qualifier, branchLike);
 
   return getComponent({
-    componentKey,
+    component: componentKey,
     metricKeys: metrics.join(),
     ...getBranchLikeQuery(branchLike)
   }).then(component => {

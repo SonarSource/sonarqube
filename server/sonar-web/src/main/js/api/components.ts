@@ -89,7 +89,7 @@ export function setProjectTags(data: { project: string; tags: string }): Promise
 
 export function getComponentTree(
   strategy: string,
-  componentKey: string,
+  component: string,
   metrics: string[] = [],
   additional: RequestData = {}
 ): Promise<{
@@ -98,32 +98,28 @@ export function getComponentTree(
   paging: T.Paging;
 }> {
   const url = '/api/measures/component_tree';
-  const data = Object.assign({}, additional, {
-    baseComponentKey: componentKey,
-    metricKeys: metrics.join(','),
-    strategy
-  });
+  const data = { ...additional, component, metricKeys: metrics.join(','), strategy };
   return getJSON(url, data).catch(throwGlobalError);
 }
 
 export function getChildren(
-  componentKey: string,
+  component: string,
   metrics: string[] = [],
   additional: RequestData = {}
 ) {
-  return getComponentTree('children', componentKey, metrics, additional);
+  return getComponentTree('children', component, metrics, additional);
 }
 
 export function getComponentLeaves(
-  componentKey: string,
+  component: string,
   metrics: string[] = [],
   additional: RequestData = {}
 ) {
-  return getComponentTree('leaves', componentKey, metrics, additional);
+  return getComponentTree('leaves', component, metrics, additional);
 }
 
 export function getComponent(
-  data: { componentKey: string; metricKeys: string } & T.BranchParameters
+  data: { component: string; metricKeys: string } & T.BranchParameters
 ): Promise<any> {
   return getJSON('/api/measures/component', data).then(r => r.component, throwGlobalError);
 }

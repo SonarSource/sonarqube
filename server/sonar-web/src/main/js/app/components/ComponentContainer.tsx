@@ -116,7 +116,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     };
 
     Promise.all([
-      getComponentNavigation({ componentKey: key, branch, pullRequest }),
+      getComponentNavigation({ component: key, branch, pullRequest }),
       getComponentData({ component: key, branch, pullRequest })
     ])
       .then(([nav, data]) => {
@@ -193,7 +193,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     if (project && (isShortLivingBranch(branchLike) || isPullRequest(branchLike))) {
       return getMeasures({
-        componentKey: project.key,
+        component: project.key,
         metricKeys: 'new_coverage,new_duplicated_lines_density',
         ...getBranchLikeQuery(branchLike)
       }).then(measures => {

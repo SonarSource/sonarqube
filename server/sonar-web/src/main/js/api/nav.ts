@@ -25,7 +25,7 @@ export function getGlobalNavigation(): Promise<T.AppState> {
 }
 
 export function getComponentNavigation(
-  data: { componentKey: string } & T.BranchParameters
+  data: { component: string } & T.BranchParameters
 ): Promise<any> {
   return getJSON('/api/navigation/component', data).catch(throwGlobalError);
 }

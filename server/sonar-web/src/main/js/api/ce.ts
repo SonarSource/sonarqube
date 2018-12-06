@@ -64,9 +64,9 @@ export function cancelAllTasks(): Promise<any> {
 }
 
 export function getTasksForComponent(
-  componentKey: string
+  component: string
 ): Promise<{ queue: T.Task[]; current: T.Task }> {
-  return getJSON('/api/ce/component', { componentKey }).catch(throwGlobalError);
+  return getJSON('/api/ce/component', { component }).catch(throwGlobalError);
 }
 
 export function getTypes(): Promise<string[]> {
