@@ -91,14 +91,13 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
-  public String generateKey(ScannerReport.Component project, @Nullable String fileOrDirPath) {
-    String projectWithBranch = project.getKey();
+  public String generateKey(String projectKey, @Nullable String fileOrDirPath) {
     if (isLegacyBranch) {
-      projectWithBranch = ComponentKeys.createKey(project.getKey(), branchName);
+      projectKey = ComponentKeys.createKey(projectKey, branchName);
     }
     if (isEmpty(fileOrDirPath)) {
-      return projectWithBranch;
+      return projectKey;
     }
-    return ComponentKeys.createEffectiveKey(projectWithBranch, trimToNull(fileOrDirPath));
+    return ComponentKeys.createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
   }
 }

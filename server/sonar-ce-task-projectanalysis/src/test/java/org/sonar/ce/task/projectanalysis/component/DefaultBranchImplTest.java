@@ -32,8 +32,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultBranchImplTest {
-
-  private static final ScannerReport.Component PROJECT = ScannerReport.Component.newBuilder().setType(ComponentType.PROJECT).setKey("P").build();
+  private static final String PROJECT_KEY = "P";
   private static final ScannerReport.Component FILE = ScannerReport.Component.newBuilder().setType(ComponentType.FILE).setProjectRelativePath("src/Foo.js").build();
 
   @Rule
@@ -58,8 +57,8 @@ public class DefaultBranchImplTest {
     assertThat(branch.getName()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.supportsCrossProjectCpd()).isTrue();
 
-    assertThat(branch.generateKey(PROJECT, null)).isEqualTo("P");
-    assertThat(branch.generateKey(PROJECT, FILE.getProjectRelativePath())).isEqualTo("P:src/Foo.js");
+    assertThat(branch.generateKey(PROJECT_KEY, null)).isEqualTo("P");
+    assertThat(branch.generateKey(PROJECT_KEY, FILE.getProjectRelativePath())).isEqualTo("P:src/Foo.js");
   }
 
   @Test
@@ -72,8 +71,8 @@ public class DefaultBranchImplTest {
     assertThat(branch.getName()).isEqualTo("bar");
     assertThat(branch.supportsCrossProjectCpd()).isFalse();
 
-    assertThat(branch.generateKey(PROJECT, null)).isEqualTo("P:bar");
-    assertThat(branch.generateKey(PROJECT, FILE.getProjectRelativePath())).isEqualTo("P:bar:src/Foo.js");
+    assertThat(branch.generateKey(PROJECT_KEY, null)).isEqualTo("P:bar");
+    assertThat(branch.generateKey(PROJECT_KEY, FILE.getProjectRelativePath())).isEqualTo("P:bar:src/Foo.js");
   }
 
   private void assertThatNameIsCorrect(@Nullable String name) {

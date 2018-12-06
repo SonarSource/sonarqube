@@ -627,8 +627,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public String generateKey(ScannerReport.Component project, @Nullable String fileOrDirPath) {
-      String projectKey = project.getKey();
+    public String generateKey(String projectKey, @Nullable String fileOrDirPath) {
       if (isEmpty(fileOrDirPath)) {
         return projectKey;
       }

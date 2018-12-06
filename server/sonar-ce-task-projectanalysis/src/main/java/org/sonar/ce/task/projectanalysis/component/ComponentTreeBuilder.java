@@ -185,9 +185,9 @@ public class ComponentTreeBuilder {
   }
 
   private Component buildProject(List<Component> children) {
-    String projectKey = keyGenerator.generateKey(rootComponent, null);
+    String projectKey = keyGenerator.generateKey(rootComponent.getKey(), null);
     String uuid = uuidSupplier.apply(projectKey);
-    String projectPublicKey = publicKeyGenerator.generateKey(rootComponent, null);
+    String projectPublicKey = publicKeyGenerator.generateKey(rootComponent.getKey(), null);
     ComponentImpl.Builder builder = ComponentImpl.builder(Component.Type.PROJECT)
       .setUuid(uuid)
       .setDbKey(projectKey)
@@ -201,8 +201,8 @@ public class ComponentTreeBuilder {
   }
 
   private ComponentImpl buildFile(ScannerReport.Component component) {
-    String key = keyGenerator.generateKey(rootComponent, component.getProjectRelativePath());
-    String publicKey = publicKeyGenerator.generateKey(rootComponent, component.getProjectRelativePath());
+    String key = keyGenerator.generateKey(rootComponent.getKey(), component.getProjectRelativePath());
+    String publicKey = publicKeyGenerator.generateKey(rootComponent.getKey(), component.getProjectRelativePath());
     return ComponentImpl.builder(Component.Type.FILE)
       .setUuid(uuidSupplier.apply(key))
       .setDbKey(key)
@@ -217,8 +217,8 @@ public class ComponentTreeBuilder {
   }
 
   private ComponentImpl buildDirectory(String parentPath, String path, List<Component> children) {
-    String key = keyGenerator.generateKey(rootComponent, path);
-    String publicKey = publicKeyGenerator.generateKey(rootComponent, path);
+    String key = keyGenerator.generateKey(rootComponent.getKey(), path);
+    String publicKey = publicKeyGenerator.generateKey(rootComponent.getKey(), path);
     return ComponentImpl.builder(Component.Type.DIRECTORY)
       .setUuid(uuidSupplier.apply(key))
       .setDbKey(key)

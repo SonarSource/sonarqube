@@ -77,8 +77,8 @@ public class BuildComponentTreeStep implements ComputationStep {
       ScannerReport.Metadata metadata = reportReader.readMetadata();
 
       // root key of branch, not necessarily of project
-      String rootKey = keyGenerator.generateKey(reportProject, null);
-      Function<String, String> pathToKey = path -> keyGenerator.generateKey(reportProject, path);
+      String rootKey = keyGenerator.generateKey(reportProject.getKey(), null);
+      Function<String, String> pathToKey = path -> keyGenerator.generateKey(reportProject.getKey(), path);
       // loads the UUIDs from database. If they don't exist, then generate new ones
       ComponentUuidFactoryWithMigration componentUuidFactoryWithMigration = new ComponentUuidFactoryWithMigration(dbClient, dbSession, rootKey, pathToKey, reportModulesPath.get());
 

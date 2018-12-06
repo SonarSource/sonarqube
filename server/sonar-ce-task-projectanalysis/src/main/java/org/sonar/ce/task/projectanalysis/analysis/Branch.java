@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.db.component.BranchType;
-import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 
 @Immutable
 public interface Branch extends ComponentKeyGenerator {

@@ -58,10 +58,10 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuild
 
 public class ComponentTreeBuilderTest {
 
-  private static final ComponentKeyGenerator KEY_GENERATOR = (project, path) -> "generated_"
-    + ComponentKeys.createEffectiveKey(project.getKey(), path);
-  private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (project, path) -> "public_"
-    + ComponentKeys.createEffectiveKey(project.getKey(), path);
+  private static final ComponentKeyGenerator KEY_GENERATOR = (projectKey, path) -> "generated_"
+    + ComponentKeys.createEffectiveKey(projectKey, path);
+  private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (projectKey, path) -> "public_"
+    + ComponentKeys.createEffectiveKey(projectKey, path);
   private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
   private static final String NO_SCM_BASE_PATH = "";
