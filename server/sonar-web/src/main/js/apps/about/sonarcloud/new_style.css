@@ -85,7 +85,7 @@
 }
 
 .sc-page a:hover {
-  border-bottom: 1px solid #fff;
+  border-bottom: 1px solid var(--sonarcloudBlack100);
 }
 
 .sc-section {
@@ -199,6 +199,10 @@
   z-index: 0;
 }
 
+.sc-functionality-background-bottom {
+  margin-top: 0;
+}
+
 .sc-background-start {
   position: absolute;
   background-color: #fdc300;
@@ -249,11 +253,28 @@
   background-color: var(--sonarcloudBlack200);
 }
 
+.sc-functionality-container .sc-columns:last-of-type {
+  margin-bottom: 20px;
+}
+
 .sc-languages-container {
-  padding: 130px 0 0;
-  background-color: var(--sonarcloudBlack800);
+  padding: 60px 0 0;
+  background-color: var(--sonarcloudBlack100);
   margin-bottom: 90px;
   box-sizing: border-box;
+}
+
+.sc-languages-container::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  height: 1px;
+  background-color: var(--sonarcloudBlack300);
+  width: 100px;
+}
+
+.sc-languages-container .sc-section {
+  margin-bottom: 30px;
 }
 
 .sc-languages-list {
@@ -276,25 +297,20 @@
   vertical-align: middle;
 }
 
-.sc-languages-container h3,
 .sc-languages-container a {
-  color: #fff;
+  color: var(--sonarcloudBlack700);
+  border-bottom-color: var(--sonarcloudBlack300);
 }
 
-.sc-page .white {
-  color: #fff !important;
+.sc-languages-container a:hover {
+  color: var(--sonarcloudBlack900);
+  border-bottom-color: var(--sonarcloudBlack900);
 }
 
-.sc-page h4 span {
-  font-family: var(--sonarcloudFontFamily);
-  font-size: 32px;
-}
-
-.sc-page a.show-more {
+.sc-languages-container a.show-more {
   display: inline-block;
-  font-family: var(--sonarcloudFontFamily);
-  color: #fff;
   font-weight: 700;
+  font-family: var(--sonarcloudFontFamily);
   line-height: 33px;
   font-size: 36px;
   border: none;
@@ -303,8 +319,18 @@
   width: 50px;
 }
 
-.sc-page a.show-more:hover {
+.sc-languages-container a.show-more:hover {
   background: var(--sonarcloudBlack700);
+  color: var(--sonarcloudBlack100);
+}
+
+.sc-page .white {
+  color: var(--sonarcloudBlack100) !important;
+}
+
+.sc-page h4 span {
+  font-family: var(--sonarcloudFontFamily);
+  font-size: 32px;
 }
 
 .sc-pricing-free {
@@ -334,7 +360,7 @@
 
 .sc-pricing-privacy ul li,
 .sc-pricing-privacy em {
-  color: #fff;
+  color: var(--sonarcloudBlack100);
 }
 
 .sc-pricing-free ul li em {
@@ -347,7 +373,7 @@
   position: absolute;
   border-radius: 7px;
   background: linear-gradient(214deg, var(--sonarcloudBlack700) 0%, var(--sonarcloudBlack800) 100%);
-  color: #fff;
+  color: var(--sonarcloudBlack100);
   width: 350px;
   right: -70px;
   top: -20px;
@@ -359,7 +385,7 @@
 }
 
 .sc-pricing-privacy a {
-  color: #fff;
+  color: var(--sonarcloudBlack100);
 }
 
 .sc-pricing-privacy .starts-at {
@@ -372,7 +398,7 @@
 a.sc-orange-button {
   display: inline-block;
   background-color: var(--sonarcloudOrange500);
-  color: #fff;
+  color: var(--sonarcloudBlack100);
   font-size: 18px;
   font-weight: 700;
   padding: 0 15px;
@@ -384,7 +410,7 @@ a.sc-orange-button {
 }
 
 a.sc-orange-button:hover {
-  color: #fff;
+  color: var(--sonarcloudBlack100);
   background-color: var(--sonarcloudOrange700);
 }
 

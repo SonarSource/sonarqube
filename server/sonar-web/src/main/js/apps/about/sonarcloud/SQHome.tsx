@@ -151,7 +151,7 @@ function Languages() {
           <img
             alt="Java"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/java.svg`}
+            src={`${getBaseUrl()}/images/languages/java.svg`}
             width="60"
           />
         </li>
@@ -159,7 +159,7 @@ function Languages() {
           <img
             alt="JavaScript"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/js.svg`}
+            src={`${getBaseUrl()}/images/languages/js.svg`}
             width="60"
           />
         </li>
@@ -167,7 +167,7 @@ function Languages() {
           <img
             alt="TypeScript"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/ts.svg`}
+            src={`${getBaseUrl()}/images/languages/ts.svg`}
             width="60"
           />
         </li>
@@ -175,7 +175,7 @@ function Languages() {
           <img
             alt="C#"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/c-sharp.svg`}
+            src={`${getBaseUrl()}/images/languages/c-sharp.svg`}
             width="60"
           />
         </li>
@@ -183,49 +183,34 @@ function Languages() {
           <img
             alt="C++"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/c-plus.svg`}
+            src={`${getBaseUrl()}/images/languages/c-plus.svg`}
             width="60"
           />
         </li>
         <li>
-          <img
-            alt="Go"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/black/go.svg`}
-            width="60"
-          />
+          <img alt="Go" height="60" src={`${getBaseUrl()}/images/languages/go.svg`} width="60" />
         </li>
         <li>
           <img
             alt="Python"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/python.svg`}
+            src={`${getBaseUrl()}/images/languages/python.svg`}
             width="60"
           />
         </li>
         <li>
-          <img
-            alt="PHP"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/black/php.svg`}
-            width="60"
-          />
+          <img alt="PHP" height="60" src={`${getBaseUrl()}/images/languages/php.svg`} width="60" />
         </li>
       </ul>
       <ul className="sc-languages-list">
         <li>
-          <img
-            alt="VB"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/black/vb.svg`}
-            width="60"
-          />
+          <img alt="VB" height="60" src={`${getBaseUrl()}/images/languages/vb.svg`} width="60" />
         </li>
         <li>
           <img
             alt="Kotlin"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/kotlin.svg`}
+            src={`${getBaseUrl()}/images/languages/kotlin.svg`}
             width="60"
           />
         </li>
@@ -233,23 +218,18 @@ function Languages() {
           <img
             alt="Flex"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/flex.png`}
+            src={`${getBaseUrl()}/images/languages/flex.png`}
             width="85"
           />
         </li>
         <li>
-          <img
-            alt="CSS"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/black/css.svg`}
-            width="60"
-          />
+          <img alt="CSS" height="60" src={`${getBaseUrl()}/images/languages/css.svg`} width="60" />
         </li>
         <li>
           <img
             alt="HTML"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/html5.svg`}
+            src={`${getBaseUrl()}/images/languages/html5.svg`}
             width="60"
           />
         </li>
@@ -257,7 +237,7 @@ function Languages() {
           <img
             alt="Ruby"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/ruby.svg`}
+            src={`${getBaseUrl()}/images/languages/ruby.svg`}
             width="60"
           />
         </li>
@@ -265,7 +245,7 @@ function Languages() {
           <img
             alt="Scala"
             height="57"
-            src={`${getBaseUrl()}/images/languages/black/scala.svg`}
+            src={`${getBaseUrl()}/images/languages/scala.svg`}
             width="57"
           />
         </li>
@@ -273,7 +253,7 @@ function Languages() {
           <img
             alt="Swift"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/swift.svg`}
+            src={`${getBaseUrl()}/images/languages/swift.svg`}
             width="60"
           />
         </li>
@@ -283,7 +263,7 @@ function Languages() {
           <img
             alt="Objective-C"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/obj-c.svg`}
+            src={`${getBaseUrl()}/images/languages/obj-c.svg`}
             width="60"
           />
         </li>
@@ -291,7 +271,7 @@ function Languages() {
           <img
             alt="T-SQL"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/tsql.svg`}
+            src={`${getBaseUrl()}/images/languages/tsql.svg`}
             width="60"
           />
         </li>
@@ -299,7 +279,7 @@ function Languages() {
           <img
             alt="PL/SQL"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/plsql.svg`}
+            src={`${getBaseUrl()}/images/languages/plsql.svg`}
             width="60"
           />
         </li>
@@ -307,17 +287,12 @@ function Languages() {
           <img
             alt="ABAP"
             height="60"
-            src={`${getBaseUrl()}/images/languages/black/abap.svg`}
+            src={`${getBaseUrl()}/images/languages/abap.svg`}
             width="60"
           />
         </li>
         <li>
-          <img
-            alt="XML"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/black/xml.svg`}
-            width="60"
-          />
+          <img alt="XML" height="60" src={`${getBaseUrl()}/images/languages/xml.svg`} width="60" />
         </li>
       </ul>
     </div>

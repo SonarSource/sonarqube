@@ -372,6 +372,19 @@ exports[`should render 5`] = `
       </div>
     </div>
   </div>
+  <div
+    className="sc-functionality-background sc-functionality-background-bottom"
+  >
+    <div
+      className="sc-background-center"
+    >
+      <img
+        alt=""
+        height="140px"
+        src="/images/sonarcloud/home-background-grey-bottom.svg"
+      />
+    </div>
+  </div>
 </div>
 `;
 
@@ -420,7 +433,7 @@ exports[`should render 6`] = `
             src="/images/languages/java.svg"
             style={
               Object {
-                "width": "39px",
+                "width": "65px",
               }
             }
           />
@@ -472,7 +485,7 @@ exports[`should render 6`] = `
             src="/images/languages/python.svg"
             style={
               Object {
-                "width": "42px",
+                "width": "65px",
               }
             }
           />

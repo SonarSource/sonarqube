@@ -272,6 +272,15 @@ function Functionality() {
           </div>
         </div>
       </div>
+      <div className="sc-functionality-background sc-functionality-background-bottom">
+        <div className="sc-background-center">
+          <img
+            alt=""
+            height="140px"
+            src={`${getBaseUrl()}/images/sonarcloud/home-background-grey-bottom.svg`}
+          />
+        </div>
+      </div>
     </div>
   );
 }

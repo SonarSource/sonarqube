@@ -129,7 +129,7 @@ export default function AzureDevOps() {
                 <li key={language.name}>
                   <img
                     alt={language.name}
-                    src={`${getBaseUrl()}/images/languages/black/${language.file}`}
+                    src={`${getBaseUrl()}/images/languages/${language.file}`}
                     style={{ width: language.width + 'px' }}
                   />
                 </li>
