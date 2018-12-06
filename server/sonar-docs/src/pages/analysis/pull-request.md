@@ -46,9 +46,13 @@ To activate PR decoration, you need to:
 * feed some specific parameters (GitHub only)
 
 #### Authentication Token
-The first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > Pull Requests**. The field to configure depends on the provider.
-
+<!-- sonarqube -->
+The first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests**. The field to configure depends on the provider.
 For GitHub Enterprise or GitHub.com, you need to configure the **Authentication token** field. For Azure DevOps, it's the **Personal access token**.
+<!-- /sonarqube -->
+<!-- sonarcloud -->
+If you are using Azure DevOps, the first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests > VSTS > Personal access token**.
+<!-- /sonarcloud -->
 
 #### Pull Request Provider
 | Parameter Name        | Description |
@@ -59,7 +63,9 @@ For GitHub Enterprise or GitHub.com, you need to configure the **Authentication 
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
 | `sonar.pullrequest.github.repository` | SLUG of the GitHub Repo |
+<!-- sonarqube -->
 | `sonar.pullrequest.github.endpoint` | The API url for your GitHub instance.<br/> Ex.: `https://api.github.com/` or `https://github.company.com/api/v3/` |
+<!-- /sonarqube -->
 
 Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
 
