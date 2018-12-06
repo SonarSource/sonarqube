@@ -22,6 +22,7 @@ import { withRouter, WithRouterProps } from 'react-router';
 import { deleteProject, deletePortfolio } from '../../api/components';
 import { Button } from '../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 
 interface Props {
@@ -36,6 +37,9 @@ export default withRouter(
       const deleteMethod = isProject ? deleteProject : deletePortfolio;
       const redirectTo = isProject ? '/' : '/portfolios';
       return deleteMethod(component.key).then(() => {
+        addGlobalSuccessMessage(
+          translateWithParameters('project_deletion.resource_deleted', component.name)
+        );
         this.props.router.replace(redirectTo);
       });
     };
