@@ -20,11 +20,11 @@ exports[`renders correctly 1`] = `
     snippet={
       Array [
         "sonar-scanner.bat",
-        "-Dsonar.projectKey=projectKey",
+        "-D\\"sonar.projectKey=projectKey\\"",
         undefined,
-        "-Dsonar.sources=.",
-        "-Dsonar.host.url=host",
-        "-Dsonar.login=token",
+        "-D\\"sonar.sources=.\\"",
+        "-D\\"sonar.host.url=host\\"",
+        "-D\\"sonar.login=token\\"",
       ]
     }
   />

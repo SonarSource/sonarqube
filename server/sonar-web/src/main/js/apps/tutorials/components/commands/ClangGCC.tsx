@@ -23,6 +23,7 @@ import BuildWrapper from './BuildWrapper';
 import CodeSnippet from '../../../../components/common/CodeSnippet';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import { translate } from '../../../../helpers/l10n';
+import { quote } from '../../utils';
 
 interface Props {
   host: string;
@@ -42,14 +43,15 @@ const executables: { [key: string]: string } = {
 export default function ClangGCC(props: Props) {
   const command1 = `${executables[props.os]} --out-dir bw-output make clean all`;
 
+  const q = quote(props.os);
   const command2 = [
     props.os === 'win' ? 'sonar-scanner.bat' : 'sonar-scanner',
-    `-Dsonar.projectKey=${props.projectKey}`,
-    props.organization && `-Dsonar.organization=${props.organization}`,
-    '-Dsonar.sources=.',
-    '-Dsonar.cfamily.build-wrapper-output=bw-output',
-    `-Dsonar.host.url=${props.host}`,
-    `-Dsonar.login=${props.token}`
+    '-D' + q(`sonar.projectKey=${props.projectKey}`),
+    props.organization && '-D' + q(`sonar.organization=${props.organization}`),
+    '-D' + q('sonar.sources=.'),
+    '-D' + q('sonar.cfamily.build-wrapper-output=bw-output'),
+    '-D' + q(`sonar.host.url=${props.host}`),
+    '-D' + q(`sonar.login=${props.token}`)
   ];
 
   return (
