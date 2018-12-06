@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ComponentNavBranchesMenu from '../ComponentNavBranchesMenu';
+import { ComponentNavBranchesMenu } from '../ComponentNavBranchesMenu';
 import { elementKeydown } from '../../../../../helpers/testUtils';
 
 const component = { key: 'component' } as T.Component;
@@ -38,6 +38,7 @@ it('renders list', () => {
         component={component}
         currentBranchLike={mainBranch()}
         onClose={jest.fn()}
+        router={{ push: jest.fn() }}
       />
     )
   ).toMatchSnapshot();
@@ -56,6 +57,7 @@ it('searches', () => {
       component={component}
       currentBranchLike={mainBranch()}
       onClose={jest.fn()}
+      router={{ push: jest.fn() }}
     />
   );
   wrapper.setState({ query: 'bar' });
@@ -69,6 +71,7 @@ it('selects next & previous', () => {
       component={component}
       currentBranchLike={mainBranch()}
       onClose={jest.fn()}
+      router={{ push: jest.fn() }}
     />
   );
   elementKeydown(wrapper.find('SearchBox'), 40);

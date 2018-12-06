@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { minBy } from 'lodash';
-import * as PropTypes from 'prop-types';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import PreviewGraphTooltips from './PreviewGraphTooltips';
 import AdvancedTimeline from '../charts/AdvancedTimeline';
@@ -37,6 +36,7 @@ import {
 import { get } from '../../helpers/storage';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
+import { withRouter, Router } from '../hoc/withRouter';
 
 interface History {
   [x: string]: Array<{ date: Date; value?: string }>;
@@ -48,6 +48,7 @@ interface Props {
   metrics: { [key: string]: T.Metric };
   project: string;
   renderWhenEmpty?: () => React.ReactNode;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
@@ -63,11 +64,7 @@ const GRAPH_PADDING = [4, 0, 4, 0];
 const MAX_GRAPH_NB = 1;
 const MAX_SERIES_PER_GRAPH = 3;
 
-export default class PreviewGraph extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
+class PreviewGraph extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
@@ -140,7 +137,7 @@ export default class PreviewGraph extends React.PureComponent<Props, State> {
   };
 
   handleClick = () => {
-    this.context.router.push({
+    this.props.router.push({
       pathname: '/project/activity',
       query: { id: this.props.project, ...getBranchLikeQuery(this.props.branchLike) }
     });
@@ -202,3 +199,5 @@ export default class PreviewGraph extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(PreviewGraph);

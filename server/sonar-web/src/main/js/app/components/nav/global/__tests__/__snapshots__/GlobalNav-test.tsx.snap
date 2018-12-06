@@ -26,7 +26,6 @@ exports[`should render for SonarCloud 1`] = `
         "pathname": "",
       }
     }
-    suggestions={Array []}
   />
   <ul
     className="global-navbar-menu global-navbar-menu-right"
@@ -38,9 +37,7 @@ exports[`should render for SonarCloud 1`] = `
         }
       }
     />
-    <EmbedDocsPopupHelper
-      suggestions={Array []}
-    />
+    <EmbedDocsPopupHelper />
     <withRouter(Search)
       appState={
         Object {
@@ -56,7 +53,7 @@ exports[`should render for SonarCloud 1`] = `
         }
       }
     />
-    <Connect(GlobalNavUser)
+    <Connect(withRouter(GlobalNavUser))
       appState={
         Object {
           "canAdmin": false,
@@ -70,12 +67,6 @@ exports[`should render for SonarCloud 1`] = `
           "isLoggedIn": false,
         }
       }
-      location={
-        Object {
-          "pathname": "",
-        }
-      }
-      suggestions={Array []}
     />
   </ul>
 </NavBar>
@@ -107,14 +98,11 @@ exports[`should render for SonarQube 1`] = `
         "pathname": "",
       }
     }
-    suggestions={Array []}
   />
   <ul
     className="global-navbar-menu global-navbar-menu-right"
   >
-    <EmbedDocsPopupHelper
-      suggestions={Array []}
-    />
+    <EmbedDocsPopupHelper />
     <withRouter(Search)
       appState={
         Object {
@@ -130,7 +118,7 @@ exports[`should render for SonarQube 1`] = `
         }
       }
     />
-    <Connect(GlobalNavUser)
+    <Connect(withRouter(GlobalNavUser))
       appState={
         Object {
           "canAdmin": false,
@@ -144,12 +132,6 @@ exports[`should render for SonarQube 1`] = `
           "isLoggedIn": false,
         }
       }
-      location={
-        Object {
-          "pathname": "",
-        }
-      }
-      suggestions={Array []}
     />
   </ul>
 </NavBar>

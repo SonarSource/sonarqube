@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ComponentNavMenu from '../ComponentNavMenu';
+import { ComponentNavMenu } from '../ComponentNavMenu';
 
 const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
@@ -37,9 +37,13 @@ it('should work with extensions', () => {
     configuration: { showSettings: true, extensions: [{ key: 'foo', name: 'Foo' }] },
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
-  const wrapper = shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
-    context: { branchesEnabled: true }
-  });
+  const wrapper = shallow(
+    <ComponentNavMenu
+      appState={{ branchesEnabled: true }}
+      branchLike={mainBranch}
+      component={component}
+    />
+  );
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
@@ -56,9 +60,13 @@ it('should work with multiple extensions', () => {
       { key: 'component-bar', name: 'ComponentBar' }
     ]
   };
-  const wrapper = shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
-    context: { branchesEnabled: true }
-  });
+  const wrapper = shallow(
+    <ComponentNavMenu
+      appState={{ branchesEnabled: true }}
+      branchLike={mainBranch}
+      component={component}
+    />
+  );
   expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
@@ -76,9 +84,13 @@ it('should work for short-living branches', () => {
     extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
   expect(
-    shallow(<ComponentNavMenu branchLike={branch} component={component} />, {
-      context: { branchesEnabled: true }
-    })
+    shallow(
+      <ComponentNavMenu
+        appState={{ branchesEnabled: true }}
+        branchLike={branch}
+        component={component}
+      />
+    )
   ).toMatchSnapshot();
 });
 
@@ -88,14 +100,14 @@ it('should work for long-living branches', () => {
     expect(
       shallow(
         <ComponentNavMenu
+          appState={{ branchesEnabled: true }}
           branchLike={branch}
           component={{
             ...baseComponent,
             configuration: { showSettings },
             extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
           }}
-        />,
-        { context: { branchesEnabled: true } }
+        />
       )
     ).toMatchSnapshot()
   );
@@ -108,9 +120,13 @@ it('should work for all qualifiers', () => {
   function checkWithQualifier(qualifier: string) {
     const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
     expect(
-      shallow(<ComponentNavMenu branchLike={mainBranch} component={component} />, {
-        context: { branchesEnabled: true }
-      })
+      shallow(
+        <ComponentNavMenu
+          appState={{ branchesEnabled: true }}
+          branchLike={mainBranch}
+          component={component}
+        />
+      )
     ).toMatchSnapshot();
   }
 });

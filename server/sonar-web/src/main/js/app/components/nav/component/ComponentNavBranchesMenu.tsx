@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import ComponentNavBranchesMenuItem from './ComponentNavBranchesMenuItem';
 import {
@@ -36,6 +35,7 @@ import { getBranchLikeUrl } from '../../../../helpers/urls';
 import SearchBox from '../../../../components/controls/SearchBox';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import { DropdownOverlay } from '../../../../components/controls/Dropdown';
+import { withRouter, Router } from '../../../../components/hoc/withRouter';
 
 interface Props {
   branchLikes: T.BranchLike[];
@@ -43,6 +43,7 @@ interface Props {
   component: T.Component;
   currentBranchLike: T.BranchLike;
   onClose: () => void;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
@@ -50,14 +51,9 @@ interface State {
   selected: T.BranchLike | undefined;
 }
 
-export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
-  private listNode?: HTMLUListElement | null;
-  private selectedBranchNode?: HTMLLIElement | null;
-
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
+export class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
+  listNode?: HTMLUListElement | null;
+  selectedBranchNode?: HTMLLIElement | null;
   state: State = { query: '', selected: undefined };
 
   componentDidMount() {
@@ -113,7 +109,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   openSelected = () => {
     const selected = this.getSelected();
     if (selected) {
-      this.context.router.push(this.getProjectBranchUrl(selected));
+      this.props.router.push(this.getProjectBranchUrl(selected));
     }
   };
 
@@ -263,3 +259,5 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     );
   }
 }
+
+export default withRouter(ComponentNavBranchesMenu);

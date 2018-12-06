@@ -18,28 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { copyQualityGate } from '../../../api/quality-gates';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   onClose: () => void;
   onCopy: () => Promise<void>;
   organization?: string;
   qualityGate: T.QualityGate;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
   name: string;
 }
 
-export default class CopyQualityGateForm extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
+class CopyQualityGateForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { name: props.qualityGate.name };
@@ -59,7 +56,7 @@ export default class CopyQualityGateForm extends React.PureComponent<Props, Stat
 
     return copyQualityGate({ id: qualityGate.id, name, organization }).then(qualityGate => {
       this.props.onCopy();
-      this.context.router.push(getQualityGateUrl(String(qualityGate.id), this.props.organization));
+      this.props.router.push(getQualityGateUrl(String(qualityGate.id), this.props.organization));
     });
   };
 
@@ -95,3 +92,5 @@ export default class CopyQualityGateForm extends React.PureComponent<Props, Stat
     );
   }
 }
+
+export default withRouter(CopyQualityGateForm);

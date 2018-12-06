@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Location } from 'history';
-import ExtensionContainer from './ExtensionContainer';
+import Extension from './Extension';
 import NotFound from '../NotFound';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
 
@@ -37,7 +37,7 @@ function ProjectAdminPageExtension(props: Props) {
     component.configuration &&
     (component.configuration.extensions || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? (
-    <ExtensionContainer extension={extension} options={{ component }} />
+    <Extension extension={extension} options={{ component }} />
   ) : (
     <NotFound withContainer={false} />
   );

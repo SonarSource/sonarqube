@@ -76,7 +76,10 @@ beforeEach(() => {
 
 it('changes component', () => {
   const wrapper = shallow<ComponentContainer>(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -100,7 +103,10 @@ it("loads branches for module's project", async () => {
   });
 
   mount(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'moduleKey' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'moduleKey' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -114,7 +120,10 @@ it("loads branches for module's project", async () => {
 
 it("doesn't load branches portfolio", async () => {
   const wrapper = mount(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'portfolioKey' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -130,7 +139,10 @@ it("doesn't load branches portfolio", async () => {
 
 it('updates branches on change', () => {
   const wrapper = shallow(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'portfolioKey' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -156,6 +168,7 @@ it('updates the branch measures', async () => {
   (getPullRequests as jest.Mock<any>).mockResolvedValueOnce([]);
   const wrapper = shallow(
     <ComponentContainer
+      appState={{ organizationsEnabled: false }}
       fetchOrganizations={jest.fn()}
       location={{ query: { id: 'foo', branch: 'feature' } }}>
       <Inner />
@@ -184,10 +197,12 @@ it('loads organization', async () => {
 
   const fetchOrganizations = jest.fn();
   mount(
-    <ComponentContainer fetchOrganizations={fetchOrganizations} location={{ query: { id: 'foo' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: true }}
+      fetchOrganizations={fetchOrganizations}
+      location={{ query: { id: 'foo' } }}>
       <Inner />
-    </ComponentContainer>,
-    { context: { organizationsEnabled: true } }
+    </ComponentContainer>
   );
 
   await new Promise(setImmediate);
@@ -198,10 +213,12 @@ it('fetches status', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
 
   mount(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: true }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'foo' } }}>
       <Inner />
-    </ComponentContainer>,
-    { context: { organizationsEnabled: true } }
+    </ComponentContainer>
   );
 
   await new Promise(setImmediate);
@@ -210,7 +227,10 @@ it('fetches status', async () => {
 
 it('filters correctly the pending tasks for a main branch', () => {
   const wrapper = shallow(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -275,7 +295,10 @@ it('reload component after task progress finished', async () => {
   const inProgressTask = { id: 'foo', status: STATUSES.IN_PROGRESS } as T.Task;
   (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({ queue: [inProgressTask] });
   const wrapper = shallow(
-    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
+    <ComponentContainer
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
   );

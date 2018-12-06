@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import MarketplaceContext, { defaultPendingPlugins } from './MarketplaceContext';
@@ -31,7 +30,7 @@ import { PluginPendingResult, getPendingPlugins } from '../../api/plugins';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 interface StateProps {
-  appState: Pick<T.AppState, 'adminPages' | 'organizationsEnabled'>;
+  appState: Pick<T.AppState, 'adminPages' | 'canAdmin' | 'organizationsEnabled'>;
 }
 
 interface DispatchToProps {
@@ -50,18 +49,13 @@ interface State {
 
 class AdminContainer extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    canAdmin: PropTypes.bool.isRequired
-  };
-
   state: State = {
     pendingPlugins: defaultPendingPlugins
   };
 
   componentDidMount() {
     this.mounted = true;
-    if (!this.context.canAdmin) {
+    if (!this.props.appState.canAdmin) {
       handleRequiredAuthorization();
     } else {
       this.fetchNavigationSettings();

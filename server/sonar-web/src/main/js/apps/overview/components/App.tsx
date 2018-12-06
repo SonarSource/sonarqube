@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import EmptyOverview from './EmptyOverview';
 import OverviewApp from './OverviewApp';
@@ -33,6 +32,7 @@ import {
   getPathUrlAsString
 } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -41,27 +41,24 @@ interface Props {
   isInProgress?: boolean;
   isPending?: boolean;
   onComponentChange: (changes: Partial<T.Component>) => void;
+  router: Pick<Router, 'replace'>;
 }
 
-export default class App extends React.PureComponent<Props> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
+export class App extends React.PureComponent<Props> {
   componentDidMount() {
     const { branchLike, component } = this.props;
 
     if (this.isPortfolio()) {
-      this.context.router.replace({
+      this.props.router.replace({
         pathname: '/portfolio',
         query: { id: component.key }
       });
     } else if (this.isFile()) {
-      this.context.router.replace(
+      this.props.router.replace(
         getCodeUrl(component.breadcrumbs[0].key, branchLike, component.key)
       );
     } else if (isShortLivingBranch(branchLike)) {
-      this.context.router.replace(getShortLivingBranchUrl(component.key, branchLike.name));
+      this.props.router.replace(getShortLivingBranchUrl(component.key, branchLike.name));
     }
   }
 
@@ -116,3 +113,5 @@ export default class App extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withRouter(App);

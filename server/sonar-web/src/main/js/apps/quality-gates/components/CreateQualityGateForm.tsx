@@ -18,28 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { createQualityGate } from '../../../api/quality-gates';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   onClose: () => void;
   onCreate: () => Promise<void>;
   organization?: string;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
   name: string;
 }
 
-export default class CreateQualityGateForm extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
-  state = { name: '' };
+class CreateQualityGateForm extends React.PureComponent<Props, State> {
+  state: State = { name: '' };
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     this.setState({ name: event.currentTarget.value });
@@ -58,7 +55,7 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
         return this.props.onCreate().then(() => qualityGate);
       })
       .then(qualityGate => {
-        this.context.router.push(getQualityGateUrl(String(qualityGate.id), organization));
+        this.props.router.push(getQualityGateUrl(String(qualityGate.id), organization));
       });
   };
 
@@ -91,3 +88,5 @@ export default class CreateQualityGateForm extends React.PureComponent<Props, St
     );
   }
 }
+
+export default withRouter(CreateQualityGateForm);

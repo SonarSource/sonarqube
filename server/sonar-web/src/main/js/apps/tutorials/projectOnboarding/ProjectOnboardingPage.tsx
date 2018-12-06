@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { withRouter, WithRouterProps } from 'react-router';
 import { connect } from 'react-redux';
 import ProjectOnboardingModal from './ProjectOnboardingModal';
 import { skipOnboarding } from '../../../store/users';
@@ -27,14 +27,12 @@ interface DispatchProps {
   skipOnboarding: () => void;
 }
 
-export class ProjectOnboardingPage extends React.PureComponent<DispatchProps> {
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
+type Props = DispatchProps & WithRouterProps;
 
+export class ProjectOnboardingPage extends React.PureComponent<Props> {
   onSkipOnboardingTutorial = () => {
     this.props.skipOnboarding();
-    this.context.router.replace('/');
+    this.props.router.replace('/');
   };
 
   render() {
@@ -44,7 +42,9 @@ export class ProjectOnboardingPage extends React.PureComponent<DispatchProps> {
 
 const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(ProjectOnboardingPage);
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps
+  )(ProjectOnboardingPage)
+);

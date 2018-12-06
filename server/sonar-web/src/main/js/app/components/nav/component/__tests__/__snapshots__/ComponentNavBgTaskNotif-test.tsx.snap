@@ -72,7 +72,7 @@ exports[`renders background task in progress info correctly 1`] = `
 `;
 
 exports[`renders background task license info correctly 1`] = `
-<ComponentNavLicenseNotif
+<Connect(withAppState(ComponentNavLicenseNotif))
   currentTask={
     Object {
       "errorMessage": "Foo",

@@ -18,29 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Form from './Form';
 import { createPermissionTemplate } from '../../../api/permissions';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   organization?: { key: string };
   ready?: boolean;
   refresh: () => Promise<void>;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
   createModal: boolean;
 }
 
-export default class Header extends React.PureComponent<Props, State> {
+class Header extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
   state: State = { createModal: false };
 
   componentDidMount() {
@@ -72,7 +68,7 @@ export default class Header extends React.PureComponent<Props, State> {
         const pathname = organization
           ? `/organizations/${organization}/permission_templates`
           : '/permission_templates';
-        this.context.router.push({ pathname, query: { id: response.permissionTemplate.id } });
+        this.props.router.push({ pathname, query: { id: response.permissionTemplate.id } });
       });
     });
   };
@@ -102,3 +98,5 @@ export default class Header extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(Header);

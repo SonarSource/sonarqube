@@ -175,7 +175,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, component, location } = this.props;
+    const { branchLike, component } = this.props;
     const { loading, baseComponent, components, breadcrumbs, total, sourceViewer } = this.state;
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
@@ -193,7 +193,7 @@ export class App extends React.PureComponent<Props, State> {
         <Suggestions suggestions="code" />
         <Helmet title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
-        <Search branchLike={branchLike} component={component} location={location} />
+        <Search branchLike={branchLike} component={component} />
 
         <div className="code-components">
           {shouldShowBreadcrumbs && (

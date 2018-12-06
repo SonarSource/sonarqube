@@ -20,27 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EmbedDocsPopup from '../EmbedDocsPopup';
-import { isSonarCloud } from '../../../../helpers/system';
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn().mockReturnValue(false) }));
-
-const suggestions = [{ link: '#', text: 'foo' }, { link: '#', text: 'bar' }];
-
-it('should display suggestion links', () => {
-  const context = {};
-  const wrapper = shallow(<EmbedDocsPopup onClose={jest.fn()} suggestions={suggestions} />, {
-    context
-  });
-  wrapper.update();
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should display correct links for SonarCloud', () => {
-  (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
-  const context = {};
-  const wrapper = shallow(<EmbedDocsPopup onClose={jest.fn()} suggestions={suggestions} />, {
-    context
-  });
-  wrapper.update();
+it('should render', () => {
+  const wrapper = shallow(<EmbedDocsPopup onClose={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 });

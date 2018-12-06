@@ -21,8 +21,10 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import DetachIcon from '../icons-components/DetachIcon';
 import { isSonarCloud } from '../../helpers/system';
+import { withAppState } from '../withAppState';
 
 interface OwnProps {
+  appState: Pick<T.AppState, 'canAdmin'>;
   customProps?: {
     [k: string]: any;
   };
@@ -34,11 +36,7 @@ const SONARCLOUD_LINK = '/#sonarcloud#/';
 const SONARQUBE_LINK = '/#sonarqube#/';
 const SONARQUBE_ADMIN_LINK = '/#sonarqube-admin#/';
 
-export default class DocLink extends React.PureComponent<Props> {
-  static contextTypes = {
-    canAdmin: () => null
-  };
-
+export class DocLink extends React.PureComponent<Props> {
   handleClickOnAnchor = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const { customProps, href = '#' } = this.props;
     if (customProps && customProps.onAnchorClick) {
@@ -63,7 +61,7 @@ export default class DocLink extends React.PureComponent<Props> {
         return <SonarQubeLink url={href}>{children}</SonarQubeLink>;
       } else if (href.startsWith(SONARQUBE_ADMIN_LINK)) {
         return (
-          <SonarQubeAdminLink canAdmin={this.context.canAdmin} url={href}>
+          <SonarQubeAdminLink canAdmin={this.props.appState.canAdmin} url={href}>
             {children}
           </SonarQubeAdminLink>
         );
@@ -90,6 +88,8 @@ export default class DocLink extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withAppState(DocLink);
 
 interface SonarCloudLinkProps {
   children: React.ReactNode;
@@ -124,7 +124,7 @@ function SonarQubeLink({ children, url }: SonarQubeLinkProps) {
 }
 
 interface SonarQubeAdminLinkProps {
-  canAdmin: boolean;
+  canAdmin?: boolean;
   children: React.ReactNode;
   url: string;
 }

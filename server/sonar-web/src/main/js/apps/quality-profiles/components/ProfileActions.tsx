@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import RenameProfileForm from './RenameProfileForm';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
@@ -31,12 +30,14 @@ import ActionsDropdown, {
   ActionsDropdownItem,
   ActionsDropdownDivider
 } from '../../../components/controls/ActionsDropdown';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   className?: string;
   fromList?: boolean;
   organization: string | null;
   profile: Profile;
+  router: Pick<Router, 'push' | 'replace'>;
   updateProfiles: () => Promise<void>;
 }
 
@@ -46,19 +47,12 @@ interface State {
   renameFormOpen: boolean;
 }
 
-export default class ProfileActions extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object
+export class ProfileActions extends React.PureComponent<Props, State> {
+  state: State = {
+    copyFormOpen: false,
+    deleteFormOpen: false,
+    renameFormOpen: false
   };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      copyFormOpen: false,
-      deleteFormOpen: false,
-      renameFormOpen: false
-    };
-  }
 
   handleRenameClick = () => {
     this.setState({ renameFormOpen: true });
@@ -69,7 +63,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     this.props.updateProfiles().then(
       () => {
         if (!this.props.fromList) {
-          this.context.router.replace(
+          this.props.router.replace(
             getProfilePath(name, this.props.profile.language, this.props.organization)
           );
         }
@@ -90,7 +84,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     this.closeCopyForm();
     this.props.updateProfiles().then(
       () => {
-        this.context.router.push(
+        this.props.router.push(
           getProfilePath(name, this.props.profile.language, this.props.organization)
         );
       },
@@ -111,7 +105,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleProfileDelete = () => {
-    this.context.router.replace(getProfilesPath(this.props.organization));
+    this.props.router.replace(getProfilesPath(this.props.organization));
     this.props.updateProfiles();
   };
 
@@ -220,3 +214,5 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(ProfileActions);

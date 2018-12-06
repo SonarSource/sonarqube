@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ActionsCell, { Props } from '../ActionsCell';
+import { ActionsCell } from '../ActionsCell';
 
 const SAMPLE = {
   createdAt: '2018-01-01',
@@ -29,11 +29,12 @@ const SAMPLE = {
   defaultFor: []
 };
 
-function renderActionsCell(props?: Partial<Props>) {
+function renderActionsCell(props?: Partial<ActionsCell['props']>) {
   return shallow(
     <ActionsCell
       permissionTemplate={SAMPLE}
       refresh={() => true}
+      router={{ replace: jest.fn() }}
       topQualifiers={['TRK', 'VW']}
       {...props}
     />

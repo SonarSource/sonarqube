@@ -30,7 +30,6 @@ import * as theme from '../../../theme';
 import NavBar from '../../../../components/nav/NavBar';
 import { lazyLoad } from '../../../../components/lazyLoad';
 import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
-import { SuggestionLink } from '../../embed-docs-modal/SuggestionsProvider';
 import { isSonarCloud } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
 import './GlobalNav.css';
@@ -44,7 +43,6 @@ interface StateProps {
 
 interface OwnProps {
   location: { pathname: string };
-  suggestions: Array<SuggestionLink>;
 }
 
 type Props = StateProps & OwnProps;
@@ -62,7 +60,7 @@ export class GlobalNav extends React.PureComponent<Props> {
 
         <ul className="global-navbar-menu global-navbar-menu-right">
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
-          <EmbedDocsPopupHelper suggestions={this.props.suggestions} />
+          <EmbedDocsPopupHelper />
           <Search appState={appState} currentUser={currentUser} />
           {isLoggedIn(currentUser) && (
             <GlobalNavPlus
@@ -71,7 +69,7 @@ export class GlobalNav extends React.PureComponent<Props> {
               openProjectOnboarding={this.context.openProjectOnboarding}
             />
           )}
-          <GlobalNavUserContainer {...this.props} />
+          <GlobalNavUserContainer appState={appState} currentUser={currentUser} />
         </ul>
       </NavBar>
     );

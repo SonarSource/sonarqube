@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import Extension from './Extension';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { addGlobalErrorMessage } from '../../../store/globalMessages';
+import * as React from 'react';
+import { withRouter as originalWithRouter, WithRouterProps } from 'react-router';
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
+export type Location = WithRouterProps['location'];
+export type Router = WithRouterProps['router'];
 
-const mapDispatchToProps = { onFail: addGlobalErrorMessage };
+interface InjectedProps {
+  location?: Partial<Location>;
+  router?: Partial<Router>;
+}
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Extension);
+export function withRouter<P extends InjectedProps, S>(
+  WrappedComponent: React.ComponentClass<P & InjectedProps>
+): React.ComponentClass<T.Omit<P, keyof InjectedProps>, S> {
+  return originalWithRouter(WrappedComponent as any);
+}

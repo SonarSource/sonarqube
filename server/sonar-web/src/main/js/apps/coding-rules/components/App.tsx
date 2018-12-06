@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
-import * as PropTypes from 'prop-types';
 import * as key from 'keymaster';
 import { keyBy } from 'lodash';
 import BulkChange from './BulkChange';
@@ -55,7 +54,8 @@ import {
   getCurrentUser,
   getLanguages,
   getMyOrganizations,
-  Store
+  Store,
+  getAppState
 } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -68,6 +68,7 @@ const PAGE_SIZE = 100;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface StateToProps {
+  appState: T.AppState;
   currentUser: T.CurrentUser;
   languages: T.Languages;
   userOrganizations: T.Organization[];
@@ -98,10 +99,6 @@ interface State {
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    organizationsEnabled: PropTypes.bool
-  };
 
   constructor(props: Props) {
     super(props);
@@ -528,7 +525,7 @@ export class App extends React.PureComponent<Props, State> {
                       onFilterChange={this.handleFilterChange}
                       openFacets={this.state.openFacets}
                       organization={organization}
-                      organizationsEnabled={this.context.organizationsEnabled}
+                      organizationsEnabled={this.props.appState.organizationsEnabled}
                       query={this.state.query}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}
@@ -572,7 +569,7 @@ export class App extends React.PureComponent<Props, State> {
             <div className="layout-page-main-inner">
               {this.state.openRule ? (
                 <RuleDetails
-                  allowCustomRules={!this.context.organizationsEnabled}
+                  allowCustomRules={!this.props.appState.organizationsEnabled}
                   canWrite={this.state.canWrite}
                   hideQualityProfiles={hideQualityProfiles}
                   onActivate={this.handleRuleActivate}
@@ -643,6 +640,7 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
 }
 
 const mapStateToProps = (state: Store) => ({
+  appState: getAppState(state),
   currentUser: getCurrentUser(state),
   languages: getLanguages(state),
   userOrganizations: getMyOrganizations(state)

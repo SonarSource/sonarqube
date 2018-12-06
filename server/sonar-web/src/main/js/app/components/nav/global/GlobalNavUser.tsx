@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import * as theme from '../../../theme';
 import Avatar from '../../../../components/ui/Avatar';
@@ -28,18 +27,16 @@ import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/urls';
 import Dropdown from '../../../../components/controls/Dropdown';
 import { isLoggedIn } from '../../../../helpers/users';
+import { withRouter, Router } from '../../../../components/hoc/withRouter';
 
 interface Props {
   appState: { organizationsEnabled?: boolean };
   currentUser: T.CurrentUser;
   organizations: T.Organization[];
+  router: Pick<Router, 'push'>;
 }
 
-export default class GlobalNavUser extends React.PureComponent<Props> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
+export class GlobalNavUser extends React.PureComponent<Props> {
   handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const shouldReturnToCurrentPage = window.location.pathname !== `${getBaseUrl()}/about`;
@@ -54,7 +51,7 @@ export default class GlobalNavUser extends React.PureComponent<Props> {
 
   handleLogout = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.context.router.push('/sessions/logout');
+    this.props.router.push('/sessions/logout');
   };
 
   renderAuthenticated() {
@@ -126,3 +123,5 @@ export default class GlobalNavUser extends React.PureComponent<Props> {
     return isLoggedIn(this.props.currentUser) ? this.renderAuthenticated() : this.renderAnonymous();
   }
 }
+
+export default withRouter(GlobalNavUser);

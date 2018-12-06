@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import * as PropTypes from 'prop-types';
 import Dropdown from '../../../../components/controls/Dropdown';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
@@ -31,6 +30,7 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import { withAppState } from '../../../../components/withAppState';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -49,16 +49,13 @@ const SETTINGS_URLS = [
 ];
 
 interface Props {
+  appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLike: T.BranchLike | undefined;
   component: T.Component;
   location?: any;
 }
 
-export default class ComponentNavMenu extends React.PureComponent<Props> {
-  static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired
-  };
-
+export class ComponentNavMenu extends React.PureComponent<Props> {
   isProject() {
     return this.props.component.qualifier === 'TRK';
   }
@@ -282,7 +279,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
 
   renderBranchesLink() {
     if (
-      !this.context.branchesEnabled ||
+      !this.props.appState.branchesEnabled ||
       !this.isProject() ||
       !this.getConfiguration().showSettings
     ) {
@@ -504,3 +501,5 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withAppState(ComponentNavMenu);

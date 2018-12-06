@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import ListHeader from './ListHeader';
 import List from './List';
@@ -30,7 +30,7 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
-interface Props {
+interface Props extends WithRouterProps {
   children: React.ReactElement<{
     organization?: string;
     refreshQualityGates: () => Promise<void>;
@@ -44,13 +44,8 @@ interface State {
   qualityGates: T.QualityGate[];
 }
 
-export default class QualityGatesApp extends React.PureComponent<Props, State> {
+class QualityGatesApp extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   state: State = { canCreate: false, loading: true, qualityGates: [] };
 
   componentDidMount() {
@@ -87,7 +82,7 @@ export default class QualityGatesApp extends React.PureComponent<Props, State> {
           this.setState({ canCreate: actions.create, loading: false, qualityGates });
 
           if (qualityGates && qualityGates.length === 1 && !actions.create) {
-            this.context.router.replace(
+            this.props.router.replace(
               getQualityGateUrl(String(qualityGates[0].id), organization && organization.key)
             );
           }
@@ -156,3 +151,5 @@ export default class QualityGatesApp extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(QualityGatesApp);

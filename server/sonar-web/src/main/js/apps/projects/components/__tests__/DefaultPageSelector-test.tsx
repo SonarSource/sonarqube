@@ -35,7 +35,7 @@ jest.mock('../../../../api/components', () => ({
 
 import * as React from 'react';
 import { mount } from 'enzyme';
-import DefaultPageSelector from '../DefaultPageSelector';
+import { DefaultPageSelector } from '../DefaultPageSelector';
 import { doAsync } from '../../../../helpers/testUtils';
 
 const get = require('../../../../helpers/storage').get as jest.Mock<any>;
@@ -87,7 +87,10 @@ function mountRender(
   replace: any = jest.fn()
 ) {
   return mount(
-    <DefaultPageSelector currentUser={currentUser} location={{ pathname: '/projects', query }} />,
-    { context: { router: { replace } } }
+    <DefaultPageSelector
+      currentUser={currentUser}
+      location={{ pathname: '/projects', query }}
+      router={{ replace }}
+    />
   );
 }

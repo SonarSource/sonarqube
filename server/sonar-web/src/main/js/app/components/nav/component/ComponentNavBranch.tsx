@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import ComponentNavBranchesMenu from './ComponentNavBranchesMenu';
@@ -38,8 +37,10 @@ import Toggler from '../../../../components/controls/Toggler';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl } from '../../../../helpers/urls';
+import { withAppState } from '../../../../components/withAppState';
 
 interface Props {
+  appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLikes: T.BranchLike[];
   component: T.Component;
   currentBranchLike: T.BranchLike;
@@ -50,17 +51,9 @@ interface State {
   dropdownOpen: boolean;
 }
 
-export default class ComponentNavBranch extends React.PureComponent<Props, State> {
+export class ComponentNavBranch extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired,
-    canAdmin: PropTypes.bool.isRequired
-  };
-
-  state: State = {
-    dropdownOpen: false
-  };
+  state: State = { dropdownOpen: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -145,7 +138,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     const { branchLikes, currentBranchLike } = this.props;
     const { configuration, breadcrumbs } = this.props.component;
 
-    if (isSonarCloud() && !this.context.branchesEnabled) {
+    if (isSonarCloud() && !this.props.appState.branchesEnabled) {
       return null;
     }
 
@@ -170,7 +163,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         </div>
       );
     } else {
-      if (!this.context.branchesEnabled) {
+      if (!this.props.appState.branchesEnabled) {
         return (
           <div className="navbar-context-branches">
             <BranchIcon
@@ -235,3 +228,5 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     );
   }
 }
+
+export default withAppState(ComponentNavBranch);

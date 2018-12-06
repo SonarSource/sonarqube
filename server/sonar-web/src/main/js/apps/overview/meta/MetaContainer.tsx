@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import MetaKey from './MetaKey';
 import MetaOrganizationKey from './MetaOrganizationKey';
@@ -35,11 +34,13 @@ import {
   getCurrentUser,
   getMyOrganizations,
   getOrganizationByKey,
-  Store
+  Store,
+  getAppState
 } from '../../../store/rootReducer';
 import PrivacyBadgeContainer from '../../../components/common/PrivacyBadgeContainer';
 
 interface StateToProps {
+  appState: T.AppState;
   currentUser: T.CurrentUser;
   organization?: T.Organization;
   userOrganizations: T.Organization[];
@@ -59,12 +60,8 @@ interface OwnProps {
 type Props = OwnProps & StateToProps;
 
 export class Meta extends React.PureComponent<Props> {
-  static contextTypes = {
-    organizationsEnabled: PropTypes.bool
-  };
-
   renderQualityInfos() {
-    const { organizationsEnabled } = this.context;
+    const { organizationsEnabled } = this.props.appState;
     const { component, currentUser, organization, userOrganizations } = this.props;
     const { qualifier, qualityProfiles, qualityGate } = component;
     const isProject = qualifier === 'TRK';
@@ -98,7 +95,7 @@ export class Meta extends React.PureComponent<Props> {
   }
 
   render() {
-    const { organizationsEnabled } = this.context;
+    const { organizationsEnabled } = this.props.appState;
     const { branchLike, component, measures, metrics, organization } = this.props;
     const { qualifier, description, visibility } = component;
 
@@ -164,6 +161,7 @@ export class Meta extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: Store, { component }: OwnProps) => ({
+  appState: getAppState(state),
   currentUser: getCurrentUser(state),
   organization: getOrganizationByKey(state, component.organization),
   userOrganizations: getMyOrganizations(state)

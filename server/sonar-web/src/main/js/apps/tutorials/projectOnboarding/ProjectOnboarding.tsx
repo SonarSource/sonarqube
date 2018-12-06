@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import ProjectWatcher from './ProjectWatcher';
@@ -32,11 +31,13 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 import '../styles.css';
 
 interface OwnProps {
   automatic?: boolean;
   onFinish: () => void;
+  router: Pick<Router, 'push'>;
 }
 
 interface StateProps {
@@ -56,9 +57,6 @@ interface State {
 
 export class ProjectOnboarding extends React.PureComponent<Props, State> {
   mounted = false;
-  static contextTypes = {
-    router: PropTypes.object
-  };
 
   constructor(props: Props) {
     super(props);
@@ -93,7 +91,7 @@ export class ProjectOnboarding extends React.PureComponent<Props, State> {
   finishOnboarding = () => {
     this.props.onFinish();
     if (this.state.projectKey) {
-      this.context.router.push(getProjectUrl(this.state.projectKey));
+      this.props.router.push(getProjectUrl(this.state.projectKey));
     }
   };
 
@@ -203,4 +201,4 @@ const mapStateToProps = (state: Store): StateProps => {
   };
 };
 
-export default connect(mapStateToProps)(ProjectOnboarding);
+export default withRouter(connect(mapStateToProps)(ProjectOnboarding));

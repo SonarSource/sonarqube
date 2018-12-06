@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { omitBy } from 'lodash';
 import PageHeader from './PageHeader';
@@ -38,15 +37,17 @@ import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '../query';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
+import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
-export interface Props {
+interface Props {
   currentUser: T.CurrentUser;
   isFavorite: boolean;
-  location: { pathname: string; query: RawQuery };
+  location: Pick<Location, 'pathname' | 'query'>;
   organization: T.Organization | undefined;
   organizationsEnabled?: boolean;
+  router: Pick<Router, 'push' | 'replace'>;
   storageOptionsSuffix?: string;
 }
 
@@ -63,12 +64,8 @@ const PROJECTS_SORT = 'sonarqube.projects.sort';
 const PROJECTS_VIEW = 'sonarqube.projects.view';
 const PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
 
-export default class AllProjects extends React.PureComponent<Props, State> {
+export class AllProjects extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
 
   constructor(props: Props) {
     super(props);
@@ -187,7 +184,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
           query.sort = (sort.sortDesc ? '-' : '') + SORTING_SWITCH[sort.sortValue];
         }
       }
-      this.context.router.push({ pathname: this.props.location.pathname, query });
+      this.props.router.push({ pathname: this.props.location.pathname, query });
     } else {
       this.updateLocationQuery(query);
     }
@@ -210,7 +207,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
     // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
     if (initialMount && !hasVisualizationParams(query) && savedOptionsSet) {
-      this.context.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
+      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
     } else {
       this.fetchProjects(query);
     }
@@ -218,11 +215,11 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   updateLocationQuery = (newQuery: RawQuery) => {
     const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
-    this.context.router.push({ pathname: this.props.location.pathname, query });
+    this.props.router.push({ pathname: this.props.location.pathname, query });
   };
 
   handleClearAll = () => {
-    this.context.router.push({ pathname: this.props.location.pathname });
+    this.props.router.push({ pathname: this.props.location.pathname });
   };
 
   renderSide = () => (
@@ -328,3 +325,5 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(AllProjects);

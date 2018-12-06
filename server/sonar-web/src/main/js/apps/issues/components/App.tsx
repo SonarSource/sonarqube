@@ -21,7 +21,6 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import * as key from 'keymaster';
 import { keyBy, omit, union, without } from 'lodash';
-import * as PropTypes from 'prop-types';
 import BulkChangeModal from './BulkChangeModal';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesList from './IssuesList';
@@ -73,9 +72,10 @@ import EmptySearch from '../../../components/common/EmptySearch';
 import Checkbox from '../../../components/controls/Checkbox';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../helpers/system';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import '../styles.css';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface FetchIssuesPromise {
   components: ReferencedComponent[];
@@ -94,10 +94,11 @@ interface Props {
   currentUser: T.CurrentUser;
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
-  location: { pathname: string; query: RawQuery };
+  location: Pick<Location, 'pathname' | 'query'>;
   myIssues?: boolean;
   onBranchesChange: () => void;
   organization?: { key: string };
+  router: Pick<Router, 'push' | 'replace'>;
   userOrganizations: T.Organization[];
 }
 
@@ -130,12 +131,8 @@ export interface State {
 
 const DEFAULT_QUERY = { resolved: 'false' };
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
 
   constructor(props: Props) {
     super(props);
@@ -372,16 +369,16 @@ export default class App extends React.PureComponent<Props, State> {
           this.scrollToSelectedIssue
         );
       } else {
-        this.context.router.replace(path);
+        this.props.router.replace(path);
       }
     } else {
-      this.context.router.push(path);
+      this.props.router.push(path);
     }
   };
 
   closeIssue = () => {
     if (this.state.query) {
-      this.context.router.push({
+      this.props.router.push({
         pathname: this.props.location.pathname,
         query: {
           ...serializeQuery(this.state.query),
@@ -635,7 +632,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   handleFilterChange = (changes: Partial<Query>) => {
     this.setState({ loading: true });
-    this.context.router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
@@ -651,7 +648,7 @@ export default class App extends React.PureComponent<Props, State> {
     if (!this.props.component) {
       saveMyIssues(myIssues);
     }
-    this.context.router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
@@ -705,7 +702,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   handleReset = () => {
-    this.context.router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...DEFAULT_QUERY,
@@ -1156,3 +1153,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(App);

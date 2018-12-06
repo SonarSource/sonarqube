@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
@@ -35,29 +35,18 @@ import {
   Query,
   serializeQuery
 } from '../utils';
-import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
-interface Props {
-  location: { pathname: string; query: RawQuery };
-}
+type Props = WithRouterProps;
 
 interface State {
   loading: boolean;
   sysInfoData?: SysInfo;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { loading: true };
-  }
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -97,7 +86,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   updateQuery = (newQuery: Query) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
-    this.context.router.replace({ pathname: this.props.location.pathname, query });
+    this.props.router.replace({ pathname: this.props.location.pathname, query });
   };
 
   renderSysInfo() {
@@ -145,3 +134,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(App);

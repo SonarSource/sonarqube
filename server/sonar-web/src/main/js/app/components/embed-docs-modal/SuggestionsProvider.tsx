@@ -18,56 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import * as suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
+import suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
 import { isSonarCloud } from '../../../helpers/system';
 
-export interface SuggestionLink {
-  link: string;
-  scope?: 'sonarcloud';
-  text: string;
-}
-
 interface SuggestionsJson {
-  [key: string]: SuggestionLink[];
-}
-
-interface Props {
-  children: ({ suggestions }: { suggestions: SuggestionLink[] }) => React.ReactNode;
+  [key: string]: T.SuggestionLink[];
 }
 
 interface State {
-  suggestions: SuggestionLink[];
+  suggestions: T.SuggestionLink[];
 }
 
-export default class SuggestionsProvider extends React.Component<Props, State> {
+export default class SuggestionsProvider extends React.Component<{}, State> {
   keys: string[] = [];
-
-  static childContextTypes = {
-    suggestions: PropTypes.object
-  };
-
   state: State = { suggestions: [] };
-
-  getChildContext = (): { suggestions: SuggestionsContext } => {
-    return {
-      suggestions: {
-        addSuggestions: this.addSuggestions,
-        removeSuggestions: this.removeSuggestions
-      }
-    };
-  };
 
   fetchSuggestions = () => {
     const jsonList = suggestionsJson as SuggestionsJson;
-    let suggestions: SuggestionLink[] = [];
+    let suggestions: T.SuggestionLink[] = [];
     this.keys.forEach(key => {
       if (jsonList[key]) {
         suggestions = [...jsonList[key], ...suggestions];
       }
     });
+    if (!isSonarCloud()) {
+      suggestions = suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
+    }
     this.setState({ suggestions });
   };
 
@@ -82,10 +59,15 @@ export default class SuggestionsProvider extends React.Component<Props, State> {
   };
 
   render() {
-    const suggestions = isSonarCloud()
-      ? this.state.suggestions
-      : this.state.suggestions.filter(suggestion => suggestion.scope !== 'sonarcloud');
-
-    return this.props.children({ suggestions });
+    return (
+      <SuggestionsContext.Provider
+        value={{
+          addSuggestions: this.addSuggestions,
+          removeSuggestions: this.removeSuggestions,
+          suggestions: this.state.suggestions
+        }}>
+        {this.props.children}
+      </SuggestionsContext.Provider>
+    );
   }
 }

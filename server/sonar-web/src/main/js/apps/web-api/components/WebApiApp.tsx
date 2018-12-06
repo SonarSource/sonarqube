@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import { Link } from 'react-router';
+import { Link, withRouter, WithRouterProps } from 'react-router';
 import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
@@ -30,29 +29,17 @@ import { getActionKey, isDomainPathActive, Query, serializeQuery, parseQuery } f
 import { scrollToElement } from '../../../helpers/scrolling';
 import { translate } from '../../../helpers/l10n';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { RawQuery } from '../../../helpers/query';
 import '../styles/web-api.css';
 
-interface Props {
-  location: { pathname: string; query: RawQuery };
-  params: { splat?: string };
-}
+type Props = WithRouterProps;
 
 interface State {
   domains: DomainType[];
 }
 
-export default class WebApiApp extends React.PureComponent<Props, State> {
+class WebApiApp extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { domains: [] };
-  }
+  state: State = { domains: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -99,7 +86,7 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
 
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
-    this.context.router.push({ pathname: this.props.location.pathname, query });
+    this.props.router.push({ pathname: this.props.location.pathname, query });
   };
 
   toggleInternalInitially() {
@@ -127,14 +114,13 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
 
   handleToggleInternal = () => {
     const splat = this.props.params.splat || '';
-    const { router } = this.context;
     const { domains } = this.state;
     const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
     const query = parseQuery(this.props.location.query);
     const internal = !query.internal;
 
     if (domain && domain.internal && !internal) {
-      router.push({
+      this.props.router.push({
         pathname: '/web_api',
         query: { ...serializeQuery(query), internal: false }
       });
@@ -194,3 +180,5 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(WebApiApp);

@@ -19,29 +19,38 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
-import * as PropTypes from 'prop-types';
 import { withRouter, WithRouterProps } from 'react-router';
 import { injectIntl, InjectedIntlProps } from 'react-intl';
+import { connect } from 'react-redux';
 import { getExtensionStart } from './utils';
 import { translate } from '../../../helpers/l10n';
 import getStore from '../../utils/getStore';
+import { addGlobalErrorMessage } from '../../../store/globalMessages';
+import { Store, getCurrentUser } from '../../../store/rootReducer';
 
 interface OwnProps {
-  currentUser: T.CurrentUser;
   extension: { key: string; name: string };
-  onFail: (message: string) => void;
   options?: {};
 }
 
-type Props = OwnProps & WithRouterProps & InjectedIntlProps;
+interface StateProps {
+  currentUser: T.CurrentUser;
+}
 
-class Extension extends React.PureComponent<Props> {
+interface DispatchProps {
+  onFail: (message: string) => void;
+}
+
+type Props = OwnProps & WithRouterProps & InjectedIntlProps & StateProps & DispatchProps;
+
+interface State {
+  extensionElement?: React.ReactElement<any>;
+}
+
+class Extension extends React.PureComponent<Props, State> {
   container?: HTMLElement | null;
   stop?: Function;
-
-  static contextTypes = {
-    suggestions: PropTypes.object.isRequired
-  };
+  state: State = {};
 
   componentDidMount() {
     this.startExtension();
@@ -62,16 +71,21 @@ class Extension extends React.PureComponent<Props> {
 
   handleStart = (start: Function) => {
     const store = getStore();
-    this.stop = start({
+    const result = start({
       store,
       el: this.container,
       currentUser: this.props.currentUser,
       intl: this.props.intl,
       location: this.props.location,
       router: this.props.router,
-      suggestions: this.context.suggestions,
       ...this.props.options
     });
+
+    if (React.isValidElement(result)) {
+      this.setState({ extensionElement: result });
+    } else {
+      this.stop = result;
+    }
   };
 
   handleFailure = () => {
@@ -94,10 +108,27 @@ class Extension extends React.PureComponent<Props> {
     return (
       <div>
         <Helmet title={this.props.extension.name} />
-        <div ref={container => (this.container = container)} />
+        {this.state.extensionElement ? (
+          this.state.extensionElement
+        ) : (
+          <div ref={container => (this.container = container)} />
+        )}
       </div>
     );
   }
 }
 
-export default injectIntl(withRouter(Extension));
+function mapStateToProps(state: Store): StateProps {
+  return { currentUser: getCurrentUser(state) };
+}
+
+const mapDispatchToProps: DispatchProps = { onFail: addGlobalErrorMessage };
+
+export default injectIntl<OwnProps & InjectedIntlProps>(
+  withRouter(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(Extension)
+  )
+);

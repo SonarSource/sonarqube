@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
@@ -29,6 +28,7 @@ import { Button } from '../../../components/ui/buttons';
 import { getOrganizationBilling } from '../../../api/organizations';
 import { isSonarCloud } from '../../../helpers/system';
 import { Alert } from '../../../components/ui/Alert';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface DispatchToProps {
   deleteOrganization: (key: string) => Promise<void>;
@@ -36,6 +36,7 @@ interface DispatchToProps {
 
 interface OwnProps {
   organization: Pick<T.Organization, 'key' | 'name'>;
+  router: Pick<Router, 'replace'>;
 }
 
 type Props = OwnProps & DispatchToProps;
@@ -46,10 +47,6 @@ interface State {
 
 export class OrganizationDelete extends React.PureComponent<Props, State> {
   mounted = false;
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
   state: State = {};
 
   componentDidMount() {
@@ -82,7 +79,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
 
   onDelete = () => {
     return this.props.deleteOrganization(this.props.organization.key).then(() => {
-      this.context.router.replace('/');
+      this.props.router.replace('/');
     });
   };
 
@@ -128,7 +125,9 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps: DispatchToProps = { deleteOrganization: deleteOrganization as any };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(OrganizationDelete);
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps
+  )(OrganizationDelete)
+);

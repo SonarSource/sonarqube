@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import ProductNewsMenuItem from './ProductNewsMenuItem';
-import { SuggestionLink } from './SuggestionsProvider';
+import { SuggestionsContext } from './SuggestionsContext';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
@@ -28,7 +28,6 @@ import { DropdownOverlay } from '../../../components/controls/Dropdown';
 
 interface Props {
   onClose: () => void;
-  suggestions: Array<SuggestionLink>;
 }
 
 export default class EmbedDocsPopup extends React.PureComponent<Props> {
@@ -36,14 +35,14 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     return <li className="menu-header">{text}</li>;
   }
 
-  renderSuggestions() {
-    if (this.props.suggestions.length === 0) {
+  renderSuggestions = ({ suggestions }: { suggestions: T.SuggestionLink[] }) => {
+    if (suggestions.length === 0) {
       return null;
     }
     return (
       <>
         {this.renderTitle(translate('embed_docs.suggestion'))}
-        {this.props.suggestions.map((suggestion, index) => (
+        {suggestions.map((suggestion, index) => (
           <li key={index}>
             <Link onClick={this.props.onClose} target="_blank" to={suggestion.link}>
               {suggestion.text}
@@ -53,7 +52,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <li className="divider" />
       </>
     );
-  }
+  };
 
   renderIconLink(link: string, icon: string, text: string) {
     return (
@@ -138,7 +137,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     return (
       <DropdownOverlay>
         <ul className="menu abs-width-240">
-          {this.renderSuggestions()}
+          <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
           <li>
             <Link onClick={this.props.onClose} target="_blank" to="/documentation">
               {translate('embed_docs.documentation')}

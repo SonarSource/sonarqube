@@ -44,7 +44,7 @@ it('should redirect the page', async () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
   const deleteOrganization = jest.fn(() => Promise.resolve());
   const replace = jest.fn();
-  const wrapper = getWrapper({ deleteOrganization }, { router: { replace } });
+  const wrapper = getWrapper({ deleteOrganization, router: { replace } });
   (wrapper.instance() as OrganizationDelete).onDelete();
   await waitAndUpdate(wrapper);
   expect(deleteOrganization).toHaveBeenCalledWith('foo');
@@ -53,20 +53,19 @@ it('should redirect the page', async () => {
 
 it('should show a info message for paying organization', async () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  const wrapper = getWrapper({}, { onSonarCloud: true });
+  const wrapper = getWrapper({});
   await waitAndUpdate(wrapper);
   expect(getOrganizationBilling).toHaveBeenCalledWith('foo');
   expect(wrapper).toMatchSnapshot();
 });
 
-function getWrapper(props = {}, context = {}) {
+function getWrapper(props: Partial<OrganizationDelete['props']> = {}) {
   return shallow(
     <OrganizationDelete
       deleteOrganization={jest.fn(() => Promise.resolve())}
       organization={{ key: 'foo', name: 'Foo' }}
+      router={{ replace: jest.fn() }}
       {...props}
-    />,
-
-    { context: { router: { replace: jest.fn() }, ...context } }
+    />
   );
 }

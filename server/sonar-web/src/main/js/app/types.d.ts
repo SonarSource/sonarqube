@@ -793,6 +793,12 @@ declare namespace T {
     price: number;
   }
 
+  export interface SuggestionLink {
+    link: string;
+    scope?: 'sonarcloud';
+    text: string;
+  }
+
   export interface Task {
     analysisId?: string;
     branch?: string;

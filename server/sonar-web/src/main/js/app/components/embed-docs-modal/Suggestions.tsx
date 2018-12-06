@@ -18,33 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {
   suggestions: string;
 }
 
-export default class Suggestions extends React.PureComponent<Props> {
-  context!: { suggestions: SuggestionsContext };
+export default function Suggestions({ suggestions }: Props) {
+  return (
+    <SuggestionsContext.Consumer>
+      {({ addSuggestions, removeSuggestions }) => (
+        <SuggestionsInner
+          addSuggestions={addSuggestions}
+          removeSuggestions={removeSuggestions}
+          suggestions={suggestions}
+        />
+      )}
+    </SuggestionsContext.Consumer>
+  );
+}
 
-  static contextTypes = {
-    suggestions: PropTypes.object.isRequired
-  };
+interface SuggestionsInnerProps {
+  addSuggestions: (key: string) => void;
+  removeSuggestions: (key: string) => void;
+  suggestions: string;
+}
 
+class SuggestionsInner extends React.PureComponent<SuggestionsInnerProps> {
   componentDidMount() {
-    this.context.suggestions.addSuggestions(this.props.suggestions);
+    this.props.addSuggestions(this.props.suggestions);
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.suggestions !== this.props.suggestions) {
-      this.context.suggestions.removeSuggestions(this.props.suggestions);
-      this.context.suggestions.addSuggestions(prevProps.suggestions);
+      this.props.removeSuggestions(this.props.suggestions);
+      this.props.addSuggestions(prevProps.suggestions);
     }
   }
 
   componentWillUnmount() {
-    this.context.suggestions.removeSuggestions(this.props.suggestions);
+    this.props.removeSuggestions(this.props.suggestions);
   }
 
   render() {

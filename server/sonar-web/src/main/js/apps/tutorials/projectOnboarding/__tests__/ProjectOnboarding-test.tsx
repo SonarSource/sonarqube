@@ -42,6 +42,7 @@ it('guides for on-premise', () => {
       currentUser={currentUser}
       onFinish={jest.fn()}
       organizationsEnabled={false}
+      router={{ push: jest.fn() }}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -55,7 +56,12 @@ it('guides for sonarcloud', () => {
   (getInstance as jest.Mock<any>).mockImplementation(() => 'SonarCloud');
   (isSonarCloud as jest.Mock<any>).mockImplementation(() => true);
   const wrapper = shallow(
-    <ProjectOnboarding currentUser={currentUser} onFinish={jest.fn()} organizationsEnabled={true} />
+    <ProjectOnboarding
+      currentUser={currentUser}
+      onFinish={jest.fn()}
+      organizationsEnabled={true}
+      router={{ push: jest.fn() }}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 
@@ -73,7 +79,12 @@ it('finishes', () => {
   (isSonarCloud as jest.Mock<any>).mockImplementation(() => false);
   const onFinish = jest.fn();
   const wrapper = shallow(
-    <ProjectOnboarding currentUser={currentUser} onFinish={onFinish} organizationsEnabled={false} />
+    <ProjectOnboarding
+      currentUser={currentUser}
+      onFinish={onFinish}
+      organizationsEnabled={false}
+      router={{ push: jest.fn() }}
+    />
   );
   click(wrapper.find('ResetButtonLink'));
   return doAsync(() => {

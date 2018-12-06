@@ -36,22 +36,20 @@ export default function GlobalContainer(props: Props) {
   const { footer = <GlobalFooterContainer /> } = props;
   return (
     <SuggestionsProvider>
-      {({ suggestions }) => (
-        <StartupModal>
-          <div className="global-container">
-            <div className="page-wrapper" id="container">
-              <div className="page-container">
-                <Workspace>
-                  <GlobalNav location={props.location} suggestions={suggestions} />
-                  <GlobalMessagesContainer />
-                  {props.children}
-                </Workspace>
-              </div>
+      <StartupModal>
+        <div className="global-container">
+          <div className="page-wrapper" id="container">
+            <div className="page-container">
+              <Workspace>
+                <GlobalNav location={props.location} />
+                <GlobalMessagesContainer />
+                {props.children}
+              </Workspace>
             </div>
-            {footer}
           </div>
-        </StartupModal>
-      )}
+          {footer}
+        </div>
+      </StartupModal>
     </SuggestionsProvider>
   );
 }

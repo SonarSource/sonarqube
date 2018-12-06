@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
@@ -27,11 +26,13 @@ import { getProfilePath } from '../utils';
 import { Actions } from '../../../api/quality-profiles';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   organization: string | null;
+  router: Pick<Router, 'push'>;
   updateProfiles: () => Promise<void>;
 }
 
@@ -40,12 +41,8 @@ interface State {
   restoreFormOpen: boolean;
 }
 
-export default class PageHeader extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
-  state = {
+class PageHeader extends React.PureComponent<Props, State> {
+  state: State = {
     createFormOpen: false,
     restoreFormOpen: false
   };
@@ -57,7 +54,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
   handleCreate = (profile: Profile) => {
     this.props.updateProfiles().then(
       () => {
-        this.context.router.push(
+        this.props.router.push(
           getProfilePath(profile.name, profile.language, this.props.organization)
         );
       },
@@ -130,3 +127,5 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(PageHeader);

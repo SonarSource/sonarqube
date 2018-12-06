@@ -25,8 +25,10 @@ import { isSonarCloud } from '../../../../helpers/system';
 jest.mock(
   'Docs/EmbedDocsSuggestions.json',
   () => ({
-    pageA: [{ link: '/foo', text: 'Foo' }, { link: '/bar', text: 'Bar', scope: 'sonarcloud' }],
-    pageB: [{ link: '/qux', text: 'Qux' }]
+    default: {
+      pageA: [{ link: '/foo', text: 'Foo' }, { link: '/bar', text: 'Bar', scope: 'sonarcloud' }],
+      pageB: [{ link: '/qux', text: 'Qux' }]
+    }
   }),
   { virtual: true }
 );
@@ -34,33 +36,41 @@ jest.mock(
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 it('should add & remove suggestions', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => false);
-  const children = jest.fn();
-  const wrapper = shallow(<SuggestionsProvider>{children}</SuggestionsProvider>);
-  const instance = wrapper.instance() as SuggestionsProvider;
-  expect(children).lastCalledWith({ suggestions: [] });
+  (isSonarCloud as jest.Mock).mockReturnValue(false);
+  const wrapper = shallow<SuggestionsProvider>(
+    <SuggestionsProvider>
+      <div />
+    </SuggestionsProvider>
+  );
+  const instance = wrapper.instance();
+  expect(wrapper.state('suggestions')).toEqual([]);
 
   instance.addSuggestions('pageA');
-  expect(children).lastCalledWith({ suggestions: [{ link: '/foo', text: 'Foo' }] });
+  expect(wrapper.state('suggestions')).toEqual([{ link: '/foo', text: 'Foo' }]);
 
   instance.addSuggestions('pageB');
-  expect(children).lastCalledWith({
-    suggestions: [{ link: '/qux', text: 'Qux' }, { link: '/foo', text: 'Foo' }]
-  });
+  expect(wrapper.state('suggestions')).toEqual([
+    { link: '/qux', text: 'Qux' },
+    { link: '/foo', text: 'Foo' }
+  ]);
 
   instance.removeSuggestions('pageA');
-  expect(children).lastCalledWith({ suggestions: [{ link: '/qux', text: 'Qux' }] });
+  expect(wrapper.state('suggestions')).toEqual([{ link: '/qux', text: 'Qux' }]);
 });
 
 it('should show sonarcloud pages', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  const children = jest.fn();
-  const wrapper = shallow(<SuggestionsProvider>{children}</SuggestionsProvider>);
-  const instance = wrapper.instance() as SuggestionsProvider;
-  expect(children).lastCalledWith({ suggestions: [] });
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
+  const wrapper = shallow<SuggestionsProvider>(
+    <SuggestionsProvider>
+      <div />
+    </SuggestionsProvider>
+  );
+  const instance = wrapper.instance();
+  expect(wrapper.state('suggestions')).toEqual([]);
 
   instance.addSuggestions('pageA');
-  expect(children).lastCalledWith({
-    suggestions: [{ link: '/foo', text: 'Foo' }, { link: '/bar', text: 'Bar', scope: 'sonarcloud' }]
-  });
+  expect(wrapper.state('suggestions')).toEqual([
+    { link: '/foo', text: 'Foo' },
+    { link: '/bar', text: 'Bar', scope: 'sonarcloud' }
+  ]);
 });

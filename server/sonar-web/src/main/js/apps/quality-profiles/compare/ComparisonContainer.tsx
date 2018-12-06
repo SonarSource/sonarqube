@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { withRouter, WithRouterProps } from 'react-router';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 import { compareProfiles } from '../../../api/quality-profiles';
 import { getProfileComparePath } from '../utils';
 import { Profile } from '../types';
 
-interface Props {
-  location: { query: { withKey?: string } };
+interface Props extends WithRouterProps {
   organization: string | null;
   profile: Profile;
   profiles: Profile[];
@@ -48,17 +47,9 @@ interface State {
   }>;
 }
 
-export default class ComparisonContainer extends React.PureComponent<Props, State> {
+class ComparisonContainer extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { loading: false };
-  }
+  state: State = { loading: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -104,7 +95,7 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
       this.props.organization,
       withKey
     );
-    this.context.router.push(path);
+    this.props.router.push(path);
   };
 
   render() {
@@ -145,3 +136,5 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
     );
   }
 }
+
+export default withRouter(ComparisonContainer);

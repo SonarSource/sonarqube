@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import VulnerabilityList from './VulnerabilityList';
@@ -26,20 +25,21 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Checkbox from '../../../components/controls/Checkbox';
-import { RawQuery } from '../../../helpers/query';
 import NotFound from '../../../app/components/NotFound';
 import { getSecurityHotspots } from '../../../api/security-reports';
 import { isLongLivingBranch } from '../../../helpers/branches';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { StandardType } from '../utils';
 import { Alert } from '../../../components/ui/Alert';
+import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../style.css';
 
 interface Props {
   branchLike?: T.BranchLike;
   component: T.Component;
-  location: { pathname: string; query: RawQuery };
+  location: Pick<Location, 'pathname' | 'query'>;
   params: { type: string };
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
@@ -50,12 +50,8 @@ interface State {
   showCWE: boolean;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
 
   constructor(props: Props) {
     super(props);
@@ -115,8 +111,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   handleCheck = (checked: boolean) => {
-    const { router } = this.context;
-    router.push({
+    this.props.router.push({
       pathname: this.props.location.pathname,
       query: { id: this.props.component.key, showCWE: checked }
     });
@@ -194,3 +189,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(App);

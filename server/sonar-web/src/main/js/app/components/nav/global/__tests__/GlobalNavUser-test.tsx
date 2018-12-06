@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import GlobalNavUser from '../GlobalNavUser';
+import { GlobalNavUser } from '../GlobalNavUser';
 
 const currentUser = { avatar: 'abcd1234', isLoggedIn: true, name: 'foo', email: 'foo@bar.baz' };
 const organizations: T.Organization[] = [
@@ -32,14 +32,24 @@ const appState = { organizationsEnabled: true };
 it('should render the right interface for anonymous user', () => {
   const currentUser = { isLoggedIn: false };
   const wrapper = shallow(
-    <GlobalNavUser appState={appState} currentUser={currentUser} organizations={[]} />
+    <GlobalNavUser
+      appState={appState}
+      currentUser={currentUser}
+      organizations={[]}
+      router={{ push: jest.fn() }}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render the right interface for logged in user', () => {
   const wrapper = shallow(
-    <GlobalNavUser appState={appState} currentUser={currentUser} organizations={[]} />
+    <GlobalNavUser
+      appState={appState}
+      currentUser={currentUser}
+      organizations={[]}
+      router={{ push: jest.fn() }}
+    />
   );
   wrapper.setState({ open: true });
   expect(wrapper.find('Dropdown')).toMatchSnapshot();
@@ -47,7 +57,12 @@ it('should render the right interface for logged in user', () => {
 
 it('should render user organizations', () => {
   const wrapper = shallow(
-    <GlobalNavUser appState={appState} currentUser={currentUser} organizations={organizations} />
+    <GlobalNavUser
+      appState={appState}
+      currentUser={currentUser}
+      organizations={organizations}
+      router={{ push: jest.fn() }}
+    />
   );
   wrapper.setState({ open: true });
   expect(wrapper.find('Dropdown')).toMatchSnapshot();
@@ -59,6 +74,7 @@ it('should not render user organizations when they are not activated', () => {
       appState={{ organizationsEnabled: false }}
       currentUser={currentUser}
       organizations={organizations}
+      router={{ push: jest.fn() }}
     />
   );
   wrapper.setState({ open: true });

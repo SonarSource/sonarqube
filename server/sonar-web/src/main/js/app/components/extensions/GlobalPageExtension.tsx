@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import ExtensionContainer from './ExtensionContainer';
+import Extension from './Extension';
 import NotFound from '../NotFound';
 import { getAppState, Store } from '../../../store/rootReducer';
 
@@ -31,11 +31,7 @@ interface Props {
 function GlobalPageExtension(props: Props) {
   const { extensionKey, pluginKey } = props.params;
   const extension = (props.globalPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? (
-    <ExtensionContainer extension={extension} />
-  ) : (
-    <NotFound withContainer={false} />
-  );
+  return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
 }
 
 const mapStateToProps = (state: Store) => ({

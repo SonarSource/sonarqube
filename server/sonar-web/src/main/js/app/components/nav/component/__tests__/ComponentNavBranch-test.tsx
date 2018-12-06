@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ComponentNavBranch from '../ComponentNavBranch';
+import { ComponentNavBranch } from '../ComponentNavBranch';
 import { click } from '../../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../../helpers/system';
 
@@ -37,11 +37,11 @@ it('renders main branch', () => {
   expect(
     shallow(
       <ComponentNavBranch
+        appState={{ branchesEnabled: true }}
         branchLikes={[mainBranch, fooBranch]}
         component={component}
         currentBranchLike={mainBranch}
-      />,
-      { context: { branchesEnabled: true, canAdmin: true } }
+      />
     )
   ).toMatchSnapshot();
 });
@@ -58,11 +58,11 @@ it('renders short-living branch', () => {
   expect(
     shallow(
       <ComponentNavBranch
+        appState={{ branchesEnabled: true }}
         branchLikes={[branch, fooBranch]}
         component={component}
         currentBranchLike={branch}
-      />,
-      { context: { branchesEnabled: true, canAdmin: true } }
+      />
     )
   ).toMatchSnapshot();
 });
@@ -79,11 +79,11 @@ it('renders pull request', () => {
   expect(
     shallow(
       <ComponentNavBranch
+        appState={{ branchesEnabled: true }}
         branchLikes={[pullRequest, fooBranch]}
         component={component}
         currentBranchLike={pullRequest}
-      />,
-      { context: { branchesEnabled: true, canAdmin: true } }
+      />
     )
   ).toMatchSnapshot();
 });
@@ -92,11 +92,11 @@ it('opens menu', () => {
   const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
+      appState={{ branchesEnabled: true }}
       branchLikes={[mainBranch, fooBranch]}
       component={component}
       currentBranchLike={mainBranch}
-    />,
-    { context: { branchesEnabled: true, canAdmin: true } }
+    />
   );
   expect(wrapper.find('Toggler').prop('open')).toBe(false);
   click(wrapper.find('a'));
@@ -107,11 +107,11 @@ it('renders single branch popup', () => {
   const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
+      appState={{ branchesEnabled: true }}
       branchLikes={[mainBranch]}
       component={component}
       currentBranchLike={mainBranch}
-    />,
-    { context: { branchesEnabled: true, canAdmin: true } }
+    />
   );
   expect(wrapper.find('DocTooltip')).toMatchSnapshot();
 });
@@ -120,11 +120,11 @@ it('renders no branch support popup', () => {
   const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
+      appState={{ branchesEnabled: false }}
       branchLikes={[mainBranch, fooBranch]}
       component={component}
       currentBranchLike={mainBranch}
-    />,
-    { context: { branchesEnabled: false, canAdmin: true } }
+    />
   );
   expect(wrapper.find('DocTooltip')).toMatchSnapshot();
 });
@@ -134,11 +134,11 @@ it('renders nothing on SonarCloud without branch support', () => {
   const component = {} as T.Component;
   const wrapper = shallow(
     <ComponentNavBranch
+      appState={{ branchesEnabled: false }}
       branchLikes={[mainBranch]}
       component={component}
       currentBranchLike={mainBranch}
-    />,
-    { context: { branchesEnabled: false, onSonarCloud: true, canAdmin: true } }
+    />
   );
   expect(wrapper.type()).toBeNull();
 });

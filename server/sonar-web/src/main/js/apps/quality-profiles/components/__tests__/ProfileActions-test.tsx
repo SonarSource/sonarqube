@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ProfileActions from '../ProfileActions';
+import { ProfileActions } from '../ProfileActions';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 const PROFILE = {
@@ -40,7 +40,14 @@ const PROFILE = {
 
 it('renders with no permissions', () => {
   expect(
-    shallow(<ProfileActions organization="org" profile={PROFILE} updateProfiles={jest.fn()} />)
+    shallow(
+      <ProfileActions
+        organization="org"
+        profile={PROFILE}
+        router={{ push: jest.fn(), replace: jest.fn() }}
+        updateProfiles={jest.fn()}
+      />
+    )
   ).toMatchSnapshot();
 });
 
@@ -50,6 +57,7 @@ it('renders with permission to edit only', () => {
       <ProfileActions
         organization="org"
         profile={{ ...PROFILE, actions: { edit: true } }}
+        router={{ push: jest.fn(), replace: jest.fn() }}
         updateProfiles={jest.fn()}
       />
     )
@@ -71,6 +79,7 @@ it('renders with all permissions', () => {
             associateProjects: true
           }
         }}
+        router={{ push: jest.fn(), replace: jest.fn() }}
         updateProfiles={jest.fn()}
       />
     )
@@ -84,9 +93,9 @@ it('should copy profile', async () => {
     <ProfileActions
       organization="org"
       profile={{ ...PROFILE, actions: { copy: true } }}
+      router={{ push, replace: jest.fn() }}
       updateProfiles={updateProfiles}
-    />,
-    { context: { router: { push } } }
+    />
   );
 
   click(wrapper.find('[id="quality-profile-copy"]'));

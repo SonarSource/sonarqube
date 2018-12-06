@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import Components from './Components';
 import { getTree } from '../../../api/components';
@@ -26,11 +25,13 @@ import SearchBox from '../../../components/controls/SearchBox';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
+import { withRouter, Router, Location } from '../../../components/hoc/withRouter';
 
 interface Props {
   branchLike?: T.BranchLike;
   component: T.ComponentMeasure;
-  location: {};
+  location: Location;
+  router: Pick<Router, 'push'>;
 }
 
 interface State {
@@ -40,13 +41,8 @@ interface State {
   selectedIndex?: number;
 }
 
-export default class Search extends React.PureComponent<Props, State> {
+class Search extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   state: State = {
     query: '',
     loading: false
@@ -93,9 +89,9 @@ export default class Search extends React.PureComponent<Props, State> {
       const selected = results[selectedIndex];
 
       if (selected.refKey) {
-        this.context.router.push(getProjectUrl(selected.refKey));
+        this.props.router.push(getProjectUrl(selected.refKey));
       } else {
-        this.context.router.push({
+        this.props.router.push({
           pathname: '/code',
           query: { id: component.key, selected: selected.key, ...getBranchLikeQuery(branchLike) }
         });
@@ -200,3 +196,5 @@ export default class Search extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(Search);

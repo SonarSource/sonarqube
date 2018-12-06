@@ -43,12 +43,7 @@ it('should render for SonarCloud', () => {
 function runTest(mockedIsSonarCloud: boolean) {
   (isSonarCloud as jest.Mock).mockImplementation(() => mockedIsSonarCloud);
   const wrapper = shallow(
-    <GlobalNav
-      appState={appState}
-      currentUser={{ isLoggedIn: false }}
-      location={location}
-      suggestions={[]}
-    />
+    <GlobalNav appState={appState} currentUser={{ isLoggedIn: false }} location={location} />
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ currentUser: { isLoggedIn: true } });

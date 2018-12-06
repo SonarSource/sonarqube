@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { withRouter, WithRouterProps } from 'react-router';
 import Changelog from './Changelog';
 import ChangelogSearch from './ChangelogSearch';
 import ChangelogEmpty from './ChangelogEmpty';
@@ -28,13 +28,7 @@ import { getProfileChangelogPath } from '../utils';
 import { Profile, ProfileChangelogEvent } from '../types';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 
-interface Props {
-  location: {
-    query: {
-      since?: string;
-      to?: string;
-    };
-  };
+interface Props extends WithRouterProps {
   organization: string | null;
   profile: Profile;
 }
@@ -46,16 +40,9 @@ interface State {
   total?: number;
 }
 
-export default class ChangelogContainer extends React.PureComponent<Props, State> {
+class ChangelogContainer extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object
-  };
-
-  state: State = {
-    loading: true
-  };
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -136,7 +123,7 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
         to: to && toShortNotSoISOString(to)
       }
     );
-    this.context.router.push(path);
+    this.props.router.push(path);
   };
 
   handleReset = () => {
@@ -145,7 +132,7 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
       this.props.profile.language,
       this.props.organization
     );
-    this.context.router.push(path);
+    this.props.router.push(path);
   };
 
   render() {
@@ -189,3 +176,5 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
     );
   }
 }
+
+export default withRouter(ChangelogContainer);

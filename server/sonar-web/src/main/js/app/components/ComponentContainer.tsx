@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
 import { ComponentContext } from './ComponentContext';
@@ -40,8 +39,10 @@ import {
   isShortLivingBranch,
   getBranchLikeQuery
 } from '../../helpers/branches';
+import { Store, getAppState } from '../../store/rootReducer';
 
 interface Props {
+  appState: Pick<T.AppState, 'organizationsEnabled'>;
   children: any;
   fetchOrganizations: (organizations: string[]) => void;
   location: {
@@ -66,15 +67,7 @@ const FETCH_STATUS_WAIT_TIME = 3000;
 export class ComponentContainer extends React.PureComponent<Props, State> {
   watchStatusTimer?: number;
   mounted = false;
-
-  static contextTypes = {
-    organizationsEnabled: PropTypes.bool
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { branchLikes: [], isPending: false, loading: true, warnings: [] };
-  }
+  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -122,7 +115,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       .then(([nav, data]) => {
         const component = this.addQualifier({ ...nav, ...data });
 
-        if (this.context.organizationsEnabled) {
+        if (this.props.appState.organizationsEnabled) {
           this.props.fetchOrganizations([component.organization]);
         }
         return component;
@@ -382,9 +375,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
+const mapStateToProps = (state: Store) => ({
+  appState: getAppState(state)
+});
+
 const mapDispatchToProps = { fetchOrganizations };
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(ComponentContainer);

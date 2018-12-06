@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { sortBy, uniqBy } from 'lodash';
 import Helmet from 'react-helmet';
 import Header from './Header';
@@ -36,15 +35,16 @@ import {
   PluginPendingResult,
   getInstalledPlugins
 } from '../../api/plugins';
-import { RawQuery } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
+import { withRouter, Location, Router } from '../../components/hoc/withRouter';
 import './style.css';
 
 export interface Props {
   currentEdition?: T.EditionKey;
   fetchPendingPlugins: () => void;
-  location: { pathname: string; query: RawQuery };
   pendingPlugins: PluginPendingResult;
+  location: Location;
+  router: Pick<Router, 'push'>;
   standaloneMode?: boolean;
   updateCenterActive: boolean;
 }
@@ -54,13 +54,8 @@ interface State {
   plugins: Plugin[];
 }
 
-export default class App extends React.PureComponent<Props, State> {
+class App extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   state: State = { loadingPlugins: true, plugins: [] };
 
   componentDidMount() {
@@ -108,7 +103,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
-    this.context.router.push({ pathname: this.props.location.pathname, query });
+    this.props.router.push({ pathname: this.props.location.pathname, query });
   };
 
   stopLoadingPlugins = () => {
@@ -151,3 +146,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withRouter(App);

@@ -20,7 +20,7 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import Notifications, { Props } from '../Notifications';
+import { Notifications } from '../Notifications';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/notifications', () => ({
@@ -96,13 +96,19 @@ it('should NOT fetch organizations', async () => {
 
 it('should fetch organizations', async () => {
   const fetchOrganizations = jest.fn();
-  await shallowRender({ fetchOrganizations }, { organizationsEnabled: true });
+  await shallowRender({ appState: { organizationsEnabled: true }, fetchOrganizations });
   expect(getNotifications).toBeCalled();
   expect(fetchOrganizations).toBeCalledWith(['org']);
 });
 
-async function shallowRender(props?: Partial<Props>, context?: any) {
-  const wrapper = shallow(<Notifications fetchOrganizations={jest.fn()} {...props} />, { context });
+async function shallowRender(props?: Partial<Notifications['props']>) {
+  const wrapper = shallow(
+    <Notifications
+      appState={{ organizationsEnabled: false }}
+      fetchOrganizations={jest.fn()}
+      {...props}
+    />
+  );
   await waitAndUpdate(wrapper);
   return wrapper;
 }

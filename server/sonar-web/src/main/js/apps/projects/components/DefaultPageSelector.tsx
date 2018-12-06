@@ -18,17 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import AllProjectsContainer from './AllProjectsContainer';
 import { PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE, PROJECTS_ALL } from '../utils';
 import { get } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
+import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   currentUser: T.CurrentUser;
-  location: { pathname: string; query: { [x: string]: string } };
+  location: Pick<Location, 'pathname' | 'query'>;
+  router: Pick<Router, 'replace'>;
 }
 
 interface State {
@@ -36,19 +37,12 @@ interface State {
   shouldForceSorting?: string;
 }
 
-export default class DefaultPageSelector extends React.PureComponent<Props, State> {
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {};
-  }
+export class DefaultPageSelector extends React.PureComponent<Props, State> {
+  state: State = {};
 
   componentDidMount() {
     if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
-      this.context.router.replace('/explore/projects');
+      this.props.router.replace('/explore/projects');
     }
 
     if (!isSonarCloud()) {
@@ -61,9 +55,9 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
       if (prevProps.location !== this.props.location) {
         this.defineIfShouldBeRedirected();
       } else if (this.state.shouldBeRedirected === true) {
-        this.context.router.replace({ ...this.props.location, pathname: '/projects/favorite' });
+        this.props.router.replace({ ...this.props.location, pathname: '/projects/favorite' });
       } else if (this.state.shouldForceSorting != null) {
-        this.context.router.replace({
+        this.props.router.replace({
           ...this.props.location,
           query: {
             ...this.props.location.query,
@@ -142,3 +136,5 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
     return null;
   }
 }
+
+export default withRouter(DefaultPageSelector);

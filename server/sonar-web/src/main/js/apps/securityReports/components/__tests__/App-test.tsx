@@ -78,7 +78,7 @@ jest.mock('../../../../api/security-reports', () => ({
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import App from '../App';
+import { App } from '../App';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const getSecurityHotspots = require('../../../../api/security-reports')
@@ -97,16 +97,32 @@ beforeEach(() => {
 });
 
 it('renders error on wrong type parameters', () => {
-  const wrapper = shallow(<App component={component} location={location} params={wrongParams} />, {
-    context
-  });
+  const wrapper = shallow(
+    <App
+      component={component}
+      location={location}
+      params={wrongParams}
+      router={{ push: jest.fn() }}
+    />,
+    {
+      context
+    }
+  );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('renders owaspTop10', async () => {
-  const wrapper = shallow(<App component={component} location={location} params={owaspParams} />, {
-    context
-  });
+  const wrapper = shallow(
+    <App
+      component={component}
+      location={location}
+      params={owaspParams}
+      router={{ push: jest.fn() }}
+    />,
+    {
+      context
+    }
+  );
   await waitAndUpdate(wrapper);
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
@@ -119,7 +135,12 @@ it('renders owaspTop10', async () => {
 
 it('renders with cwe', () => {
   const wrapper = shallow(
-    <App component={component} location={locationWithCWE} params={owaspParams} />,
+    <App
+      component={component}
+      location={locationWithCWE}
+      params={owaspParams}
+      router={{ push: jest.fn() }}
+    />,
     { context }
   );
   expect(getSecurityHotspots).toBeCalledWith({
@@ -132,9 +153,17 @@ it('renders with cwe', () => {
 });
 
 it('handle checkbox for cwe display', async () => {
-  const wrapper = shallow(<App component={component} location={location} params={owaspParams} />, {
-    context
-  });
+  const wrapper = shallow(
+    <App
+      component={component}
+      location={location}
+      params={owaspParams}
+      router={{ push: jest.fn() }}
+    />,
+    {
+      context
+    }
+  );
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
     standard: 'owaspTop10',
@@ -156,9 +185,17 @@ it('handle checkbox for cwe display', async () => {
 });
 
 it('renders sansTop25', () => {
-  const wrapper = shallow(<App component={component} location={location} params={sansParams} />, {
-    context
-  });
+  const wrapper = shallow(
+    <App
+      component={component}
+      location={location}
+      params={sansParams}
+      router={{ push: jest.fn() }}
+    />,
+    {
+      context
+    }
+  );
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
     standard: 'sansTop25',

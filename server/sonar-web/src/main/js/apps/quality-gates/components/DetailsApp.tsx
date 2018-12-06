@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import DetailsHeader from './DetailsHeader';
@@ -44,7 +44,7 @@ interface DispatchToProps {
   fetchMetrics: () => void;
 }
 
-type Props = StateToProps & DispatchToProps & OwnProps;
+type Props = StateToProps & DispatchToProps & OwnProps & WithRouterProps;
 
 interface State {
   loading: boolean;
@@ -53,11 +53,6 @@ interface State {
 
 export class DetailsApp extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   state: State = { loading: true };
 
   componentDidMount() {
@@ -173,7 +168,9 @@ const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DetailsApp);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(DetailsApp)
+);

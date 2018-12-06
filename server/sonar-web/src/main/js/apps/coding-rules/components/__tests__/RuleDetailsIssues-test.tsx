@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import RuleDetailsIssues from '../RuleDetailsIssues';
+import { RuleDetailsIssues } from '../RuleDetailsIssues';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getFacet } from '../../../../api/issues';
 
@@ -47,7 +47,11 @@ it('should handle hotspot rules', async () => {
 
 async function check(ruleType: T.RuleType, requestedTypes: T.RuleType[] | undefined) {
   const wrapper = shallow(
-    <RuleDetailsIssues organization="org" ruleDetails={{ key: 'foo', type: ruleType }} />
+    <RuleDetailsIssues
+      appState={{ branchesEnabled: false }}
+      organization="org"
+      ruleDetails={{ key: 'foo', type: ruleType }}
+    />
   );
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

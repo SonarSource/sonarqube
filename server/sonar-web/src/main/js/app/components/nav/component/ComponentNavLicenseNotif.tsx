@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as PropTypes from 'prop-types';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import { translate } from '../../../../helpers/l10n';
 import { isValidLicense } from '../../../../api/marketplace';
+import { withAppState } from '../../../../components/withAppState';
 
 interface Props {
+  appState: Pick<T.AppState, 'canAdmin'>;
   currentTask?: T.Task;
 }
 
@@ -33,13 +34,8 @@ interface State {
   loading: boolean;
 }
 
-export default class ComponentNavLicenseNotif extends React.PureComponent<Props, State> {
+export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> {
   mounted = false;
-
-  static contextTypes = {
-    canAdmin: PropTypes.bool.isRequired
-  };
-
   state: State = { loading: false };
 
   componentDidMount() {
@@ -88,7 +84,7 @@ export default class ComponentNavLicenseNotif extends React.PureComponent<Props,
     return (
       <NavBarNotif variant="error">
         <span className="little-spacer-right">{currentTask.errorMessage}</span>
-        {this.context.canAdmin ? (
+        {this.props.appState.canAdmin ? (
           <Link to="/admin/extension/license/app">
             {translate('license.component_navigation.button', currentTask.errorType)}.
           </Link>
@@ -99,3 +95,5 @@ export default class ComponentNavLicenseNotif extends React.PureComponent<Props,
     );
   }
 }
+
+export default withAppState(ComponentNavLicenseNotif);

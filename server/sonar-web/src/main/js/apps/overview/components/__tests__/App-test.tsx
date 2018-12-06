@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import App from '../App';
+import { App } from '../App';
 import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
@@ -49,7 +49,7 @@ it('should render OverviewApp', () => {
 
 it('should render EmptyOverview', () => {
   expect(
-    getWrapper({ component: { key: 'foo' } })
+    getWrapper({ component: { key: 'foo' } as T.Component })
       .find('EmptyOverview')
       .exists()
   ).toBeTruthy();
@@ -58,7 +58,7 @@ it('should render EmptyOverview', () => {
 it('should render SonarCloudEmptyOverview', () => {
   (isSonarCloud as jest.Mock<any>).mockReturnValue(true);
   expect(
-    getWrapper({ component: { key: 'foo' } })
+    getWrapper({ component: { key: 'foo' } as T.Component })
       .find('Connect(SonarCloudEmptyOverview)')
       .exists()
   ).toBeTruthy();
@@ -81,10 +81,8 @@ it('redirects on Code page for files', () => {
       branchLikes={[branch]}
       component={newComponent}
       onComponentChange={jest.fn()}
-    />,
-    {
-      context: { router: { replace } }
-    }
+      router={{ replace }}
+    />
   );
   expect(replace).toBeCalledWith({
     pathname: '/code',
@@ -92,8 +90,14 @@ it('redirects on Code page for files', () => {
   });
 });
 
-function getWrapper(props = {}) {
+function getWrapper(props: Partial<App['props']> = {}) {
   return shallow(
-    <App branchLikes={[]} component={component} onComponentChange={jest.fn()} {...props} />
+    <App
+      branchLikes={[]}
+      component={component}
+      onComponentChange={jest.fn()}
+      router={{ replace: jest.fn() }}
+      {...props}
+    />
   );
 }

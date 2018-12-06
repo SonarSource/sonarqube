@@ -20,7 +20,7 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import AllProjects, { Props } from '../AllProjects';
+import { AllProjects } from '../AllProjects';
 import { get, save } from '../../../../helpers/storage';
 
 jest.mock('../ProjectsList', () => ({
@@ -162,9 +162,9 @@ it('changes perspective to risk visualization', () => {
 });
 
 function shallowRender(
-  props: Partial<Props> = {},
-  push: Function = jest.fn(),
-  replace: Function = jest.fn()
+  props: Partial<AllProjects['props']> = {},
+  push = jest.fn(),
+  replace = jest.fn()
 ) {
   const wrapper = shallow(
     <AllProjects
@@ -173,9 +173,9 @@ function shallowRender(
       location={{ pathname: '/projects', query: {} }}
       organization={undefined}
       organizationsEnabled={false}
+      router={{ push, replace }}
       {...props}
-    />,
-    { context: { router: { push, replace } } }
+    />
   );
   wrapper.setState({
     loading: false,

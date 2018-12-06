@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import App from '../App';
+import { App } from '../App';
 import { shallowWithIntl, waitAndUpdate } from '../../../../helpers/testUtils';
 
 const replace = jest.fn();
@@ -60,6 +60,7 @@ const PROPS = {
   onBranchesChange: () => {},
   onSonarCloud: false,
   organization: { key: 'foo' },
+  router: { push: jest.fn(), replace: jest.fn() },
   userOrganizations: []
 };
 
