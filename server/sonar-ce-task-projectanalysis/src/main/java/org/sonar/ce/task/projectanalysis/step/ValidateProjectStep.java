@@ -37,10 +37,13 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -91,7 +94,11 @@ public class ValidateProjectStep implements ComputationStep {
     String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid().get();
     int moduleCount = dbClient.componentDao().countEnabledModulesByProjectUuid(session, mergeBranchUuid);
     if (moduleCount > 0) {
-      throw MessageException.of("Due to an upgrade, you need to re-analyze the target branch before analyzing this branch.");
+      Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(session, mergeBranchUuid);
+      checkState(opt.isPresent(), "Merge branch '%s' does not exist", mergeBranchUuid);
+      String type = analysisMetadataHolder.getBranch().getType() == BranchType.PULL_REQUEST ? "pull request" : "short-lived branch";
+      throw MessageException.of(String.format(
+        "Due to an upgrade, you need first to re-analyze the target branch '%s' before analyzing this %s.", opt.get().getKey(), type));
     }
   }
 

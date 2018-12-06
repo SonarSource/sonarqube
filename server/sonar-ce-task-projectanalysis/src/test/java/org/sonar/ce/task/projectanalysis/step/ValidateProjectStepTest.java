@@ -70,43 +70,65 @@ public class ValidateProjectStepTest {
   ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
 
   @Test
-  public void fail_if_pr_is_targeting_branch_with_modules() {
-    ComponentDto masterProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD")
-      .setDbKey(PROJECT_KEY);
-    ComponentDto branchProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "DEFG")
-      .setDbKey(PROJECT_KEY + ":BRANCH:branch");
-    dbClient.componentDao().insert(dbTester.getSession(), masterProject);
-    dbClient.componentDao().insert(dbTester.getSession(), branchProject);
+  public void fail_if_slb_is_targeting_master_with_modules() {
+    ComponentDto masterProject = dbTester.components().insertMainBranch();
     dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
     setBranch(BranchType.SHORT, masterProject.uuid());
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey(branchProject.getDbKey())
+      .setKey("branch")
       .build());
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("Due to an upgrade, you need to re-analyze the target branch before analyzing this branch.");
+    thrown.expectMessage("Due to an upgrade, you need first to re-analyze the target branch 'master' before analyzing this short-lived branch.");
     underTest.execute(new TestComputationStepContext());
   }
 
   @Test
-  public void dont_fail_if_pr_is_targeting_branch_without_modules() {
-    ComponentDto masterProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD")
-      .setDbKey(PROJECT_KEY);
-    ComponentDto branchProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "DEFG")
-      .setDbKey(PROJECT_KEY + ":BRANCH:branch");
-    dbClient.componentDao().insert(dbTester.getSession(), masterProject);
-    dbClient.componentDao().insert(dbTester.getSession(), branchProject);
+  public void fail_if_pr_is_targeting_branch_with_modules() {
+    ComponentDto masterProject = dbTester.components().insertMainBranch();
+    ComponentDto mergeBranch = dbTester.components().insertProjectBranch(masterProject, b -> b.setKey("mergeBranch"));
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(mergeBranch));
+    setBranch(BranchType.PULL_REQUEST, mergeBranch.uuid());
+    dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
+      .setKey("branch")
+      .build());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Due to an upgrade, you need first to re-analyze the target branch 'mergeBranch' before analyzing this pull request.");
+    underTest.execute(new TestComputationStepContext());
+  }
+
+  @Test
+  public void dont_fail_if_slb_is_targeting_branch_without_modules() {
+    ComponentDto masterProject = dbTester.components().insertMainBranch();
     setBranch(BranchType.SHORT, masterProject.uuid());
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey(branchProject.getDbKey())
+      .setKey("branch")
       .build());
 
     underTest.execute(new TestComputationStepContext());
   }
+
+  @Test
+  public void dont_fail_for_long_forked_from_master_with_modules() {
+    ComponentDto masterProject = dbTester.components().insertMainBranch();
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
+    setBranch(BranchType.LONG, masterProject.uuid());
+    dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
+      .setKey("branch")
+      .build());
+
+    underTest.execute(new TestComputationStepContext());
+  }
+
 
   private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
