@@ -74,9 +74,9 @@ You will be invoiced once a month, the day of the month after your trial ends. F
 
 ## How do I get invoices?
 
-You can download PDF invoices for every payment from the "Administration > Billing" page of your organization.
+You can download PDF invoices for every payment from the **Administration > Billing** page of your organization.
 
-If you want to get those invoices by email, please [contact us](/#sonarcloud#/about/contact).
+If you want to get invoices by email, go to **Administration > Billing > Edit billing info** and check "Send the monthly receipt to this email"
 
 ## Can I stop using the service?
 

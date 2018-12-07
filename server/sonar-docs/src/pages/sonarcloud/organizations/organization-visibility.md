@@ -33,7 +33,7 @@ The administration pages are obviously also restricted to administrators of the 
 
 ### Want to make one project public?
 
-If you are on a paid plan organization but want to make a project public (for instance because you are developing an open-source library), this is possible. You will have to manually make the project public in its "Administration > Permissions" page. Once done, you will notice the "Public" badge on the project.
+If you are on a paid plan organization but want to make a project public (for instance because you are developing an open-source library), this is possible. You will have to manually make the project public in its **Administration > Permissions** page. Once done, you will notice the "Public" badge on the project.
 
 As soon as you have one public project, the following pages will become visible to any user:
 
