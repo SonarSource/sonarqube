@@ -74,7 +74,8 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   /**
-   * Writes the tree of components recursively, deep-first. 
+   * Writes the tree of components recursively, deep-first.
+   *
    * @return true if component was written (not skipped)
    */
   private boolean recursiveWriteComponent(DefaultInputComponent component) {
@@ -124,11 +125,11 @@ public class ComponentsPublisher implements ReportPublisherStep {
     String path = getPath(component);
     if (path != null) {
       builder.setPath(path);
+    }
 
-      String projectRelativePath = getProjectRelativePath(component);
-      if (projectRelativePath != null) {
-        builder.setProjectRelativePath(projectRelativePath);
-      }
+    String projectRelativePath = getProjectRelativePath(component);
+    if (projectRelativePath != null) {
+      builder.setProjectRelativePath(projectRelativePath);
     }
 
     for (InputComponent child : children) {

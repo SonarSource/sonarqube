@@ -21,6 +21,7 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -192,6 +193,54 @@ public class ComponentsPublisherTest {
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getName()).isEqualTo("foo my_branch");
+  }
+
+  @Test
+  public void should_write_relative_path_to_root_for_modules_in_flat_hierarchy() throws IOException {
+    Path rootBaseDir = temp.newFolder().toPath();
+    Path module1BaseDir = rootBaseDir.resolve("module1");
+    Path module2BaseDir = rootBaseDir.resolve("module2");
+    Files.createDirectories(module1BaseDir);
+    Files.createDirectories(module2BaseDir);
+
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Root project")
+      .setDescription("Root description")
+      .setBaseDir(rootBaseDir.toFile())
+      .setWorkDir(temp.newFolder());
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+
+    ProjectDefinition module1Def = ProjectDefinition.create()
+      .setKey("module1k")
+      .setName("Module1")
+      .setDescription("Module description")
+      .setBaseDir(module1BaseDir.toFile())
+      .setWorkDir(temp.newFolder());
+    rootDef.addSubProject(module1Def);
+    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
+
+    ProjectDefinition module2Def = ProjectDefinition.create()
+      .setKey("module2k")
+      .setName("Module2")
+      .setDescription("Module description")
+      .setBaseDir(module2BaseDir.toFile())
+      .setWorkDir(temp.newFolder());
+    module1Def.addSubProject(module2Def);
+    DefaultInputModule module2 = new DefaultInputModule(module2Def, 3);
+
+    Map<DefaultInputModule, DefaultInputModule> modules = new HashMap<>();
+    modules.put(module2, module1);
+    modules.put(module1, root);
+    moduleHierarchy = new DefaultInputModuleHierarchy(modules);
+    tree.index(module2, module1);
+    tree.index(module1, root);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
+    publisher.publish(writer);
+
+    assertThat(reader.readComponent(2).getProjectRelativePath()).isEqualTo("module1");
+    assertThat(reader.readComponent(3).getProjectRelativePath()).isEqualTo("module2");
   }
 
   @Test
