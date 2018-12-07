@@ -133,6 +133,10 @@ public class IssueCounter extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
+    if (issue.type() == RuleType.SECURITY_HOTSPOT) {
+      return;
+    }
+
     currentCounters.add(issue);
     if (!periodHolder.hasPeriod()) {
       return;
@@ -278,9 +282,7 @@ public class IssueCounter extends IssueVisitor {
     }
 
     void addOnPeriod(DefaultIssue issue) {
-      if (issue.type() != RuleType.SECURITY_HOTSPOT) {
-        counterForPeriod.add(issue);
-      }
+      counterForPeriod.add(issue);
     }
 
     void add(DefaultIssue issue) {

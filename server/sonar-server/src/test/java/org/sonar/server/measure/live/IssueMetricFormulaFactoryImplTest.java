@@ -124,6 +124,8 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.BUG).setSeverity(Severity.MAJOR).setCount(5),
       newGroup(RuleType.BUG).setSeverity(Severity.CRITICAL).setCount(7),
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.BLOCKER).setCount(11),
+      // exclude security hotspot
+      newGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.CRITICAL).setCount(15),
       // include leak
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.BLOCKER).setInLeak(true).setCount(13),
       // exclude resolved
@@ -148,6 +150,8 @@ public class IssueMetricFormulaFactoryImplTest {
       newResolvedGroup(Issue.RESOLUTION_WONT_FIX, Issue.STATUS_CLOSED).setSeverity(Severity.MAJOR).setCount(7),
       newResolvedGroup(Issue.RESOLUTION_WONT_FIX, Issue.STATUS_CLOSED).setSeverity(Severity.BLOCKER).setCount(11),
       newResolvedGroup(Issue.RESOLUTION_REMOVED, Issue.STATUS_CLOSED).setCount(13),
+      // exclude security hotspot
+      newResolvedGroup(Issue.RESOLUTION_WONT_FIX, Issue.STATUS_RESOLVED).setCount(15).setRuleType(RuleType.SECURITY_HOTSPOT.getDbConstant()),
       // exclude unresolved
       newGroup(RuleType.VULNERABILITY).setCount(17),
       newGroup(RuleType.BUG).setCount(19))
@@ -168,6 +172,8 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup().setStatus(Issue.STATUS_REOPENED).setCount(7),
       newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_OPEN).setCount(9),
       newGroup(RuleType.BUG).setStatus(Issue.STATUS_OPEN).setCount(11),
+      // exclude security hotspot
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_OPEN).setCount(12),
       newResolvedGroup(Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED).setCount(13))
         .assertThatValueIs(CoreMetrics.CONFIRMED_ISSUES, 3 + 5)
         .assertThatValueIs(CoreMetrics.OPEN_ISSUES, 9 + 11)
@@ -181,6 +187,9 @@ public class IssueMetricFormulaFactoryImplTest {
     with(
       newGroup(RuleType.CODE_SMELL).setEffort(3.0).setInLeak(false),
       newGroup(RuleType.CODE_SMELL).setEffort(5.0).setInLeak(true),
+      // exclude security hotspot
+      newGroup(RuleType.SECURITY_HOTSPOT).setEffort(9).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setEffort(11).setInLeak(false),
       // not code smells
       newGroup(RuleType.BUG).setEffort(7.0),
       // exclude resolved
@@ -522,6 +531,7 @@ public class IssueMetricFormulaFactoryImplTest {
       // not in leak
       newGroup(RuleType.CODE_SMELL).setEffort(5.0).setInLeak(false),
       // not code smells
+      newGroup(RuleType.SECURITY_HOTSPOT).setEffort(9.0).setInLeak(true),
       newGroup(RuleType.BUG).setEffort(7.0).setInLeak(true),
       // exclude resolved
       newResolvedGroup(RuleType.CODE_SMELL).setEffort(17.0).setInLeak(true))

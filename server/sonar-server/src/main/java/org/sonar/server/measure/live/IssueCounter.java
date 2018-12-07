@@ -30,6 +30,8 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.rule.SeverityUtil;
 
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+
 class IssueCounter {
 
   private final Map<RuleType, HighestSeverity> highestSeverityOfUnresolved = new EnumMap<>(RuleType.class);
@@ -115,9 +117,11 @@ class IssueCounter {
     private long leak = 0L;
 
     void add(IssueGroupDto group) {
-      absolute += group.getCount();
-      if (group.isInLeak()) {
-        leak += group.getCount();
+      if (group.getRuleType() != SECURITY_HOTSPOT.getDbConstant()) {
+        absolute += group.getCount();
+        if (group.isInLeak()) {
+          leak += group.getCount();
+        }
       }
     }
   }
