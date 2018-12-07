@@ -25,6 +25,15 @@ import { isLoggedIn } from '../../../helpers/users';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
 
+const LANGUAGES = [
+  { name: 'JavaScript', file: 'js.svg', width: 60 },
+  { name: 'TypeScript', file: 'ts.svg', width: 130 },
+  { name: 'C#', file: 'csharp.svg', width: 60 },
+  { name: 'C++', file: 'c-c-plus-plus.svg', width: 53 },
+  { name: 'T-SQL', file: 't-sql.svg', width: 80 },
+  { name: 'VB', file: 'vb.svg', width: 70 }
+];
+
 export default function AzureDevOps() {
   return (
     <SQPageContainer>
@@ -116,24 +125,15 @@ export default function AzureDevOps() {
           <div className="sc-integrations">
             <h2 className="sc-sq-header2 sc-integrations-title">Analyze .NET languages and more</h2>
             <ul className="sc-languages-list">
-              <li>
-                <img alt="C#" height="60" src={`${getBaseUrl()}/images/languages/c-sharp.svg`} />
-              </li>
-              <li>
-                <img alt="VB" height="60" src={`${getBaseUrl()}/images/languages/vb.svg`} />
-              </li>
-              <li>
-                <img alt="JavaScript" height="60" src={`${getBaseUrl()}/images/languages/js.svg`} />
-              </li>
-              <li>
-                <img alt="TypeScript" height="60" src={`${getBaseUrl()}/images/languages/ts.svg`} />
-              </li>
-              <li>
-                <img alt="T-SQL" height="60" src={`${getBaseUrl()}/images/languages/tsql.svg`} />
-              </li>
-              <li>
-                <img alt="C++" height="60" src={`${getBaseUrl()}/images/languages/c-plus.svg`} />
-              </li>
+              {LANGUAGES.map(language => (
+                <li key={language.name}>
+                  <img
+                    alt={language.name}
+                    src={`${getBaseUrl()}/images/languages/black/${language.file}`}
+                    style={{ width: language.width + 'px' }}
+                  />
+                </li>
+              ))}
             </ul>
           </div>
         </div>
