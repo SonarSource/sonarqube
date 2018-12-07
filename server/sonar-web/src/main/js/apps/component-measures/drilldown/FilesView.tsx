@@ -73,7 +73,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
     if (this.props.selectedKey !== undefined && prevProps.selectedKey !== this.props.selectedKey) {
       this.scrollToElement();
     }
-    if (prevProps.metric.key !== this.props.metric.key) {
+    if (prevProps.metric.key !== this.props.metric.key || prevProps.view !== this.props.view) {
       this.setState({ showBestMeasures: this.props.defaultShowBestMeasures });
     }
   }

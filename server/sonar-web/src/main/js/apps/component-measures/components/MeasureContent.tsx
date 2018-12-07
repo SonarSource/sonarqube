@@ -154,17 +154,17 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     this.setState({ loadingMoreComponents: true });
     getComponentTree(strategy, baseComponent.key, metricKeys, opts).then(
       r => {
-        if (metric === this.props.requestedMetric) {
+        if (metric.key === this.props.requestedMetric.key) {
           if (this.mounted) {
             this.setState(state => ({
               components: [
                 ...state.components,
                 ...r.components.map(component => enhanceComponent(component, metric, metrics))
               ],
+              loadingMoreComponents: false,
               paging: r.paging
             }));
           }
-          this.setState({ loadingMoreComponents: false });
         }
       },
       () => {

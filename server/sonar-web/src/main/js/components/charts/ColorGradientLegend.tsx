@@ -27,7 +27,6 @@ interface Props {
   colorScale:
     | ScaleOrdinal<string, string> // used for LEVEL type
     | ScaleLinear<string, string | number>; // used for RATING or PERCENT type
-  direction?: number;
   height: number;
   padding?: [number, number, number, number];
   width: number;
@@ -39,16 +38,11 @@ export default function ColorGradientLegend({
   className,
   colorScale,
   colorNA,
-  direction,
   padding = [12, 24, 0, 0],
   height,
   width
 }: Props) {
   const colorRange: Array<string | number> = colorScale.range();
-  if (direction === 1) {
-    colorRange.reverse();
-  }
-
   const colorDomain: Array<string | number> = colorScale.domain();
   const lastColorIdx = colorRange.length - 1;
   const lastDomainIdx = colorDomain.length - 1;

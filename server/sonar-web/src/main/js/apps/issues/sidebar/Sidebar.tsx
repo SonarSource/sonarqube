@@ -24,7 +24,6 @@ import CreationDateFacet from './CreationDateFacet';
 import DirectoryFacet from './DirectoryFacet';
 import FileFacet from './FileFacet';
 import LanguageFacet from './LanguageFacet';
-import ModuleFacet from './ModuleFacet';
 import ProjectFacet from './ProjectFacet';
 import ResolutionFacet from './ResolutionFacet';
 import RuleFacet from './RuleFacet';
@@ -77,16 +76,6 @@ export default class Sidebar extends React.PureComponent<Props> {
     };
     return (
       <>
-        {component.qualifier !== 'DIR' && (
-          <ModuleFacet
-            fetching={loadingFacets.modules === true}
-            modules={query.modules}
-            open={!!openFacets.modules}
-            referencedComponents={this.props.referencedComponentsById}
-            stats={facets.modules}
-            {...commonProps}
-          />
-        )}
         {component.qualifier !== 'DIR' && (
           <DirectoryFacet
             directories={query.directories}

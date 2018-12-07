@@ -104,7 +104,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
 
   getPercentColorScale = (metric: T.Metric) => {
     const color = scaleLinear<string, string>().domain([0, 25, 50, 75, 100]);
-    color.range(metric.direction === 1 ? [...COLORS].reverse() : COLORS);
+    color.range(metric.higherValuesAreBetter ? [...COLORS].reverse() : COLORS);
     return color;
   };
 
@@ -166,7 +166,6 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         className="measure-details-treemap-legend"
         colorNA={theme.secondFontColor}
         colorScale={colorScale}
-        direction={metric.direction}
         height={20}
         width={200}
       />
