@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ConditionOperator from './ConditionOperator';
 import ConditionModal from './ConditionModal';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { translate, getLocalizedMetricName, translateWithParameters } from '../../../helpers/l10n';
@@ -77,6 +76,18 @@ export default class Condition extends React.PureComponent<Props, State> {
     );
   };
 
+  renderOperator() {
+    // TODO can operator be missing?
+    const { op = 'GT' } = this.props.condition;
+    return (
+      <span className="note">
+        {this.props.metric.type === 'RATING'
+          ? translate('quality_gates.operator', op, 'rating')
+          : translate('quality_gates.operator', op)}
+      </span>
+    );
+  }
+
   render() {
     const { condition, canEdit, metric, organization, qualityGate } = this.props;
     return (
@@ -88,9 +99,7 @@ export default class Condition extends React.PureComponent<Props, State> {
           )}
         </td>
 
-        <td className="thin text-middle nowrap">
-          <ConditionOperator canEdit={false} metric={metric} op={condition.op} />
-        </td>
+        <td className="thin text-middle nowrap">{this.renderOperator()}</td>
 
         <td className="thin text-middle nowrap">{formatMeasure(condition.error, metric.type)}</td>
 

@@ -20,52 +20,48 @@
 import * as React from 'react';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
+import { getPossibleOperators } from '../utils';
 
 interface Props {
   op?: string;
-  canEdit: boolean;
   metric: T.Metric;
-  onOperatorChange?: (op: string) => void;
+  onOperatorChange: (op: string) => void;
 }
 
 export default class ConditionOperator extends React.PureComponent<Props> {
   handleChange = ({ value }: { label: string; value: string }) => {
-    if (this.props.onOperatorChange) {
-      this.props.onOperatorChange(value);
-    }
+    this.props.onOperatorChange(value);
   };
 
+  getLabel(op: string, metric: T.Metric) {
+    return metric.type === 'RATING'
+      ? translate('quality_gates.operator', op, 'rating')
+      : translate('quality_gates.operator', op);
+  }
+
   render() {
-    const { canEdit, metric, op } = this.props;
-    if (!canEdit && op) {
-      return metric.type === 'RATING' ? (
-        <span className="note">{translate('quality_gates.operator', op, 'rating')}</span>
-      ) : (
-        <span className="note">{translate('quality_gates.operator', op)}</span>
+    const operators = getPossibleOperators(this.props.metric);
+
+    if (Array.isArray(operators)) {
+      const operatorOptions = operators.map(op => {
+        const label = this.getLabel(op, this.props.metric);
+        return { label, value: op };
+      });
+
+      return (
+        <Select
+          autoFocus={true}
+          className="input-medium"
+          clearable={false}
+          name="operator"
+          onChange={this.handleChange}
+          options={operatorOptions}
+          searchable={false}
+          value={this.props.op}
+        />
       );
+    } else {
+      return <span className="note">{this.getLabel(operators, this.props.metric)}</span>;
     }
-
-    if (metric.type === 'RATING') {
-      return <span className="note">{translate('quality_gates.operator.GT.rating')}</span>;
-    }
-
-    const operators = ['LT', 'GT', 'EQ', 'NE'];
-    const operatorOptions = operators.map(op => {
-      const label = translate('quality_gates.operator', op);
-      return { label, value: op };
-    });
-
-    return (
-      <Select
-        autoFocus={true}
-        className="input-medium"
-        clearable={false}
-        name="operator"
-        onChange={this.handleChange}
-        options={operatorOptions}
-        searchable={false}
-        value={op}
-      />
-    );
   }
 }

@@ -46,3 +46,13 @@ export function replaceCondition(
     });
   return { ...qualityGate, conditions };
 }
+
+export function getPossibleOperators(metric: T.Metric) {
+  if (metric.direction === 1) {
+    return 'LT';
+  } else if (metric.direction === -1) {
+    return 'GT';
+  } else {
+    return ['LT', 'GT'];
+  }
+}

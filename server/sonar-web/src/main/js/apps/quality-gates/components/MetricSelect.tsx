@@ -24,7 +24,7 @@ import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../
 
 interface Props {
   metrics: T.Metric[];
-  onAddCondition: (metric: T.Metric) => void;
+  onMetricChange: (metric: T.Metric) => void;
 }
 
 interface State {
@@ -38,12 +38,12 @@ interface Option {
   value: number;
 }
 
-export default class AddConditionSelect extends React.PureComponent<Props, State> {
+export default class MetricSelect extends React.PureComponent<Props, State> {
   state = { value: -1 };
 
   handleChange = ({ value }: Option) => {
     this.setState({ value });
-    this.props.onAddCondition(this.props.metrics[value]);
+    this.props.onMetricChange(this.props.metrics[value]);
   };
 
   render() {
@@ -77,7 +77,7 @@ export default class AddConditionSelect extends React.PureComponent<Props, State
         className="text-middle input-large"
         onChange={this.handleChange}
         options={optionsWithDomains}
-        placeholder={translate('quality_gates.add_condition')}
+        placeholder={translate('search.search_for_metrics')}
         value={this.state.value}
       />
     );
