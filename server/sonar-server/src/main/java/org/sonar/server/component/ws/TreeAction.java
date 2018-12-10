@@ -188,10 +188,7 @@ public class TreeAction implements ComponentsWsAction {
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, baseComponent);
 
       ComponentTreeQuery query = toComponentTreeQuery(treeRequest, baseComponent);
-      List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query)
-        .stream()
-        .filter(c -> !c.qualifier().equals(Qualifiers.MODULE))
-        .collect(Collectors.toList());
+      List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
       int total = components.size();
       components = sortComponents(components, treeRequest);
       components = paginateComponents(components, treeRequest);

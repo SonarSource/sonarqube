@@ -259,9 +259,7 @@ public class TreeActionTest {
       .setParam(Param.SORT, "qualifier, name")
       .setParam(PARAM_COMPONENT_ID, "project-uuid").executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getComponentsList()).extracting("id")
-      .containsExactly("path/directory/", "file-uuid-1", "file-uuid-2")
-      .doesNotContain("module-uuid-1");
+    assertThat(response.getComponentsList()).extracting("id").containsExactly("module-uuid-1", "path/directory/", "file-uuid-1", "file-uuid-2");
   }
 
   @Test
