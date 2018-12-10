@@ -18,10 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
+import { WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
-import ListHeader from './ListHeader';
+import Details from './Details';
+import Intro from './Intro';
 import List from './List';
+import ListHeader from './ListHeader';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchQualityGates } from '../../../api/quality-gates';
@@ -37,11 +40,7 @@ import '../../../components/search-navigator.css';
 import '../styles.css';
 
 interface Props extends WithRouterProps {
-  children: React.ReactElement<{
-    organization?: string;
-    refreshQualityGates: () => Promise<void>;
-  }>;
-  organization: Pick<T.Organization, 'key'>;
+  organization?: Pick<T.Organization, 'key'>;
 }
 
 interface State {
@@ -50,7 +49,7 @@ interface State {
   qualityGates: T.QualityGate[];
 }
 
-class QualityGatesApp extends React.PureComponent<Props, State> {
+class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { canCreate: false, loading: true, qualityGates: [] };
 
@@ -102,9 +101,32 @@ class QualityGatesApp extends React.PureComponent<Props, State> {
     });
   };
 
+  renderContent() {
+    const { id } = this.props.params;
+    const organizationKey = this.props.organization && this.props.organization.key;
+    if (id !== undefined) {
+      return (
+        <Details
+          id={id}
+          onSetDefault={this.handleSetDefault}
+          organization={organizationKey}
+          qualityGates={this.state.qualityGates}
+          refreshQualityGates={this.fetchQualityGates}
+        />
+      );
+    } else {
+      return (
+        <Intro
+          organization={organizationKey}
+          qualityGates={this.state.qualityGates}
+          router={this.props.router}
+        />
+      );
+    }
+  }
+
   render() {
-    const { children } = this.props;
-    const { canCreate, loading, qualityGates } = this.state;
+    const { canCreate, qualityGates } = this.state;
     const defaultTitle = translate('quality_gates.page');
     const organization = this.props.organization && this.props.organization.key;
 
@@ -132,17 +154,12 @@ class QualityGatesApp extends React.PureComponent<Props, State> {
               </div>
             )}
           </ScreenPositionHelper>
-          {!loading &&
-            React.cloneElement(children, {
-              onSetDefault: this.handleSetDefault,
-              organization,
-              qualityGates,
-              refreshQualityGates: this.fetchQualityGates
-            })}
+
+          <DeferredSpinner loading={this.state.loading}>{this.renderContent()}</DeferredSpinner>
         </div>
       </>
     );
   }
 }
 
-export default withRouter(QualityGatesApp);
+export default App;

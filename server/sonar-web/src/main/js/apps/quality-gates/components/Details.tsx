@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import DetailsHeader from './DetailsHeader';
@@ -29,9 +28,9 @@ import { fetchQualityGate } from '../../../api/quality-gates';
 import { checkIfDefault, addCondition, replaceCondition, deleteCondition } from '../utils';
 
 interface OwnProps {
+  id: string;
   onSetDefault: (qualityGate: T.QualityGate) => void;
   organization?: string;
-  params: { id: number };
   qualityGates: T.QualityGate[];
   refreshQualityGates: () => Promise<void>;
 }
@@ -44,14 +43,14 @@ interface DispatchToProps {
   fetchMetrics: () => void;
 }
 
-type Props = StateToProps & DispatchToProps & OwnProps & WithRouterProps;
+type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
   loading: boolean;
   qualityGate?: T.QualityGate;
 }
 
-export class DetailsApp extends React.PureComponent<Props, State> {
+export class Details extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -61,10 +60,9 @@ export class DetailsApp extends React.PureComponent<Props, State> {
     this.fetchDetails();
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.params.id !== this.props.params.id) {
-      this.setState({ loading: true });
-      this.fetchDetails(nextProps);
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.id !== this.props.id) {
+      this.fetchDetails();
     }
   }
 
@@ -72,8 +70,10 @@ export class DetailsApp extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchDetails = ({ organization, params } = this.props) => {
-    return fetchQualityGate({ id: params.id, organization }).then(
+  fetchDetails = () => {
+    const { id, organization } = this.props;
+    this.setState({ loading: true });
+    return fetchQualityGate({ id, organization }).then(
       qualityGate => {
         if (this.mounted) {
           this.setState({ loading: false, qualityGate });
@@ -168,9 +168,7 @@ const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(DetailsApp)
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Details);
