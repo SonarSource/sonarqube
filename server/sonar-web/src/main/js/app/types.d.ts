@@ -182,7 +182,6 @@ declare namespace T {
     metric: string;
     op?: string;
     period?: number;
-    warning: string;
   }
 
   export interface CoveredFile {

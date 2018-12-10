@@ -134,7 +134,6 @@ export default class Conditions extends React.PureComponent<Props> {
                 </th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.new_code')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.operator')}</th>
-                <th className="thin nowrap">{translate('quality_gates.conditions.warning')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.error')}</th>
                 {canEdit && <th />}
               </tr>

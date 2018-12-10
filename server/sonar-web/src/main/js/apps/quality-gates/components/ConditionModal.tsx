@@ -45,7 +45,6 @@ interface State {
   metric?: T.Metric;
   op?: string;
   period: boolean;
-  warning: string;
 }
 
 export default class ConditionModal extends React.PureComponent<Props, State> {
@@ -56,7 +55,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.state = {
       error: props.condition ? props.condition.error : '',
       period: props.condition ? props.condition.period === 1 : false,
-      warning: props.condition ? props.condition.warning : '',
       metric: props.metric ? props.metric : undefined,
       op: props.condition ? props.condition.op : undefined
     };
@@ -74,7 +72,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     const data: T.Omit<T.Condition, 'id'> = {
       metric: metric.key,
       op: metric.type === 'RATING' ? 'GT' : this.state.op,
-      warning: this.state.warning,
       error: this.state.error
     };
 
@@ -116,17 +113,13 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.setState({ op });
   };
 
-  handleWarningChange = (warning: string) => {
-    this.setState({ warning });
-  };
-
   handleErrorChange = (error: string) => {
     this.setState({ error });
   };
 
   render() {
     const { header, metrics, onClose } = this.props;
-    const { period, op, warning, error, metric } = this.state;
+    const { period, op, error, metric } = this.state;
     return (
       <ConfirmModal
         confirmButtonText={header}
@@ -162,15 +155,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
                 metric={metric}
                 onOperatorChange={this.handleOperatorChange}
                 op={op}
-              />
-            </div>
-            <div className="modal-field">
-              <label>{translate('quality_gates.conditions.warning')}</label>
-              <ThresholdInput
-                metric={metric}
-                name="warning"
-                onChange={this.handleWarningChange}
-                value={warning}
               />
             </div>
             <div className="modal-field">

@@ -39,11 +39,7 @@ interface Props {
 
 interface State {
   deleteFormOpen: boolean;
-  error: string;
   modal: boolean;
-  op?: string;
-  period?: number;
-  warning: string;
 }
 
 export default class Condition extends React.PureComponent<Props, State> {
@@ -51,11 +47,7 @@ export default class Condition extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       deleteFormOpen: false,
-      error: props.condition.error || '',
-      modal: false,
-      op: props.condition.op,
-      period: props.condition.period,
-      warning: props.condition.warning || ''
+      modal: false
     };
   }
 
@@ -104,8 +96,6 @@ export default class Condition extends React.PureComponent<Props, State> {
         <td className="thin text-middle nowrap">
           <ConditionOperator canEdit={false} metric={metric} op={condition.op} />
         </td>
-
-        <td className="thin text-middle nowrap">{formatMeasure(condition.warning, metric.type)}</td>
 
         <td className="thin text-middle nowrap">{formatMeasure(condition.error, metric.type)}</td>
 
