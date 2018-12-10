@@ -29,8 +29,7 @@ import './style.css';
 
 const CATEGORIES = [
   { label: 'Commercial', value: 'commercial' },
-  { label: 'Product', value: 'product' },
-  { label: 'Operations / Service / Infrastructure', value: 'operations' }
+  { label: 'Confidential Request', value: 'confidential_request' }
 ];
 
 interface Props {
@@ -103,7 +102,7 @@ export default class Contact extends React.PureComponent<Props, State> {
             </Alert>
             <br />
             <Alert display="inline" variant="warning">
-              Please contact us only if you couldn&apos;t solve your problem with the forum help.
+              Use this contact form for commercial or confidential requests only.
             </Alert>
             {!isLoggedIn(currentUser) && (
               <p>
