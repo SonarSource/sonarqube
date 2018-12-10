@@ -17,12 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.sonarcloud-login-alert {
+  margin: 10vh auto 5vh auto;
+  width: 256px;
+}
+
 .sonarcloud-login-page {
   margin-top: 15vh;
   width: 216px;
   margin-left: auto;
   margin-right: auto;
   padding: calc(4 * var(--gridSize)) 20px;
+}
+
+.sonarcloud-login-alert ~ .sonarcloud-login-page {
+  margin-top: 0;
 }
 
 .sonarcloud-login-page-large {
@@ -47,4 +56,8 @@
 
 .sonarcloud-oauth-providers.oauth-providers .oauth-providers-help {
   right: -22px;
+}
+
+.sonarcloud-login-cancel {
+  text-align: center;
 }

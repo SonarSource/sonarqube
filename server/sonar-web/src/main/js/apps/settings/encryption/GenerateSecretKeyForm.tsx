@@ -85,7 +85,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
           <form id="generate-secret-key-form" onSubmit={this.handleSubmit}>
             <p className="spacer-bottom">
               <FormattedMessage
-                defaultMessage={translate('encryptionFormattedMessage.secret_key_description')}
+                defaultMessage={translate('encryption.secret_key_description')}
                 id="encryption.secret_key_description"
                 values={{
                   moreInformationLink: (

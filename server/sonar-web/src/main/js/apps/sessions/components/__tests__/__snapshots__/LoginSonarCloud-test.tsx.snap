@@ -1,93 +1,170 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`logs in with identity provider 1`] = `
-<div
-  className="sonarcloud-login-page boxed-group boxed-group-inner"
-  id="login_form"
->
+<Fragment>
   <div
-    className="text-center"
+    className="sonarcloud-login-page boxed-group boxed-group-inner"
+    id="login_form"
   >
-    <img
-      alt="SonarCloud logo"
-      height={36}
-      src="/images/sonarcloud-square-logo.svg"
-      width={36}
-    />
-    <h1
-      className="sonarcloud-login-title"
+    <div
+      className="text-center"
     >
-      login.login_or_signup_to_sonarcloud
-    </h1>
+      <img
+        alt="SonarCloud logo"
+        height={36}
+        src="/images/sonarcloud-square-logo.svg"
+        width={36}
+      />
+      <h1
+        className="sonarcloud-login-title"
+      >
+        login.login_or_signup_to_sonarcloud
+      </h1>
+    </div>
+    <OAuthProviders
+      className="sonarcloud-oauth-providers"
+      formatLabel={[Function]}
+      identityProviders={
+        Array [
+          Object {
+            "backgroundColor": "#000",
+            "iconPath": "/some/path",
+            "key": "foo",
+            "name": "foo",
+          },
+        ]
+      }
+      returnTo=""
+    />
   </div>
-  <OAuthProviders
-    className="sonarcloud-oauth-providers"
-    formatLabel={[Function]}
-    identityProviders={
-      Array [
-        Object {
-          "backgroundColor": "#000",
-          "iconPath": "/some/path",
-          "key": "foo",
-          "name": "foo",
-        },
-      ]
-    }
-    returnTo=""
-  />
-</div>
+</Fragment>
 `;
 
 exports[`logs in with simple form 1`] = `
-<div
-  className="sonarcloud-login-page boxed-group boxed-group-inner sonarcloud-login-page-large"
-  id="login_form"
->
+<Fragment>
   <div
-    className="text-center"
+    className="sonarcloud-login-page boxed-group boxed-group-inner sonarcloud-login-page-large"
+    id="login_form"
   >
-    <img
-      alt="SonarCloud logo"
-      height={36}
-      src="/images/sonarcloud-square-logo.svg"
-      width={36}
-    />
-    <h1
-      className="sonarcloud-login-title"
+    <div
+      className="text-center"
     >
-      login.login_or_signup_to_sonarcloud
-    </h1>
+      <img
+        alt="SonarCloud logo"
+        height={36}
+        src="/images/sonarcloud-square-logo.svg"
+        width={36}
+      />
+      <h1
+        className="sonarcloud-login-title"
+      >
+        login.login_or_signup_to_sonarcloud
+      </h1>
+    </div>
+    <LoginForm
+      onSubmit={[MockFunction]}
+      returnTo=""
+    />
   </div>
-  <LoginForm
-    onSubmit={[MockFunction]}
-    returnTo=""
-  />
-</div>
+</Fragment>
 `;
 
 exports[`logs in with simple form 2`] = `
-<div
-  className="sonarcloud-login-page boxed-group boxed-group-inner sonarcloud-login-page-large"
-  id="login_form"
->
+<Fragment>
   <div
-    className="text-center"
+    className="sonarcloud-login-page boxed-group boxed-group-inner sonarcloud-login-page-large"
+    id="login_form"
   >
-    <img
-      alt="SonarCloud logo"
-      height={36}
-      src="/images/sonarcloud-square-logo.svg"
-      width={36}
-    />
-    <h1
-      className="sonarcloud-login-title"
+    <div
+      className="text-center"
     >
-      login.login_or_signup_to_sonarcloud
-    </h1>
+      <img
+        alt="SonarCloud logo"
+        height={36}
+        src="/images/sonarcloud-square-logo.svg"
+        width={36}
+      />
+      <h1
+        className="sonarcloud-login-title"
+      >
+        login.login_or_signup_to_sonarcloud
+      </h1>
+    </div>
+    <LoginForm
+      onSubmit={[MockFunction]}
+      returnTo=""
+    />
   </div>
-  <LoginForm
-    onSubmit={[MockFunction]}
-    returnTo=""
-  />
-</div>
+</Fragment>
+`;
+
+exports[`shows an warning message if there's an authorization error 1`] = `
+<Fragment>
+  <Alert
+    className="sonarcloud-login-alert"
+    display="block"
+    variant="warning"
+  >
+    login.unauthorized_access_alert
+  </Alert>
+  <div
+    className="sonarcloud-login-page boxed-group boxed-group-inner"
+    id="login_form"
+  >
+    <div
+      className="text-center"
+    >
+      <img
+        alt="SonarCloud logo"
+        height={36}
+        src="/images/sonarcloud-square-logo.svg"
+        width={36}
+      />
+      <h1
+        className="sonarcloud-login-title"
+      >
+        login.login_or_signup_to_sonarcloud
+      </h1>
+    </div>
+    <OAuthProviders
+      className="sonarcloud-oauth-providers"
+      formatLabel={[Function]}
+      identityProviders={
+        Array [
+          Object {
+            "backgroundColor": "#000",
+            "iconPath": "/some/path",
+            "key": "foo",
+            "name": "foo",
+          },
+        ]
+      }
+      returnTo=""
+    />
+    <div
+      className="sonarcloud-login-cancel"
+    >
+      <div
+        className="horizontal-pipe-separator"
+      >
+        <div
+          className="horizontal-separator"
+        />
+        <span
+          className="note"
+        >
+          or
+        </span>
+        <div
+          className="horizontal-separator"
+        />
+      </div>
+      <a
+        href="/"
+      >
+        go_back_to_homepage
+      </a>
+    </div>
+  </div>
+</Fragment>
 `;

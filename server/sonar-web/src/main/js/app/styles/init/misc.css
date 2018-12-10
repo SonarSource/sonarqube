@@ -372,6 +372,24 @@ td.big-spacer-top {
   color: rgba(68, 68, 68, 0.3);
 }
 
+.horizontal-pipe-separator {
+  display: flex;
+  align-items: center;
+  margin-top: calc(4 * var(--gridSize));
+  margin-bottom: calc(4 * var(--gridSize));
+}
+
+.horizontal-pipe-separator > .horizontal-separator {
+  margin: 0 4px;
+}
+
+.horizontal-separator {
+  min-width: 16px;
+  height: 1px;
+  flex-grow: 1;
+  background-color: var(--barBorderColor);
+}
+
 .vertical-separator {
   width: 1px;
   min-height: 16px;
