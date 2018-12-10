@@ -56,9 +56,7 @@ export default class Conditions extends React.PureComponent<Props> {
     const duplicates: T.Condition[] = [];
     const savedConditions = existingConditions.filter(condition => condition.id != null);
     savedConditions.forEach(condition => {
-      const sameCount = savedConditions.filter(
-        sample => sample.metric === condition.metric && sample.period === condition.period
-      ).length;
+      const sameCount = savedConditions.filter(sample => sample.metric === condition.metric).length;
       if (sameCount > 1) {
         duplicates.push(condition);
       }
@@ -132,7 +130,6 @@ export default class Conditions extends React.PureComponent<Props> {
                     />
                   </div>
                 </th>
-                <th className="thin nowrap">{translate('quality_gates.conditions.new_code')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.operator')}</th>
                 <th className="thin nowrap">{translate('quality_gates.conditions.error')}</th>
                 {canEdit && <th />}

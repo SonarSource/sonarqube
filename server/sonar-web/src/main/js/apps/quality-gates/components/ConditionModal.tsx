@@ -21,10 +21,8 @@ import * as React from 'react';
 import AddConditionSelect from './AddConditionSelect';
 import ConditionOperator from './ConditionOperator';
 import ThresholdInput from './ThresholdInput';
-import Period from './Period';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
-import { isDiffMetric } from '../../../helpers/measures';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Alert } from '../../../components/ui/Alert';
 
@@ -44,7 +42,6 @@ interface State {
   errorMessage?: string;
   metric?: T.Metric;
   op?: string;
-  period: boolean;
 }
 
 export default class ConditionModal extends React.PureComponent<Props, State> {
@@ -54,7 +51,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       error: props.condition ? props.condition.error : '',
-      period: props.condition ? props.condition.period === 1 : false,
       metric: props.metric ? props.metric : undefined,
       op: props.condition ? props.condition.op : undefined
     };
@@ -69,21 +65,11 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   }
 
   getUpdatedCondition = (metric: T.Metric) => {
-    const data: T.Omit<T.Condition, 'id'> = {
+    return {
       metric: metric.key,
       op: metric.type === 'RATING' ? 'GT' : this.state.op,
       error: this.state.error
     };
-
-    const { period } = this.state;
-    if (period && metric.type !== 'RATING') {
-      data.period = period ? 1 : 0;
-    }
-
-    if (isDiffMetric(metric.key)) {
-      data.period = 1;
-    }
-    return data;
   };
 
   handleFormSubmit = () => {
@@ -105,10 +91,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.setState({ metric });
   };
 
-  handlePeriodChange = (period: boolean) => {
-    this.setState({ period });
-  };
-
   handleOperatorChange = (op: string) => {
     this.setState({ op });
   };
@@ -119,7 +101,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
 
   render() {
     const { header, metrics, onClose } = this.props;
-    const { period, op, error, metric } = this.state;
+    const { op, error, metric } = this.state;
     return (
       <ConfirmModal
         confirmButtonText={header}
@@ -139,15 +121,6 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         </div>
         {metric && (
           <>
-            <div className="modal-field">
-              <label>{translate('quality_gates.conditions.new_code')}</label>
-              <Period
-                canEdit={true}
-                metric={metric}
-                onPeriodChange={this.handlePeriodChange}
-                period={period}
-              />
-            </div>
             <div className="modal-field">
               <label>{translate('quality_gates.conditions.operator')}</label>
               <ConditionOperator

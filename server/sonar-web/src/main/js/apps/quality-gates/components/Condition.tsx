@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import ConditionOperator from './ConditionOperator';
-import Period from './Period';
 import ConditionModal from './ConditionModal';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { translate, getLocalizedMetricName, translateWithParameters } from '../../../helpers/l10n';
@@ -87,10 +86,6 @@ export default class Condition extends React.PureComponent<Props, State> {
           {metric.hidden && (
             <span className="text-danger little-spacer-left">{translate('deprecated')}</span>
           )}
-        </td>
-
-        <td className="thin text-middle nowrap">
-          <Period canEdit={false} metric={metric} period={condition.period === 1} />
         </td>
 
         <td className="thin text-middle nowrap">
