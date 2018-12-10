@@ -79,13 +79,13 @@ export function createCondition(
     organization?: string;
   } & T.Omit<T.Condition, 'id'>
 ): Promise<T.Condition> {
-  return postJSON('/api/qualitygates/create_condition', data);
+  return postJSON('/api/qualitygates/create_condition', data).catch(throwGlobalError);
 }
 
 export function updateCondition(
   data: { organization?: string } & T.Condition
 ): Promise<T.Condition> {
-  return postJSON('/api/qualitygates/update_condition', data);
+  return postJSON('/api/qualitygates/update_condition', data).catch(throwGlobalError);
 }
 
 export function deleteCondition(data: { id: number; organization?: string }): Promise<void> {

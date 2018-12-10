@@ -25,7 +25,6 @@ import Period from './Period';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { isDiffMetric } from '../../../helpers/measures';
-import { parseError } from '../../../helpers/request';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Alert } from '../../../components/ui/Alert';
 
@@ -100,16 +99,9 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       } else {
         submitPromise = createCondition({ gateId: qualityGate.id, organization, ...newCondition });
       }
-      return submitPromise.then(this.props.onAddCondition, (error: any) =>
-        parseError(error).then(message => {
-          if (this.mounted) {
-            this.setState({ errorMessage: message });
-          }
-          return Promise.reject(message);
-        })
-      );
+      return submitPromise.then(this.props.onAddCondition);
     }
-    return Promise.reject('No metric selected');
+    return Promise.reject();
   };
 
   handleChooseType = (metric: T.Metric) => {
