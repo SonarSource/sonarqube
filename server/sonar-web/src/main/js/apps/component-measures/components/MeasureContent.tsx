@@ -104,7 +104,11 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     }
     Promise.all([
       getComponentTree(strategy, componentKey, metricKeys, opts),
-      getMeasures({ componentKey, metricKeys: baseComponentMetrics.join() })
+      getMeasures({
+        component: componentKey,
+        metricKeys: baseComponentMetrics.join(),
+        ...getBranchLikeQuery(this.props.branchLike)
+      })
     ]).then(
       ([tree, measures]) => {
         if (this.mounted) {
