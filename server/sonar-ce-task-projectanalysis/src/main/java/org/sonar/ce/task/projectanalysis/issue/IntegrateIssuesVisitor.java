@@ -61,7 +61,6 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   public void visitAny(Component component) {
     try (DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender()) {
       issueVisitors.beforeComponent(component);
-
       TrackingResult tracking = issueTracking.track(component);
       fillNewOpenIssues(component, tracking.newIssues(), cacheAppender);
       fillExistingOpenIssues(component, tracking.issuesToMerge(), cacheAppender);

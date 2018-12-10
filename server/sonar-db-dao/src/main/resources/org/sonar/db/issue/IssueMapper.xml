@@ -242,6 +242,13 @@
       i.kee, ic.issue_change_creation_date desc
   </select>
 
+  <select id="selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
+    select distinct(i.component_uuid)
+    from issues i
+    inner join projects p on p.uuid=i.component_uuid
+    where i.project_uuid=#{projectUuid,jdbcType=VARCHAR} and i.status &lt;&gt; 'CLOSED' and (p.qualifier = 'DIR' OR p.qualifier = 'BRC')
+  </select>
+
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
     select distinct(i.component_uuid)
     from issues i

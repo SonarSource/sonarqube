@@ -19,14 +19,18 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.DbClient;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 /**
  * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.
@@ -36,20 +40,35 @@ public class TrackerBaseInputFactory extends BaseInputFactory {
   private final ComponentIssuesLoader issuesLoader;
   private final DbClient dbClient;
   private final MovedFilesRepository movedFilesRepository;
+  private final ReportModulesPath reportModulesPath;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final IssueFieldsSetter issueUpdater;
+  private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
 
-  public TrackerBaseInputFactory(ComponentIssuesLoader issuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
+  public TrackerBaseInputFactory(ComponentIssuesLoader issuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository, ReportModulesPath reportModulesPath,
+    AnalysisMetadataHolder analysisMetadataHolder, IssueFieldsSetter issueUpdater, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues) {
     this.issuesLoader = issuesLoader;
     this.dbClient = dbClient;
     this.movedFilesRepository = movedFilesRepository;
+    this.reportModulesPath = reportModulesPath;
+    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.issueUpdater = issueUpdater;
+    this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
   }
 
   public Input<DefaultIssue> create(Component component) {
-    return new TrackerBaseLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orNull());
+    if (component.getType() == Component.Type.PROJECT) {
+      return new ProjectTrackerBaseLazyInput(analysisMetadataHolder, componentsWithUnprocessedIssues, dbClient, issueUpdater, issuesLoader, reportModulesPath, component);
+    } else if (component.getType() == Component.Type.DIRECTORY) {
+      // Folders have no issues
+      return new EmptyTrackerBaseLazyInput(dbClient, component);
+    }
+    return new FileTrackerBaseLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orNull());
   }
 
-  private class TrackerBaseLazyInput extends BaseLazyInput {
+  private class FileTrackerBaseLazyInput extends BaseLazyInput {
 
-    private TrackerBaseLazyInput(DbClient dbClient, Component component, @Nullable OriginalFile originalFile) {
+    private FileTrackerBaseLazyInput(DbClient dbClient, Component component, @Nullable OriginalFile originalFile) {
       super(dbClient, component, originalFile);
     }
 
@@ -57,5 +76,20 @@ public class TrackerBaseInputFactory extends BaseInputFactory {
     protected List<DefaultIssue> loadIssues() {
       return issuesLoader.loadOpenIssues(effectiveUuid);
     }
+
   }
+
+  private class EmptyTrackerBaseLazyInput extends BaseLazyInput {
+
+    private EmptyTrackerBaseLazyInput(DbClient dbClient, Component component) {
+      super(dbClient, component, null);
+    }
+
+    @Override
+    protected List<DefaultIssue> loadIssues() {
+      return Collections.emptyList();
+    }
+
+  }
+
 }

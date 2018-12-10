@@ -19,11 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -45,6 +45,10 @@ public class ComponentIssuesRepositoryImpl implements MutableComponentIssuesRepo
 
   @Override
   public List<DefaultIssue> getIssues(Component component) {
+    if (component.getType() == Component.Type.DIRECTORY) {
+      // No issues on directories
+      return Collections.emptyList();
+    }
     checkState(this.component != null && this.issues != null, "Issues have not been initialized");
     checkArgument(component.equals(this.component),
       "Only issues from component '%s' are available, but wanted component is '%s'.",

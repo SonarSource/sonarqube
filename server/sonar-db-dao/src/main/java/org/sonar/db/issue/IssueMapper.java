@@ -32,6 +32,8 @@ public interface IssueMapper {
 
   Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 
+  Set<String> selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
+
   List<IssueDto> selectByKeys(List<String> keys);
 
   List<IssueDto> selectByKeysIfNotUpdatedAt(@Param("keys") List<String> keys, @Param("updatedAt") long updatedAt);

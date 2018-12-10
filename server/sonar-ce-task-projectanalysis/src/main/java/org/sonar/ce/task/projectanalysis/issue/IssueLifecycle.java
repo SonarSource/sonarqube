@@ -147,6 +147,10 @@ public class IssueLifecycle {
     Preconditions.checkArgument(raw.isFromExternalRuleEngine() != (raw.type() == null), "At this stage issue type should be set for and only for external issues");
     raw.setKey(base.key());
     raw.setNew(false);
+    if (base.isChanged()) {
+      // In case issue was moved from module or folder to the root project
+      raw.setChanged(true);
+    }
     setType(raw);
     copyFields(raw, base);
     base.changes().forEach(raw::addChange);

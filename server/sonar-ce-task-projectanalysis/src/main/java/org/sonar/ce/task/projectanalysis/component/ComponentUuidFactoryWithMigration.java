@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -105,7 +104,7 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
 
   private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> pathByModuleKey) {
     List<ComponentDto> moduleDtos = dbClient.componentDao()
-      .selectModulesFromProjectKey(dbSession, rootKey, false).stream()
+      .selectProjectAndModulesFromProjectKey(dbSession, rootKey, false).stream()
       .filter(c -> Qualifiers.MODULE.equals(c.qualifier()))
       .collect(Collectors.toList());
 

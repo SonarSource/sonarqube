@@ -49,6 +49,11 @@ public class ComponentIssuesRepositoryImplTest {
   }
 
   @Test
+  public void no_issues_on_dir() {
+    assertThat(sut.getIssues(builder(Component.Type.DIRECTORY, 1).build())).isEmpty();
+  }
+
+  @Test
   public void set_empty_issues() {
     sut.setIssues(FILE_1, Collections.emptyList());
 

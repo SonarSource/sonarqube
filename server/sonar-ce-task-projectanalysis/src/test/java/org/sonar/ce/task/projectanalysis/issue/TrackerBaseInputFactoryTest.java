@@ -22,13 +22,19 @@ package org.sonar.ce.task.projectanalysis.issue;
 import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
+import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDao;
+import org.sonar.server.issue.IssueFieldsSetter;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -37,7 +43,12 @@ import static org.mockito.Mockito.when;
 
 public class TrackerBaseInputFactoryTest {
   private static final String FILE_UUID = "uuid";
+  private static final String DIR_UUID = "dir";
   private static final ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid(FILE_UUID).build();
+  private static final ReportComponent FOLDER = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid(DIR_UUID).build();
+
+  @org.junit.Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private ComponentIssuesLoader issuesLoader = mock(ComponentIssuesLoader.class);
   private DbClient dbClient = mock(DbClient.class);
@@ -46,7 +57,8 @@ public class TrackerBaseInputFactoryTest {
 
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
 
-  private TrackerBaseInputFactory underTest = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
+  private TrackerBaseInputFactory underTest = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder,
+    new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
 
   @Before
   public void setUp() throws Exception {
@@ -61,6 +73,12 @@ public class TrackerBaseInputFactoryTest {
     underTest.create(FILE).getLineHashSequence();
 
     verify(fileSourceDao).selectLineHashes(dbSession, FILE_UUID);
+  }
+
+  @Test
+  public void create_returns_empty_Input_for_folders() {
+    Input<DefaultIssue> input = underTest.create(FOLDER);
+    assertThat(input.getIssues()).isEmpty();
   }
 
   @Test

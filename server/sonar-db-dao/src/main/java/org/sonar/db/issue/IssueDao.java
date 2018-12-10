@@ -61,6 +61,10 @@ public class IssueDao implements Dao {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
+  public Set<String> selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
+    return mapper(session).selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
+  }
+
   public List<IssueDto> selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(DbSession dbSession, String componentUuid) {
     return mapper(dbSession).selectNonClosedByComponentUuidExcludingExternals(componentUuid);
   }

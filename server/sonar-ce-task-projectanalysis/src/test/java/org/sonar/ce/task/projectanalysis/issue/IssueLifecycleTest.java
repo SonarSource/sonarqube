@@ -395,6 +395,23 @@ public class IssueLifecycleTest {
   }
 
   @Test
+  public void mergeExistingOpenIssue_with_base_changed() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1);
+    DefaultIssue base = new DefaultIssue()
+      .setChanged(true)
+      .setKey("BASE_KEY")
+      .setResolution(RESOLUTION_FALSE_POSITIVE)
+      .setStatus(STATUS_RESOLVED);
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.isChanged()).isTrue();
+  }
+
+  @Test
   public void mergeExistingOpenIssue_with_attributes() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)

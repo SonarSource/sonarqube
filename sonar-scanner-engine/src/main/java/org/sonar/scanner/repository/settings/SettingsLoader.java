@@ -20,8 +20,9 @@
 package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
+import javax.annotation.Nullable;
 
 @FunctionalInterface
 public interface SettingsLoader {
-  Map<String, String> load(String componentKey);
+  Map<String, String> load(@Nullable String componentKey);
 }

@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 public interface ComponentUuidFactory {
+
   /**
    * Get UUID from database if it exists, otherwise generate a new one.
    */
