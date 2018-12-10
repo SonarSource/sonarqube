@@ -196,9 +196,8 @@ public class CoverageMediumTest {
     InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
     assertThat(result.coverageFor(fileB, 2)).isNull();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("File 'moduleA/src/sample.xoo' was excluded from coverage because patterns are still " +
-      "evaluated using module relative paths but this is deprecated. Please update 'sonar.coverage.exclusions' " +
-      "configuration so that patterns refer to project relative paths");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
+      "To continue excluding files like 'moduleA/src/sample.xoo' from coverage, update this property so that patterns refer to project-relative paths.");
   }
 
   @Test
