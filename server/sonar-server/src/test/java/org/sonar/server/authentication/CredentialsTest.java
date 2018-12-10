@@ -22,22 +22,39 @@ package org.sonar.server.authentication;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class CredentialsTest {
 
   @Test
-  public void password_can_be_empty_but_not_null() {
+  public void login_cant_be_empty() {
+    Throwable thrown = catchThrowable(() -> new Credentials("", "bar"));
+    assertThat(thrown)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("login must not be null nor empty");
+
+    thrown = catchThrowable(() -> new Credentials(null, "bar"));
+    assertThat(thrown)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("login must not be null nor empty");
+
+    Credentials underTest = new Credentials("foo", "bar");
+    assertThat(underTest.getLogin()).isEqualTo("foo");
+  }
+
+  @Test
+  public void password_cant_be_empty_string() {
     Credentials underTest = new Credentials("foo", "");
-    assertThat(underTest.getPassword()).isEqualTo("");
+    assertThat(underTest.getPassword()).isEmpty();
 
     underTest = new Credentials("foo", null);
-    assertThat(underTest.getPassword()).isEqualTo("");
+    assertThat(underTest.getPassword()).isEmpty();
 
     underTest = new Credentials("foo", "   ");
-    assertThat(underTest.getPassword()).isEqualTo("   ");
+    assertThat(underTest.getPassword()).hasValue("   ");
 
     underTest = new Credentials("foo", "bar");
-    assertThat(underTest.getPassword()).isEqualTo("bar");
+    assertThat(underTest.getPassword()).hasValue("bar");
   }
 
   @Test

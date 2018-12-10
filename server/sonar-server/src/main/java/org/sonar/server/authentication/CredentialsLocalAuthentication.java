@@ -21,6 +21,7 @@
 package org.sonar.server.authentication;
 
 import java.security.SecureRandom;
+import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.db.DbClient;
@@ -55,7 +56,7 @@ public class CredentialsLocalAuthentication {
    * If the password must be updated because an old algorithm is used, the UserDto is updated but the session
    * is not committed
    */
-  public void authenticate(DbSession session, UserDto user, String password, Method method) {
+  public void authenticate(DbSession session, UserDto user, @Nullable String password, Method method) {
     if (user.getHashMethod() == null) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(method))

@@ -94,13 +94,12 @@ public class BasicAuthentication {
   }
 
   private UserDto authenticate(Credentials credentials, HttpServletRequest request) {
-    if (credentials.getPassword().isEmpty()) {
+    if (!credentials.getPassword().isPresent()) {
       UserDto userDto = authenticateFromUserToken(credentials.getLogin());
       authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
       return userDto;
-    } else {
-      return credentialsAuthentication.authenticate(credentials, request, Method.BASIC);
     }
+    return credentialsAuthentication.authenticate(credentials, request, Method.BASIC);
   }
 
   private UserDto authenticateFromUserToken(String token) {

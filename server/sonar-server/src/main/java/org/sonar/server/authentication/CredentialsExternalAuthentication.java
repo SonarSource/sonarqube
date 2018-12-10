@@ -67,7 +67,7 @@ public class CredentialsExternalAuthentication implements Startable {
   private ExternalGroupsProvider externalGroupsProvider;
 
   public CredentialsExternalAuthentication(Configuration config, SecurityRealmFactory securityRealmFactory,
-                                           UserRegistrar userRegistrar, AuthenticationEvent authenticationEvent) {
+    UserRegistrar userRegistrar, AuthenticationEvent authenticationEvent) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.userRegistrar = userRegistrar;
@@ -102,7 +102,7 @@ public class CredentialsExternalAuthentication implements Startable {
           .setMessage("No user details")
           .build();
       }
-      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword(), request);
+      Authenticator.Context authenticatorContext = new Authenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request);
       boolean status = authenticator.doAuthenticate(authenticatorContext);
       if (!status) {
         throw AuthenticationException.newBuilder()
@@ -155,7 +155,7 @@ public class CredentialsExternalAuthentication implements Startable {
 
   private Credentials fixCase(Credentials credentials) {
     if (config.getBoolean("sonar.authenticator.downcase").orElse(false)) {
-      return new Credentials(credentials.getLogin().toLowerCase(Locale.ENGLISH), credentials.getPassword());
+      return new Credentials(credentials.getLogin().toLowerCase(Locale.ENGLISH), credentials.getPassword().orElse(null));
     }
     return credentials;
   }

@@ -20,9 +20,12 @@
 package org.sonar.server.authentication;
 
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.StringUtils;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 @Immutable
 public class Credentials {
@@ -31,8 +34,9 @@ public class Credentials {
   private final String password;
 
   public Credentials(String login, @Nullable String password) {
-    this.login = Objects.requireNonNull(login, "login must not be null");
-    this.password = StringUtils.defaultString(password, "");
+    checkArgument(login != null && !login.isEmpty(), "login must not be null nor empty");
+    this.login = login;
+    this.password = defaultIfEmpty(password, null);
   }
 
   /**
@@ -43,10 +47,11 @@ public class Credentials {
   }
 
   /**
-   * Non-null password. Can be empty.
+   * Non-empty password. {@code Optional.empty()} is returned if the password is not set
+   * or initially empty. {@code Optional.of("")} is never returned.
    */
-  public String getPassword() {
-    return password;
+  public Optional<String> getPassword() {
+    return Optional.ofNullable(password);
   }
 
   @Override

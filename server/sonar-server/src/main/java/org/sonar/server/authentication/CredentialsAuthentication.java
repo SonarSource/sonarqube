@@ -58,7 +58,7 @@ public class CredentialsAuthentication {
   private UserDto authenticate(DbSession dbSession, Credentials credentials, HttpServletRequest request, Method method) {
     UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, credentials.getLogin());
     if (localUser != null && localUser.isLocal()) {
-      localAuthentication.authenticate(dbSession, localUser, credentials.getPassword(), method);
+      localAuthentication.authenticate(dbSession, localUser, credentials.getPassword().orElse(null), method);
       dbSession.commit();
       authenticationEvent.loginSuccess(request, localUser.getLogin(), Source.local(method));
       return localUser;
