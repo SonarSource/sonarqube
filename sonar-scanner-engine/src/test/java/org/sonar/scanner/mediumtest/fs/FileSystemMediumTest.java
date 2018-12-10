@@ -575,8 +575,8 @@ public class FileSystemMediumTest {
     assertThat(fileB).isNull();
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("File 'moduleA/src/sample.xoo' was excluded because patterns are still evaluated using module relative paths but this is deprecated. " +
-      "Please update file inclusion/exclusion configuration so that patterns refer to project relative paths.");
+      .contains("Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
+        "To continue excluding files like 'moduleA/src/sample.xoo' from the analysis, update this property so that patterns refer to project-relative paths.");
   }
 
   @Test

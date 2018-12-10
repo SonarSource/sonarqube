@@ -108,8 +108,9 @@ public class FileIndexer {
     }
     if (!moduleExclusionFilters.accept(realAbsoluteFile, moduleRelativePath, type)) {
       if (projectExclusionFilters.equals(moduleExclusionFilters)) {
-        warnOnceDeprecatedExclusion("File '" + projectRelativePath + "' was excluded because patterns are still evaluated using module relative paths but this is deprecated. " +
-          "Please update file inclusion/exclusion configuration so that patterns refer to project relative paths.");
+        warnOnceDeprecatedExclusion(
+          "Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
+            "To continue excluding files like '" + projectRelativePath + "' from the analysis, update this property so that patterns refer to project-relative paths.");
       }
       excludedByPatternsCount.incrementAndGet();
       return;
