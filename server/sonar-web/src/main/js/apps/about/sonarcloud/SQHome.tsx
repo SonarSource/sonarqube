@@ -260,6 +260,9 @@ function Languages() {
       </ul>
       <ul className="sc-languages-list">
         <li>
+          <img alt="Apex" src={`${getBaseUrl()}/images/languages/apex.svg`} width="54" />
+        </li>
+        <li>
           <img
             alt="Objective-C"
             height="60"
