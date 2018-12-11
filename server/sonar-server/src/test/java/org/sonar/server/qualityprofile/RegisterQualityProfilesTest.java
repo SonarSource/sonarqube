@@ -31,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -140,16 +141,20 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void update_default_built_in_quality_profile() {
+    String orgUuid = UuidFactoryFast.getInstance().create();
+
     RulesProfileDto ruleProfileWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Sonar way").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileWithOneRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Sonar way 2").setLanguage(FOO_LANGUAGE.getKey()));
 
     QProfileDto qProfileWithoutRule = newQualityProfileDto()
       .setIsBuiltIn(true)
       .setLanguage(FOO_LANGUAGE.getKey())
+      .setOrganizationUuid(orgUuid)
       .setRulesProfileUuid(ruleProfileWithoutRule.getKee());
     QProfileDto qProfileWithOneRule = newQualityProfileDto()
       .setIsBuiltIn(true)
       .setLanguage(FOO_LANGUAGE.getKey())
+      .setOrganizationUuid(orgUuid)
       .setRulesProfileUuid(ruleProfileWithOneRule.getKee());
 
     db.qualityProfiles().insert(qProfileWithoutRule, qProfileWithOneRule);
@@ -169,15 +174,15 @@ public class RegisterQualityProfilesTest {
       format("Default built-in quality profile for language [foo] has been updated from [%s] to [%s] since previous default does not have active rules.",
         qProfileWithoutRule.getName(), qProfileWithOneRule.getName()));
 
-    assertThat(selectUuidOfDefaultProfile(db.getDefaultOrganization(), FOO_LANGUAGE.getKey()))
+    assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey()))
       .isPresent().get()
       .isEqualTo(qProfileWithOneRule.getKee());
   }
 
-  private Optional<String> selectUuidOfDefaultProfile(OrganizationDto org, String language) {
+  private Optional<String> selectUuidOfDefaultProfile(String language) {
     return db.select("select qprofile_uuid as \"profileUuid\" " +
       " from default_qprofiles " +
-      " where language='" + language + "'") // organization_uuid='" + org.getUuid() + "' and
+      " where language='" + language + "'")
       .stream()
       .findFirst()
       .map(m -> (String) m.get("profileUuid"));

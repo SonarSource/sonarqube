@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -75,7 +76,7 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectBuiltInRuleProfiles();
   }
 
-  public List<QProfileDto> selectBuiltInRuleProfilesWithActiveRules(DbSession dbSession) {
+  public List<RulesProfileDto> selectBuiltInRuleProfilesWithActiveRules(DbSession dbSession) {
     return mapper(dbSession).selectBuiltInRuleProfilesWithActiveRules();
   }
 
@@ -135,8 +136,8 @@ public class QualityProfileDao implements Dao {
     return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultProfiles(organization.getUuid(), partition));
   }
 
-  public List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(DbSession dbSession) {
-    return mapper(dbSession).selectDefaultBuiltInProfilesWithoutActiveRules();
+  public List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(DbSession dbSession, Set<String> languages) {
+    return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultBuiltInProfilesWithoutActiveRules(partition));
   }
 
   @CheckForNull
@@ -178,6 +179,11 @@ public class QualityProfileDao implements Dao {
   @CheckForNull
   public QProfileDto selectByNameAndLanguage(DbSession dbSession, OrganizationDto organization, String name, String language) {
     return mapper(dbSession).selectByNameAndLanguage(organization.getUuid(), name, language);
+  }
+
+  @CheckForNull
+  public QProfileDto selectByRuleProfileUuid(DbSession dbSession, String organizationUuid, String ruleProfileKee) {
+    return mapper(dbSession).selectByRuleProfileUuid(organizationUuid, ruleProfileKee);
   }
 
   public List<QProfileDto> selectByNameAndLanguages(DbSession dbSession, OrganizationDto organization, String name, Collection<String> languages) {

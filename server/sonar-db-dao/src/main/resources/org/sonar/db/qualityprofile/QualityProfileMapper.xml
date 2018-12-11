@@ -138,6 +138,22 @@
       and oqp.organization_uuid = dp.organization_uuid
   </select>
 
+  <select id="selectDefaultBuiltInProfilesWithoutActiveRules" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    SELECT
+    <include refid="qProfileColumns"/>
+    FROM org_qprofiles oqp
+    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.kee
+    INNER JOIN default_qprofiles dp ON dp.qprofile_uuid = oqp.uuid
+    WHERE
+      rp.is_built_in = ${_true}
+      AND rp.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      AND NOT EXISTS (
+        SELECT 1 FROM active_rules ar
+        INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
+        WHERE profile_id=rp.id
+      )
+  </select>
+
   <select id="selectDefaultProfiles" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>
@@ -151,29 +167,11 @@
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectBuiltInRuleProfilesWithActiveRules" resultType="org.sonar.db.qualityprofile.QProfileDto">
-    SELECT
-      <include refid="qProfileColumns"/>
-    FROM org_qprofiles oqp
-    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.kee
-    WHERE
-      rp.is_built_in = ${_true}
+  <select id="selectBuiltInRuleProfilesWithActiveRules" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
+    select <include refid="ruleProfileColumns"/>
+    from rules_profiles rp
+    where rp.is_built_in = ${_true}
       AND EXISTS (
-        SELECT 1 FROM active_rules ar
-        INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
-        WHERE profile_id=rp.id
-      )
-  </select>
-
-  <select id="selectDefaultBuiltInProfilesWithoutActiveRules" resultType="org.sonar.db.qualityprofile.QProfileDto">
-    SELECT
-      <include refid="qProfileColumns"/>
-    FROM org_qprofiles oqp
-    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.kee
-    INNER JOIN default_qprofiles dp ON dp.qprofile_uuid = oqp.uuid
-    WHERE
-      rp.is_built_in = ${_true}
-      AND NOT EXISTS (
         SELECT 1 FROM active_rules ar
         INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
         WHERE profile_id=rp.id
@@ -189,6 +187,16 @@
       rp.name = #{name, jdbcType=VARCHAR}
       and rp.language = #{language, jdbcType=VARCHAR}
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByRuleProfileUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where
+    rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
+    and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
     
   <select id="selectByNameAndLanguages" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">

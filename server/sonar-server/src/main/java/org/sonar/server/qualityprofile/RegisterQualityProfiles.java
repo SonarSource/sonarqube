@@ -153,20 +153,25 @@ public class RegisterQualityProfiles {
    * @see <a href="https://jira.sonarsource.com/browse/SONAR-10363">SONAR-10363</a>
    */
   private void ensureBuiltInDefaultQPContainsRules(DbSession dbSession) {
-    Map<String, QProfileDto> qProfileByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfilesWithActiveRules(dbSession).stream()
-      .collect(toMap(QProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
+    Map<String, RulesProfileDto> rulesProfilesByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfilesWithActiveRules(dbSession).stream()
+      .collect(toMap(RulesProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
 
-    dbClient.qualityProfileDao().selectDefaultBuiltInProfilesWithoutActiveRules(dbSession)
+    dbClient.qualityProfileDao().selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, rulesProfilesByLanguage.keySet())
       .forEach(qp -> {
-        QProfileDto qProfileDto = qProfileByLanguage.get(qp.getLanguage());
-        if (qProfileDto == null) {
+        RulesProfileDto rulesProfile = rulesProfilesByLanguage.get(qp.getLanguage());
+        if (rulesProfile == null) {
+          return;
+        }
+
+        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, qp.getOrganizationUuid(), rulesProfile.getKee());
+        if (qualityProfile == null) {
           return;
         }
 
         Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, qp.getOrganizationUuid(), Collections.singleton(qp.getKee()));
         dbClient.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
         dbClient.defaultQProfileDao().insertOrUpdate(dbSession, new DefaultQProfileDto()
-          .setQProfileUuid(qProfileDto.getKee())
+          .setQProfileUuid(qualityProfile.getKee())
           .setLanguage(qp.getLanguage())
           .setOrganizationUuid(qp.getOrganizationUuid())
         );
@@ -174,7 +179,7 @@ public class RegisterQualityProfiles {
         LOGGER.info("Default built-in quality profile for language [{}] has been updated from [{}] to [{}] since previous default does not have active rules.",
           qp.getLanguage(),
           qp.getName(),
-          qProfileDto.getName());
+          rulesProfile.getName());
       });
 
     dbSession.commit();

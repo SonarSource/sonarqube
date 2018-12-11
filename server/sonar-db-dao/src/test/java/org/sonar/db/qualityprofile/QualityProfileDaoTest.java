@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -498,9 +499,64 @@ public class QualityProfileDaoTest {
 
     dbSession.commit();
 
-    List<QProfileDto> qProfileDtos = underTest.selectBuiltInRuleProfilesWithActiveRules(dbSession);
-    assertThat(qProfileDtos).extracting(QProfileDto::getName)
+    List<RulesProfileDto> rulesProfileDtos = underTest.selectBuiltInRuleProfilesWithActiveRules(dbSession);
+    assertThat(rulesProfileDtos).extracting(RulesProfileDto::getName)
       .containsOnly(builtInQPWithActiveRules.getName());
+  }
+
+  @Test
+  public void selectByRuleProfileUuid() {
+    db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(false));
+    db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true));
+    QProfileDto qprofile1 = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true));
+
+    dbSession.commit();
+
+    assertThat(underTest.selectByRuleProfileUuid(dbSession, db.getDefaultOrganization().getUuid(), qprofile1.getRulesProfileUuid()))
+      .extracting(QProfileDto::getName)
+      .containsOnly(qprofile1.getName());
+
+    assertThat(underTest.selectByRuleProfileUuid(dbSession, "A", qprofile1.getRulesProfileUuid()))
+      .isNull();
+
+    assertThat(underTest.selectByRuleProfileUuid(dbSession, db.getDefaultOrganization().getUuid(), "A"))
+      .isNull();
+  }
+
+
+  @Test
+  public void selectDefaultBuiltInProfilesWithoutActiveRules() {
+    // a quality profile without active rules but not builtin
+    db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(false).setLanguage("java"));
+
+    // a built-in quality profile without active rules
+    QProfileDto javaQPWithoutActiveRules = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true).setLanguage("java"));
+    db.qualityProfiles().setAsDefault(javaQPWithoutActiveRules);
+
+    // a built-in quality profile without active rules
+    QProfileDto cppQPWithoutActiveRules = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true).setLanguage("cpp"));
+    db.qualityProfiles().setAsDefault(cppQPWithoutActiveRules);
+
+    // a built-in quality profile with active rules
+    QProfileDto builtInQPWithActiveRules = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setIsBuiltIn(true).setLanguage("java"));
+    RuleDefinitionDto ruleDefinitionDto = db.rules().insert();
+    db.qualityProfiles().activateRule(builtInQPWithActiveRules, ruleDefinitionDto);
+
+    dbSession.commit();
+
+    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java", "cpp")))
+      .extracting(QProfileDto::getName)
+      .containsOnly(javaQPWithoutActiveRules.getName(), cppQPWithoutActiveRules.getName());
+
+    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java")))
+      .extracting(QProfileDto::getName)
+      .containsOnly(javaQPWithoutActiveRules.getName());
+
+    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet("cobol")))
+      .isEmpty();
+
+    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet()))
+      .isEmpty();
   }
 
   @Test
