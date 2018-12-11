@@ -43,7 +43,7 @@ export default function MeasureHeader(props: Props) {
   const { branchLike, component, leakPeriod, measureValue, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
   const hasHistory =
-    component.qualifier !== 'FIL' && component.qualifier !== 'UTS' && hasFullMeasures(branchLike);
+    ['VW', 'SVW', 'APP', 'TRK'].includes(component.qualifier) && hasFullMeasures(branchLike);
   const displayLeak = hasFullMeasures(branchLike);
   return (
     <div className="measure-details-header big-spacer-bottom">
