@@ -5,7 +5,7 @@ exports[`should expand and collapse link 1`] = `
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
-    rel="nofollow"
+    rel="nofollow noreferrer noopener"
     target="_blank"
   >
     <ProjectLinkIcon
@@ -22,7 +22,7 @@ exports[`should expand and collapse link 2`] = `
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
-    rel="nofollow"
+    rel="nofollow noreferrer noopener"
     target="_blank"
   >
     <ProjectLinkIcon
@@ -39,7 +39,7 @@ exports[`should expand and collapse link 3`] = `
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
-    rel="nofollow"
+    rel="nofollow noreferrer noopener"
     target="_blank"
   >
     <ProjectLinkIcon
@@ -56,7 +56,7 @@ exports[`should match snapshot 1`] = `
   <a
     className="link-with-icon"
     href="http://example.com"
-    rel="nofollow"
+    rel="nofollow noreferrer noopener"
     target="_blank"
   >
     <ProjectLinkIcon
@@ -64,6 +64,24 @@ exports[`should match snapshot 1`] = `
       type="foo"
     />
     Foo
+  </a>
+</li>
+`;
+
+exports[`should render dangerous links as plaintext 1`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="javascript:alert(\\"hi\\")"
+    onClick={[Function]}
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+  >
+    <ProjectLinkIcon
+      className="little-spacer-right"
+      type="dangerous"
+    />
+    Dangerous
   </a>
 </li>
 `;

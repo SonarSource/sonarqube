@@ -23,6 +23,7 @@ import ConfirmButton from '../../components/controls/ConfirmButton';
 import ProjectLinkIcon from '../../components/icons-components/ProjectLinkIcon';
 import { Button } from '../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import isValidUri from '../../app/utils/isValidUri';
 
 interface Props {
   link: T.ProjectLink;
@@ -90,9 +91,13 @@ export default class LinkRow extends React.PureComponent<Props> {
       <tr data-name={link.name}>
         <td className="nowrap">{this.renderName(link)}</td>
         <td className="nowrap js-url">
-          <a href={link.url} rel="nofollow" target="_blank">
-            {link.url}
-          </a>
+          {isValidUri(link.url) ? (
+            <a href={link.url} rel="nofollow noreferrer noopener" target="_blank">
+              {link.url}
+            </a>
+          ) : (
+            link.url
+          )}
         </td>
         <td className="thin nowrap">{this.renderDeleteButton(link)}</td>
       </tr>

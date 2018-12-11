@@ -470,6 +470,23 @@
   background-color: transparent !important;
 }
 
+.copy-paste-link .overview-key {
+  width: 90%;
+}
+
+.copy-paste-link .close {
+  color: black;
+  border-bottom: 0;
+  height: 100%;
+  display: inline-block;
+  margin-left: 5px;
+  box-sizing: border-box;
+}
+
+.copy-paste-link .close svg {
+  vertical-align: sub;
+}
+
 .overview-deleted-profile,
 .overview-deprecated-rules {
   margin: 4px -6px 4px;

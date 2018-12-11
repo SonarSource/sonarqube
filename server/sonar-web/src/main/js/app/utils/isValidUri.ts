@@ -17,39 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import LinkRow from '../LinkRow';
+import { isWebUri } from 'valid-url';
 
-it('should render provided link', () => {
-  expect(
-    shallow(
-      <LinkRow
-        link={{ id: '12', type: 'homepage', url: 'http://example.com' }}
-        onDelete={jest.fn()}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('should render custom link', () => {
-  expect(
-    shallow(
-      <LinkRow
-        link={{ id: '12', name: 'foo', type: 'foo', url: 'http://example.com' }}
-        onDelete={jest.fn()}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('should render dangerous code as plain text', () => {
-  expect(
-    shallow(
-      <LinkRow
-        link={{ id: '12', name: 'dangerous', type: 'dangerous', url: 'javascript:alert("Hello")' }}
-        onDelete={jest.fn()}
-      />
-    )
-  ).toMatchSnapshot();
-});
+export default function(url: string): boolean {
+  return /^(\/|scm:)/.test(url) || !!isWebUri(url);
+}

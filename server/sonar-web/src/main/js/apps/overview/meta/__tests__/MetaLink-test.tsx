@@ -33,6 +33,17 @@ it('should match snapshot', () => {
   expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
 });
 
+it('should render dangerous links as plaintext', () => {
+  const link = {
+    id: '1',
+    name: 'Dangerous',
+    url: 'javascript:alert("hi")',
+    type: 'dangerous'
+  };
+
+  expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
+});
+
 it('should expand and collapse link', () => {
   const link = {
     id: '1',

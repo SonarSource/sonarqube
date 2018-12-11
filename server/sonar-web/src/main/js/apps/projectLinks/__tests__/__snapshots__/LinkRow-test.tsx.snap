@@ -28,7 +28,7 @@ exports[`should render custom link 1`] = `
   >
     <a
       href="http://example.com"
-      rel="nofollow"
+      rel="nofollow noreferrer noopener"
       target="_blank"
     >
       http://example.com
@@ -42,6 +42,51 @@ exports[`should render custom link 1`] = `
       confirmData="12"
       isDestructive={true}
       modalBody="project_links.are_you_sure_to_delete_x_link.foo"
+      modalHeader="project_links.delete_project_link"
+      onConfirm={[MockFunction]}
+    >
+      <Component />
+    </ConfirmButton>
+  </td>
+</tr>
+`;
+
+exports[`should render dangerous code as plain text 1`] = `
+<tr
+  data-name="dangerous"
+>
+  <td
+    className="nowrap"
+  >
+    <div>
+      <ProjectLinkIcon
+        className="little-spacer-right"
+        type="dangerous"
+      />
+      <div
+        className="display-inline-block text-top"
+      >
+        <span
+          className="js-name"
+        >
+          dangerous
+        </span>
+      </div>
+    </div>
+  </td>
+  <td
+    className="nowrap js-url"
+  >
+    javascript:alert("Hello")
+  </td>
+  <td
+    className="thin nowrap"
+  >
+    <ConfirmButton
+      confirmButtonText="delete"
+      confirmData="12"
+      isDestructive={true}
+      modalBody="project_links.are_you_sure_to_delete_x_link.dangerous"
       modalHeader="project_links.delete_project_link"
       onConfirm={[MockFunction]}
     >
@@ -88,7 +133,7 @@ exports[`should render provided link 1`] = `
   >
     <a
       href="http://example.com"
-      rel="nofollow"
+      rel="nofollow noreferrer noopener"
       target="_blank"
     >
       http://example.com
