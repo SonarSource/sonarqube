@@ -106,7 +106,7 @@ public class UpdateVisibilityActionTest {
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(dbTester), billingValidations);
-  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, projectIndexers, wsSupport, permissionService);
+  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, projectIndexers, wsSupport);
   private WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();

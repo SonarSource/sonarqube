@@ -37,7 +37,6 @@ import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
@@ -58,16 +57,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
   private final ProjectsWsSupport projectsWsSupport;
-  private final PermissionService permissionService;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport, PermissionService permissionService) {
+    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
     this.projectsWsSupport = projectsWsSupport;
-    this.permissionService = permissionService;
   }
 
   public void define(WebService.NewController context) {

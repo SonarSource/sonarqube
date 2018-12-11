@@ -22,12 +22,14 @@ package org.sonar.server.authentication;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ServerSide;
-import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
 public interface RequestAuthenticator {
 
-  UserSession authenticate(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException;
+  /**
+   * @throws org.sonar.server.authentication.event.AuthenticationException if user is not authenticated
+   */
+  UserSession authenticate(HttpServletRequest request, HttpServletResponse response);
 
 }

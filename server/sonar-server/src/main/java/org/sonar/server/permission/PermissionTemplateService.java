@@ -60,15 +60,13 @@ public class PermissionTemplateService {
   private final ProjectIndexers projectIndexers;
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
-  private final PermissionService permissionService;
 
   public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
-    DefaultTemplatesResolver defaultTemplatesResolver, PermissionService permissionService) {
+    DefaultTemplatesResolver defaultTemplatesResolver) {
     this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
-    this.permissionService = permissionService;
   }
 
   public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession,
@@ -170,7 +168,7 @@ public class PermissionTemplateService {
     }
   }
 
-  private boolean permissionValidForProject(ComponentDto project, String permission) {
+  private static boolean permissionValidForProject(ComponentDto project, String permission) {
     return project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission);
   }
 

@@ -34,6 +34,11 @@ import java.util.Set;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface UserRole {
+  /**
+   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
+   * @since 7.5
+   */
+  Set<String> PUBLIC_PERMISSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(UserRole.USER, UserRole.CODEVIEWER)));
 
   /**
    * @deprecated use the constant USER since 1.12.
@@ -57,11 +62,5 @@ public @interface UserRole {
   String SCAN = "scan";
 
   String[] value() default {};
-
-  /**
-   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
-   * @since 7.5
-   */
-  Set<String> PUBLIC_PERMISSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(UserRole.USER, UserRole.CODEVIEWER)));
 
 }

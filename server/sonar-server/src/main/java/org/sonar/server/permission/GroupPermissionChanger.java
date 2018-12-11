@@ -55,18 +55,18 @@ public class GroupPermissionChanger {
     }
   }
 
-  private boolean isImplicitlyAlreadyDone(GroupPermissionChange change) {
+  private static boolean isImplicitlyAlreadyDone(GroupPermissionChange change) {
     return change.getProjectId()
       .map(projectId -> isImplicitlyAlreadyDone(projectId, change))
       .orElse(false);
   }
 
-  private boolean isImplicitlyAlreadyDone(ProjectId projectId, GroupPermissionChange change) {
+  private static boolean isImplicitlyAlreadyDone(ProjectId projectId, GroupPermissionChange change) {
     return isAttemptToAddPublicPermissionToPublicComponent(change, projectId)
       || isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(change, projectId);
   }
 
-  private boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectId projectId) {
+  private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectId projectId) {
     return !projectId.isPrivate()
       && change.getOperation() == ADD
       && PUBLIC_PERMISSIONS.contains(change.getPermission());
@@ -78,7 +78,7 @@ public class GroupPermissionChanger {
       && change.getGroupIdOrAnyone().isAnyone();
   }
 
-  private void ensureConsistencyWithVisibility(GroupPermissionChange change) {
+  private static void ensureConsistencyWithVisibility(GroupPermissionChange change) {
     change.getProjectId()
       .ifPresent(projectId -> {
         checkRequest(
@@ -96,7 +96,7 @@ public class GroupPermissionChanger {
       && change.getGroupIdOrAnyone().isAnyone();
   }
 
-  private boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectId projectId) {
+  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectId projectId) {
     return !projectId.isPrivate()
       && change.getOperation() == REMOVE
       && PUBLIC_PERMISSIONS.contains(change.getPermission());

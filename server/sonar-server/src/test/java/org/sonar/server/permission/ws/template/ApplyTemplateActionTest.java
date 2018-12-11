@@ -24,11 +24,8 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -37,8 +34,6 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
@@ -63,11 +58,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-     new TestProjectIndexers(), userSession, defaultTemplatesResolver, permissionService);
+     new TestProjectIndexers(), userSession, defaultTemplatesResolver);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
@@ -104,7 +96,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void apply_template_with_project_uuid() throws Exception {
+  public void apply_template_with_project_uuid() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(template1.getUuid(), project.uuid(), null);
@@ -125,7 +117,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void apply_template_with_project_key() throws Exception {
+  public void apply_template_with_project_key() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(template1.getUuid(), null, project.getDbKey());
@@ -134,7 +126,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_unknown_template() throws Exception {
+  public void fail_when_unknown_template() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -144,7 +136,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_unknown_project_uuid() throws Exception {
+  public void fail_when_unknown_project_uuid() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -154,7 +146,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_unknown_project_key() throws Exception {
+  public void fail_when_unknown_project_key() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -164,7 +156,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_template_is_not_provided() throws Exception {
+  public void fail_when_template_is_not_provided() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -173,7 +165,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_project_uuid_and_key_not_provided() throws Exception {
+  public void fail_when_project_uuid_and_key_not_provided() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -183,7 +175,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_not_admin_of_organization() throws Exception {
+  public void fail_when_not_admin_of_organization() {
     userSession.logIn().addPermission(ADMINISTER, "otherOrg");
 
     expectedException.expect(ForbiddenException.class);

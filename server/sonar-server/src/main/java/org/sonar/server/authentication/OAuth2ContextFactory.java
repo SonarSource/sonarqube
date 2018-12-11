@@ -49,7 +49,7 @@ public class OAuth2ContextFactory {
   private final OAuth2AuthenticationParameters oAuthParameters;
 
   public OAuth2ContextFactory(ThreadLocalUserSession threadLocalUserSession, UserRegistrar userRegistrar, Server server,
-                              OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2AuthenticationParameters oAuthParameters) {
+    OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2AuthenticationParameters oAuthParameters) {
     this.threadLocalUserSession = threadLocalUserSession;
     this.userRegistrar = userRegistrar;
     this.server = server;

@@ -66,7 +66,7 @@ public class PermissionTemplateServiceTest {
   private DbSession session = dbTester.getSession();
   private ProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver, permissionService);
+  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver);
 
   @Test
   public void apply_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
