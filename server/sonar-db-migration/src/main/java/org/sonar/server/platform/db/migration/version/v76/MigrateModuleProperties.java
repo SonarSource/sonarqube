@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v76;
 
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
@@ -57,7 +57,7 @@ public class MigrateModuleProperties extends DataChange {
       "from properties prop " +
       "left join projects mod on mod.id = prop.resource_id " +
       "left join projects root on root.uuid = mod.project_uuid " +
-      "where mod.qualifier = 'BRC'" +
+      "where mod.qualifier = 'BRC' and prop.user_id is null " +
       "order by root.uuid, mod.uuid, prop.prop_key")
       .scroll(row -> {
         String propertyKey = row.getString(1);
@@ -85,8 +85,13 @@ public class MigrateModuleProperties extends DataChange {
           currentModuleUuid.set(moduleUuid);
         }
 
-        Optional.ofNullable(Optional.ofNullable(propertyTextValue).orElse(propertyClobValue))
-          .ifPresent(value -> builder.append(propertyKey).append("=").append(value).append("\n"));
+        builder.append(propertyKey).append("=");
+        if (StringUtils.isNotBlank(propertyTextValue)) {
+          builder.append(propertyTextValue);
+        } else if (StringUtils.isNotBlank(propertyClobValue)) {
+          builder.append(propertyClobValue);
+        }
+        builder.append("\n");
       });
 
     if (builder.length() > 0) {

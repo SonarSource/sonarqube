@@ -71,8 +71,8 @@ public class MigrateModulePropertiesTest {
   public void single_module_project_migration() throws SQLException {
     String project2Uuid = uuidFactory.create();
     insertComponent(5, project2Uuid, null, project2Uuid, Qualifiers.PROJECT, "Single module project");
-    insertProperty(9, 5, "sonar.coverage.exclusions", "SingleModuleA.java");
-    insertProperty(10, 5, "sonar.cp.exclusions", "SingleModuleB.java");
+    insertProperty(9, 5, "sonar.coverage.exclusions", "SingleModuleA.java", null);
+    insertProperty(10, 5, "sonar.cp.exclusions", "SingleModuleB.java", null);
 
     underTest.execute();
 
@@ -112,14 +112,15 @@ public class MigrateModulePropertiesTest {
       "NAME", name);
   }
 
-  private void insertProperty(long id, long componentId, String key, String value) {
+  private void insertProperty(long id, long componentId, String key, String value, Long userId) {
     db.executeInsert(
       "properties",
       "ID", valueOf(id),
       "RESOURCE_ID", componentId,
       "PROP_KEY", key,
       "TEXT_VALUE", value,
-      "IS_EMPTY", false);
+      "IS_EMPTY", false,
+      "USER_ID", userId);
   }
 
   private void setupMultiModuleProject() {
@@ -127,18 +128,26 @@ public class MigrateModulePropertiesTest {
     String moduleUuid = uuidFactory.create();
     String subModule1Uuid = uuidFactory.create();
     String subModule2Uuid = uuidFactory.create();
+    String subModule3Uuid = uuidFactory.create();
+    String subModule4Uuid = uuidFactory.create();
+    String subModule5Uuid = uuidFactory.create();
     insertComponent(1, projectUuid, null, projectUuid, Qualifiers.PROJECT, "Multi-module project");
     insertComponent(2, moduleUuid, projectUuid, projectUuid, Qualifiers.MODULE, "Module");
     insertComponent(3, subModule1Uuid, moduleUuid, projectUuid, Qualifiers.MODULE, "Submodule 1");
     insertComponent(4, subModule2Uuid, moduleUuid, projectUuid, Qualifiers.MODULE, "Submodule 2");
-    insertProperty(1, 1, "sonar.coverage.exclusions", "Proj1.java");
-    insertProperty(2, 1, "sonar.cpd.exclusions", "Proj2.java");
-    insertProperty(3, 2, "sonar.coverage.exclusions", "ModuleA.java");
-    insertProperty(4, 2, "sonar.cpd.exclusions", "ModuleB.java");
-    insertProperty(5, 3, "sonar.coverage.exclusions", "Module1A.java");
-    insertProperty(6, 3, "sonar.cpd.exclusions", "Moddule1B.java");
-    insertProperty(7, 4, "sonar.coverage.exclusions", "Module2A.java");
-    insertProperty(8, 4, "sonar.cpd.exclusions", "Module2B.java");
+    insertComponent(5, subModule3Uuid, moduleUuid, projectUuid, Qualifiers.MODULE, "Submodule with reset property");
+    insertComponent(6, subModule4Uuid, moduleUuid, projectUuid, Qualifiers.MODULE, "Submodule without properties");
+    insertComponent(7, subModule5Uuid, moduleUuid, projectUuid, Qualifiers.MODULE, "Submodule with user property");
+    insertProperty(1, 1, "sonar.coverage.exclusions", "Proj1.java", null);
+    insertProperty(2, 1, "sonar.cpd.exclusions", "Proj2.java", null);
+    insertProperty(3, 2, "sonar.coverage.exclusions", "ModuleA.java", null);
+    insertProperty(4, 2, "sonar.cpd.exclusions", "ModuleB.java", null);
+    insertProperty(5, 3, "sonar.coverage.exclusions", "Module1A.java", null);
+    insertProperty(6, 3, "sonar.cpd.exclusions", "Moddule1B.java", null);
+    insertProperty(7, 4, "sonar.coverage.exclusions", "Module2A.java", null);
+    insertProperty(8, 4, "sonar.cpd.exclusions", "Module2B.java", null);
+    insertProperty(9, 5, "sonar.coverage.exclusions", null, null);
+    insertProperty(10, 7, "favourite", null, 5L);
   }
 
   private void verifyMultiModuleProjectMigration() {
@@ -152,7 +161,10 @@ public class MigrateModulePropertiesTest {
       "\n" +
       "# Settings from 'Multi-module project::Submodule 2'\n" +
       "sonar.coverage.exclusions=Module2A.java\n" +
-      "sonar.cpd.exclusions=Module2B.java\n";
+      "sonar.cpd.exclusions=Module2B.java\n" +
+      "\n" +
+      "# Settings from 'Multi-module project::Submodule with reset property'\n" +
+      "sonar.coverage.exclusions=\n";
 
     List<Map<String, Object>> properties = db
       .select(String.format("select ID, TEXT_VALUE, CLOB_VALUE from properties where PROP_KEY='%s' and RESOURCE_ID = 1",
@@ -167,10 +179,10 @@ public class MigrateModulePropertiesTest {
   private void setupSecondMultiModuleProject() {
     String project3Uuid = uuidFactory.create();
     String singleModuleUuid = uuidFactory.create();
-    insertComponent(6, project3Uuid, null, project3Uuid, Qualifiers.PROJECT, "Another multi-module project");
-    insertComponent(7, singleModuleUuid, project3Uuid, project3Uuid, Qualifiers.MODULE, "Module X");
-    insertProperty(11, 6, "sonar.coverage.exclusions", "InRoot.java");
-    insertProperty(12, 7, "sonar.coverage.exclusions", "InModule.java");
+    insertComponent(8, project3Uuid, null, project3Uuid, Qualifiers.PROJECT, "Another multi-module project");
+    insertComponent(9, singleModuleUuid, project3Uuid, project3Uuid, Qualifiers.MODULE, "Module X");
+    insertProperty(11, 8, "sonar.coverage.exclusions", "InRoot.java", null);
+    insertProperty(12, 9, "sonar.coverage.exclusions", "InModule.java", null);
   }
 
   private void verifySecondMultiModuleProjectMigration() {
@@ -179,7 +191,7 @@ public class MigrateModulePropertiesTest {
 
     List<Map<String, Object>> properties = db.select(String.format("select ID, TEXT_VALUE, CLOB_VALUE " +
       "from properties " +
-      "where PROP_KEY='%s' and RESOURCE_ID = 6", NEW_PROPERTY_NAME));
+      "where PROP_KEY='%s' and RESOURCE_ID = 8", NEW_PROPERTY_NAME));
 
     assertThat(properties).hasSize(1);
     Map<String, Object> project2Property = properties.get(0);
