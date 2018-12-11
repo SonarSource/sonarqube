@@ -1,14 +1,9 @@
 <dataset>
 
-  <quality_gate_conditions id="1" qgate_id="1" metric_id="2" operator="&lt;" value_warning="10" value_error="20"
-                           period="3"/>
-  <quality_gate_conditions id="2" qgate_id="1" metric_id="3" operator="&lt;" value_warning="10" value_error="20"
-                           period="[null]"/>
-  <quality_gate_conditions id="3" qgate_id="1" metric_id="4" operator="&lt;" value_warning="10" value_error="[null]"
-                           period="1"/>
-  <quality_gate_conditions id="4" qgate_id="2" metric_id="5" operator="&lt;" value_warning="[null]" value_error="20"
-                           period="3"/>
-  <quality_gate_conditions id="5" qgate_id="2" metric_id="6" operator="&lt;" value_warning="[null]" value_error="20"
-                           period="[null]"/>
+  <quality_gate_conditions id="1" qgate_id="1" metric_id="2" operator="&lt;" value_warning="10" value_error="20"/>
+  <quality_gate_conditions id="2" qgate_id="1" metric_id="3" operator="&lt;" value_warning="10" value_error="20"/>
+  <quality_gate_conditions id="3" qgate_id="1" metric_id="4" operator="&lt;" value_warning="10" value_error="[null]"/>
+  <quality_gate_conditions id="4" qgate_id="2" metric_id="5" operator="&lt;" value_warning="[null]" value_error="20"/>
+  <quality_gate_conditions id="5" qgate_id="2" metric_id="6" operator="&lt;" value_warning="[null]" value_error="20"/>
 
 </dataset>

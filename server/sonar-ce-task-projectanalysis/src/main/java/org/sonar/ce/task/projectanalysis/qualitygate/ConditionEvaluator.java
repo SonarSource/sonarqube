@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.of;
@@ -116,7 +115,7 @@ public final class ConditionEvaluator {
 
   @CheckForNull
   private static Comparable parseMeasure(Condition condition, Measure measure) {
-    if (condition.hasPeriod()) {
+    if (condition.useVariation()) {
       return parseMeasureFromVariation(condition, measure);
     }
     switch (measure.getValueType()) {
@@ -142,29 +141,26 @@ public final class ConditionEvaluator {
 
   @CheckForNull
   private static Comparable parseMeasureFromVariation(Condition condition, Measure measure) {
-    Optional<Double> periodValue = getPeriodValue(measure);
-    if (periodValue.isPresent()) {
-      switch (condition.getMetric().getType().getValueType()) {
-        case BOOLEAN:
-          return periodValue.get().intValue() == 1;
-        case INT:
-          return periodValue.get().intValue();
-        case LONG:
-          return periodValue.get().longValue();
-        case DOUBLE:
-          return periodValue.get();
-        case NO_VALUE:
-        case STRING:
-        case LEVEL:
-        default:
-          throw new IllegalArgumentException("Period conditions are not supported for metric type " + condition.getMetric().getType());
-      }
+    if (!measure.hasVariation()) {
+      return null;
     }
-    return null;
-  }
 
-  private static Optional<Double> getPeriodValue(Measure measure) {
-    return measure.hasVariation() ? Optional.of(measure.getVariation()) : Optional.empty();
+    Double variation = measure.getVariation();
+    Metric.MetricType metricType = condition.getMetric().getType();
+    switch (metricType.getValueType()) {
+      case BOOLEAN:
+        return variation.intValue() == 1;
+      case INT:
+        return variation.intValue();
+      case LONG:
+        return variation.longValue();
+      case DOUBLE:
+        return variation;
+      case NO_VALUE:
+      case STRING:
+      case LEVEL:
+      default:
+        throw new IllegalArgumentException("Unsupported metric type " + metricType);
+    }
   }
-
 }

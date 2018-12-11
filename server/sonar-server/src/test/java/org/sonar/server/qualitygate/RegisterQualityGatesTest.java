@@ -61,7 +61,6 @@ public class RegisterQualityGatesTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private static final int LEAK_PERIOD = 1;
   private static final String BUILT_IN_NAME = "Sonar way";
 
   private DbClient dbClient = db.getDbClient();
@@ -108,7 +107,7 @@ public class RegisterQualityGatesTest {
     createBuiltInConditions(builtInQualityGate);
     // Add another condition
     qualityGateConditionsUpdater.createCondition(dbSession, builtInQualityGate,
-      NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, null, "5", LEAK_PERIOD);
+      NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, null, "5");
     dbSession.commit();
 
     underTest.start();
@@ -252,28 +251,28 @@ public class RegisterQualityGatesTest {
     assertThat(qualityGateDto.isBuiltIn()).isTrue();
     assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getId()))
       .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator, QualityGateConditionDto::getWarningThreshold,
-        QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)
+        QualityGateConditionDto::getErrorThreshold)
       .containsOnly(
-        tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
-        tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
-        tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
-        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, null, "80", 1),
-        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, null, "3", 1));
+        tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1"),
+        tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, null, "1"),
+        tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1"),
+        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, null, "80"),
+        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, null, "3"));
   }
 
   private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto qg) {
     List<QualityGateConditionDto> conditions = new ArrayList<>();
 
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
+      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
+      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
+      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80", LEAK_PERIOD));
+      NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3", LEAK_PERIOD));
+      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3"));
 
     return conditions;
   }

@@ -81,7 +81,6 @@ import static java.util.Objects.requireNonNull;
  *               .setMetricKey("metric key")
  *               .setOperator(QualityGate.Operator.GREATER_THAN)
  *               .setErrorThreshold("12")
- *               .setOnLeakPeriod(true)
  *               .build(QualityGate.EvaluationStatus.OK, "value"))
  *           .build())
  *       .execute();
@@ -516,7 +515,6 @@ public class PostProjectAnalysisTaskTester {
     private QualityGate.Operator operator;
     private String errorThreshold;
     private String warningThreshold;
-    private boolean onLeakPeriod;
 
     private ConditionBuilder() {
       // prevents instantiation outside PostProjectAnalysisTaskTester
@@ -542,8 +540,12 @@ public class PostProjectAnalysisTaskTester {
       return this;
     }
 
+    /**
+     * @deprecated in 7.6. This method has no longer any effect.
+     * Conditions "on leak period" were removed. Use "New X" conditions instead.
+     */
+    @Deprecated
     public ConditionBuilder setOnLeakPeriod(boolean onLeakPeriod) {
-      this.onLeakPeriod = onLeakPeriod;
       return this;
     }
 
@@ -575,9 +577,13 @@ public class PostProjectAnalysisTaskTester {
           return warningThreshold;
         }
 
+        /**
+         * @deprecated in 7.6. Conditions "on leak period" were removed. Use "New X" conditions instead.
+         */
+        @Deprecated
         @Override
         public boolean isOnLeakPeriod() {
-          return onLeakPeriod;
+          return false;
         }
 
         @Override
@@ -593,7 +599,6 @@ public class PostProjectAnalysisTaskTester {
             ", operator=" + operator +
             ", errorThreshold='" + errorThreshold + '\'' +
             ", warningThreshold='" + warningThreshold + '\'' +
-            ", onLeakPeriod=" + onLeakPeriod +
             '}';
         }
       };
@@ -630,9 +635,13 @@ public class PostProjectAnalysisTaskTester {
           return warningThreshold;
         }
 
+        /**
+         * @deprecated in 7.6. Conditions "on leak period" were removed. Use "New X" conditions instead.
+         */
+        @Deprecated
         @Override
         public boolean isOnLeakPeriod() {
-          return onLeakPeriod;
+          return false;
         }
 
         @Override
@@ -648,7 +657,6 @@ public class PostProjectAnalysisTaskTester {
             ", operator=" + operator +
             ", errorThreshold='" + errorThreshold + '\'' +
             ", warningThreshold='" + warningThreshold + '\'' +
-            ", onLeakPeriod=" + onLeakPeriod +
             ", value='" + value + '\'' +
             '}';
         }

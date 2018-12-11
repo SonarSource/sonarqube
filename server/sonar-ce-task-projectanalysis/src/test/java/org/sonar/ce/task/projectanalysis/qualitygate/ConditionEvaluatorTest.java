@@ -19,11 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
@@ -53,6 +56,7 @@ import static org.sonar.ce.task.projectanalysis.qualitygate.Condition.Operator.L
 import static org.sonar.ce.task.projectanalysis.qualitygate.Condition.Operator.NOT_EQUALS;
 import static org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultAssert.assertThat;
 
+@RunWith(DataProviderRunner.class)
 public class ConditionEvaluatorTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -241,8 +245,8 @@ public class ConditionEvaluatorTest {
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR);
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.1"), measure)).hasLevel(OK);
 
-    assertThat(underTest.evaluate(new Condition(metric, EQUALS.getDbValue(), "10.3", "10.2", false), measure)).hasLevel(Measure.Level.WARN);
-    assertThat(underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "10.3", "10.2", false), measure)).hasLevel(Measure.Level.ERROR);
+    assertThat(underTest.evaluate(new Condition(metric, EQUALS.getDbValue(), "10.3", "10.2"), measure)).hasLevel(Measure.Level.WARN);
+    assertThat(underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "10.3", "10.2"), measure)).hasLevel(Measure.Level.ERROR);
   }
 
   @Test
@@ -267,21 +271,51 @@ public class ConditionEvaluatorTest {
   }
 
   @Test
-  public void test_condition_on_period() {
-    for (MetricType metricType : ImmutableList.of(FLOAT, INT, WORK_DUR)) {
-      Metric metric = createMetric(metricType);
-      Measure measure = newMeasureBuilder().setVariation(3d).createNoValue();
+  @UseDataProvider("numericNewMetricTypes")
+  public void test_condition_on_numeric_new_metric(MetricType metricType) {
+    Metric metric = createNewMetric(metricType);
+    Measure measure = newMeasureBuilder().setVariation(3d).createNoValue();
 
-      assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, true), measure)).hasLevel(OK);
-    }
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null), measure)).hasLevel(OK);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", null), measure)).hasLevel(ERROR);
   }
 
   @Test
-  public void condition_on_period_without_value_is_OK() {
-    Metric metric = createMetric(FLOAT);
+  @UseDataProvider("numericNewMetricTypes")
+  public void condition_on_new_metric_without_value_is_OK(MetricType metricType) {
+    Metric metric = createNewMetric(metricType);
     Measure measure = newMeasureBuilder().createNoValue();
 
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null, true), measure)).hasLevel(OK).hasValue(null);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3", null), measure)).hasLevel(OK).hasValue(null);
+  }
+
+  @DataProvider
+  public static Object[][] numericNewMetricTypes() {
+    return new Object[][] {
+      {FLOAT},
+      {INT},
+      {WORK_DUR},
+    };
+  }
+
+  @Test
+  @UseDataProvider("unsupportedNewMetricTypes")
+  public void condition_on_new_metric_with_unsupported_type(MetricType metricType) {
+    Metric metric = createNewMetric(metricType);
+    Measure measure = newMeasureBuilder().setVariation(0d).createNoValue();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unsupported metric type " + metricType);
+
+    underTest.evaluate(new Condition(metric, EQUALS.getDbValue(), "3", null), measure);
+  }
+
+  @DataProvider
+  public static Object[][] unsupportedNewMetricTypes() {
+    return new Object[][] {
+      {STRING},
+      {LEVEL},
+    };
   }
 
   @Test
@@ -289,32 +323,19 @@ public class ConditionEvaluatorTest {
     Metric metric = createMetric(RATING);
     Measure measure = newMeasureBuilder().create(4, "D");
 
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4", null, false), measure)).hasLevel(OK).hasValue(4);
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", null, false), measure)).hasLevel(ERROR).hasValue(4);
-  }
-
-  @Test
-  public void test_condition_on_rating_on_leak_period() {
-    Metric metric = createMetric(RATING);
-    Measure measure = newMeasureBuilder().setVariation(4d).createNoValue();
-
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "5", null, true), measure)).hasLevel(OK).hasValue(4);
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", null, true), measure)).hasLevel(ERROR).hasValue(4);
-  }
-
-  @Test
-  public void test_condition_on_rating_on_leak_period_when_variation_is_zero() {
-    Metric metric = createMetric(RATING);
-    Measure measure = newMeasureBuilder().setVariation(0d).createNoValue();
-
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4", null, true), measure)).hasLevel(OK).hasValue(0);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "4", null), measure)).hasLevel(OK).hasValue(4);
+    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2", null), measure)).hasLevel(ERROR).hasValue(4);
   }
 
   private static Condition createErrorCondition(Metric metric, Condition.Operator operator, String errorThreshold) {
-    return new Condition(metric, operator.getDbValue(), errorThreshold, null, false);
+    return new Condition(metric, operator.getDbValue(), errorThreshold, null);
   }
 
   private static MetricImpl createMetric(MetricType metricType) {
     return new MetricImpl(1, "key", "name", metricType);
+  }
+
+  private static MetricImpl createNewMetric(MetricType metricType) {
+    return new MetricImpl(1, "new_key", "name", metricType);
   }
 }

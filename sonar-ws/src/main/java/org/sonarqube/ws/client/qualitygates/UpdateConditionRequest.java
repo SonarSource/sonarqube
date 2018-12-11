@@ -36,7 +36,6 @@ public class UpdateConditionRequest {
   private String metric;
   private String op;
   private String organization;
-  private String period;
   private String warning;
 
   /**
@@ -106,21 +105,6 @@ public class UpdateConditionRequest {
 
   public String getOrganization() {
     return organization;
-  }
-
-  /**
-   * Possible values:
-   * <ul>
-   *   <li>"1"</li>
-   * </ul>
-   */
-  public UpdateConditionRequest setPeriod(String period) {
-    this.period = period;
-    return this;
-  }
-
-  public String getPeriod() {
-    return period;
   }
 
   /**

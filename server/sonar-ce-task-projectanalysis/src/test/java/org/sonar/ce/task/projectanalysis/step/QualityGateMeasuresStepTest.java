@@ -278,7 +278,7 @@ public class QualityGateMeasuresStepTest {
   public void new_measure_has_ERROR_level_of_all_conditions_for_a_specific_metric_if_its_the_worst() {
     int rawValue = 1;
     Condition fixedCondition = createEqualsCondition(INT_METRIC_1, "1", null);
-    Condition periodCondition = createEqualsCondition(INT_METRIC_1, null, "2", true);
+    Condition periodCondition = createEqualsCondition(INT_METRIC_1, null, "2");
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder().create(rawValue, null);
@@ -293,30 +293,10 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void new_measure_has_WARN_level_of_all_conditions_for_a_specific_metric_if_its_the_worst() {
-    int rawValue = 2;
-    Condition fixedCondition = createEqualsCondition(INT_METRIC_1, "1", null);
-    Condition periodCondition = createEqualsCondition(INT_METRIC_1, null, "2", true);
-
-    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
-    Measure measure = newMeasureBuilder()
-      .setVariation(rawValue)
-      .create(rawValue, null);
-    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
-
-    underTest.execute(new TestComputationStepContext());
-
-    Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
-    assertThat(rawMeasure1.get())
-      .hasQualityGateLevel(WARN)
-      .hasQualityGateText(dumbResultTextAnswer(periodCondition, WARN, rawValue));
-  }
-
-  @Test
   public void new_measure_has_condition_on_leak_period_when_all_conditions_on_specific_metric_has_same_QG_level() {
     int rawValue = 1;
     Condition fixedCondition = createEqualsCondition(INT_METRIC_1, "1", null);
-    Condition periodCondition = createEqualsCondition(INT_METRIC_1, "1", null, true);
+    Condition periodCondition = createEqualsCondition(INT_METRIC_1, "1", null);
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder()
@@ -341,11 +321,7 @@ public class QualityGateMeasuresStepTest {
   }
 
   private static Condition createEqualsCondition(Metric metric, @Nullable String errorThreshold, @Nullable String warningThreshold) {
-    return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), errorThreshold, warningThreshold, false);
-  }
-
-  private static Condition createEqualsCondition(Metric metric, @Nullable String errorThreshold, @Nullable String warningThreshold, boolean hasPeriod) {
-    return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), errorThreshold, warningThreshold, hasPeriod);
+    return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), errorThreshold, warningThreshold);
   }
 
   private static MetricImpl createIntMetric(int index) {

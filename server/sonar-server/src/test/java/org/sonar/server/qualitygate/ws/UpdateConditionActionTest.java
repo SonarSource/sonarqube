@@ -51,7 +51,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class UpdateConditionActionTest {
@@ -80,7 +79,7 @@ public class UpdateConditionActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -90,7 +89,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_WARNING, "90")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", null, null);
+    assertCondition(qualityGate, metric, "LT", "90", null);
   }
 
   @Test
@@ -100,7 +99,7 @@ public class UpdateConditionActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -110,28 +109,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ERROR, "90")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", null, "90", null);
-  }
-
-  @Test
-  public void update_condition_over_leak_period() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
-
-    ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_ID, Long.toString(condition.getId()))
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_ERROR, "90")
-      .setParam(PARAM_PERIOD, "1")
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", null, "90", 1);
+    assertCondition(qualityGate, metric, "LT", null, "90");
   }
 
   @Test
@@ -148,7 +126,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_WARNING, "90")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", null, null);
+    assertCondition(qualityGate, metric, "LT", "90", null);
   }
 
   @Test
@@ -158,7 +136,7 @@ public class UpdateConditionActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -169,7 +147,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ERROR, "")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", null, null);
+    assertCondition(qualityGate, metric, "LT", "90", null);
   }
 
   @Test
@@ -179,7 +157,7 @@ public class UpdateConditionActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -190,7 +168,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_WARNING, "")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", null, "90", null);
+    assertCondition(qualityGate, metric, "LT", null, "90");
   }
 
   @Test
@@ -200,7 +178,7 @@ public class UpdateConditionActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
 
     CreateConditionResponse response = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -209,7 +187,6 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_WARNING, "90")
       .setParam(PARAM_ERROR, "45")
-      .setParam(PARAM_PERIOD, "1")
       .executeProtobuf(CreateConditionResponse.class);
 
     assertThat(response.getId()).isEqualTo(condition.getId());
@@ -217,7 +194,6 @@ public class UpdateConditionActionTest {
     assertThat(response.getOp()).isEqualTo("LT");
     assertThat(response.getWarning()).isEqualTo("90");
     assertThat(response.getError()).isEqualTo("45");
-    assertThat(response.getPeriod()).isEqualTo(1);
   }
 
   @Test
@@ -313,7 +289,6 @@ public class UpdateConditionActionTest {
       .containsExactlyInAnyOrder(
         tuple("id", true),
         tuple("metric", true),
-        tuple("period", false),
         tuple("op", false),
         tuple("warning", false),
         tuple("error", false),
@@ -321,15 +296,14 @@ public class UpdateConditionActionTest {
 
   }
 
-  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
+  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
       .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error, period));
+        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error));
   }
 
   private MetricDto insertMetric() {
     return db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
   }
-
 }

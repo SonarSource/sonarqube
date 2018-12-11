@@ -101,23 +101,20 @@ public class LiveQualityGateComputerImplTest {
     MetricDto metric = db.measures().insertMetric();
     QGateWithOrgDto gate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, gate);
-    QualityGateConditionDto leakCondition = db.qualityGates().addCondition(gate, metric, c -> c.setPeriod(1));
-    QualityGateConditionDto absoluteCondition = db.qualityGates().addCondition(gate, metric, c -> c.setPeriod(null));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(gate, metric);
 
     QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, branch);
 
     assertThat(result.getId()).isEqualTo("" + gate.getId());
     assertThat(result.getConditions())
-      .extracting(Condition::getMetricKey, Condition::getOperator, c -> c.getErrorThreshold().get(), c -> c.getWarningThreshold().get(), Condition::isOnLeakPeriod)
+      .extracting(Condition::getMetricKey, Condition::getOperator, c -> c.getErrorThreshold().get(), c -> c.getWarningThreshold().get())
       .containsExactlyInAnyOrder(
-        tuple(metric.getKey(), Condition.Operator.fromDbValue(leakCondition.getOperator()), leakCondition.getErrorThreshold(), leakCondition.getWarningThreshold(), true),
-        tuple(metric.getKey(), Condition.Operator.fromDbValue(absoluteCondition.getOperator()), absoluteCondition.getErrorThreshold(), absoluteCondition.getWarningThreshold(),
-          false));
+        tuple(metric.getKey(), Condition.Operator.fromDbValue(condition.getOperator()), condition.getErrorThreshold(), condition.getWarningThreshold()));
   }
 
   @Test
   public void getMetricsRelatedTo() {
-    Condition condition = new Condition("metric1", Condition.Operator.EQUALS, "10", null, false);
+    Condition condition = new Condition("metric1", Condition.Operator.EQUALS, "10", null);
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
 
     Set<String> result = underTest.getMetricsRelatedTo(gate);
@@ -135,7 +132,7 @@ public class LiveQualityGateComputerImplTest {
     MetricDto conditionMetric = newMetricDto();
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
-    Condition condition = new Condition(conditionMetric.getKey(), Condition.Operator.GREATER_THAN, "10", null, false);
+    Condition condition = new Condition(conditionMetric.getKey(), Condition.Operator.GREATER_THAN, "10", null);
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(conditionMetric, statusMetric, detailsMetric), emptyList());
 
@@ -159,13 +156,15 @@ public class LiveQualityGateComputerImplTest {
   public void refreshGateStatus_provides_measures_to_evaluator() {
     ComponentDto project = ComponentTesting.newPublicProjectDto(newOrganizationDto());
     MetricDto numericMetric = newMetricDto().setValueType(Metric.ValueType.FLOAT.name());
+    MetricDto numericNewMetric = newMetricDto().setValueType(Metric.ValueType.FLOAT.name()).setKey("new_metric");
     MetricDto stringMetric = newMetricDto().setValueType(Metric.ValueType.STRING.name());
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
     QualityGate gate = new QualityGate("1", "foo", Collections.emptySet());
     LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricId(numericMetric.getId()).setValue(1.23).setVariation(4.56).setComponentUuid(project.uuid());
+    LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricId(numericNewMetric.getId()).setValue(7.8).setVariation(8.9).setComponentUuid(project.uuid());
     LiveMeasureDto stringMeasure = new LiveMeasureDto().setMetricId(stringMetric.getId()).setData("bar").setComponentUuid(project.uuid());
-    MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, stringMetric), asList(numericMeasure, stringMeasure));
+    MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric), asList(numericMeasure, numericNewMeasure, stringMeasure));
 
     underTest.refreshGateStatus(project, gate, matrix);
 
@@ -174,14 +173,17 @@ public class LiveQualityGateComputerImplTest {
     QualityGateEvaluator.Measure loadedStringMeasure = measures.get(stringMetric.getKey()).get();
     assertThat(loadedStringMeasure.getStringValue()).hasValue("bar");
     assertThat(loadedStringMeasure.getValue()).isEmpty();
-    assertThat(loadedStringMeasure.getLeakValue()).isEmpty();
     assertThat(loadedStringMeasure.getType()).isEqualTo(Metric.ValueType.STRING);
 
     QualityGateEvaluator.Measure loadedNumericMeasure = measures.get(numericMetric.getKey()).get();
     assertThat(loadedNumericMeasure.getStringValue()).isEmpty();
     assertThat(loadedNumericMeasure.getValue()).hasValue(1.23);
-    assertThat(loadedNumericMeasure.getLeakValue()).hasValue(4.56);
     assertThat(loadedNumericMeasure.getType()).isEqualTo(Metric.ValueType.FLOAT);
+
+    QualityGateEvaluator.Measure loadedNumericNewMeasure = measures.get(numericNewMetric.getKey()).get();
+    assertThat(loadedNumericNewMeasure.getStringValue()).isEmpty();
+    assertThat(loadedNumericNewMeasure.getNewMetricValue()).hasValue(8.9);
+    assertThat(loadedNumericNewMeasure.getType()).isEqualTo(Metric.ValueType.FLOAT);
   }
 
   private static class TestQualityGateEvaluator implements QualityGateEvaluator {

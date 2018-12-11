@@ -149,7 +149,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
 
   private QualityGateMeasuresStep.MetricEvaluationResult generateEvaluationResult(String metric, Measure.Level level) {
     Metric newCoverageMetric = metricRepository.getByKey(metric);
-    Condition condition = new Condition(newCoverageMetric, "LT", "80", "90", true);
+    Condition condition = new Condition(newCoverageMetric, "LT", "80", "90");
     EvaluationResult evaluationResult = new EvaluationResult(level, mock(Comparable.class));
     return new QualityGateMeasuresStep.MetricEvaluationResult(evaluationResult, condition);
   }

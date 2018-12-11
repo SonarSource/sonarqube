@@ -57,7 +57,7 @@ public class WebhookPayloadFactoryImplTest {
   @Test
   public void create_payload_for_successful_analysis() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
-    Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0", true);
+    Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0");
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
       .setStatus(Metric.Level.WARN)
@@ -88,7 +88,6 @@ public class WebhookPayloadFactoryImplTest {
         "        \"operator\": \"GREATER_THAN\"," +
         "        \"value\": \"74.0\"," +
         "        \"status\": \"WARN\"," +
-        "        \"onLeakPeriod\": true," +
         "        \"errorThreshold\": \"70.0\"," +
         "        \"warningThreshold\": \"75.0\"" +
         "      }" +
@@ -103,7 +102,7 @@ public class WebhookPayloadFactoryImplTest {
   public void create_payload_with_gate_conditions_without_value() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
 
-    Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0", false);
+    Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0");
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
       .setStatus(Metric.Level.WARN)
@@ -133,7 +132,6 @@ public class WebhookPayloadFactoryImplTest {
         "        \"metric\": \"coverage\"," +
         "        \"operator\": \"GREATER_THAN\"," +
         "        \"status\": \"NO_VALUE\"," +
-        "        \"onLeakPeriod\": false," +
         "        \"errorThreshold\": \"70.0\"," +
         "        \"warningThreshold\": \"75.0\"" +
         "      }" +

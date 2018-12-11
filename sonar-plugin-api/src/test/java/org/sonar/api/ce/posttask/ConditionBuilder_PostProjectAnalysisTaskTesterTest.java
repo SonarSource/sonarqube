@@ -130,7 +130,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(underTest.buildNoValue().toString())
       .isEqualTo(
         "Condition{status=NO_VALUE, metricKey='some metric key', operator=GREATER_THAN, " +
-          "errorThreshold='some error threshold', warningThreshold='some warning threshold', onLeakPeriod=false}");
+          "errorThreshold='some error threshold', warningThreshold='some warning threshold'}");
   }
 
   @Test
@@ -143,7 +143,6 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(condition.getOperator()).isEqualTo(SOME_OPERATOR);
     assertThat(condition.getErrorThreshold()).isEqualTo(SOME_ERROR_THRESHOLD);
     assertThat(condition.getWarningThreshold()).isEqualTo(SOME_WARNING_THRESHOLD);
-    assertThat(condition.isOnLeakPeriod()).isTrue();
   }
 
   @Test
@@ -234,7 +233,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE).toString())
       .isEqualTo(
         "Condition{status=OK, metricKey='some metric key', operator=GREATER_THAN, "
-          + "errorThreshold='some error threshold', warningThreshold='some warning threshold', onLeakPeriod=false, value='some value'}");
+          + "errorThreshold='some error threshold', warningThreshold='some warning threshold', value='some value'}");
   }
 
   @Test
@@ -266,29 +265,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(condition.getOperator()).isEqualTo(SOME_OPERATOR);
     assertThat(condition.getErrorThreshold()).isEqualTo(SOME_ERROR_THRESHOLD);
     assertThat(condition.getWarningThreshold()).isEqualTo(SOME_WARNING_THRESHOLD);
-    assertThat(condition.isOnLeakPeriod()).isTrue();
     assertThat(condition.getValue()).isEqualTo(SOME_VALUE);
-  }
-
-  @Test
-  public void isOnLeakPeriod_is_false_by_default() {
-    initValidBuilder();
-
-    assertThat(underTest.buildNoValue().isOnLeakPeriod()).isFalse();
-    assertThat(underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE).isOnLeakPeriod()).isFalse();
-  }
-
-  @Test
-  public void isOnLeakPeriod_changes_isOnLeakPeriod_returned_value() {
-    initValidBuilder().setOnLeakPeriod(true);
-
-    assertThat(underTest.buildNoValue().isOnLeakPeriod()).isTrue();
-    assertThat(underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE).isOnLeakPeriod()).isTrue();
-
-    initValidBuilder().setOnLeakPeriod(false);
-
-    assertThat(underTest.buildNoValue().isOnLeakPeriod()).isFalse();
-    assertThat(underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE).isOnLeakPeriod()).isFalse();
   }
 
   private PostProjectAnalysisTaskTester.ConditionBuilder initValidBuilder() {

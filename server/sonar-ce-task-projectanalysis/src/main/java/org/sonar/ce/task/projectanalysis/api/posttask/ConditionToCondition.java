@@ -25,8 +25,6 @@ import javax.annotation.Nonnull;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus;
-import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
-import org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -55,7 +53,6 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
       .setOperator(convert(input.getOperator()))
       .setErrorThreshold(input.getErrorThreshold())
       .setWarningThreshold(input.getWarningThreshold())
-      .setOnLeakPeriod(input.hasPeriod())
       .setValue(conditionStatus.getValue())
       .build();
   }

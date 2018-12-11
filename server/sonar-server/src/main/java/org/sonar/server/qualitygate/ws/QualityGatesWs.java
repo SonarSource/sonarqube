@@ -30,7 +30,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLE
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class QualityGatesWs implements WebService {
@@ -84,10 +83,6 @@ public class QualityGatesWs implements WebService {
         "</ui>")
       .setExampleValue(QualityGateConditionDto.OPERATOR_EQUALS)
       .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
-
-    action.createParam(PARAM_PERIOD)
-      .setDescription("Condition period. If not set, the absolute value is considered.")
-      .setPossibleValues("1");
 
     action.createParam(PARAM_WARNING)
       .setMaximumLength(CONDITION_MAX_LENGTH)

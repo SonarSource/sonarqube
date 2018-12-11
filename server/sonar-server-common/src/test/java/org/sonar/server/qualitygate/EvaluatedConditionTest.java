@@ -29,7 +29,7 @@ import static org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus.O
 import static org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus.WARN;
 
 public class EvaluatedConditionTest {
-  private static final Condition CONDITION_1 = new Condition("metricKey", EQUALS, "2", "4", false);
+  private static final Condition CONDITION_1 = new Condition("metricKey", EQUALS, "2", "4");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -71,7 +71,7 @@ public class EvaluatedConditionTest {
   @Test
   public void override_toString() {
     assertThat(underTest.toString()).isEqualTo("EvaluatedCondition{condition=" +
-      "Condition{metricKey='metricKey', operator=EQUALS, warningThreshold='4', errorThreshold='2', onLeakPeriod=false}, " +
+      "Condition{metricKey='metricKey', operator=EQUALS, warningThreshold='4', errorThreshold='2'}, " +
       "status=WARN, value='value'}");
   }
 
@@ -80,7 +80,7 @@ public class EvaluatedConditionTest {
     EvaluatedCondition underTest = new EvaluatedCondition(CONDITION_1, WARN, null);
 
     assertThat(underTest.toString()).isEqualTo("EvaluatedCondition{condition=" +
-      "Condition{metricKey='metricKey', operator=EQUALS, warningThreshold='4', errorThreshold='2', onLeakPeriod=false}, " +
+      "Condition{metricKey='metricKey', operator=EQUALS, warningThreshold='4', errorThreshold='2'}, " +
       "status=WARN, value=null}");
   }
 
@@ -90,7 +90,7 @@ public class EvaluatedConditionTest {
     assertThat(underTest).isEqualTo(new EvaluatedCondition(CONDITION_1, WARN, "value"));
     assertThat(underTest).isNotEqualTo(null);
     assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", EQUALS, "a", "b", true), WARN, "value"));
+    assertThat(underTest).isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", EQUALS, "a", "b"), WARN, "value"));
     assertThat(underTest).isNotEqualTo(new EvaluatedCondition(CONDITION_1, OK, "value"));
     assertThat(underTest).isNotEqualTo(new EvaluatedCondition(CONDITION_1, WARN, null));
     assertThat(underTest).isNotEqualTo(new EvaluatedCondition(CONDITION_1, WARN, "other_value"));
@@ -102,7 +102,7 @@ public class EvaluatedConditionTest {
     assertThat(underTest.hashCode()).isEqualTo(new EvaluatedCondition(CONDITION_1, WARN, "value").hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(null);
     assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", EQUALS, "a", "b", true), WARN, "value").hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", EQUALS, "a", "b"), WARN, "value").hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(CONDITION_1, OK, "value").hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(CONDITION_1, WARN, null).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(CONDITION_1, WARN, "other_value").hashCode());

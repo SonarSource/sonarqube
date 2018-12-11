@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.DbClient;
@@ -61,34 +60,31 @@ public class QualityGateConditionsUpdater {
   }
 
   public QualityGateConditionDto createCondition(DbSession dbSession, QualityGateDto qualityGate, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    @Nullable String warningThreshold, @Nullable String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
-    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(getConditions(dbSession, qualityGate.getId(), null), metric, period);
+    validateCondition(metric, operator, warningThreshold, errorThreshold);
+    checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getId()), metric);
 
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
       .setOperator(operator)
       .setWarningThreshold(warningThreshold)
-      .setErrorThreshold(errorThreshold)
-      .setPeriod(period);
+      .setErrorThreshold(errorThreshold);
     dbClient.gateConditionDao().insert(newCondition, dbSession);
     return newCondition;
   }
 
   public QualityGateConditionDto updateCondition(DbSession dbSession, QualityGateConditionDto condition, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    @Nullable String warningThreshold, @Nullable String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
-    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(getConditions(dbSession, condition.getQualityGateId(), condition.getId()), metric, period);
+    validateCondition(metric, operator, warningThreshold, errorThreshold);
 
     condition
       .setMetricId(metric.getId())
       .setMetricKey(metric.getKey())
       .setOperator(operator)
       .setWarningThreshold(warningThreshold)
-      .setErrorThreshold(errorThreshold)
-      .setPeriod(period);
+      .setErrorThreshold(errorThreshold);
     dbClient.gateConditionDao().update(condition, dbSession);
     return condition;
   }
@@ -101,26 +97,19 @@ public class QualityGateConditionsUpdater {
     return metric;
   }
 
-  private Collection<QualityGateConditionDto> getConditions(DbSession dbSession, long qGateId, @Nullable Long conditionId) {
-    Collection<QualityGateConditionDto> conditions = dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId);
-    if (conditionId == null) {
-      return conditions;
-    }
-    return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId).stream()
-      .filter(condition -> condition.getId() != conditionId)
-      .collect(Collectors.toList());
+  private Collection<QualityGateConditionDto> getConditions(DbSession dbSession, long qGateId) {
+    return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId);
   }
 
-  private static void validateCondition(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+  private static void validateCondition(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold) {
     List<String> errors = new ArrayList<>();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
-    checkPeriod(metric, period, errors);
 
     validateThresholdValues(metric, warningThreshold, errors);
     validateThresholdValues(metric, errorThreshold, errors);
-    checkRatingMetric(metric, warningThreshold, errorThreshold, period, errors);
+    checkRatingMetric(metric, warningThreshold, errorThreshold, errors);
     checkRequest(errors.isEmpty(), errors);
   }
 
@@ -145,23 +134,13 @@ public class QualityGateConditionsUpdater {
     check(warningThreshold != null || errorThreshold != null, errors, "At least one threshold (warning, error) must be set.");
   }
 
-  private static void checkPeriod(MetricDto metric, @Nullable Integer period, List<String> errors) {
-    if (period == null) {
-      check(!metric.getKey().startsWith("new_"), errors, "A period must be selected for differential metrics.");
-    } else {
-      check(period == 1, errors, "The only valid quality gate period is 1, the leak period.");
-    }
-  }
-
-  private static void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(Collection<QualityGateConditionDto> conditions, MetricDto metric, @Nullable final Integer period) {
+  private static void checkConditionDoesNotExistOnSameMetric(Collection<QualityGateConditionDto> conditions, MetricDto metric) {
     if (conditions.isEmpty()) {
       return;
     }
 
-    boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricId() == metric.getId() && ObjectUtils.equals(c.getPeriod(), period));
-    checkRequest(!conditionExists, period == null
-      ? format("Condition on metric '%s' already exists.", metric.getShortName())
-      : format("Condition on metric '%s' over leak period already exists.", metric.getShortName()));
+    boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricId() == metric.getId());
+    checkRequest(!conditionExists, format("Condition on metric '%s' already exists.", metric.getShortName()));
   }
 
   private static void validateThresholdValues(MetricDto metric, @Nullable String value, List<String> errors) {
@@ -195,15 +174,12 @@ public class QualityGateConditionsUpdater {
     }
   }
 
-  private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period, List<String> errors) {
+  private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, List<String> errors) {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
     }
     if (!isCoreRatingMetric(metric.getKey())) {
       errors.add(format("The metric '%s' cannot be used", metric.getShortName()));
-    }
-    if (period != null && !metric.getKey().startsWith("new_")) {
-      errors.add(format("The metric '%s' cannot be used on the leak period", metric.getShortName()));
     }
     if (!isValidRating(warningThreshold)) {
       addInvalidRatingError(warningThreshold, errors);

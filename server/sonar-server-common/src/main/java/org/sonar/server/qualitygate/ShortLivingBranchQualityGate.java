@@ -34,12 +34,12 @@ public final class ShortLivingBranchQualityGate {
   public static final long ID = -1_963_456_987L;
   public static final String NAME = "Hardcoded short living branch quality gate";
   public static final List<Condition> CONDITIONS = ImmutableList.of(
-    new Condition(CoreMetrics.OPEN_ISSUES_KEY, OPERATOR_GREATER_THAN, "0", false),
-    new Condition(CoreMetrics.REOPENED_ISSUES_KEY, OPERATOR_GREATER_THAN, "0", false));
+    new Condition(CoreMetrics.OPEN_ISSUES_KEY, OPERATOR_GREATER_THAN, "0"),
+    new Condition(CoreMetrics.REOPENED_ISSUES_KEY, OPERATOR_GREATER_THAN, "0"));
 
   public static final QualityGate GATE = new QualityGate(String.valueOf(ID), NAME, ImmutableSet.of(
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.OPEN_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false),
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.REOPENED_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false)));
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.OPEN_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null),
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.REOPENED_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null)));
 
   private ShortLivingBranchQualityGate() {
     // prevents instantiation
@@ -49,13 +49,11 @@ public final class ShortLivingBranchQualityGate {
     private final String metricKey;
     private final String operator;
     private final String errorThreshold;
-    private final boolean onLeak;
 
-    public Condition(String metricKey, String operator, String errorThreshold, boolean onLeak) {
+    public Condition(String metricKey, String operator, String errorThreshold) {
       this.metricKey = metricKey;
       this.operator = operator;
       this.errorThreshold = errorThreshold;
-      this.onLeak = onLeak;
     }
 
     public String getMetricKey() {
@@ -73,10 +71,6 @@ public final class ShortLivingBranchQualityGate {
     @CheckForNull
     public String getWarnThreshold() {
       return null;
-    }
-
-    public boolean isOnLeak() {
-      return onLeak;
     }
   }
 }

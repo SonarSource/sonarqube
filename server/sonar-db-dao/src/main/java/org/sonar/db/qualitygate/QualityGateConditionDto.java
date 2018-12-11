@@ -91,8 +91,6 @@ public class QualityGateConditionDto {
 
   private String metricKey;
 
-  private Integer period;
-
   private String operator;
 
   private String warningThreshold;
@@ -137,16 +135,6 @@ public class QualityGateConditionDto {
 
   public QualityGateConditionDto setMetricKey(@Nullable String metricKey) {
     this.metricKey = metricKey;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getPeriod() {
-    return period;
-  }
-
-  public QualityGateConditionDto setPeriod(@Nullable Integer period) {
-    this.period = period;
     return this;
   }
 

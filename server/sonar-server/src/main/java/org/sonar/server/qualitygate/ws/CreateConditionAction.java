@@ -38,7 +38,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERR
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -81,20 +80,18 @@ public class CreateConditionAction implements QualityGatesWsAction {
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String warning = request.param(PARAM_WARNING);
     String error = request.param(PARAM_ERROR);
-    Integer period = request.paramAsInt(PARAM_PERIOD);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
       wsSupport.checkCanEdit(qualityGate);
-      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, emptyToNull(warning), emptyToNull(error), period);
+      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, emptyToNull(warning), emptyToNull(error));
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getId())
         .setMetric(condition.getMetricKey())
         .setOp(condition.getOperator());
       setNullable(condition.getWarningThreshold(), createConditionResponse::setWarning);
       setNullable(condition.getErrorThreshold(), createConditionResponse::setError);
-      setNullable(condition.getPeriod(), createConditionResponse::setPeriod);
       writeProtobuf(createConditionResponse.build(), request, response);
       dbSession.commit();
     }

@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -74,9 +73,6 @@ import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.crea
  * It must be executed after the computation of differential measures {@link ComputeMeasureVariationsStep}
  */
 public class QualityGateMeasuresStep implements ComputationStep {
-  // Condition on period should come first
-  private static final Ordering<Condition> PERIOD_ORDERING = Ordering.natural().reverse().onResultOf(Condition::hasPeriod);
-
   private final TreeRootHolder treeRootHolder;
   private final QualityGateHolder qualityGateHolder;
   private final MutableQualityGateStatusHolder qualityGateStatusHolder;
@@ -206,7 +202,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
   private static MetricEvaluationResult evaluateQualityGate(Measure measure, Collection<Condition> conditions) {
     ConditionEvaluator conditionEvaluator = new ConditionEvaluator();
     MetricEvaluationResult metricEvaluationResult = null;
-    for (Condition newCondition : PERIOD_ORDERING.immutableSortedCopy(conditions)) {
+    for (Condition newCondition : conditions) {
       EvaluationResult newEvaluationResult = conditionEvaluator.evaluate(newCondition, measure);
       if (metricEvaluationResult == null || newEvaluationResult.getLevel().ordinal() > metricEvaluationResult.evaluationResult.getLevel().ordinal()) {
         metricEvaluationResult = new MetricEvaluationResult(newEvaluationResult, newCondition);

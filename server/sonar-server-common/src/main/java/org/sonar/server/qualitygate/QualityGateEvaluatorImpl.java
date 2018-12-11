@@ -20,19 +20,13 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
 
-import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toEnumSet;
 
 public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
@@ -55,14 +49,9 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
       .setQualityGate(gate);
 
     boolean isSmallChangeset = isSmallChangeset(measures);
-    Multimap<String, Condition> conditionsPerMetric = gate.getConditions().stream()
-      .collect(MoreCollectors.index(Condition::getMetricKey, Function.identity()));
-
-    for (Map.Entry<String, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
-      String metricKey = entry.getKey();
-      Collection<Condition> conditionsOnSameMetric = entry.getValue();
-
-      EvaluatedCondition evaluation = evaluateConditionsOnMetric(conditionsOnSameMetric, measures);
+    gate.getConditions().forEach(condition -> {
+      String metricKey = condition.getMetricKey();
+      EvaluatedCondition evaluation = ConditionEvaluator.evaluate(condition, measures);
 
       if (isSmallChangeset && evaluation.getStatus() != EvaluationStatus.OK && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
         result.addCondition(new EvaluatedCondition(evaluation.getCondition(), EvaluationStatus.OK, evaluation.getValue().orElse(null)));
@@ -70,7 +59,7 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
       } else {
         result.addCondition(evaluation);
       }
-    }
+    });
 
     result.setStatus(overallStatusOf(result.getEvaluatedConditions()));
 
@@ -90,37 +79,15 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
   private static boolean isSmallChangeset(Measures measures) {
     Optional<Measure> newLines = measures.get(CoreMetrics.NEW_LINES_KEY);
     return newLines.isPresent() &&
-      newLines.get().getLeakValue().isPresent() &&
-      newLines.get().getLeakValue().getAsDouble() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
-  }
-
-  private static EvaluatedCondition evaluateConditionsOnMetric(Collection<Condition> conditionsOnSameMetric, Measures measures) {
-    EvaluatedCondition leakEvaluation = null;
-    EvaluatedCondition absoluteEvaluation = null;
-    for (Condition condition : conditionsOnSameMetric) {
-      if (condition.isOnLeakPeriod()) {
-        leakEvaluation = ConditionEvaluator.evaluate(condition, measures);
-      } else {
-        absoluteEvaluation = ConditionEvaluator.evaluate(condition, measures);
-      }
-    }
-
-    if (leakEvaluation == null) {
-      return requireNonNull(absoluteEvaluation, "Evaluation of absolute value can't be null on conditions " + conditionsOnSameMetric);
-    }
-    if (absoluteEvaluation == null) {
-      return requireNonNull(leakEvaluation, "Evaluation of leak value can't be null on conditions " + conditionsOnSameMetric);
-    }
-    // both conditions are present. Take the worse one. In case of equality, take
-    // the one on the leak period
-    if (absoluteEvaluation.getStatus().compareTo(leakEvaluation.getStatus()) > 0) {
-      return absoluteEvaluation;
-    }
-    return leakEvaluation;
+      newLines.get().getNewMetricValue().isPresent() &&
+      newLines.get().getNewMetricValue().getAsDouble() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
   }
 
   private static Level overallStatusOf(Set<EvaluatedCondition> conditions) {
-    Set<EvaluationStatus> statuses = conditions.stream().map(EvaluatedCondition::getStatus).collect(toEnumSet(EvaluationStatus.class));
+    Set<EvaluationStatus> statuses = conditions.stream()
+      .map(EvaluatedCondition::getStatus)
+      .collect(toEnumSet(EvaluationStatus.class));
+
     if (statuses.contains(EvaluationStatus.ERROR)) {
       return Level.ERROR;
     }
@@ -129,5 +96,4 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
     }
     return Level.OK;
   }
-
 }

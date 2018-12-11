@@ -72,9 +72,10 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, qualityGate);
-    MetricDto metric = db.measures().insertMetric();
-    QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate, metric, c -> c.setOperator("GT").setPeriod(null));
-    QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate, metric, c -> c.setOperator("LT").setPeriod(1));
+    MetricDto metric1 = db.measures().insertMetric();
+    MetricDto metric2 = db.measures().insertMetric();
+    QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate, metric1, c -> c.setOperator("GT"));
+    QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate, metric2, c -> c.setOperator("LT"));
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -86,10 +87,10 @@ public class ShowActionTest {
     assertThat(response.getIsBuiltIn()).isFalse();
     assertThat(response.getConditionsList()).hasSize(2);
     assertThat(response.getConditionsList())
-      .extracting(Condition::getId, Condition::getMetric, Condition::hasPeriod, Condition::getPeriod, Condition::getOp, Condition::getError, Condition::getWarning)
+      .extracting(Condition::getId, Condition::getMetric, Condition::getOp, Condition::getError, Condition::getWarning)
       .containsExactlyInAnyOrder(
-        tuple(condition1.getId(), metric.getKey(), false, 0, "GT", condition1.getErrorThreshold(), condition1.getWarningThreshold()),
-        tuple(condition2.getId(), metric.getKey(), true, 1, "LT", condition2.getErrorThreshold(), condition2.getWarningThreshold()));
+        tuple(condition1.getId(), metric1.getKey(), "GT", condition1.getErrorThreshold(), condition1.getWarningThreshold()),
+        tuple(condition2.getId(), metric2.getKey(), "LT", condition2.getErrorThreshold(), condition2.getWarningThreshold()));
   }
 
   @Test
@@ -397,8 +398,8 @@ public class ShowActionTest {
     db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
     MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
-    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setPeriod(null).setErrorThreshold("0").setWarningThreshold(null));
-    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setPeriod(1).setErrorThreshold(null).setWarningThreshold("0"));
+    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0").setWarningThreshold(null));
+    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold(null).setWarningThreshold("0"));
 
     String response = ws.newRequest()
       .setParam("name", qualityGate.getName())

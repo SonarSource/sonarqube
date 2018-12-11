@@ -22,7 +22,6 @@ package org.sonar.server.measure.live;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
@@ -81,8 +80,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     Set<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
       String metricKey = metricsById.get((int) conditionDto.getMetricId()).getKey();
       Condition.Operator operator = Condition.Operator.fromDbValue(conditionDto.getOperator());
-      boolean onLeak = Objects.equals(conditionDto.getPeriod(), 1);
-      return new Condition(metricKey, operator, conditionDto.getErrorThreshold(), conditionDto.getWarningThreshold(), onLeak);
+      return new Condition(metricKey, operator, conditionDto.getErrorThreshold(), conditionDto.getWarningThreshold());
     }).collect(toHashSet(conditionDtos.size()));
 
     return new QualityGate(String.valueOf(gateDto.getId()), gateDto.getName(), conditions);
@@ -144,7 +142,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     }
 
     @Override
-    public OptionalDouble getLeakValue() {
+    public OptionalDouble getNewMetricValue() {
       if (dto.getVariation() == null) {
         return OptionalDouble.empty();
       }

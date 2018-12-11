@@ -60,7 +60,7 @@ public class QualityGateUpdater {
     for (QualityGateConditionDto sourceCondition : dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId())) {
       dbClient.gateConditionDao().insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
         .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
-        .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+        .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()),
         dbSession);
     }
 

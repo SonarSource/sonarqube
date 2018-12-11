@@ -56,15 +56,14 @@ public class RegisterQualityGates implements Startable {
   private static final Logger LOGGER = Loggers.get(RegisterQualityGates.class);
 
   private static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
-  private static final int LEAK_PERIOD = 1;
   private static final String A_RATING = Integer.toString(Rating.A.getIndex());
 
   private static final List<QualityGateCondition> QUALITY_GATE_CONDITIONS = asList(
-    new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("80"),
-    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("3"));
+    new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80"),
+    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"));
 
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
@@ -122,16 +121,16 @@ public class RegisterQualityGates implements Startable {
     // Those conditions must be deleted
     List<QualityGateCondition> qgConditionsToBeDeleted = new ArrayList<>(qualityGateConditions);
     qgConditionsToBeDeleted.removeAll(QUALITY_GATE_CONDITIONS);
-    qgConditionsToBeDeleted.stream()
+    qgConditionsToBeDeleted
       .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtin.getId()), dbSession));
 
     // Find all conditions that are not present in qualityGateConditions
     // Those conditions must be created
     List<QualityGateCondition> qgConditionsToBeCreated = new ArrayList<>(QUALITY_GATE_CONDITIONS);
     qgConditionsToBeCreated.removeAll(qualityGateConditions);
-    qgConditionsToBeCreated.stream()
+    qgConditionsToBeCreated
       .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(), qgc.getWarningThreshold(),
-        qgc.getErrorThreshold(), qgc.getPeriod()));
+        qgc.getErrorThreshold()));
 
     if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
       LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
@@ -155,7 +154,6 @@ public class RegisterQualityGates implements Startable {
   private static class QualityGateCondition {
     private Long id;
     private String metricKey;
-    private Integer period;
     private String operator;
     private String warningThreshold;
     private String errorThreshold;
@@ -165,7 +163,6 @@ public class RegisterQualityGates implements Startable {
         .setId(qualityGateConditionDto.getId())
         .setMetricKey(mapping.get(qualityGateConditionDto.getMetricId()))
         .setOperator(qualityGateConditionDto.getOperator())
-        .setPeriod(qualityGateConditionDto.getPeriod())
         .setErrorThreshold(qualityGateConditionDto.getErrorThreshold())
         .setWarningThreshold(qualityGateConditionDto.getWarningThreshold());
     }
@@ -186,15 +183,6 @@ public class RegisterQualityGates implements Startable {
 
     public QualityGateCondition setMetricKey(String metricKey) {
       this.metricKey = metricKey;
-      return this;
-    }
-
-    public Integer getPeriod() {
-      return period;
-    }
-
-    public QualityGateCondition setPeriod(Integer period) {
-      this.period = period;
       return this;
     }
 
@@ -232,7 +220,6 @@ public class RegisterQualityGates implements Startable {
         .setId(id)
         .setMetricKey(metricKey)
         .setOperator(operator)
-        .setPeriod(period)
         .setErrorThreshold(errorThreshold)
         .setWarningThreshold(warningThreshold)
         .setQualityGateId(qualityGateId);
@@ -249,7 +236,6 @@ public class RegisterQualityGates implements Startable {
       }
       QualityGateCondition that = (QualityGateCondition) o;
       return Objects.equals(metricKey, that.metricKey) &&
-        Objects.equals(period, that.period) &&
         Objects.equals(operator, that.operator) &&
         Objects.equals(warningThreshold, that.warningThreshold) &&
         Objects.equals(errorThreshold, that.errorThreshold);
@@ -258,7 +244,7 @@ public class RegisterQualityGates implements Startable {
     // id does not belongs to hashcode to be able to be compared with builtin
     @Override
     public int hashCode() {
-      return Objects.hash(metricKey, period, operator, warningThreshold, errorThreshold);
+      return Objects.hash(metricKey, operator, warningThreshold, errorThreshold);
     }
   }
 }

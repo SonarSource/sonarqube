@@ -53,7 +53,7 @@ class ConditionImpl implements QualityGate.Condition {
     this.operator = builder.operator;
     this.errorThreshold = builder.errorThreshold;
     this.warningThreshold = builder.warningThreshold;
-    this.onLeakPeriod = builder.onLeakPeriod;
+    this.onLeakPeriod = builder.metricKey.startsWith("new_");
     this.value = builder.value;
   }
 
@@ -82,7 +82,6 @@ class ConditionImpl implements QualityGate.Condition {
     private String errorThreshold;
     @CheckForNull
     private String warningThreshold;
-    private boolean onLeakPeriod;
     @CheckForNull
     private String value;
     private QualityGate.EvaluationStatus status;
@@ -111,8 +110,11 @@ class ConditionImpl implements QualityGate.Condition {
       return this;
     }
 
+    /**
+     * @deprecated in 7.6. This method has no longer any effect.
+     */
+    @Deprecated
     public Builder setOnLeakPeriod(boolean onLeakPeriod) {
-      this.onLeakPeriod = onLeakPeriod;
       return this;
     }
 
@@ -156,6 +158,10 @@ class ConditionImpl implements QualityGate.Condition {
     return warningThreshold;
   }
 
+  /**
+   * @deprecated in 7.6. Conditions "on leak period" were removed. Use "New X" conditions instead.
+   */
+  @Deprecated
   @Override
   public boolean isOnLeakPeriod() {
     return onLeakPeriod;
@@ -176,7 +182,6 @@ class ConditionImpl implements QualityGate.Condition {
       ", operator=" + operator +
       ", errorThreshold='" + errorThreshold + '\'' +
       ", warningThreshold='" + warningThreshold + '\'' +
-      ", onLeakPeriod=" + onLeakPeriod +
       ", value='" + value + '\'' +
       '}';
   }

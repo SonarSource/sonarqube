@@ -46,7 +46,6 @@ public class ConditionImplTest {
     .setOperator(QualityGate.Operator.GREATER_THAN)
     .setErrorThreshold(ERROR_THRESHOLD)
     .setWarningThreshold(WARN_THRESHOLD)
-    .setOnLeakPeriod(true)
     .setValue(VALUE);
 
   @Test
@@ -140,7 +139,7 @@ public class ConditionImplTest {
   public void toString_ConditionImpl_of_type_different_from_NO_VALUE() {
     assertThat(builder.build().toString())
       .isEqualTo(
-        "ConditionImpl{status=OK, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', warningThreshold='warn threshold', onLeakPeriod=true, value='value'}");
+        "ConditionImpl{status=OK, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', warningThreshold='warn threshold', value='value'}");
   }
 
   @Test
@@ -150,7 +149,7 @@ public class ConditionImplTest {
 
     assertThat(builder.build().toString())
       .isEqualTo(
-        "ConditionImpl{status=NO_VALUE, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', warningThreshold='warn threshold', onLeakPeriod=true, value='null'}");
+        "ConditionImpl{status=NO_VALUE, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', warningThreshold='warn threshold', value='null'}");
   }
 
   @Test
@@ -162,7 +161,6 @@ public class ConditionImplTest {
     assertThat(underTest.getOperator()).isEqualTo(QualityGate.Operator.GREATER_THAN);
     assertThat(underTest.getErrorThreshold()).isEqualTo(ERROR_THRESHOLD);
     assertThat(underTest.getWarningThreshold()).isEqualTo(WARN_THRESHOLD);
-    assertThat(underTest.isOnLeakPeriod()).isEqualTo(true);
     assertThat(underTest.getValue()).isEqualTo(VALUE);
   }
 }

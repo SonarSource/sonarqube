@@ -46,7 +46,7 @@ public class ConditionToConditionTest {
   private static final Map<Condition, ConditionStatus> NO_STATUS_PER_CONDITIONS = Collections.emptyMap();
   private static final String SOME_VALUE = "some value";
   private static final ConditionStatus SOME_CONDITION_STATUS = ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, SOME_VALUE);
-  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD, true);
+  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -98,26 +98,15 @@ public class ConditionToConditionTest {
   @Test
   @UseDataProvider("allOperatorValues")
   public void apply_converts_all_values_of_operator(Condition.Operator operator) {
-    Condition condition = new Condition(newMetric(METRIC_KEY), operator.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD, true);
+    Condition condition = new Condition(newMetric(METRIC_KEY), operator.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD);
     ConditionToCondition underTest = new ConditionToCondition(of(condition, SOME_CONDITION_STATUS));
 
     assertThat(underTest.apply(condition).getOperator().name()).isEqualTo(operator.name());
   }
 
   @Test
-  public void apply_sets_onLeakPeriod_flag_when_Condition_has_non_null_Period() {
-    Condition noPeriodCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.NOT_EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD, false);
-    ConditionToCondition underTest = new ConditionToCondition(of(
-      SOME_CONDITION, SOME_CONDITION_STATUS,
-      noPeriodCondition, SOME_CONDITION_STATUS));
-
-    assertThat(underTest.apply(SOME_CONDITION).isOnLeakPeriod()).isTrue();
-    assertThat(underTest.apply(noPeriodCondition).isOnLeakPeriod()).isFalse();
-  }
-
-  @Test
   public void apply_copies_value() {
-    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.NOT_EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD, false);
+    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.NOT_EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD);
     ConditionToCondition underTest = new ConditionToCondition(of(
       SOME_CONDITION, SOME_CONDITION_STATUS,
       otherCondition, ConditionStatus.NO_VALUE_STATUS));

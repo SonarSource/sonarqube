@@ -25,8 +25,6 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
-import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
@@ -64,7 +62,9 @@ public class QualityGateDetailsData {
     JsonObject result = new JsonObject();
     result.addProperty("metric", condition.getMetric().getKey());
     result.addProperty("op", condition.getOperator().getDbValue());
-    if (condition.hasPeriod()) {
+    if (condition.useVariation()) {
+      // without this for new_ metrics, the UI will show "-" instead of
+      // the actual value in the QG failure reason
       result.addProperty("period", 1);
     }
     if (condition.getWarningThreshold() != null) {

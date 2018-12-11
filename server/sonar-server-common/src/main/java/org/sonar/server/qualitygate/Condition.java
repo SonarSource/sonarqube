@@ -42,11 +42,10 @@ public class Condition {
   private final boolean onLeakPeriod;
 
   public Condition(String metricKey, Operator operator,
-    @Nullable String errorThreshold, @Nullable String warningThreshold,
-    boolean onLeakPeriod) {
+    @Nullable String errorThreshold, @Nullable String warningThreshold) {
     this.metricKey = requireNonNull(metricKey, "metricKey can't be null");
     this.operator = requireNonNull(operator, "operator can't be null");
-    this.onLeakPeriod = onLeakPeriod;
+    this.onLeakPeriod = metricKey.startsWith("new_");
     this.errorThreshold = emptyToNull(errorThreshold);
     this.warningThreshold = emptyToNull(warningThreshold);
   }
@@ -80,8 +79,7 @@ public class Condition {
       return false;
     }
     Condition condition = (Condition) o;
-    return onLeakPeriod == condition.onLeakPeriod &&
-      Objects.equals(metricKey, condition.metricKey) &&
+    return Objects.equals(metricKey, condition.metricKey) &&
       operator == condition.operator &&
       Objects.equals(warningThreshold, condition.warningThreshold) &&
       Objects.equals(errorThreshold, condition.errorThreshold);
@@ -89,7 +87,7 @@ public class Condition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(metricKey, operator, warningThreshold, errorThreshold, onLeakPeriod);
+    return Objects.hash(metricKey, operator, warningThreshold, errorThreshold);
   }
 
   @Override
@@ -99,7 +97,6 @@ public class Condition {
       ", operator=" + operator +
       ", warningThreshold=" + toString(warningThreshold) +
       ", errorThreshold=" + toString(errorThreshold) +
-      ", onLeakPeriod=" + onLeakPeriod +
       '}';
   }
 

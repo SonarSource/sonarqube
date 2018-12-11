@@ -55,6 +55,6 @@ public interface QualityGateEvaluator {
 
     Optional<String> getStringValue();
 
-    OptionalDouble getLeakValue();
+    OptionalDouble getNewMetricValue();
   }
 }

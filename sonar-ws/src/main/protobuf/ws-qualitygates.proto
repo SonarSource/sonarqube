@@ -105,7 +105,6 @@ message CreateConditionResponse {
   optional string op = 3;
   optional string warning = 4;
   optional string error = 5;
-  optional int32 period = 6;
 }
 
 // POST api/qualitygates/update_condition
@@ -115,7 +114,6 @@ message UpdateConditionResponse {
   optional string op = 3;
   optional string warning = 4;
   optional string error = 5;
-  optional int32 period = 6;
 }
 
 // GET api/qualitygates/show
@@ -129,7 +127,6 @@ message ShowWsResponse {
   message Condition {
     optional int64 id = 1;
     optional string metric = 2;
-    optional int32 period = 3;
     optional string op = 4;
     optional string warning = 5;
     optional string error = 6;

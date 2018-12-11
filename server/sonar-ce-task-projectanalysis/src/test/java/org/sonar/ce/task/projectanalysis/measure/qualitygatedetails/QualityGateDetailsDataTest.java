@@ -52,7 +52,7 @@ public class QualityGateDetailsDataTest {
   @Test
   public void verify_json_for_each_type_of_condition() {
     String value = "actualValue";
-    Condition condition = new Condition(new MetricImpl(1, "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh", "warnTh", true);
+    Condition condition = new Condition(new MetricImpl(1, "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh", "warnTh");
     ImmutableList<EvaluatedCondition> evaluatedConditions = ImmutableList.of(
       new EvaluatedCondition(condition, Measure.Level.OK, value),
       new EvaluatedCondition(condition, Measure.Level.WARN, value),
@@ -65,7 +65,6 @@ public class QualityGateDetailsDataTest {
       "  {" +
       "    \"metric\":\"key1\"," +
       "    \"op\":\"GT\"," +
-      "    \"period\":1," +
       "    \"warning\":\"warnTh\"," +
       "    \"error\":\"errorTh\"," +
       "    \"actual\":\"actualValue\"," +
@@ -74,7 +73,6 @@ public class QualityGateDetailsDataTest {
       "  {" +
       "    \"metric\":\"key1\"," +
       "    \"op\":\"GT\"," +
-      "    \"period\":1," +
       "    \"warning\":\"warnTh\"," +
       "    \"error\":\"errorTh\"," +
       "    \"actual\":\"actualValue\"," +
@@ -83,7 +81,6 @@ public class QualityGateDetailsDataTest {
       "  {" +
       "    \"metric\":\"key1\"," +
       "    \"op\":\"GT\"," +
-      "    \"period\":1," +
       "    \"warning\":\"warnTh\"," +
       "    \"error\":\"errorTh\"," +
       "    \"actual\":\"actualValue\"," +

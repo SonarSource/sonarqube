@@ -142,7 +142,6 @@ public class ShowAction implements QualityGatesWsAction {
         .setId(condition.getId())
         .setMetric(metric.getKey())
         .setOp(condition.getOperator());
-      setNullable(condition.getPeriod(), builder::setPeriod);
       setNullable(condition.getErrorThreshold(), builder::setError);
       setNullable(condition.getWarningThreshold(), builder::setWarning);
       return builder.build();

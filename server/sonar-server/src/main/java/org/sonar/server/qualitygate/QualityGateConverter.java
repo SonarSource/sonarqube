@@ -49,9 +49,6 @@ public class QualityGateConverter {
     JsonObject result = new JsonObject();
     result.addProperty("metric", condition.getMetricKey());
     result.addProperty("op", condition.getOperator().getDbValue());
-    if (condition.isOnLeakPeriod()) {
-      result.addProperty("period", 1);
-    }
     condition.getWarningThreshold().ifPresent(t -> result.addProperty("warning", t));
     condition.getErrorThreshold().ifPresent(t -> result.addProperty("error", t));
     evaluatedCondition.getValue().ifPresent(v -> result.addProperty("actual", v));

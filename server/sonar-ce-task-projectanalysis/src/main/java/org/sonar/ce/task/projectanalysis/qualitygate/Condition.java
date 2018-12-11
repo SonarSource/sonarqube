@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
@@ -52,14 +51,13 @@ public class Condition {
   private final String warningThreshold;
   @CheckForNull
   private final String errorThreshold;
-  private final boolean hasPeriod;
+  private final boolean useVariation;
 
   public Condition(Metric metric, String operator,
-    @Nullable String errorThreshold, @Nullable String warningThreshold,
-    boolean hasPeriod) {
+    @Nullable String errorThreshold, @Nullable String warningThreshold) {
     this.metric = requireNonNull(metric);
     this.operator = parseFromDbValue(requireNonNull(operator));
-    this.hasPeriod = hasPeriod;
+    this.useVariation = metric.getKey().startsWith("new_");
     this.errorThreshold = errorThreshold;
     this.warningThreshold = warningThreshold;
   }
@@ -77,8 +75,8 @@ public class Condition {
     return metric;
   }
 
-  public boolean hasPeriod() {
-    return hasPeriod;
+  public boolean useVariation() {
+    return useVariation;
   }
 
   public Operator getOperator() {
@@ -104,20 +102,18 @@ public class Condition {
       return false;
     }
     Condition that = (Condition) o;
-    return java.util.Objects.equals(metric, that.metric)
-      && java.util.Objects.equals(hasPeriod, that.hasPeriod);
+    return java.util.Objects.equals(metric, that.metric);
   }
 
   @Override
   public int hashCode() {
-    return hash(metric, hasPeriod);
+    return hash(metric);
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
       .add("metric", metric)
-      .add("hasPeriod", hasPeriod)
       .add("operator", operator)
       .add("warningThreshold", warningThreshold)
       .add("errorThreshold", errorThreshold)

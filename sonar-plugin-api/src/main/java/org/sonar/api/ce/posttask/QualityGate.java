@@ -100,8 +100,11 @@ public interface QualityGate {
     String getWarningThreshold();
 
     /**
-     * Whether this condition is defined on the leak period or on an absolute value
+     * Whether this condition is defined on the leak period or on an absolute value.
+     * @deprecated in 7.6. Implementations should always return false.
+     * Conditions "on leak period" were removed. Use "New X" conditions instead.
      */
+    @Deprecated
     boolean isOnLeakPeriod();
 
     /**

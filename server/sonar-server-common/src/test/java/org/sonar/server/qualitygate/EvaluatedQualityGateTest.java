@@ -36,8 +36,8 @@ public class EvaluatedQualityGateTest {
   private static final String QUALITY_GATE_ID = "qg_id";
   private static final String QUALITY_GATE_NAME = "qg_name";
   private static final QualityGate NO_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, emptySet());
-  private static final Condition CONDITION_1 = new Condition("metric_key", Condition.Operator.LESS_THAN, "2", "4", true);
-  private static final Condition CONDITION_2 = new Condition("metric_key_2", Condition.Operator.GREATER_THAN, "6", "12", false);
+  private static final Condition CONDITION_1 = new Condition("metric_key", Condition.Operator.LESS_THAN, "2", "4");
+  private static final Condition CONDITION_2 = new Condition("metric_key_2", Condition.Operator.GREATER_THAN, "6", "12");
   private static final QualityGate ONE_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, singleton(CONDITION_1));
 
   @Rule
@@ -74,7 +74,7 @@ public class EvaluatedQualityGateTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("status can't be null");
 
-    builder.addCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2", "4", true), null, "a_value");
+    builder.addCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2", "4"), null, "a_value");
   }
 
   @Test

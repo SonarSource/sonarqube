@@ -50,7 +50,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GAT
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class CreateConditionActionTest {
@@ -120,7 +119,6 @@ public class CreateConditionActionTest {
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
-      .setParam(PARAM_PERIOD, "1")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
@@ -216,7 +214,6 @@ public class CreateConditionActionTest {
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "45")
       .setParam(PARAM_WARNING, "90")
-      .setParam(PARAM_PERIOD, "1")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(CreateConditionResponse.class);
 
@@ -226,7 +223,6 @@ public class CreateConditionActionTest {
     assertThat(response.getOp()).isEqualTo("LT");
     assertThat(response.getWarning()).isEqualTo("90");
     assertThat(response.getError()).isEqualTo("45");
-    assertThat(response.getPeriod()).isEqualTo(1);
   }
 
   @Test
@@ -260,7 +256,6 @@ public class CreateConditionActionTest {
       .containsExactlyInAnyOrder(
         tuple("gateId", true),
         tuple("metric", true),
-        tuple("period", false),
         tuple("op", false),
         tuple("warning", false),
         tuple("error", false),
@@ -270,8 +265,8 @@ public class CreateConditionActionTest {
   private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
       .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error, period));
+        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error));
   }
 
   private void logInAsQualityGateAdmin(OrganizationDto organization) {

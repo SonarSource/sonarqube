@@ -40,7 +40,6 @@ public class QualityGatesWsParameters {
   public static final String PARAM_NAME = "name";
   public static final String PARAM_ERROR = "error";
   public static final String PARAM_WARNING = "warning";
-  public static final String PARAM_PERIOD = "period";
   public static final String PARAM_OPERATOR = "op";
   public static final String PARAM_METRIC = "metric";
   public static final String PARAM_GATE_ID = "gateId";

@@ -130,7 +130,7 @@ public class ConditionEvaluatorTest {
 
   private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, @Nullable String warningThreshold,
     EvaluatedCondition.EvaluationStatus expectedStatus, @Nullable String expectedValue) {
-    Condition condition = new Condition("foo", operator, errorThreshold, warningThreshold, false);
+    Condition condition = new Condition("foo", operator, errorThreshold, warningThreshold);
 
     EvaluatedCondition result = ConditionEvaluator.evaluate(condition, new FakeMeasures(measure));
 
@@ -144,7 +144,7 @@ public class ConditionEvaluatorTest {
 
   private void testOnLeak(QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus,
     @Nullable String expectedValue) {
-    Condition condition = new Condition("foo", operator, errorThreshold, null, true);
+    Condition condition = new Condition("new_foo", operator, errorThreshold, null);
 
     EvaluatedCondition result = ConditionEvaluator.evaluate(condition, new FakeMeasures(measure));
 
@@ -211,7 +211,7 @@ public class ConditionEvaluatorTest {
     }
 
     @Override
-    public OptionalDouble getLeakValue() {
+    public OptionalDouble getNewMetricValue() {
       return leakValue == null ? OptionalDouble.empty() : OptionalDouble.of(leakValue);
     }
   }

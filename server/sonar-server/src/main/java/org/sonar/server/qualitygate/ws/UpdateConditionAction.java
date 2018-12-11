@@ -39,7 +39,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERR
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -81,7 +80,6 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String warning = request.param(PARAM_WARNING);
     String error = request.param(PARAM_ERROR);
-    Integer period = request.paramAsInt(PARAM_PERIOD);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
@@ -90,14 +88,13 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateId());
       wsSupport.checkCanEdit(qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator,
-        emptyToNull(warning), emptyToNull(error), period);
+        emptyToNull(warning), emptyToNull(error));
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
         .setId(updatedCondition.getId())
         .setMetric(updatedCondition.getMetricKey())
         .setOp(updatedCondition.getOperator());
       setNullable(updatedCondition.getWarningThreshold(), updateConditionResponse::setWarning);
       setNullable(updatedCondition.getErrorThreshold(), updateConditionResponse::setError);
-      setNullable(updatedCondition.getPeriod(), updateConditionResponse::setPeriod);
       writeProtobuf(updateConditionResponse.build(), request, response);
       dbSession.commit();
     }

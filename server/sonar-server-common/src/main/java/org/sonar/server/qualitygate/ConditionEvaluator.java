@@ -128,14 +128,14 @@ class ConditionEvaluator {
       case DISTRIB:
         return measure.getStringValue().orElse(null);
       default:
-        throw new IllegalArgumentException("Condition on leak period is not allowed for type " + measure.getType());
+        throw new IllegalArgumentException("Condition is not allowed for type " + measure.getType());
     }
   }
 
   @CheckForNull
   private static Comparable getLeakValue(QualityGateEvaluator.Measure measure) {
     if (NUMERICAL_TYPES.contains(measure.getType())) {
-      return measure.getLeakValue().isPresent() ? getNumericValue(measure.getType(), measure.getLeakValue().getAsDouble()) : null;
+      return measure.getNewMetricValue().isPresent() ? getNumericValue(measure.getType(), measure.getNewMetricValue().getAsDouble()) : null;
     }
 
     throw new IllegalArgumentException("Condition on leak period is not allowed for type " + measure.getType());
