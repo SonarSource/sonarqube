@@ -19,14 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -37,7 +35,6 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.config.PurgeConstants;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDao;
@@ -52,23 +49,14 @@ public class PersistMeasuresStep implements ComputationStep {
   private final MeasureToMeasureDto measureToMeasureDto;
   private final TreeRootHolder treeRootHolder;
   private final MeasureRepository measureRepository;
-  private final boolean persistDirectories;
 
-  public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto,
-    TreeRootHolder treeRootHolder, MeasureRepository measureRepository, ConfigurationRepository settings) {
-    this(dbClient, metricRepository, measureToMeasureDto, treeRootHolder, measureRepository,
-      !settings.getConfiguration().getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElseThrow(() -> new IllegalStateException("Missing default value")));
-  }
-
-  @VisibleForTesting
-  PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto, TreeRootHolder treeRootHolder,
-    MeasureRepository measureRepository, boolean persistDirectories) {
+  public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto, TreeRootHolder treeRootHolder,
+    MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.metricRepository = metricRepository;
     this.measureToMeasureDto = measureToMeasureDto;
     this.treeRootHolder = treeRootHolder;
     this.measureRepository = measureRepository;
-    this.persistDirectories = persistDirectories;
   }
 
   @Override
@@ -102,9 +90,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
     @Override
     public void visitDirectory(Component directory) {
-      if (persistDirectories) {
-        persistMeasures(directory);
-      }
+      // measures of directories are never read. No need to persist them.
     }
 
     @Override

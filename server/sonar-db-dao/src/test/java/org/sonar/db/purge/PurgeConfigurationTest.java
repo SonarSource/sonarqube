@@ -70,27 +70,15 @@ public class PurgeConfigurationTest {
   }
 
   @Test
-  public void delete_files_but_not_directories_by_default() {
+  public void delete_files_and_directories() {
     MapSettings settings = new MapSettings(new PropertyDefinitions(PurgeProperties.all()));
-    settings.setProperty(PurgeConstants.PROPERTY_CLEAN_DIRECTORY, false);
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
     Date now = new Date();
 
     PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings.asConfig(), new IdUuidPair(42L, "any-uuid"), emptyList());
 
     assertThat(underTest.getScopesWithoutHistoricalData())
-      .containsExactlyInAnyOrder(Scopes.FILE);
-    assertThat(underTest.maxLiveDateOfClosedIssues(now)).isEqualTo(DateUtils.addDays(now, -5));
-  }
-
-  @Test
-  public void delete_directory_if_enabled_in_settings() {
-    MapSettings settings = new MapSettings(new PropertyDefinitions(PurgeProperties.all()));
-    settings.setProperty(PurgeConstants.PROPERTY_CLEAN_DIRECTORY, true);
-
-    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings.asConfig(), new IdUuidPair(42L, "any-uuid"), emptyList());
-
-    assertThat(underTest.getScopesWithoutHistoricalData())
       .containsExactlyInAnyOrder(Scopes.DIRECTORY, Scopes.FILE);
+    assertThat(underTest.maxLiveDateOfClosedIssues(now)).isEqualTo(DateUtils.addDays(now, -5));
   }
 }

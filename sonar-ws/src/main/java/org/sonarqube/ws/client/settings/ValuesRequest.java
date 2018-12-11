@@ -62,7 +62,7 @@ public class ValuesRequest {
   }
 
   /**
-   * Example value: "sonar.test.inclusions,sonar.dbcleaner.cleanDirectory"
+   * Example value: "sonar.test.inclusions,sonar.cpd.cross_project"
    */
   public ValuesRequest setKeys(List<String> keys) {
     this.keys = keys;

@@ -102,17 +102,6 @@ public final class PurgeProperties {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(6)
-        .build(),
-
-      PropertyDefinition.builder(PurgeConstants.PROPERTY_CLEAN_DIRECTORY)
-        .defaultValue("true")
-        .name("Clean directory/package history")
-        .description("If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.")
-        .type(PropertyType.BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
-        .index(7)
         .build()
       );
   }

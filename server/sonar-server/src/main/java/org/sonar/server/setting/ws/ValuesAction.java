@@ -118,7 +118,7 @@ public class ValuesAction implements SettingsWsAction {
       .setHandler(this);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
-      .setExampleValue("sonar.test.inclusions,sonar.dbcleaner.cleanDirectory");
+      .setExampleValue("sonar.test.inclusions,sonar.exclusions");
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);

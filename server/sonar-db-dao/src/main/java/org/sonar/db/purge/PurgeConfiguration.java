@@ -31,8 +31,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
 
-import static java.util.Collections.singletonList;
-
 public class PurgeConfiguration {
 
   private final IdUuidPair rootProjectIdUuid;
@@ -53,11 +51,7 @@ public class PurgeConfiguration {
   }
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair rootId, Collection<String> disabledComponentUuids) {
-    Collection<String> scopes = singletonList(Scopes.FILE);
-    if (config.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElse(false)) {
-      scopes = Arrays.asList(Scopes.DIRECTORY, Scopes.FILE);
-    }
-    return new PurgeConfiguration(rootId, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
+    return new PurgeConfiguration(rootId, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
       config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
 
