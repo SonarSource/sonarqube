@@ -21,14 +21,54 @@ import { uniq } from 'lodash';
 import { Dispatch, combineReducers } from 'redux';
 import { ActionType } from './utils/actions';
 import * as api from '../api/users';
+import { listUserSettings, setUserSetting } from '../api/user-settings';
 import { isLoggedIn } from '../helpers/users';
 
+const enum Actions {
+  ReceiveCurrentUser = 'RECEIVE_CURRENT_USER',
+  ReceiveCurrentUserSettings = 'RECEIVE_CURRENT_USER_SETTINGS',
+  SkipOnboardingAction = 'SKIP_ONBOARDING',
+  SetHomePageAction = 'SET_HOMEPAGE'
+}
+
+type Action =
+  | ActionType<typeof receiveCurrentUser, Actions.ReceiveCurrentUser>
+  | ActionType<typeof receiveCurrentUserSettings, Actions.ReceiveCurrentUserSettings>
+  | ActionType<typeof setHomePageAction, Actions.SetHomePageAction>
+  | ActionType<typeof skipOnboardingAction, Actions.SkipOnboardingAction>;
+
+export interface State {
+  usersByLogin: { [login: string]: any };
+  userLogins: string[];
+  currentUser: T.CurrentUser;
+  currentUserSettings: T.CurrentUserSettings;
+}
+
 export function receiveCurrentUser(user: T.CurrentUser) {
-  return { type: 'RECEIVE_CURRENT_USER', user };
+  return { type: Actions.ReceiveCurrentUser, user };
+}
+
+function receiveCurrentUserSettings(userSettings: T.CurrentUserSettingData[]) {
+  return { type: Actions.ReceiveCurrentUserSettings, userSettings };
+}
+
+export function fetchCurrentUserSettings() {
+  return (dispatch: Dispatch) => {
+    listUserSettings().then(
+      ({ userSettings }) => dispatch(receiveCurrentUserSettings(userSettings)),
+      () => {}
+    );
+  };
+}
+
+export function setCurrentUserSetting(setting: T.CurrentUserSettingData) {
+  return (dispatch: Dispatch) => {
+    setUserSetting(setting).then(() => dispatch(receiveCurrentUserSettings([setting])), () => {});
+  };
 }
 
 function skipOnboardingAction() {
-  return { type: 'SKIP_ONBOARDING' };
+  return { type: Actions.SkipOnboardingAction };
 }
 
 export function skipOnboarding() {
@@ -39,7 +79,7 @@ export function skipOnboarding() {
 }
 
 function setHomePageAction(homepage: T.HomePage) {
-  return { type: 'SET_HOMEPAGE', homepage };
+  return { type: Actions.SetHomePageAction, homepage };
 }
 
 export function setHomePage(homepage: T.HomePage) {
@@ -53,19 +93,8 @@ export function setHomePage(homepage: T.HomePage) {
   };
 }
 
-type Action =
-  | ActionType<typeof receiveCurrentUser, 'RECEIVE_CURRENT_USER'>
-  | ActionType<typeof skipOnboardingAction, 'SKIP_ONBOARDING'>
-  | ActionType<typeof setHomePageAction, 'SET_HOMEPAGE'>;
-
-export interface State {
-  usersByLogin: { [login: string]: any };
-  userLogins: string[];
-  currentUser: T.CurrentUser;
-}
-
 function usersByLogin(state: State['usersByLogin'] = {}, action: Action): State['usersByLogin'] {
-  if (action.type === 'RECEIVE_CURRENT_USER' && isLoggedIn(action.user)) {
+  if (action.type === Actions.ReceiveCurrentUser && isLoggedIn(action.user)) {
     return { ...state, [action.user.login]: action.user };
   } else {
     return state;
@@ -73,7 +102,7 @@ function usersByLogin(state: State['usersByLogin'] = {}, action: Action): State[
 }
 
 function userLogins(state: State['userLogins'] = [], action: Action): State['userLogins'] {
-  if (action.type === 'RECEIVE_CURRENT_USER' && isLoggedIn(action.user)) {
+  if (action.type === Actions.ReceiveCurrentUser && isLoggedIn(action.user)) {
     return uniq([...state, action.user.login]);
   } else {
     return state;
@@ -84,22 +113,40 @@ function currentUser(
   state: State['currentUser'] = { isLoggedIn: false },
   action: Action
 ): State['currentUser'] {
-  if (action.type === 'RECEIVE_CURRENT_USER') {
+  if (action.type === Actions.ReceiveCurrentUser) {
     return action.user;
   }
-  if (action.type === 'SKIP_ONBOARDING' && isLoggedIn(state)) {
+  if (action.type === Actions.SkipOnboardingAction && isLoggedIn(state)) {
     return { ...state, showOnboardingTutorial: false } as T.LoggedInUser;
   }
-  if (action.type === 'SET_HOMEPAGE' && isLoggedIn(state)) {
+  if (action.type === Actions.SetHomePageAction && isLoggedIn(state)) {
     return { ...state, homepage: action.homepage } as T.LoggedInUser;
   }
   return state;
 }
 
-export default combineReducers({ usersByLogin, userLogins, currentUser });
+function currentUserSettings(
+  state: State['currentUserSettings'] = {},
+  action: Action
+): State['currentUserSettings'] {
+  if (action.type === Actions.ReceiveCurrentUserSettings) {
+    const newState = { ...state };
+    action.userSettings.forEach((item: T.CurrentUserSettingData) => {
+      newState[item.key] = item.value;
+    });
+    return newState;
+  }
+  return state;
+}
+
+export default combineReducers({ usersByLogin, userLogins, currentUser, currentUserSettings });
 
 export function getCurrentUser(state: State) {
   return state.currentUser;
+}
+
+export function getCurrentUserSettings(state: State) {
+  return state.currentUserSettings;
 }
 
 export function getUserByLogin(state: State, login: string) {

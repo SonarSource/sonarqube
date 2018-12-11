@@ -209,6 +209,15 @@ declare namespace T {
     showOnboardingTutorial?: boolean;
   }
 
+  export type CurrentUserSettings = { [key in CurrentUserSettingNames]?: string };
+
+  export interface CurrentUserSettingData {
+    key: CurrentUserSettingNames;
+    value: string;
+  }
+
+  type CurrentUserSettingNames = 'notificationsOptOut' | 'notificationsReadDate';
+
   export interface CustomMeasure {
     createdAt?: string;
     description?: string;

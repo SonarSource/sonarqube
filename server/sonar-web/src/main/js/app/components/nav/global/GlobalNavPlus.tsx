@@ -176,7 +176,7 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
           }
           tagName="li">
           <a
-            className="navbar-plus"
+            className="navbar-icon navbar-plus"
             href="#"
             title={
               isSonarCloud()

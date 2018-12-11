@@ -20,7 +20,7 @@ exports[`render 1`] = `
   tagName="li"
 >
   <a
-    className="navbar-plus"
+    className="navbar-icon navbar-plus"
     href="#"
     title="my_account.create_new_project_portfolio_or_application"
   >

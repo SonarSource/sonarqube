@@ -65,6 +65,10 @@ export function getLanguages(state: Store) {
   return fromLanguages.getLanguages(state.languages);
 }
 
+export function getCurrentUserSettings(state: Store) {
+  return fromUsers.getCurrentUserSettings(state.users);
+}
+
 export function getCurrentUser(state: Store) {
   return fromUsers.getCurrentUser(state.users);
 }

@@ -30,6 +30,7 @@ exports[`should render for SonarCloud 1`] = `
   <ul
     className="global-navbar-menu global-navbar-menu-right"
   >
+    <Connect(GlobalNavNotifications) />
     <GlobalNavExplore
       location={
         Object {

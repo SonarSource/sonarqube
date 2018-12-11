@@ -78,7 +78,11 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
           onRequestClose={this.closeHelp}
           open={this.state.helpOpen}
           overlay={<EmbedDocsPopup onClose={this.closeHelp} />}>
-          <a className="navbar-help" href="#" onClick={this.handleClick} title={translate('help')}>
+          <a
+            className="navbar-help navbar-icon"
+            href="#"
+            onClick={this.handleClick}
+            title={translate('help')}>
             <HelpIcon />
           </a>
         </Toggler>

@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavExplore from './GlobalNavExplore';
+import GlobalNavNotifications from './GlobalNavNotifications';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
@@ -57,6 +58,7 @@ export class GlobalNav extends React.PureComponent<Props> {
         <GlobalNavMenu {...this.props} />
 
         <ul className="global-navbar-menu global-navbar-menu-right">
+          {isSonarCloud() && <GlobalNavNotifications />}
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper />
           <Search appState={appState} currentUser={currentUser} />

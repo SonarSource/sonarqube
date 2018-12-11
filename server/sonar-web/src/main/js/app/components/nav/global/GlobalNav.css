@@ -50,8 +50,7 @@
   border: none !important;
 }
 
-.navbar-help,
-.navbar-plus {
+.navbar-icon {
   display: inline-block;
   height: var(--globalNavHeight);
   padding: calc(var(--globalNavHeight) - var(--globalNavContentHeight)) 12px !important;
@@ -98,6 +97,68 @@
 .global-navbar-menu-right {
   flex: 1;
   justify-content: flex-end;
+  margin-left: calc(5 * var(--gridSize));
+}
+
+.navbar-latest-notification {
+  flex: 0 1 350px;
+  text-align: right;
+  overflow: hidden;
+}
+
+.navbar-latest-notification-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: var(--gridSize) 34px var(--gridSize) 50px;
+  height: 28px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  vertical-align: middle;
+  font-size: var(--smallFontSize);
+  color: var(--sonarcloudBlack500);
+  background-color: black;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.navbar-latest-notification-wrapper:hover {
+  color: var(--sonarcloudBlack300);
+}
+
+.navbar-latest-notification-wrapper .badge {
+  position: absolute;
+  height: 18px;
+  margin-right: var(--gridSize);
+  left: calc(var(--gridSize) / 2);
+  top: 5px;
+  font-size: var(--verySmallFontSize);
+  text-transform: uppercase;
+  background-color: var(--lightBlue);
+  color: var(--darkBlue);
+}
+
+.navbar-latest-notification-wrapper .label {
+  display: block;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-latest-notification .navbar-icon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 28px;
+  padding: 9px var(--gridSize) !important;
+  border-left: 2px solid #262626;
+}
+
+.navbar-latest-notification .navbar-icon:hover path {
+  fill: var(--sonarcloudBlack300) !important;
 }
 
 .global-navbar-menu-right .navbar-search {

@@ -30,10 +30,48 @@ export interface PrismicNews {
   uid: string;
 }
 
+interface PrismicResult {
+  data: {
+    notification: string;
+    publication_date: string;
+    body: PrismicResultFeature[];
+  };
+}
+
+interface PrismicResultFeature {
+  items: Array<{
+    category: {
+      data: {
+        color: string;
+        name: string;
+      };
+    };
+  }>;
+  primary: {
+    description: string;
+    read_more_link: {
+      url?: string;
+    };
+  };
+}
+
+export interface PrismicFeatureNews {
+  notification: string;
+  publicationDate: string;
+  features: Array<{
+    categories: Array<{
+      color: string;
+      name: string;
+    }>;
+    description: string;
+    readMore?: string;
+  }>;
+}
+
 const PRISMIC_API_URL = 'https://sonarsource.cdn.prismic.io/api/v2';
 
 export function fetchPrismicRefs() {
-  return getCorsJSON(PRISMIC_API_URL).then((response: { refs: Array<PrismicRef> }) => {
+  return getCorsJSON(PRISMIC_API_URL).then((response: { refs: PrismicRef[] }) => {
     const master = response && response.refs.find(ref => ref.id === 'master');
     if (!master) {
       return Promise.reject('No master ref found');
@@ -58,5 +96,33 @@ export function fetchPrismicNews(data: {
     pageSize: data.ps || 1,
     q,
     ref: data.ref
-  }).then(({ results }: { results: Array<PrismicNews> }) => results);
+  }).then(({ results }: { results: PrismicNews[] }) => results);
+}
+
+export function fetchPrismicFeatureNews(data: {
+  accessToken: string;
+  ps?: number;
+  ref: string;
+}): Promise<PrismicFeatureNews[]> {
+  const q = ['[[at(document.type, "sc_product_news")]]'];
+  return getCorsJSON(PRISMIC_API_URL + '/documents/search', {
+    access_token: data.accessToken,
+    orderings: '[document.first_publication_date desc]',
+    pageSize: data.ps || 1,
+    q,
+    fetchLinks: 'sc_category.color,sc_category.name',
+    ref: data.ref
+  }).then(({ results }: { results: PrismicResult[] }) => {
+    return results.map(result => {
+      return {
+        notification: result.data.notification,
+        publicationDate: result.data.publication_date,
+        features: result.data.body.map(feature => ({
+          categories: feature.items.map(item => item.category.data),
+          description: feature.primary.description,
+          readMore: feature.primary.read_more_link.url
+        }))
+      };
+    });
+  });
 }
