@@ -21,7 +21,6 @@ import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import Details from './Details';
-import Intro from './Intro';
 import List from './List';
 import ListHeader from './ListHeader';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
@@ -60,6 +59,12 @@ class App extends React.PureComponent<Props, State> {
     addSideBarClass();
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.params.id !== undefined && this.props.params.id === undefined) {
+      this.openDefault(this.state.qualityGates);
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
     removeWhitePageClass();
@@ -73,10 +78,8 @@ class App extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ canCreate: actions.create, loading: false, qualityGates });
 
-          if (qualityGates && qualityGates.length === 1 && !actions.create) {
-            this.props.router.replace(
-              getQualityGateUrl(String(qualityGates[0].id), organization && organization.key)
-            );
+          if (!this.props.params.id) {
+            this.openDefault(qualityGates);
           }
         }
       },
@@ -87,6 +90,14 @@ class App extends React.PureComponent<Props, State> {
       }
     );
   };
+
+  openDefault(qualityGates: T.QualityGate[]) {
+    const defaultQualityGate = qualityGates.find(gate => Boolean(gate.isDefault))!;
+    const { organization } = this.props;
+    this.props.router.replace(
+      getQualityGateUrl(String(defaultQualityGate.id), organization && organization.key)
+    );
+  }
 
   handleSetDefault = (qualityGate: T.QualityGate) => {
     this.setState(({ qualityGates }) => {
@@ -101,31 +112,8 @@ class App extends React.PureComponent<Props, State> {
     });
   };
 
-  renderContent() {
-    const { id } = this.props.params;
-    const organizationKey = this.props.organization && this.props.organization.key;
-    if (id !== undefined) {
-      return (
-        <Details
-          id={id}
-          onSetDefault={this.handleSetDefault}
-          organization={organizationKey}
-          qualityGates={this.state.qualityGates}
-          refreshQualityGates={this.fetchQualityGates}
-        />
-      );
-    } else {
-      return (
-        <Intro
-          organization={organizationKey}
-          qualityGates={this.state.qualityGates}
-          router={this.props.router}
-        />
-      );
-    }
-  }
-
   render() {
+    const { id } = this.props.params;
     const { canCreate, qualityGates } = this.state;
     const defaultTitle = translate('quality_gates.page');
     const organization = this.props.organization && this.props.organization.key;
@@ -146,16 +134,24 @@ class App extends React.PureComponent<Props, State> {
                       organization={organization}
                       refreshQualityGates={this.fetchQualityGates}
                     />
-                    {qualityGates.length > 0 && (
+                    <DeferredSpinner loading={this.state.loading}>
                       <List organization={organization} qualityGates={qualityGates} />
-                    )}
+                    </DeferredSpinner>
                   </div>
                 </div>
               </div>
             )}
           </ScreenPositionHelper>
 
-          <DeferredSpinner loading={this.state.loading}>{this.renderContent()}</DeferredSpinner>
+          {id !== undefined && (
+            <Details
+              id={id}
+              onSetDefault={this.handleSetDefault}
+              organization={organization}
+              qualityGates={this.state.qualityGates}
+              refreshQualityGates={this.fetchQualityGates}
+            />
+          )}
         </div>
       </>
     );

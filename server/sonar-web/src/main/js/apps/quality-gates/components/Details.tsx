@@ -26,6 +26,7 @@ import { getMetrics, Store } from '../../../store/rootReducer';
 import { fetchMetrics } from '../../../store/rootActions';
 import { fetchQualityGate } from '../../../api/quality-gates';
 import { checkIfDefault, addCondition, replaceCondition, deleteCondition } from '../utils';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface OwnProps {
   id: string;
@@ -130,34 +131,34 @@ export class Details extends React.PureComponent<Props, State> {
 
   render() {
     const { organization, metrics, refreshQualityGates } = this.props;
-    const { qualityGate } = this.state;
-
-    if (!qualityGate) {
-      return null;
-    }
+    const { loading, qualityGate } = this.state;
 
     return (
-      <>
-        <Helmet title={qualityGate.name} />
-        <div className="layout-page-main">
-          <DetailsHeader
-            onSetDefault={this.handleSetDefault}
-            organization={organization}
-            qualityGate={qualityGate}
-            refreshItem={this.fetchDetails}
-            refreshList={refreshQualityGates}
-          />
-          <DetailsContent
-            isDefault={checkIfDefault(qualityGate, this.props.qualityGates)}
-            metrics={metrics}
-            onAddCondition={this.handleAddCondition}
-            onRemoveCondition={this.handleRemoveCondition}
-            onSaveCondition={this.handleSaveCondition}
-            organization={organization}
-            qualityGate={qualityGate}
-          />
-        </div>
-      </>
+      <div className="layout-page-main">
+        <DeferredSpinner loading={loading} timeout={200}>
+          {qualityGate && (
+            <>
+              <Helmet title={qualityGate.name} />
+              <DetailsHeader
+                onSetDefault={this.handleSetDefault}
+                organization={organization}
+                qualityGate={qualityGate}
+                refreshItem={this.fetchDetails}
+                refreshList={refreshQualityGates}
+              />
+              <DetailsContent
+                isDefault={checkIfDefault(qualityGate, this.props.qualityGates)}
+                metrics={metrics}
+                onAddCondition={this.handleAddCondition}
+                onRemoveCondition={this.handleRemoveCondition}
+                onSaveCondition={this.handleSaveCondition}
+                organization={organization}
+                qualityGate={qualityGate}
+              />
+            </>
+          )}
+        </DeferredSpinner>
+      </div>
     );
   }
 }
