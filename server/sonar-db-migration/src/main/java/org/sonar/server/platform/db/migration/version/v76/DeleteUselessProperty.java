@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
+ * Copyright (C) 2009-2018 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,23 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v76;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+/**
+ * Remove the following settings from the PROPERTIES table :
+ * - sonar.dbcleaner.cleanDirectory
+ */
+@SupportsBlueGreen
+public class DeleteUselessProperty extends DataChange {
 
-public class DbVersion76Test {
-
-  private DbVersion76 underTest = new DbVersion76();
-
-  @Test
-  public void migrationNumber_starts_at_2500() {
-    verifyMinimumMigrationNumber(underTest, 2500);
+  public DeleteUselessProperty(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.prepareUpsert("DELETE FROM properties WHERE prop_key = 'sonar.dbcleaner.cleanDirectory'")
+      .execute()
+      .commit();
   }
 
 }

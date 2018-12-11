@@ -30,6 +30,8 @@ public class DbVersion76 implements DbVersion {
       .add(2500, "Create table USER_PROPERTIES", CreateUserPropertiesTable.class)
       .add(2501, "Add index in table USER_PROPERTIES", AddUniqueIndexInUserPropertiesTable.class)
       .add(2502, "Archive module properties in a new project level property", MigrateModuleProperties.class)
+      .add(2503, "Delete useless 'sonar.dbcleaner.cleanDirectory' property", DeleteUselessProperty.class)
+      .add(2504, "Delete useless module and folder level measures", DeleteModuleAndFolderMeasures.class)
       .add(2505, "Fix the direction values of certain metrics (prepare for migration of conditions)", FixDirectionOfMetrics.class)
       .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class);
   }
