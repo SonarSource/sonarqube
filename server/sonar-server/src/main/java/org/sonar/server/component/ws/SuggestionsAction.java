@@ -118,7 +118,9 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setInternal(true)
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "suggestions-example.json"))
-      .setChangelog(new Change("6.4", "Parameter 's' is optional"));
+      .setChangelog(
+        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_MORE)),
+        new Change("6.4", "Parameter 's' is optional"));
 
     action.createParam(PARAM_QUERY)
       .setRequired(false)
@@ -339,8 +341,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     ComponentDto result = componentsByUuids.get(hit.getUuid());
     if (result == null
       // SONAR-11419 this has happened in production while code does not really allow it. An inconsistency in DB may be the cause.
-      || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.projectUuid()) == null)
-    ) {
+      || (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier()) && projectsByUuids.get(result.projectUuid()) == null)) {
       return null;
     }
     String organizationKey = organizationByUuids.get(result.getOrganizationUuid()).getKey();

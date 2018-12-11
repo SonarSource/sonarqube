@@ -30,6 +30,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -87,6 +88,7 @@ public class SearchAction implements ComponentsWsAction {
       .setSince("6.3")
       .setDescription("Search for components")
       .addPagingParams(100, MAX_LIMIT)
+      .setChangelog(new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)))
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 

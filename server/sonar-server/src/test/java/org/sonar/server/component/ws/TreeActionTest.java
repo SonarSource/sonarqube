@@ -100,8 +100,9 @@ public class TreeActionTest {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("6.4", "The field 'id' is deprecated in the response"),
-      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"));
+      tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"),
+      tuple("7.6", "The use of module keys in parameter 'component' is deprecated"),
+      tuple("6.4", "The field 'id' is deprecated in the response"));
     assertThat(action.params()).extracting(Param::key).containsExactlyInAnyOrder("component", "componentId", "branch", "pullRequest", "qualifiers", "strategy",
       "q", "s", "p", "asc", "ps");
 

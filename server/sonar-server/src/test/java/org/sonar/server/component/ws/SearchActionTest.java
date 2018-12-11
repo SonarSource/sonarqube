@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -116,6 +117,8 @@ public class SearchActionTest {
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isFalse();
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"));
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
     assertThat(action.params()).hasSize(6);

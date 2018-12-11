@@ -67,8 +67,8 @@ import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentD
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
@@ -114,14 +114,15 @@ public class TreeAction implements ComponentsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy. The %s or the %s parameter must be provided.<br>" +
-          "Requires the following permission: 'Browse' on the specified project.<br>" +
-          "When limiting search with the %s parameter, directories are not returned.",
+        "Requires the following permission: 'Browse' on the specified project.<br>" +
+        "When limiting search with the %s parameter, directories are not returned.",
         PARAM_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setChangelog(
-        new Change("6.4", "The field 'id' is deprecated in the response"),
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
+        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
+        new Change("6.4", "The field 'id' is deprecated in the response"))
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE);
 
