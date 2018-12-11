@@ -34,6 +34,7 @@ public class WebhookDelivery {
 
   private final Webhook webhook;
   private final WebhookPayload payload;
+  private final String effectiveUrl;
   private final Integer httpStatus;
   private final Integer durationInMs;
   private final long at;
@@ -42,6 +43,7 @@ public class WebhookDelivery {
   private WebhookDelivery(Builder builder) {
     this.webhook = requireNonNull(builder.webhook);
     this.payload = requireNonNull(builder.payload);
+    this.effectiveUrl = builder.effectiveUrl;
     this.httpStatus = builder.httpStatus;
     this.durationInMs = builder.durationInMs;
     this.at = builder.at;
@@ -54,6 +56,10 @@ public class WebhookDelivery {
 
   public WebhookPayload getPayload() {
     return payload;
+  }
+
+  public Optional<String> getEffectiveUrl() {
+    return Optional.ofNullable(effectiveUrl);
   }
 
   /**
@@ -101,6 +107,7 @@ public class WebhookDelivery {
   public static class Builder {
     private Webhook webhook;
     private WebhookPayload payload;
+    private String effectiveUrl;
     private Integer httpStatus;
     private Integer durationInMs;
     private long at;
@@ -113,6 +120,11 @@ public class WebhookDelivery {
 
     public Builder setPayload(WebhookPayload payload) {
       this.payload = payload;
+      return this;
+    }
+
+    public Builder setEffectiveUrl(@Nullable String effectiveUrl) {
+      this.effectiveUrl = effectiveUrl;
       return this;
     }
 

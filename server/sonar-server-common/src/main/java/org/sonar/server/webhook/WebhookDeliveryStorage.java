@@ -72,7 +72,7 @@ public class WebhookDeliveryStorage {
     delivery.getWebhook().getCeTaskUuid().ifPresent(dto::setCeTaskUuid);
     delivery.getWebhook().getAnalysisUuid().ifPresent(dto::setAnalysisUuid);
     dto.setName(delivery.getWebhook().getName());
-    dto.setUrl(delivery.getWebhook().getUrl());
+    dto.setUrl(delivery.getEffectiveUrl().orElse(delivery.getWebhook().getUrl()));
     dto.setSuccess(delivery.isSuccess());
     dto.setHttpStatus(delivery.getHttpStatus().orElse(null));
     dto.setDurationMs(delivery.getDurationInMs().orElse(null));

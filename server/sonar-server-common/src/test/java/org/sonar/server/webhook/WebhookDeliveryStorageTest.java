@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.db.webhook.WebhookDeliveryTesting;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -99,6 +100,20 @@ public class WebhookDeliveryStorageTest {
 
     // do not purge another project PROJECT_2
     assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2", "D3");
+  }
+
+  @Test
+  public void persist_effective_url_if_present() {
+    when(uuidFactory.create()).thenReturn(DELIVERY_UUID);
+    String effectiveUrl = randomAlphabetic(15);
+    WebhookDelivery delivery = newBuilderTemplate()
+      .setEffectiveUrl(effectiveUrl)
+      .build();
+
+    underTest.persist(delivery);
+
+    WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
+    assertThat(dto.getUrl()).isEqualTo(effectiveUrl);
   }
 
   private static WebhookDelivery.Builder newBuilderTemplate() {
