@@ -154,8 +154,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       evaluatedCondition.getValue().ifPresent(t -> writer.prop("value", t));
       writer
         .prop(PROPERTY_STATUS, evaluatedCondition.getStatus().name())
-        .prop("errorThreshold", condition.getErrorThreshold().orElse(null))
-        .prop("warningThreshold", condition.getWarningThreshold().orElse(null))
+        .prop("errorThreshold", condition.getErrorThreshold())
         .endObject();
     }
     writer

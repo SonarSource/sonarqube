@@ -125,8 +125,6 @@ public class QualityGateMeasuresStep implements ComputationStep {
     switch (globalLevel) {
       case OK:
         return ConditionStatus.EvaluationStatus.OK;
-      case WARN:
-        return ConditionStatus.EvaluationStatus.WARN;
       case ERROR:
         return ConditionStatus.EvaluationStatus.ERROR;
       default:
@@ -140,8 +138,6 @@ public class QualityGateMeasuresStep implements ComputationStep {
     switch (globalLevel) {
       case OK:
         return org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus.OK;
-      case WARN:
-        return org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus.WARN;
       case ERROR:
         return org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus.ERROR;
       default:
@@ -251,10 +247,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
     public void addEvaluatedCondition(MetricEvaluationResult metricEvaluationResult) {
       Measure.Level level = metricEvaluationResult.evaluationResult.getLevel();
-      if (Measure.Level.WARN == level && this.globalLevel != Measure.Level.ERROR) {
-        globalLevel = Measure.Level.WARN;
-
-      } else if (Measure.Level.ERROR == level) {
+      if (Measure.Level.ERROR == level) {
         globalLevel = Measure.Level.ERROR;
       }
       evaluatedConditions.add(

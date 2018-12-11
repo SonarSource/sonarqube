@@ -52,7 +52,6 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
       .setMetricKey(metricKey)
       .setOperator(convert(input.getOperator()))
       .setErrorThreshold(input.getErrorThreshold())
-      .setWarningThreshold(input.getWarningThreshold())
       .setValue(conditionStatus.getValue())
       .build();
   }
@@ -63,8 +62,6 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
         return QualityGate.EvaluationStatus.NO_VALUE;
       case OK:
         return QualityGate.EvaluationStatus.OK;
-      case WARN:
-        return QualityGate.EvaluationStatus.WARN;
       case ERROR:
         return QualityGate.EvaluationStatus.ERROR;
       default:

@@ -19,7 +19,9 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import javax.annotation.Nullable;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -51,7 +53,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class UpdateConditionActionTest {
 
@@ -73,33 +74,13 @@ public class UpdateConditionActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void update_warning_condition() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
-
-    ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_ID, Long.toString(condition.getId()))
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", "90", null);
-  }
-
-  @Test
   public void update_error_condition() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
+      c -> c.setOperator("GT").setErrorThreshold("80"));
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -109,7 +90,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ERROR, "90")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", null, "90");
+    assertCondition(qualityGate, metric, "LT", "90");
   }
 
   @Test
@@ -123,52 +104,10 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ID, Long.toString(condition.getId()))
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "10")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", null);
-  }
-
-  @Test
-  public void update_warning_condition_with_empty_string_on_error() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
-
-    ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_ID, Long.toString(condition.getId()))
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
-      .setParam(PARAM_ERROR, "")
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", "90", null);
-  }
-
-  @Test
-  public void update_error_condition_with_empty_string_on_warning() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
-
-    ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_ID, Long.toString(condition.getId()))
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_ERROR, "90")
-      .setParam(PARAM_WARNING, "")
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", null, "90");
+    assertCondition(qualityGate, metric, "LT", "10");
   }
 
   @Test
@@ -178,21 +117,19 @@ public class UpdateConditionActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80"));
+      c -> c.setOperator("GT").setErrorThreshold("80"));
 
     CreateConditionResponse response = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_ID, Long.toString(condition.getId()))
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
       .setParam(PARAM_ERROR, "45")
       .executeProtobuf(CreateConditionResponse.class);
 
     assertThat(response.getId()).isEqualTo(condition.getId());
     assertThat(response.getMetric()).isEqualTo(metric.getKey());
     assertThat(response.getOp()).isEqualTo("LT");
-    assertThat(response.getWarning()).isEqualTo("90");
     assertThat(response.getError()).isEqualTo("45");
   }
 
@@ -212,7 +149,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ID, Long.toString(condition.getId()))
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "10")
       .execute();
   }
 
@@ -232,7 +169,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ID, "123")
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "90")
       .execute();
   }
 
@@ -253,7 +190,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ID, Long.toString(condition.getId()))
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "90")
       .execute();
   }
 
@@ -273,7 +210,7 @@ public class UpdateConditionActionTest {
       .setParam(PARAM_ID, Long.toString(condition.getId()))
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "90")
       .execute();
   }
 
@@ -289,18 +226,16 @@ public class UpdateConditionActionTest {
       .containsExactlyInAnyOrder(
         tuple("id", true),
         tuple("metric", true),
+        tuple("error", true),
         tuple("op", false),
-        tuple("warning", false),
-        tuple("error", false),
         tuple("organization", false));
-
   }
 
-  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error) {
+  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
       .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error));
+        QualityGateConditionDto::getErrorThreshold)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, error));
   }
 
   private MetricDto insertMetric() {

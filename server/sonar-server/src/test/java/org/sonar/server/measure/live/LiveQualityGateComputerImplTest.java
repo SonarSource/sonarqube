@@ -107,14 +107,14 @@ public class LiveQualityGateComputerImplTest {
 
     assertThat(result.getId()).isEqualTo("" + gate.getId());
     assertThat(result.getConditions())
-      .extracting(Condition::getMetricKey, Condition::getOperator, c -> c.getErrorThreshold().get(), c -> c.getWarningThreshold().get())
+      .extracting(Condition::getMetricKey, Condition::getOperator, Condition::getErrorThreshold)
       .containsExactlyInAnyOrder(
-        tuple(metric.getKey(), Condition.Operator.fromDbValue(condition.getOperator()), condition.getErrorThreshold(), condition.getWarningThreshold()));
+        tuple(metric.getKey(), Condition.Operator.fromDbValue(condition.getOperator()), condition.getErrorThreshold()));
   }
 
   @Test
   public void getMetricsRelatedTo() {
-    Condition condition = new Condition("metric1", Condition.Operator.EQUALS, "10", null);
+    Condition condition = new Condition("metric1", Condition.Operator.EQUALS, "10");
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
 
     Set<String> result = underTest.getMetricsRelatedTo(gate);
@@ -132,7 +132,7 @@ public class LiveQualityGateComputerImplTest {
     MetricDto conditionMetric = newMetricDto();
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
-    Condition condition = new Condition(conditionMetric.getKey(), Condition.Operator.GREATER_THAN, "10", null);
+    Condition condition = new Condition(conditionMetric.getKey(), Condition.Operator.GREATER_THAN, "10");
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(conditionMetric, statusMetric, detailsMetric), emptyList());
 

@@ -124,8 +124,8 @@ public class QualityGateEventsStep implements ComputationStep {
   }
 
   /**
-   * @param label "Red (was Orange)"
-   * @param rawStatus OK, WARN or ERROR + optional text
+   * @param label "Red (was Green)"
+   * @param rawStatus OK or ERROR + optional text
    */
   private void notifyUsers(Component project, String label, QualityGateStatus rawStatus, boolean isNewAlert) {
     Notification notification = new Notification("alerts")

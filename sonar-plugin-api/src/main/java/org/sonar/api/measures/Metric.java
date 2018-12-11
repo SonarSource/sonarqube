@@ -106,7 +106,13 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   }
 
   public enum Level {
-    OK("Green"), WARN("Orange"), ERROR("Red");
+    OK("Green"),
+    /**
+     * @deprecated in 7.6.
+     */
+    @Deprecated
+    WARN("Orange"),
+    ERROR("Red");
 
     private static final List<String> NAMES = Arrays.stream(values())
       .map(Level::name)

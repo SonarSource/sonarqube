@@ -50,7 +50,10 @@ public interface QualityGate {
   enum Status {
     /** at least one threshold is defined, no threshold is reached */
     OK,
-    /** at least one warning threshold is reached, no error threshold is reached */
+    /**
+     * @deprecated in 7.6.
+     */
+    @Deprecated
     WARN,
     /** at least one error threshold is reached */
     ERROR
@@ -74,28 +77,19 @@ public interface QualityGate {
     String getMetricKey();
 
     /**
-     * The operator used to evaluate the error and/or warning thresholds against the value of the measure
+     * The operator used to evaluate the error threshold against the value of the measure
      */
     Operator getOperator();
 
     /**
-     * <p>
-     * At least one of {@link #getErrorThreshold()} and {@link #getWarningThreshold()} is guaranteed to be non {@code null}.
-     * 
-     *
-     * @see #getWarningThreshold()
+     * The threshold value which makes the quality gates status change to {@link EvaluationStatus#ERROR} when it's reached.
      */
-    @CheckForNull
     String getErrorThreshold();
 
     /**
-     *
-     * <p>
-     * At least one of {@link #getErrorThreshold()} and {@link #getWarningThreshold()} is guaranteed to be non {@code null}.
-     * 
-     *
-     * @see #getErrorThreshold()
+     * @deprecated in 7.6. Implementations should always return null.
      */
+    @Deprecated
     @CheckForNull
     String getWarningThreshold();
 
@@ -139,12 +133,14 @@ public interface QualityGate {
      */
     NO_VALUE,
     /**
-     * Condition evaluated as OK, neither error nor warning thresholds have been reached.
+     * Condition evaluated as OK, error thresholds has not been reached.
      */
     OK,
     /**
      * Condition evaluated as WARN, only warning thresholds has been reached.
+     * @deprecated in 7.6
      */
+    @Deprecated
     WARN,
     /**
      * Condition evaluated as ERROR, error thresholds has been reached (and most likely warning thresholds too).

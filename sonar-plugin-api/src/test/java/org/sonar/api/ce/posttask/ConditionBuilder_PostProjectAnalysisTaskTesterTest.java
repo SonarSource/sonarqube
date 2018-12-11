@@ -29,7 +29,6 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   private static final String SOME_METRIC_KEY = "some metric key";
   private static final QualityGate.Operator SOME_OPERATOR = QualityGate.Operator.GREATER_THAN;
   private static final String SOME_ERROR_THRESHOLD = "some error threshold";
-  private static final String SOME_WARNING_THRESHOLD = "some warning threshold";
   private static final QualityGate.EvaluationStatus SOME_STATUS_BUT_NO_VALUE = QualityGate.EvaluationStatus.OK;
   private static final String SOME_VALUE = "some value";
 
@@ -56,7 +55,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void buildNoValue_throws_NPE_if_metricKey_is_null() {
-    underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
+    underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("metricKey cannot be null");
@@ -66,7 +65,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void buildNoValue_throws_NPE_if_operator_is_null() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
+    underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("operator cannot be null");
@@ -75,11 +74,11 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   }
 
   @Test
-  public void buildNoValue_throws_ISE_if_both_warningThreshold_and_errorThreshold_are_null() {
+  public void buildNoValue_throws_NPE_if_errorThreshold_is_null() {
     underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("At least one of errorThreshold and warningThreshold must be non null");
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("errorThreshold cannot be null");
 
     underTest.buildNoValue();
   }
@@ -103,20 +102,6 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   }
 
   @Test
-  public void buildNoValue_does_not_fail_when_only_errorThreshold_is_set() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
-
-    underTest.buildNoValue();
-  }
-
-  @Test
-  public void buildNoValue_does_not_fail_when_only_wardThreshold_is_set() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR).setWarningThreshold(SOME_WARNING_THRESHOLD);
-
-    underTest.buildNoValue();
-  }
-
-  @Test
   public void buildNoValue_returns_new_instance_at_each_call() {
     initValidBuilder();
 
@@ -130,7 +115,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(underTest.buildNoValue().toString())
       .isEqualTo(
         "Condition{status=NO_VALUE, metricKey='some metric key', operator=GREATER_THAN, " +
-          "errorThreshold='some error threshold', warningThreshold='some warning threshold'}");
+          "errorThreshold='some error threshold'}");
   }
 
   @Test
@@ -142,7 +127,6 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(condition.getMetricKey()).isEqualTo(SOME_METRIC_KEY);
     assertThat(condition.getOperator()).isEqualTo(SOME_OPERATOR);
     assertThat(condition.getErrorThreshold()).isEqualTo(SOME_ERROR_THRESHOLD);
-    assertThat(condition.getWarningThreshold()).isEqualTo(SOME_WARNING_THRESHOLD);
   }
 
   @Test
@@ -177,7 +161,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void build_throws_NPE_if_metricKey_is_null() {
-    underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
+    underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("metricKey cannot be null");
@@ -187,7 +171,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void build_throws_NPE_if_operator_is_null() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
+    underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("operator cannot be null");
@@ -196,25 +180,11 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   }
 
   @Test
-  public void build_does_not_fail_when_only_errorThreshold_is_set() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
-
-    underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
-  }
-
-  @Test
-  public void build_does_not_fail_when_only_wardThreshold_is_set() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR).setWarningThreshold(SOME_WARNING_THRESHOLD);
-
-    underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
-  }
-
-  @Test
-  public void build_throws_ISE_if_both_warningThreshold_and_errorThreshold_are_null() {
+  public void build_throws_NPE_if_errorThreshold_is_null() {
     underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("At least one of errorThreshold and warningThreshold must be non null");
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("errorThreshold cannot be null");
 
     underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
   }
@@ -233,7 +203,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE).toString())
       .isEqualTo(
         "Condition{status=OK, metricKey='some metric key', operator=GREATER_THAN, "
-          + "errorThreshold='some error threshold', warningThreshold='some warning threshold', value='some value'}");
+          + "errorThreshold='some error threshold', value='some value'}");
   }
 
   @Test
@@ -264,12 +234,11 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     assertThat(condition.getMetricKey()).isEqualTo(SOME_METRIC_KEY);
     assertThat(condition.getOperator()).isEqualTo(SOME_OPERATOR);
     assertThat(condition.getErrorThreshold()).isEqualTo(SOME_ERROR_THRESHOLD);
-    assertThat(condition.getWarningThreshold()).isEqualTo(SOME_WARNING_THRESHOLD);
     assertThat(condition.getValue()).isEqualTo(SOME_VALUE);
   }
 
   private PostProjectAnalysisTaskTester.ConditionBuilder initValidBuilder() {
-    underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
+    underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
     return underTest;
   }
 }

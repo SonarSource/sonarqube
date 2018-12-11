@@ -39,7 +39,6 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.WARN;
 
 public class SmallChangesetQualityGateSpecialCaseTest {
 
@@ -58,17 +57,6 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   @Test
   public void ignore_errors_about_new_coverage_for_small_changesets() {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
-    Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
-
-    boolean result = underTest.appliesTo(project, metricEvaluationResult);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  public void ignore_warnings_about_new_coverage_for_small_changesets() {
-    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, WARN);
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
 
@@ -149,7 +137,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
 
   private QualityGateMeasuresStep.MetricEvaluationResult generateEvaluationResult(String metric, Measure.Level level) {
     Metric newCoverageMetric = metricRepository.getByKey(metric);
-    Condition condition = new Condition(newCoverageMetric, "LT", "80", "90");
+    Condition condition = new Condition(newCoverageMetric, "LT", "80");
     EvaluationResult evaluationResult = new EvaluationResult(level, mock(Comparable.class));
     return new QualityGateMeasuresStep.MetricEvaluationResult(evaluationResult, condition);
   }

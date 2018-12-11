@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -87,10 +86,10 @@ public class ShowActionTest {
     assertThat(response.getIsBuiltIn()).isFalse();
     assertThat(response.getConditionsList()).hasSize(2);
     assertThat(response.getConditionsList())
-      .extracting(Condition::getId, Condition::getMetric, Condition::getOp, Condition::getError, Condition::getWarning)
+      .extracting(Condition::getId, Condition::getMetric, Condition::getOp, Condition::getError)
       .containsExactlyInAnyOrder(
-        tuple(condition1.getId(), metric1.getKey(), "GT", condition1.getErrorThreshold(), condition1.getWarningThreshold()),
-        tuple(condition2.getId(), metric2.getKey(), "LT", condition2.getErrorThreshold(), condition2.getWarningThreshold()));
+        tuple(condition1.getId(), metric1.getKey(), "GT", condition1.getErrorThreshold()),
+        tuple(condition2.getId(), metric2.getKey(), "LT", condition2.getErrorThreshold()));
   }
 
   @Test
@@ -397,9 +396,9 @@ public class ShowActionTest {
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate 2"));
     db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
     MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
-    MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
-    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0").setWarningThreshold(null));
-    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold(null).setWarningThreshold("0"));
+    MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("tests"));
+    db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setErrorThreshold("0"));
+    db.qualityGates().addCondition(qualityGate, criticalViolationsMetric, c -> c.setOperator("LT").setErrorThreshold("10"));
 
     String response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -415,10 +414,6 @@ public class ShowActionTest {
   public void verify_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action.since()).isEqualTo("4.3");
-    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
-      .containsExactlyInAnyOrder(
-        tuple("7.0", "'isBuiltIn' field is added to the response"),
-        tuple("7.0", "'actions' field is added in the response"));
     assertThat(action.params())
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(

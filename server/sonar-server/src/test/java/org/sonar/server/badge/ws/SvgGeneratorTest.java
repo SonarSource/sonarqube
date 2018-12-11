@@ -31,7 +31,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.Metric.Level.WARN;
+import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 
 public class SvgGeneratorTest {
@@ -62,9 +62,9 @@ public class SvgGeneratorTest {
     mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
-    String result = underTest.generateQualityGate(WARN);
+    String result = underTest.generateQualityGate(ERROR);
 
-    checkQualityGate(result, WARN);
+    checkQualityGate(result, ERROR);
   }
 
   @Test
@@ -102,9 +102,6 @@ public class SvgGeneratorTest {
     switch (status) {
       case OK:
         assertThat(response).isEqualTo(readTemplate("quality_gate_passed.svg"));
-        break;
-      case WARN:
-        assertThat(response).isEqualTo(readTemplate("quality_gate_warn.svg"));
         break;
       case ERROR:
         assertThat(response).isEqualTo(readTemplate("quality_gate_failed.svg"));

@@ -28,7 +28,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.db.measure.custom.CustomMeasureTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.Metric.Level.WARN;
+import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
@@ -82,9 +82,9 @@ public class CustomMeasureValidatorTest {
 
   @Test
   public void set_level_value() {
-    underTest.setMeasureValue(customMeasure, WARN.name(), newMetricDto().setValueType(LEVEL.name()));
+    underTest.setMeasureValue(customMeasure, ERROR.name(), newMetricDto().setValueType(LEVEL.name()));
 
-    assertThat(customMeasure.getTextValue()).isEqualTo(WARN.name());
+    assertThat(customMeasure.getTextValue()).isEqualTo(ERROR.name());
   }
 
   @Test

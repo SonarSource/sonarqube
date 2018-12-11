@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
@@ -38,8 +37,8 @@ public final class ShortLivingBranchQualityGate {
     new Condition(CoreMetrics.REOPENED_ISSUES_KEY, OPERATOR_GREATER_THAN, "0"));
 
   public static final QualityGate GATE = new QualityGate(String.valueOf(ID), NAME, ImmutableSet.of(
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.OPEN_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null),
-    new org.sonar.server.qualitygate.Condition(CoreMetrics.REOPENED_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null)));
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.OPEN_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0"),
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.REOPENED_ISSUES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0")));
 
   private ShortLivingBranchQualityGate() {
     // prevents instantiation
@@ -66,11 +65,6 @@ public final class ShortLivingBranchQualityGate {
 
     public String getErrorThreshold() {
       return errorThreshold;
-    }
-
-    @CheckForNull
-    public String getWarnThreshold() {
-      return null;
     }
   }
 }

@@ -20,5 +20,5 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 public enum QualityGateStatus {
-  OK, WARN, ERROR
+  OK, ERROR
 }

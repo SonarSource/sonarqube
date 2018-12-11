@@ -40,7 +40,6 @@ public final class Measure {
 
   public enum Level {
     OK("Green"),
-    WARN("Orange"),
     ERROR("Red");
 
     private final String colorName;
@@ -125,7 +124,7 @@ public final class Measure {
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0d : 0.0d, data, null, qualityGateStatus, variation);
+      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0D : 0.0D, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(boolean value) {
@@ -239,7 +238,7 @@ public final class Measure {
    */
   public boolean getBooleanValue() {
     checkValueType(ValueType.BOOLEAN);
-    return value == 1.0d;
+    return value == 1.0D;
   }
 
   /**

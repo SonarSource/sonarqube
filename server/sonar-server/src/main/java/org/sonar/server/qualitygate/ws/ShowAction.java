@@ -68,6 +68,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("7.6", "'period' and 'warning' fields of conditions are removed from the response"),
         new Change("7.0", "'isBuiltIn' field is added to the response"),
         new Change("7.0", "'actions' field is added in the response"))
       .setHandler(this);
@@ -143,7 +144,6 @@ public class ShowAction implements QualityGatesWsAction {
         .setMetric(metric.getKey())
         .setOp(condition.getOperator());
       setNullable(condition.getErrorThreshold(), builder::setError);
-      setNullable(condition.getWarningThreshold(), builder::setWarning);
       return builder.build();
     };
   }

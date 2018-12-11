@@ -87,6 +87,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.3")
       .setHandler(this)
       .setChangelog(
+        new Change("7.6", "The field 'warning' is deprecated from the response"),
         new Change("6.4", "The field 'ignoredConditions' is added to the response"));
 
     action.createParam(PARAM_ANALYSIS_ID)

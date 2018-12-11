@@ -87,7 +87,6 @@ public class WebhookPostTaskTest {
       .setMetricKey(randomAlphanumeric(96))
       .setOperator(QualityGate.Operator.values()[random.nextInt(QualityGate.Operator.values().length)])
       .setErrorThreshold(randomAlphanumeric(22))
-      .setWarningThreshold(randomAlphanumeric(23))
       .setOnLeakPeriod(random.nextBoolean())
       .build(QualityGate.EvaluationStatus.OK, randomAlphanumeric(33));
     QualityGate qualityGate = newQualityGateBuilder()
@@ -147,9 +146,7 @@ public class WebhookPostTaskTest {
       Condition qgCondition = new Condition(
         condition.getMetricKey(),
         Condition.Operator.valueOf(condition.getOperator().name()),
-        condition.getErrorThreshold(),
-        condition.getWarningThreshold()
-      );
+        condition.getErrorThreshold());
       webQualityGate = EvaluatedQualityGate.newBuilder()
         .setQualityGate(new org.sonar.server.qualitygate.QualityGate(qualityGate.getId(), qualityGate.getName(), Collections.singleton(qgCondition)))
         .setStatus(Metric.Level.valueOf(qualityGate.getStatus().name()))

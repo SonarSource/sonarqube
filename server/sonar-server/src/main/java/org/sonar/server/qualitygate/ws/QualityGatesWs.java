@@ -30,7 +30,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLE
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
+
 
 public class QualityGatesWs implements WebService {
 
@@ -84,14 +84,10 @@ public class QualityGatesWs implements WebService {
       .setExampleValue(QualityGateConditionDto.OPERATOR_EQUALS)
       .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
 
-    action.createParam(PARAM_WARNING)
-      .setMaximumLength(CONDITION_MAX_LENGTH)
-      .setDescription("Condition warning threshold")
-      .setExampleValue("5");
-
     action.createParam(PARAM_ERROR)
       .setMaximumLength(CONDITION_MAX_LENGTH)
       .setDescription("Condition error threshold")
+      .setRequired(true)
       .setExampleValue("10");
   }
 

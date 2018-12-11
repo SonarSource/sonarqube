@@ -65,9 +65,20 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey("new_coverage").setValueType(INT.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
 
-    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", null, "80");
+    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "80");
 
-    verifyCondition(result, qualityGate, metric, "LT", null, "80");
+    verifyCondition(result, qualityGate, metric, "LT", "80");
+  }
+
+  @Test
+  public void create_condition_throws_NPE_if_errorThreshold_is_null() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setKey(SQALE_RATING_KEY).setValueType(RATING.name()).setHidden(false));
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("errorThreshold can not be null");
+
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", null);
   }
 
   @Test
@@ -79,7 +90,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("Condition on metric '%s' already exists.", metric.getShortName()));
 
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "90", null);
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "90");
   }
 
   @Test
@@ -89,7 +100,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("There is no metric with key=new_coverage");
 
-    underTest.createCondition(db.getSession(), qualityGate, "new_coverage", "LT", null, "80");
+    underTest.createCondition(db.getSession(), qualityGate, "new_coverage", "LT", "80");
   }
 
   @Test
@@ -101,7 +112,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
 
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", null, "80");
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", "80");
   }
 
   @Test
@@ -112,7 +123,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Operator UNKNOWN is not allowed for metric type PERCENT.");
 
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "UNKNOWN", null, "80");
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "UNKNOWN", "90");
   }
 
   @Test
@@ -120,20 +131,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(SQALE_RATING_KEY).setValueType(RATING.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
 
-    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", null, "3");
+    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "3");
 
-    verifyCondition(result, qualityGate, metric, "GT", null, "3");
-  }
-
-  @Test
-  public void fail_to_create_warning_condition_on_invalid_rating_metric() {
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(SQALE_RATING_KEY).setValueType(RATING.name()).setHidden(false));
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("'6' is not a valid rating");
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "6", null);
+    verifyCondition(result, qualityGate, metric, "GT", "3");
   }
 
   @Test
@@ -144,7 +144,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'80' is not a valid rating");
 
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", null, "80");
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "80");
   }
 
   @Test
@@ -155,18 +155,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("There's no worse rating than E (5)");
 
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "5", null);
-  }
-
-  @Test
-  @UseDataProvider("valid_values")
-  public void create_warning_condition(Metric.ValueType valueType, String value) {
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
-
-    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", value, null);
-
-    verifyCondition(result, qualityGate, metric, "EQ", value, null);
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "5");
   }
 
   @Test
@@ -175,21 +164,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
 
-    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", null, value);
+    QualityGateConditionDto result = underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", value);
 
-    verifyCondition(result, qualityGate, metric, "EQ", null, value);
-  }
-
-  @Test
-  @UseDataProvider("invalid_values")
-  public void fail_to_create_warning_INT_condition_when_value_is_not_an_integer(Metric.ValueType valueType, String value) {
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", value, null);
+    verifyCondition(result, qualityGate, metric, "EQ", value);
   }
 
   @Test
@@ -201,7 +178,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
 
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", null, value);
+    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "EQ", value);
   }
 
   @Test
@@ -209,11 +186,24 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(PERCENT.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("80"));
+      c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "60", null);
+    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "LT", "80");
 
-    verifyCondition(result, qualityGate, metric, "GT", "60", null);
+    verifyCondition(result, qualityGate, metric, "LT", "80");
+  }
+
+  @Test
+  public void update_condition_throws_NPE_if_errorThreshold_is_null() {
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(PERCENT.name()).setHidden(false));
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator("LT").setErrorThreshold("80"));
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("errorThreshold can not be null");
+
+    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", null);
   }
 
   @Test
@@ -221,11 +211,11 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(SQALE_RATING_KEY).setValueType(RATING.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold("80").setErrorThreshold(null));
+      c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4", null);
+    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4");
 
-    verifyCondition(result, qualityGate, metric, "GT", "4", null);
+    verifyCondition(result, qualityGate, metric, "GT", "4");
   }
 
   @Test
@@ -233,12 +223,12 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey("not_core_rating_metric").setValueType(RATING.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("3"));
+      c -> c.setOperator("LT").setErrorThreshold("3"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("The metric '%s' cannot be used", metric.getShortName()));
 
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4", null);
+    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4");
   }
 
   @Test
@@ -247,25 +237,12 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(metricKey).setValueType(valueType.name()).setHidden(hidden));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("80"));
+      c -> c.setOperator("LT").setErrorThreshold("80"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
 
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "60", null);
-  }
-
-  @Test
-  @UseDataProvider("valid_values")
-  public void update_warning_condition(Metric.ValueType valueType, String value) {
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("80"));
-
-    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "EQ", value, null);
-
-    verifyCondition(result, qualityGate, metric, "EQ", value, null);
+    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "60");
   }
 
   @Test
@@ -274,25 +251,11 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("80"));
+      c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "EQ", null, value);
+    QualityGateConditionDto result = underTest.updateCondition(db.getSession(), condition, metric.getKey(), "EQ", value);
 
-    verifyCondition(result, qualityGate, metric, "EQ", null, value);
-  }
-
-  @Test
-  @UseDataProvider("invalid_values")
-  public void fail_to_update_warning_INT_condition_when_value_is_not_an_integer(Metric.ValueType valueType, String value) {
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
-    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("80"));
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
-
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "EQ", value, null);
+    verifyCondition(result, qualityGate, metric, "EQ", value);
   }
 
   @Test
@@ -301,12 +264,12 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
-      c -> c.setOperator("LT").setWarningThreshold(null).setErrorThreshold("80"));
+      c -> c.setOperator("LT").setErrorThreshold("80"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
 
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "EQ", null, value);
+    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "EQ", value);
   }
 
   @DataProvider
@@ -342,18 +305,16 @@ public class QualityGateConditionsUpdaterTest {
     };
   }
 
-  private void verifyCondition(QualityGateConditionDto dto, QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error) {
+  private void verifyCondition(QualityGateConditionDto dto, QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     QualityGateConditionDto reloaded = db.getDbClient().gateConditionDao().selectById(dto.getId(), db.getSession());
     assertThat(reloaded.getQualityGateId()).isEqualTo(qualityGate.getId());
     assertThat(reloaded.getMetricId()).isEqualTo(metric.getId().longValue());
     assertThat(reloaded.getOperator()).isEqualTo(operator);
-    assertThat(reloaded.getWarningThreshold()).isEqualTo(warning);
     assertThat(reloaded.getErrorThreshold()).isEqualTo(error);
 
     assertThat(dto.getQualityGateId()).isEqualTo(qualityGate.getId());
     assertThat(dto.getMetricId()).isEqualTo(metric.getId().longValue());
     assertThat(dto.getOperator()).isEqualTo(operator);
-    assertThat(dto.getWarningThreshold()).isEqualTo(warning);
     assertThat(dto.getErrorThreshold()).isEqualTo(error);
   }
 

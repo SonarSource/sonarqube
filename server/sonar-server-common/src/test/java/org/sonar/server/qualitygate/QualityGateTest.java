@@ -35,8 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QualityGateTest {
   private static final String QUALIGATE_ID = "qg_id";
   private static final String QUALIGATE_NAME = "qg_name";
-  private static final Condition CONDITION_1 = new Condition("m1", Condition.Operator.EQUALS, "1", "2");
-  private static final Condition CONDITION_2 = new Condition("m2", Condition.Operator.LESS_THAN, "2", "4");
+  private static final Condition CONDITION_1 = new Condition("m1", Condition.Operator.EQUALS, "1");
+  private static final Condition CONDITION_2 = new Condition("m2", Condition.Operator.LESS_THAN, "2");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -74,10 +74,10 @@ public class QualityGateTest {
     Random random = new Random();
     Set<Condition> conditions = Stream.of(
       IntStream.range(0, random.nextInt(5))
-        .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.EQUALS, null, null)),
+        .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.EQUALS, "10")),
       Stream.of((Condition) null),
       IntStream.range(0, random.nextInt(5))
-        .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.EQUALS, null, null)))
+        .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.EQUALS, "10")))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
@@ -99,7 +99,7 @@ public class QualityGateTest {
     QualityGate underTest = new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2));
 
     assertThat(underTest.toString()).isEqualTo("QualityGate{id=qg_id, name='qg_name', conditions=[" +
-      "Condition{metricKey='m2', operator=LESS_THAN, warningThreshold='4', errorThreshold='2'}" +
+      "Condition{metricKey='m2', operator=LESS_THAN, errorThreshold='2'}" +
       "]}");
   }
 
@@ -115,7 +115,7 @@ public class QualityGateTest {
     assertThat(underTest).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1)));
     assertThat(underTest).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2)));
     assertThat(underTest).isNotEqualTo(
-      new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a", "b"))));
+      new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a"))));
   }
 
   @Test
@@ -130,6 +130,6 @@ public class QualityGateTest {
     assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1)).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2)).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(
-      new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a", "b"))).hashCode());
+      new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a"))).hashCode());
   }
 }

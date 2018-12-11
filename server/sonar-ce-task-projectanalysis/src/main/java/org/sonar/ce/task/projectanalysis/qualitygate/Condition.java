@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import com.google.common.base.MoreObjects;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -47,19 +46,14 @@ public class Condition {
 
   private final Metric metric;
   private final Operator operator;
-  @CheckForNull
-  private final String warningThreshold;
-  @CheckForNull
   private final String errorThreshold;
   private final boolean useVariation;
 
-  public Condition(Metric metric, String operator,
-    @Nullable String errorThreshold, @Nullable String warningThreshold) {
+  public Condition(Metric metric, String operator, String errorThreshold) {
     this.metric = requireNonNull(metric);
     this.operator = parseFromDbValue(requireNonNull(operator));
     this.useVariation = metric.getKey().startsWith("new_");
     this.errorThreshold = errorThreshold;
-    this.warningThreshold = warningThreshold;
   }
 
   private static Operator parseFromDbValue(String str) {
@@ -83,12 +77,6 @@ public class Condition {
     return operator;
   }
 
-  @CheckForNull
-  public String getWarningThreshold() {
-    return warningThreshold;
-  }
-
-  @CheckForNull
   public String getErrorThreshold() {
     return errorThreshold;
   }
@@ -115,7 +103,6 @@ public class Condition {
     return MoreObjects.toStringHelper(this)
       .add("metric", metric)
       .add("operator", operator)
-      .add("warningThreshold", warningThreshold)
       .add("errorThreshold", errorThreshold)
       .toString();
   }

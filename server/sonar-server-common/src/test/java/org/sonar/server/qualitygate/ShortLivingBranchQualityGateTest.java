@@ -31,10 +31,10 @@ public class ShortLivingBranchQualityGateTest {
   @Test
   public void defines_short_living_branches_hardcoded_quality_gate_conditions() {
     assertThat(ShortLivingBranchQualityGate.CONDITIONS)
-      .extracting(Condition::getMetricKey, Condition::getOperator, Condition::getErrorThreshold, Condition::getWarnThreshold)
+      .extracting(Condition::getMetricKey, Condition::getOperator, Condition::getErrorThreshold)
       .containsExactly(
-        tuple(CoreMetrics.OPEN_ISSUES_KEY, "GT", "0", null),
-        tuple(CoreMetrics.REOPENED_ISSUES_KEY, "GT", "0", null));
+        tuple(CoreMetrics.OPEN_ISSUES_KEY, "GT", "0"),
+        tuple(CoreMetrics.REOPENED_ISSUES_KEY, "GT", "0"));
   }
 
 }

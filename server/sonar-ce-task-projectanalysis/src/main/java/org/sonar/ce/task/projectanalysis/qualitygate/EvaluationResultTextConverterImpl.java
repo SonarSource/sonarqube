@@ -30,7 +30,6 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 
 public final class EvaluationResultTextConverterImpl implements EvaluationResultTextConverter {
   private static final Map<Condition.Operator, String> OPERATOR_LABELS = ImmutableMap.of(
@@ -54,10 +53,10 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
     if (evaluationResult.getLevel() == Measure.Level.OK) {
       return null;
     }
-    return getAlertLabel(condition, evaluationResult.getLevel());
+    return getAlertLabel(condition);
   }
 
-  private String getAlertLabel(Condition condition, Measure.Level level) {
+  private String getAlertLabel(Condition condition) {
     String metric = i18n.message(Locale.ENGLISH, "metric." + condition.getMetric().getKey() + ".name", condition.getMetric().getName());
 
     StringBuilder stringBuilder = new StringBuilder();
@@ -65,17 +64,16 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
 
     stringBuilder
       .append(" ").append(OPERATOR_LABELS.get(condition.getOperator())).append(" ")
-      .append(alertValue(condition, level));
+      .append(alertValue(condition));
 
     return stringBuilder.toString();
   }
 
-  private String alertValue(Condition condition, Measure.Level level) {
-    String value = level == ERROR ? condition.getErrorThreshold() : condition.getWarningThreshold();
+  private String alertValue(Condition condition) {
     if (condition.getMetric().getType() == Metric.MetricType.WORK_DUR) {
-      return formatDuration(value);
+      return formatDuration(condition.getErrorThreshold());
     }
-    return value;
+    return condition.getErrorThreshold();
   }
 
   private String formatDuration(String value) {

@@ -72,7 +72,7 @@ public class QualityGateServiceImpl implements QualityGateService {
 
     Iterable<Condition> conditions = dtos.stream()
       .map(input -> metricRepository.getOptionalById(input.getMetricId())
-        .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold()))
+        .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
         .orElse(null))
       .filter(Objects::nonNull)
       .collect(toList(dtos.size()));
@@ -85,7 +85,7 @@ public class QualityGateServiceImpl implements QualityGateService {
       ShortLivingBranchQualityGate.ID,
       ShortLivingBranchQualityGate.NAME,
       ShortLivingBranchQualityGate.CONDITIONS.stream()
-        .map(c -> new Condition(metricRepository.getByKey(c.getMetricKey()), c.getOperator(), c.getErrorThreshold(), c.getWarnThreshold()))
+        .map(c -> new Condition(metricRepository.getByKey(c.getMetricKey()), c.getOperator(), c.getErrorThreshold()))
         .collect(toList(ShortLivingBranchQualityGate.CONDITIONS.size())));
   }
 

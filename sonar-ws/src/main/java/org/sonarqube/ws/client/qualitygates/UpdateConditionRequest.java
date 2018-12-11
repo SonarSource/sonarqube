@@ -36,7 +36,6 @@ public class UpdateConditionRequest {
   private String metric;
   private String op;
   private String organization;
-  private String warning;
 
   /**
    * Example value: "10"
@@ -105,17 +104,5 @@ public class UpdateConditionRequest {
 
   public String getOrganization() {
     return organization;
-  }
-
-  /**
-   * Example value: "5"
-   */
-  public UpdateConditionRequest setWarning(String warning) {
-    this.warning = warning;
-    return this;
-  }
-
-  public String getWarning() {
-    return warning;
   }
 }

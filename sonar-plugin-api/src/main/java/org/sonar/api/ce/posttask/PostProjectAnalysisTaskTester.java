@@ -510,11 +510,11 @@ public class PostProjectAnalysisTaskTester {
   public static final class ConditionBuilder {
     private static final String METRIC_KEY_CAN_NOT_BE_NULL = "metricKey cannot be null";
     private static final String OPERATOR_CAN_NOT_BE_NULL = "operator cannot be null";
+    private static final String ERROR_THRESHOLD_CAN_NOT_BE_NULL = "errorThreshold cannot be null";
 
     private String metricKey;
     private QualityGate.Operator operator;
     private String errorThreshold;
-    private String warningThreshold;
 
     private ConditionBuilder() {
       // prevents instantiation outside PostProjectAnalysisTaskTester
@@ -530,13 +530,16 @@ public class PostProjectAnalysisTaskTester {
       return this;
     }
 
-    public ConditionBuilder setErrorThreshold(@Nullable String errorThreshold) {
-      this.errorThreshold = errorThreshold;
+    public ConditionBuilder setErrorThreshold(String errorThreshold) {
+      this.errorThreshold = requireNonNull(errorThreshold, ERROR_THRESHOLD_CAN_NOT_BE_NULL);
       return this;
     }
 
+    /**
+     * @deprecated in 7.6. This method has no longer any effect.
+     */
+    @Deprecated
     public ConditionBuilder setWarningThreshold(@Nullable String warningThreshold) {
-      this.warningThreshold = warningThreshold;
       return this;
     }
 
@@ -572,9 +575,10 @@ public class PostProjectAnalysisTaskTester {
           return errorThreshold;
         }
 
+        @Deprecated
         @Override
         public String getWarningThreshold() {
-          return warningThreshold;
+          return null;
         }
 
         /**
@@ -598,7 +602,6 @@ public class PostProjectAnalysisTaskTester {
             ", metricKey='" + metricKey + '\'' +
             ", operator=" + operator +
             ", errorThreshold='" + errorThreshold + '\'' +
-            ", warningThreshold='" + warningThreshold + '\'' +
             '}';
         }
       };
@@ -630,9 +633,10 @@ public class PostProjectAnalysisTaskTester {
           return errorThreshold;
         }
 
+        @Deprecated
         @Override
         public String getWarningThreshold() {
-          return warningThreshold;
+          return null;
         }
 
         /**
@@ -656,7 +660,6 @@ public class PostProjectAnalysisTaskTester {
             ", metricKey='" + metricKey + '\'' +
             ", operator=" + operator +
             ", errorThreshold='" + errorThreshold + '\'' +
-            ", warningThreshold='" + warningThreshold + '\'' +
             ", value='" + value + '\'' +
             '}';
         }
@@ -666,7 +669,7 @@ public class PostProjectAnalysisTaskTester {
     private void checkCommonProperties() {
       requireNonNull(metricKey, METRIC_KEY_CAN_NOT_BE_NULL);
       requireNonNull(operator, OPERATOR_CAN_NOT_BE_NULL);
-      checkState(errorThreshold != null || warningThreshold != null, "At least one of errorThreshold and warningThreshold must be non null");
+      requireNonNull(errorThreshold, ERROR_THRESHOLD_CAN_NOT_BE_NULL);
     }
   }
 

@@ -195,8 +195,6 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     switch (status) {
       case OK:
         return QualityGate.Status.OK;
-      case WARN:
-        return QualityGate.Status.WARN;
       case ERROR:
         return QualityGate.Status.ERROR;
       default:

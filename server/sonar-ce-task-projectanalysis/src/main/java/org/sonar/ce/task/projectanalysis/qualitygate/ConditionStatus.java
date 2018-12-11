@@ -67,7 +67,7 @@ public class ConditionStatus {
   }
 
   public enum EvaluationStatus {
-    NO_VALUE, OK, WARN, ERROR
+    NO_VALUE, OK, ERROR
   }
 
 }

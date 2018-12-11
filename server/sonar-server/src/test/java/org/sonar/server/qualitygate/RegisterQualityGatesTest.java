@@ -107,7 +107,7 @@ public class RegisterQualityGatesTest {
     createBuiltInConditions(builtInQualityGate);
     // Add another condition
     qualityGateConditionsUpdater.createCondition(dbSession, builtInQualityGate,
-      NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, null, "5");
+      NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, "5");
     dbSession.commit();
 
     underTest.start();
@@ -215,8 +215,7 @@ public class RegisterQualityGatesTest {
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setMetricId(-1) // This Id does not exist
       .setOperator(OPERATOR_GREATER_THAN)
-      .setErrorThreshold("1")
-      .setWarningThreshold("1");
+      .setErrorThreshold("1");
     gateConditionDao.insert(conditionDto, dbSession);
     dbSession.commit();
 
@@ -250,29 +249,29 @@ public class RegisterQualityGatesTest {
     assertThat(qualityGateDto.getCreatedAt()).isNotNull();
     assertThat(qualityGateDto.isBuiltIn()).isTrue();
     assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getId()))
-      .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator, QualityGateConditionDto::getWarningThreshold,
+      .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
       .containsOnly(
-        tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1"),
-        tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, null, "1"),
-        tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1"),
-        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, null, "80"),
-        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, null, "3"));
+        tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, "80"),
+        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, "3"));
   }
 
   private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto qg) {
     List<QualityGateConditionDto> conditions = new ArrayList<>();
 
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1"));
+      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1"));
+      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1"));
+      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80"));
+      NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, "80"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3"));
+      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, "3"));
 
     return conditions;
   }

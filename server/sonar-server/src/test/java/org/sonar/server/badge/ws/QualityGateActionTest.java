@@ -48,7 +48,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.LONG;
@@ -85,20 +84,6 @@ public class QualityGateActionTest {
   }
 
   @Test
-  public void quality_gate_warn() {
-    ComponentDto project = db.components().insertPublicProject();
-    userSession.registerComponents(project);
-    MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(project, metric, m -> m.setData(WARN.name()));
-
-    TestResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .execute();
-
-    checkResponse(response, WARN);
-  }
-
-  @Test
   public void quality_gate_failed() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
@@ -124,16 +109,6 @@ public class QualityGateActionTest {
       .execute();
     String eTagOK = response.getHeader("ETag");
 
-    liveMeasure.setData(WARN.name());
-    db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure);
-    db.commit();
-
-    response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .execute();
-
-    String eTagWARN = response.getHeader("ETag");
-
     liveMeasure.setData(ERROR.name());
     db.getDbClient().liveMeasureDao().insertOrUpdate(db.getSession(), liveMeasure);
     db.commit();
@@ -144,7 +119,7 @@ public class QualityGateActionTest {
 
     String eTagERROR = response.getHeader("ETag");
 
-    assertThat(Arrays.asList(eTagOK, eTagWARN, eTagERROR))
+    assertThat(Arrays.asList(eTagOK, eTagERROR))
       .doesNotContainNull()
       .doesNotHaveDuplicates();
   }
@@ -177,14 +152,14 @@ public class QualityGateActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData(OK.name()));
     ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
-    db.measures().insertLiveMeasure(longBranch, metric, m -> m.setData(WARN.name()));
+    db.measures().insertLiveMeasure(longBranch, metric, m -> m.setData(ERROR.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", longBranch.getKey())
       .setParam("branch", longBranch.getBranch())
       .execute();
 
-    checkResponse(response, WARN);
+    checkResponse(response, ERROR);
   }
 
   @Test
@@ -193,13 +168,13 @@ public class QualityGateActionTest {
     ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     MetricDto metric = createQualityGateMetric();
-    db.measures().insertLiveMeasure(application, metric, m -> m.setData(WARN.name()));
+    db.measures().insertLiveMeasure(application, metric, m -> m.setData(ERROR.name()));
 
     TestResponse response = ws.newRequest()
       .setParam("project", application.getKey())
       .execute();
 
-    checkResponse(response, WARN);
+    checkResponse(response, ERROR);
   }
 
   @Test
@@ -355,9 +330,6 @@ public class QualityGateActionTest {
     switch (status) {
       case OK:
         assertThat(response.getInput()).contains("<!-- SONARQUBE QUALITY GATE PASS -->");
-        break;
-      case WARN:
-        assertThat(response.getInput()).contains("<!-- SONARQUBE QUALITY GATE WARN -->");
         break;
       case ERROR:
         assertThat(response.getInput()).contains("<!-- SONARQUBE QUALITY GATE FAIL -->");

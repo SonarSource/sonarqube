@@ -111,6 +111,15 @@ public class ConditionEvaluatorTest {
   }
 
   @Test
+  public void evaluate_throws_IAE_if_fail_to_parse_threshold() {
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Quality Gate: unable to parse threshold '9bar' to compare against foo");
+
+    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9bar", EvaluatedCondition.EvaluationStatus.ERROR, "10da");
+  }
+
+  @Test
   public void no_value_present() {
     test(new FakeMeasure((Integer) null), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, null);
     test(null, Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, null);
@@ -118,19 +127,13 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void empty_warning_condition() {
-    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", null, EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", "", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(3), Condition.Operator.LESS_THAN, "9", "", EvaluatedCondition.EvaluationStatus.ERROR, "3");
+    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(3), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "3");
   }
 
-  private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus,
-    @Nullable String expectedValue) {
-    test(measure, operator, errorThreshold, null, expectedStatus, expectedValue);
-  }
-
-  private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, @Nullable String warningThreshold,
-    EvaluatedCondition.EvaluationStatus expectedStatus, @Nullable String expectedValue) {
-    Condition condition = new Condition("foo", operator, errorThreshold, warningThreshold);
+  private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus, @Nullable String expectedValue) {
+    Condition condition = new Condition("foo", operator, errorThreshold);
 
     EvaluatedCondition result = ConditionEvaluator.evaluate(condition, new FakeMeasures(measure));
 
@@ -144,7 +147,7 @@ public class ConditionEvaluatorTest {
 
   private void testOnLeak(QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus,
     @Nullable String expectedValue) {
-    Condition condition = new Condition("new_foo", operator, errorThreshold, null);
+    Condition condition = new Condition("new_foo", operator, errorThreshold);
 
     EvaluatedCondition result = ConditionEvaluator.evaluate(condition, new FakeMeasures(measure));
 

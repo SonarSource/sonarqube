@@ -64,8 +64,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
         EvaluatedQualityGate.Builder builder = EvaluatedQualityGate.newBuilder();
         Set<Condition> conditions = qg.getConditions().stream()
           .map(q -> {
-            Condition condition = new Condition(q.getMetricKey(), Condition.Operator.valueOf(q.getOperator().name()),
-              q.getErrorThreshold(), q.getWarningThreshold());
+            Condition condition = new Condition(q.getMetricKey(), Condition.Operator.valueOf(q.getOperator().name()), q.getErrorThreshold());
             builder.addCondition(condition,
               EvaluatedCondition.EvaluationStatus.valueOf(q.getStatus().name()),
               q.getStatus() == org.sonar.api.ce.posttask.QualityGate.EvaluationStatus.NO_VALUE ? null : q.getValue());

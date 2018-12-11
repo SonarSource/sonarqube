@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConditionImplTest {
   private static final String METRIC_KEY = "metricKey";
   private static final String ERROR_THRESHOLD = "error threshold";
-  private static final String WARN_THRESHOLD = "warn threshold";
   private static final String VALUE = "value";
 
   @Rule
@@ -45,7 +44,6 @@ public class ConditionImplTest {
     .setMetricKey(METRIC_KEY)
     .setOperator(QualityGate.Operator.GREATER_THAN)
     .setErrorThreshold(ERROR_THRESHOLD)
-    .setWarningThreshold(WARN_THRESHOLD)
     .setValue(VALUE);
 
   @Test
@@ -79,12 +77,11 @@ public class ConditionImplTest {
   }
 
   @Test
-  public void build_throws_IAE_if_both_thresholds_are_null() {
-    builder.setWarningThreshold(null)
-      .setErrorThreshold(null);
+  public void build_throws_NPE_if_error_threshold_is_null() {
+    builder.setErrorThreshold(null);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At least one of errorThreshold and warningThreshold must be non null");
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("errorThreshold can not be null");
 
     builder.build();
   }
@@ -139,7 +136,7 @@ public class ConditionImplTest {
   public void toString_ConditionImpl_of_type_different_from_NO_VALUE() {
     assertThat(builder.build().toString())
       .isEqualTo(
-        "ConditionImpl{status=OK, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', warningThreshold='warn threshold', value='value'}");
+        "ConditionImpl{status=OK, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', value='value'}");
   }
 
   @Test
@@ -149,7 +146,7 @@ public class ConditionImplTest {
 
     assertThat(builder.build().toString())
       .isEqualTo(
-        "ConditionImpl{status=NO_VALUE, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', warningThreshold='warn threshold', value='null'}");
+        "ConditionImpl{status=NO_VALUE, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', value='null'}");
   }
 
   @Test
@@ -160,7 +157,6 @@ public class ConditionImplTest {
     assertThat(underTest.getMetricKey()).isEqualTo(METRIC_KEY);
     assertThat(underTest.getOperator()).isEqualTo(QualityGate.Operator.GREATER_THAN);
     assertThat(underTest.getErrorThreshold()).isEqualTo(ERROR_THRESHOLD);
-    assertThat(underTest.getWarningThreshold()).isEqualTo(WARN_THRESHOLD);
     assertThat(underTest.getValue()).isEqualTo(VALUE);
   }
 }

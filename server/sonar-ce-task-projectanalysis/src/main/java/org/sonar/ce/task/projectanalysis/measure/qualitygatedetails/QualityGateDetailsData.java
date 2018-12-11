@@ -67,12 +67,7 @@ public class QualityGateDetailsData {
       // the actual value in the QG failure reason
       result.addProperty("period", 1);
     }
-    if (condition.getWarningThreshold() != null) {
-      result.addProperty("warning", condition.getWarningThreshold());
-    }
-    if (condition.getErrorThreshold() != null) {
-      result.addProperty("error", condition.getErrorThreshold());
-    }
+    result.addProperty("error", condition.getErrorThreshold());
     result.addProperty("actual", evaluatedCondition.getActualValue());
     result.addProperty(FIELD_LEVEL, evaluatedCondition.getLevel().name());
     return result;

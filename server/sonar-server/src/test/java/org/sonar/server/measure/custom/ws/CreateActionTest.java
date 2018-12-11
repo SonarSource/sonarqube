@@ -206,12 +206,12 @@ public class CreateActionTest {
     ws.newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, project.uuid())
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
-      .setParam(CreateAction.PARAM_VALUE, Metric.Level.WARN.name())
+      .setParam(CreateAction.PARAM_VALUE, Metric.Level.ERROR.name())
       .execute();
 
     assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
       .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getComponentUuid)
-      .containsExactlyInAnyOrder(tuple(null, Metric.Level.WARN.name(), 0d, project.uuid()));
+      .containsExactlyInAnyOrder(tuple(null, Metric.Level.ERROR.name(), 0d, project.uuid()));
   }
 
   @Test

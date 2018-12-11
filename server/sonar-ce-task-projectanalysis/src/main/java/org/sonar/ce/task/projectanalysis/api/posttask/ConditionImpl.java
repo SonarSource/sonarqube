@@ -33,10 +33,7 @@ class ConditionImpl implements QualityGate.Condition {
   private final QualityGate.EvaluationStatus status;
   private final String metricKey;
   private final QualityGate.Operator operator;
-  @CheckForNull
   private final String errorThreshold;
-  @CheckForNull
-  private final String warningThreshold;
   private final boolean onLeakPeriod;
   @CheckForNull
   private final String value;
@@ -45,22 +42,15 @@ class ConditionImpl implements QualityGate.Condition {
     requireNonNull(builder.status, "status can not be null");
     requireNonNull(builder.metricKey, "metricKey can not be null");
     requireNonNull(builder.operator, "operator can not be null");
-    verifyThresholds(builder);
+    requireNonNull(builder.errorThreshold, "errorThreshold can not be null");
     verifyValue(builder);
 
     this.status = builder.status;
     this.metricKey = builder.metricKey;
     this.operator = builder.operator;
     this.errorThreshold = builder.errorThreshold;
-    this.warningThreshold = builder.warningThreshold;
     this.onLeakPeriod = builder.metricKey.startsWith("new_");
     this.value = builder.value;
-  }
-
-  private static void verifyThresholds(Builder builder) {
-    checkArgument(
-      builder.errorThreshold != null || builder.warningThreshold != null,
-      "At least one of errorThreshold and warningThreshold must be non null");
   }
 
   private static void verifyValue(Builder builder) {
@@ -78,10 +68,7 @@ class ConditionImpl implements QualityGate.Condition {
   public static class Builder {
     private String metricKey;
     private QualityGate.Operator operator;
-    @CheckForNull
     private String errorThreshold;
-    @CheckForNull
-    private String warningThreshold;
     @CheckForNull
     private String value;
     private QualityGate.EvaluationStatus status;
@@ -105,8 +92,11 @@ class ConditionImpl implements QualityGate.Condition {
       return this;
     }
 
+    /**
+     * @deprecated in 7.6. This method has no longer any effect.
+     */
+    @Deprecated
     public Builder setWarningThreshold(String warningThreshold) {
-      this.warningThreshold = warningThreshold;
       return this;
     }
 
@@ -153,9 +143,10 @@ class ConditionImpl implements QualityGate.Condition {
     return errorThreshold;
   }
 
+  @Deprecated
   @Override
   public String getWarningThreshold() {
-    return warningThreshold;
+    return null;
   }
 
   /**
@@ -181,7 +172,6 @@ class ConditionImpl implements QualityGate.Condition {
       ", metricKey='" + metricKey + '\'' +
       ", operator=" + operator +
       ", errorThreshold='" + errorThreshold + '\'' +
-      ", warningThreshold='" + warningThreshold + '\'' +
       ", value='" + value + '\'' +
       '}';
   }

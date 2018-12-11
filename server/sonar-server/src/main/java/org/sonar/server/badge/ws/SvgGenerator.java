@@ -33,7 +33,6 @@ import static java.lang.String.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 @ServerSide
@@ -137,7 +136,6 @@ public class SvgGenerator {
     this.badgeTemplate = readTemplate(templatePath + "/badge.svg");
     this.qualityGateTemplates = ImmutableMap.of(
       OK, readTemplate(templatePath + "/quality_gate_passed.svg"),
-      WARN, readTemplate(templatePath + "/quality_gate_warn.svg"),
       ERROR, readTemplate(templatePath + "/quality_gate_failed.svg"));
   }
 
@@ -195,7 +193,6 @@ public class SvgGenerator {
   static class Color {
     static final Color DEFAULT = new Color("#999");
     static final Color QUALITY_GATE_OK = new Color("#4c1");
-    static final Color QUALITY_GATE_WARN = new Color("#ed7d20");
     static final Color QUALITY_GATE_ERROR = new Color("#d4333f");
     static final Color RATING_A = new Color("#00aa00");
     static final Color RATING_B = new Color("#b0d513");

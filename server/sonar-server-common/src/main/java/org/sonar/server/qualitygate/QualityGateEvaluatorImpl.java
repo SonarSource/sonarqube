@@ -91,9 +91,6 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
     if (statuses.contains(EvaluationStatus.ERROR)) {
       return Level.ERROR;
     }
-    if (statuses.contains(EvaluationStatus.WARN)) {
-      return Level.WARN;
-    }
     return Level.OK;
   }
 }

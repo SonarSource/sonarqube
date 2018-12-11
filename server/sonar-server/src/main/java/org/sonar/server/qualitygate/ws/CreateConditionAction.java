@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -38,7 +39,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERR
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateConditionAction implements QualityGatesWsAction {
@@ -61,6 +61,10 @@ public class CreateConditionAction implements QualityGatesWsAction {
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setResponseExample(getClass().getResource("create-condition-example.json"))
+      .setChangelog(
+        new Change("7.6", "Removed optional 'warning' and 'period' parameters"),
+        new Change("7.6", "Made 'error' parameter mandatory"),
+        new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"))
       .setHandler(this);
 
     createCondition
@@ -78,20 +82,18 @@ public class CreateConditionAction implements QualityGatesWsAction {
     int gateId = request.mandatoryParamAsInt(PARAM_GATE_ID);
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
-    String warning = request.param(PARAM_WARNING);
-    String error = request.param(PARAM_ERROR);
+    String error = request.mandatoryParam(PARAM_ERROR);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
       wsSupport.checkCanEdit(qualityGate);
-      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, emptyToNull(warning), emptyToNull(error));
+      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getId())
         .setMetric(condition.getMetricKey())
+        .setError(condition.getErrorThreshold())
         .setOp(condition.getOperator());
-      setNullable(condition.getWarningThreshold(), createConditionResponse::setWarning);
-      setNullable(condition.getErrorThreshold(), createConditionResponse::setError);
       writeProtobuf(createConditionResponse.build(), request, response);
       dbSession.commit();
     }

@@ -49,8 +49,7 @@ public class QualityGateConverter {
     JsonObject result = new JsonObject();
     result.addProperty("metric", condition.getMetricKey());
     result.addProperty("op", condition.getOperator().getDbValue());
-    condition.getWarningThreshold().ifPresent(t -> result.addProperty("warning", t));
-    condition.getErrorThreshold().ifPresent(t -> result.addProperty("error", t));
+    result.addProperty("error", condition.getErrorThreshold());
     evaluatedCondition.getValue().ifPresent(v -> result.addProperty("actual", v));
     result.addProperty(FIELD_LEVEL, evaluatedCondition.getStatus().name());
     return result;

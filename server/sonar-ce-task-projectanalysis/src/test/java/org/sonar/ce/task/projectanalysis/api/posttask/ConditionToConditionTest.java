@@ -42,12 +42,10 @@ import static org.mockito.Mockito.when;
 public class ConditionToConditionTest {
   private static final String METRIC_KEY = "metricKey";
   private static final String ERROR_THRESHOLD = "error threshold";
-  private static final String WARN_THRESHOLD = "warn threshold";
   private static final Map<Condition, ConditionStatus> NO_STATUS_PER_CONDITIONS = Collections.emptyMap();
   private static final String SOME_VALUE = "some value";
   private static final ConditionStatus SOME_CONDITION_STATUS = ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, SOME_VALUE);
-  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD);
-
+  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.EQUALS.getDbValue(), ERROR_THRESHOLD);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -92,13 +90,12 @@ public class ConditionToConditionTest {
     ConditionToCondition underTest = new ConditionToCondition(of(SOME_CONDITION, SOME_CONDITION_STATUS));
 
     assertThat(underTest.apply(SOME_CONDITION).getErrorThreshold()).isEqualTo(ERROR_THRESHOLD);
-    assertThat(underTest.apply(SOME_CONDITION).getWarningThreshold()).isEqualTo(WARN_THRESHOLD);
   }
 
   @Test
   @UseDataProvider("allOperatorValues")
   public void apply_converts_all_values_of_operator(Condition.Operator operator) {
-    Condition condition = new Condition(newMetric(METRIC_KEY), operator.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD);
+    Condition condition = new Condition(newMetric(METRIC_KEY), operator.getDbValue(), ERROR_THRESHOLD);
     ConditionToCondition underTest = new ConditionToCondition(of(condition, SOME_CONDITION_STATUS));
 
     assertThat(underTest.apply(condition).getOperator().name()).isEqualTo(operator.name());
@@ -106,7 +103,7 @@ public class ConditionToConditionTest {
 
   @Test
   public void apply_copies_value() {
-    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.NOT_EQUALS.getDbValue(), ERROR_THRESHOLD, WARN_THRESHOLD);
+    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.NOT_EQUALS.getDbValue(), ERROR_THRESHOLD);
     ConditionToCondition underTest = new ConditionToCondition(of(
       SOME_CONDITION, SOME_CONDITION_STATUS,
       otherCondition, ConditionStatus.NO_VALUE_STATUS));

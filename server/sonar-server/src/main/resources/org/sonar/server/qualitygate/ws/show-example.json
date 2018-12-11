@@ -10,9 +10,9 @@
     },
     {
       "id": 3,
-      "metric": "critical_violations",
+      "metric": "tests",
       "op": "LT",
-      "warning": "0"
+      "error": "10"
     }
   ],
   "isBuiltIn": false,

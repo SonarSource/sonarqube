@@ -58,54 +58,48 @@ class ConditionEvaluator {
     }
 
     ValueType type = measure.get().getType();
-    return evaluateCondition(condition, type, value.get(), true)
-      .orElseGet(() -> evaluateCondition(condition, type, value.get(), false)
+    return evaluateCondition(condition, type, value.get())
+      .orElseGet(() -> evaluateCondition(condition, type, value.get())
         .orElseGet(() -> new EvaluatedCondition(condition, EvaluationStatus.OK, value.get().toString())));
   }
 
   /**
-   * Evaluates the error or warning condition. Returns empty if threshold or measure value is not defined.
+   * Evaluates the error condition. Returns empty if threshold or measure value is not defined.
    */
-  private static Optional<EvaluatedCondition> evaluateCondition(Condition condition, ValueType type, Comparable value, boolean error) {
-    Optional<Comparable> threshold = getThreshold(condition, type, error);
-    if (!threshold.isPresent()) {
-      return Optional.empty();
-    }
+  private static Optional<EvaluatedCondition> evaluateCondition(Condition condition, ValueType type, Comparable value) {
+    Comparable threshold = getThreshold(condition, type);
 
-    if (reachThreshold(value, threshold.get(), condition)) {
-      EvaluationStatus status = error ? EvaluationStatus.ERROR : EvaluationStatus.WARN;
-      return of(new EvaluatedCondition(condition, status, value.toString()));
+    if (reachThreshold(value, threshold, condition)) {
+      return of(new EvaluatedCondition(condition, EvaluationStatus.ERROR, value.toString()));
     }
     return Optional.empty();
   }
 
-  private static Optional<Comparable> getThreshold(Condition condition, ValueType valueType, boolean error) {
-    Optional<String> valString = error ? condition.getErrorThreshold() : condition.getWarningThreshold();
-    return valString.map(s -> {
-      try {
-        switch (valueType) {
-          case BOOL:
-            return parseInteger(s) == 1;
-          case INT:
-          case RATING:
-            return parseInteger(s);
-          case MILLISEC:
-          case WORK_DUR:
-            return Long.parseLong(s);
-          case FLOAT:
-          case PERCENT:
-            return Double.parseDouble(s);
-          case STRING:
-          case LEVEL:
-            return s;
-          default:
-            throw new IllegalArgumentException(String.format("Unsupported value type %s. Cannot convert condition value", valueType));
-        }
-      } catch (NumberFormatException badValueFormat) {
-        throw new IllegalArgumentException(String.format(
-          "Quality Gate: unable to parse threshold '%s' to compare against %s", s, condition.getMetricKey()));
+  private static Comparable getThreshold(Condition condition, ValueType valueType) {
+    String valString = condition.getErrorThreshold();
+    try {
+      switch (valueType) {
+        case BOOL:
+          return parseInteger(valString) == 1;
+        case INT:
+        case RATING:
+          return parseInteger(valString);
+        case MILLISEC:
+        case WORK_DUR:
+          return Long.parseLong(valString);
+        case FLOAT:
+        case PERCENT:
+          return Double.parseDouble(valString);
+        case STRING:
+        case LEVEL:
+          return valueType;
+        default:
+          throw new IllegalArgumentException(String.format("Unsupported value type %s. Cannot convert condition value", valueType));
       }
-    });
+    } catch (NumberFormatException badValueFormat) {
+      throw new IllegalArgumentException(String.format(
+        "Quality Gate: unable to parse threshold '%s' to compare against %s", valString, condition.getMetricKey()));
+    }
   }
 
   private static Optional<Comparable> getMeasureValue(Condition condition, QualityGateEvaluator.Measure measure) {

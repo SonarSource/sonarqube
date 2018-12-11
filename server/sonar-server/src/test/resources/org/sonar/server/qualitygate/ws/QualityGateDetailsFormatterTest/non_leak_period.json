@@ -44,7 +44,7 @@
       "warning": "",
       "error": "5",
       "actual": "0.5670339761248853",
-      "level": "WARN"
+      "level": "ERROR"
     }
   ]
 }

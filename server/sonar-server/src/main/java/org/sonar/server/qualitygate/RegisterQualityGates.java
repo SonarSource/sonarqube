@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -129,7 +128,7 @@ public class RegisterQualityGates implements Startable {
     List<QualityGateCondition> qgConditionsToBeCreated = new ArrayList<>(QUALITY_GATE_CONDITIONS);
     qgConditionsToBeCreated.removeAll(qualityGateConditions);
     qgConditionsToBeCreated
-      .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(), qgc.getWarningThreshold(),
+      .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(),
         qgc.getErrorThreshold()));
 
     if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
@@ -155,7 +154,6 @@ public class RegisterQualityGates implements Startable {
     private Long id;
     private String metricKey;
     private String operator;
-    private String warningThreshold;
     private String errorThreshold;
 
     public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<Long, String> mapping) {
@@ -163,8 +161,7 @@ public class RegisterQualityGates implements Startable {
         .setId(qualityGateConditionDto.getId())
         .setMetricKey(mapping.get(qualityGateConditionDto.getMetricId()))
         .setOperator(qualityGateConditionDto.getOperator())
-        .setErrorThreshold(qualityGateConditionDto.getErrorThreshold())
-        .setWarningThreshold(qualityGateConditionDto.getWarningThreshold());
+        .setErrorThreshold(qualityGateConditionDto.getErrorThreshold());
     }
 
     @CheckForNull
@@ -195,22 +192,11 @@ public class RegisterQualityGates implements Startable {
       return this;
     }
 
-    @CheckForNull
-    public String getWarningThreshold() {
-      return warningThreshold;
-    }
-
-    public QualityGateCondition setWarningThreshold(@Nullable String warningThreshold) {
-      this.warningThreshold = warningThreshold;
-      return this;
-    }
-
-    @CheckForNull
     public String getErrorThreshold() {
       return errorThreshold;
     }
 
-    public QualityGateCondition setErrorThreshold(@Nullable String errorThreshold) {
+    public QualityGateCondition setErrorThreshold(String errorThreshold) {
       this.errorThreshold = errorThreshold;
       return this;
     }
@@ -221,7 +207,6 @@ public class RegisterQualityGates implements Startable {
         .setMetricKey(metricKey)
         .setOperator(operator)
         .setErrorThreshold(errorThreshold)
-        .setWarningThreshold(warningThreshold)
         .setQualityGateId(qualityGateId);
     }
 
@@ -237,14 +222,13 @@ public class RegisterQualityGates implements Startable {
       QualityGateCondition that = (QualityGateCondition) o;
       return Objects.equals(metricKey, that.metricKey) &&
         Objects.equals(operator, that.operator) &&
-        Objects.equals(warningThreshold, that.warningThreshold) &&
         Objects.equals(errorThreshold, that.errorThreshold);
     }
 
     // id does not belongs to hashcode to be able to be compared with builtin
     @Override
     public int hashCode() {
-      return Objects.hash(metricKey, operator, warningThreshold, errorThreshold);
+      return Objects.hash(metricKey, operator, errorThreshold);
     }
   }
 }

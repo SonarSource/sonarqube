@@ -56,7 +56,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.WARN;
 
 public class QualityGateEventsStepTest {
   private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1)
@@ -68,7 +67,6 @@ public class QualityGateEventsStepTest {
   private static final String INVALID_ALERT_STATUS = "trololo";
   private static final String ALERT_TEXT = "alert text";
   private static final QualityGateStatus OK_QUALITY_GATE_STATUS = new QualityGateStatus(OK, ALERT_TEXT);
-  private static final QualityGateStatus WARN_QUALITY_GATE_STATUS = new QualityGateStatus(WARN, ALERT_TEXT);
   private static final QualityGateStatus ERROR_QUALITY_GATE_STATUS = new QualityGateStatus(ERROR, ALERT_TEXT);
 
   @Rule
@@ -147,33 +145,13 @@ public class QualityGateEventsStepTest {
   }
 
   @Test
-  public void event_created_if_no_base_ALERT_STATUS_and_raw_is_WARN() {
-    verify_event_created_if_no_base_ALERT_STATUS_measure(WARN, "Orange");
-  }
-
-  @Test
-  public void event_created_if_base_ALERT_STATUS_and_raw_is_ERROR() {
-    verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Red");
-  }
-
-  @Test
   public void event_created_if_base_ALERT_STATUS_has_no_alertStatus_and_raw_is_ERROR() {
     verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Red");
   }
 
   @Test
-  public void event_created_if_base_ALERT_STATUS_has_no_alertStatus_and_raw_is_WARN() {
-    verify_event_created_if_no_base_ALERT_STATUS_measure(WARN, "Orange");
-  }
-
-  @Test
   public void event_created_if_base_ALERT_STATUS_has_invalid_alertStatus_and_raw_is_ERROR() {
     verify_event_created_if_no_base_ALERT_STATUS_measure(ERROR, "Red");
-  }
-
-  @Test
-  public void event_created_if_base_ALERT_STATUS_has_invalid_alertStatus_and_raw_is_WARN() {
-    verify_event_created_if_no_base_ALERT_STATUS_measure(WARN, "Orange");
   }
 
   private void verify_event_created_if_no_base_ALERT_STATUS_measure(Measure.Level rawAlterStatus, String expectedLabel) {
@@ -222,12 +200,8 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed() {
-    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(OK, WARN_QUALITY_GATE_STATUS, "Orange (was Green)");
     verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(OK, ERROR_QUALITY_GATE_STATUS, "Red (was Green)");
-    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(WARN, OK_QUALITY_GATE_STATUS, "Green (was Orange)");
-    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(WARN, ERROR_QUALITY_GATE_STATUS, "Red (was Orange)");
     verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(ERROR, OK_QUALITY_GATE_STATUS, "Green (was Red)");
-    verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(ERROR, WARN_QUALITY_GATE_STATUS, "Orange (was Red)");
   }
 
   private void verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(Measure.Level previousAlertStatus,
@@ -274,7 +248,7 @@ public class QualityGateEventsStepTest {
     });
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
-      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
       of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(ERROR)).createNoValue()));
 
@@ -296,7 +270,7 @@ public class QualityGateEventsStepTest {
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
-      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
       of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(ERROR)).createNoValue()));
 

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QualityGateConditionDaoTest {
 
   private static final String[] COLUMNS_WITHOUT_TIMESTAMPS = {
-    "id", "qgate_id", "metric_id", "operator", "value_warning", "value_error"
+    "id", "qgate_id", "metric_id", "operator", "value_error"
   };
 
   @Rule
@@ -43,12 +43,12 @@ public class QualityGateConditionDaoTest {
   public void testInsert() {
     dbTester.prepareDbUnit(getClass(), "insert.xml");
     QualityGateConditionDto newCondition = new QualityGateConditionDto()
-      .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setWarningThreshold("10").setErrorThreshold("20");
+      .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setErrorThreshold("20");
 
     underTest.insert(newCondition, dbTester.getSession());
     dbTester.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gate_conditions", "metric_id", "operator", "error_value", "warning_value");
+    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gate_conditions", "metric_id", "operator", "error_value");
     assertThat(newCondition.getId()).isNotNull();
   }
 
@@ -68,7 +68,6 @@ public class QualityGateConditionDaoTest {
     assertThat(selectById.getMetricId()).isEqualTo(2L);
     assertThat(selectById.getOperator()).isEqualTo("<");
     assertThat(selectById.getQualityGateId()).isEqualTo(1L);
-    assertThat(selectById.getWarningThreshold()).isEqualTo("10");
     assertThat(selectById.getErrorThreshold()).isEqualTo("20");
     assertThat(underTest.selectById(42L, dbSession)).isNull();
   }
@@ -87,7 +86,7 @@ public class QualityGateConditionDaoTest {
   public void testUpdate() {
     dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
 
-    underTest.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setWarningThreshold("50").setErrorThreshold("80"), dbSession);
+    underTest.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setErrorThreshold("80"), dbSession);
     dbSession.commit();
 
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);

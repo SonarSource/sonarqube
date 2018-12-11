@@ -20,14 +20,10 @@
 package org.sonar.server.qualitygate;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
-import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
@@ -35,19 +31,14 @@ public class Condition {
 
   private final String metricKey;
   private final Operator operator;
-  @CheckForNull
-  private final String warningThreshold;
-  @CheckForNull
   private final String errorThreshold;
   private final boolean onLeakPeriod;
 
-  public Condition(String metricKey, Operator operator,
-    @Nullable String errorThreshold, @Nullable String warningThreshold) {
+  public Condition(String metricKey, Operator operator, String errorThreshold) {
     this.metricKey = requireNonNull(metricKey, "metricKey can't be null");
     this.operator = requireNonNull(operator, "operator can't be null");
+    this.errorThreshold = requireNonNull(errorThreshold, "errorThreshold can't be null");
     this.onLeakPeriod = metricKey.startsWith("new_");
-    this.errorThreshold = emptyToNull(errorThreshold);
-    this.warningThreshold = emptyToNull(warningThreshold);
   }
 
   public String getMetricKey() {
@@ -62,12 +53,8 @@ public class Condition {
     return operator;
   }
 
-  public Optional<String> getWarningThreshold() {
-    return Optional.ofNullable(warningThreshold);
-  }
-
-  public Optional<String> getErrorThreshold() {
-    return Optional.ofNullable(errorThreshold);
+  public String getErrorThreshold() {
+    return errorThreshold;
   }
 
   @Override
@@ -81,13 +68,12 @@ public class Condition {
     Condition condition = (Condition) o;
     return Objects.equals(metricKey, condition.metricKey) &&
       operator == condition.operator &&
-      Objects.equals(warningThreshold, condition.warningThreshold) &&
       Objects.equals(errorThreshold, condition.errorThreshold);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(metricKey, operator, warningThreshold, errorThreshold);
+    return Objects.hash(metricKey, operator, errorThreshold);
   }
 
   @Override
@@ -95,15 +81,11 @@ public class Condition {
     return "Condition{" +
       "metricKey='" + metricKey + '\'' +
       ", operator=" + operator +
-      ", warningThreshold=" + toString(warningThreshold) +
       ", errorThreshold=" + toString(errorThreshold) +
       '}';
   }
 
-  private static String toString(@Nullable String errorThreshold) {
-    if (errorThreshold == null) {
-      return null;
-    }
+  private static String toString(String errorThreshold) {
     return '\'' + errorThreshold + '\'';
   }
 

@@ -93,8 +93,6 @@ public class QualityGateConditionDto {
 
   private String operator;
 
-  private String warningThreshold;
-
   private String errorThreshold;
 
   private Date createdAt;
@@ -147,20 +145,11 @@ public class QualityGateConditionDto {
     return this;
   }
 
-  public String getWarningThreshold() {
-    return warningThreshold;
-  }
-
-  public QualityGateConditionDto setWarningThreshold(@Nullable String warningThreshold) {
-    this.warningThreshold = warningThreshold;
-    return this;
-  }
-
   public String getErrorThreshold() {
     return errorThreshold;
   }
 
-  public QualityGateConditionDto setErrorThreshold(@Nullable String errorThreshold) {
+  public QualityGateConditionDto setErrorThreshold(String errorThreshold) {
     this.errorThreshold = errorThreshold;
     return this;
   }

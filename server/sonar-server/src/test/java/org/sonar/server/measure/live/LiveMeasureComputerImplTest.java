@@ -330,7 +330,7 @@ public class LiveMeasureComputerImplTest {
   @Test
   public void event_contains_newQualityGate_computed_by_LiveQualityGateComputer() {
     markProjectAsAnalyzed(project);
-    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData(Metric.Level.WARN.name()));
+    db.measures().insertLiveMeasure(project, alertStatusMetric, m -> m.setData(Metric.Level.ERROR.name()));
     db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(42.0).setValue(null));
     BranchDto branch = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), project.projectUuid(), "master")
       .orElseThrow(() -> new IllegalStateException("Can't find master branch"));

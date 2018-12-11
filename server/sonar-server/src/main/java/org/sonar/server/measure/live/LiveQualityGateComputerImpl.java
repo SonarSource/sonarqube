@@ -80,7 +80,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     Set<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
       String metricKey = metricsById.get((int) conditionDto.getMetricId()).getKey();
       Condition.Operator operator = Condition.Operator.fromDbValue(conditionDto.getOperator());
-      return new Condition(metricKey, operator, conditionDto.getErrorThreshold(), conditionDto.getWarningThreshold());
+      return new Condition(metricKey, operator, conditionDto.getErrorThreshold());
     }).collect(toHashSet(conditionDtos.size()));
 
     return new QualityGate(String.valueOf(gateDto.getId()), gateDto.getName(), conditions);

@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -76,8 +75,6 @@ public class ProjectStatusActionTest {
   @Test
   public void test_definition() {
     WebService.Action action = ws.getDef();
-    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
-      tuple("6.4", "The field 'ignoredConditions' is added to the response"));
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(

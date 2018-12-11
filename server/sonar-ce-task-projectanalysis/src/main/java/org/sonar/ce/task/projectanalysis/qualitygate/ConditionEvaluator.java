@@ -21,9 +21,8 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.of;
@@ -41,37 +40,21 @@ public final class ConditionEvaluator {
       return new EvaluationResult(Measure.Level.OK, null);
     }
 
-    return evaluateCondition(condition, measureComparable, Measure.Level.ERROR)
-      .orElseGet(() -> evaluateCondition(condition, measureComparable, Measure.Level.WARN)
-        .orElseGet(() -> new EvaluationResult(Measure.Level.OK, measureComparable)));
+    return evaluateCondition(condition, measureComparable)
+      .orElseGet(() -> new EvaluationResult(Measure.Level.OK, measureComparable));
   }
 
-  private static Optional<EvaluationResult> evaluateCondition(Condition condition, Comparable<?> measureComparable, Measure.Level alertLevel) {
-    String conditionValue = getValueToEval(condition, alertLevel);
-    if (StringUtils.isEmpty(conditionValue)) {
-      return Optional.empty();
-    }
-
+  private static Optional<EvaluationResult> evaluateCondition(Condition condition, Comparable<?> measureComparable) {
     try {
-      Comparable conditionComparable = parseConditionValue(condition.getMetric(), conditionValue);
+      Comparable conditionComparable = parseConditionValue(condition.getMetric(), condition.getErrorThreshold());
       if (doesReachThresholds(measureComparable, conditionComparable, condition)) {
-        return of(new EvaluationResult(alertLevel, measureComparable));
+        return of(new EvaluationResult(Measure.Level.ERROR, measureComparable));
       }
       return Optional.empty();
     } catch (NumberFormatException badValueFormat) {
       throw new IllegalArgumentException(String.format(
         "Quality Gate: Unable to parse value '%s' to compare against %s",
-        conditionValue, condition.getMetric().getName()));
-    }
-  }
-
-  private static String getValueToEval(Condition condition, Measure.Level alertLevel) {
-    if (Measure.Level.ERROR.equals(alertLevel)) {
-      return condition.getErrorThreshold();
-    } else if (Measure.Level.WARN.equals(alertLevel)) {
-      return condition.getWarningThreshold();
-    } else {
-      throw new IllegalStateException(alertLevel.toString());
+        condition.getErrorThreshold(), condition.getMetric().getName()));
     }
   }
 

@@ -42,7 +42,7 @@ public class ProjectAnalysisTest {
   private final Branch branch = new Branch(true, "name", Branch.Type.SHORT);
   private final EvaluatedQualityGate qualityGate = EvaluatedQualityGate.newBuilder()
     .setQualityGate(new QualityGate("id", "name", emptySet()))
-    .setStatus(Metric.Level.WARN)
+    .setStatus(Metric.Level.ERROR)
     .build();
   private final Map<String, String> properties = ImmutableMap.of("a", "b");
   private ProjectAnalysis underTest = new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 1L, properties);
@@ -109,7 +109,7 @@ public class ProjectAnalysisTest {
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, null, 1L, properties));
     EvaluatedQualityGate otherQualityGate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("A", "B", emptySet()))
-      .setStatus(Metric.Level.WARN)
+      .setStatus(Metric.Level.ERROR)
       .build();
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, otherQualityGate, 1L, properties));
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, null, properties));
@@ -135,7 +135,7 @@ public class ProjectAnalysisTest {
     assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, null, 1L, properties).hashCode());
     EvaluatedQualityGate otherQualityGate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("A", "B", emptySet()))
-      .setStatus(Metric.Level.WARN)
+      .setStatus(Metric.Level.ERROR)
       .build();
     assertThat(underTest.hashCode())
       .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, otherQualityGate, 1L, properties).hashCode());
@@ -148,6 +148,6 @@ public class ProjectAnalysisTest {
   @Test
   public void verify_toString() {
     assertThat(underTest.toString()).isEqualTo(
-      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=SHORT}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=WARN, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500}}");
+      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=SHORT}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=ERROR, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500}}");
   }
 }

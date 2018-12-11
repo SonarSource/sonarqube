@@ -57,7 +57,6 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
@@ -69,7 +68,6 @@ import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_ERROR;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_OK;
-import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_WARN;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureActionTest {
@@ -177,7 +175,6 @@ public class MeasureActionTest {
   public static Object[][] qualityGates() {
     return new Object[][] {
       {OK, "passed", QUALITY_GATE_OK},
-      {WARN, "warning", QUALITY_GATE_WARN},
       {ERROR, "failed", QUALITY_GATE_ERROR}
     };
   }

@@ -99,7 +99,6 @@ public class QualityGateDbTester {
     QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setMetricId(metric.getId())
       .setOperator("GT")
-      .setWarningThreshold(randomNumeric(10))
       .setErrorThreshold(randomNumeric(10));
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(condition));
     dbClient.gateConditionDao().insert(condition, dbSession);

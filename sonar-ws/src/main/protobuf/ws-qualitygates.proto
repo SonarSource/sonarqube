@@ -103,7 +103,6 @@ message CreateConditionResponse {
   optional int64 id = 1;
   optional string metric = 2;
   optional string op = 3;
-  optional string warning = 4;
   optional string error = 5;
 }
 
@@ -112,7 +111,6 @@ message UpdateConditionResponse {
   optional int64 id = 1;
   optional string metric = 2;
   optional string op = 3;
-  optional string warning = 4;
   optional string error = 5;
 }
 
@@ -128,7 +126,6 @@ message ShowWsResponse {
     optional int64 id = 1;
     optional string metric = 2;
     optional string op = 4;
-    optional string warning = 5;
     optional string error = 6;
   }
 }

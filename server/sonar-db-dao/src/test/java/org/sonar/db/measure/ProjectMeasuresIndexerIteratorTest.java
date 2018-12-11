@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
@@ -101,13 +100,11 @@ public class ProjectMeasuresIndexerIteratorTest {
     ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
     ComponentDto project3 = dbTester.components().insertPrivateProject(organization);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
-    dbTester.measures().insertLiveMeasure(project1, metric, m -> m.setValue(null).setData(WARN.name()));
     dbTester.measures().insertLiveMeasure(project2, metric, m -> m.setValue(null).setData(OK.name()));
     dbTester.measures().insertLiveMeasure(project3, metric, m -> m.setValue(null).setData(ERROR.name()));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get(project1.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("WARN");
     assertThat(docsById.get(project2.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("OK");
     assertThat(docsById.get(project3.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("ERROR");
   }

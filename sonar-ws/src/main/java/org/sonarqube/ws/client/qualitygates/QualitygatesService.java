@@ -91,8 +91,7 @@ public class QualitygatesService extends BaseService {
         .setParam("gateId", request.getGateId())
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp())
-        .setParam("organization", request.getOrganization())
-        .setParam("warning", request.getWarning()),
+        .setParam("organization", request.getOrganization()),
       CreateConditionResponse.parser());
   }
 
@@ -306,8 +305,7 @@ public class QualitygatesService extends BaseService {
         .setParam("id", request.getId())
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp())
-        .setParam("organization", request.getOrganization())
-        .setParam("warning", request.getWarning()),
+        .setParam("organization", request.getOrganization()),
       UpdateConditionResponse.parser());
   }
 }

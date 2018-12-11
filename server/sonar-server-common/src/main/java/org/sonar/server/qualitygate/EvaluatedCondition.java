@@ -89,15 +89,11 @@ public class EvaluatedCondition {
      */
     NO_VALUE,
     /**
-     * Condition evaluated as OK, neither error nor warning thresholds have been reached.
+     * Condition evaluated as OK, error thresholds hasn't been reached.
      */
     OK,
     /**
-     * Condition evaluated as WARN, only warning thresholds has been reached.
-     */
-    WARN,
-    /**
-     * Condition evaluated as ERROR, error thresholds has been reached (and most likely warning thresholds too).
+     * Condition evaluated as ERROR, error thresholds has been reached.
      */
     ERROR
   }

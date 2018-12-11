@@ -36,8 +36,8 @@ public class EvaluatedQualityGateTest {
   private static final String QUALITY_GATE_ID = "qg_id";
   private static final String QUALITY_GATE_NAME = "qg_name";
   private static final QualityGate NO_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, emptySet());
-  private static final Condition CONDITION_1 = new Condition("metric_key", Condition.Operator.LESS_THAN, "2", "4");
-  private static final Condition CONDITION_2 = new Condition("metric_key_2", Condition.Operator.GREATER_THAN, "6", "12");
+  private static final Condition CONDITION_1 = new Condition("metric_key", Condition.Operator.LESS_THAN, "2");
+  private static final Condition CONDITION_2 = new Condition("metric_key_2", Condition.Operator.GREATER_THAN, "6");
   private static final QualityGate ONE_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, singleton(CONDITION_1));
 
   @Rule
@@ -66,7 +66,7 @@ public class EvaluatedQualityGateTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("condition can't be null");
 
-    builder.addCondition(null, EvaluatedCondition.EvaluationStatus.WARN, "a_value");
+    builder.addCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value");
   }
 
   @Test
@@ -74,7 +74,7 @@ public class EvaluatedQualityGateTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("status can't be null");
 
-    builder.addCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2", "4"), null, "a_value");
+    builder.addCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2"), null, "a_value");
   }
 
   @Test
@@ -146,22 +146,22 @@ public class EvaluatedQualityGateTest {
       .setQualityGate(qualityGate)
       .setStatus(randomStatus)
       .addCondition(CONDITION_1, randomEvaluationStatus, randomValue)
-      .addCondition(CONDITION_2, EvaluatedCondition.EvaluationStatus.WARN, "bad")
+      .addCondition(CONDITION_2, EvaluatedCondition.EvaluationStatus.ERROR, "bad")
       .build();
 
     assertThat(underTest.getQualityGate()).isEqualTo(qualityGate);
     assertThat(underTest.getStatus()).isEqualTo(randomStatus);
     assertThat(underTest.getEvaluatedConditions()).containsOnly(
       new EvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue),
-      new EvaluatedCondition(CONDITION_2, EvaluatedCondition.EvaluationStatus.WARN, "bad"));
+      new EvaluatedCondition(CONDITION_2, EvaluatedCondition.EvaluationStatus.ERROR, "bad"));
   }
 
   @Test
   public void equals_is_based_on_all_fields() {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(Level.WARN)
-      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.WARN, "foo");
+      .setStatus(Level.ERROR)
+      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
     assertThat(underTest).isEqualTo(builder.build());
@@ -172,7 +172,7 @@ public class EvaluatedQualityGateTest {
     assertThat(underTest).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build());
     assertThat(underTest).isNotEqualTo(newBuilder()
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(Level.WARN)
+      .setStatus(Level.ERROR)
       .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
       .build());
   }
@@ -181,8 +181,8 @@ public class EvaluatedQualityGateTest {
   public void hashcode_is_based_on_all_fields() {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(Level.WARN)
-      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.WARN, "foo");
+      .setStatus(Level.ERROR)
+      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
     assertThat(underTest.hashCode()).isEqualTo(builder.build().hashCode());
@@ -193,7 +193,7 @@ public class EvaluatedQualityGateTest {
     assertThat(underTest.hashCode()).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build().hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(newBuilder()
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(Level.WARN)
+      .setStatus(Level.ERROR)
       .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
       .build().hashCode());
   }

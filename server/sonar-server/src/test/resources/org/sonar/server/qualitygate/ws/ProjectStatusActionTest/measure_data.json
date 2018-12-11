@@ -13,7 +13,6 @@
       "metric": "new_blocker_violations",
       "op": "GT",
       "period": 1,
-      "warning": "",
       "error": "0",
       "actual": "14",
       "level": "ERROR"
@@ -22,7 +21,6 @@
       "metric": "new_critical_violations",
       "op": "GT",
       "period": 1,
-      "warning": "",
       "error": "0",
       "actual": "1",
       "level": "ERROR"
@@ -31,7 +29,6 @@
       "metric": "new_sqale_debt_ratio",
       "op": "GT",
       "period": 1,
-      "warning": "",
       "error": "5",
       "actual": "0.6562109862671661",
       "level": "OK"
@@ -40,7 +37,6 @@
       "metric": "reopened_issues",
       "op": "GT",
       "period": 1,
-      "warning": "0",
       "actual": "0",
       "level": "OK"
     },
@@ -48,17 +44,15 @@
       "metric": "open_issues",
       "op": "GT",
       "period": 1,
-      "warning": "0",
-      "error": "",
+      "error": "0",
       "actual": "17",
-      "level": "WARN"
+      "level": "ERROR"
     },
     {
       "metric": "skipped_tests",
       "op": "GT",
       "period": 1,
-      "warning": "0",
-      "error": "",
+      "error": "0",
       "actual": "0",
       "level": "OK"
     }

@@ -42,6 +42,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.valueOf;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
@@ -60,30 +61,28 @@ public class QualityGateConditionsUpdater {
   }
 
   public QualityGateConditionDto createCondition(DbSession dbSession, QualityGateDto qualityGate, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold) {
+    String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold);
+    validateCondition(metric, operator, errorThreshold);
     checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getId()), metric);
 
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
       .setOperator(operator)
-      .setWarningThreshold(warningThreshold)
       .setErrorThreshold(errorThreshold);
     dbClient.gateConditionDao().insert(newCondition, dbSession);
     return newCondition;
   }
 
   public QualityGateConditionDto updateCondition(DbSession dbSession, QualityGateConditionDto condition, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold) {
+    String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold);
+    validateCondition(metric, operator, errorThreshold);
 
     condition
       .setMetricId(metric.getId())
       .setMetricKey(metric.getKey())
       .setOperator(operator)
-      .setWarningThreshold(warningThreshold)
       .setErrorThreshold(errorThreshold);
     dbClient.gateConditionDao().update(condition, dbSession);
     return condition;
@@ -101,15 +100,12 @@ public class QualityGateConditionsUpdater {
     return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId);
   }
 
-  private static void validateCondition(MetricDto metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold) {
+  private static void validateCondition(MetricDto metric, String operator, String errorThreshold) {
     List<String> errors = new ArrayList<>();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
-    checkThresholds(warningThreshold, errorThreshold, errors);
-
-    validateThresholdValues(metric, warningThreshold, errors);
-    validateThresholdValues(metric, errorThreshold, errors);
-    checkRatingMetric(metric, warningThreshold, errorThreshold, errors);
+    checkErrorThreshold(metric, errorThreshold, errors);
+    checkRatingMetric(metric, errorThreshold, errors);
     checkRequest(errors.isEmpty(), errors);
   }
 
@@ -130,8 +126,9 @@ public class QualityGateConditionsUpdater {
     check(isOperatorAllowed(operator, valueType), errors, "Operator %s is not allowed for metric type %s.", operator, metric.getValueType());
   }
 
-  private static void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, List<String> errors) {
-    check(warningThreshold != null || errorThreshold != null, errors, "At least one threshold (warning, error) must be set.");
+  private static void checkErrorThreshold(MetricDto metric, String errorThreshold, List<String> errors) {
+    requireNonNull(errorThreshold, "errorThreshold can not be null");
+    validateErrorThresholdValue(metric, errorThreshold, errors);
   }
 
   private static void checkConditionDoesNotExistOnSameMetric(Collection<QualityGateConditionDto> conditions, MetricDto metric) {
@@ -143,25 +140,22 @@ public class QualityGateConditionsUpdater {
     checkRequest(!conditionExists, format("Condition on metric '%s' already exists.", metric.getShortName()));
   }
 
-  private static void validateThresholdValues(MetricDto metric, @Nullable String value, List<String> errors) {
-    if (value == null) {
-      return;
-    }
+  private static void validateErrorThresholdValue(MetricDto metric, String errorThreshold, List<String> errors) {
     try {
       ValueType valueType = ValueType.valueOf(metric.getValueType());
       switch (valueType) {
         case BOOL:
         case INT:
         case RATING:
-          parseInt(value);
+          parseInt(errorThreshold);
           return;
         case MILLISEC:
         case WORK_DUR:
-          parseLong(value);
+          parseLong(errorThreshold);
           return;
         case FLOAT:
         case PERCENT:
-          parseDouble(value);
+          parseDouble(errorThreshold);
           return;
         case STRING:
         case LEVEL:
@@ -170,26 +164,21 @@ public class QualityGateConditionsUpdater {
           throw new IllegalArgumentException(format("Unsupported value type %s. Cannot convert condition value", valueType));
       }
     } catch (Exception e) {
-      errors.add(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
+      errors.add(format("Invalid value '%s' for metric '%s'", errorThreshold, metric.getShortName()));
     }
   }
 
-  private static void checkRatingMetric(MetricDto metric, @Nullable String warningThreshold, @Nullable String errorThreshold, List<String> errors) {
+  private static void checkRatingMetric(MetricDto metric, String errorThreshold, List<String> errors) {
     if (!metric.getValueType().equals(RATING.name())) {
       return;
     }
     if (!isCoreRatingMetric(metric.getKey())) {
       errors.add(format("The metric '%s' cannot be used", metric.getShortName()));
     }
-    if (!isValidRating(warningThreshold)) {
-      addInvalidRatingError(warningThreshold, errors);
-      return;
-    }
     if (!isValidRating(errorThreshold)) {
       addInvalidRatingError(errorThreshold, errors);
       return;
     }
-    checkRatingGreaterThanOperator(warningThreshold, errors);
     checkRatingGreaterThanOperator(errorThreshold, errors);
   }
 

@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -36,7 +35,6 @@ public class CreateConditionRequest {
   private String metric;
   private String op;
   private String organization;
-  private String warning;
 
   /**
    * Example value: "10"
@@ -105,17 +103,5 @@ public class CreateConditionRequest {
 
   public String getOrganization() {
     return organization;
-  }
-
-  /**
-   * Example value: "5"
-   */
-  public CreateConditionRequest setWarning(String warning) {
-    this.warning = warning;
-    return this;
-  }
-
-  public String getWarning() {
-    return warning;
   }
 }

@@ -154,19 +154,17 @@ public class ComponentTreeSortTest {
   public void sort_by_alert_status_ascending() {
     components = newArrayList(
       newComponentWithoutSnapshotId("PROJECT OK 1", Qualifiers.PROJECT, "PROJECT_OK_PATH_1"),
-      newComponentWithoutSnapshotId("PROJECT WARN 1", Qualifiers.PROJECT, "PROJECT_WARN_PATH_1"),
       newComponentWithoutSnapshotId("PROJECT ERROR 1", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
       newComponentWithoutSnapshotId("PROJECT OK 2", Qualifiers.PROJECT, "PROJECT_OK_PATH_2"),
-      newComponentWithoutSnapshotId("PROJECT WARN 2", Qualifiers.PROJECT, "PROJECT_WARN_PATH_2"),
       newComponentWithoutSnapshotId("PROJECT ERROR 2", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_2"));
     metrics = singletonList(newMetricDto()
       .setKey(CoreMetrics.ALERT_STATUS_KEY)
       .setValueType(ValueType.LEVEL.name()));
     measuresByComponentUuidAndMetric = HashBasedTable.create();
-    List<String> statuses = newArrayList("OK", "WARN", "ERROR");
+    List<String> statuses = newArrayList("OK", "ERROR");
     for (int i = 0; i < components.size(); i++) {
       ComponentDto component = components.get(i);
-      String alertStatus = statuses.get(i % 3);
+      String alertStatus = statuses.get(i % 2);
       measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMeasureDto(new LiveMeasureDto().setData(alertStatus)));
     }
     ComponentTreeRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
@@ -175,7 +173,6 @@ public class ComponentTreeSortTest {
 
     assertThat(result).extracting("name").containsExactly(
       "PROJECT ERROR 1", "PROJECT ERROR 2",
-      "PROJECT WARN 1", "PROJECT WARN 2",
       "PROJECT OK 1", "PROJECT OK 2");
   }
 

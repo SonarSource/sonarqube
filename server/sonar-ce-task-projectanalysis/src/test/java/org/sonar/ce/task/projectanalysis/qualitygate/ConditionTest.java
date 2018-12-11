@@ -44,12 +44,12 @@ public class ConditionTest {
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_metric_argument() {
-    new Condition(null, SOME_OPERATOR, null, null);
+    new Condition(null, SOME_OPERATOR, null);
   }
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_operator_argument() {
-    new Condition(SOME_METRIC, null, null, null);
+    new Condition(SOME_METRIC, null, null);
   }
 
   @Test
@@ -57,27 +57,26 @@ public class ConditionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unsupported operator value: 'troloto'");
 
-    new Condition(SOME_METRIC, "troloto", null, null);
+    new Condition(SOME_METRIC, "troloto", null);
   }
 
   @Test
   public void verify_getters() {
     String error = "error threshold";
-    String warning = "warning threshold";
 
-    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error, warning);
+    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error);
 
     assertThat(condition.getMetric()).isSameAs(SOME_METRIC);
     assertThat(condition.getOperator()).isSameAs(Condition.Operator.EQUALS);
     assertThat(condition.getErrorThreshold()).isEqualTo(error);
-    assertThat(condition.getWarningThreshold()).isEqualTo(warning);
   }
 
   @Test
   public void all_fields_are_displayed_in_toString() {
     when(SOME_METRIC.toString()).thenReturn("metric1");
 
-    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l", "warn").toString())
-      .isEqualTo("Condition{metric=metric1, operator=EQUALS, warningThreshold=warn, errorThreshold=error_l}");
+    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l").toString())
+      .isEqualTo("Condition{metric=metric1, operator=EQUALS, errorThreshold=error_l}");
+
   }
 }

@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import java.util.ArrayList;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -50,7 +49,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GAT
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class CreateConditionActionTest {
 
@@ -72,24 +70,6 @@ public class CreateConditionActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void create_warning_condition() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsQualityGateAdmin(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-
-    ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", "90", null, null);
-  }
-
-  @Test
   public void create_error_condition() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
@@ -104,7 +84,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", null, "90", null);
+    assertCondition(qualityGate, metric, "LT", "90");
   }
 
   @Test
@@ -122,7 +102,7 @@ public class CreateConditionActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", null, "90", 1);
+    assertCondition(qualityGate, metric, "LT", "90");
   }
 
   @Test
@@ -138,48 +118,10 @@ public class CreateConditionActionTest {
       .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
+      .setParam(PARAM_ERROR, "10")
       .execute();
 
-    assertCondition(qualityGate, metric, "LT", "90", null, null);
-  }
-
-  @Test
-  public void create_warning_condition_with_empty_string_on_error() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsQualityGateAdmin(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-
-    ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "90")
-      .setParam(PARAM_ERROR, "")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", "90", null, null);
-  }
-
-  @Test
-  public void create_error_condition_with_empty_string_on_warning() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsQualityGateAdmin(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    MetricDto metric = insertMetric();
-
-    ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
-      .setParam(PARAM_METRIC, metric.getKey())
-      .setParam(PARAM_OPERATOR, "LT")
-      .setParam(PARAM_WARNING, "")
-      .setParam(PARAM_ERROR, "90")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-
-    assertCondition(qualityGate, metric, "LT", null, "90", null);
+    assertCondition(qualityGate, metric, "LT", "10");
   }
 
   @Test
@@ -213,7 +155,6 @@ public class CreateConditionActionTest {
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "45")
-      .setParam(PARAM_WARNING, "90")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(CreateConditionResponse.class);
 
@@ -221,7 +162,6 @@ public class CreateConditionActionTest {
     assertThat(response.getId()).isEqualTo(condition.getId());
     assertThat(response.getMetric()).isEqualTo(metric.getKey());
     assertThat(response.getOp()).isEqualTo("LT");
-    assertThat(response.getWarning()).isEqualTo("90");
     assertThat(response.getError()).isEqualTo("45");
   }
 
@@ -256,17 +196,16 @@ public class CreateConditionActionTest {
       .containsExactlyInAnyOrder(
         tuple("gateId", true),
         tuple("metric", true),
+        tuple("error", true),
         tuple("op", false),
-        tuple("warning", false),
-        tuple("error", false),
         tuple("organization", false));
   }
 
-  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
+  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
       .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
-        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error));
+        QualityGateConditionDto::getErrorThreshold)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, error));
   }
 
   private void logInAsQualityGateAdmin(OrganizationDto organization) {

@@ -32,7 +32,6 @@ import org.sonar.server.es.BaseDoc;
 
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_DISTRIB_LANGUAGE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_DISTRIB_NCLOC;
@@ -50,7 +49,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
-  public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
+  public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, ERROR.name(), 2);
 
   public ProjectMeasuresDoc() {
     super(new HashMap<>(8));
