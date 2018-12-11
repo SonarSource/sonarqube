@@ -73,7 +73,6 @@ public final class ComponentKeys {
    * <li>At least one non-digit</li>
    * </ul>
    *
-   * @param keyCandidate
    * @return <code>true</code> if <code>keyCandidate</code> can be used for a project
    */
   public static boolean isValidProjectKey(String keyCandidate) {
@@ -110,7 +109,6 @@ public final class ComponentKeys {
    * </li>
    * </ul>
    *
-   * @param branchCandidate
    * @return <code>true</code> if <code>branchCandidate</code> can be used for a project
    */
   public static boolean isValidBranch(String branchCandidate) {
@@ -119,10 +117,6 @@ public final class ComponentKeys {
 
   /**
    * Return the project key with potential branch
-   *
-   * @param keyWithoutBranch
-   * @param branch
-   * @return
    */
   public static String createKey(String keyWithoutBranch, @Nullable String branch) {
     if (StringUtils.isNotBlank(branch)) {

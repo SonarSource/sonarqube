@@ -26,7 +26,6 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;

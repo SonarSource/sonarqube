@@ -79,7 +79,7 @@ public class TrackerBaseInputFactory extends BaseInputFactory {
 
   }
 
-  private class EmptyTrackerBaseLazyInput extends BaseLazyInput {
+  private static class EmptyTrackerBaseLazyInput extends BaseLazyInput {
 
     private EmptyTrackerBaseLazyInput(DbClient dbClient, Component component) {
       super(dbClient, component, null);

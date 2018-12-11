@@ -19,9 +19,11 @@
  */
 package org.sonar.scanner.scan;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -74,5 +76,35 @@ public class DefaultInputModuleHierarchyTest {
     assertThat(moduleHierarchy.children(root)).isEmpty();
     assertThat(moduleHierarchy.parent(root)).isNull();
     assertThat(moduleHierarchy.root()).isEqualTo(root);
+  }
+
+  @Test
+  public void testRelativePathToRoot() throws IOException {
+    File rootBaseDir = temp.newFolder();
+    File mod1BaseDir = new File(rootBaseDir, "mod1");
+    File mod2BaseDir = new File(rootBaseDir, "mod2");
+    FileUtils.forceMkdir(mod1BaseDir);
+    FileUtils.forceMkdir(mod2BaseDir);
+    DefaultInputModule root = new DefaultInputModule(ProjectDefinition.create().setKey("root")
+      .setBaseDir(rootBaseDir).setWorkDir(rootBaseDir));
+    DefaultInputModule mod1 = new DefaultInputModule(ProjectDefinition.create().setKey("mod1")
+      .setBaseDir(mod1BaseDir).setWorkDir(temp.newFolder()));
+    DefaultInputModule mod2 = new DefaultInputModule(ProjectDefinition.create().setKey("mod2")
+      .setBaseDir(mod2BaseDir).setWorkDir(temp.newFolder()));
+    DefaultInputModule mod3 = new DefaultInputModule(ProjectDefinition.create().setKey("mod2")
+      .setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
+
+    Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
+
+    parents.put(mod1, root);
+    parents.put(mod2, mod1);
+    parents.put(mod3, mod1);
+
+    moduleHierarchy = new DefaultInputModuleHierarchy(root, parents);
+
+    assertThat(moduleHierarchy.relativePathToRoot(root)).isEqualTo("");
+    assertThat(moduleHierarchy.relativePathToRoot(mod1)).isEqualTo("mod1");
+    assertThat(moduleHierarchy.relativePathToRoot(mod2)).isEqualTo("mod2");
+    assertThat(moduleHierarchy.relativePathToRoot(mod3)).isNull();
   }
 }

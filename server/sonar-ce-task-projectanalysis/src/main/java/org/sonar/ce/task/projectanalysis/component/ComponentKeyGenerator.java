@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import javax.annotation.Nullable;
-import org.sonar.scanner.protocol.output.ScannerReport;
 
 @FunctionalInterface
 public interface ComponentKeyGenerator {
