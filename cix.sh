@@ -24,10 +24,6 @@ case "$RUN_ACTIVITY" in
     ./run-integration-tests.sh "Plugins" "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties"
     ;;
 
-  run-perf-tests)
-    ./run-perf-tests.sh
-    ;;
-
   run-upgrade-tests-*)
     DB_ENGINE=$(sed "s/run-upgrade-tests-//g" <<< $RUN_ACTIVITY)
     if [[ "$GITHUB_BRANCH" == "PULLREQUEST-"* ]] && [[ "$DB_ENGINE" != "postgresql93" ]]; then
