@@ -110,7 +110,8 @@ public class FileIndexer {
       if (projectExclusionFilters.equals(moduleExclusionFilters)) {
         warnOnceDeprecatedExclusion(
           "Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
-            "To continue excluding files like '" + projectRelativePath + "' from the analysis, update this property so that patterns refer to project-relative paths.");
+            "To continue including/excluding files like '" + projectRelativePath + "' from the analysis, " +
+            "update these properties so that patterns refer to project-relative paths.");
       }
       excludedByPatternsCount.incrementAndGet();
       return;
