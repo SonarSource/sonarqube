@@ -104,7 +104,7 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
 
   private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> pathByModuleKey) {
     List<ComponentDto> moduleDtos = dbClient.componentDao()
-      .selectProjectAndModulesFromProjectKey(dbSession, rootKey, false).stream()
+      .selectProjectAndModulesFromProjectKey(dbSession, rootKey, true).stream()
       .filter(c -> Qualifiers.MODULE.equals(c.qualifier()))
       .collect(Collectors.toList());
 
