@@ -62,7 +62,7 @@
 .onboarding-choices {
   display: flex;
   justify-content: space-around;
-  padding: 44px 100px;
+  padding: 44px 170px;
   background-color: var(--barBackgroundColor);
   margin-top: var(--pagePadding);
 }
@@ -99,6 +99,7 @@
 .onboarding-choice:focus,
 .onboarding-choice:active {
   background-color: #fff;
-  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.35);
   color: var(--darkBlue);
+  box-shadow: var(--defaultShadow);
+  transform: translateY(-2px);
 }

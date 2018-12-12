@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post } from '../helpers/request';
+import { getJSON, postJSON, post, requestTryAndRepeat } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function bindAlmOrganization(data: { installationId: string; organization: string }) {
@@ -28,23 +28,6 @@ export function getAlmAppInfo(): Promise<{ application: T.AlmApplication }> {
   return getJSON('/api/alm_integration/show_app_info').catch(throwGlobalError);
 }
 
-function fetchAlmOrganization(data: { installationId: string }, remainingTries: number) {
-  return getJSON('/api/alm_integration/show_organization', data).catch(
-    (error: { response: Response }) => {
-      remainingTries--;
-      if (error.response.status === 404) {
-        if (remainingTries > 0) {
-          return new Promise(resolve => {
-            setTimeout(() => resolve(fetchAlmOrganization(data, remainingTries)), 500);
-          });
-        }
-        return Promise.reject();
-      }
-      return throwGlobalError(error);
-    }
-  );
-}
-
 export interface GetAlmOrganizationResponse {
   almOrganization: T.AlmOrganization;
   boundOrganization?: T.OrganizationBase;
@@ -53,13 +36,15 @@ export interface GetAlmOrganizationResponse {
 export function getAlmOrganization(data: {
   installationId: string;
 }): Promise<GetAlmOrganizationResponse> {
-  return fetchAlmOrganization(data, 5).then(({ almOrganization, boundOrganization }) => ({
-    almOrganization: {
-      ...almOrganization,
-      name: almOrganization.name || almOrganization.key
-    },
-    boundOrganization
-  }));
+  return requestTryAndRepeat(() => getJSON('/api/alm_integration/show_organization', data), 25, 20)
+    .catch(throwGlobalError)
+    .then(({ almOrganization, boundOrganization }) => ({
+      almOrganization: {
+        ...almOrganization,
+        name: almOrganization.name || almOrganization.key
+      },
+      boundOrganization
+    }));
 }
 
 export function getRepositories(data: {

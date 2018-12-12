@@ -257,7 +257,7 @@ export function post(url: string, data?: RequestData): Promise<void> {
 }
 
 /**
- * Shortcut to do a POST request and return response json
+ * Shortcut to do a DELETE request and return response json
  */
 export function requestDelete(url: string, data?: RequestData): Promise<any> {
   return request(url)
@@ -272,4 +272,28 @@ export function requestDelete(url: string, data?: RequestData): Promise<any> {
  */
 export function delay(response: any): Promise<any> {
   return new Promise(resolve => setTimeout(() => resolve(response), 1200));
+}
+
+export function requestTryAndRepeat<T>(
+  repeatAPICall: () => Promise<T>,
+  tries: number,
+  slowTriesThreshold: number,
+  repeatErrors = [404]
+) {
+  return repeatAPICall().catch((error: { response: Response }) => {
+    if (repeatErrors.includes(error.response.status)) {
+      tries--;
+      if (tries > 0) {
+        return new Promise(resolve => {
+          setTimeout(
+            () =>
+              resolve(requestTryAndRepeat(repeatAPICall, tries, slowTriesThreshold, repeatErrors)),
+            tries > slowTriesThreshold ? 500 : 3000
+          );
+        });
+      }
+      return Promise.reject();
+    }
+    return Promise.reject(error);
+  });
 }
