@@ -528,7 +528,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_components_with_module_dto() {
+  public void select_enabled_components_with_module_dto() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
@@ -540,18 +540,14 @@ public class ComponentDaoTest {
     ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
 
     // From root project
-    assertThat(underTest.selectComponentsWithModuleUuidFromProjectKey(dbSession, project.getDbKey()))
+    assertThat(underTest.selectEnabledComponentsWithModuleUuidFromProjectKey(dbSession, project.getDbKey()))
       .extracting(ComponentWithModuleUuidDto::uuid)
       .containsExactlyInAnyOrder(
         project.uuid(),
         module.uuid(),
-        removedModule.uuid(),
         subModule.uuid(),
-        removedSubModule.uuid(),
         directory.uuid(),
-        removedDirectory.uuid(),
-        file.uuid(),
-        removedFile.uuid()
+        file.uuid()
       );
   }
 

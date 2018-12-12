@@ -99,7 +99,7 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
   }
 
   private static List<ComponentWithModuleUuidDto> loadComponentsWithModuleUuid(DbClient dbClient, DbSession dbSession, String rootKey) {
-    return dbClient.componentDao().selectComponentsWithModuleUuidFromProjectKey(dbSession, rootKey);
+    return dbClient.componentDao().selectEnabledComponentsWithModuleUuidFromProjectKey(dbSession, rootKey);
   }
 
   private static Map<String, String> loadModulePathsByUuid(DbClient dbClient, DbSession dbSession, String rootKey, Map<String, String> pathByModuleKey) {

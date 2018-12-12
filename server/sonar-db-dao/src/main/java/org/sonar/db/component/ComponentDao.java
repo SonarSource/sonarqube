@@ -355,8 +355,8 @@ public class ComponentDao implements Dao {
     return new HashSet<>(mapper(dbSession).selectComponentsByQualifiers(qualifiers));
   }
 
-  public List<ComponentWithModuleUuidDto> selectComponentsWithModuleUuidFromProjectKey(DbSession dbSession, String projectKey) {
-    return mapper(dbSession).selectComponentsWithModuleUuidFromProjectKey(projectKey);
+  public List<ComponentWithModuleUuidDto> selectEnabledComponentsWithModuleUuidFromProjectKey(DbSession dbSession, String projectKey) {
+    return mapper(dbSession).selectEnabledComponentsWithModuleUuidFromProjectKey(projectKey);
   }
 
   public List<ComponentDto> selectProjectsByNameQuery(DbSession dbSession, @Nullable String nameQuery, boolean includeModules) {

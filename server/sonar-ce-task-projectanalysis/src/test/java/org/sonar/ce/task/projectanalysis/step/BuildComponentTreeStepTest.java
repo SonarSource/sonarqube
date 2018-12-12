@@ -434,37 +434,6 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void return_existing_uuids_when_components_were_removed() {
-    setAnalysisMetadataHolder();
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD")
-      .setDbKey(REPORT_PROJECT_KEY));
-    ComponentDto removedModule = insertComponent(newModuleDto("BCDE", project)
-      .setDbKey(REPORT_MODULE_KEY).setEnabled(false));
-    ComponentDto removedDirectory = insertComponent(newDirectory(removedModule, "CDEF", REPORT_DIR_PATH_1)
-      .setDbKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_PATH_1).setEnabled(false));
-    insertComponent(newFileDto(removedModule, removedDirectory, "DEFG")
-      .setDbKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_PATH_1).setPath(REPORT_FILE_PATH_1).setEnabled(false));
-
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
-    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, "module/" + REPORT_FILE_PATH_1));
-
-    reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
-      .putModulesProjectRelativePathByKey(REPORT_PROJECT_KEY, "")
-      .putModulesProjectRelativePathByKey(REPORT_MODULE_KEY, "module")
-      .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
-
-    // No new UUID is generated on removed components
-    verifyComponentMissingByRef(MODULE_REF);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, "CDEF");
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":module/" + REPORT_FILE_PATH_1, "DEFG");
-  }
-
-  @Test
   public void set_no_base_project_snapshot_when_no_snapshot() {
     setAnalysisMetadataHolder();
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));

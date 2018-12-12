@@ -86,6 +86,54 @@ public class ComponentUuidFactoryWithMigrationTest {
   }
 
   @Test
+  public void migrate_project_with_disabled_components_no_path() {
+    ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
+    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
+      .setDbKey("project:module1"));
+    ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project)
+      .setDbKey("project:file1")
+      .setPath("file1"));
+    ComponentDto disabledFileNoPath = db.components().insertComponent(ComponentTesting.newFileDto(project)
+      .setDbKey("project:file2")
+      .setPath(null)
+      .setEnabled(false));
+
+    Map<String, String> modulesRelativePaths = new HashMap<>();
+    modulesRelativePaths.put("project:module1", "module1_path");
+    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getDbKey(), pathToKey, modulesRelativePaths);
+
+    // migrated files
+    assertThat(underTest.getOrCreateForKey("project:file1")).isEqualTo(file1.uuid());
+
+    // project remains the same
+    assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
+  }
+
+  @Test
+  public void migrate_project_with_disabled_components_same_path() {
+    ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
+    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
+      .setDbKey("project:module1"));
+    ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project)
+      .setDbKey("project:file1")
+      .setPath("file1"));
+    ComponentDto disabledFileSamePath = db.components().insertComponent(ComponentTesting.newFileDto(project)
+      .setDbKey("project:file2")
+      .setPath("file1")
+      .setEnabled(false));
+
+    Map<String, String> modulesRelativePaths = new HashMap<>();
+    modulesRelativePaths.put("project:module1", "module1_path");
+    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getDbKey(), pathToKey, modulesRelativePaths);
+
+    // migrated files
+    assertThat(underTest.getOrCreateForKey("project:file1")).isEqualTo(file1.uuid());
+
+    // project remains the same
+    assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
+  }
+
+  @Test
   public void migrate_branch_with_modules() {
     pathToKey = path -> path != null ? "project:" + path + ":BRANCH:branch1" : "project:BRANCH:branch1";
     ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project:BRANCH:branch1"));
@@ -141,24 +189,6 @@ public class ComponentUuidFactoryWithMigrationTest {
     // doesnt exist
     assertThat(underTest.getOrCreateForKey("project:module1_path/")).isNotIn(project.uuid(), module1.uuid(), dir1.uuid());
     assertThat(underTest.getOrCreateForKey("project:module1")).isNotIn(project.uuid(), module1.uuid(), dir1.uuid());
-  }
-
-  @Test
-  public void migrate_project_with_disabled_modules() {
-    ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
-    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
-      .setDbKey("project:module1")
-      .setEnabled(false));
-    ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(module1)
-      .setDbKey("project:file1")
-      .setEnabled(false)
-      .setPath("file1_path"));
-    Map<String, String> modulesRelativePaths = Collections.singletonMap("project:module1", "module1_path");
-
-    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getDbKey(), pathToKey, modulesRelativePaths);
-
-    // migrated file
-    assertThat(underTest.getOrCreateForKey("project:module1_path/file1_path")).isEqualTo(file1.uuid());
   }
 
   @Test
