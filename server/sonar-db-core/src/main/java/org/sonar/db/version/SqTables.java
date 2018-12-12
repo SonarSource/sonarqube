@@ -108,6 +108,7 @@ public final class SqTables {
     "schema_migrations",
     "snapshots",
     "users",
+    "user_properties",
     "user_roles",
     "user_tokens",
     "webhooks",

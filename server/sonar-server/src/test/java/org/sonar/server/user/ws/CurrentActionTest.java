@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,6 +46,7 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
@@ -56,7 +58,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class CurrentActionTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -70,7 +72,7 @@ public class CurrentActionTest {
     ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
 
   private WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSessionRule, db.getDbClient(), TestDefaultOrganizationProvider.from(db), new AvatarResolverImpl(), homepageTypes, pluginRepository, permissionService));
+    new CurrentAction(userSession, db.getDbClient(), TestDefaultOrganizationProvider.from(db), new AvatarResolverImpl(), homepageTypes, pluginRepository, permissionService));
 
   @Test
   public void return_user_info() {
@@ -83,7 +85,7 @@ public class CurrentActionTest {
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
       .setOnboarded(false));
-    userSessionRule.logIn("obiwan.kenobi");
+    userSession.logIn(user);
 
     CurrentWsResponse response = call();
 
@@ -97,7 +99,7 @@ public class CurrentActionTest {
 
   @Test
   public void return_minimal_user_info() {
-    db.users().insertUser(user -> user
+    UserDto user = db.users().insertUser(u -> u
       .setLogin("obiwan.kenobi")
       .setName("Obiwan Kenobi")
       .setEmail(null)
@@ -105,14 +107,14 @@ public class CurrentActionTest {
       .setExternalLogin("obiwan")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts((String) null));
-    userSessionRule.logIn("obiwan.kenobi");
+    userSession.logIn(user);
 
     CurrentWsResponse response = call();
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::hasPersonalOrganization)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false);
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::hasPersonalOrganization, CurrentWsResponse::getSettingsList)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false, Collections.emptyList());
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
@@ -121,10 +123,10 @@ public class CurrentActionTest {
 
   @Test
   public void convert_empty_email_to_null() {
-    db.users().insertUser(user -> user
+    UserDto user = db.users().insertUser(u -> u
       .setLogin("obiwan.kenobi")
       .setEmail(""));
-    userSessionRule.logIn("obiwan.kenobi");
+    userSession.logIn(user);
 
     CurrentWsResponse response = call();
 
@@ -134,7 +136,7 @@ public class CurrentActionTest {
   @Test
   public void return_group_membership() {
     UserDto user = db.users().insertUser();
-    userSessionRule.logIn(user.getLogin());
+    userSession.logIn(user);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), user);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), user);
 
@@ -146,8 +148,8 @@ public class CurrentActionTest {
   @Test
   public void return_permissions() {
     UserDto user = db.users().insertUser();
-    userSessionRule
-      .logIn(user.getLogin())
+    userSession
+      .logIn(user)
       // permissions on default organization
       .addPermission(SCAN, db.getDefaultOrganization())
       .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
@@ -163,7 +165,7 @@ public class CurrentActionTest {
   public void return_personal_organization() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser(u -> u.setOrganizationUuid(organization.getUuid()));
-    userSessionRule.logIn(user);
+    userSession.logIn(user);
 
     CurrentWsResponse response = call();
 
@@ -171,9 +173,30 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void return_user_settings() {
+    UserDto user = db.users().insertUser();
+    db.users().insertUserSetting(user, userSetting -> userSetting
+      .setKey("notifications.readDate")
+      .setValue("1234"));
+    db.users().insertUserSetting(user, userSetting -> userSetting
+      .setKey("notifications.optOut")
+      .setValue("true"));
+    db.commit();
+    userSession.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getSettingsList())
+      .extracting(CurrentWsResponse.Setting::getKey, CurrentWsResponse.Setting::getValue)
+      .containsExactly(
+        tuple("notifications.optOut", "true"),
+        tuple("notifications.readDate", "1234"));
+  }
+
+  @Test
   public void fail_with_ISE_when_user_login_in_db_does_not_exist() {
     db.users().insertUser(usert -> usert.setLogin("another"));
-    userSessionRule.logIn("obiwan.kenobi");
+    userSession.logIn("obiwan.kenobi");
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("User login 'obiwan.kenobi' cannot be found");
@@ -184,7 +207,7 @@ public class CurrentActionTest {
   @Test
   public void fail_with_ISE_when_personal_organization_does_not_exist() {
     UserDto user = db.users().insertUser(u -> u.setOrganizationUuid("Unknown"));
-    userSessionRule.logIn(user);
+    userSession.logIn(user);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Organization uuid 'Unknown' does not exist");
@@ -194,7 +217,7 @@ public class CurrentActionTest {
 
   @Test
   public void anonymous() {
-    userSessionRule
+    userSession
       .anonymous()
       .addPermission(SCAN, db.getDefaultOrganization())
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
@@ -214,11 +237,6 @@ public class CurrentActionTest {
   @Test
   public void json_example() {
     ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star"), u -> u.setDbKey("death-star-key"));
-    userSessionRule
-      .logIn("obiwan.kenobi")
-      .addPermission(SCAN, db.getDefaultOrganization())
-      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
-      .addProjectPermission(USER, componentDto);
     UserDto obiwan = db.users().insertUser(user -> user
       .setLogin("obiwan.kenobi")
       .setName("Obiwan Kenobi")
@@ -230,6 +248,11 @@ public class CurrentActionTest {
       .setOnboarded(true)
       .setHomepageType("PROJECT")
       .setHomepageParameter("UUID-of-the-death-star"));
+    userSession
+      .logIn(obiwan)
+      .addPermission(SCAN, db.getDefaultOrganization())
+      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
+      .addProjectPermission(USER, componentDto);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 

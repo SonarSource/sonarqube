@@ -44,6 +44,7 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.db.user.UserTesting.newUserSettingDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class UserDbTester {
@@ -108,6 +109,17 @@ public class UserDbTester {
 
   public Optional<UserDto> selectUserByLogin(String login) {
     return Optional.ofNullable(dbClient.userDao().selectByLogin(db.getSession(), login));
+  }
+
+  // USER SETTINGS
+
+  @SafeVarargs
+  public final UserPropertyDto insertUserSetting(UserDto user, Consumer<UserPropertyDto>... populators) {
+    UserPropertyDto dto = newUserSettingDto(user);
+    stream(populators).forEach(p -> p.accept(dto));
+    dbClient.userPropertiesDao().insertOrUpdate(db.getSession(), dto);
+    db.commit();
+    return dto;
   }
 
   // GROUPS

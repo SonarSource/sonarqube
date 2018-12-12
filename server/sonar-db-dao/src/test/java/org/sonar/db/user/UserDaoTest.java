@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -42,15 +41,13 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
   private static final long NOW = 1_500_000_000_000L;
 
-  private System2 system2 = mock(System2.class);
+  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -58,11 +55,6 @@ public class UserDaoTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession session = db.getSession();
   private UserDao underTest = db.getDbClient().userDao();
-
-  @Before
-  public void setUp() {
-    when(system2.now()).thenReturn(NOW);
-  }
 
   @Test
   public void selectByUuid() {
@@ -363,11 +355,11 @@ public class UserDaoTest {
   public void countNewUsersSince() {
     assertThat(underTest.countNewUsersSince(session, 400L)).isEqualTo(0);
 
-    when(system2.now()).thenReturn(100L);
+    system2.setNow(100L);
     insertNonRootUser(newUserDto());
-    when(system2.now()).thenReturn(200L);
+    system2.setNow(200L);
     insertNonRootUser(newUserDto());
-    when(system2.now()).thenReturn(300L);
+    system2.setNow(300L);
     insertNonRootUser(newUserDto());
 
     assertThat(underTest.countNewUsersSince(session, 50L)).isEqualTo(3);
@@ -707,25 +699,25 @@ public class UserDaoTest {
     assertThat(underTest.selectByLogin(session, otherUser.getLogin()).isRoot()).isEqualTo(false);
 
     // does not fail when changing to same value
-    when(system2.now()).thenReturn(15_000L);
+    system2.setNow(15_000L);
     commit(() -> underTest.setRoot(session, login, false));
     verifyRootAndUpdatedAt(login, false, 15_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
 
     // change value
-    when(system2.now()).thenReturn(26_000L);
+    system2.setNow(26_000L);
     commit(() -> underTest.setRoot(session, login, true));
     verifyRootAndUpdatedAt(login, true, 26_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
 
     // does not fail when changing to same value
-    when(system2.now()).thenReturn(37_000L);
+    system2.setNow(37_000L);
     commit(() -> underTest.setRoot(session, login, true));
     verifyRootAndUpdatedAt(login, true, 37_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
 
     // change value back
-    when(system2.now()).thenReturn(48_000L);
+    system2.setNow(48_000L);
     commit(() -> underTest.setRoot(session, login, false));
     verifyRootAndUpdatedAt(login, false, 48_000L);
     verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());

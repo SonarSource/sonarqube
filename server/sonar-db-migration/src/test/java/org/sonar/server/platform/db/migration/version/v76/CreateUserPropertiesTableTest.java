@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v75;
+package org.sonar.server.platform.db.migration.version.v76;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
+import static java.sql.Types.BIGINT;
 import static java.sql.Types.VARCHAR;
 
-public class CreateOrganizationsAlmBindingsTableTest {
+public class CreateUserPropertiesTableTest {
 
-  private static final String TABLE = "organization_alm_bindings";
+  private static final String TABLE = "user_properties";
 
   @Rule
   public final CoreDbTester db = CoreDbTester.createEmpty();
 
-  private CreateOrganizationsAlmBindingsTable underTest = new CreateOrganizationsAlmBindingsTable(db.database());
+  private CreateUserPropertiesTable underTest = new CreateUserPropertiesTable(db.database());
 
   @Test
   public void creates_table() throws SQLException {
@@ -52,15 +52,12 @@ public class CreateOrganizationsAlmBindingsTableTest {
   }
 
   private void checkTable() {
-    db.assertColumnDefinition(TABLE, "uuid", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE, "organization_uuid", VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE, "alm_app_install_uuid", VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE, "alm_id", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE, "url", Types.VARCHAR, 2000, false);
-    db.assertColumnDefinition(TABLE, "user_uuid", Types.VARCHAR, 255, false);
-    db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
-
-    db.assertUniqueIndex(TABLE, "org_alm_bindings_org", "organization_uuid");
-    db.assertUniqueIndex(TABLE, "org_alm_bindings_install", "alm_app_install_uuid");
+    db.assertPrimaryKey(TABLE, "pk_user_properties", "uuid");
+    db.assertColumnDefinition(TABLE, "uuid", VARCHAR, 40, false);
+    db.assertColumnDefinition(TABLE, "user_uuid", VARCHAR, 255, false);
+    db.assertColumnDefinition(TABLE, "kee", VARCHAR, 100, false);
+    db.assertColumnDefinition(TABLE, "text_value", VARCHAR, 4000, false);
+    db.assertColumnDefinition(TABLE, "created_at", BIGINT, null, false);
+    db.assertColumnDefinition(TABLE, "updated_at", BIGINT, null, false);
   }
 }

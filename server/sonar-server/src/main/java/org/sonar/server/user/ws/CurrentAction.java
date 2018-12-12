@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -125,7 +126,8 @@ public class CurrentAction implements UsersWsAction {
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
-      .setShowOnboardingTutorial(!user.isOnboarded());
+      .setShowOnboardingTutorial(!user.isOnboarded())
+      .addAllSettings(loadUserSettings(dbSession, user));
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
     setNullable(user.getExternalLogin(), builder::setExternalIdentity);
@@ -235,6 +237,16 @@ public class CurrentAction implements UsersWsAction {
     return CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(homepageTypes.getDefaultType().name()))
       .build();
+  }
+
+  private List<CurrentWsResponse.Setting> loadUserSettings(DbSession dbSession, UserDto user) {
+    return dbClient.userPropertiesDao().selectByUser(dbSession, user)
+      .stream()
+      .map(dto -> CurrentWsResponse.Setting.newBuilder()
+        .setKey(dto.getKey())
+        .setValue(dto.getValue())
+        .build())
+      .collect(MoreCollectors.toList());
   }
 
   private static boolean noHomepageSet(UserDto user) {

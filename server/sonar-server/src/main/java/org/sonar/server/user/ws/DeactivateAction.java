@@ -102,6 +102,7 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.permissionTemplateDao().deleteUserPermissionsByUserId(dbSession, userId);
       dbClient.qProfileEditUsersDao().deleteByUser(dbSession, user);
       dbClient.organizationMemberDao().deleteByUserId(dbSession, userId);
+      dbClient.userPropertiesDao().deleteByUser(dbSession, user);
       dbClient.userDao().deactivateUser(dbSession, user);
       userIndexer.commitAndIndex(dbSession, user);
     }

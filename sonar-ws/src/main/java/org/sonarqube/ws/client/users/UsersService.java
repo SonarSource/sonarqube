@@ -22,15 +22,15 @@ package org.sonarqube.ws.client.users;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 import org.sonarqube.ws.Users.GroupsWsResponse;
 import org.sonarqube.ws.Users.IdentityProvidersWsResponse;
 import org.sonarqube.ws.Users.SearchWsResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users">Further information about this web service online</a>
@@ -170,6 +170,22 @@ public class UsersService extends BaseService {
         .setParam("type", request.getType())
         .setMediaType(MediaTypes.JSON)
       ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/set_setting">Further information about this action online (including a response example)</a>
+   * @since 7.6
+   */
+  public void setSetting(SetSettingRequest request) {
+    call(
+      new PostRequest(path("set_setting"))
+        .setParam("key", request.getKey())
+        .setParam("value", request.getValue())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
   }
 
   /**

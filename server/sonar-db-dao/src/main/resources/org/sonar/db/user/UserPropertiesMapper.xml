@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.UserPropertiesMapper">
+
+    <sql id="userPropertiesColumns">
+        us.uuid as uuid,
+        us.user_uuid as userUuid,
+        us.kee as "key",
+        us.text_value as "value"
+    </sql>
+
+    <select id="selectByUserUuid" parameterType="String" resultType="org.sonar.db.user.UserPropertyDto">
+        SELECT
+        <include refid="userPropertiesColumns"/>
+        FROM user_properties us
+        WHERE us.user_uuid=#{userUuid}
+    </select>
+
+    <insert id="insert" parameterType="map" useGeneratedKeys="false">
+        INSERT INTO user_properties (
+           uuid,
+           user_uuid,
+           kee,
+           text_value,
+           created_at,
+           updated_at
+        ) VALUES (
+           #{userProperty.uuid,jdbcType=VARCHAR},
+           #{userProperty.userUuid,jdbcType=VARCHAR},
+           #{userProperty.key,jdbcType=VARCHAR},
+           #{userProperty.value,jdbcType=VARCHAR},
+           #{now,jdbcType=BIGINT},
+           #{now,jdbcType=BIGINT}
+        )
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE user_properties SET
+           text_value = #{userProperty.value, jdbcType=VARCHAR},
+           updated_at = #{now,jdbcType=BIGINT}
+        WHERE
+           user_uuid = #{userProperty.userUuid, jdbcType=VARCHAR}
+           AND kee = #{userProperty.key, jdbcType=VARCHAR}
+    </update>
+
+    <update id="deleteByUserUuid" parameterType="String">
+        DELETE FROM user_properties WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

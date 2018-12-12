@@ -131,6 +131,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.db.user.UserGroupMapper;
 import org.sonar.db.user.UserMapper;
+import org.sonar.db.user.UserPropertiesMapper;
 import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
@@ -261,6 +262,7 @@ public class MyBatis implements Startable {
       UserGroupMapper.class,
       UserMapper.class,
       UserPermissionMapper.class,
+      UserPropertiesMapper.class,
       UserTokenMapper.class,
       WebhookMapper.class,
       WebhookDeliveryMapper.class
