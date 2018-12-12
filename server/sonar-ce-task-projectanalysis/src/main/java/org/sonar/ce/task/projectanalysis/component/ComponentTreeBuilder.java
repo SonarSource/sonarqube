@@ -243,6 +243,7 @@ public class ComponentTreeBuilder {
       .setStatus(component.getStatus())
       .setReportAttributes(component.getReportAttributes())
       .setName(component.getName())
+      .setShortName(component.getShortName())
       .setDescription(component.getDescription());
   }
 

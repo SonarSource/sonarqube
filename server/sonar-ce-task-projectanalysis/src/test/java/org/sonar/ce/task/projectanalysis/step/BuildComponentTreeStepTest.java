@@ -82,6 +82,7 @@ public class BuildComponentTreeStepTest {
   private static final String REPORT_MODULE_KEY = "MODULE_KEY";
   private static final String REPORT_DIR_PATH_1 = "src/main/java/dir1";
   private static final String REPORT_FILE_PATH_1 = "src/main/java/dir1/File1.java";
+  private static final String REPORT_FILE_NAME_1 = "File1.java";
   private static final String REPORT_DIR_PATH_2 = "src/main/java/dir2";
   private static final String REPORT_FILE_PATH_2 = "src/main/java/dir2/File2.java";
   private static final String REPORT_FILE_PATH_3 = "src/main/java/dir2/File3.java";
@@ -160,9 +161,9 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1);
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName());
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1);
   }
 
   @Test
@@ -183,9 +184,9 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "CDEF");
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, "DEFG");
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), "ABCD");
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1, "CDEF");
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, "DEFG");
   }
 
   @Test
@@ -208,9 +209,9 @@ public class BuildComponentTreeStepTest {
       "module").build());
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, "CDEF");
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":module/" + REPORT_FILE_PATH_1, "DEFG");
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), "ABCD");
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, REPORT_PROJECT_KEY + ":module/" + REPORT_DIR_PATH_1, "module/" + REPORT_DIR_PATH_1, "CDEF");
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":module/" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, "DEFG");
   }
 
   @Test
@@ -233,10 +234,10 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, null);
+    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
 
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated");
-    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, null);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated", REPORT_DIR_PATH_1);
+    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
   }
 
   @Test
@@ -272,9 +273,9 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, null);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated");
-    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, null);
+    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated", "dir1");
+    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1,null);
 
     verifyComponentMissingByRef(LEAFLESS_MODULE_REF);
     verifyComponentMissingByRef(LEAFLESS_DIR_REF);
@@ -313,14 +314,14 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, null);
+    verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
     verifyComponentMissingByRef(MODULE_REF);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated");
-    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, null);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated", "dir1");
+    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
 
     verifyComponentMissingByRef(LEAFLESS_MODULE_REF);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_LEAFLESS_DIR_PATH, "generated");
-    verifyComponentByRef(UNCHANGED_FILE_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_UNCHANGED_FILE_PATH, null);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_LEAFLESS_DIR_PATH, "generated", "leafless");
+    verifyComponentByRef(UNCHANGED_FILE_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_UNCHANGED_FILE_PATH, "File3.java", null);
   }
 
   @DataProvider
@@ -347,7 +348,7 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, branchDto.getDbKey(), branchDto.getKey(), branchDto.uuid());
+    verifyComponentByRef(ROOT_REF, branchDto.getDbKey(), branchDto.getKey(), analysisMetadataHolder.getProject().getName(), branchDto.uuid());
   }
 
   @Test
@@ -366,10 +367,10 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, REPORT_PROJECT_KEY, null);
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
     verifyComponentMissingByRef(MODULE_REF);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, null);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
   }
 
   @Test
@@ -387,10 +388,10 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY + ":origin/feature", null);
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY + ":origin/feature", analysisMetadataHolder.getProject().getName(), null);
     verifyComponentMissingByRef(MODULE_REF);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":origin/feature:" + REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":origin/feature:" + REPORT_FILE_PATH_1, null);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":origin/feature:" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":origin/feature:" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
   }
 
   @Test
@@ -405,12 +406,12 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY);
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName());
     verifyComponentMissingByRef(MODULE_REF);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1);
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_2);
-    verifyComponentByRef(FILE_2_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_2);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "dir1");
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_2, "dir2");
+    verifyComponentByRef(FILE_2_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_2, "File2.java");
   }
 
   @Test
@@ -424,13 +425,13 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY);
+    verifyComponentByRef(ROOT_REF, REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName());
     verifyComponentMissingByRef(MODULE_REF);
     verifyComponentMissingByKey(REPORT_MODULE_KEY);
     verifyComponentMissingByRef(100);
     verifyComponentMissingByKey("SUB_MODULE_KEY");
-    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1);
-    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1);
+    verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, REPORT_DIR_PATH_1);
+    verifyComponentByRef(FILE_1_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1);
   }
 
   @Test
@@ -474,28 +475,29 @@ public class BuildComponentTreeStepTest {
     assertThat(component.getChildren()).hasSize(size);
   }
 
-  private void verifyComponentByRef(int ref, String key) {
-    verifyComponentByRef(ref, key, key, null);
+  private void verifyComponentByRef(int ref, String key, String shortName) {
+    verifyComponentByRef(ref, key, key, shortName, null);
   }
 
-  private void verifyComponentByRef(int ref, String key, @Nullable String uuid) {
-    verifyComponentByRef(ref, key, key, uuid);
+  private void verifyComponentByRef(int ref, String key, String shortName, @Nullable String uuid) {
+    verifyComponentByRef(ref, key, key, shortName, uuid);
   }
 
-  private void verifyComponentByKey(String publicKey) {
-    verifyComponentByKey(publicKey, publicKey, null);
+  private void verifyComponentByKey(String publicKey, String shortName) {
+    verifyComponentByKey(publicKey, publicKey, shortName, null);
   }
 
-  private void verifyComponentByKey(String publicKey, String key) {
-    verifyComponentByKey(publicKey, key, null);
+  private void verifyComponentByKey(String publicKey, String key, String shortName) {
+    verifyComponentByKey(publicKey, key, shortName, null);
   }
 
-  private void verifyComponentByKey(String publicKey, String key, @Nullable String uuid) {
+  private void verifyComponentByKey(String publicKey, String key, String shortName, @Nullable String uuid) {
     Map<String, Component> componentsByKey = indexAllComponentsInTreeByKey(treeRootHolder.getRoot());
     Component component = componentsByKey.get(publicKey);
     assertThat(component.getDbKey()).isEqualTo(key);
     assertThat(component.getReportAttributes().getRef()).isNull();
     assertThat(component.getKey()).isEqualTo(publicKey);
+    assertThat(component.getShortName()).isEqualTo(shortName);
     if (uuid != null) {
       assertThat(component.getUuid()).isEqualTo(uuid);
     } else {
@@ -503,11 +505,12 @@ public class BuildComponentTreeStepTest {
     }
   }
 
-  private void verifyComponentByRef(int ref, String key, String publicKey, @Nullable String uuid) {
+  private void verifyComponentByRef(int ref, String key, String publicKey, String shortName, @Nullable String uuid) {
     Map<Integer, Component> componentsByRef = indexAllComponentsInTreeByRef(treeRootHolder.getRoot());
     Component component = componentsByRef.get(ref);
     assertThat(component.getDbKey()).isEqualTo(key);
     assertThat(component.getKey()).isEqualTo(publicKey);
+    assertThat(component.getShortName()).isEqualTo(shortName);
     if (uuid != null) {
       assertThat(component.getUuid()).isEqualTo(uuid);
     } else {
