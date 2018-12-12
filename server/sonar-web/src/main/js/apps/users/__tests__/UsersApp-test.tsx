@@ -85,9 +85,6 @@ function getWrapper(props: Partial<UsersApp['props']> = {}) {
       organizationsEnabled={true}
       router={{ push: jest.fn() }}
       {...props}
-    />,
-    {
-      context: { router: {} }
-    }
+    />
   );
 }

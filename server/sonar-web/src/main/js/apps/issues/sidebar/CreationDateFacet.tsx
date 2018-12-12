@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { max } from 'lodash';
-import { intlShape } from 'react-intl';
+import { injectIntl, InjectedIntlProps } from 'react-intl';
 import { Query } from '../utils';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
@@ -48,15 +48,11 @@ interface Props {
   stats: { [x: string]: number } | undefined;
 }
 
-export default class CreationDateFacet extends React.PureComponent<Props> {
+class CreationDateFacet extends React.PureComponent<Props & InjectedIntlProps> {
   property = 'createdAt';
 
   static defaultProps = {
     open: true
-  };
-
-  static contextTypes = {
-    intl: intlShape
   };
 
   hasValue = () =>
@@ -105,7 +101,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
 
   getValues() {
     const { createdAfter, createdAt, createdBefore, createdInLast, sinceLeakPeriod } = this.props;
-    const { formatDate } = this.context.intl;
+    const { formatDate } = this.props.intl;
     const values = [];
     if (createdAfter) {
       values.push(formatDate(createdAfter, longFormatterOption));
@@ -144,7 +140,7 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
       return null;
     }
 
-    const { formatDate } = this.context.intl;
+    const { formatDate } = this.props.intl;
     const data = periods.map((start, index) => {
       const startDate = parseDate(start);
       let endDate;
@@ -296,3 +292,5 @@ export default class CreationDateFacet extends React.PureComponent<Props> {
     );
   }
 }
+
+export default injectIntl(CreationDateFacet);

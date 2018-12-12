@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { intlShape } from 'react-intl';
+import { injectIntl, InjectedIntlProps } from 'react-intl';
 import { Query } from '../query';
 import DateInput from '../../../components/controls/DateInput';
 import FacetBox from '../../../components/facet/FacetBox';
@@ -33,14 +33,14 @@ interface Props {
   value?: Date;
 }
 
-export default class AvailableSinceFacet extends React.PureComponent<Props> {
-  static contextTypes = {
-    intl: intlShape
+class AvailableSinceFacet extends React.PureComponent<Props & InjectedIntlProps> {
+  handleHeaderClick = () => {
+    this.props.onToggle('availableSince');
   };
 
-  handleHeaderClick = () => this.props.onToggle('availableSince');
-
-  handleClear = () => this.props.onChange({ availableSince: undefined });
+  handleClear = () => {
+    this.props.onChange({ availableSince: undefined });
+  };
 
   handlePeriodChange = (date: Date | undefined) => {
     this.props.onChange({ availableSince: date });
@@ -48,7 +48,7 @@ export default class AvailableSinceFacet extends React.PureComponent<Props> {
 
   getValues = () =>
     this.props.value
-      ? [this.context.intl.formatDate(this.props.value, longFormatterOption)]
+      ? [this.props.intl.formatDate(this.props.value, longFormatterOption)]
       : undefined;
 
   render() {
@@ -74,3 +74,5 @@ export default class AvailableSinceFacet extends React.PureComponent<Props> {
     );
   }
 }
+
+export default injectIntl(AvailableSinceFacet);

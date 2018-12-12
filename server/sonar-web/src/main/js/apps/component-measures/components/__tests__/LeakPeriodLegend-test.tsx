@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import LeakPeriodLegend from '../LeakPeriodLegend';
+import { InjectedIntlProps } from 'react-intl';
+import { LeakPeriodLegend } from '../LeakPeriodLegend';
 import { differenceInDays } from '../../../../helpers/dates';
 
 jest.mock('../../../../helpers/dates', () => {
@@ -69,9 +70,11 @@ it('should render a more precise date', () => {
 });
 
 function getWrapper(component: T.ComponentMeasure, period: T.Period) {
-  return shallow(<LeakPeriodLegend component={component} period={period} />, {
-    context: {
-      intl: { formatDate: (date: string) => 'formatted.' + date }
-    }
-  });
+  return shallow(
+    <LeakPeriodLegend
+      component={component}
+      intl={{ formatDate: (x: any) => x } as InjectedIntlProps['intl']}
+      period={period}
+    />
+  );
 }

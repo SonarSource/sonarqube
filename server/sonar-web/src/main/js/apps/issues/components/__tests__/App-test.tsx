@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { shallow } from 'enzyme';
 import { App } from '../App';
-import { shallowWithIntl, waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-const replace = jest.fn();
 const issues = [
   { key: 'foo' } as T.Issue,
   { key: 'bar' } as T.Issue,
@@ -65,10 +65,7 @@ const PROPS = {
 };
 
 it('should render a list of issue', async () => {
-  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
-    context: { router: { replace } }
-  });
-
+  const wrapper = shallow<App>(<App {...PROPS} />);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
   expect(wrapper.state().referencedComponentsById).toEqual({ 'foo-uuid': referencedComponent });
@@ -76,10 +73,7 @@ it('should render a list of issue', async () => {
 });
 
 it('should be able to check/uncheck a group of issues with the Shift key', async () => {
-  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
-    context: { router: { replace } }
-  });
-
+  const wrapper = shallow<App>(<App {...PROPS} />);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
@@ -98,10 +92,7 @@ it('should be able to check/uncheck a group of issues with the Shift key', async
 });
 
 it('should avoid non-existing keys', async () => {
-  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
-    context: { router: { replace } }
-  });
-
+  const wrapper = shallow<App>(<App {...PROPS} />);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
@@ -114,10 +105,7 @@ it('should avoid non-existing keys', async () => {
 });
 
 it('should be able to uncheck all issue with global checkbox', async () => {
-  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
-    context: { router: { replace } }
-  });
-
+  const wrapper = shallow<App>(<App {...PROPS} />);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
@@ -131,10 +119,7 @@ it('should be able to uncheck all issue with global checkbox', async () => {
 });
 
 it('should be able to check all issue with global checkbox', async () => {
-  const wrapper = shallowWithIntl<App>(<App {...PROPS} />, {
-    context: { router: { replace } }
-  });
-
+  const wrapper = shallow<App>(<App {...PROPS} />);
   await waitAndUpdate(wrapper);
 
   const instance = wrapper.instance();

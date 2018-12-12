@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { omit, uniqBy } from 'lodash';
 import { WorkspaceContext, ComponentDescriptor, RuleDescriptor } from './context';
 import WorkspacePortal from './WorkspacePortal';
@@ -48,18 +47,10 @@ const TYPE_KEY = '__type__';
 export default class Workspace extends React.PureComponent<{}, State> {
   mounted = false;
 
-  static childContextTypes = {
-    workspace: PropTypes.object
-  };
-
   constructor(props: {}) {
     super(props);
     this.state = { height: INITIAL_HEIGHT, open: {}, ...this.loadWorkspace() };
   }
-
-  getChildContext = (): { workspace: WorkspaceContext } => {
-    return { workspace: { openComponent: this.openComponent, openRule: this.openRule } };
-  };
 
   componentDidMount() {
     this.mounted = true;
@@ -187,7 +178,8 @@ export default class Workspace extends React.PureComponent<{}, State> {
     const height = this.state.maximized ? window.innerHeight * MAX_HEIGHT : this.state.height;
 
     return (
-      <>
+      <WorkspaceContext.Provider
+        value={{ openComponent: this.openComponent, openRule: this.openRule }}>
         {this.props.children}
         <WorkspacePortal>
           {(components.length > 0 || rules.length > 0) && (
@@ -228,7 +220,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
             />
           )}
         </WorkspacePortal>
-      </>
+      </WorkspaceContext.Provider>
     );
   }
 }

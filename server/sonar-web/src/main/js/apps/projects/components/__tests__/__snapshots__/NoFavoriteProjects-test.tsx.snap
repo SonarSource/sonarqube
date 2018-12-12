@@ -46,7 +46,7 @@ exports[`renders for SonarCloud 1`] = `
       className="huge-spacer-top"
     >
       <Button
-        onClick={[Function]}
+        onClick={[MockFunction]}
       >
         provisioning.analyze_new_project
       </Button>

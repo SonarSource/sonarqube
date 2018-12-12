@@ -18,14 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { shallow } from 'enzyme';
 import TokenStep from '../TokenStep';
-import {
-  change,
-  click,
-  submit,
-  waitAndUpdate,
-  shallowWithIntl
-} from '../../../../helpers/testUtils';
+import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/user-tokens', () => ({
   getTokens: () => Promise.resolve([{ name: 'foo' }]),
@@ -38,7 +33,7 @@ jest.mock('../../../../components/icons-components/ClearIcon');
 const currentUser = { login: 'user' };
 
 it('generates token', async () => {
-  const wrapper = shallowWithIntl(
+  const wrapper = shallow(
     <TokenStep
       currentUser={currentUser}
       finished={false}
@@ -58,7 +53,7 @@ it('generates token', async () => {
 });
 
 it('revokes token', async () => {
-  const wrapper = shallowWithIntl(
+  const wrapper = shallow(
     <TokenStep
       currentUser={currentUser}
       finished={false}
@@ -83,7 +78,7 @@ it('revokes token', async () => {
 
 it('continues', async () => {
   const onContinue = jest.fn();
-  const wrapper = shallowWithIntl(
+  const wrapper = shallow(
     <TokenStep
       currentUser={currentUser}
       finished={false}
@@ -101,7 +96,7 @@ it('continues', async () => {
 
 it('uses existing token', async () => {
   const onContinue = jest.fn();
-  const wrapper = shallowWithIntl(
+  const wrapper = shallow(
     <TokenStep
       currentUser={currentUser}
       finished={false}

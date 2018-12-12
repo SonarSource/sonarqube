@@ -29,6 +29,7 @@ import { getBranchLikeQuery } from '../../../helpers/branches';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { WorkspaceContext } from '../../workspace/context';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -69,13 +70,18 @@ export default function IssueTitleBar(props: Props) {
 
   return (
     <div className="issue-row">
-      <IssueMessage
-        engine={issue.externalRuleEngine}
-        manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
-        message={issue.message}
-        organization={issue.organization}
-        rule={issue.rule}
-      />
+      <WorkspaceContext.Consumer>
+        {({ openRule }) => (
+          <IssueMessage
+            engine={issue.externalRuleEngine}
+            manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
+            message={issue.message}
+            openRule={openRule}
+            organization={issue.organization}
+            rule={issue.rule}
+          />
+        )}
+      </WorkspaceContext.Consumer>
 
       <div className="issue-row-meta">
         <ul className="issue-meta-list">

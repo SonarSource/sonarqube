@@ -32,6 +32,7 @@ import {
   getMyOrganizations,
   Store
 } from '../../../store/rootReducer';
+import { OnboardingContext } from '../../../app/components/OnboardingContext';
 
 interface OwnProps {
   children?: React.ReactNode;
@@ -89,7 +90,14 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
     const { location } = this.props;
     const justCreated = Boolean(location.state && location.state.justCreated);
     return justCreated ? (
-      <OrganizationJustCreated organization={organization} />
+      <OnboardingContext.Consumer>
+        {openProjectOnboarding => (
+          <OrganizationJustCreated
+            openProjectOnboarding={openProjectOnboarding}
+            organization={organization}
+          />
+        )}
+      </OnboardingContext.Consumer>
     ) : (
       this.props.children
     );

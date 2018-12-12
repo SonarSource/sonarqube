@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import OnboardingModal from './OnboardingModal';
 import { skipOnboarding } from '../../../store/users';
 import TeamOnboardingModal from '../teamOnboarding/TeamOnboardingModal';
+import { OnboardingContext } from '../../../app/components/OnboardingContext';
 
 interface DispatchProps {
   skipOnboarding: () => void;
@@ -43,10 +43,6 @@ interface State {
 }
 
 export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps, State> {
-  static contextTypes = {
-    openProjectOnboarding: PropTypes.func.isRequired
-  };
-
   state: State = { modal: ModalKey.onboarding };
 
   closeOnboarding = () => {
@@ -63,11 +59,15 @@ export class OnboardingPage extends React.PureComponent<OwnProps & DispatchProps
     return (
       <>
         {modal === ModalKey.onboarding && (
-          <OnboardingModal
-            onClose={this.closeOnboarding}
-            onOpenProjectOnboarding={this.context.openProjectOnboarding}
-            onOpenTeamOnboarding={this.openTeamOnboarding}
-          />
+          <OnboardingContext.Consumer>
+            {openProjectOnboarding => (
+              <OnboardingModal
+                onClose={this.closeOnboarding}
+                onOpenProjectOnboarding={openProjectOnboarding}
+                onOpenTeamOnboarding={this.openTeamOnboarding}
+              />
+            )}
+          </OnboardingContext.Consumer>
         )}
         {modal === ModalKey.teamOnboarding && (
           <TeamOnboardingModal onFinish={this.closeOnboarding} />

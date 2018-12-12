@@ -17,19 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import IssueMessage from '../IssueMessage';
+import { createContext } from 'react';
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
-    <IssueMessage
-      manualVulnerability={false}
-      message="Reduce the number of conditional operators (4) used in the expression"
-      openRule={jest.fn()}
-      organization="myorg"
-      rule="javascript:S1067"
-    />
-  );
-  expect(element).toMatchSnapshot();
-});
+export type OnboardingContextShape = (organization?: T.Organization) => void;
+
+export const OnboardingContext = createContext<OnboardingContextShape>(() => {});

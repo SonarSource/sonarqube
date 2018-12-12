@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { shallow } from 'enzyme';
 import * as addDays from 'date-fns/add_days';
 import * as setMonth from 'date-fns/set_month';
 import * as setYear from 'date-fns/set_year';
 import * as subDays from 'date-fns/sub_days';
 import * as subMonths from 'date-fns/sub_months';
-import DateInput, { Props } from '../DateInput';
-import { shallowWithIntl } from '../../../helpers/testUtils';
+import DateInput from '../DateInput';
 import { parseDate } from '../../../helpers/dates';
 
 jest.mock('../../lazyLoad', () => ({
@@ -111,8 +111,8 @@ it('should hightlightTo range', () => {
   expect(dayPicker.prop('selectedDays')).toEqual([dateB]);
 });
 
-function shallowRender(props?: Partial<Props>) {
-  const wrapper = shallowWithIntl<DateInput>(
+function shallowRender(props?: Partial<DateInput['props']>) {
+  const wrapper = shallow<DateInput>(
     <DateInput
       currentMonth={dateA}
       maxDate={dateB}

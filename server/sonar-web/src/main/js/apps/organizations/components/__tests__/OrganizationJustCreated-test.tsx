@@ -25,24 +25,39 @@ import { click } from '../../../../helpers/testUtils';
 const organization: T.Organization = { key: 'foo', name: 'Foo' };
 
 it('should render', () => {
-  // @ts-ignore
-  expect(shallow(<OrganizationJustCreated organization={organization} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <OrganizationJustCreated
+        openProjectOnboarding={jest.fn()}
+        organization={organization}
+        router={{ push: jest.fn() }}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 it('should create new project', () => {
   const openProjectOnboarding = jest.fn();
-  // @ts-ignore
-  const wrapper = shallow(<OrganizationJustCreated organization={organization} />, {
-    context: { openProjectOnboarding }
-  });
+  const wrapper = shallow(
+    <OrganizationJustCreated
+      openProjectOnboarding={openProjectOnboarding}
+      organization={organization}
+      router={{ push: jest.fn() }}
+    />
+  );
   click(wrapper.find('Button').first());
   expect(openProjectOnboarding).toBeCalledWith({ key: 'foo', name: 'Foo' });
 });
 
 it('should add members', () => {
   const router = { push: jest.fn() };
-  // @ts-ignore
-  const wrapper = shallow(<OrganizationJustCreated organization={organization} router={router} />);
+  const wrapper = shallow(
+    <OrganizationJustCreated
+      openProjectOnboarding={jest.fn()}
+      organization={organization}
+      router={router}
+    />
+  );
   click(wrapper.find('Button').last());
   expect(router.push).toBeCalledWith('/organizations/foo/members');
 });

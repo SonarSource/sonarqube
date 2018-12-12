@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallowWithIntl } from '../../../../helpers/testUtils';
+import { shallow } from 'enzyme';
 import ProjectActivityDateInput from '../ProjectActivityDateInput';
 import { parseDate } from '../../../../helpers/dates';
 
 it('should render correctly the date inputs', () => {
   expect(
-    shallowWithIntl(
+    shallow(
       <ProjectActivityDateInput
         from={parseDate('2016-10-27T12:21:15+0000')}
         onChange={() => {}}

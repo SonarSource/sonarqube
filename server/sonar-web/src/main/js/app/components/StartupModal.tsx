@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
+import { OnboardingContext } from './OnboardingContext';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
 import { skipOnboarding } from '../../store/users';
@@ -75,15 +75,7 @@ interface State {
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
 export class StartupModal extends React.PureComponent<Props, State> {
-  static childContextTypes = {
-    openProjectOnboarding: PropTypes.func
-  };
-
   state: State = { automatic: false };
-
-  getChildContext() {
-    return { openProjectOnboarding: this.openProjectOnboarding };
-  }
 
   componentDidMount() {
     this.tryAutoOpenLicense().catch(this.tryAutoOpenOnboarding);
@@ -172,7 +164,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   render() {
     const { automatic, modal } = this.state;
     return (
-      <>
+      <OnboardingContext.Provider value={this.openProjectOnboarding}>
         {this.props.children}
         {modal === ModalKey.license && <LicensePromptModal onClose={this.closeLicense} />}
         {modal === ModalKey.onboarding && (
@@ -188,7 +180,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
         {modal === ModalKey.teamOnboarding && (
           <TeamOnboardingModal onFinish={this.closeOnboarding} />
         )}
-      </>
+      </OnboardingContext.Provider>
     );
   }
 }

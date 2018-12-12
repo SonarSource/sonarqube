@@ -28,6 +28,7 @@ import EmptyFavoriteSearch from './EmptyFavoriteSearch';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { Project } from '../types';
 import { Query } from '../query';
+import { OnboardingContext } from '../../../app/components/OnboardingContext';
 
 interface Props {
   cardType?: string;
@@ -50,9 +51,21 @@ export default class ProjectsList extends React.PureComponent<Props> {
       return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
     }
     return isFavorite ? (
-      <NoFavoriteProjects />
+      <OnboardingContext.Consumer>
+        {openProjectOnboarding => (
+          <NoFavoriteProjects openProjectOnboarding={openProjectOnboarding} />
+        )}
+      </OnboardingContext.Consumer>
     ) : (
-      <EmptyInstance currentUser={currentUser} organization={organization} />
+      <OnboardingContext.Consumer>
+        {openProjectOnboarding => (
+          <EmptyInstance
+            currentUser={currentUser}
+            openProjectOnboarding={openProjectOnboarding}
+            organization={organization}
+          />
+        )}
+      </OnboardingContext.Consumer>
     );
   }
 

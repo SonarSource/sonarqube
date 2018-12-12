@@ -20,7 +20,6 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as PropTypes from 'prop-types';
 import MeasuresOverlay from './components/MeasuresOverlay';
 import QualifierIcon from '../icons-components/QualifierIcon';
 import Dropdown from '../controls/Dropdown';
@@ -28,7 +27,7 @@ import Favorite from '../controls/Favorite';
 import ListIcon from '../icons-components/ListIcon';
 import { ButtonIcon } from '../ui/buttons';
 import { PopupPlacement } from '../ui/popups';
-import { WorkspaceContext } from '../workspace/context';
+import { WorkspaceContextShape } from '../workspace/context';
 import {
   getPathUrlAsString,
   getBranchLikeUrl,
@@ -43,6 +42,7 @@ import { omitNil } from '../../helpers/request';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
+  openComponent: WorkspaceContextShape['openComponent'];
   sourceViewerFile: T.SourceViewerFile;
 }
 
@@ -51,12 +51,6 @@ interface State {
 }
 
 export default class SourceViewerHeader extends React.PureComponent<Props, State> {
-  context!: { workspace: WorkspaceContext };
-
-  static contextTypes = {
-    workspace: PropTypes.object.isRequired
-  };
-
   state: State = { measuresOverlay: false };
 
   handleShowMeasuresClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
@@ -71,7 +65,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
   openInWorkspace = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const { key } = this.props.sourceViewerFile;
-    this.context.workspace.openComponent({ branchLike: this.props.branchLike, key });
+    this.props.openComponent({ branchLike: this.props.branchLike, key });
   };
 
   render() {

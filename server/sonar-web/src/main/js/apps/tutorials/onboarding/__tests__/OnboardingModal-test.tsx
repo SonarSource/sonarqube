@@ -39,15 +39,13 @@ it('should correctly open the different tutorials', () => {
   const onClose = jest.fn();
   const onOpenProjectOnboarding = jest.fn();
   const onOpenTeamOnboarding = jest.fn();
-  const push = jest.fn();
   const wrapper = shallow(
     <OnboardingModal
       currentUser={{ isLoggedIn: true }}
       onClose={onClose}
       onOpenProjectOnboarding={onOpenProjectOnboarding}
       onOpenTeamOnboarding={onOpenTeamOnboarding}
-    />,
-    { context: { router: { push } } }
+    />
   );
 
   click(wrapper.find('ResetButtonLink'));

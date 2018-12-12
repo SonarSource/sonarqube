@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import { injectIntl, InjectedIntlProps } from 'react-intl';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -31,13 +31,9 @@ interface Props {
   period: T.Period;
 }
 
-export default class LeakPeriodLegend extends React.PureComponent<Props> {
-  static contextTypes = {
-    intl: PropTypes.object.isRequired
-  };
-
+export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlProps> {
   formatDate = (date: string) => {
-    return this.context.intl.formatDate(date, longFormatterOption);
+    return this.props.intl.formatDate(date, longFormatterOption);
   };
 
   render() {
@@ -102,3 +98,5 @@ export default class LeakPeriodLegend extends React.PureComponent<Props> {
     );
   }
 }
+
+export default injectIntl(LeakPeriodLegend);

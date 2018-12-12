@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { InjectedIntlProps } from 'react-intl';
 import { shallow } from 'enzyme';
-import LeakPeriodLegend from '../LeakPeriodLegend';
+import { LeakPeriodLegend } from '../LeakPeriodLegend';
 import { differenceInDays } from '../../../../helpers/dates';
 
 jest.mock('../../../../helpers/dates', () => {
@@ -93,9 +94,10 @@ it('should render a more precise date', () => {
 });
 
 function getWrapper(period: T.Period) {
-  return shallow(<LeakPeriodLegend period={period} />, {
-    context: {
-      intl: { formatDate: (date: string) => 'formatted.' + date }
-    }
-  });
+  return shallow(
+    <LeakPeriodLegend
+      intl={{ formatDate: (date: string) => 'formatted.' + date } as InjectedIntlProps['intl']}
+      period={period}
+    />
+  );
 }

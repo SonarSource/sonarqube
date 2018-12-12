@@ -18,25 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withRouter, WithRouterProps } from 'react-router';
 import { Button } from '../../../components/ui/buttons';
 import OnboardingProjectIcon from '../../../components/icons-components/OnboardingProjectIcon';
 import OnboardingAddMembersIcon from '../../../components/icons-components/OnboardingAddMembersIcon';
 import { translate } from '../../../helpers/l10n';
+import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 import '../../tutorials/styles.css';
 import './OrganizationJustCreated.css';
 
 interface Props {
+  openProjectOnboarding: OnboardingContextShape;
   organization: T.Organization;
+  router: Pick<Router, 'push'>;
 }
 
-export class OrganizationJustCreated extends React.PureComponent<Props & WithRouterProps> {
-  static contextTypes = {
-    openProjectOnboarding: () => null
-  };
-
+export class OrganizationJustCreated extends React.PureComponent<Props> {
   handleNewProjectClick = () => {
-    this.context.openProjectOnboarding(this.props.organization);
+    this.props.openProjectOnboarding(this.props.organization);
   };
 
   handleAddMembersClick = () => {

@@ -10,12 +10,9 @@ exports[`should render the titlebar correctly 1`] = `
 <div
   className="issue-row"
 >
-  <IssueMessage
-    manualVulnerability={false}
-    message="Reduce the number of conditional operators (4) used in the expression"
-    organization="myorg"
-    rule="javascript:S1067"
-  />
+  <ContextConsumer>
+    <Component />
+  </ContextConsumer>
   <div
     className="issue-row-meta"
   >
@@ -109,12 +106,9 @@ exports[`should render the titlebar with the filter 1`] = `
 <div
   className="issue-row"
 >
-  <IssueMessage
-    manualVulnerability={false}
-    message="Reduce the number of conditional operators (4) used in the expression"
-    organization="myorg"
-    rule="javascript:S1067"
-  />
+  <ContextConsumer>
+    <Component />
+  </ContextConsumer>
   <div
     className="issue-row-meta"
   >

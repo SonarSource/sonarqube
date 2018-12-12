@@ -85,7 +85,6 @@ const getSecurityHotspots = require('../../../../api/security-reports')
   .getSecurityHotspots as jest.Mock<any>;
 
 const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' } as T.Component;
-const context = { router: { push: jest.fn() } };
 const location = { pathname: 'foo', query: {} };
 const locationWithCWE = { pathname: 'foo', query: { showCWE: 'true' } };
 const owaspParams = { type: 'owasp_top_10' };
@@ -103,10 +102,7 @@ it('renders error on wrong type parameters', () => {
       location={location}
       params={wrongParams}
       router={{ push: jest.fn() }}
-    />,
-    {
-      context
-    }
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
@@ -118,10 +114,7 @@ it('renders owaspTop10', async () => {
       location={location}
       params={owaspParams}
       router={{ push: jest.fn() }}
-    />,
-    {
-      context
-    }
+    />
   );
   await waitAndUpdate(wrapper);
   expect(getSecurityHotspots).toBeCalledWith({
@@ -140,8 +133,7 @@ it('renders with cwe', () => {
       location={locationWithCWE}
       params={owaspParams}
       router={{ push: jest.fn() }}
-    />,
-    { context }
+    />
   );
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
@@ -159,10 +151,7 @@ it('handle checkbox for cwe display', async () => {
       location={location}
       params={owaspParams}
       router={{ push: jest.fn() }}
-    />,
-    {
-      context
-    }
+    />
   );
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
@@ -191,10 +180,7 @@ it('renders sansTop25', () => {
       location={location}
       params={sansParams}
       router={{ push: jest.fn() }}
-    />,
-    {
-      context
-    }
+    />
   );
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',

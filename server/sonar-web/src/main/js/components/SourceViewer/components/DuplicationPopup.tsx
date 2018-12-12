@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import * as PropTypes from 'prop-types';
 import { groupBy, sortBy } from 'lodash';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import QualifierIcon from '../../icons-components/QualifierIcon';
 import { PopupPlacement } from '../../ui/popups';
-import { WorkspaceContext } from '../../workspace/context';
+import { WorkspaceContextShape } from '../../workspace/context';
 import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
@@ -37,17 +36,11 @@ interface Props {
   duplicatedFiles?: { [ref: string]: T.DuplicatedFile };
   inRemovedComponent: boolean;
   onClose: () => void;
-  popupPosition?: any;
+  openComponent: WorkspaceContextShape['openComponent'];
   sourceViewerFile: T.SourceViewerFile;
 }
 
 export default class DuplicationPopup extends React.PureComponent<Props> {
-  context!: { workspace: WorkspaceContext };
-
-  static contextTypes = {
-    workspace: PropTypes.object.isRequired
-  };
-
   shouldLink() {
     const { branchLike } = this.props;
     return !isShortLivingBranch(branchLike) && !isPullRequest(branchLike);
@@ -65,7 +58,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     event.currentTarget.blur();
     const { key, line } = event.currentTarget.dataset;
     if (this.shouldLink() && key) {
-      this.context.workspace.openComponent({
+      this.props.openComponent({
         branchLike: this.props.branchLike,
         key,
         line: line ? Number(line) : undefined

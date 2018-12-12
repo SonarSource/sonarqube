@@ -22,25 +22,20 @@ import EllipsisIcon from '../../icons-components/EllipsisIcon';
 import Tooltip from '../../controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Button } from '../../ui/buttons';
-import { WorkspaceContext } from '../../workspace/context';
+import { WorkspaceContextShape } from '../../workspace/context';
 
 interface Props {
   engine?: string;
   manualVulnerability: boolean;
   message: string;
+  openRule: WorkspaceContextShape['openRule'];
   organization: string;
   rule: string;
 }
 
 export default class IssueMessage extends React.PureComponent<Props> {
-  context!: { workspace: WorkspaceContext };
-
-  static contextTypes = {
-    workspace: () => null
-  };
-
   handleClick = () => {
-    this.context.workspace.openRule({
+    this.props.openRule({
       key: this.props.rule,
       organization: this.props.organization
     });

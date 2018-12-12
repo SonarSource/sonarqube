@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
@@ -32,6 +31,7 @@ import { lazyLoad } from '../../../../components/lazyLoad';
 import { getCurrentUser, getAppState, Store } from '../../../../store/rootReducer';
 import { isSonarCloud } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
+import { OnboardingContext } from '../../OnboardingContext';
 import './GlobalNav.css';
 
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
@@ -48,8 +48,6 @@ interface OwnProps {
 type Props = StateProps & OwnProps;
 
 export class GlobalNav extends React.PureComponent<Props> {
-  static contextTypes = { openProjectOnboarding: PropTypes.func };
-
   render() {
     const { appState, currentUser } = this.props;
     return (
@@ -63,11 +61,15 @@ export class GlobalNav extends React.PureComponent<Props> {
           <EmbedDocsPopupHelper />
           <Search appState={appState} currentUser={currentUser} />
           {isLoggedIn(currentUser) && (
-            <GlobalNavPlus
-              appState={appState}
-              currentUser={currentUser}
-              openProjectOnboarding={this.context.openProjectOnboarding}
-            />
+            <OnboardingContext.Consumer data-test="global-nav-plus">
+              {openProjectOnboarding => (
+                <GlobalNavPlus
+                  appState={appState}
+                  currentUser={currentUser}
+                  openProjectOnboarding={openProjectOnboarding}
+                />
+              )}
+            </OnboardingContext.Consumer>
           )}
           <GlobalNavUserContainer appState={appState} currentUser={currentUser} />
         </ul>

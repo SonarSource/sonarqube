@@ -29,12 +29,19 @@ jest.mock('../../../../helpers/system', () => ({
 it('renders correctly for SQ', () => {
   (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
   expect(
-    shallow(<EmptyInstance currentUser={{ isLoggedIn: false }} organization={undefined} />)
+    shallow(
+      <EmptyInstance
+        currentUser={{ isLoggedIn: false }}
+        openProjectOnboarding={jest.fn()}
+        organization={undefined}
+      />
+    )
   ).toMatchSnapshot();
   expect(
     shallow(
       <EmptyInstance
         currentUser={{ isLoggedIn: true, permissions: { global: ['provisioning'] } }}
+        openProjectOnboarding={jest.fn()}
         organization={undefined}
       />
     )
@@ -47,6 +54,7 @@ it('renders correctly for SC', () => {
     shallow(
       <EmptyInstance
         currentUser={{ isLoggedIn: false }}
+        openProjectOnboarding={jest.fn()}
         organization={{ key: 'foo', name: 'Foo' }}
       />
     )
@@ -55,6 +63,7 @@ it('renders correctly for SC', () => {
     shallow(
       <EmptyInstance
         currentUser={{ isLoggedIn: false }}
+        openProjectOnboarding={jest.fn()}
         organization={{ actions: { provision: true }, key: 'foo', name: 'Foo' }}
       />
     )

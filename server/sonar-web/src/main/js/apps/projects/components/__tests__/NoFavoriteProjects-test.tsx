@@ -26,7 +26,9 @@ jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 it('renders', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
-  expect(shallow(<NoFavoriteProjects organizations={[]} />)).toMatchSnapshot();
+  expect(
+    shallow(<NoFavoriteProjects openProjectOnboarding={jest.fn()} organizations={[]} />)
+  ).toMatchSnapshot();
 });
 
 it('renders for SonarCloud', () => {
@@ -35,5 +37,7 @@ it('renders for SonarCloud', () => {
     { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: 'public' },
     { actions: { admin: false }, key: 'org2', name: 'org2', projectVisibility: 'public' }
   ];
-  expect(shallow(<NoFavoriteProjects organizations={organizations} />)).toMatchSnapshot();
+  expect(
+    shallow(<NoFavoriteProjects openProjectOnboarding={jest.fn()} organizations={organizations} />)
+  ).toMatchSnapshot();
 });

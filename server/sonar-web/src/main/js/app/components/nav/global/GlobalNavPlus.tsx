@@ -28,11 +28,12 @@ import { translate } from '../../../../helpers/l10n';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { hasGlobalPermission } from '../../../../helpers/users';
+import { OnboardingContextShape } from '../../OnboardingContext';
 
 interface Props {
   appState: Pick<T.AppState, 'qualifiers'>;
   currentUser: T.LoggedInUser;
-  openProjectOnboarding: () => void;
+  openProjectOnboarding: OnboardingContextShape;
 }
 
 interface State {

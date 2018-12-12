@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
-import { intlShape, InjectedIntlProps } from 'react-intl';
+import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { range } from 'lodash';
 import * as addMonths from 'date-fns/add_months';
 import * as setMonth from 'date-fns/set_month';
@@ -41,7 +41,7 @@ import './styles.css';
 
 const DayPicker = lazyLoad(() => import('react-day-picker'));
 
-export interface Props {
+interface Props {
   className?: string;
   currentMonth?: Date;
   highlightFrom?: Date;
@@ -64,12 +64,7 @@ interface State {
 type Week = [string, string, string, string, string, string, string];
 
 export default class DateInput extends React.PureComponent<Props, State> {
-  context!: InjectedIntlProps;
   input?: HTMLInputElement | null;
-
-  static contextTypes = {
-    intl: intlShape
-  };
 
   constructor(props: Props) {
     super(props);
@@ -129,10 +124,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
   render() {
     const { highlightFrom, highlightTo, minDate, value } = this.props;
-    const { formatDate } = this.context.intl;
     const { lastHovered } = this.state;
-    const formattedValue =
-      value && formatDate(value, { year: 'numeric', month: 'short', day: 'numeric' });
 
     const after = this.props.maxDate || new Date();
 
@@ -158,17 +150,17 @@ export default class DateInput extends React.PureComponent<Props, State> {
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
         <span className={classNames('date-input-control', this.props.className)}>
-          <input
+          <InputWrapper
             className={classNames('date-input-control-input', this.props.inputClassName, {
               'is-filled': this.props.value !== undefined
             })}
+            innerRef={node => (this.input = node)}
             name={this.props.name}
             onFocus={this.openCalendar}
             placeholder={this.props.placeholder}
             readOnly={true}
-            ref={node => (this.input = node)}
             type="text"
-            value={formattedValue || ''}
+            value={value}
           />
           <CalendarIcon className="date-input-control-icon" fill="" />
           {this.props.value !== undefined && (
@@ -230,3 +222,15 @@ export default class DateInput extends React.PureComponent<Props, State> {
 function NullComponent() {
   return null;
 }
+
+type InputWrapperProps = T.Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> &
+  InjectedIntlProps & {
+    innerRef: React.Ref<HTMLInputElement>;
+    value: Date | undefined;
+  };
+
+const InputWrapper = injectIntl(({ innerRef, intl, value, ...other }: InputWrapperProps) => {
+  const formattedValue =
+    value && intl.formatDate(value, { year: 'numeric', month: 'short', day: 'numeric' });
+  return <input {...other} ref={innerRef} value={formattedValue || ''} />;
+});

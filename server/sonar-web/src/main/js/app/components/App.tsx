@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { fetchLanguages } from '../../store/rootActions';
@@ -50,21 +49,6 @@ type Props = StateProps & DispatchProps & OwnProps;
 
 class App extends React.PureComponent<Props> {
   mounted = false;
-
-  static childContextTypes = {
-    branchesEnabled: PropTypes.bool.isRequired,
-    canAdmin: PropTypes.bool.isRequired,
-    organizationsEnabled: PropTypes.bool
-  };
-
-  getChildContext() {
-    const { appState } = this.props;
-    return {
-      branchesEnabled: (appState && appState.branchesEnabled) || false,
-      canAdmin: (appState && appState.canAdmin) || false,
-      organizationsEnabled: (appState && appState.organizationsEnabled) || false
-    };
-  }
 
   componentDidMount() {
     this.mounted = true;

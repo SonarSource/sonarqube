@@ -18,24 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { translate } from '../../../helpers/l10n';
 import { Button } from '../../../components/ui/buttons';
 import { isSonarCloud } from '../../../helpers/system';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
 
 interface Props {
-  organization?: T.Organization;
   currentUser: T.CurrentUser;
+  openProjectOnboarding: OnboardingContextShape;
+  organization?: T.Organization;
 }
 
 export default class EmptyInstance extends React.PureComponent<Props> {
-  static contextTypes = {
-    openProjectOnboarding: PropTypes.func
-  };
-
   analyzeNewProject = () => {
-    this.context.openProjectOnboarding(this.props.organization);
+    this.props.openProjectOnboarding(this.props.organization);
   };
 
   render() {

@@ -47,5 +47,5 @@ function runTest(mockedIsSonarCloud: boolean) {
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ currentUser: { isLoggedIn: true } });
-  expect(wrapper.find('GlobalNavPlus').exists()).toBe(true);
+  expect(wrapper.find('[data-test="global-nav-plus"]').exists()).toBe(true);
 }

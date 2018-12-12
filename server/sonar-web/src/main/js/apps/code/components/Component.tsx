@@ -23,6 +23,7 @@ import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentLink from './ComponentLink';
 import ComponentPin from './ComponentPin';
+import { WorkspaceContext } from '../../../components/workspace/context';
 
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
@@ -90,7 +91,17 @@ export default class Component extends React.PureComponent<Props> {
       switch (component.qualifier) {
         case 'FIL':
         case 'UTS':
-          componentAction = <ComponentPin branchLike={branchLike} component={component} />;
+          componentAction = (
+            <WorkspaceContext.Consumer>
+              {({ openComponent }) => (
+                <ComponentPin
+                  branchLike={branchLike}
+                  component={component}
+                  openComponent={openComponent}
+                />
+              )}
+            </WorkspaceContext.Consumer>
+          );
           break;
         default:
           componentAction = <ComponentLink branchLike={branchLike} component={component} />;

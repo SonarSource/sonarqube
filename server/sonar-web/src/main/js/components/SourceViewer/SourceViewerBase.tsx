@@ -40,6 +40,7 @@ import {
 import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
 import { translate } from '../../helpers/l10n';
 import { Alert } from '../ui/Alert';
+import { WorkspaceContext } from '../workspace/context';
 import './styles.css';
 
 // TODO react-virtualized
@@ -607,14 +608,19 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     /* eslint-enable no-underscore-dangle */
 
     return (
-      <DuplicationPopup
-        blocks={blocks}
-        branchLike={this.props.branchLike}
-        duplicatedFiles={duplicatedFiles}
-        inRemovedComponent={inRemovedComponent}
-        onClose={this.closeLinePopup}
-        sourceViewerFile={component}
-      />
+      <WorkspaceContext.Consumer>
+        {({ openComponent }) => (
+          <DuplicationPopup
+            blocks={blocks}
+            branchLike={this.props.branchLike}
+            duplicatedFiles={duplicatedFiles}
+            inRemovedComponent={inRemovedComponent}
+            onClose={this.closeLinePopup}
+            openComponent={openComponent}
+            sourceViewerFile={component}
+          />
+        )}
+      </WorkspaceContext.Consumer>
     );
   };
 
@@ -698,12 +704,15 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 
     return (
       <div className={className} ref={node => (this.node = node)}>
-        {this.state.component && (
-          <SourceViewerHeader
-            branchLike={this.props.branchLike}
-            sourceViewerFile={this.state.component}
-          />
-        )}
+        <WorkspaceContext.Consumer>
+          {({ openComponent }) => (
+            <SourceViewerHeader
+              branchLike={this.props.branchLike}
+              openComponent={openComponent}
+              sourceViewerFile={component}
+            />
+          )}
+        </WorkspaceContext.Consumer>
         {sourceRemoved && (
           <Alert className="spacer-top" variant="warning">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
