@@ -11,7 +11,7 @@ exports[`should load the product news 1`] = `
       className="display-inline-flex-center"
     >
       <h4>
-        Latest news
+        embed_docs.latest_blog
       </h4>
       <span
         className="note spacer-left"
@@ -76,7 +76,7 @@ exports[`should load the product news 2`] = `
       className="display-inline-flex-center"
     >
       <h4>
-        Latest news
+        embed_docs.latest_blog
       </h4>
       <DateFormatter
         date="2018-04-06T12:07:19+0000"

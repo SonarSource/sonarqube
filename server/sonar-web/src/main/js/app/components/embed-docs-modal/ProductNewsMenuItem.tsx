@@ -24,6 +24,7 @@ import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
 import PlaceholderBar from '../../../components/ui/PlaceholderBar';
+import { translate } from '../../../helpers/l10n';
 
 interface OwnProps {
   tag?: string;
@@ -79,7 +80,7 @@ export class ProductNewsMenuItem extends React.PureComponent<Props, State> {
       <a className="rich-item new-loading">
         <div className="flex-1">
           <div className="display-inline-flex-center">
-            <h4>Latest news</h4>
+            <h4>{translate('embed_docs.latest_blog')}</h4>
             <span className="note spacer-left">
               <PlaceholderBar color="#aaa" width={60} />
             </span>
@@ -111,7 +112,7 @@ export class ProductNewsMenuItem extends React.PureComponent<Props, State> {
       <a className="rich-item" href={link + news.uid} rel="noopener noreferrer" target="_blank">
         <div className="flex-1">
           <div className="display-inline-flex-center">
-            <h4>Latest news</h4>
+            <h4>{translate('embed_docs.latest_blog')}</h4>
             <DateFormatter date={news.last_publication_date}>
               {formattedDate => <span className="note spacer-left">{formattedDate}</span>}
             </DateFormatter>

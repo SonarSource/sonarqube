@@ -94,7 +94,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           {this.renderIconLink(
             'https://blog.sonarsource.com/product/SonarCloud',
             'sonarcloud-square-logo.svg',
-            translate('embed_docs.news')
+            translate('embed_docs.blog')
           )}
         </li>
         <li>
