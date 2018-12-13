@@ -110,7 +110,7 @@ public class FileIndexer {
       if (projectExclusionFilters.equals(moduleExclusionFilters)) {
         warnOnceDeprecatedExclusion(
           "Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
-            "To continue including/excluding files like '" + projectRelativePath + "' from the analysis, " +
+            "To continue matching files like '" + projectRelativePath + "', " +
             "update these properties so that patterns refer to project-relative paths.");
       }
       excludedByPatternsCount.incrementAndGet();
@@ -163,7 +163,7 @@ public class FileIndexer {
       if (Arrays.equals(moduleCoverageExclusions.getCoverageExclusionConfig(), projectCoverageExclusions.getCoverageExclusionConfig())) {
         warnOnceDeprecatedCoverageExclusion(
           "Specifying module-relative paths at project level in the property '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' is deprecated. " +
-            "To continue excluding files like '" + inputFile + "' from coverage, update this property so that patterns refer to project-relative paths.");
+            "To continue matching files like '" + inputFile + "', update this property so that patterns refer to project-relative paths.");
       }
       LOG.debug("File {} excluded for coverage", inputFile);
     }

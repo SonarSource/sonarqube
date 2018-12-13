@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -91,6 +89,7 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
+  private final FakeSettingsLoader settingsLoader = new FakeSettingsLoader();
   private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
   private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
@@ -230,6 +229,16 @@ public class ScannerMediumTester extends ExternalResource {
     return this;
   }
 
+  public ScannerMediumTester addGlobalServerSettings(String key, String value) {
+    settingsLoader.getGlobalSettings().put(key, value);
+    return this;
+  }
+
+  public ScannerMediumTester addProjectServerSettings(String key, String value) {
+    settingsLoader.getProjectSettings().put(key, value);
+    return this;
+  }
+
   public ScannerMediumTester mockLineHashes(String fileKey, String[] lineHashes) {
     serverLineHashes.byKey.put(fileKey, lineHashes);
     return this;
@@ -302,7 +311,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
-          new FakeSettingsLoader(),
+          tester.settingsLoader,
           result)
         .setLogOutput(tester.logOutput)
         .build().execute();
@@ -495,9 +504,25 @@ public class ScannerMediumTester extends ExternalResource {
 
   private static class FakeSettingsLoader implements SettingsLoader {
 
+    private Map<String, String> globalSettings = new HashMap<>();
+    private Map<String, String> projectSettings = new HashMap<>();
+
+    public Map<String, String> getGlobalSettings() {
+      return globalSettings;
+    }
+
+    public Map<String, String> getProjectSettings() {
+      return projectSettings;
+    }
+
     @Override
-    public Map<String, String> load(String componentKey) {
-      return Collections.emptyMap();
+    public Map<String, String> loadGlobalSettings() {
+      return Collections.unmodifiableMap(globalSettings);
+    }
+
+    @Override
+    public Map<String, String> loadProjectSettings() {
+      return Collections.unmodifiableMap(projectSettings);
     }
   }
 

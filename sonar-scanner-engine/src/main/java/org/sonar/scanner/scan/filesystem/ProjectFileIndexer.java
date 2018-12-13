@@ -41,6 +41,10 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.scan.ModuleConfiguration;
+import org.sonar.scanner.scan.ModuleConfigurationProvider;
+import org.sonar.scanner.scan.ProjectServerSettings;
 import org.sonar.scanner.util.ProgressReport;
 
 /**
@@ -52,15 +56,19 @@ public class ProjectFileIndexer {
   private final AbstractExclusionFilters projectExclusionFilters;
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
+  private final GlobalConfiguration globalConfig;
+  private final ProjectServerSettings projectServerSettings;
   private final FileIndexer fileIndexer;
 
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(InputComponentStore componentStore, AbstractExclusionFilters exclusionFilters,
-    InputModuleHierarchy inputModuleHierarchy,
+    InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, ProjectServerSettings projectServerSettings,
     FileIndexer fileIndexer) {
     this.componentStore = componentStore;
     this.inputModuleHierarchy = inputModuleHierarchy;
+    this.globalConfig = globalConfig;
+    this.projectServerSettings = projectServerSettings;
     this.fileIndexer = fileIndexer;
     this.projectExclusionFilters = exclusionFilters;
   }
@@ -94,8 +102,10 @@ public class ProjectFileIndexer {
       logPaths("    Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
       logPaths("    Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
     }
-    ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(module);
-    ModuleCoverageExclusions moduleCoverageExclusions = new ModuleCoverageExclusions(module);
+    // Emulate creation of module level settings
+    ModuleConfiguration moduleConfig = new ModuleConfigurationProvider().provide(globalConfig, module, projectServerSettings);
+    ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig);
+    ModuleCoverageExclusions moduleCoverageExclusions = new ModuleCoverageExclusions(moduleConfig);
     indexFiles(module, moduleExclusionFilters, moduleCoverageExclusions, module.getSourceDirsOrFiles(), Type.MAIN, excludedByPatternsCount);
     indexFiles(module, moduleExclusionFilters, moduleCoverageExclusions, module.getTestDirsOrFiles(), Type.TEST, excludedByPatternsCount);
   }

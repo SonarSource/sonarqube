@@ -71,32 +71,16 @@ public class FileSystemMediumTest {
   private ImmutableMap.Builder<String, String> builder;
 
   @Before
-  public void prepare() throws IOException {
+  public void prepare() {
     baseDir = temp.getRoot();
 
     builder = ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectName", "Foo Project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.projectDescription", "Description of Foo Project");
-  }
-
-  private ImmutableMap.Builder<String, String> createBuilder() {
-    return ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
-      .put("sonar.verbose", "true")
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.projectDescription", "Description of Foo Project");
+      .put("sonar.projectKey", "com.foo.project");
   }
 
   @Test
   public void scanProjectWithoutProjectName() throws IOException {
-    builder = createBuilder();
-
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -125,7 +109,6 @@ public class FileSystemMediumTest {
 
   @Test
   public void logProjectKeyAndOrganizationKey() throws IOException {
-    builder = createBuilder();
     builder.put("sonar.organization", "my org");
     builder.put("sonar.branch", "");
     File srcDir = new File(baseDir, "src");
@@ -147,7 +130,6 @@ public class FileSystemMediumTest {
 
   @Test
   public void logBranchKey() throws IOException {
-    builder = createBuilder();
     builder.put("sonar.branch", "my-branch");
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
@@ -163,20 +145,18 @@ public class FileSystemMediumTest {
 
     assertThat(logTester.logs()).contains("Project key: com.foo.project");
     assertThat(logTester.logs()).contains("Branch key: my-branch");
-    assertThat(logTester.logs()).contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\". See https://redirect.sonarsource.com/doc/branches.html.");
+    assertThat(logTester.logs())
+      .contains("The use of \"sonar.branch\" is deprecated and replaced by \"sonar.branch.name\". See https://redirect.sonarsource.com/doc/branches.html.");
   }
 
   @Test
   public void logBranchNameAndType() throws IOException {
-    builder = createBuilder();
     builder.put("sonar.branch.name", "my-branch");
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
 
     // Using sonar.branch.name when the branch plugin is not installed is an error.
-    // IllegalStateException is expected here, because this test is in a bit artificial,
-    // the fail-fast mechanism in the scanner should have prevented reaching this point.
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
 
     tester.newAnalysis()
       .properties(builder
@@ -187,7 +167,6 @@ public class FileSystemMediumTest {
 
   @Test
   public void dontLogInvalidOrganization() throws IOException {
-    builder = createBuilder();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -207,8 +186,6 @@ public class FileSystemMediumTest {
 
   @Test
   public void onlyGenerateMetadataIfNeeded() throws IOException {
-    builder = createBuilder();
-
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -234,8 +211,7 @@ public class FileSystemMediumTest {
 
   @Test
   public void preloadFileMetadata() throws IOException {
-    builder = createBuilder()
-      .put("sonar.preloadFileMetadata", "true");
+    builder.put("sonar.preloadFileMetadata", "true");
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -261,8 +237,6 @@ public class FileSystemMediumTest {
 
   @Test
   public void dontPublishFilesWithoutDetectedLanguage() throws IOException {
-    builder = createBuilder();
-
     Path mainDir = baseDir.toPath().resolve("src").resolve("main");
     Files.createDirectories(mainDir);
 
@@ -305,8 +279,6 @@ public class FileSystemMediumTest {
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerUnknownFile", null, "OneIssuePerUnknownFile", "MAJOR", null, "xoo");
 
-    builder = createBuilder();
-
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -334,7 +306,6 @@ public class FileSystemMediumTest {
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerFile", null, "OneIssuePerFile", "MAJOR", null, "xoo");
 
-    builder = createBuilder();
     builder.put("sonar.issue.ignore.allfile", "1")
       .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern");
     File srcDir = new File(baseDir, "src");
@@ -363,7 +334,6 @@ public class FileSystemMediumTest {
 
   @Test
   public void preloadIssueExclusions() throws IOException {
-    builder = createBuilder();
     builder.put("sonar.issue.ignore.allfile", "1")
       .put("sonar.issue.ignore.allfile.1.fileRegexp", "pattern")
       .put("sonar.preloadFileMetadata", "true");
@@ -393,8 +363,6 @@ public class FileSystemMediumTest {
     tester
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo");
-
-    builder = createBuilder();
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -541,8 +509,7 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void warn_user_for_outdated_inherited_exclusions_for_multi_module_project() throws IOException {
-
+  public void warn_user_for_outdated_scanner_side_inherited_exclusions_for_multi_module_project() throws IOException {
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
@@ -576,7 +543,46 @@ public class FileSystemMediumTest {
 
     assertThat(logTester.logs(LoggerLevel.WARN))
       .contains("Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
-        "To continue including/excluding files like 'moduleA/src/sample.xoo' from the analysis, update these properties so that patterns refer to project-relative paths.");
+        "To continue matching files like 'moduleA/src/sample.xoo', update these properties so that patterns refer to project-relative paths.");
+  }
+
+  @Test
+  public void warn_user_for_outdated_server_side_inherited_exclusions_for_multi_module_project() throws IOException {
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sample.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sample.xoo");
+    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    tester.addProjectServerSettings("sonar.exclusions", "src/sample.xoo");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .build())
+      .execute();
+
+    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
+    assertThat(fileA).isNull();
+
+    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
+    assertThat(fileB).isNull();
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
+        "To continue matching files like 'moduleA/src/sample.xoo', update these properties so that patterns refer to project-relative paths.");
   }
 
   @Test

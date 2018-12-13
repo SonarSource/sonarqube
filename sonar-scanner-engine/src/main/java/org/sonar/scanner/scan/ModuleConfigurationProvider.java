@@ -26,20 +26,19 @@ import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 public class ModuleConfigurationProvider extends ProviderAdapter {
 
   private ModuleConfiguration moduleConfiguration;
 
-  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectServerSettings projectServerSettings, GlobalAnalysisMode analysisMode) {
+  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectServerSettings projectServerSettings) {
     if (moduleConfiguration == null) {
 
       Map<String, String> settings = new LinkedHashMap<>(projectServerSettings.properties());
       addScannerSideProperties(settings, module.definition());
 
-      moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), analysisMode, settings);
+      moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
     }
     return moduleConfiguration;
   }

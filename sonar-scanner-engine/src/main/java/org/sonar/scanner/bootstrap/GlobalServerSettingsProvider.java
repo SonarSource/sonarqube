@@ -35,7 +35,7 @@ public class GlobalServerSettingsProvider extends ProviderAdapter {
 
   public GlobalServerSettings provide(SettingsLoader loader) {
     if (singleton == null) {
-      Map<String, String> serverSideSettings = loader.load(null);
+      Map<String, String> serverSideSettings = loader.loadGlobalSettings();
       singleton = new GlobalServerSettings(serverSideSettings);
       Optional.ofNullable(serverSideSettings.get(CoreProperties.SERVER_ID)).ifPresent(v -> LOG.info("Server id: {}", v));
     }

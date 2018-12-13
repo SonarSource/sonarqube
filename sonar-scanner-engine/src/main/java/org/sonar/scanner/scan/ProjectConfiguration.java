@@ -22,13 +22,12 @@ package org.sonar.scanner.scan;
 import java.util.Map;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.config.DefaultConfiguration;
 
 public class ProjectConfiguration extends DefaultConfiguration {
 
-  public ProjectConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode, Map<String, String> props) {
-    super(propertyDefinitions, encryption, mode, props);
+  public ProjectConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, Map<String, String> props) {
+    super(propertyDefinitions, encryption, props);
   }
 
 }

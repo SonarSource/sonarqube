@@ -26,7 +26,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class ProjectServerSettingsProvider extends ProviderAdapter {
@@ -40,9 +39,9 @@ public class ProjectServerSettingsProvider extends ProviderAdapter {
 
   private ProjectServerSettings singleton = null;
 
-  public ProjectServerSettings provide(SettingsLoader loader, ScannerProperties scannerProperties, AnalysisWarnings analysisWarnings) {
+  public ProjectServerSettings provide(SettingsLoader loader, AnalysisWarnings analysisWarnings) {
     if (singleton == null) {
-      Map<String, String> serverSideSettings = loader.load(scannerProperties.getKeyWithBranch());
+      Map<String, String> serverSideSettings = loader.loadProjectSettings();
       if (StringUtils.isNotBlank(serverSideSettings.get(CoreProperties.MODULE_LEVEL_ARCHIVED_SETTINGS))) {
         LOG.warn(MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING);
         analysisWarnings.addUnique(MODULE_LEVEL_ARCHIVED_SETTINGS_WARNING);

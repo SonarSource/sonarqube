@@ -102,13 +102,18 @@ public class ExceptionHandlingMediumTest {
     boolean withCause = false;
 
     @Override
-    public Map<String, String> load(String componentKey) {
+    public Map<String, String> loadGlobalSettings() {
       if (withCause) {
         IllegalStateException cause = new IllegalStateException("Code 401");
         throw MessageException.of("Error loading settings", cause);
       } else {
         throw MessageException.of("Error loading settings");
       }
+    }
+
+    @Override
+    public Map<String, String> loadProjectSettings() {
+      return null;
     }
   }
 }

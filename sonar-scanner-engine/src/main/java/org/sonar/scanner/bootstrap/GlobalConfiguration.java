@@ -28,10 +28,8 @@ import org.sonar.scanner.config.DefaultConfiguration;
 @Immutable
 public class GlobalConfiguration extends DefaultConfiguration {
 
-  public GlobalConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, GlobalAnalysisMode mode,
-                             Map<String, String> settings) {
-    super(propertyDefinitions, encryption, mode, settings);
+  public GlobalConfiguration(PropertyDefinitions propertyDefinitions, Encryption encryption, Map<String, String> settings) {
+    super(propertyDefinitions, encryption, settings);
   }
-
 
 }

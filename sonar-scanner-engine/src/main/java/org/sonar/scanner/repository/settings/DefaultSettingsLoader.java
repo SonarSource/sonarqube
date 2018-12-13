@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.Settings.FieldValues.Value;
@@ -45,14 +46,25 @@ import org.sonarqube.ws.client.HttpException;
 public class DefaultSettingsLoader implements SettingsLoader {
 
   private ScannerWsClient wsClient;
+  private final ScannerProperties scannerProperties;
   private static final Logger LOG = Loggers.get(DefaultSettingsLoader.class);
 
-  public DefaultSettingsLoader(ScannerWsClient wsClient) {
+  public DefaultSettingsLoader(ScannerWsClient wsClient, ScannerProperties scannerProperties) {
     this.wsClient = wsClient;
+    this.scannerProperties = scannerProperties;
   }
 
   @Override
-  public Map<String, String> load(@Nullable String componentKey) {
+  public Map<String, String> loadGlobalSettings() {
+    return load(null);
+  }
+
+  @Override
+  public Map<String, String> loadProjectSettings() {
+    return load(scannerProperties.getKeyWithBranch());
+  }
+
+  private Map<String, String> load(@Nullable String componentKey) {
     String url = "api/settings/values.protobuf";
     Profiler profiler = Profiler.create(LOG);
     if (componentKey != null) {

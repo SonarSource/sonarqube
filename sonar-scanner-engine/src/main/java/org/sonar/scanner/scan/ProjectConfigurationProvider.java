@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 
@@ -32,7 +31,7 @@ public class ProjectConfigurationProvider extends ProviderAdapter {
   private ProjectConfiguration projectConfig;
 
   public ProjectConfiguration provide(DefaultInputProject project, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings,
-    ProjectServerSettings projectServerSettings, GlobalAnalysisMode mode, MutableProjectSettings projectSettings) {
+    ProjectServerSettings projectServerSettings, MutableProjectSettings projectSettings) {
     if (projectConfig == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
@@ -40,7 +39,7 @@ public class ProjectConfigurationProvider extends ProviderAdapter {
       settings.putAll(projectServerSettings.properties());
       settings.putAll(project.properties());
 
-      projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), mode, settings);
+      projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
       projectSettings.complete(projectConfig);
     }
     return projectConfig;

@@ -19,17 +19,12 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-
-import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
+import org.sonar.scanner.scan.ModuleConfiguration;
 
 public class ModuleExclusionFilters extends AbstractExclusionFilters {
 
-  public ModuleExclusionFilters(DefaultInputModule module) {
-    super(k -> {
-      String value = module.properties().get(k);
-      return value != null ? parseAsCsv(k, value) : new String[0];
-    });
+  public ModuleExclusionFilters(ModuleConfiguration moduleConfiguration) {
+    super(moduleConfiguration::getStringArray);
   }
 
 }

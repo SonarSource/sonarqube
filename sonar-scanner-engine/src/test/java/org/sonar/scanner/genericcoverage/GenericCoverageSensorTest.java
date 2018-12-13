@@ -28,12 +28,10 @@ import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.scan.ProjectConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class GenericCoverageSensorTest {
 
@@ -49,7 +47,7 @@ public class GenericCoverageSensorTest {
     settings.put(GenericCoverageSensor.OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old5.xml,old6.xml");
 
     PropertyDefinitions defs = new PropertyDefinitions(GenericCoverageSensor.properties());
-    DefaultConfiguration config = new ProjectConfiguration(defs, new Encryption(null), mock(GlobalAnalysisMode.class), settings);
+    DefaultConfiguration config = new ProjectConfiguration(defs, new Encryption(null), settings);
 
     Set<String> reportPaths = new GenericCoverageSensor(config).loadReportPaths();
 

@@ -28,13 +28,13 @@ public class GlobalConfigurationProvider extends ProviderAdapter {
 
   private GlobalConfiguration globalConfig;
 
-  public GlobalConfiguration provide(GlobalServerSettings globalServerSettings, ScannerProperties scannerProps, PropertyDefinitions propertyDefinitions, GlobalAnalysisMode mode) {
+  public GlobalConfiguration provide(GlobalServerSettings globalServerSettings, ScannerProperties scannerProps, PropertyDefinitions propertyDefinitions) {
     if (globalConfig == null) {
       Map<String, String> mergedSettings = new LinkedHashMap<>();
       mergedSettings.putAll(globalServerSettings.properties());
       mergedSettings.putAll(scannerProps.properties());
 
-      globalConfig = new GlobalConfiguration(propertyDefinitions, scannerProps.getEncryption(), mode, mergedSettings);
+      globalConfig = new GlobalConfiguration(propertyDefinitions, scannerProps.getEncryption(), mergedSettings);
     }
     return globalConfig;
   }

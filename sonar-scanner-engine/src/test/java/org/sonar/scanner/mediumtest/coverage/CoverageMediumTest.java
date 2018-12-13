@@ -159,7 +159,7 @@ public class CoverageMediumTest {
   }
 
   @Test
-  public void warn_user_for_outdated_inherited_exclusions_for_multi_module_project() throws IOException {
+  public void warn_user_for_outdated_inherited_scanner_side_exclusions_for_multi_module_project() throws IOException {
 
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");
@@ -197,7 +197,50 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(fileB, 2)).isNull();
 
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
-      "To continue excluding files like 'moduleA/src/sample.xoo' from coverage, update this property so that patterns refer to project-relative paths.");
+      "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
+  }
+
+  @Test
+  public void warn_user_for_outdated_server_side_exclusions_for_multi_module_project() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sample.xoo");
+    File xooUtCoverageFileA = new File(srcDirA, "sample.xoo.coverage");
+    FileUtils.write(xooFileA, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(xooUtCoverageFileA, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sample.xoo");
+    File xooUtCoverageFileB = new File(srcDirB, "sample.xoo.coverage");
+    FileUtils.write(xooFileB, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(xooUtCoverageFileB, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
+
+    tester.addProjectServerSettings("sonar.coverage.exclusions", "src/sample.xoo");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .build())
+      .execute();
+
+    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
+    assertThat(result.coverageFor(fileA, 2)).isNull();
+
+    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
+    assertThat(result.coverageFor(fileB, 2)).isNull();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
+      "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
   }
 
   @Test

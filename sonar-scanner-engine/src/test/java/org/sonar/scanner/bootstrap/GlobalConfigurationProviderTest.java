@@ -43,20 +43,18 @@ public class GlobalConfigurationProviderTest {
   GlobalServerSettings globalServerSettings;
   ScannerProperties scannerProps;
 
-  private GlobalAnalysisMode mode;
 
   @Before
   public void prepare() {
     globalServerSettings = mock(GlobalServerSettings.class);
     scannerProps = new ScannerProperties(Collections.<String, String>emptyMap());
-    mode = mock(GlobalAnalysisMode.class);
   }
 
   @Test
   public void should_load_global_settings() {
     when(globalServerSettings.properties()).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
 
-    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(globalServerSettings, scannerProps, new PropertyDefinitions(), mode);
+    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(globalServerSettings, scannerProps, new PropertyDefinitions());
 
     assertThat(globalConfig.get("sonar.cpd.cross")).hasValue("true");
   }
