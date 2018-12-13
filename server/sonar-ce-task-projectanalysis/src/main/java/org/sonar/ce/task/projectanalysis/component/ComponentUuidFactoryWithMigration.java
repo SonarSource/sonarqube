@@ -38,27 +38,21 @@ import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.KeyWithUuidDto;
 
 public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
-  private final Map<String, String> uuidsByKey = new HashMap<>();
+  private final Map<String, String> uuidsByDbKey = new HashMap<>();
+  private final Map<String, String> uuidsByMigratedKey = new HashMap<>();
 
   public ComponentUuidFactoryWithMigration(DbClient dbClient, DbSession dbSession, String rootKey, Function<String, String> pathToKey, Map<String, String> reportModulesPath) {
     Map<String, String> modulePathsByUuid;
+    List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    keys.forEach(dto -> uuidsByDbKey.put(dto.key(), dto.uuid()));
 
-    if (reportModulesPath.isEmpty()) {
-      noMigration(dbClient, dbSession, rootKey);
-    } else {
+    if (!reportModulesPath.isEmpty()) {
       modulePathsByUuid = loadModulePathsByUuid(dbClient, dbSession, rootKey, reportModulesPath);
 
-      if (modulePathsByUuid.isEmpty()) {
-        noMigration(dbClient, dbSession, rootKey);
-      } else {
+      if (!modulePathsByUuid.isEmpty()) {
         doMigration(dbClient, dbSession, rootKey, pathToKey, modulePathsByUuid);
       }
     }
-  }
-
-  private void noMigration(DbClient dbClient, DbSession dbSession, String rootKey) {
-    List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
-    keys.forEach(dto -> uuidsByKey.put(dto.key(), dto.uuid()));
   }
 
   private void doMigration(DbClient dbClient, DbSession dbSession, String rootKey, Function<String, String> pathToKey, Map<String, String> modulePathsByUuid) {
@@ -74,12 +68,12 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
         if (modulePathFromRootProject != null || StringUtils.isEmpty(dto.moduleUuid())) {
           // means that it's a root or a module with a valid path (to avoid overwriting key of root)
           pathToKey.apply(modulePathFromRootProject);
-          uuidsByKey.put(pathToKey.apply(modulePathFromRootProject), dto.uuid());
+          uuidsByMigratedKey.put(pathToKey.apply(modulePathFromRootProject), dto.uuid());
         }
       } else {
         String modulePathFromRootProject = modulePathsByUuid.get(dto.moduleUuid());
         String componentPath = createComponentPath(dto, modulePathFromRootProject);
-        uuidsByKey.put(pathToKey.apply(componentPath), dto.uuid());
+        uuidsByMigratedKey.put(pathToKey.apply(componentPath), dto.uuid());
       }
     }
   }
@@ -123,10 +117,10 @@ public class ComponentUuidFactoryWithMigration implements ComponentUuidFactory {
   }
 
   /**
-   * Get UUID from database if it exists, otherwise generate a new one.
+   * Get UUID from component having the same key in database if it exists, otherwise look for migrated keys, and finally generate a new one.
    */
   @Override
   public String getOrCreateForKey(String key) {
-    return uuidsByKey.computeIfAbsent(key, k -> Uuids.create());
+    return uuidsByDbKey.computeIfAbsent(key, k1 -> uuidsByMigratedKey.computeIfAbsent(k1, k2 -> Uuids.create()));
   }
 }

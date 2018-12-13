@@ -48,7 +48,7 @@ public class ComponentUuidFactoryWithMigrationTest {
     ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getDbKey(), pathToKey, reportModulesPath);
 
     assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
-    assertThat(underTest.getOrCreateForKey(module.getDbKey())).isNotIn(project.uuid(), module.uuid());
+    assertThat(underTest.getOrCreateForKey(module.getDbKey())).isEqualTo(module.uuid());
   }
 
   @Test
@@ -77,12 +77,6 @@ public class ComponentUuidFactoryWithMigrationTest {
 
     // project remains the same
     assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
-
-    // old keys with modules don't exist
-    assertThat(underTest.getOrCreateForKey(module1.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-    assertThat(underTest.getOrCreateForKey(module2.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-    assertThat(underTest.getOrCreateForKey(file1.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-    assertThat(underTest.getOrCreateForKey(file2.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
   }
 
   @Test
@@ -134,6 +128,30 @@ public class ComponentUuidFactoryWithMigrationTest {
   }
 
   @Test
+  public void prefers_component_having_same_key() {
+    ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project"));
+    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project)
+      .setDbKey("project:module1"));
+    ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(module1)
+      .setDbKey("project:module1:file1")
+      .setPath("file1"));
+    ComponentDto disabledFileSameKey = db.components().insertComponent(ComponentTesting.newFileDto(project)
+      .setDbKey("project:module1/file1")
+      .setPath("module1_path/file1")
+      .setEnabled(false));
+
+    Map<String, String> modulesRelativePaths = new HashMap<>();
+    modulesRelativePaths.put("project:module1", "module1_path");
+    ComponentUuidFactoryWithMigration underTest = new ComponentUuidFactoryWithMigration(db.getDbClient(), db.getSession(), project.getDbKey(), pathToKey, modulesRelativePaths);
+
+    // in theory we should migrate file1. But since disabledFileSameKey already have the expected migrated key, let's reuse it.
+    assertThat(underTest.getOrCreateForKey("project:module1/file1")).isEqualTo(disabledFileSameKey.uuid());
+
+    // project remains the same
+    assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
+  }
+
+  @Test
   public void migrate_branch_with_modules() {
     pathToKey = path -> path != null ? "project:" + path + ":BRANCH:branch1" : "project:BRANCH:branch1";
     ComponentDto project = db.components().insertPrivateProject(dto -> dto.setDbKey("project:BRANCH:branch1"));
@@ -160,13 +178,6 @@ public class ComponentUuidFactoryWithMigrationTest {
 
     // project remains the same
     assertThat(underTest.getOrCreateForKey(project.getDbKey())).isEqualTo(project.uuid());
-
-    // old keys with modules don't exist
-    assertThat(underTest.getOrCreateForKey(module1.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-    assertThat(underTest.getOrCreateForKey(module2.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-    assertThat(underTest.getOrCreateForKey(file1.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-    assertThat(underTest.getOrCreateForKey(file2.getDbKey())).isNotIn(project.uuid(), module1.uuid(), module2.uuid(), file1.uuid(), file2.uuid());
-
   }
 
   @Test
@@ -185,10 +196,6 @@ public class ComponentUuidFactoryWithMigrationTest {
 
     // module migrated to folder
     assertThat(underTest.getOrCreateForKey("project:module1_path")).isEqualTo(module1.uuid());
-
-    // doesnt exist
-    assertThat(underTest.getOrCreateForKey("project:module1_path/")).isNotIn(project.uuid(), module1.uuid(), dir1.uuid());
-    assertThat(underTest.getOrCreateForKey("project:module1")).isNotIn(project.uuid(), module1.uuid(), dir1.uuid());
   }
 
   @Test
