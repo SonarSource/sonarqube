@@ -199,6 +199,7 @@ public class ComponentUpdateDto {
       .setBModuleUuidPath(from.moduleUuidPath())
       .setBName(from.name())
       .setBPath(from.path())
+      // We don't have a b_scope. The applyBChangesForRootComponentUuid query is using a case ... when to infer scope from the qualifier
       .setBQualifier(from.qualifier());
   }
 }

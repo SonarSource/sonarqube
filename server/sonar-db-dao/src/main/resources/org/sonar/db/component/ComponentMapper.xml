@@ -755,6 +755,19 @@
     name = b_name,
     path = b_path,
     qualifier = b_qualifier,
+    <!-- Try to fix the scope as best as we can -->
+    scope = (
+      case
+        when b_qualifier = 'VW' THEN 'PRJ'
+        when b_qualifier = 'SVW' THEN 'PRJ'
+        when b_qualifier = 'APP' THEN 'PRJ'
+        when b_qualifier = 'DIR' THEN 'DIR'
+        when b_qualifier = 'FIL' THEN 'FIL'
+        when b_qualifier = 'UTS' THEN 'FIL'
+        <!-- For the few cases where qualifier is not enough to guess the scope (like TRK), just assume the scope remains unchanged -->
+        else scope
+      end
+    ),
     b_changed = ${_false},
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     deprecated_kee = null,

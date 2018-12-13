@@ -48,7 +48,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.project.Project;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -273,6 +272,76 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(file.path()).isEqualTo("src/test/java/dir/FooTest.java");
     assertThat(file.qualifier()).isEqualTo("UTS");
     assertThat(file.scope()).isEqualTo("FIL");
+  }
+
+  @Test
+  public void update_file_to_directory_change_scope() {
+    ComponentDto project = prepareProject();
+    ComponentDto directory = ComponentTesting.newDirectory(project, "src").setUuid("CDEF").setDbKey("PROJECT_KEY:src");
+    ComponentDto file = ComponentTesting.newFileDto(project, directory, "DEFG").setPath("src/foo").setName("foo")
+      .setDbKey("PROJECT_KEY:src/foo");
+    dbClient.componentDao().insert(db.getSession(), directory, file);
+    db.getSession().commit();
+
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), PROJECT_KEY + ":src/foo").get().scope()).isEqualTo("FIL");
+
+    treeRootHolder.setRoot(
+      asTreeRoot(project)
+        .addChildren(
+          builder(DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src")
+            .setName("src")
+            .addChildren(
+              builder(DIRECTORY, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/foo")
+                .setName("foo")
+                .addChildren(
+                  builder(FILE, 4).setUuid("HIJK").setKey(PROJECT_KEY + ":src/foo/FooTest.java")
+                    .setName("src/foo/FooTest.java")
+                    .setShortName("FooTest.java")
+                    .setFileAttributes(new FileAttributes(false, null, 1))
+                    .build())
+                .build())
+            .build())
+        .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    // commit the functional transaction
+    dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
+    db.commit();
+
+    assertThat(dbClient.componentDao().selectByKey(db.getSession(), PROJECT_KEY + ":src/foo").get().scope()).isEqualTo("DIR");
+  }
+
+  @Test
+  public void update_module_to_directory_change_scope() {
+    ComponentDto project = prepareProject();
+    ComponentDto module = ComponentTesting.newModuleDto(project).setUuid("CDEF").setDbKey("MODULE_KEY").setPath("module");
+    dbClient.componentDao().insert(db.getSession(), module);
+    db.getSession().commit();
+
+    assertThat(dbClient.componentDao().selectByUuid(db.getSession(), "CDEF").get().scope()).isEqualTo("PRJ");
+
+    treeRootHolder.setRoot(
+      asTreeRoot(project)
+        .addChildren(
+          builder(DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":module")
+            .setName("module")
+            .addChildren(
+              builder(FILE, 3).setUuid("HIJK").setKey(PROJECT_KEY + ":module/FooTest.java")
+                .setName("module/FooTest.java")
+                .setShortName("FooTest.java")
+                .setFileAttributes(new FileAttributes(false, null, 1))
+                .build())
+            .build())
+        .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    // commit the functional transaction
+    dbClient.componentDao().applyBChangesForRootComponentUuid(db.getSession(), project.uuid());
+    db.commit();
+
+    assertThat(dbClient.componentDao().selectByUuid(db.getSession(), "CDEF").get().scope()).isEqualTo("DIR");
   }
 
   @Test

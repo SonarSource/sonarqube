@@ -262,6 +262,8 @@ public class PersistComponentsStep implements ComputationStep {
         existingComponent.setModuleUuidPath(updateDto.getBModuleUuidPath());
         existingComponent.setName(updateDto.getBName());
         existingComponent.setPath(updateDto.getBPath());
+        // We don't have a b_scope. The applyBChangesForRootComponentUuid query is using a case ... when to infer scope from the qualifier
+        existingComponent.setScope(componentDto.scope());
         existingComponent.setQualifier(updateDto.getBQualifier());
       }
       return existingComponent;
@@ -423,6 +425,7 @@ public class PersistComponentsStep implements ComputationStep {
       !StringUtils.equals(existing.moduleUuidPath(), target.moduleUuidPath()) ||
       !StringUtils.equals(existing.name(), target.name()) ||
       !StringUtils.equals(existing.path(), target.path()) ||
+      !StringUtils.equals(existing.scope(), target.scope()) ||
       !StringUtils.equals(existing.qualifier(), target.qualifier());
 
     ComponentUpdateDto update = null;
