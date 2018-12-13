@@ -106,3 +106,7 @@ export function skipOnboarding(): Promise<void | Response> {
 export function setHomePage(homepage: T.HomePage): Promise<void | Response> {
   return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
 }
+
+export function setUserSetting(setting: T.CurrentUserSetting): Promise<void | Response> {
+  return post('/api/users/set_setting', setting).catch(throwGlobalError);
+}

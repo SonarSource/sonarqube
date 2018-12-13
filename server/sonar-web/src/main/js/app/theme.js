@@ -54,6 +54,8 @@ module.exports = {
   leakColorHover: '#f0e7c4',
   leakBorderColor: '#eae3c7',
 
+  globalNavBarBg: '#262626',
+
   snippetFontColor: '#f0f0f0',
 
   // alerts

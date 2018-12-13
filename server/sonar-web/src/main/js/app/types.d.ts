@@ -209,14 +209,12 @@ declare namespace T {
     showOnboardingTutorial?: boolean;
   }
 
-  export type CurrentUserSettings = { [key in CurrentUserSettingNames]?: string };
-
-  export interface CurrentUserSettingData {
+  export interface CurrentUserSetting {
     key: CurrentUserSettingNames;
     value: string;
   }
 
-  type CurrentUserSettingNames = 'notificationsOptOut' | 'notificationsReadDate';
+  type CurrentUserSettingNames = 'notifications.optOut' | 'notifications.readDate';
 
   export interface CustomMeasure {
     createdAt?: string;
@@ -424,6 +422,7 @@ declare namespace T {
     name: string;
     personalOrganization?: string;
     scmAccounts: string[];
+    settings?: CurrentUserSetting[];
   }
 
   export interface LongLivingBranch extends Branch {

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render for SonarCloud 1`] = `
+exports[`should render correctly if there are new features 1`] = `
 <NavBar
   className="navbar-global"
   height={48}
@@ -8,6 +8,7 @@ exports[`should render for SonarCloud 1`] = `
 >
   <SonarCloudNavBranding />
   <GlobalNavMenu
+    accessToken="token"
     appState={
       Object {
         "canAdmin": false,
@@ -26,11 +27,106 @@ exports[`should render for SonarCloud 1`] = `
         "pathname": "",
       }
     }
+    setCurrentUserSetting={[MockFunction]}
   />
   <ul
     className="global-navbar-menu global-navbar-menu-right"
   >
-    <Connect(GlobalNavNotifications) />
+    <NavLatestNotification
+      lastNews={
+        Object {
+          "features": Array [
+            Object {
+              "categories": Array [
+                Object {
+                  "color": "#ff0000",
+                  "name": "Java",
+                },
+              ],
+              "description": "10 new Java rules",
+            },
+          ],
+          "notification": "10 Java rules, Github checks, Security Hotspots, BitBucket branch decoration",
+          "publicationDate": "2018-04-06",
+        }
+      }
+      onClick={[Function]}
+      setCurrentUserSetting={[MockFunction]}
+    />
+    <GlobalNavExplore
+      location={
+        Object {
+          "pathname": "",
+        }
+      }
+    />
+    <EmbedDocsPopupHelper />
+    <withRouter(Search)
+      appState={
+        Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
+          "qualifiers": Array [],
+        }
+      }
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+    />
+    <Connect(withRouter(GlobalNavUser))
+      appState={
+        Object {
+          "canAdmin": false,
+          "globalPages": Array [],
+          "organizationsEnabled": false,
+          "qualifiers": Array [],
+        }
+      }
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+    />
+  </ul>
+</NavBar>
+`;
+
+exports[`should render for SonarCloud 1`] = `
+<NavBar
+  className="navbar-global"
+  height={48}
+  id="global-navigation"
+>
+  <SonarCloudNavBranding />
+  <GlobalNavMenu
+    accessToken="token"
+    appState={
+      Object {
+        "canAdmin": false,
+        "globalPages": Array [],
+        "organizationsEnabled": false,
+        "qualifiers": Array [],
+      }
+    }
+    currentUser={
+      Object {
+        "isLoggedIn": false,
+      }
+    }
+    location={
+      Object {
+        "pathname": "",
+      }
+    }
+    setCurrentUserSetting={[MockFunction]}
+  />
+  <ul
+    className="global-navbar-menu global-navbar-menu-right"
+  >
     <GlobalNavExplore
       location={
         Object {
@@ -81,6 +177,7 @@ exports[`should render for SonarQube 1`] = `
 >
   <Connect(GlobalNavBranding) />
   <GlobalNavMenu
+    accessToken="token"
     appState={
       Object {
         "canAdmin": false,
@@ -99,6 +196,7 @@ exports[`should render for SonarQube 1`] = `
         "pathname": "",
       }
     }
+    setCurrentUserSetting={[MockFunction]}
   />
   <ul
     className="global-navbar-menu global-navbar-menu-right"

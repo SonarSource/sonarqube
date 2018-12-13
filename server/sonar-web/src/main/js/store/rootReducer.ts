@@ -65,8 +65,8 @@ export function getLanguages(state: Store) {
   return fromLanguages.getLanguages(state.languages);
 }
 
-export function getCurrentUserSettings(state: Store) {
-  return fromUsers.getCurrentUserSettings(state.users);
+export function getCurrentUserSetting(state: Store, key: T.CurrentUserSettingNames) {
+  return fromUsers.getCurrentUserSetting(state.users, key);
 }
 
 export function getCurrentUser(state: Store) {

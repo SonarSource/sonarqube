@@ -475,7 +475,7 @@
 }
 
 .copy-paste-link .close {
-  color: black;
+  color: #000;
   border-bottom: 0;
   height: 100%;
   display: inline-block;

@@ -30,6 +30,13 @@ export interface PrismicNews {
   uid: string;
 }
 
+interface PrismicResponse {
+  page: number;
+  results: PrismicResult[];
+  results_per_page: number;
+  total_results_size: number;
+}
+
 interface PrismicResult {
   data: {
     notification: string;
@@ -101,28 +108,32 @@ export function fetchPrismicNews(data: {
 
 export function fetchPrismicFeatureNews(data: {
   accessToken: string;
+  p?: number;
   ps?: number;
   ref: string;
-}): Promise<PrismicFeatureNews[]> {
-  const q = ['[[at(document.type, "sc_product_news")]]'];
+}): Promise<{ news: PrismicFeatureNews[]; paging: T.Paging }> {
   return getCorsJSON(PRISMIC_API_URL + '/documents/search', {
     access_token: data.accessToken,
-    orderings: '[document.first_publication_date desc]',
-    pageSize: data.ps || 1,
-    q,
     fetchLinks: 'sc_category.color,sc_category.name',
+    orderings: '[my.sc_product_news.publication_date desc]',
+    page: data.p || 1,
+    pageSize: data.ps || 1,
+    q: ['[[at(document.type, "sc_product_news")]]'],
     ref: data.ref
-  }).then(({ results }: { results: PrismicResult[] }) => {
-    return results.map(result => {
-      return {
-        notification: result.data.notification,
-        publicationDate: result.data.publication_date,
-        features: result.data.body.map(feature => ({
-          categories: feature.items.map(item => item.category.data),
-          description: feature.primary.description,
-          readMore: feature.primary.read_more_link.url
-        }))
-      };
-    });
-  });
+  }).then(({ page, results, results_per_page, total_results_size }: PrismicResponse) => ({
+    news: results.map(result => ({
+      notification: result.data.notification,
+      publicationDate: result.data.publication_date,
+      features: result.data.body.map(feature => ({
+        categories: feature.items.map(item => item.category.data).filter(Boolean),
+        description: feature.primary.description,
+        readMore: feature.primary.read_more_link.url
+      }))
+    })),
+    paging: {
+      pageIndex: page,
+      pageSize: results_per_page,
+      total: total_results_size
+    }
+  }));
 }

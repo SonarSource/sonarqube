@@ -4,6 +4,7 @@ exports[`should render correctly if there are new features, and the user has not
 <Fragment>
   <li
     className="navbar-latest-notification"
+    onClick={[MockFunction]}
   >
     <div
       className="navbar-latest-notification-wrapper"
@@ -18,21 +19,27 @@ exports[`should render correctly if there are new features, and the user has not
       >
         10 Java rules, Github checks, Security Hotspots, BitBucket branch decoration
       </span>
-      <a
-        className="navbar-icon"
-        href="#"
-        onClick={[Function]}
-      >
-        <ClearIcon
-          fill="#8a8c8f"
-          size={10}
-        />
-      </a>
     </div>
+  </li>
+  <li
+    className="navbar-latest-notification-dismiss"
+  >
+    <a
+      className="navbar-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <ClearIcon
+        fill="#8a8c8f"
+        size={10}
+      />
+    </a>
   </li>
   <li>
     <a
       className="navbar-icon"
+      href="#"
+      onClick={[Function]}
     >
       <NotificationIcon
         hasUnread={true}
@@ -47,20 +54,8 @@ exports[`should render correctly if there are new features, but the user has opt
   <li>
     <a
       className="navbar-icon"
-    >
-      <NotificationIcon
-        hasUnread={false}
-      />
-    </a>
-  </li>
-</Fragment>
-`;
-
-exports[`should render correctly if there are no new features 1`] = `
-<Fragment>
-  <li>
-    <a
-      className="navbar-icon"
+      href="#"
+      onClick={[Function]}
     >
       <NotificationIcon
         hasUnread={false}
@@ -75,6 +70,8 @@ exports[`should render correctly if there are no new unread features 1`] = `
   <li>
     <a
       className="navbar-icon"
+      href="#"
+      onClick={[Function]}
     >
       <NotificationIcon
         hasUnread={false}
