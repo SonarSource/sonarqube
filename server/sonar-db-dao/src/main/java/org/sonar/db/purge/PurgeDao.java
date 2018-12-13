@@ -66,8 +66,10 @@ public class PurgeDao implements Dao {
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.getScopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
-    purgeDisabledComponents(session, conf, listener);
+    purgeDisabledComponents(session, mapper, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
+
+    deleteOldDisabledComponents(commands, mapper, rootUuid);
     purgeStaleBranches(commands, conf, mapper, rootUuid);
   }
 
@@ -142,8 +144,7 @@ public class PurgeDao implements Dao {
     purgeCommands.deleteComponentMeasures(analysisUuids, componentWithoutHistoricalDataUuids);
   }
 
-  private void purgeDisabledComponents(DbSession session, PurgeConfiguration conf, PurgeListener listener) {
-    PurgeMapper mapper = mapper(session);
+  private void purgeDisabledComponents(DbSession session, PurgeMapper mapper, PurgeConfiguration conf, PurgeListener listener) {
     executeLargeInputs(conf.getDisabledComponentUuids(),
       input -> {
         mapper.deleteFileSourcesByFileUuid(input);
@@ -155,6 +156,11 @@ public class PurgeDao implements Dao {
     listener.onComponentsDisabling(conf.rootUuid(), conf.getDisabledComponentUuids());
 
     session.commit();
+  }
+
+  private static void deleteOldDisabledComponents(PurgeCommands commands, PurgeMapper mapper, String rootUuid) {
+    List<IdUuidPair> disabledComponentsWithoutIssue = mapper.selectDisabledComponentsWithoutIssues(rootUuid);
+    commands.deleteDisabledComponentsWithoutIssues(disabledComponentsWithoutIssue);
   }
 
   public List<PurgeableAnalysisDto> selectPurgeableAnalyses(String componentUuid, DbSession session) {

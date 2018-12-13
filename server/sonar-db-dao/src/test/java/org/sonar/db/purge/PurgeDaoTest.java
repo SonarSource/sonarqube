@@ -36,6 +36,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
@@ -144,9 +145,7 @@ public class PurgeDaoTest {
     db.issues().insert(rule, shortBranch, subModule);
     db.issues().insert(rule, shortBranch, module);
 
-    // back to present
-    when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
@@ -170,9 +169,7 @@ public class PurgeDaoTest {
     db.issues().insert(rule, pullRequest, subModule);
     db.issues().insert(rule, pullRequest, module);
 
-    // back to present
-    when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentPullRequest.uuid());
@@ -219,10 +216,8 @@ public class PurgeDaoTest {
 
   @Test
   public void close_issues_clean_index_and_file_sources_of_disabled_components_specified_by_uuid_in_configuration() {
-    // components and issues, updated 31 days ago
-    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertMainBranch(p -> p.setEnabled(false));
+    ComponentDto project = db.components().insertMainBranch();
     db.components().insertSnapshot(project);
     db.components().insertSnapshot(project);
     db.components().insertSnapshot(project, s -> s.setLast(false));
@@ -261,7 +256,6 @@ public class PurgeDaoTest {
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(8);
 
     // back to present
-    when(system2.now()).thenReturn(new Date().getTime());
     underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid(), module.uuid(), dir.uuid(), srcFile.uuid(), testFile.uuid()), PurgeListener.EMPTY,
       new PurgeProfiler());
     dbSession.commit();
@@ -272,8 +266,8 @@ public class PurgeDaoTest {
     // close open issues of selected
     assertThat(db.countSql("select count(*) from issues where status = 'CLOSED'")).isEqualTo(4);
     for (IssueDto issue : Arrays.asList(openOnFile, confirmOnFile, openOnDir, confirmOnDir)) {
-      assertThat(db.getDbClient().issueDao().selectByKey(dbSession, issue.getKey()).get())
-        .extracting("status", "resolution")
+      assertThat(db.getDbClient().issueDao().selectOrFailByKey(dbSession, issue.getKey()))
+        .extracting(IssueDto::getStatus, IssueDto::getResolution)
         .containsExactlyInAnyOrder("CLOSED", "REMOVED");
     }
     for (IssueDto issue : Arrays.asList(openOnNonSelected, confirmOnNonSelected)) {
@@ -288,8 +282,9 @@ public class PurgeDaoTest {
 
     // deletes live measure of selected
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
-    List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession,
-      ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), nonSelectedFile.uuid()), ImmutableSet.of(metric1.getId(), metric2.getId()));
+    List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao()
+      .selectByComponentUuidsAndMetricIds(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), nonSelectedFile.uuid()),
+        ImmutableSet.of(metric1.getId(), metric2.getId()));
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getComponentUuid)
       .containsOnly(nonSelectedFile.uuid(), project.uuid());
@@ -997,6 +992,36 @@ public class PurgeDaoTest {
     assertThat(db.countRowsOfTable("issues")).isEqualTo(2);
     assertThat(db.getDbClient().issueDao().selectByKey(dbSession, notOldEnoughClosed.getKey())).isNotEmpty();
     assertThat(db.getDbClient().issueDao().selectByKey(dbSession, notClosed.getKey())).isNotEmpty();
+  }
+
+  @Test
+  public void delete_disabled_components_without_issues() {
+    ComponentDto project = db.components().insertMainBranch(p -> p.setEnabled(true));
+    ComponentDto enabledFileWithIssues = db.components().insertComponent(newFileDto(project).setEnabled(true));
+    ComponentDto disabledFileWithIssues = db.components().insertComponent(newFileDto(project).setEnabled(false));
+    ComponentDto enabledFileWithoutIssues = db.components().insertComponent(newFileDto(project).setEnabled(true));
+    ComponentDto disabledFileWithoutIssues = db.components().insertComponent(newFileDto(project).setEnabled(false));
+
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto closed1 = db.issues().insert(rule, project, enabledFileWithIssues, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setResolution(Issue.RESOLUTION_FIXED);
+      issue.setIssueCloseDate(new Date());
+    });
+    IssueDto closed2 = db.issues().insert(rule, project, disabledFileWithIssues, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setResolution(Issue.RESOLUTION_FIXED);
+      issue.setIssueCloseDate(new Date());
+    });
+
+    underTest.purge(dbSession,
+      newConfigurationWith30Days(System2.INSTANCE, project.uuid(), disabledFileWithIssues.uuid(), disabledFileWithoutIssues.uuid()),
+      PurgeListener.EMPTY, new PurgeProfiler());
+
+    assertThat(db.getDbClient().componentDao().selectByProjectUuid(project.uuid(), dbSession))
+      .extracting("uuid")
+      .containsOnly(project.uuid(), enabledFileWithIssues.uuid(), disabledFileWithIssues.uuid(),
+        enabledFileWithoutIssues.uuid());
   }
 
   @Test

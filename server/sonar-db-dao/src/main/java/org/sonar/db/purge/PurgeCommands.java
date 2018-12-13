@@ -202,6 +202,29 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteDisabledComponentsWithoutIssues(List<IdUuidPair> disabledComponentsWithoutIssue) {
+    if (disabledComponentsWithoutIssue.isEmpty()) {
+      return;
+    }
+    List<List<Long>> idPartitions = Lists.partition(IdUuidPairs.ids(disabledComponentsWithoutIssue), MAX_RESOURCES_PER_QUERY);
+    List<List<String>> uuidsPartitions = Lists.partition(IdUuidPairs.uuids(disabledComponentsWithoutIssue), MAX_RESOURCES_PER_QUERY);
+
+    profiler.start("deleteDisabledComponentsWithoutIssues (properties)");
+    idPartitions.forEach(purgeMapper::deletePropertiesByComponentIds);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteDisabledComponentsWithoutIssues (manual_measures)");
+    uuidsPartitions.forEach(purgeMapper::deleteManualMeasuresByComponentUuids);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteDisabledComponentsWithoutIssues (projects)");
+    uuidsPartitions.forEach(purgeMapper::deleteComponentsByUuids);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(String rootUuid) {
     profiler.start("deleteComponents (projects)");
     purgeMapper.deleteComponentsByProjectUuid(rootUuid);

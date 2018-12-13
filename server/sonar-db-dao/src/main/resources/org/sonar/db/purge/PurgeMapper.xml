@@ -317,6 +317,17 @@
     </choose>
   </select>
 
+  <select id="selectDisabledComponentsWithoutIssues" resultType="IdUuidPair" parameterType="String">
+    SELECT
+      p.id, p.uuid
+    FROM
+      projects p
+    WHERE
+      p.enabled = ${_false}
+      AND p.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+      AND NOT EXISTS (SELECT 1 FROM issues i WHERE i.component_uuid = p.uuid)
+  </select>
+
   <delete id="deleteIssuesFromKeys" parameterType="map">
     DELETE FROM issues
     WHERE kee IN

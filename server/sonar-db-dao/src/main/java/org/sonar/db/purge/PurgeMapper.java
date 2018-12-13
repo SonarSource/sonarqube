@@ -94,6 +94,8 @@ public interface PurgeMapper {
   @CheckForNull
   String selectManualBaseline(@Param("projectUuid") String projectUuid);
 
+  List<IdUuidPair>  selectDisabledComponentsWithoutIssues(@Param("projectUuid") String projectUuid);
+
   void deleteIssuesFromKeys(@Param("keys") List<String> keys);
 
   void deleteIssueChangesFromIssueKeys(@Param("issueKeys") List<String> issueKeys);
