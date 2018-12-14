@@ -45,17 +45,17 @@ final class ScoreMatrix {
 
   public String toCsv(char separator) {
     StringBuilder res = new StringBuilder();
-    // first row: empty column, then one column for each report file (its key)
+    // first row: empty column, then one column for each report file (its uuid)
     res.append("newFiles=>").append(separator);
-    Arrays.stream(newFiles).forEach(f -> res.append(f.getFileKey()).append('(').append(f.getLineCount()).append(')').append(separator));
-    // rows with data: column with db file (its key), then one column for each value
+    Arrays.stream(newFiles).forEach(f -> res.append(f.getFileUuid()).append('(').append(f.getLineCount()).append(')').append(separator));
+    // rows with data: column with db file (its uuid), then one column for each value
     accept(new ScoreMatrixVisitor() {
       private ScoreFile previousRemovedFile = null;
 
       @Override
       public void visit(ScoreFile removedFile, ScoreFile newFile, int score) {
         if (previousRemovedFile != removedFile) {
-          res.append('\n').append(removedFile.getFileKey()).append('(').append(removedFile.getLineCount()).append(')').append(separator);
+          res.append('\n').append(removedFile.getFileUuid()).append('(').append(removedFile.getLineCount()).append(')').append(separator);
           previousRemovedFile = removedFile;
         }
         res.append(score).append(separator);
@@ -74,16 +74,16 @@ final class ScoreMatrix {
   }
 
   static class ScoreFile {
-    private final String fileKey;
+    private final String fileUuid;
     private final int lineCount;
 
-    ScoreFile(String fileKey, int lineCount) {
-      this.fileKey = fileKey;
+    ScoreFile(String fileUuid, int lineCount) {
+      this.fileUuid = fileUuid;
       this.lineCount = lineCount;
     }
 
-    public String getFileKey() {
-      return fileKey;
+    public String getFileUuid() {
+      return fileUuid;
     }
 
     public int getLineCount() {

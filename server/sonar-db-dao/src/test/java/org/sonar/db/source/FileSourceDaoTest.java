@@ -269,7 +269,7 @@ public class FileSourceDaoTest {
   }
 
   @Test
-  public void scrollLineHashes_has_no_effect_if_no_keys() {
+  public void scrollLineHashes_has_no_effect_if_no_uuids() {
     underTest.scrollLineHashes(dbSession, emptySet(), resultContext -> fail("handler should not be called"));
   }
 
@@ -284,15 +284,15 @@ public class FileSourceDaoTest {
     ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource3 = dbTester.fileSources().insertFileSource(file3);
 
-    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file1.getDbKey());
+    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file1.uuid());
     assertThat(handler.dtos).hasSize(1);
     verifyLinesHashes(handler, file1, fileSource1);
 
-    handler = scrollLineHashes(file2.getDbKey());
+    handler = scrollLineHashes(file2.uuid());
     assertThat(handler.dtos).hasSize(1);
     verifyLinesHashes(handler, file2, fileSource2);
 
-    handler = scrollLineHashes(file2.getDbKey(), file1.getDbKey(), file3.getDbKey());
+    handler = scrollLineHashes(file2.uuid(), file1.uuid(), file3.uuid());
     assertThat(handler.dtos).hasSize(3);
     verifyLinesHashes(handler, file1, fileSource1);
     verifyLinesHashes(handler, file2, fileSource2);
@@ -308,7 +308,7 @@ public class FileSourceDaoTest {
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project).setPath(null));
     FileSourceDto fileSource2 = dbTester.fileSources().insertFileSource(file2);
 
-    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.getDbKey(), file1.getDbKey());
+    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.uuid(), file1.uuid());
     assertThat(handler.dtos).hasSize(1);
     verifyLinesHashes(handler, file1, fileSource1);
   }
@@ -325,7 +325,7 @@ public class FileSourceDaoTest {
     FileSourceDto fileSource3 = dbTester.fileSources().insertFileSource(file3, t -> t.setDataType(Type.SOURCE));
     FileSourceDto testFileSource3 = dbTester.fileSources().insertFileSource(file3, t -> t.setDataType(Type.TEST));
 
-    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.getDbKey(), file1.getDbKey(), file3.getDbKey());
+    LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.uuid(), file1.uuid(), file3.uuid());
     assertThat(handler.dtos).hasSize(2);
     verifyLinesHashes(handler, file1, fileSource1);
     verifyLinesHashes(handler, file3, fileSource3);
@@ -344,36 +344,36 @@ public class FileSourceDaoTest {
       .collect(Collectors.toList());
 
     LineHashesWithKeyDtoHandler handler = new LineHashesWithKeyDtoHandler();
-    underTest.scrollLineHashes(dbSession, files.stream().map(ComponentDto::getDbKey).collect(Collectors.toSet()), handler);
+    underTest.scrollLineHashes(dbSession, files.stream().map(ComponentDto::uuid).collect(Collectors.toSet()), handler);
 
     assertThat(handler.dtos).hasSize(files.size());
-    files.forEach(t -> assertThat(handler.getByKey(t.getDbKey())).isPresent());
+    files.forEach(t -> assertThat(handler.getByUuid(t.uuid())).isPresent());
   }
 
-  private LineHashesWithKeyDtoHandler scrollLineHashes(String... keys) {
+  private LineHashesWithKeyDtoHandler scrollLineHashes(String... uuids) {
     LineHashesWithKeyDtoHandler handler = new LineHashesWithKeyDtoHandler();
-    underTest.scrollLineHashes(dbSession, ImmutableSet.copyOf(keys), handler);
+    underTest.scrollLineHashes(dbSession, ImmutableSet.copyOf(uuids), handler);
     return handler;
   }
 
   private static void verifyLinesHashes(LineHashesWithKeyDtoHandler handler, ComponentDto file, FileSourceDto fileSource) {
-    LineHashesWithKeyDto dto = handler.getByKey(file.getDbKey()).get();
+    LineHashesWithUuidDto dto = handler.getByUuid(file.uuid()).get();
     assertThat(dto.getPath()).isEqualTo(file.path());
     assertThat(dto.getRawLineHashes()).isEqualTo(fileSource.getRawLineHashes());
     assertThat(dto.getLineHashes()).isEqualTo(fileSource.getLineHashes());
   }
 
-  private static final class LineHashesWithKeyDtoHandler implements ResultHandler<LineHashesWithKeyDto> {
-    private final List<LineHashesWithKeyDto> dtos = new ArrayList<>();
+  private static final class LineHashesWithKeyDtoHandler implements ResultHandler<LineHashesWithUuidDto> {
+    private final List<LineHashesWithUuidDto> dtos = new ArrayList<>();
 
     @Override
-    public void handleResult(ResultContext<? extends LineHashesWithKeyDto> resultContext) {
+    public void handleResult(ResultContext<? extends LineHashesWithUuidDto> resultContext) {
       dtos.add(resultContext.getResultObject());
     }
 
-    public Optional<LineHashesWithKeyDto> getByKey(String key) {
+    public Optional<LineHashesWithUuidDto> getByUuid(String uuid) {
       return dtos.stream()
-        .filter(t -> key.equals(t.getKey()))
+        .filter(t -> uuid.equals(t.getUuid()))
         .findAny();
     }
   }

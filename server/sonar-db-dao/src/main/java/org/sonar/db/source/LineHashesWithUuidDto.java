@@ -25,13 +25,13 @@ import javax.annotation.Nullable;
 
 import static org.sonar.db.source.FileSourceDto.LINES_HASHES_SPLITTER;
 
-public class LineHashesWithKeyDto {
-  private String kee;
+public class LineHashesWithUuidDto {
+  private String uuid;
   private String path;
   private String lineHashes;
 
-  public String getKey() {
-    return kee;
+  public String getUuid() {
+    return uuid;
   }
 
   public String getPath() {

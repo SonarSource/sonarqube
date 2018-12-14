@@ -55,7 +55,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.FileMoveRowDto;
-import org.sonar.db.source.LineHashesWithKeyDto;
+import org.sonar.db.source.LineHashesWithUuidDto;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -104,48 +104,48 @@ public class FileMoveDetectionStep implements ComputationStep {
     Profiler p = Profiler.createIfTrace(LOG);
 
     p.start();
-    Map<String, Component> reportFilesByKey = getReportFilesByKey(this.rootHolder.getRoot());
-    context.getStatistics().add("reportFiles", reportFilesByKey.size());
-    if (reportFilesByKey.isEmpty()) {
+    Map<String, Component> reportFilesByUuid = getReportFilesByUuid(this.rootHolder.getRoot());
+    context.getStatistics().add("reportFiles", reportFilesByUuid.size());
+    if (reportFilesByUuid.isEmpty()) {
       LOG.debug("No files in report. No file move detection.");
       return;
     }
 
-    Map<String, DbComponent> dbFilesByKey = getDbFilesByKey();
-    context.getStatistics().add("dbFiles", dbFilesByKey.size());
+    Map<String, DbComponent> dbFilesByUuid = getDbFilesByUuid();
+    context.getStatistics().add("dbFiles", dbFilesByUuid.size());
 
-    Set<String> addedFileKeys = difference(reportFilesByKey.keySet(), dbFilesByKey.keySet());
-    context.getStatistics().add("addedFiles", addedFileKeys.size());
+    Set<String> addedFileUuids = difference(reportFilesByUuid.keySet(), dbFilesByUuid.keySet());
+    context.getStatistics().add("addedFiles", addedFileUuids.size());
 
-    if (dbFilesByKey.isEmpty()) {
-      registerAddedFiles(addedFileKeys, reportFilesByKey, null);
+    if (dbFilesByUuid.isEmpty()) {
+      registerAddedFiles(addedFileUuids, reportFilesByUuid, null);
       LOG.debug("Previous snapshot has no file. No file move detection.");
       return;
     }
 
-    Set<String> removedFileKeys = difference(dbFilesByKey.keySet(), reportFilesByKey.keySet());
+    Set<String> removedFileUuids = difference(dbFilesByUuid.keySet(), reportFilesByUuid.keySet());
 
     // can find matches if at least one of the added or removed files groups is empty => abort
-    if (addedFileKeys.isEmpty() || removedFileKeys.isEmpty()) {
-      registerAddedFiles(addedFileKeys, reportFilesByKey, null);
+    if (addedFileUuids.isEmpty() || removedFileUuids.isEmpty()) {
+      registerAddedFiles(addedFileUuids, reportFilesByUuid, null);
       LOG.debug("Either no files added or no files removed. Do nothing.");
       return;
     }
 
     // retrieve file data from report
-    Map<String, File> reportFileSourcesByKey = getReportFileSourcesByKey(reportFilesByKey, addedFileKeys);
+    Map<String, File> reportFileSourcesByUuid = getReportFileSourcesByUuid(reportFilesByUuid, addedFileUuids);
     p.stopTrace("loaded");
 
     // compute score matrix
     p.start();
-    ScoreMatrix scoreMatrix = computeScoreMatrix(dbFilesByKey, removedFileKeys, reportFileSourcesByKey);
+    ScoreMatrix scoreMatrix = computeScoreMatrix(dbFilesByUuid, removedFileUuids, reportFileSourcesByUuid);
     p.stopTrace("Score matrix computed");
     scoreMatrixDumper.dumpAsCsv(scoreMatrix);
 
     // not a single match with score higher than MIN_REQUIRED_SCORE => abort
     if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
       context.getStatistics().add("movedFiles", 0);
-      registerAddedFiles(addedFileKeys, reportFilesByKey, null);
+      registerAddedFiles(addedFileUuids, reportFilesByUuid, null);
       LOG.debug("max score in matrix is less than min required score ({}). Do nothing.", MIN_REQUIRED_SCORE);
       return;
     }
@@ -153,12 +153,12 @@ public class FileMoveDetectionStep implements ComputationStep {
     p.start();
     MatchesByScore matchesByScore = MatchesByScore.create(scoreMatrix);
 
-    ElectedMatches electedMatches = electMatches(removedFileKeys, reportFileSourcesByKey, matchesByScore);
+    ElectedMatches electedMatches = electMatches(removedFileUuids, reportFileSourcesByUuid, matchesByScore);
     p.stopTrace("Matches elected");
 
     context.getStatistics().add("movedFiles", electedMatches.size());
-    registerMatches(dbFilesByKey, reportFilesByKey, electedMatches);
-    registerAddedFiles(addedFileKeys, reportFilesByKey, electedMatches);
+    registerMatches(dbFilesByUuid, reportFilesByUuid, electedMatches);
+    registerAddedFiles(addedFileUuids, reportFilesByUuid, electedMatches);
   }
 
   public Set<String> difference(Set<String> set1, Set<String> set2) {
@@ -168,33 +168,33 @@ public class FileMoveDetectionStep implements ComputationStep {
     return Sets.difference(set1, set2).immutableCopy();
   }
 
-  private void registerMatches(Map<String, DbComponent> dbFilesByKey, Map<String, Component> reportFilesByKey, ElectedMatches electedMatches) {
+  private void registerMatches(Map<String, DbComponent> dbFilesByUuid, Map<String, Component> reportFilesByUuid, ElectedMatches electedMatches) {
     LOG.debug("{} files moves found", electedMatches.size());
     for (Match validatedMatch : electedMatches) {
       movedFilesRepository.setOriginalFile(
-        reportFilesByKey.get(validatedMatch.getReportKey()),
-        toOriginalFile(dbFilesByKey.get(validatedMatch.getDbKey())));
+        reportFilesByUuid.get(validatedMatch.getReportUuid()),
+        toOriginalFile(dbFilesByUuid.get(validatedMatch.getDbUuid())));
       LOG.trace("File move found: {}", validatedMatch);
     }
   }
 
-  private void registerAddedFiles(Set<String> addedFileKeys, Map<String, Component> reportFilesByKey, @Nullable ElectedMatches electedMatches) {
+  private void registerAddedFiles(Set<String> addedFileUuids, Map<String, Component> reportFilesByUuid, @Nullable ElectedMatches electedMatches) {
     if (electedMatches == null || electedMatches.isEmpty()) {
-      addedFileKeys.stream()
-        .map(reportFilesByKey::get)
+      addedFileUuids.stream()
+        .map(reportFilesByUuid::get)
         .forEach(addedFileRepository::register);
     } else {
-      Set<String> reallyAddedFileKeys = new HashSet<>(addedFileKeys);
+      Set<String> reallyAddedFileUuids = new HashSet<>(addedFileUuids);
       for (Match electedMatch : electedMatches) {
-        reallyAddedFileKeys.remove(electedMatch.getReportKey());
+        reallyAddedFileUuids.remove(electedMatch.getReportUuid());
       }
-      reallyAddedFileKeys.stream()
-        .map(reportFilesByKey::get)
+      reallyAddedFileUuids.stream()
+        .map(reportFilesByUuid::get)
         .forEach(addedFileRepository::register);
     }
   }
 
-  private Map<String, DbComponent> getDbFilesByKey() {
+  private Map<String, DbComponent> getDbFilesByUuid() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ImmutableList.Builder<DbComponent> builder = ImmutableList.builder();
       dbClient.componentDao().scrollAllFilesForFileMove(dbSession, rootHolder.getRoot().getUuid(),
@@ -203,31 +203,31 @@ public class FileMoveDetectionStep implements ComputationStep {
           builder.add(new DbComponent(row.getId(), row.getKey(), row.getUuid(), row.getPath(), row.getLineCount()));
         });
       return builder.build().stream()
-        .collect(MoreCollectors.uniqueIndex(DbComponent::getKey));
+        .collect(MoreCollectors.uniqueIndex(DbComponent::getUuid));
     }
   }
 
-  private static Map<String, Component> getReportFilesByKey(Component root) {
+  private static Map<String, Component> getReportFilesByUuid(Component root) {
     final ImmutableMap.Builder<String, Component> builder = ImmutableMap.builder();
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitFile(Component file) {
-          builder.put(file.getDbKey(), file);
+          builder.put(file.getUuid(), file);
         }
       }).visit(root);
     return builder.build();
   }
 
-  private Map<String, File> getReportFileSourcesByKey(Map<String, Component> reportFilesByKey, Set<String> addedFileKeys) {
+  private Map<String, File> getReportFileSourcesByUuid(Map<String, Component> reportFilesByUuid, Set<String> addedFileUuids) {
     ImmutableMap.Builder<String, File> builder = ImmutableMap.builder();
-    for (String fileKey : addedFileKeys) {
-      Component component = reportFilesByKey.get(fileKey);
+    for (String fileUuid : addedFileUuids) {
+      Component component = reportFilesByUuid.get(fileUuid);
       File file = new LazyFileImpl(
         component.getName(),
         () -> getReportFileLineHashes(component),
         component.getFileAttributes().getLines());
-      builder.put(fileKey, file);
+      builder.put(fileUuid, file);
     }
     return builder.build();
   }
@@ -236,14 +236,14 @@ public class FileMoveDetectionStep implements ComputationStep {
     return sourceLinesHash.getLineHashesMatchingDBVersion(component);
   }
 
-  private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByKey, Set<String> removedFileKeys, Map<String, File> newFileSourcesByKey) {
-    ScoreMatrix.ScoreFile[] newFiles = newFileSourcesByKey.entrySet().stream()
+  private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByUuid, Set<String> removedFileUuids, Map<String, File> newFileSourcesByUuid) {
+    ScoreMatrix.ScoreFile[] newFiles = newFileSourcesByUuid.entrySet().stream()
       .map(e -> new ScoreMatrix.ScoreFile(e.getKey(), e.getValue().getLineCount()))
       .toArray(ScoreMatrix.ScoreFile[]::new);
-    ScoreMatrix.ScoreFile[] removedFiles = removedFileKeys.stream()
+    ScoreMatrix.ScoreFile[] removedFiles = removedFileUuids.stream()
       .map(key -> {
-        DbComponent dbComponent = dtosByKey.get(key);
-        return new ScoreMatrix.ScoreFile(dbComponent.getKey(), dbComponent.getLineCount());
+        DbComponent dbComponent = dtosByUuid.get(key);
+        return new ScoreMatrix.ScoreFile(dbComponent.getUuid(), dbComponent.getLineCount());
       })
       .toArray(ScoreMatrix.ScoreFile[]::new);
     // sort by highest line count first
@@ -252,7 +252,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     int[][] scoreMatrix = new int[removedFiles.length][newFiles.length];
     int lastNewFileIndex = newFiles.length - 1;
 
-    Map<String, Integer> removedFilesIndexes = new HashMap<>(removedFileKeys.size());
+    Map<String, Integer> removedFilesIndexes = new HashMap<>(removedFileUuids.size());
     for (int removeFileIndex = 0; removeFileIndex < removedFiles.length; removeFileIndex++) {
       ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
       int lowerBound = (int) Math.floor(removedFile.getLineCount() * LOWER_BOUND_RATIO);
@@ -261,11 +261,11 @@ public class FileMoveDetectionStep implements ComputationStep {
       if (newFiles[0].getLineCount() <= lowerBound || newFiles[lastNewFileIndex].getLineCount() >= upperBound) {
         continue;
       }
-      removedFilesIndexes.put(removedFile.getFileKey(), removeFileIndex);
+      removedFilesIndexes.put(removedFile.getFileUuid(), removeFileIndex);
     }
 
     LineHashesWithKeyDtoResultHandler rowHandler = new LineHashesWithKeyDtoResultHandler(removedFilesIndexes, removedFiles,
-      newFiles, newFileSourcesByKey, scoreMatrix);
+      newFiles, newFileSourcesByUuid, scoreMatrix);
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.fileSourceDao().scrollLineHashes(dbSession, removedFilesIndexes.keySet(), rowHandler);
     }
@@ -273,7 +273,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     return new ScoreMatrix(removedFiles, newFiles, scoreMatrix, rowHandler.getMaxScore());
   }
 
-  private final class LineHashesWithKeyDtoResultHandler implements ResultHandler<LineHashesWithKeyDto> {
+  private final class LineHashesWithKeyDtoResultHandler implements ResultHandler<LineHashesWithUuidDto> {
     private final Map<String, Integer> removedFilesIndexes;
     private final ScoreMatrix.ScoreFile[] removedFiles;
     private final ScoreMatrix.ScoreFile[] newFiles;
@@ -292,12 +292,12 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
 
     @Override
-    public void handleResult(ResultContext<? extends LineHashesWithKeyDto> resultContext) {
-      LineHashesWithKeyDto lineHashesDto = resultContext.getResultObject();
+    public void handleResult(ResultContext<? extends LineHashesWithUuidDto> resultContext) {
+      LineHashesWithUuidDto lineHashesDto = resultContext.getResultObject();
       if (lineHashesDto.getPath() == null) {
         return;
       }
-      int removeFileIndex = removedFilesIndexes.get(lineHashesDto.getKey());
+      int removeFileIndex = removedFilesIndexes.get(lineHashesDto.getUuid());
       ScoreMatrix.ScoreFile removedFile = removedFiles[removeFileIndex];
       int lowerBound = (int) Math.floor(removedFile.getLineCount() * LOWER_BOUND_RATIO);
       int upperBound = (int) Math.ceil(removedFile.getLineCount() * UPPER_BOUND_RATIO);
@@ -312,7 +312,7 @@ public class FileMoveDetectionStep implements ComputationStep {
         }
 
         File fileInDb = new FileImpl(lineHashesDto.getPath(), lineHashesDto.getLineHashes());
-        File unmatchedFile = newFileSourcesByKey.get(newFile.getFileKey());
+        File unmatchedFile = newFileSourcesByKey.get(newFile.getFileUuid());
         int score = fileSimilarity.score(fileInDb, unmatchedFile);
         scoreMatrix[removeFileIndex][newFileIndex] = score;
         if (score > maxScore) {
@@ -326,8 +326,8 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
   }
 
-  private static ElectedMatches electMatches(Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey, MatchesByScore matchesByScore) {
-    ElectedMatches electedMatches = new ElectedMatches(matchesByScore, dbFileKeys, reportFileSourcesByKey);
+  private static ElectedMatches electMatches(Set<String> dbFileUuids, Map<String, File> reportFileSourcesByUuid, MatchesByScore matchesByScore) {
+    ElectedMatches electedMatches = new ElectedMatches(matchesByScore, dbFileUuids, reportFileSourcesByUuid);
     Multimap<String, Match> matchesPerFileForScore = ArrayListMultimap.create();
     matchesByScore.forEach(matches -> electMatches(matches, electedMatches, matchesPerFileForScore));
     return electedMatches;
@@ -349,13 +349,13 @@ public class FileMoveDetectionStep implements ComputationStep {
     } else {
       matchesPerFileForScore.clear();
       for (Match match : matchesToValidate) {
-        matchesPerFileForScore.put(match.getDbKey(), match);
-        matchesPerFileForScore.put(match.getReportKey(), match);
+        matchesPerFileForScore.put(match.getDbUuid(), match);
+        matchesPerFileForScore.put(match.getReportUuid(), match);
       }
       // validate non ambiguous matches (ie. the match is the only match of either the db file and the report file)
       for (Match match : matchesToValidate) {
-        int dbFileMatchesCount = matchesPerFileForScore.get(match.getDbKey()).size();
-        int reportFileMatchesCount = matchesPerFileForScore.get(match.getReportKey()).size();
+        int dbFileMatchesCount = matchesPerFileForScore.get(match.getDbUuid()).size();
+        int reportFileMatchesCount = matchesPerFileForScore.get(match.getReportUuid()).size();
         if (dbFileMatchesCount == 1 && reportFileMatchesCount == 1) {
           electedMatches.add(match);
         }
@@ -406,17 +406,17 @@ public class FileMoveDetectionStep implements ComputationStep {
 
   private static class ElectedMatches implements Iterable<Match> {
     private final List<Match> matches;
-    private final Set<String> matchedFileKeys;
+    private final Set<String> matchedFileUuids;
 
-    public ElectedMatches(MatchesByScore matchesByScore, Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey) {
+    public ElectedMatches(MatchesByScore matchesByScore, Set<String> dbFileUuids, Map<String, File> reportFileSourcesByUuid) {
       this.matches = new ArrayList<>(matchesByScore.getSize());
-      this.matchedFileKeys = new HashSet<>(dbFileKeys.size() + reportFileSourcesByKey.size());
+      this.matchedFileUuids = new HashSet<>(dbFileUuids.size() + reportFileSourcesByUuid.size());
     }
 
     public void add(Match match) {
       matches.add(match);
-      matchedFileKeys.add(match.getDbKey());
-      matchedFileKeys.add(match.getReportKey());
+      matchedFileUuids.add(match.getDbUuid());
+      matchedFileUuids.add(match.getReportUuid());
     }
 
     public List<Match> filter(Iterable<Match> matches) {
@@ -424,7 +424,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
 
     private boolean notAlreadyMatched(Match input) {
-      return !(matchedFileKeys.contains(input.getDbKey()) || matchedFileKeys.contains(input.getReportKey()));
+      return !(matchedFileUuids.contains(input.getDbUuid()) || matchedFileUuids.contains(input.getReportUuid()));
     }
 
     @Override

@@ -25,20 +25,20 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 final class Match {
-  private final String dbKey;
-  private final String reportKey;
+  private final String dbUuid;
+  private final String reportUuid;
 
-  Match(String dbKey, String reportKey) {
-    this.dbKey = dbKey;
-    this.reportKey = reportKey;
+  Match(String dbUuid, String reportUuid) {
+    this.dbUuid = dbUuid;
+    this.reportUuid = reportUuid;
   }
 
-  public String getDbKey() {
-    return dbKey;
+  public String getDbUuid() {
+    return dbUuid;
   }
 
-  public String getReportKey() {
-    return reportKey;
+  public String getReportUuid() {
+    return reportUuid;
   }
 
   @Override
@@ -50,16 +50,16 @@ final class Match {
       return false;
     }
     Match match = (Match) o;
-    return dbKey.equals(match.dbKey) && reportKey.equals(match.reportKey);
+    return dbUuid.equals(match.dbUuid) && reportUuid.equals(match.reportUuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(dbKey, reportKey);
+    return Objects.hash(dbUuid, reportUuid);
   }
 
   @Override
   public String toString() {
-    return '{' + dbKey + "=>" + reportKey + '}';
+    return '{' + dbUuid + "=>" + reportUuid + '}';
   }
 }

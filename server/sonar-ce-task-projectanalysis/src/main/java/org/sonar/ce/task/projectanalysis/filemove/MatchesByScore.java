@@ -65,7 +65,7 @@ abstract class MatchesByScore implements Iterable<List<Match>> {
       if (matches[index] == null) {
         matches[index] = new ArrayList<>(1);
       }
-      Match match = new Match(removedFile.getFileKey(), newFile.getFileKey());
+      Match match = new Match(removedFile.getFileUuid(), newFile.getFileUuid());
       matches[index].add(match);
       totalMatches++;
     }

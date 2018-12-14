@@ -86,10 +86,10 @@ public class FileSourceDao implements Dao {
 
   /**
    * Scroll line hashes of all <strong>enabled</strong> components (should be files, but not enforced) with specified
-   * keys in no specific order with 'SOURCE' source and a non null path.
+   * uuids in no specific order with 'SOURCE' source and a non null path.
    */
-  public void scrollLineHashes(DbSession dbSession, Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler) {
-    for (List<String> partition : toUniqueAndSortedPartitions(fileKeys)) {
+  public void scrollLineHashes(DbSession dbSession, Collection<String> fileUUids, ResultHandler<LineHashesWithUuidDto> rowHandler) {
+    for (List<String> partition : toUniqueAndSortedPartitions(fileUUids)) {
       mapper(dbSession).scrollLineHashes(partition, rowHandler);
     }
   }

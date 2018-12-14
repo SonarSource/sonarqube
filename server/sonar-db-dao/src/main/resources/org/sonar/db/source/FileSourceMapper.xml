@@ -42,9 +42,9 @@
       and data_type = #{dataType,jdbcType=VARCHAR}
   </select>
 
-  <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithKeyDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithUuidDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
-      p.kee as kee,
+      p.uuid as uuid,
       p.path as path,
       fs.line_hashes as rawLineHashes
     from projects p
@@ -52,9 +52,9 @@
       fs.file_uuid = p.uuid
       and fs.data_type = 'SOURCE'
     where
-      p.kee in
-      <foreach collection="fileKeys" item="fileKey" open="(" close=")" separator=",">
-        #{fileKey,jdbcType=VARCHAR}
+      p.uuid in
+      <foreach collection="fileUuids" item="fileUuid" open="(" close=")" separator=",">
+        #{fileUuid,jdbcType=VARCHAR}
       </foreach>
       and p.path is not null
   </select>

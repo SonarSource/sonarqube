@@ -32,7 +32,7 @@ public interface FileSourceMapper {
   @CheckForNull
   FileSourceDto select(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
 
-  void scrollLineHashes(@Param("fileKeys") Collection<String> fileKeys, ResultHandler<LineHashesWithKeyDto> rowHandler);
+  void scrollLineHashes(@Param("fileUuids") Collection<String> fileUuids, ResultHandler<LineHashesWithUuidDto> rowHandler);
 
   @CheckForNull
   Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
