@@ -24,6 +24,8 @@ Database connection pool defaults have been restored to their pre-SonarQube 7.4 
 **More Issues Backdated**  
 Additional cases of issue backdating have been added, so fewer genuinely old issues will be reported in the New Code period ([MMF-1287](https://jira.sonarsource.com/browse/MMF-1287))
 
+[Full Release Notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14693)
+
 
 ## Release 7.4 Upgrade Notes
 **Analysis Failure on Invalid New Code Period**  
