@@ -101,8 +101,9 @@ export default class FilesView extends React.PureComponent<Props, State> {
     ['up', 'down', 'right'].forEach(action => key.unbind(action, keyScope));
   }
 
-  getVisibleComponents = (components: T.ComponentMeasureEnhanced[], showBestMeasures: boolean) => {
-    if (showBestMeasures) {
+  getVisibleComponents = () => {
+    const { components } = this.props;
+    if (this.state.showBestMeasures) {
       return components;
     }
     const filtered = components.filter(component => !this.hasBestValue(component));
@@ -132,8 +133,8 @@ export default class FilesView extends React.PureComponent<Props, State> {
   };
 
   selectPrevious = () => {
-    const { components, selectedIdx } = this.props;
-    const visibleComponents = this.getVisibleComponents(components, this.state.showBestMeasures);
+    const { selectedIdx } = this.props;
+    const visibleComponents = this.getVisibleComponents();
     if (selectedIdx !== undefined && selectedIdx > 0) {
       this.props.handleSelect(visibleComponents[selectedIdx - 1].key);
     } else {
@@ -142,8 +143,8 @@ export default class FilesView extends React.PureComponent<Props, State> {
   };
 
   selectNext = () => {
-    const { components, selectedIdx } = this.props;
-    const visibleComponents = this.getVisibleComponents(components, this.state.showBestMeasures);
+    const { selectedIdx } = this.props;
+    const visibleComponents = this.getVisibleComponents();
     if (selectedIdx !== undefined && selectedIdx < visibleComponents.length - 1) {
       this.props.handleSelect(visibleComponents[selectedIdx + 1].key);
     } else {
@@ -162,7 +163,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
 
   render() {
     const { components } = this.props;
-    const filteredComponents = this.getVisibleComponents(components, this.state.showBestMeasures);
+    const filteredComponents = this.getVisibleComponents();
     const hidingBestMeasures = filteredComponents.length < components.length;
     return (
       <div ref={elem => (this.listContainer = elem)}>
@@ -176,18 +177,21 @@ export default class FilesView extends React.PureComponent<Props, State> {
           selectedComponent={this.props.selectedKey}
           view={this.props.view}
         />
-        {hidingBestMeasures && (
-          <Alert className="spacer-top" variant="info">
-            {translateWithParameters(
-              'component_measures.hidden_best_score_metrics',
-              components.length - filteredComponents.length,
-              formatMeasure(this.props.metric.bestValue, this.props.metric.type)
-            )}
-            <Button className="button-link spacer-left" onClick={this.handleShowBestMeasures}>
-              {translate('show_all')}
-            </Button>
-          </Alert>
-        )}
+        {hidingBestMeasures &&
+          this.props.paging && (
+            <Alert className="spacer-top" variant="info">
+              <div className="display-flex-center">
+                {translateWithParameters(
+                  'component_measures.hidden_best_score_metrics',
+                  formatMeasure(this.props.paging.total - filteredComponents.length, 'INT'),
+                  formatMeasure(this.props.metric.bestValue, this.props.metric.type)
+                )}
+                <Button className="button-small spacer-left" onClick={this.handleShowBestMeasures}>
+                  {translate('show_them')}
+                </Button>
+              </div>
+            </Alert>
+          )}
         {!hidingBestMeasures &&
           this.props.paging &&
           this.props.components.length > 0 && (
