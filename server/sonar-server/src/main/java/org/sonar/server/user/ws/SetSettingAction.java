@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserPropertyDto;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserUpdater;
 
 import static java.util.Objects.requireNonNull;
 
@@ -56,7 +57,7 @@ public class SetSettingAction implements UsersWsAction {
       .setRequired(true)
       .setMaximumLength(100)
       .setDescription("Setting key")
-      .setPossibleValues("notifications.optOut", "notifications.readDate");
+      .setPossibleValues("notifications.optOut", UserUpdater.NOTIFICATIONS_READ_DATE);
 
     action.createParam(PARAM_VALUE)
       .setRequired(true)

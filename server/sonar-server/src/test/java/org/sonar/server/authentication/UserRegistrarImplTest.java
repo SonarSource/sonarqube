@@ -69,6 +69,8 @@ import static org.sonar.server.authentication.event.AuthenticationExceptionMatch
 
 public class UserRegistrarImplTest {
 
+  private System2 system2 = new AlwaysIncreasingSystem2();
+
   private static String USER_LOGIN = "github-johndoo";
 
   private static UserIdentity USER_IDENTITY = UserIdentity.builder()
@@ -99,6 +101,7 @@ public class UserRegistrarImplTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private UserUpdater userUpdater = new UserUpdater(
+    system2,
     mock(NewUserNotifier.class),
     db.getDbClient(),
     userIndexer,

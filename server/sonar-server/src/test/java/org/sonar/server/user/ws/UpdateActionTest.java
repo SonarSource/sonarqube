@@ -74,8 +74,9 @@ public class UpdateActionTest {
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(
-    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication), userSession, new UserJsonWriter(userSession), dbClient));
+    new UserUpdater(system2, mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+    userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before
   public void setUp() {

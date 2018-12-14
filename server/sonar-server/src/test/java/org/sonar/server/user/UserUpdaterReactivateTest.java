@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserPropertyDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
@@ -70,8 +71,8 @@ public class UserUpdaterReactivateTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
+  private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
+    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);;
 
   @Test
   public void reactivate_user() {
@@ -107,10 +108,10 @@ public class UserUpdaterReactivateTest {
     createDefaultGroup();
 
     underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-        .setName("Marius2")
-        .setEmail("marius2@mail.com")
-        .setPassword("password2")
-        .build(),
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .build(),
       u -> {
       });
 
@@ -222,7 +223,6 @@ public class UserUpdaterReactivateTest {
 
   @Test
   public void associate_default_groups_when_reactivating_user_and_organizations_are_disabled() {
-    organizationFlags.setEnabled(false);
     UserDto userDto = db.users().insertDisabledUser();
     db.organizations().insertForUuid("org1");
     GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
@@ -262,7 +262,6 @@ public class UserUpdaterReactivateTest {
 
   @Test
   public void add_user_as_member_of_default_organization_when_reactivating_user_and_organizations_are_disabled() {
-    organizationFlags.setEnabled(false);
     UserDto user = db.users().insertDisabledUser();
     createDefaultGroup();
 
@@ -315,6 +314,38 @@ public class UserUpdaterReactivateTest {
   }
 
   @Test
+  public void set_notifications_readDate_setting_when_reactivating_user_on_sonar_cloud() {
+    long now = system2.now();
+    organizationFlags.setEnabled(true);
+    createDefaultGroup();
+    UserDto user = db.users().insertDisabledUser();
+
+    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
+      .setLogin(user.getLogin())
+      .setName(user.getName())
+      .build(), u -> {
+      });
+
+    UserPropertyDto notificationReadDateSetting = dbClient.userPropertiesDao().selectByUser(session, user).get(0);
+    assertThat(notificationReadDateSetting.getKey()).isEqualTo("notifications.readDate");
+    assertThat(Long.parseLong(notificationReadDateSetting.getValue())).isGreaterThanOrEqualTo(now);
+  }
+
+  @Test
+  public void does_not_set_notifications_readDate_setting_when_reactivating_user_when_not_on_sonar_cloud() {
+    createDefaultGroup();
+    UserDto user = db.users().insertDisabledUser();
+
+    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
+      .setLogin(user.getLogin())
+      .setName(user.getName())
+      .build(), u -> {
+      });
+
+    assertThat(dbClient.userPropertiesDao().selectByUser(session, user)).isEmpty();
+  }
+
+  @Test
   public void fail_to_reactivate_user_when_login_already_exists() {
     createDefaultGroup();
     UserDto user = db.users().insertUser(u -> u.setActive(false));
@@ -324,10 +355,10 @@ public class UserUpdaterReactivateTest {
     expectedException.expectMessage("A user with login 'existing_login' already exists");
 
     underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-        .setLogin(existingUser.getLogin())
-        .setName("Marius2")
-        .setPassword("password2")
-        .build(),
+      .setLogin(existingUser.getLogin())
+      .setName("Marius2")
+      .setPassword("password2")
+      .build(),
       u -> {
       });
   }
@@ -342,10 +373,10 @@ public class UserUpdaterReactivateTest {
     expectedException.expectMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
 
     underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-        .setLogin(user.getLogin())
-        .setName("Marius2")
-        .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
-        .build(),
+      .setLogin(user.getLogin())
+      .setName("Marius2")
+      .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
+      .build(),
       u -> {
       });
   }

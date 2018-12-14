@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
@@ -48,6 +50,9 @@ import static org.sonar.db.user.UserTesting.newExternalUser;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 
 public class ChangePasswordActionTest {
+
+  private System2 system2 = new AlwaysIncreasingSystem2();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -60,7 +65,7 @@ public class ChangePasswordActionTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
-  private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
+  private UserUpdater userUpdater = new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
     organizationFlags,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationUpdater.class),
@@ -83,7 +88,7 @@ public class ChangePasswordActionTest {
       .setName("John")
       .setPassword("Valar Dohaeris")
       .build(), u -> {
-    });
+      });
     String oldCryptedPassword = db.getDbClient().userDao().selectByLogin(db.getSession(), "john").getCryptedPassword();
     userSessionRule.logIn("john");
 
@@ -139,7 +144,7 @@ public class ChangePasswordActionTest {
 
   @Test
   public void fail_on_disabled_user() {
-    db.users().insertUser(u -> u.setLogin( "polop").setActive(false));
+    db.users().insertUser(u -> u.setLogin("polop").setActive(false));
     userSessionRule.logIn().setSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);

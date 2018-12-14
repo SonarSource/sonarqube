@@ -82,7 +82,7 @@ public class UserUpdaterUpdateTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
+  private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
     new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
@@ -218,8 +218,7 @@ public class UserUpdaterUpdateTest {
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setResourceId(project1.getId()),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setResourceId(project2.getId()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setResourceId(anotherProject.getId())
-      );
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setResourceId(anotherProject.getId()));
     userIndexer.indexOnStartup(null);
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
@@ -232,8 +231,7 @@ public class UserUpdaterUpdateTest {
         tuple("new_login", null),
         tuple("new_login", project1.getId()),
         tuple("new_login", project2.getId()),
-        tuple("another login", anotherProject.getId())
-      );
+        tuple("another login", anotherProject.getId()));
   }
 
   @Test

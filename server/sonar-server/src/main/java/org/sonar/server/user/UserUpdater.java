@@ -33,12 +33,14 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.db.user.UserPropertyDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
@@ -62,6 +64,8 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 @ServerSide
 public class UserUpdater {
 
+  public static final String NOTIFICATIONS_READ_DATE = "notifications.readDate";
+
   private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
@@ -77,16 +81,18 @@ public class UserUpdater {
   private final NewUserNotifier newUserNotifier;
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
-  private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final OrganizationFlags organizationFlags;
   private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
   private final CredentialsLocalAuthentication localAuthentication;
+  private final System2 system2;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
+  public UserUpdater(System2 system2, NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, Configuration config,
     CredentialsLocalAuthentication localAuthentication) {
+    this.system2 = system2;
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
@@ -109,7 +115,7 @@ public class UserUpdater {
     return commitUser(dbSession, disabledUser, beforeCommit, otherUsersToIndex);
   }
 
-  private void reactivateUser(DbSession dbSession, UserDto disabledUser, NewUser newUser) {
+  private void reactivateUser(DbSession dbSession, UserDto reactivatedUser, NewUser newUser) {
     UpdateUser updateUser = new UpdateUser()
       .setName(newUser.name())
       .setEmail(newUser.email())
@@ -123,10 +129,15 @@ public class UserUpdater {
     if (password != null) {
       updateUser.setPassword(password);
     }
-    setOnboarded(disabledUser);
-    updateDto(dbSession, updateUser, disabledUser);
-    updateUser(dbSession, disabledUser);
-    addUserToDefaultOrganizationAndDefaultGroup(dbSession, disabledUser);
+    setOnboarded(reactivatedUser);
+    updateDto(dbSession, updateUser, reactivatedUser);
+    updateUser(dbSession, reactivatedUser);
+    boolean isOrganizationEnabled = organizationFlags.isEnabled(dbSession);
+    if (isOrganizationEnabled) {
+      setNotificationsReadDate(dbSession, reactivatedUser);
+    } else {
+      addUserToDefaultOrganizationAndDefaultGroup(dbSession, reactivatedUser);
+    }
   }
 
   public void updateAndCommit(DbSession dbSession, UserDto dto, UpdateUser updateUser, Consumer<UserDto> beforeCommit, UserDto... otherUsersToIndex) {
@@ -412,7 +423,12 @@ public class UserUpdater {
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {
     userDto.setActive(true);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
-    addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
+    boolean isOrganizationEnabled = organizationFlags.isEnabled(dbSession);
+    if (isOrganizationEnabled) {
+      setNotificationsReadDate(dbSession, userDto);
+    } else {
+      addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
+    }
     organizationUpdater.createForUser(dbSession, userDto);
     return res;
   }
@@ -435,9 +451,6 @@ public class UserUpdater {
   }
 
   private void addUserToDefaultOrganizationAndDefaultGroup(DbSession dbSession, UserDto userDto) {
-    if (organizationFlags.isEnabled(dbSession)) {
-      return;
-    }
     addUserToDefaultOrganization(dbSession, userDto);
     addDefaultGroup(dbSession, userDto);
   }
@@ -455,5 +468,12 @@ public class UserUpdater {
       return;
     }
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(defaultGroup.getId()));
+  }
+
+  private void setNotificationsReadDate(DbSession dbSession, UserDto user) {
+    dbClient.userPropertiesDao().insertOrUpdate(dbSession, new UserPropertyDto()
+      .setUserUuid(user.getUuid())
+      .setKey(NOTIFICATIONS_READ_DATE)
+      .setValue(Long.toString(system2.now())));
   }
 }
