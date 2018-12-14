@@ -47,7 +47,6 @@ import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
-import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
@@ -59,7 +58,6 @@ import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
 import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.scanner.issue.tracking.IssueTransition;
@@ -230,7 +228,6 @@ public class ProjectScanContainer extends ComponentContainer {
       // issue exclusions
       IssueInclusionPatternInitializer.class,
       IssueExclusionPatternInitializer.class,
-      PatternMatcher.class,
       IssueExclusionsLoader.class,
       EnforceIssuesFilter.class,
       IgnoreIssuesFilter.class,

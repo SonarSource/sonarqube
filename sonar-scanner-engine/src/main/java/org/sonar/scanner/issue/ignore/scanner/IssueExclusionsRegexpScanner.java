@@ -24,12 +24,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.Collectors;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 
 public class IssueExclusionsRegexpScanner extends CharHandler {
@@ -38,8 +38,7 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
   private final StringBuilder sb = new StringBuilder();
   private final List<Pattern> allFilePatterns;
   private final List<DoubleRegexpMatcher> blockMatchers;
-  private final String componentKey;
-  private final PatternMatcher patternMatcher;
+  private final DefaultInputFile inputFile;
 
   private int lineIndex = 1;
   private List<LineExclusion> lineExclusions = new ArrayList<>();
@@ -47,22 +46,26 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
   private int fileLength = 0;
   private DoubleRegexpMatcher currentMatcher;
 
-  IssueExclusionsRegexpScanner(String componentKey, List<Pattern> allFilePatterns, List<DoubleRegexpMatcher> blockMatchers, PatternMatcher patternMatcher) {
+  IssueExclusionsRegexpScanner(DefaultInputFile inputFile, List<Pattern> allFilePatterns, List<DoubleRegexpMatcher> blockMatchers) {
     this.allFilePatterns = allFilePatterns;
     this.blockMatchers = blockMatchers;
-    this.patternMatcher = patternMatcher;
-    this.componentKey = componentKey;
-    String relativePath = StringUtils.substringAfterLast(componentKey, ":");
-    LOG.info("'{}' generating issue exclusions", relativePath);
+    this.inputFile = inputFile;
+    LOG.debug("Evaluate issue exclusions for '{}'", inputFile.getProjectRelativePath());
   }
 
   @Override
   public void handleIgnoreEoL(char c) {
+    if (inputFile.isIgnoreAllIssues()) {
+      return;
+    }
     sb.append(c);
   }
 
   @Override
   public void newLine() {
+    if (inputFile.isIgnoreAllIssues()) {
+      return;
+    }
     processLine(sb.toString());
     sb.setLength(0);
     lineIndex++;
@@ -70,6 +73,9 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
 
   @Override
   public void eof() {
+    if (inputFile.isIgnoreAllIssues()) {
+      return;
+    }
     processLine(sb.toString());
 
     if (currentMatcher != null && !currentMatcher.hasSecondPattern()) {
@@ -81,8 +87,8 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
     fileLength = lineIndex;
     if (!lineExclusions.isEmpty()) {
       Set<LineRange> lineRanges = convertLineExclusionsToLineRanges();
-      LOG.debug("- Line exclusions found: {}", lineRanges);
-      patternMatcher.addPatternToExcludeLines(componentKey, lineRanges);
+      LOG.debug("  - Line exclusions found: {}", lineRanges.stream().map(LineRange::toString).collect(Collectors.joining(",")));
+      inputFile.addIgnoreIssuesOnLineRanges(lineRanges.stream().map(r -> new int[] {r.from(), r.to()}).collect(Collectors.toList()));
     }
   }
 
@@ -94,9 +100,9 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
     // first check the single regexp patterns that can be used to totally exclude a file
     for (Pattern pattern : allFilePatterns) {
       if (pattern.matcher(line).find()) {
-        patternMatcher.addPatternToExcludeResource(componentKey);
         // nothing more to do on this file
-        LOG.debug("- Exclusion pattern '{}': every issue in this file will be ignored.", pattern);
+        LOG.debug("  - Exclusion pattern '{}': all issues in this file will be ignored.", pattern);
+        inputFile.setIgnoreAllIssues(true);
         return;
       }
     }

@@ -23,22 +23,31 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
+import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.BlockIssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 
 public final class IssueExclusionsLoader {
+  private static final Logger LOG = Loggers.get(IssueExclusionsLoader.class);
+
   private final List<java.util.regex.Pattern> allFilePatterns;
   private final List<DoubleRegexpMatcher> blockMatchers;
-  private final PatternMatcher patternMatcher;
+  private final IgnoreIssuesFilter ignoreIssuesFilter;
+  private final AnalysisWarnings analysisWarnings;
   private final IssueExclusionPatternInitializer patternsInitializer;
   private final boolean enableCharHandler;
+  private boolean warnDeprecatedIssuePatternAlreadyLogged;
 
-  public IssueExclusionsLoader(IssueExclusionPatternInitializer patternsInitializer, PatternMatcher patternMatcher) {
+  public IssueExclusionsLoader(IssueExclusionPatternInitializer patternsInitializer, IgnoreIssuesFilter ignoreIssuesFilter, AnalysisWarnings analysisWarnings) {
     this.patternsInitializer = patternsInitializer;
-    this.patternMatcher = patternMatcher;
+    this.ignoreIssuesFilter = ignoreIssuesFilter;
+    this.analysisWarnings = analysisWarnings;
     this.allFilePatterns = new ArrayList<>();
     this.blockMatchers = new ArrayList<>();
 
@@ -53,22 +62,31 @@ public final class IssueExclusionsLoader {
     enableCharHandler = !allFilePatterns.isEmpty() || !blockMatchers.isEmpty();
   }
 
-  public boolean shouldExecute() {
-    return patternsInitializer.hasMulticriteriaPatterns();
-  }
-
-  public void addMulticriteriaPatterns(String relativePath, String componentKey) {
+  public void addMulticriteriaPatterns(DefaultInputFile inputFile) {
     for (IssuePattern pattern : patternsInitializer.getMulticriteriaPatterns()) {
-      if (pattern.matchResource(relativePath)) {
-        patternMatcher.addPatternForComponent(componentKey, pattern);
+      if (pattern.matchFile(inputFile.getProjectRelativePath())) {
+        ignoreIssuesFilter.addRuleExclusionPatternForComponent(inputFile, pattern.getRulePattern());
+      } else if (pattern.matchFile(inputFile.getModuleRelativePath())) {
+        warnOnceDeprecatedIssuePattern(
+          "Specifying module-relative paths at project level in property '" + IssueExclusionPatternInitializer.CONFIG_KEY + "' is deprecated. " +
+            "To continue matching files like '" + inputFile.getProjectRelativePath() + "', update this property so that patterns refer to project-relative paths.");
+        ignoreIssuesFilter.addRuleExclusionPatternForComponent(inputFile, pattern.getRulePattern());
       }
     }
   }
 
+  private void warnOnceDeprecatedIssuePattern(String msg) {
+    if (!warnDeprecatedIssuePatternAlreadyLogged) {
+      LOG.warn(msg);
+      analysisWarnings.addUnique(msg);
+      warnDeprecatedIssuePatternAlreadyLogged = true;
+    }
+  }
+
   @CheckForNull
-  public CharHandler createCharHandlerFor(String componentKey) {
+  public CharHandler createCharHandlerFor(DefaultInputFile inputFile) {
     if (enableCharHandler) {
-      return new IssueExclusionsRegexpScanner(componentKey, allFilePatterns, blockMatchers, patternMatcher);
+      return new IssueExclusionsRegexpScanner(inputFile, allFilePatterns, blockMatchers);
     }
     return null;
   }

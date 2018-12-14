@@ -27,32 +27,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.LineRange;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class IssueExclusionsRegexpScannerTest {
-  private String javaFile;
+  private DefaultInputFile javaFile;
 
   @Mock
   private IssueExclusionPatternInitializer patternsInitializer;
-  @Mock
-  private PatternMatcher patternMatcher;
 
   private List<Pattern> allFilePatterns;
   private List<DoubleRegexpMatcher> blockPatterns;
@@ -69,8 +64,8 @@ public class IssueExclusionsRegexpScannerTest {
     });
     allFilePatterns = Collections.singletonList(Pattern.compile("@SONAR-IGNORE-ALL"));
 
-    javaFile = "org.sonar.test.MyFile";
-    regexpScanner = new IssueExclusionsRegexpScanner(javaFile, allFilePatterns, blockPatterns, patternMatcher);
+    javaFile = TestInputFileBuilder.create("foo", "src/Foo.java").build();
+    regexpScanner = new IssueExclusionsRegexpScanner(javaFile, allFilePatterns, blockPatterns);
   }
 
   @Test
@@ -78,8 +73,7 @@ public class IssueExclusionsRegexpScannerTest {
     Path filePath = getResource("file-with-single-regexp-last-line.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isTrue();
   }
 
   @Test
@@ -87,39 +81,34 @@ public class IssueExclusionsRegexpScannerTest {
     Path filePath = getResource("file-with-no-regexp.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isFalse();
   }
 
   @Test
-  public void shouldAddPatternToExcludeFile() throws Exception {
+  public void shouldExcludeAllIssues() throws Exception {
     Path filePath = getResource("file-with-single-regexp.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isTrue();
   }
 
   @Test
-  public void shouldAddPatternToExcludeFileEvenIfAlsoDoubleRegexps() throws Exception {
+  public void shouldExcludeAllIssuesEvenIfAlsoDoubleRegexps() throws Exception {
     Path filePath = getResource("file-with-single-regexp-and-double-regexp.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    Set<LineRange> lineRanges = new HashSet<>();
-    lineRanges.add(new LineRange(5, 26));
-    verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
-    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isTrue();
   }
 
   @Test
-  public void shouldAddPatternToExcludeLines() throws Exception {
+  public void shouldExcludeLines() throws Exception {
     Path filePath = getResource("file-with-double-regexp.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    Set<LineRange> lineRanges = new HashSet<>();
-    lineRanges.add(new LineRange(21, 25));
-    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isFalse();
+    assertThat(IntStream.rangeClosed(1, 20).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(21, 25).allMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(26, 34).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
   }
 
   @Test
@@ -127,10 +116,9 @@ public class IssueExclusionsRegexpScannerTest {
     Path filePath = getResource("file-with-double-regexp-unfinished.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    Set<LineRange> lineRanges = new HashSet<>();
-    lineRanges.add(new LineRange(21, 34));
-    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isFalse();
+    assertThat(IntStream.rangeClosed(1, 20).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(21, 34).allMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
   }
 
   @Test
@@ -138,11 +126,11 @@ public class IssueExclusionsRegexpScannerTest {
     Path filePath = getResource("file-with-double-regexp-twice.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    Set<LineRange> lineRanges = new HashSet<>();
-    lineRanges.add(new LineRange(21, 25));
-    lineRanges.add(new LineRange(29, 33));
-    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(javaFile.isIgnoreAllIssues()).isFalse();
+    assertThat(IntStream.rangeClosed(1, 20).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(21, 25).allMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(26, 28).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(29, 33).allMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
   }
 
   @Test
@@ -150,10 +138,8 @@ public class IssueExclusionsRegexpScannerTest {
     Path filePath = getResource("file-with-double-regexp-wrong-order.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    Set<LineRange> lineRanges = new HashSet<>();
-    lineRanges.add(new LineRange(25, 35));
-    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(IntStream.rangeClosed(1, 24).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(25, 35).allMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
   }
 
   @Test
@@ -161,10 +147,9 @@ public class IssueExclusionsRegexpScannerTest {
     Path filePath = getResource("file-with-double-regexp-mess.txt");
     fileMetadata.readMetadata(Files.newInputStream(filePath), UTF_8, filePath.toString(), regexpScanner);
 
-    Set<LineRange> lineRanges = new HashSet<>();
-    lineRanges.add(new LineRange(21, 29));
-    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
-    verifyNoMoreInteractions(patternMatcher);
+    assertThat(IntStream.rangeClosed(1, 20).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(21, 29).allMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
+    assertThat(IntStream.rangeClosed(30, 37).noneMatch(javaFile::isIgnoreAllIssuesOnLine)).isTrue();
   }
 
   private Path getResource(String fileName) throws URISyntaxException {

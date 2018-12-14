@@ -35,9 +35,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.PathUtils;
+import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
@@ -61,7 +62,8 @@ public class MetadataGeneratorTest {
   public void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
     metadata = new FileMetadata();
-    IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(PatternMatcher.class));
+    IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(IgnoreIssuesFilter.class),
+      mock(AnalysisWarnings.class));
     generator = new MetadataGenerator(statusDetection, metadata, issueExclusionsLoader);
   }
 

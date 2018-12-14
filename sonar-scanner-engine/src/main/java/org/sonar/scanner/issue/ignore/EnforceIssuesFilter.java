@@ -22,31 +22,31 @@ package org.sonar.scanner.issue.ignore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.issue.DefaultFilterableIssue;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 @ThreadSafe
 public class EnforceIssuesFilter implements IssueFilter {
-  private static final Logger LOG = LoggerFactory.getLogger(EnforceIssuesFilter.class);
+  private static final Logger LOG = Loggers.get(EnforceIssuesFilter.class);
 
   private final List<IssuePattern> multicriteriaPatterns;
-  private final InputComponentStore componentStore;
+  private final AnalysisWarnings analysisWarnings;
 
-  public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, InputComponentStore componentStore) {
+  private boolean warnDeprecatedIssuePatternAlreadyLogged;
+
+  public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, AnalysisWarnings analysisWarnings) {
     this.multicriteriaPatterns = Collections.unmodifiableList(new ArrayList<>(patternInitializer.getMulticriteriaPatterns()));
-    this.componentStore = componentStore;
+    this.analysisWarnings = analysisWarnings;
   }
 
   @Override
@@ -56,12 +56,22 @@ public class EnforceIssuesFilter implements IssueFilter {
     IssuePattern matchingPattern = null;
 
     for (IssuePattern pattern : multicriteriaPatterns) {
-      if (pattern.getRulePattern().match(issue.ruleKey().toString())) {
+      if (pattern.matchRule(issue.ruleKey())) {
         atLeastOneRuleMatched = true;
-        String relativePath = getRelativePath(issue.componentKey());
-        if (relativePath != null && pattern.getResourcePattern().match(relativePath)) {
-          atLeastOnePatternFullyMatched = true;
-          matchingPattern = pattern;
+        InputComponent component = ((DefaultFilterableIssue) issue).getComponent();
+        if (component.isFile()) {
+          DefaultInputFile file = (DefaultInputFile) component;
+          if (pattern.matchFile(file.getProjectRelativePath())) {
+            atLeastOnePatternFullyMatched = true;
+            matchingPattern = pattern;
+          } else if (pattern.matchFile(file.getModuleRelativePath())) {
+            warnOnceDeprecatedIssuePattern(
+              "Specifying module-relative paths at project level in property '" + IssueInclusionPatternInitializer.CONFIG_KEY + "' is deprecated. " +
+                "To continue matching files like '" + file.getProjectRelativePath() + "', update this property so that patterns refer to project-relative paths.");
+
+            atLeastOnePatternFullyMatched = true;
+            matchingPattern = pattern;
+          }
         }
       }
     }
@@ -76,13 +86,12 @@ public class EnforceIssuesFilter implements IssueFilter {
     }
   }
 
-  @CheckForNull
-  private String getRelativePath(String componentKey) {
-    InputComponent component = componentStore.getByKey(componentKey);
-    if (component == null || !component.isFile()) {
-      return null;
+  private void warnOnceDeprecatedIssuePattern(String msg) {
+    if (!warnDeprecatedIssuePatternAlreadyLogged) {
+      LOG.warn(msg);
+      analysisWarnings.addUnique(msg);
+      warnDeprecatedIssuePatternAlreadyLogged = true;
     }
-    InputFile inputPath = (InputFile) component;
-    return inputPath.relativePath();
   }
+
 }

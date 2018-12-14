@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Before;
@@ -28,9 +27,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,15 +48,15 @@ public class IssueExclusionsLoaderTest {
   @Mock
   private IssueExclusionPatternInitializer exclusionPatternInitializer;
 
-  private PatternMatcher patternMatcher;
+  private IgnoreIssuesFilter ignoreIssuesFilter;
 
   private IssueExclusionsLoader scanner;
 
   @Before
   public void before() throws Exception {
-    patternMatcher = new PatternMatcher();
+    ignoreIssuesFilter = mock(IgnoreIssuesFilter.class);
     MockitoAnnotations.initMocks(this);
-    scanner = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
+    scanner = new IssueExclusionsLoader(exclusionPatternInitializer, ignoreIssuesFilter, mock(AnalysisWarnings.class));
   }
 
   @Test
@@ -64,54 +66,31 @@ public class IssueExclusionsLoaderTest {
 
   @Test
   public void createComputer() {
-    assertThat(scanner.createCharHandlerFor("src/main/java/Foo.java")).isNull();
+    assertThat(scanner.createCharHandlerFor(TestInputFileBuilder.create("foo", "src/main/java/Foo.java").build())).isNull();
 
     when(exclusionPatternInitializer.getAllFilePatterns()).thenReturn(Collections.singletonList("pattern"));
-    scanner = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
-    assertThat(scanner.createCharHandlerFor("src/main/java/Foo.java")).isNotNull();
-
+    scanner = new IssueExclusionsLoader(exclusionPatternInitializer, ignoreIssuesFilter, mock(AnalysisWarnings.class));
+    assertThat(scanner.createCharHandlerFor(TestInputFileBuilder.create("foo", "src/main/java/Foo.java").build())).isNotNull();
 
   }
 
   @Test
-  public void shouldHavePatternsBasedOnMulticriteriaPattern() {
-    IssuePattern pattern1 = new IssuePattern("org/foo/Bar.java", "*");
-    IssuePattern pattern2 = new IssuePattern("org/foo/Hello.java", "checkstyle:MagicNumber");
+  public void populateRuleExclusionPatterns() {
+    IssuePattern pattern1 = new IssuePattern("org/foo/Bar*.java", "*");
+    IssuePattern pattern2 = new IssuePattern("org/foo/Hell?.java", "checkstyle:MagicNumber");
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(Arrays.asList(new IssuePattern[] {pattern1, pattern2}));
 
-    IssueExclusionsLoader loader = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
-    loader.addMulticriteriaPatterns("org/foo/Bar.java", "org.foo.Bar");
-    loader.addMulticriteriaPatterns("org/foo/Baz.java", "org.foo.Baz");
-    loader.addMulticriteriaPatterns("org/foo/Hello.java", "org.foo.Hello");
+    IssueExclusionsLoader loader = new IssueExclusionsLoader(exclusionPatternInitializer, ignoreIssuesFilter, mock(AnalysisWarnings.class));
+    DefaultInputFile file1 = TestInputFileBuilder.create("foo", "org/foo/Bar.java").build();
+    loader.addMulticriteriaPatterns(file1);
+    DefaultInputFile file2 = TestInputFileBuilder.create("foo", "org/foo/Baz.java").build();
+    loader.addMulticriteriaPatterns(file2);
+    DefaultInputFile file3 = TestInputFileBuilder.create("foo", "org/foo/Hello.java").build();
+    loader.addMulticriteriaPatterns(file3);
 
-    assertThat(patternMatcher.getPatternsForComponent("org.foo.Bar")).hasSize(1);
-    assertThat(patternMatcher.getPatternsForComponent("org.foo.Baz")).hasSize(0);
-    assertThat(patternMatcher.getPatternsForComponent("org.foo.Hello")).hasSize(1);
+    verify(ignoreIssuesFilter).addRuleExclusionPatternForComponent(file1, pattern1.getRulePattern());
+    verify(ignoreIssuesFilter).addRuleExclusionPatternForComponent(file3, pattern2.getRulePattern());
+    verifyNoMoreInteractions(ignoreIssuesFilter);
   }
 
-  @Test
-  public void shouldAnalyzeProject() throws IOException {
-    IssuePattern pattern = new IssuePattern("**", "*");
-    when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(Collections.singletonList(pattern));
-    when(exclusionPatternInitializer.hasMulticriteriaPatterns()).thenReturn(true);
-
-    PatternMatcher patternMatcher = mock(PatternMatcher.class);
-    IssueExclusionsLoader loader = new IssueExclusionsLoader(exclusionPatternInitializer, patternMatcher);
-    assertThat(loader.shouldExecute()).isTrue();
-    loader.addMulticriteriaPatterns("src/main/java/Foo.java", "polop:src/main/java/Foo.java");
-    loader.addMulticriteriaPatterns("src/test/java/FooTest.java", "polop:src/test/java/FooTest.java");
-
-    verify(patternMatcher).addPatternForComponent("polop:src/main/java/Foo.java", pattern);
-    verify(patternMatcher).addPatternForComponent("polop:src/test/java/FooTest.java", pattern);
-    verifyNoMoreInteractions(patternMatcher);
-  }
-
-  @Test
-  public void shouldExecute() {
-    when(exclusionPatternInitializer.hasMulticriteriaPatterns()).thenReturn(true);
-    assertThat(scanner.shouldExecute()).isTrue();
-
-    when(exclusionPatternInitializer.hasMulticriteriaPatterns()).thenReturn(false);
-    assertThat(scanner.shouldExecute()).isFalse();
-  }
 }

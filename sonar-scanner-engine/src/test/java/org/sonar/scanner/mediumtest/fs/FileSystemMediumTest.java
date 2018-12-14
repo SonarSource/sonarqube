@@ -328,8 +328,8 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(logTester.logs()).containsOnlyOnce("'src" + File.separator + "myfile.binary' indexed with language 'null'");
-    assertThat(logTester.logs()).doesNotContain("'src/myfile.binary' generating issue exclusions");
-    assertThat(logTester.logs()).containsOnlyOnce("'src/sample.xoo' generating issue exclusions");
+    assertThat(logTester.logs()).doesNotContain("Evaluate issue exclusions for 'src/myfile.binary'");
+    assertThat(logTester.logs()).containsOnlyOnce("Evaluate issue exclusions for 'src/sample.xoo'");
   }
 
   @Test
@@ -354,8 +354,8 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logTester.logs()).containsOnlyOnce("- Exclusion pattern 'pattern': every issue in this file will be ignored.");
-    assertThat(logTester.logs()).containsOnlyOnce("'src/myfile.binary' generating issue exclusions");
+    assertThat(logTester.logs()).containsSequence("Evaluate issue exclusions for 'src/sample.xoo'",
+      "  - Exclusion pattern 'pattern': all issues in this file will be ignored.");
   }
 
   @Test

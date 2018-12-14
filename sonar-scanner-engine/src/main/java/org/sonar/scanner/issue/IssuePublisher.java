@@ -70,7 +70,7 @@ public class IssuePublisher {
 
     ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.scannerId(), activeRule.severity());
 
-    if (filters.accept(inputComponent.key(), rawIssue)) {
+    if (filters.accept(inputComponent, rawIssue)) {
       write(inputComponent.scannerId(), rawIssue);
       return true;
     }

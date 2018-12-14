@@ -35,11 +35,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProjectReactorBuilderTest {
 
@@ -399,7 +401,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(Maps.<String, String>newHashMap()));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(Maps.<String, String>newHashMap()), mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
@@ -411,7 +413,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props), mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -423,7 +425,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props), mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -482,7 +484,7 @@ public class ProjectReactorBuilderTest {
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
     ScannerProperties bootstrapProps = new ScannerProperties(props);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mock(AnalysisWarnings.class)).execute();
     return projectReactor.getRoot();
   }
 

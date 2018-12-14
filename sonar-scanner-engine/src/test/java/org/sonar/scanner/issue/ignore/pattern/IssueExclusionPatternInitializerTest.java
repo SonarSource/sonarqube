@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.IssueExclusionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ public class IssueExclusionPatternInitializerTest {
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void shouldLogInvalidResourceKey() {
     settings.setProperty("sonar.issue.ignore" + ".multicriteria", "1");
     settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "resourceKey", "");
@@ -51,7 +52,7 @@ public class IssueExclusionPatternInitializerTest {
     patternsInitializer = new IssueExclusionPatternInitializer(settings.asConfig());
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void shouldLogInvalidRuleKey() {
     settings.setProperty("sonar.issue.ignore" + ".multicriteria", "1");
     settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "resourceKey", "*");
@@ -78,7 +79,7 @@ public class IssueExclusionPatternInitializerTest {
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(0);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void shouldLogInvalidStartBlockPattern() {
     settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY, "1");
     settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionProperties.BEGIN_BLOCK_REGEXP, "");
@@ -101,7 +102,7 @@ public class IssueExclusionPatternInitializerTest {
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(2);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = MessageException.class)
   public void shouldLogInvalidAllFilePattern() {
     settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY, "1");
     settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY + ".1." + IssueExclusionProperties.FILE_REGEXP, "");

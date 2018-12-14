@@ -31,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -48,7 +49,6 @@ import org.sonar.scanner.report.ReportPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -130,7 +130,7 @@ public class IssuePublisherTest {
       .forRule(SQUID_RULE_KEY)
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL);
 
-    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
@@ -171,7 +171,7 @@ public class IssuePublisherTest {
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
       .forRule(SQUID_RULE_KEY);
-    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
@@ -193,7 +193,7 @@ public class IssuePublisherTest {
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(SQUID_RULE_KEY);
 
-    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(false);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(false);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
@@ -240,7 +240,7 @@ public class IssuePublisherTest {
       .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message(""))
       .forRule(NOSONAR_RULE_KEY);
 
-    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
+    when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 

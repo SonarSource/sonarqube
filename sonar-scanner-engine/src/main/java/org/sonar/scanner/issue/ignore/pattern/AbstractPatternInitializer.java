@@ -22,9 +22,9 @@ package org.sonar.scanner.issue.ignore.pattern;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -59,13 +59,15 @@ public abstract class AbstractPatternInitializer {
     multicriteriaPatterns = new ArrayList<>();
     for (String id : settings.getStringArray(getMulticriteriaConfigurationKey())) {
       String propPrefix = getMulticriteriaConfigurationKey() + "." + id + ".";
-      String resourceKeyPattern = settings.get(propPrefix + "resourceKey").orElse(null);
+      String filePathPattern = settings.get(propPrefix + "resourceKey").orElse(null);
+      if (StringUtils.isBlank(filePathPattern)) {
+        throw MessageException.of("Issue exclusions are misconfigured. File pattern is mandatory for each entry of '" + getMulticriteriaConfigurationKey() + "'");
+      }
       String ruleKeyPattern = settings.get(propPrefix + "ruleKey").orElse(null);
-      String lineRange = "*";
-      String[] fields = new String[] {resourceKeyPattern, ruleKeyPattern, lineRange};
-      PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
-      Set<LineRange> rangeOfLines = PatternDecoder.decodeRangeOfLines(firstNonNull(lineRange, "*"));
-      IssuePattern pattern = new IssuePattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"), rangeOfLines);
+      if (StringUtils.isBlank(ruleKeyPattern)) {
+        throw MessageException.of("Issue exclusions are misconfigured. Rule key pattern is mandatory for each entry of '" + getMulticriteriaConfigurationKey() + "'");
+      }
+      IssuePattern pattern = new IssuePattern(firstNonNull(filePathPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
 
       multicriteriaPatterns.add(pattern);
     }

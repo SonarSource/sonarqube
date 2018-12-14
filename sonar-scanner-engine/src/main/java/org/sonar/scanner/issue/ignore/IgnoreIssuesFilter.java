@@ -19,42 +19,55 @@
  */
 package org.sonar.scanner.issue.ignore;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.api.utils.WildcardPattern;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 public class IgnoreIssuesFilter implements IssueFilter {
 
-  private PatternMatcher patternMatcher;
+  private Multimap<InputComponent, WildcardPattern> rulePatternByComponent = LinkedHashMultimap.create();
 
-  private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesFilter.class);
-
-  public IgnoreIssuesFilter(PatternMatcher patternMatcher) {
-    this.patternMatcher = patternMatcher;
-  }
+  private static final Logger LOG = Loggers.get(IgnoreIssuesFilter.class);
 
   @Override
   public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
-    if (hasMatchFor(issue)) {
+    InputComponent component = ((DefaultFilterableIssue) issue).getComponent();
+    if (component.isFile() && ((DefaultInputFile) component).isIgnoreAllIssues()) {
+      return false;
+    }
+    if (component.isFile() && ((DefaultInputFile) component).isIgnoreAllIssuesOnLine(issue.line())) {
+      return false;
+    }
+    if (hasRuleMatchFor(component, issue)) {
       return false;
     }
     return chain.accept(issue);
   }
 
-  private boolean hasMatchFor(FilterableIssue issue) {
-    IssuePattern pattern = patternMatcher.getMatchingPattern(issue.componentKey(), issue.ruleKey(), issue.line());
-    if (pattern != null) {
-      logExclusion(issue, pattern);
-      return true;
+  public void addRuleExclusionPatternForComponent(DefaultInputFile inputFile, WildcardPattern rulePattern) {
+    if ("*".equals(rulePattern.toString())) {
+      inputFile.setIgnoreAllIssues(true);
+    } else {
+      rulePatternByComponent.put(inputFile, rulePattern);
     }
-    return false;
   }
 
-  private static void logExclusion(FilterableIssue issue, IssuePattern pattern) {
-    LOG.debug("Issue {} ignored by exclusion pattern {}", issue, pattern);
+  private boolean hasRuleMatchFor(InputComponent component, FilterableIssue issue) {
+    for (WildcardPattern pattern : rulePatternByComponent.get(component)) {
+      if (pattern.match(issue.ruleKey().toString())) {
+        LOG.debug("Issue {} ignored by exclusion pattern {}", issue, pattern);
+        return true;
+      }
+    }
+    return false;
+
   }
 }

@@ -29,7 +29,9 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -59,6 +61,8 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private boolean published;
   private boolean excludedForCoverage;
   private final Set<Integer> noSonarLines = new HashSet<>();
+  private boolean ignoreAllIssues;
+  private Collection<int[]> ignoreIssuesOnlineRanges = new ArrayList<>();
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     this(indexedFile, metadataGenerator, null);
@@ -376,4 +380,22 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return this.noSonarLines.contains(line);
   }
 
+  public boolean isIgnoreAllIssues() {
+    return ignoreAllIssues;
+  }
+
+  public void setIgnoreAllIssues(boolean ignoreAllIssues) {
+    this.ignoreAllIssues = ignoreAllIssues;
+  }
+
+  public void addIgnoreIssuesOnLineRanges(Collection<int[]> lineRanges) {
+    this.ignoreIssuesOnlineRanges.addAll(lineRanges);
+  }
+
+  public boolean isIgnoreAllIssuesOnLine(@Nullable Integer line) {
+    if (line == null) {
+      return false;
+    }
+    return ignoreIssuesOnlineRanges.stream().anyMatch(r -> r[0] <= line && line <= r[1]);
+  }
 }

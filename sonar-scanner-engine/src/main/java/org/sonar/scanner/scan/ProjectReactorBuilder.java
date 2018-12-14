@@ -20,17 +20,18 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
@@ -38,15 +39,20 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.config.IssueExclusionProperties;
 import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.util.ScannerUtils;
 
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
-
 
 /**
  * Class that creates a project definition based on a set of properties.
@@ -95,17 +101,23 @@ public class ProjectReactorBuilder {
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {MODULE_KEY_PROPERTY};
 
+  private static final Collection<String> UNSUPPORTED_PROPS_FOR_MODULES = asList(IssueExclusionPatternInitializer.CONFIG_KEY, IssueInclusionPatternInitializer.CONFIG_KEY,
+    IssueExclusionProperties.PATTERNS_BLOCK_KEY, IssueExclusionProperties.PATTERNS_ALLFILE_KEY);
+
   /**
    * Properties that must not be passed from the parent project to its children.
    */
-  private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
-    CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
+  private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Stream.concat(Stream.of(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
+    CoreProperties.PROJECT_DESCRIPTION_PROPERTY), UNSUPPORTED_PROPS_FOR_MODULES.stream()).collect(toList());
 
   private final ScannerProperties scannerProps;
+  private final AnalysisWarnings analysisWarnings;
   private File rootProjectWorkDir;
+  private boolean warnExclusionsAlreadyLogged;
 
-  public ProjectReactorBuilder(ScannerProperties props) {
+  public ProjectReactorBuilder(ScannerProperties props, AnalysisWarnings analysisWarnings) {
     this.scannerProps = props;
+    this.analysisWarnings = analysisWarnings;
   }
 
   public ProjectReactor execute() {
@@ -121,7 +133,7 @@ public class ProjectReactorBuilder {
   }
 
   private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleIdPath, String currentModuleId, String currentModuleIdPath,
-                                                Map<String, String> parentProperties) {
+    Map<String, String> parentProperties) {
     if (propertiesByModuleIdPath.containsKey(currentModuleIdPath)) {
       throw MessageException.of(String.format("Two modules have the same id: '%s'. Each module must have a unique id.", currentModuleId));
     }
@@ -170,12 +182,30 @@ public class ProjectReactorBuilder {
       workDir = initRootProjectWorkDir(baseDir, moduleProperties);
     } else {
       workDir = initModuleWorkDir(baseDir, moduleProperties);
+      checkUnsupportedIssueExclusions(moduleProperties);
     }
 
     return ProjectDefinition.create().setProperties(moduleProperties)
       .setBaseDir(baseDir)
       .setWorkDir(workDir)
       .setBuildDir(initModuleBuildDir(baseDir, moduleProperties));
+  }
+
+  private void checkUnsupportedIssueExclusions(Map<String, String> moduleProperties) {
+    UNSUPPORTED_PROPS_FOR_MODULES.stream().forEach(p -> {
+      if (moduleProperties.containsKey(p)) {
+        warnOnceUnsupportedIssueExclusions(
+          "Specifying issue exclusions at module level is not supported anymore. Configure the property '" + p + "' and any other issue exclusions at project level.");
+      }
+    });
+  }
+
+  private void warnOnceUnsupportedIssueExclusions(String msg) {
+    if (!warnExclusionsAlreadyLogged) {
+      LOG.warn(msg);
+      analysisWarnings.addUnique(msg);
+      warnExclusionsAlreadyLogged = true;
+    }
   }
 
   @VisibleForTesting

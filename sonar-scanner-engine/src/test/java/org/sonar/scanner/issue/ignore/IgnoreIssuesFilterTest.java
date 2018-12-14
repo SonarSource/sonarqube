@@ -19,42 +19,57 @@
  */
 package org.sonar.scanner.issue.ignore;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.api.utils.WildcardPattern;
+import org.sonar.scanner.issue.DefaultFilterableIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class IgnoreIssuesFilterTest {
 
-  private PatternMatcher exclusionPatternMatcher = mock(PatternMatcher.class);
-  private FilterableIssue issue = mock(FilterableIssue.class, Mockito.RETURNS_DEEP_STUBS);
+  private DefaultFilterableIssue issue = mock(DefaultFilterableIssue.class);
   private IssueFilterChain chain = mock(IssueFilterChain.class);
-  private IgnoreIssuesFilter underTest = new IgnoreIssuesFilter(exclusionPatternMatcher);
+  private IgnoreIssuesFilter underTest = new IgnoreIssuesFilter();
+  private DefaultInputFile component;
+  private RuleKey ruleKey = RuleKey.of("foo", "bar");
 
-  @Test
-  public void shouldPassToChainIfMatcherHasNoPatternForIssue() {
-    when(exclusionPatternMatcher.getMatchingPattern(anyString(), any(RuleKey.class), any(Integer.class)))
-      .thenReturn(null);
-    when(chain.accept(issue)).thenReturn(true);
-    assertThat(underTest.accept(issue, chain)).isTrue();
+  @Before
+  public void prepare() {
+    component = mock(DefaultInputFile.class);
+    when(issue.getComponent()).thenReturn(component);
+    when(issue.ruleKey()).thenReturn(ruleKey);
   }
 
   @Test
-  public void shouldRejectIfPatternMatches() {
-    IssuePattern pattern = mock(IssuePattern.class);
-    when(exclusionPatternMatcher.getMatchingPattern(anyString(), any(RuleKey.class), any(Integer.class)))
-      .thenReturn(pattern);
+  public void shouldPassToChainIfMatcherHasNoPatternForIssue() {
+    when(chain.accept(issue)).thenReturn(true);
+    assertThat(underTest.accept(issue, chain)).isTrue();
+    verify(chain).accept(any());
+  }
+
+  @Test
+  public void shouldRejectIfRulePatternMatches() {
+    WildcardPattern pattern = mock(WildcardPattern.class);
+    when(pattern.match(ruleKey.toString())).thenReturn(true);
+    underTest.addRuleExclusionPatternForComponent(component, pattern);
 
     assertThat(underTest.accept(issue, chain)).isFalse();
   }
 
+  @Test
+  public void shouldAcceptIfRulePatternDoesNotMatch() {
+    WildcardPattern pattern = mock(WildcardPattern.class);
+    when(pattern.match(ruleKey.toString())).thenReturn(false);
+    underTest.addRuleExclusionPatternForComponent(component, pattern);
+
+    assertThat(underTest.accept(issue, chain)).isFalse();
+  }
 }

@@ -22,6 +22,7 @@ package org.sonar.scanner.issue;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.Constants.Severity;
@@ -36,14 +37,15 @@ public class DefaultFilterableIssueTest {
   private DefaultFilterableIssue issue;
   private DefaultInputProject mockedProject;
   private ProjectAnalysisInfo projectAnalysisInfo;
-  private String componentKey;
+  private InputComponent component;
   private Issue rawIssue;
 
   @Before
   public void setUp() {
     mockedProject = mock(DefaultInputProject.class);
     projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    componentKey = "component";
+    component = mock(InputComponent.class);
+    when(component.key()).thenReturn("foo");
   }
 
   private Issue createIssue() {
@@ -68,12 +70,12 @@ public class DefaultFilterableIssueTest {
   @Test
   public void testRoundTrip() {
     rawIssue = createIssue();
-    issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, componentKey);
+    issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, component);
 
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(10_000));
     when(mockedProject.key()).thenReturn("projectKey");
 
-    assertThat(issue.componentKey()).isEqualTo(componentKey);
+    assertThat(issue.componentKey()).isEqualTo(component.key());
     assertThat(issue.creationDate()).isEqualTo(new Date(10_000));
     assertThat(issue.line()).isEqualTo(30);
     assertThat(issue.textRange().start().line()).isEqualTo(30);
@@ -88,7 +90,7 @@ public class DefaultFilterableIssueTest {
   @Test
   public void nullValues() {
     rawIssue = createIssueWithoutFields();
-    issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, componentKey);
+    issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, component);
 
     assertThat(issue.line()).isNull();
     assertThat(issue.gap()).isNull();

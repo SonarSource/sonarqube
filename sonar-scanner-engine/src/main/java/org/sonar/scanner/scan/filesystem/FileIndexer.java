@@ -134,9 +134,7 @@ public class FileIndexer {
     }
     checkIfAlreadyIndexed(inputFile);
     componentStore.put(module.key(), inputFile);
-    if (issueExclusionsLoader.shouldExecute()) {
-      issueExclusionsLoader.addMulticriteriaPatterns(inputFile.getProjectRelativePath(), inputFile.key());
-    }
+    issueExclusionsLoader.addMulticriteriaPatterns(inputFile);
     LOG.debug("'{}' indexed {}with language '{}'", projectRelativePath, type == Type.TEST ? "as test " : "", inputFile.language());
     evaluateCoverageExclusions(moduleCoverageExclusions, inputFile);
     if (properties.preloadFileMetadata()) {

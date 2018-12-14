@@ -24,12 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.IssueExclusionProperties;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
 public class IssueExclusionPatternInitializer extends AbstractPatternInitializer {
 
+  public static final String CONFIG_KEY = IssueExclusionProperties.EXCLUSION_KEY_PREFIX + ".multicriteria";
   private List<BlockIssuePattern> blockPatterns;
   private List<String> allFilePatterns;
 
@@ -40,7 +42,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
 
   @Override
   protected String getMulticriteriaConfigurationKey() {
-    return IssueExclusionProperties.EXCLUSION_KEY_PREFIX + ".multicriteria";
+    return CONFIG_KEY;
   }
 
   @Override
@@ -54,9 +56,11 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
     for (String id : getSettings().getStringArray(IssueExclusionProperties.PATTERNS_BLOCK_KEY)) {
       String propPrefix = IssueExclusionProperties.PATTERNS_BLOCK_KEY + "." + id + ".";
       String beginBlockRegexp = getSettings().get(propPrefix + IssueExclusionProperties.BEGIN_BLOCK_REGEXP).orElse(null);
+      if (StringUtils.isBlank(beginBlockRegexp)) {
+        throw MessageException.of("Issue exclusions are misconfigured. Start block regexp is mandatory for each entry of '" + IssueExclusionProperties.PATTERNS_BLOCK_KEY + "'");
+      }
       String endBlockRegexp = getSettings().get(propPrefix + IssueExclusionProperties.END_BLOCK_REGEXP).orElse(null);
-      String[] fields = new String[] {beginBlockRegexp, endBlockRegexp};
-      PatternDecoder.checkDoubleRegexpLineConstraints(StringUtils.join(fields, ","), fields);
+      // As per configuration help, missing second field means: from start regexp to EOF
       BlockIssuePattern pattern = new BlockIssuePattern(nullToEmpty(beginBlockRegexp), nullToEmpty(endBlockRegexp));
       blockPatterns.add(pattern);
     }
@@ -67,7 +71,9 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
     for (String id : getSettings().getStringArray(IssueExclusionProperties.PATTERNS_ALLFILE_KEY)) {
       String propPrefix = IssueExclusionProperties.PATTERNS_ALLFILE_KEY + "." + id + ".";
       String allFileRegexp = getSettings().get(propPrefix + IssueExclusionProperties.FILE_REGEXP).orElse(null);
-      PatternDecoder.checkWholeFileRegexp(allFileRegexp);
+      if (StringUtils.isBlank(allFileRegexp)) {
+        throw MessageException.of("Issue exclusions are misconfigured. Remove blank entries from '" + IssueExclusionProperties.PATTERNS_ALLFILE_KEY + "'");
+      }
       allFilePatterns.add(nullToEmpty(allFileRegexp));
     }
     allFilePatterns = Collections.unmodifiableList(allFilePatterns);

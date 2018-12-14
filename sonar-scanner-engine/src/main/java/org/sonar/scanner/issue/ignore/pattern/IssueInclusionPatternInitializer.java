@@ -24,12 +24,14 @@ import org.sonar.core.config.IssueExclusionProperties;
 
 public class IssueInclusionPatternInitializer extends AbstractPatternInitializer {
 
+  public static final String CONFIG_KEY = IssueExclusionProperties.INCLUSION_KEY_PREFIX + ".multicriteria";
+
   public IssueInclusionPatternInitializer(Configuration settings) {
     super(settings);
   }
 
   @Override
   protected String getMulticriteriaConfigurationKey() {
-    return IssueExclusionProperties.INCLUSION_KEY_PREFIX + ".multicriteria";
+    return CONFIG_KEY;
   }
 }

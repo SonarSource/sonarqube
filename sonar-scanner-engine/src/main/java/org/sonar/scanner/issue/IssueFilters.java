@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.issue;
 
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
@@ -45,8 +46,8 @@ public class IssueFilters {
     this(project, projectAnalysisInfo, new IssueFilter[0]);
   }
 
-  public boolean accept(String componentKey, ScannerReport.Issue rawIssue) {
-    FilterableIssue fIssue = new DefaultFilterableIssue(project, projectAnalysisInfo, rawIssue, componentKey);
+  public boolean accept(InputComponent component, ScannerReport.Issue rawIssue) {
+    FilterableIssue fIssue = new DefaultFilterableIssue(project, projectAnalysisInfo, rawIssue, component);
     return filterChain.accept(fIssue);
   }
 
