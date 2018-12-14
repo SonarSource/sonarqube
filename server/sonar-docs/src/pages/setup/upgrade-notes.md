@@ -5,9 +5,18 @@ url: /setup/upgrade-notes/
 
 ## Release 7.5 Upgrade Notes  
 **Two Vulnerabilities Patched**  
-An open redirect vlunerability on login was corrected ([SONAR-11475](https://jira.sonarsource.com/browse/SONAR-11475)).
+An open redirect vulnerability on login was corrected ([SONAR-11475](https://jira.sonarsource.com/browse/SONAR-11475)).
 
-An XSS vulnerability in custom project links was also patched. We would like to thank Daniele Costa, NCC Group for reporting the issue. ([SONAR-11506](https://jira.sonarsource.com/browse/SONAR-11506)).
+An XSS vulnerability in custom project links was also patched. ([SONAR-11506](https://jira.sonarsource.com/browse/SONAR-11506)).
+
+**Deadlock Fixed**
+The deadlock that could occur with the combination of 
+* SQL Server
+* Multiple workers
+* Analysis of projects and portfolios  
+
+has been fixed ([SONAR-11467](https://jira.sonarsource.com/browse/SONAR-11467)).
+
 
 **DB Connection Pool Defaults Restored**  
 Database connection pool defaults have been restored to their pre-SonarQube 7.4 values. They were inadvertently affected by a change of connection pooling in 7.4 ([SONAR-11539](https://jira.sonarsource.com/browse/SONAR-11539)). 
