@@ -114,7 +114,7 @@ interface FeatureProps {
 export function Feature({ feature }: FeatureProps) {
   return (
     <div className="feature">
-      <ul className="categories">
+      <ul className="categories spacer-bottom">
         {feature.categories.map(category => (
           <li key={category.name} style={{ backgroundColor: category.color }}>
             {category.name}

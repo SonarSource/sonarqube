@@ -19,7 +19,9 @@
  */
 import * as React from 'react';
 import NotificationsList from './NotificationsList';
+import SonarCloudNotifications from './SonarCloudNotifications';
 import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 
 interface Props {
   addNotification: (n: T.Notification) => void;
@@ -31,33 +33,36 @@ interface Props {
 
 export default function GlobalNotifications(props: Props) {
   return (
-    <section className="boxed-group">
-      <h2>{translate('my_profile.overall_notifications.title')}</h2>
+    <>
+      <section className="boxed-group">
+        <h2>{translate('my_profile.overall_notifications.title')}</h2>
 
-      <div className="boxed-group-inner">
-        <table className="form">
-          <thead>
-            <tr>
-              <th />
-              {props.channels.map(channel => (
-                <th className="text-center" key={channel}>
-                  <h4>{translate('notification.channel', channel)}</h4>
-                </th>
-              ))}
-            </tr>
-          </thead>
+        <div className="boxed-group-inner">
+          <table className="form">
+            <thead>
+              <tr>
+                <th />
+                {props.channels.map(channel => (
+                  <th className="text-center" key={channel}>
+                    <h4>{translate('notification.channel', channel)}</h4>
+                  </th>
+                ))}
+              </tr>
+            </thead>
 
-          <NotificationsList
-            channels={props.channels}
-            checkboxId={getCheckboxId}
-            notifications={props.notifications}
-            onAdd={props.addNotification}
-            onRemove={props.removeNotification}
-            types={props.types}
-          />
-        </table>
-      </div>
-    </section>
+            <NotificationsList
+              channels={props.channels}
+              checkboxId={getCheckboxId}
+              notifications={props.notifications}
+              onAdd={props.addNotification}
+              onRemove={props.removeNotification}
+              types={props.types}
+            />
+          </table>
+        </div>
+      </section>
+      {isSonarCloud() && <SonarCloudNotifications />}
+    </>
   );
 }
 

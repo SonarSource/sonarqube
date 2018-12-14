@@ -5,7 +5,7 @@ exports[`#Feature should render correctly 1`] = `
   className="feature"
 >
   <ul
-    className="categories"
+    className="categories spacer-bottom"
   >
     <li
       key="BitBucket"
@@ -37,7 +37,7 @@ exports[`#Feature should render correctly 2`] = `
   className="feature"
 >
   <ul
-    className="categories"
+    className="categories spacer-bottom"
   >
     <li
       key="Java"

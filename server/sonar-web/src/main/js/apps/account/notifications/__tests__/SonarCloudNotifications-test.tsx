@@ -19,36 +19,17 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import GlobalNotifications from '../GlobalNotifications';
-import { isSonarCloud } from '../../../../helpers/system';
-
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+import { SonarCloudNotifications } from '../SonarCloudNotifications';
 
 it('should match snapshot', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should show SonarCloud options if in SC context', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-function shallowRender(props = {}) {
-  const channels = ['channel1', 'channel2'];
-  const types = ['type1', 'type2'];
-  const notifications = [
-    { channel: 'channel1', type: 'type1' },
-    { channel: 'channel1', type: 'type2' },
-    { channel: 'channel2', type: 'type2' }
-  ];
-
+function shallowRender(props: Partial<SonarCloudNotifications['props']> = {}) {
   return shallow(
-    <GlobalNotifications
-      addNotification={jest.fn()}
-      channels={channels}
-      notifications={notifications}
-      removeNotification={jest.fn()}
-      types={types}
+    <SonarCloudNotifications
+      notificationsOptOut={true}
+      setCurrentUserSetting={jest.fn()}
       {...props}
     />
   );
