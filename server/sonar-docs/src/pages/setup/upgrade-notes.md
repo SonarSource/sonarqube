@@ -4,12 +4,15 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 7.5 Upgrade Notes  
+**More Issues Backdated**  
+Additional cases of issue backdating have been added, so fewer genuinely old issues will be reported in the New Code period ([MMF-1287](https://jira.sonarsource.com/browse/MMF-1287))
+
 **Two Vulnerabilities Patched**  
 An open redirect vulnerability on login was corrected ([SONAR-11475](https://jira.sonarsource.com/browse/SONAR-11475)).
 
 An XSS vulnerability in custom project links was also patched. ([SONAR-11506](https://jira.sonarsource.com/browse/SONAR-11506)).
 
-**Deadlock Fixed**
+**Deadlock Fixed**  
 The deadlock that could occur with the combination of 
 * SQL Server
 * Multiple workers
@@ -20,9 +23,6 @@ has been fixed ([SONAR-11467](https://jira.sonarsource.com/browse/SONAR-11467)).
 
 **DB Connection Pool Defaults Restored**  
 Database connection pool defaults have been restored to their pre-SonarQube 7.4 values. They were inadvertently affected by a change of connection pooling in 7.4 ([SONAR-11539](https://jira.sonarsource.com/browse/SONAR-11539)). 
-
-**More Issues Backdated**  
-Additional cases of issue backdating have been added, so fewer genuinely old issues will be reported in the New Code period ([MMF-1287](https://jira.sonarsource.com/browse/MMF-1287))
 
 [Full Release Notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14693)
 
@@ -46,7 +46,7 @@ Analyzing a C# / VB.NET solution now automatically imports issues found by attac
 **More memory may be needed for analysis**  
 Changes in the advanced security analysis available in Developer Edition and above may mean that a larger heap is needed during analysis.
 
-**Analysis warnings in UI**
+**Analysis warnings in UI**  
 Some `WARN` messages generated during analysis are now available via the UI ([MMF-1244](https://jira.sonarsource.com/browse/MMF-1244)). More messages will be available as new versions of language analyzers are released.
 
 **"Leak" replaced with "New Code"**  
@@ -57,7 +57,7 @@ Wording has been updated throughout the interface to replace "Leak" and "Leak Pe
 
 ## Release 7.3 Upgrade Notes
 
-**New "Administer Security Hotspots" Permission** 
+**New "Administer Security Hotspots" Permission**  
 During the upgrade, the new "Administer Security Hotspots" permission is granted to all users/groups who already have the "Administer Issues" permission.
 
 **Expanded Compute Engine Logs**  
