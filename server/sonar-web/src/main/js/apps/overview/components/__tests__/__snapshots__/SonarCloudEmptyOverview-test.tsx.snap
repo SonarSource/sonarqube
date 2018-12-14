@@ -8,7 +8,7 @@ exports[`renders correctly 1`] = `
     className="overview page-with-sidebar"
   >
     <div
-      className="overview-main page-main sonarcloud"
+      className="overview-main page-main"
     >
       <AnalyzeTutorial
         component={
@@ -68,7 +68,7 @@ exports[`should not render the tutorial 1`] = `
     className="overview page-with-sidebar"
   >
     <div
-      className="overview-main page-main sonarcloud"
+      className="overview-main page-main"
     />
     <div
       className="overview-sidebar page-sidebar-fixed"
@@ -107,7 +107,7 @@ exports[`should render another message when there are branches 1`] = `
     className="overview page-with-sidebar"
   >
     <div
-      className="overview-main page-main sonarcloud"
+      className="overview-main page-main"
     >
       <WarningMessage
         branchLike={
@@ -157,7 +157,7 @@ exports[`should render another message when there are branches 2`] = `
     className="overview page-with-sidebar"
   >
     <div
-      className="overview-main page-main sonarcloud"
+      className="overview-main page-main"
     >
       <WarningMessage
         branchLike={

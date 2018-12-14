@@ -165,11 +165,15 @@ blockquote cite {
 
 small,
 .small {
-  font-size: 92.30769231%;
+  font-size: var(--smallFontSize);
 }
 
 .big {
-  font-size: 123.07692308%;
+  font-size: var(--bigFontSize);
+}
+
+.huge {
+  font-size: var(--hugeFontSize);
 }
 
 .zero-font-size {

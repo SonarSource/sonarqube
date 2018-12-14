@@ -72,7 +72,7 @@ exports[`#Notification should render correctly 1`] = `
 >
   <h4>
     <DateFormatter
-      date={2018-04-04T22:00:00.000Z}
+      date="2018-04-05"
       long={false}
     />
   </h4>
@@ -100,7 +100,7 @@ exports[`#Notification should render correctly 2`] = `
 >
   <h4>
     <DateFormatter
-      date={2018-04-04T22:00:00.000Z}
+      date="2018-04-05"
       long={false}
     />
   </h4>

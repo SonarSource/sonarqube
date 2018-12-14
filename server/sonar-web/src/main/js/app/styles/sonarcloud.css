@@ -18,17 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/* EXTENDS components/pages.css */
-.sonarcloud.page-limited {
-  padding-top: 50px;
-  padding-bottom: 50px;
+.sonarcloud .global-navbar-menu-right .navbar-search {
+  flex: 0 0 310px;
 }
 
-.sonarcloud .page-header {
-  margin-bottom: 40px;
+.sonarcloud table.form {
+  width: 100%;
 }
 
-.sonarcloud .page-title {
-  font-size: var(--hugeFontSize);
-  font-weight: bold;
+.sonarcloud table.form tr,
+.sonarcloud table.form td {
+  vertical-align: middle;
+}
+
+.sonarcloud table.form tr:first-child,
+.sonarcloud table.form td:first-child {
+  width: 450px;
+}
+
+.sonarcloud table.form tbody tr:nth-child(2n) {
+  background: var(--sonarcloudBlack200);
 }

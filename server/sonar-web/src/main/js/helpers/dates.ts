@@ -59,14 +59,14 @@ export function isSameDay(dateLeft: Date, dateRight: Date): boolean {
   return _isSameDay(dateLeft, dateRight);
 }
 
-export function differenceInYears(dateLeft: Date, dateRight: Date): number {
+export function differenceInYears(dateLeft: ParsableDate, dateRight: ParsableDate): number {
   return _differenceInYears(dateLeft, dateRight);
 }
 
-export function differenceInDays(dateLeft: Date, dateRight: Date): number {
+export function differenceInDays(dateLeft: ParsableDate, dateRight: ParsableDate): number {
   return _differenceInDays(dateLeft, dateRight);
 }
 
-export function differenceInSeconds(dateLeft: Date, dateRight: Date): number {
+export function differenceInSeconds(dateLeft: ParsableDate, dateRight: ParsableDate): number {
   return _differenceInSeconds(dateLeft, dateRight);
 }

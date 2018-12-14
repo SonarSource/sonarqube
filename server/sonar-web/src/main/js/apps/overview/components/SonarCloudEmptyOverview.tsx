@@ -26,7 +26,6 @@ import { isLongLivingBranch, isBranch, isMainBranch } from '../../../helpers/bra
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
-import '../../../app/styles/sonarcloud.css';
 import { Alert } from '../../../components/ui/Alert';
 
 interface OwnProps {
@@ -58,7 +57,7 @@ export function SonarCloudEmptyOverview({
   return (
     <div className="page page-limited">
       <div className="overview page-with-sidebar">
-        <div className="overview-main page-main sonarcloud">
+        <div className="overview-main page-main">
           {isLoggedIn(currentUser) && isMainBranch(branchLike) ? (
             <>
               {hasBranches && (

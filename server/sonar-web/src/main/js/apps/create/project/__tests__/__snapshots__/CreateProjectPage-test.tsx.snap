@@ -9,15 +9,17 @@ exports[`should render correctly 1`] = `
     titleTemplate="%s"
   />
   <div
-    className="sonarcloud page page-limited"
+    className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
     <header
-      className="page-header"
+      className="page-header huge-spacer-bottom"
     >
       <h1
-        className="page-title"
+        className="page-title huge"
       >
-        onboarding.create_project.header
+        <strong>
+          onboarding.create_project.header
+        </strong>
       </h1>
     </header>
     <DeferredSpinner
@@ -36,15 +38,17 @@ exports[`should render correctly 2`] = `
     titleTemplate="%s"
   />
   <div
-    className="sonarcloud page page-limited"
+    className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
     <header
-      className="page-header"
+      className="page-header huge-spacer-bottom"
     >
       <h1
-        className="page-title"
+        className="page-title huge"
       >
-        onboarding.create_project.header
+        <strong>
+          onboarding.create_project.header
+        </strong>
       </h1>
     </header>
     <Tabs
@@ -103,15 +107,17 @@ exports[`should render with Manual creation only 1`] = `
     titleTemplate="%s"
   />
   <div
-    className="sonarcloud page page-limited"
+    className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
     <header
-      className="page-header"
+      className="page-header huge-spacer-bottom"
     >
       <h1
-        className="page-title"
+        className="page-title huge"
       >
-        onboarding.create_project.header
+        <strong>
+          onboarding.create_project.header
+        </strong>
       </h1>
     </header>
     <ManualProjectCreate
@@ -162,15 +168,17 @@ exports[`should switch tabs 1`] = `
     titleTemplate="%s"
   />
   <div
-    className="sonarcloud page page-limited"
+    className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
     <header
-      className="page-header"
+      className="page-header huge-spacer-bottom"
     >
       <h1
-        className="page-title"
+        className="page-title huge"
       >
-        onboarding.create_project.header
+        <strong>
+          onboarding.create_project.header
+        </strong>
       </h1>
     </header>
     <Tabs

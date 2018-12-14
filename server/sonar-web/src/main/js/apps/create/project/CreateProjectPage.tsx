@@ -32,7 +32,6 @@ import { getAlmAppInfo } from '../../../api/alm-integration';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
-import '../../../app/styles/sonarcloud.css';
 import './style.css';
 
 interface Props {
@@ -127,9 +126,11 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
     return (
       <>
         <Helmet title={header} titleTemplate="%s" />
-        <div className="sonarcloud page page-limited">
-          <header className="page-header">
-            <h1 className="page-title">{header}</h1>
+        <div className="page page-limited huge-spacer-top huge-spacer-bottom">
+          <header className="page-header huge-spacer-bottom">
+            <h1 className="page-title huge">
+              <strong>{header}</strong>
+            </h1>
           </header>
           {loading ? (
             <DeferredSpinner />

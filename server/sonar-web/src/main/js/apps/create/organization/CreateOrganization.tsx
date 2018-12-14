@@ -58,7 +58,6 @@ import { getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
-import '../../../app/styles/sonarcloud.css';
 import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
@@ -412,9 +411,11 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     return (
       <>
         <Helmet title={header} titleTemplate="%s" />
-        <div className="sonarcloud page page-limited">
-          <header className="page-header">
-            <h1 className="page-title big-spacer-bottom">{header}</h1>
+        <div className="page page-limited huge-spacer-top huge-spacer-bottom">
+          <header className="page-header huge-spacer-bottom">
+            <h1 className="page-title huge big-spacer-bottom">
+              <strong>{header}</strong>
+            </h1>
             {!importPersonalOrg &&
               startedPrice !== undefined && (
                 <p className="page-description">

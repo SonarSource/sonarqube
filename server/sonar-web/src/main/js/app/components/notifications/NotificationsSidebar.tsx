@@ -24,7 +24,7 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Modal from '../../../components/controls/Modal';
 import { PrismicFeatureNews } from '../../../api/news';
-import { differenceInSeconds, parseDate } from '../../../helpers/dates';
+import { differenceInSeconds } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 
 export interface Props {
@@ -83,9 +83,7 @@ export default function NotificationsSidebar(props: Props) {
 }
 
 export function isUnread(index: number, notificationDate: string, lastReadDate?: Date) {
-  return !lastReadDate
-    ? index < 1
-    : differenceInSeconds(parseDate(notificationDate), lastReadDate) > 0;
+  return !lastReadDate ? index < 1 : differenceInSeconds(notificationDate, lastReadDate) > 0;
 }
 
 interface NotificationProps {
@@ -94,11 +92,10 @@ interface NotificationProps {
 }
 
 export function Notification({ notification, unread }: NotificationProps) {
-  const publicationDate = parseDate(notification.publicationDate);
   return (
     <div className={classNames('notifications-sidebar-slice', { unread })}>
       <h4>
-        <DateFormatter date={publicationDate} long={false} />
+        <DateFormatter date={notification.publicationDate} long={false} />
       </h4>
       {notification.features.map((feature, index) => (
         <Feature feature={feature} key={index} />
