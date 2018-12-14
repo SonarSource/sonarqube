@@ -48,10 +48,6 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
     this.ceCeWorkerFactory = ceCeWorkerFactory;
   }
 
-  public CeDistributedInformationImpl(CeWorkerFactory ceCeWorkerFactory) {
-    this(null, ceCeWorkerFactory);
-  }
-
   @Override
   public Set<String> getWorkerUUIDs() {
     Set<String> connectedWorkerUUIDs = hazelcastMember.getMemberUuids();

@@ -50,6 +50,7 @@ import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
+import org.sonar.ce.cleaning.NoopCeCleaningSchedulerImpl;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
@@ -162,6 +163,7 @@ import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideF
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
@@ -452,13 +454,20 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       WebhookModule.class,
 
       QualityGateFinder.class,
-      QualityGateEvaluatorImpl.class,
+      QualityGateEvaluatorImpl.class
 
-      // cleaning
-      CeCleaningModule.class);
+    );
 
-    if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
+    if (props.valueAsBoolean(SONARCLOUD_ENABLED.getKey())) {
+      // no cleaning job on sonarcloud and no distributed information
       container.add(
+        NoopCeCleaningSchedulerImpl.class,
+        StandaloneCeDistributedInformation.class,
+        CEQueueStatusImpl.class);
+    } else if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
+      container.add(
+        CeCleaningModule.class,
+
         // system health
         CeDistributedInformationImpl.class,
 
@@ -466,20 +475,17 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
         DbSection.class,
         ProcessInfoProvider.class,
 
-        DistributedCEQueueStatusImpl.class
-
-      );
+        DistributedCEQueueStatusImpl.class);
     } else {
       container.add(
+        CeCleaningModule.class,
         StandaloneCeDistributedInformation.class,
-        CEQueueStatusImpl.class
-
-      );
+        CEQueueStatusImpl.class);
     }
   }
 
   private static Object[] startupComponents() {
-    return new Object[]{
+    return new Object[] {
       ServerLifecycleNotifier.class,
       PurgeCeActivities.class,
       CeQueueCleaner.class
