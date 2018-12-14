@@ -9,7 +9,6 @@ exports[`renders with edit permission 1`] = `
       className="quality-profile-grid-left"
     >
       <ProfileRules
-        exporters={Array []}
         organization="org"
         profile={
           Object {
@@ -18,8 +17,6 @@ exports[`renders with edit permission 1`] = `
             },
           }
         }
-        profiles={Array []}
-        updateProfiles={[MockFunction]}
       />
       <ProfileExporters
         exporters={Array []}
@@ -31,8 +28,6 @@ exports[`renders with edit permission 1`] = `
             },
           }
         }
-        profiles={Array []}
-        updateProfiles={[MockFunction]}
       />
       <ProfilePermissions
         organization="org"
@@ -49,7 +44,6 @@ exports[`renders with edit permission 1`] = `
       className="quality-profile-grid-right"
     >
       <ProfileInheritance
-        exporters={Array []}
         organization="org"
         profile={
           Object {
@@ -70,7 +64,6 @@ exports[`renders with edit permission 1`] = `
             },
           }
         }
-        updateProfiles={[MockFunction]}
       />
     </div>
   </div>
@@ -86,25 +79,19 @@ exports[`renders without permissions 1`] = `
       className="quality-profile-grid-left"
     >
       <ProfileRules
-        exporters={Array []}
         organization="org"
         profile={Object {}}
-        profiles={Array []}
-        updateProfiles={[MockFunction]}
       />
       <ProfileExporters
         exporters={Array []}
         organization="org"
         profile={Object {}}
-        profiles={Array []}
-        updateProfiles={[MockFunction]}
       />
     </div>
     <div
       className="quality-profile-grid-right"
     >
       <ProfileInheritance
-        exporters={Array []}
         organization="org"
         profile={Object {}}
         profiles={Array []}
@@ -113,7 +100,6 @@ exports[`renders without permissions 1`] = `
       <ProfileProjects
         organization="org"
         profile={Object {}}
-        updateProfiles={[MockFunction]}
       />
     </div>
   </div>

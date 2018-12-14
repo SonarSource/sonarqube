@@ -30,7 +30,6 @@ import { translate } from '../../../helpers/l10n';
 interface Props {
   organization: string | null;
   profile: Profile;
-  updateProfiles: () => Promise<void>;
 }
 
 interface State {
@@ -114,7 +113,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   closeForm = () => {
     this.setState({ formOpen: false });
-    this.props.updateProfiles();
+    this.loadProjects();
   };
 
   renderDefault() {
