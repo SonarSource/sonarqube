@@ -114,7 +114,7 @@ public class LiveQualityGateComputerImplTest {
 
   @Test
   public void getMetricsRelatedTo() {
-    Condition condition = new Condition("metric1", Condition.Operator.EQUALS, "10");
+    Condition condition = new Condition("metric1", Condition.Operator.GREATER_THAN, "10");
     QualityGate gate = new QualityGate("1", "foo", ImmutableSet.of(condition));
 
     Set<String> result = underTest.getMetricsRelatedTo(gate);

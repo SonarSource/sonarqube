@@ -73,10 +73,6 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
 
   private static QualityGate.Operator convert(Condition.Operator operator) {
     switch (operator) {
-      case EQUALS:
-        return QualityGate.Operator.EQUALS;
-      case NOT_EQUALS:
-        return QualityGate.Operator.NOT_EQUALS;
       case GREATER_THAN:
         return QualityGate.Operator.GREATER_THAN;
       case LESS_THAN:

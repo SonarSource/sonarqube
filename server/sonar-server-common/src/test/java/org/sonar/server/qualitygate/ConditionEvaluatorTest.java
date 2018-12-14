@@ -19,34 +19,29 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.Metric.ValueType.BOOL;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.server.qualitygate.ConditionEvaluatorTest.FakeMeasure.newFakeMeasureOnLeak;
 
+@RunWith(DataProviderRunner.class)
 public class ConditionEvaluatorTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void EQUALS_double() {
-    test(new FakeMeasure(10.1d), Condition.Operator.EQUALS, "10.2", EvaluatedCondition.EvaluationStatus.OK, "10.1");
-    test(new FakeMeasure(10.2d), Condition.Operator.EQUALS, "10.2", EvaluatedCondition.EvaluationStatus.ERROR, "10.2");
-    test(new FakeMeasure(10.3d), Condition.Operator.EQUALS, "10.2", EvaluatedCondition.EvaluationStatus.OK, "10.3");
-  }
-
-  @Test
-  public void NOT_EQUALS_double() {
-    test(new FakeMeasure(10.1d), Condition.Operator.NOT_EQUALS, "10.2", EvaluatedCondition.EvaluationStatus.ERROR, "10.1");
-    test(new FakeMeasure(10.2d), Condition.Operator.NOT_EQUALS, "10.2", EvaluatedCondition.EvaluationStatus.OK, "10.2");
-    test(new FakeMeasure(10.3d), Condition.Operator.NOT_EQUALS, "10.2", EvaluatedCondition.EvaluationStatus.ERROR, "10.3");
-  }
 
   @Test
   public void GREATER_THAN_double() {
@@ -60,30 +55,6 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure(10.1d), Condition.Operator.LESS_THAN, "10.2", EvaluatedCondition.EvaluationStatus.ERROR, "10.1");
     test(new FakeMeasure(10.2d), Condition.Operator.LESS_THAN, "10.2", EvaluatedCondition.EvaluationStatus.OK, "10.2");
     test(new FakeMeasure(10.3d), Condition.Operator.LESS_THAN, "10.2", EvaluatedCondition.EvaluationStatus.OK, "10.3");
-  }
-
-  @Test
-  public void EQUALS_int() {
-    test(new FakeMeasure(10), Condition.Operator.EQUALS, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(10), Condition.Operator.EQUALS, "10", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    test(new FakeMeasure(10), Condition.Operator.EQUALS, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
-
-    // badly stored thresholds are truncated
-    test(new FakeMeasure(10), Condition.Operator.EQUALS, "10.4", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    test(new FakeMeasure(10), Condition.Operator.EQUALS, "10.9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    test(new FakeMeasure(11), Condition.Operator.EQUALS, "10.9", EvaluatedCondition.EvaluationStatus.OK, "11");
-  }
-
-  @Test
-  public void NOT_EQUALS_int() {
-    test(new FakeMeasure(10), Condition.Operator.NOT_EQUALS, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    test(new FakeMeasure(10), Condition.Operator.NOT_EQUALS, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(10), Condition.Operator.NOT_EQUALS, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-
-    // badly stored thresholds are truncated
-    test(new FakeMeasure(10), Condition.Operator.NOT_EQUALS, "10.4", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(10), Condition.Operator.NOT_EQUALS, "10.9", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(10), Condition.Operator.NOT_EQUALS, "9.9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
   }
 
   @Test
@@ -102,11 +73,9 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
 
     testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
     testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
     testOnLeak(newFakeMeasureOnLeak(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
   }
 
@@ -125,11 +94,24 @@ public class ConditionEvaluatorTest {
     test(null, Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, null);
   }
 
+
   @Test
-  public void empty_warning_condition() {
-    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
-    test(new FakeMeasure(3), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "3");
+  @UseDataProvider("unsupportedMetricTypes")
+  public void fail_when_condition_is_on_unsupported_metric(Metric.ValueType metricType) {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(String.format("Condition is not allowed for type %s", metricType));
+
+    test(new FakeMeasure(metricType), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+  }
+
+  @DataProvider
+  public static Object[][] unsupportedMetricTypes() {
+    return new Object[][] {
+      {BOOL},
+      {STRING},
+      {DATA},
+      {DISTRIB}
+    };
   }
 
   private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus, @Nullable String expectedValue) {
@@ -179,6 +161,10 @@ public class ConditionEvaluatorTest {
 
     private FakeMeasure() {
 
+    }
+
+    FakeMeasure(Metric.ValueType valueType) {
+      this.valueType = valueType;
     }
 
     FakeMeasure(@Nullable Double value) {

@@ -19,10 +19,14 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -32,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
@@ -50,6 +55,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MET
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 
+@RunWith(DataProviderRunner.class)
 public class CreateConditionActionTest {
 
   @Rule
@@ -144,6 +150,45 @@ public class CreateConditionActionTest {
   }
 
   @Test
+  public void fail_with_unknown_operator() {
+    OrganizationDto organization = db.organizations().insert();
+    logInAsQualityGateAdmin(organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(0));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
+
+    ws.newRequest()
+      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "ABC")
+      .setParam(PARAM_ERROR, "90")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+  }
+
+  @Test
+  @UseDataProvider("invalid_operators_for_direction")
+  public void fail_with_invalid_operators_for_direction(String operator, int direction) {
+    OrganizationDto organization = db.organizations().insert();
+    logInAsQualityGateAdmin(organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(direction));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(format("Operator %s is not allowed for this metric.", operator));
+
+    ws.newRequest()
+      .setParam(PARAM_GATE_ID, qualityGate.getId().toString())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, operator)
+      .setParam(PARAM_ERROR, "90")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+  }
+
+  @Test
   public void test_response() {
     OrganizationDto organization = db.organizations().insert();
     logInAsQualityGateAdmin(organization);
@@ -201,6 +246,14 @@ public class CreateConditionActionTest {
         tuple("organization", false));
   }
 
+  @DataProvider
+  public static Object[][] invalid_operators_for_direction() {
+    return new Object[][] {
+      {"LT", -1},
+      {"GT", 1},
+    };
+  }
+
   private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
       .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
@@ -213,6 +266,9 @@ public class CreateConditionActionTest {
   }
 
   private MetricDto insertMetric() {
-    return db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    return db.measures().insertMetric(m -> m
+      .setValueType(INT.name())
+      .setHidden(false)
+      .setDirection(0));
   }
 }

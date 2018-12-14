@@ -45,7 +45,7 @@ public class ConditionToConditionTest {
   private static final Map<Condition, ConditionStatus> NO_STATUS_PER_CONDITIONS = Collections.emptyMap();
   private static final String SOME_VALUE = "some value";
   private static final ConditionStatus SOME_CONDITION_STATUS = ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, SOME_VALUE);
-  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.EQUALS.getDbValue(), ERROR_THRESHOLD);
+  private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -103,7 +103,7 @@ public class ConditionToConditionTest {
 
   @Test
   public void apply_copies_value() {
-    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.NOT_EQUALS.getDbValue(), ERROR_THRESHOLD);
+    Condition otherCondition = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD);
     ConditionToCondition underTest = new ConditionToCondition(of(
       SOME_CONDITION, SOME_CONDITION_STATUS,
       otherCondition, ConditionStatus.NO_VALUE_STATUS));

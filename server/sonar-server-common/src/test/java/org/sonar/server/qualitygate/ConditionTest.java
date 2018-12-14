@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConditionTest {
   private static final String METRIC_KEY = "metric_key";
-  private static final Condition.Operator OPERATOR = Condition.Operator.EQUALS;
+  private static final Condition.Operator OPERATOR = Condition.Operator.GREATER_THAN;
   private static final String ERROR_THRESHOLD = "2";
 
   @Rule
@@ -70,7 +70,7 @@ public class ConditionTest {
   @Test
   public void toString_is_override() {
     assertThat(underTest.toString())
-      .isEqualTo("Condition{metricKey='metric_key', operator=EQUALS, errorThreshold='2'}");
+      .isEqualTo("Condition{metricKey='metric_key', operator=GREATER_THAN, errorThreshold='2'}");
   }
 
   @Test

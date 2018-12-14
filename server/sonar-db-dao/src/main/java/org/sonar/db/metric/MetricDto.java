@@ -216,8 +216,4 @@ public class MetricDto {
     return this;
   }
 
-  public boolean isDataType() {
-    return DATA.name().equals(valueType) || DISTRIB.name().equals(valueType) || STRING.name().equals(valueType);
-  }
-
 }

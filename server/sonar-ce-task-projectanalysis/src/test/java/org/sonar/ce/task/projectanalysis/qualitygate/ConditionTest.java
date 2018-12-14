@@ -35,7 +35,7 @@ public class ConditionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private static final Metric SOME_METRIC = mock(Metric.class);
-  private static final String SOME_OPERATOR = "EQ";
+  private static final String SOME_OPERATOR = "LT";
 
   @Before
   public void setUp() {
@@ -67,7 +67,7 @@ public class ConditionTest {
     Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error);
 
     assertThat(condition.getMetric()).isSameAs(SOME_METRIC);
-    assertThat(condition.getOperator()).isSameAs(Condition.Operator.EQUALS);
+    assertThat(condition.getOperator()).isSameAs(Condition.Operator.LESS_THAN);
     assertThat(condition.getErrorThreshold()).isEqualTo(error);
   }
 
@@ -76,7 +76,8 @@ public class ConditionTest {
     when(SOME_METRIC.toString()).thenReturn("metric1");
 
     assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l").toString())
-      .isEqualTo("Condition{metric=metric1, operator=EQUALS, errorThreshold=error_l}");
+      .isEqualTo("Condition{metric=metric1, operator=LESS_THAN, errorThreshold=error_l}");
 
   }
+
 }

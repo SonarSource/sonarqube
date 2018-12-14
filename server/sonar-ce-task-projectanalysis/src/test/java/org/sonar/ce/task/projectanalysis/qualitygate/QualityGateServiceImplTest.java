@@ -53,9 +53,9 @@ public class QualityGateServiceImplTest {
   private static final long METRIC_ID_2 = 753;
   private static final Metric METRIC_1 = mock(Metric.class);
   private static final Metric METRIC_2 = mock(Metric.class);
-  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setId(321).setMetricId(METRIC_ID_1).setOperator("EQ")
+  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setId(321).setMetricId(METRIC_ID_1).setOperator("LT")
     .setErrorThreshold("error_th");
-  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setId(456).setMetricId(METRIC_ID_2).setOperator("NE").setErrorThreshold("error_th");
+  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setId(456).setMetricId(METRIC_ID_2).setOperator("GT").setErrorThreshold("error_th");
 
   private QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);

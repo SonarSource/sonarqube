@@ -90,8 +90,6 @@ public class Condition {
   }
 
   public enum Operator {
-    EQUALS(QualityGateConditionDto.OPERATOR_EQUALS),
-    NOT_EQUALS(QualityGateConditionDto.OPERATOR_NOT_EQUALS),
     GREATER_THAN(QualityGateConditionDto.OPERATOR_GREATER_THAN),
     LESS_THAN(QualityGateConditionDto.OPERATOR_LESS_THAN);
 
@@ -111,5 +109,11 @@ public class Condition {
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Unsupported operator db value: " + s));
     }
+
+    public static boolean isValid(String s) {
+      return Stream.of(values())
+        .anyMatch(o -> o.getDbValue().equals(s));
+    }
+
   }
 }

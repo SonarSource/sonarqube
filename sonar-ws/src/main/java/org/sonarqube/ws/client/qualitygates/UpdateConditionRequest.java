@@ -76,13 +76,11 @@ public class UpdateConditionRequest {
   }
 
   /**
-   * Example value: "EQ"
+   * Example value: "LT"
    * Possible values:
    * <ul>
    *   <li>"LT"</li>
    *   <li>"GT"</li>
-   *   <li>"EQ"</li>
-   *   <li>"NE"</li>
    * </ul>
    */
   public UpdateConditionRequest setOp(String op) {

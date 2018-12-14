@@ -33,8 +33,6 @@ import static java.util.Objects.requireNonNull;
 
 public final class EvaluationResultTextConverterImpl implements EvaluationResultTextConverter {
   private static final Map<Condition.Operator, String> OPERATOR_LABELS = ImmutableMap.of(
-    Condition.Operator.EQUALS, "=",
-    Condition.Operator.NOT_EQUALS, "!=",
     Condition.Operator.GREATER_THAN, ">",
     Condition.Operator.LESS_THAN, "<");
 
@@ -59,14 +57,9 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
   private String getAlertLabel(Condition condition) {
     String metric = i18n.message(Locale.ENGLISH, "metric." + condition.getMetric().getKey() + ".name", condition.getMetric().getName());
 
-    StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append(metric);
-
-    stringBuilder
-      .append(" ").append(OPERATOR_LABELS.get(condition.getOperator())).append(" ")
-      .append(alertValue(condition));
-
-    return stringBuilder.toString();
+    return metric +
+      " " + OPERATOR_LABELS.get(condition.getOperator()) + " " +
+      alertValue(condition);
   }
 
   private String alertValue(Condition condition) {

@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QualityGateTest {
   private static final String QUALIGATE_ID = "qg_id";
   private static final String QUALIGATE_NAME = "qg_name";
-  private static final Condition CONDITION_1 = new Condition("m1", Condition.Operator.EQUALS, "1");
+  private static final Condition CONDITION_1 = new Condition("m1", Condition.Operator.GREATER_THAN, "1");
   private static final Condition CONDITION_2 = new Condition("m2", Condition.Operator.LESS_THAN, "2");
 
   @Rule
@@ -74,10 +74,10 @@ public class QualityGateTest {
     Random random = new Random();
     Set<Condition> conditions = Stream.of(
       IntStream.range(0, random.nextInt(5))
-        .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.EQUALS, "10")),
+        .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.GREATER_THAN, "10")),
       Stream.of((Condition) null),
       IntStream.range(0, random.nextInt(5))
-        .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.EQUALS, "10")))
+        .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.GREATER_THAN, "10")))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 

@@ -72,15 +72,6 @@ public class MetricDtoTest {
   }
 
   @Test
-  public void is_data_type() {
-    assertThat(MetricTesting.newMetricDto().setValueType(INT.name()).isDataType()).isFalse();
-
-    assertThat(MetricTesting.newMetricDto().setValueType(DATA.name()).isDataType()).isTrue();
-    assertThat(MetricTesting.newMetricDto().setValueType(STRING.name()).isDataType()).isTrue();
-    assertThat(MetricTesting.newMetricDto().setValueType(STRING.name()).isDataType()).isTrue();
-  }
-
-  @Test
   public void fail_if_key_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 

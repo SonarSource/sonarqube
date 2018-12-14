@@ -19,11 +19,14 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
@@ -69,20 +72,28 @@ public class QualityGatesWs implements WebService {
   static void addConditionParams(NewAction action) {
     action
       .createParam(PARAM_METRIC)
-      .setDescription("Condition metric")
+      .setDescription("Condition metric.<br/>" +
+        " Only metric of the following types are allowed:" +
+        "<ul>" +
+        "<li>INT</li>" +
+        "<li>MILLISEC</li>" +
+        "<li>RATING</li>" +
+        "<li>WORK_DUR</li>" +
+        "<li>FLOAT</li>" +
+        "<li>PERCENT</li>" +
+        "<li>LEVEL</li>" +
+        "")
       .setRequired(true)
       .setExampleValue("blocker_violations");
 
     action.createParam(PARAM_OPERATOR)
       .setDescription("Condition operator:<br/>" +
         "<ul>" +
-        "<li>EQ = equals</li>" +
-        "<li>NE = is not</li>" +
         "<li>LT = is lower than</li>" +
         "<li>GT = is greater than</li>" +
         "</ui>")
-      .setExampleValue(QualityGateConditionDto.OPERATOR_EQUALS)
-      .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
+      .setExampleValue(Condition.Operator.GREATER_THAN.getDbValue())
+      .setPossibleValues(getPossibleOperators());
 
     action.createParam(PARAM_ERROR)
       .setMaximumLength(CONDITION_MAX_LENGTH)
@@ -99,4 +110,9 @@ public class QualityGatesWs implements WebService {
     }
   }
 
+  private static Set<String> getPossibleOperators() {
+    return Stream.of(Condition.Operator.values())
+      .map(Condition.Operator::getDbValue)
+      .collect(Collectors.toSet());
+  }
 }

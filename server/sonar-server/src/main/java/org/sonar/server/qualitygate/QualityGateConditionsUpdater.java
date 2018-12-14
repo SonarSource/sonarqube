@@ -19,13 +19,16 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.DbClient;
@@ -33,24 +36,44 @@ import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.measure.Rating;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.measure.Rating;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
+import static org.sonar.api.measures.Metric.DIRECTION_NONE;
+import static org.sonar.api.measures.Metric.DIRECTION_WORST;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
-import static org.sonar.api.measures.Metric.ValueType.valueOf;
-import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
+import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class QualityGateConditionsUpdater {
+
+  private static final Map<Integer, ImmutableSet<Condition.Operator>> VALID_OPERATORS_BY_DIRECTION = ImmutableMap.<Integer, ImmutableSet<Condition.Operator>>builder()
+    .put(DIRECTION_NONE, ImmutableSet.of(GREATER_THAN, LESS_THAN))
+    .put(DIRECTION_BETTER, ImmutableSet.of(LESS_THAN))
+    .put(DIRECTION_WORST, ImmutableSet.of(GREATER_THAN))
+    .build();
+
+  private static final EnumSet<ValueType> VALID_METRIC_TYPES = EnumSet.of(
+    ValueType.INT,
+    ValueType.FLOAT,
+    ValueType.PERCENT,
+    ValueType.MILLISEC,
+    ValueType.LEVEL,
+    ValueType.RATING,
+    ValueType.WORK_DUR
+  );
 
   private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).collect(Collectors.toList());
 
@@ -114,16 +137,17 @@ public class QualityGateConditionsUpdater {
   }
 
   private static boolean isAlertable(MetricDto metric) {
-    return isAvailableForInit(metric) && BooleanUtils.isFalse(metric.isHidden());
-  }
-
-  private static boolean isAvailableForInit(MetricDto metric) {
-    return !metric.isDataType() && !CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey());
+    return !metric.isHidden()
+      && VALID_METRIC_TYPES.contains(ValueType.valueOf(metric.getValueType()))
+      && !CoreMetrics.ALERT_STATUS_KEY.equals(metric.getKey());
   }
 
   private static void checkOperator(MetricDto metric, String operator, List<String> errors) {
-    ValueType valueType = valueOf(metric.getValueType());
-    check(isOperatorAllowed(operator, valueType), errors, "Operator %s is not allowed for metric type %s.", operator, metric.getValueType());
+    check(
+      Condition.Operator.isValid(operator) && isAllowedOperator(operator, metric),
+      errors,
+      "Operator %s is not allowed for this metric.", operator
+    );
   }
 
   private static void checkErrorThreshold(MetricDto metric, String errorThreshold, List<String> errors) {
@@ -138,6 +162,14 @@ public class QualityGateConditionsUpdater {
 
     boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricId() == metric.getId());
     checkRequest(!conditionExists, format("Condition on metric '%s' already exists.", metric.getShortName()));
+  }
+
+  private static boolean isAllowedOperator(String operator, MetricDto metric) {
+    if (VALID_OPERATORS_BY_DIRECTION.containsKey(metric.getDirection())) {
+      return VALID_OPERATORS_BY_DIRECTION.get(metric.getDirection()).contains(Condition.Operator.fromDbValue(operator));
+    }
+
+    return false;
   }
 
   private static void validateErrorThresholdValue(MetricDto metric, String errorThreshold, List<String> errors) {

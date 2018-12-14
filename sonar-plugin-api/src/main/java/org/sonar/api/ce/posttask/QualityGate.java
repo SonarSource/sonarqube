@@ -120,7 +120,18 @@ public interface QualityGate {
    * Quality Gate condition operator.
    */
   enum Operator {
-    EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN
+    /**
+     * @deprecated in 7.6. Using this operator will have no effect.
+     */
+    @Deprecated
+    EQUALS,
+    /**
+     * @deprecated in 7.6.  Using this operator will have no effect.
+     */
+    @Deprecated
+    NOT_EQUALS,
+    GREATER_THAN,
+    LESS_THAN
   }
 
   /**

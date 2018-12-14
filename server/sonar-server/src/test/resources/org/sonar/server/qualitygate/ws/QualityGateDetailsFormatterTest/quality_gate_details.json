@@ -21,20 +21,11 @@
     },
     {
       "metric": "new_critical_violations",
-      "op": "NE",
+      "op": "GT",
       "period": 1,
       "warning": "",
       "error": "0",
       "actual": "0",
-      "level": "OK"
-    },
-    {
-      "metric": "new_sqale_debt_ratio",
-      "op": "EQ",
-      "period": 1,
-      "warning": "",
-      "error": "5",
-      "actual": "0.5670339761248853",
       "level": "OK"
     }
   ]

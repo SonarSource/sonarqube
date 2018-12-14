@@ -85,7 +85,7 @@ public class WebhookPostTaskTest {
   public void call_webhooks_with_analysis_and_qualitygate() {
     QualityGate.Condition condition = newConditionBuilder()
       .setMetricKey(randomAlphanumeric(96))
-      .setOperator(QualityGate.Operator.values()[random.nextInt(QualityGate.Operator.values().length)])
+      .setOperator(QualityGate.Operator.LESS_THAN)
       .setErrorThreshold(randomAlphanumeric(22))
       .setOnLeakPeriod(random.nextBoolean())
       .build(QualityGate.EvaluationStatus.OK, randomAlphanumeric(33));

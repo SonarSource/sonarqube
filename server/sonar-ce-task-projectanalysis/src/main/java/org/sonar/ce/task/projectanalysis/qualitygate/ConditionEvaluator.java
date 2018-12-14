@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -26,14 +27,23 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.of;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.FLOAT;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.INT;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.LEVEL;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.MILLISEC;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.PERCENT;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.RATING;
+import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.WORK_DUR;
 
 public final class ConditionEvaluator {
+
+  private static final EnumSet<Metric.MetricType> SUPPORTED_METRIC_TYPE = EnumSet.of(INT, MILLISEC, RATING, WORK_DUR, FLOAT, PERCENT, LEVEL);
 
   /**
    * Evaluates the condition for the specified measure
    */
   public EvaluationResult evaluate(Condition condition, Measure measure) {
-    checkArgument(condition.getMetric().getType() != Metric.MetricType.DATA, "Conditions on MetricType DATA are not supported");
+    checkArgument(SUPPORTED_METRIC_TYPE.contains(condition.getMetric().getType()), "Conditions on MetricType %s are not supported", condition.getMetric().getType());
 
     Comparable measureComparable = parseMeasure(condition, measure);
     if (measureComparable == null) {
@@ -61,10 +71,6 @@ public final class ConditionEvaluator {
   private static boolean doesReachThresholds(Comparable measureValue, Comparable criteriaValue, Condition condition) {
     int comparison = measureValue.compareTo(criteriaValue);
     switch (condition.getOperator()) {
-      case EQUALS:
-        return comparison == 0;
-      case NOT_EQUALS:
-        return comparison != 0;
       case GREATER_THAN:
         return comparison > 0;
       case LESS_THAN:
@@ -76,15 +82,12 @@ public final class ConditionEvaluator {
 
   private static Comparable parseConditionValue(Metric metric, String value) {
     switch (metric.getType().getValueType()) {
-      case BOOLEAN:
-        return Integer.parseInt(value) == 1;
       case INT:
         return parseInteger(value);
       case LONG:
         return Long.parseLong(value);
       case DOUBLE:
         return Double.parseDouble(value);
-      case STRING:
       case LEVEL:
         return value;
       default:
@@ -102,16 +105,12 @@ public final class ConditionEvaluator {
       return parseMeasureFromVariation(condition, measure);
     }
     switch (measure.getValueType()) {
-      case BOOLEAN:
-        return measure.getBooleanValue();
       case INT:
         return measure.getIntValue();
       case LONG:
         return measure.getLongValue();
       case DOUBLE:
         return measure.getDoubleValue();
-      case STRING:
-        return measure.getStringValue();
       case LEVEL:
         return measure.getLevelValue().name();
       case NO_VALUE:
@@ -131,8 +130,6 @@ public final class ConditionEvaluator {
     Double variation = measure.getVariation();
     Metric.MetricType metricType = condition.getMetric().getType();
     switch (metricType.getValueType()) {
-      case BOOLEAN:
-        return variation.intValue() == 1;
       case INT:
         return variation.intValue();
       case LONG:
@@ -140,7 +137,6 @@ public final class ConditionEvaluator {
       case DOUBLE:
         return variation;
       case NO_VALUE:
-      case STRING:
       case LEVEL:
       default:
         throw new IllegalArgumentException("Unsupported metric type " + metricType);

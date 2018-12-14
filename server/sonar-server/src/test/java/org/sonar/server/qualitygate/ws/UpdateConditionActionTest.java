@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -35,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -49,11 +51,13 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 
+@RunWith(DataProviderRunner.class)
 public class UpdateConditionActionTest {
 
   @Rule
@@ -195,6 +199,49 @@ public class UpdateConditionActionTest {
   }
 
   @Test
+  public void fail_with_unknown_operator() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(0));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator("LT").setErrorThreshold("80"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
+
+    ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_ID, Long.toString(condition.getId()))
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "ABC")
+      .setParam(PARAM_ERROR, "90")
+      .execute();
+  }
+
+  @Test
+  @UseDataProvider("update_invalid_operators_and_direction")
+  public void fail_with_invalid_operators_for_direction(String validOperator, String updateOperator, int direction) {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(direction));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator(validOperator).setErrorThreshold("80"));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(format("Operator %s is not allowed for this metric.", updateOperator));
+
+    ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_ID, Long.toString(condition.getId()))
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, updateOperator)
+      .setParam(PARAM_ERROR, "90")
+      .execute();
+  }
+
+  @Test
   public void throw_ForbiddenException_if_not_gate_administrator() {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
@@ -231,6 +278,14 @@ public class UpdateConditionActionTest {
         tuple("organization", false));
   }
 
+  @DataProvider
+  public static Object[][] update_invalid_operators_and_direction() {
+    return new Object[][] {
+      {"GT", "LT", -1},
+      {"LT", "GT", 1},
+    };
+  }
+
   private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
       .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
@@ -239,6 +294,6 @@ public class UpdateConditionActionTest {
   }
 
   private MetricDto insertMetric() {
-    return db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    return db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(0));
   }
 }

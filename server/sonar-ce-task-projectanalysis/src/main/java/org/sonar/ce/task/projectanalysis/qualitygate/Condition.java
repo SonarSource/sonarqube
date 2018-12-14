@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 public class Condition {
 
   public enum Operator {
-    EQUALS("EQ"), NOT_EQUALS("NE"), GREATER_THAN("GT"), LESS_THAN("LT");
+    GREATER_THAN("GT"), LESS_THAN("LT");
 
     private final String dbValue;
 

@@ -26,8 +26,9 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Optional.of;
-import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
@@ -37,7 +38,7 @@ import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 
 class ConditionEvaluator {
 
-  private static final Set<ValueType> NUMERICAL_TYPES = EnumSet.of(BOOL, INT, RATING, FLOAT, MILLISEC, PERCENT, WORK_DUR);
+  private static final Set<ValueType> NUMERICAL_TYPES = EnumSet.of(INT, RATING, FLOAT, MILLISEC, PERCENT, WORK_DUR);
 
   private ConditionEvaluator() {
     // prevent instantiation
@@ -59,8 +60,7 @@ class ConditionEvaluator {
 
     ValueType type = measure.get().getType();
     return evaluateCondition(condition, type, value.get())
-      .orElseGet(() -> evaluateCondition(condition, type, value.get())
-        .orElseGet(() -> new EvaluatedCondition(condition, EvaluationStatus.OK, value.get().toString())));
+      .orElseGet(() -> new EvaluatedCondition(condition, EvaluationStatus.OK, value.get().toString()));
   }
 
   /**
@@ -79,8 +79,6 @@ class ConditionEvaluator {
     String valString = condition.getErrorThreshold();
     try {
       switch (valueType) {
-        case BOOL:
-          return parseInteger(valString) == 1;
         case INT:
         case RATING:
           return parseInteger(valString);
@@ -90,14 +88,13 @@ class ConditionEvaluator {
         case FLOAT:
         case PERCENT:
           return Double.parseDouble(valString);
-        case STRING:
         case LEVEL:
           return valueType;
         default:
-          throw new IllegalArgumentException(String.format("Unsupported value type %s. Cannot convert condition value", valueType));
+          throw new IllegalArgumentException(format("Unsupported value type %s. Cannot convert condition value", valueType));
       }
     } catch (NumberFormatException badValueFormat) {
-      throw new IllegalArgumentException(String.format(
+      throw new IllegalArgumentException(format(
         "Quality Gate: unable to parse threshold '%s' to compare against %s", valString, condition.getMetricKey()));
     }
   }
@@ -116,14 +113,9 @@ class ConditionEvaluator {
       return measure.getValue().isPresent() ? getNumericValue(measure.getType(), measure.getValue().getAsDouble()) : null;
     }
 
-    switch (measure.getType()) {
-      case LEVEL:
-      case STRING:
-      case DISTRIB:
-        return measure.getStringValue().orElse(null);
-      default:
-        throw new IllegalArgumentException("Condition is not allowed for type " + measure.getType());
-    }
+    checkArgument(ValueType.LEVEL.equals(measure.getType()), "Condition is not allowed for type %s" , measure.getType());
+    return measure.getStringValue().orElse(null);
+
   }
 
   @CheckForNull
@@ -137,8 +129,6 @@ class ConditionEvaluator {
 
   private static Comparable getNumericValue(ValueType type, double value) {
     switch (type) {
-      case BOOL:
-        return Double.compare(value, 1.0) == 1;
       case INT:
       case RATING:
         return (int) value;
@@ -160,16 +150,12 @@ class ConditionEvaluator {
   private static boolean reachThreshold(Comparable measureValue, Comparable threshold, Condition condition) {
     int comparison = measureValue.compareTo(threshold);
     switch (condition.getOperator()) {
-      case EQUALS:
-        return comparison == 0;
-      case NOT_EQUALS:
-        return comparison != 0;
       case GREATER_THAN:
         return comparison > 0;
       case LESS_THAN:
         return comparison < 0;
       default:
-        throw new IllegalArgumentException(String.format("Unsupported operator '%s'", condition.getOperator()));
+        throw new IllegalArgumentException(format("Unsupported operator '%s'", condition.getOperator()));
     }
   }
 }

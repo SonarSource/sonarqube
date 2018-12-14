@@ -42,7 +42,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 public class EvaluationResultTextConverterTest {
   private static final Metric INT_METRIC = new MetricImpl(1, "key", "int_metric_name", Metric.MetricType.INT);
   private static final Metric SOME_VARIATION_METRIC = new MetricImpl(2, "new_variation_of_trololo", "variation_of_trololo_name", Metric.MetricType.INT);
-  private static final Condition EQ_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.EQUALS.getDbValue(), "10");
+  private static final Condition LT_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.LESS_THAN.getDbValue(), "10");
   private static final EvaluationResult OK_EVALUATION_RESULT = new EvaluationResult(Measure.Level.OK, null);
   private static final String ERROR_THRESHOLD = "error_threshold";
 
@@ -57,12 +57,12 @@ public class EvaluationResultTextConverterTest {
 
   @Test(expected = NullPointerException.class)
   public void evaluate_throws_NPE_if_EvaluationResult_arg_is_null() {
-    underTest.asText(EQ_10_CONDITION, null);
+    underTest.asText(LT_10_CONDITION, null);
   }
 
   @Test
   public void evaluate_returns_null_if_EvaluationResult_has_level_OK() {
-    assertThat(underTest.asText(EQ_10_CONDITION, OK_EVALUATION_RESULT)).isNull();
+    assertThat(underTest.asText(LT_10_CONDITION, OK_EVALUATION_RESULT)).isNull();
   }
 
   @DataProvider
@@ -104,10 +104,6 @@ public class EvaluationResultTextConverterTest {
 
   private static String toSign(Condition.Operator operator) {
     switch (operator) {
-      case EQUALS:
-        return "=";
-      case NOT_EQUALS:
-        return "!=";
       case GREATER_THAN:
         return ">";
       case LESS_THAN:
