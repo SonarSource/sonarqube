@@ -3,6 +3,19 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 7.5 Upgrade Notes  
+**Two Vulnerabilities Patched**  
+An open redirect vlunerability on login was corrected ([SONAR-11475](https://jira.sonarsource.com/browse/SONAR-11475)).
+
+An XSS vulnerability in custom project links was also patched. We would like to thank Daniele Costa, NCC Group for reporting the issue. ([SONAR-11506](https://jira.sonarsource.com/browse/SONAR-11506)).
+
+**DB Connection Pool Defaults Restored**  
+Database connection pool defaults have been restored to their pre-SonarQube 7.4 values. They were inadvertently affected by a change of connection pooling in 7.4 ([SONAR-11539](https://jira.sonarsource.com/browse/SONAR-11539)). 
+
+**More Issues Backdated**  
+Additional cases of issue backdating have been added, so fewer genuinely old issues will be reported in the New Code period ([MMF-1287](https://jira.sonarsource.com/browse/MMF-1287))
+
+
 ## Release 7.4 Upgrade Notes
 **Analysis Failure on Invalid New Code Period**  
 Analysis will fail if the New Code Period (see below) is not set to one of:
