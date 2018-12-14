@@ -72,6 +72,16 @@ export default class Page extends React.PureComponent {
             href={this.baseUrl + this.props.location.pathname.replace(version, 'latest')}
             rel="canonical"
           />
+          <script type="text/javascript">{`
+          (function(window,document) {
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window, document,'script','https://www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-1880045-11' , 'auto');
+            ga('send', 'pageview');
+          })(window,document);
+        `}</script>
         </Helmet>
         <HeaderList headers={realHeadingsList} />
         <h1>{page.frontmatter.title}</h1>
