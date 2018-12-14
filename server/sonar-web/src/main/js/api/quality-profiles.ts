@@ -165,16 +165,12 @@ export function compareProfiles(leftKey: string, rightKey: string): Promise<any>
   return getJSON('/api/qualityprofiles/compare', { leftKey, rightKey });
 }
 
-export function associateProject(profileKey: string, projectKey: string) {
-  return post('/api/qualityprofiles/add_project', { profileKey, projectKey }).catch(
-    throwGlobalError
-  );
+export function associateProject(key: string, project: string) {
+  return post('/api/qualityprofiles/add_project', { key, project }).catch(throwGlobalError);
 }
 
-export function dissociateProject(profileKey: string, projectKey: string) {
-  return post('/api/qualityprofiles/remove_project', { profileKey, projectKey }).catch(
-    throwGlobalError
-  );
+export function dissociateProject(key: string, project: string) {
+  return post('/api/qualityprofiles/remove_project', { key, project }).catch(throwGlobalError);
 }
 
 export interface SearchUsersGroupsParameters {
