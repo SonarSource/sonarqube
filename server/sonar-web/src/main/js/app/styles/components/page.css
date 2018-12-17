@@ -54,7 +54,7 @@
 }
 
 .page-container {
-  min-width: 1080px;
+  min-width: var(--minPageWidth);
 }
 
 .page-wrapper {

@@ -187,14 +187,14 @@
 .sc-header-background {
   position: absolute;
   width: 100%;
-  min-width: 1080px;
+  min-width: var(--minPageWidth);
   z-index: 0;
 }
 
 .sc-functionality-background {
   position: relative;
   width: 100%;
-  min-width: 1080px;
+  min-width: var(--minPageWidth);
   margin-top: -150px;
   z-index: 0;
 }

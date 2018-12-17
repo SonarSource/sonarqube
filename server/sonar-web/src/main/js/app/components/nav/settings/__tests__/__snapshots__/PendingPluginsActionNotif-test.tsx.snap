@@ -1,59 +1,64 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display pending actions 1`] = `
-<NavBarNotif
+<Alert
   className="js-pending"
+  display="banner"
   variant="info"
 >
-  <span
-    className="little-spacer-right"
+  <div
+    className="display-flex-center"
   >
-    <InstanceMessage
-      message="marketplace.instance_needs_to_be_restarted_to"
-    />
-  </span>
-  <span
-    key="marketplace.install_x_plugins"
-  >
-    <FormattedMessage
-      defaultMessage="marketplace.install_x_plugins"
-      id="marketplace.install_x_plugins"
-      values={
-        Object {
-          "nb": <strong>
-            2
-          </strong>,
+    <span
+      className="little-spacer-right"
+    >
+      <InstanceMessage
+        message="marketplace.instance_needs_to_be_restarted_to"
+      />
+    </span>
+    <span
+      key="marketplace.install_x_plugins"
+    >
+      <FormattedMessage
+        defaultMessage="marketplace.install_x_plugins"
+        id="marketplace.install_x_plugins"
+        values={
+          Object {
+            "nb": <strong>
+              2
+            </strong>,
+          }
         }
-      }
-    />
-  </span>
-  <span
-    key="marketplace.uninstall_x_plugins"
-  >
-    ; 
-    <FormattedMessage
-      defaultMessage="marketplace.uninstall_x_plugins"
-      id="marketplace.uninstall_x_plugins"
-      values={
-        Object {
-          "nb": <strong>
-            1
-          </strong>,
+      />
+    </span>
+    <span
+      key="marketplace.uninstall_x_plugins"
+    >
+      ; 
+      <FormattedMessage
+        defaultMessage="marketplace.uninstall_x_plugins"
+        id="marketplace.uninstall_x_plugins"
+        values={
+          Object {
+            "nb": <strong>
+              1
+            </strong>,
+          }
         }
-      }
-    />
-  </span>
-  <Button
-    className="spacer-left js-restart"
-    onClick={[Function]}
-  >
-    marketplace.restart
-  </Button>
-  <Button
-    className="spacer-left js-cancel-all button-red"
-    onClick={[Function]}
-  >
-    marketplace.revert
-  </Button>
-</NavBarNotif>
+      />
+    </span>
+    <Button
+      className="spacer-left js-restart"
+      onClick={[Function]}
+    >
+      marketplace.restart
+    </Button>
+    <Button
+      className="spacer-left js-cancel-all button-red"
+      onClick={[Function]}
+    >
+      marketplace.revert
+    </Button>
+  </div>
+</Alert>
 `;

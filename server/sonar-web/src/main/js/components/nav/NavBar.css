@@ -34,10 +34,10 @@
 
 .navbar-limited {
   position: relative;
-  min-width: 1080px;
-  max-width: 1320px;
+  min-width: var(--minPageWidth);
+  max-width: var(--maxPageWidth);
   margin-left: auto;
   margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: var(--pagePadding);
+  padding-right: var(--pagePadding);
 }

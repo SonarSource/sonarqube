@@ -27,7 +27,7 @@ import AlertSuccessIcon from '../icons-components/AlertSuccessIcon';
 import Tooltip from '../controls/Tooltip';
 import { translate } from '../../helpers/l10n';
 
-type AlertDisplay = 'block' | 'inline';
+type AlertDisplay = 'banner' | 'block' | 'inline';
 type AlertVariant = 'error' | 'warning' | 'success' | 'info';
 
 export interface AlertProps {
@@ -44,16 +44,17 @@ export function Alert(props: AlertProps & React.HTMLAttributes<HTMLElement>) {
       })}
       role="alert"
       {...domProps}>
-      <Tooltip overlay={translate('alert.tooltip', variant)}>
-        <div className="alert-icon">
-          {variant === 'error' && <AlertErrorIcon fill={theme.alertIconError} />}
-          {variant === 'warning' && <AlertWarnIcon fill={theme.alertIconWarning} />}
-          {variant === 'success' && <AlertSuccessIcon fill={theme.alertIconSuccess} />}
-          {variant === 'info' && <InfoIcon fill={theme.alertIconInfo} />}
-        </div>
-      </Tooltip>
-
-      <div className="alert-content">{props.children}</div>
+      <div className={classNames('alert-inner', { 'is-banner': display === 'banner' })}>
+        <Tooltip overlay={translate('alert.tooltip', variant)}>
+          <div className={classNames('alert-icon', { 'is-banner': display === 'banner' })}>
+            {variant === 'error' && <AlertErrorIcon fill={theme.alertIconError} />}
+            {variant === 'warning' && <AlertWarnIcon fill={theme.alertIconWarning} />}
+            {variant === 'success' && <AlertSuccessIcon fill={theme.alertIconSuccess} />}
+            {variant === 'info' && <InfoIcon fill={theme.alertIconInfo} />}
+          </div>
+        </Tooltip>
+        <div className="alert-content">{props.children}</div>
+      </div>
     </div>
   );
 }

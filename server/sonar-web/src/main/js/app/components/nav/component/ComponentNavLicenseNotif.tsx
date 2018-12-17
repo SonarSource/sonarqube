@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import { translate } from '../../../../helpers/l10n';
 import { isValidLicense } from '../../../../api/marketplace';
 import { withAppState } from '../../../../components/withAppState';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin'>;
@@ -73,16 +73,14 @@ export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> 
 
     if (isValidLicense && currentTask.errorType !== 'LICENSING_LOC') {
       return (
-        <NavBarNotif variant="error">
-          <span className="little-spacer-right">
-            {translate('component_navigation.status.last_blocked_due_to_bad_license')}
-          </span>
-        </NavBarNotif>
+        <Alert display="banner" variant="error">
+          {translate('component_navigation.status.last_blocked_due_to_bad_license')}
+        </Alert>
       );
     }
 
     return (
-      <NavBarNotif variant="error">
+      <Alert display="banner" variant="error">
         <span className="little-spacer-right">{currentTask.errorMessage}</span>
         {this.props.appState.canAdmin ? (
           <Link to="/admin/extension/license/app">
@@ -91,7 +89,7 @@ export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> 
         ) : (
           translate('please_contact_administrator')
         )}
-      </NavBarNotif>
+      </Alert>
     );
   }
 }

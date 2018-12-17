@@ -21,11 +21,10 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
-import NavBarNotif from '../../../../components/nav/NavBarNotif';
-import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
 import { hasMessage, translate } from '../../../../helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   component: T.Component;
@@ -64,17 +63,15 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
     const { currentTask, currentTaskOnSameBranch, isInProgress, isPending } = this.props;
     if (isInProgress) {
       return (
-        <NavBarNotif variant="info">
-          <i className="spinner spacer-right text-bottom" />
+        <Alert display="banner" variant="info">
           {this.renderMessage('component_navigation.status.in_progress')}
-        </NavBarNotif>
+        </Alert>
       );
     } else if (isPending) {
       return (
-        <NavBarNotif variant="info">
-          <PendingIcon className="spacer-right" />
+        <Alert display="banner" variant="info">
           {this.renderMessage('component_navigation.status.pending', STATUSES.ALL)}
-        </NavBarNotif>
+        </Alert>
       );
     } else if (currentTask && currentTask.status === STATUSES.FAILED) {
       if (
@@ -99,7 +96,11 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
         message = this.renderMessage('component_navigation.status.failed');
       }
 
-      return <NavBarNotif variant="error">{message}</NavBarNotif>;
+      return (
+        <Alert display="banner" variant="error">
+          {message}
+        </Alert>
+      );
     }
     return null;
   }
