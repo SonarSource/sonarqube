@@ -232,10 +232,12 @@ export default function startReactApp(
                     childRoutes={projectQualityProfilesRoutes}
                   />
                   <Route component={lazyLoad(() => import('../components/ProjectAdminContainer'))}>
-                    <RouteWithChildRoutes
-                      path="custom_measures"
-                      childRoutes={customMeasuresRoutes}
-                    />
+                    {!isSonarCloud() && (
+                      <RouteWithChildRoutes
+                        path="custom_measures"
+                        childRoutes={customMeasuresRoutes}
+                      />
+                    )}
                     <Route
                       path="project/admin/extension/:pluginKey/:extensionKey"
                       component={lazyLoad(() =>

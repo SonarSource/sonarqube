@@ -31,6 +31,7 @@ import {
 import { translate } from '../../../../helpers/l10n';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { withAppState } from '../../../../components/withAppState';
+import { isSonarCloud } from '../../../../helpers/system';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -328,7 +329,7 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderCustomMeasuresLink() {
-    if (!this.getConfiguration().showManualMeasures) {
+    if (isSonarCloud() || !this.getConfiguration().showManualMeasures) {
       return null;
     }
     return (
