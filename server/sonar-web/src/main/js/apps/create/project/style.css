@@ -57,6 +57,15 @@
   box-shadow: none;
 }
 
+.create-project-side-with-search {
+  margin-top: calc(4 * var(--gridSize));
+}
+
+.create-project-side-sticky {
+  position: sticky;
+  top: 68px;
+}
+
 .create-project-setup {
   display: flex;
   overflow: hidden;

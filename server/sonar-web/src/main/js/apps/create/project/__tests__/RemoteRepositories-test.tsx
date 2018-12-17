@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { times } from 'lodash';
 import { shallow } from 'enzyme';
 import RemoteRepositories from '../RemoteRepositories';
 import { getRepositories } from '../../../../api/alm-integration';
@@ -90,6 +91,20 @@ it('should not display the organization upgrade box', () => {
   });
 
   expect(wrapper.find('UpgradeOrganizationBox').exists()).toBe(false);
+});
+
+it('should display a search box to filter repositories', async () => {
+  (getRepositories as jest.Mock<any>).mockResolvedValueOnce({
+    repositories: times(6, i => ({ label: `Project ${i}`, installationKey: `key-${i}` }))
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.find('SearchBox').exists()).toBe(true);
+  expect(wrapper.find('AlmRepositoryItem')).toHaveLength(6);
+  wrapper.find('SearchBox').prop<Function>('onChange')('3');
+  expect(wrapper.find('AlmRepositoryItem')).toHaveLength(1);
 });
 
 function shallowRender(props: Partial<RemoteRepositories['props']> = {}) {

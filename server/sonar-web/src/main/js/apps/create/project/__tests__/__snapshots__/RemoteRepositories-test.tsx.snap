@@ -11,28 +11,38 @@ exports[`should display the list of repositories 1`] = `
       loading={true}
       timeout={100}
     >
-      <ul />
+      <ul>
+        <li
+          className="big-spacer-top note"
+        >
+          onboarding.create_project.no_repositories
+        </li>
+      </ul>
     </DeferredSpinner>
   </div>
   <div
-    className="huge-spacer-left"
+    className=""
   >
-    <SetupProjectBox
-      onProjectCreate={[MockFunction]}
-      onProvisionFail={[Function]}
-      organization={
-        Object {
-          "alm": Object {
-            "key": "github",
-            "url": "",
-          },
-          "key": "sonarsource",
-          "name": "SonarSource",
-          "subscription": "FREE",
+    <div
+      className="create-project-side-sticky"
+    >
+      <SetupProjectBox
+        onProjectCreate={[MockFunction]}
+        onProvisionFail={[Function]}
+        organization={
+          Object {
+            "alm": Object {
+              "key": "github",
+              "url": "",
+            },
+            "key": "sonarsource",
+            "name": "SonarSource",
+            "subscription": "FREE",
+          }
         }
-      }
-      selectedRepositories={Array []}
-    />
+        selectedRepositories={Array []}
+      />
+    </div>
   </div>
 </div>
 `;
@@ -99,24 +109,28 @@ exports[`should display the list of repositories 2`] = `
     </DeferredSpinner>
   </div>
   <div
-    className="huge-spacer-left"
+    className=""
   >
-    <SetupProjectBox
-      onProjectCreate={[MockFunction]}
-      onProvisionFail={[Function]}
-      organization={
-        Object {
-          "alm": Object {
-            "key": "github",
-            "url": "",
-          },
-          "key": "sonarsource",
-          "name": "SonarSource",
-          "subscription": "FREE",
+    <div
+      className="create-project-side-sticky"
+    >
+      <SetupProjectBox
+        onProjectCreate={[MockFunction]}
+        onProvisionFail={[Function]}
+        organization={
+          Object {
+            "alm": Object {
+              "key": "github",
+              "url": "",
+            },
+            "key": "sonarsource",
+            "name": "SonarSource",
+            "subscription": "FREE",
+          }
         }
-      }
-      selectedRepositories={Array []}
-    />
+        selectedRepositories={Array []}
+      />
+    </div>
   </div>
 </div>
 `;
