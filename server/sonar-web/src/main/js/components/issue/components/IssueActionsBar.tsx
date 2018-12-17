@@ -76,7 +76,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
       issue.resolution === 'FALSE-POSITIVE' ||
       (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
     ) {
-      this.toggleComment(true, translate('issue.comment.tell_why'));
+      this.toggleComment(true, translate('issue.comment.explain_why'));
     }
   };
 
