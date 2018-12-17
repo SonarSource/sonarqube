@@ -41,20 +41,20 @@ const organization: T.Organization = {
   projectVisibility: 'public'
 };
 
+beforeEach(() => {
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(false);
+});
+
 it('should not render breadcrumbs with one element', () => {
   expect(
     shallow(
-      <ComponentNavHeader
-        branchLikes={[]}
-        component={component}
-        currentBranchLike={undefined}
-        shouldOrganizationBeDisplayed={false}
-      />
+      <ComponentNavHeader branchLikes={[]} component={component} currentBranchLike={undefined} />
     )
   ).toMatchSnapshot();
 });
 
 it('should render organization', () => {
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(true);
   expect(
     shallow(
       <ComponentNavHeader
@@ -62,14 +62,13 @@ it('should render organization', () => {
         component={component}
         currentBranchLike={undefined}
         organization={organization}
-        shouldOrganizationBeDisplayed={true}
       />
     )
   ).toMatchSnapshot();
 });
 
 it('should render alm links', () => {
-  (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
+  (isSonarCloud as jest.Mock<any>).mockReturnValue(true);
   expect(
     shallow(
       <ComponentNavHeader
@@ -80,7 +79,6 @@ it('should render alm links', () => {
         }}
         currentBranchLike={undefined}
         organization={organization}
-        shouldOrganizationBeDisplayed={true}
       />
     )
   ).toMatchSnapshot();

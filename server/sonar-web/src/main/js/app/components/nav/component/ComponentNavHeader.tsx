@@ -22,22 +22,17 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import ComponentNavBranch from './ComponentNavBranch';
 import QualifierIcon from '../../../../components/icons-components/QualifierIcon';
-import {
-  getOrganizationByKey,
-  areThereCustomOrganizations,
-  Store
-} from '../../../../store/rootReducer';
+import { getOrganizationByKey, Store } from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { sanitizeAlmId } from '../../../../helpers/almIntegrations';
-import { collapsePath, limitComponentName } from '../../../../helpers/path';
+import { collapsePath } from '../../../../helpers/path';
 import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isSonarCloud } from '../../../../helpers/system';
 
 interface StateProps {
   organization?: T.Organization;
-  shouldOrganizationBeDisplayed?: boolean;
 }
 
 interface OwnProps {
@@ -50,16 +45,16 @@ interface OwnProps {
 interface Props extends StateProps, OwnProps {}
 
 export function ComponentNavHeader(props: Props) {
-  const { component, organization, shouldOrganizationBeDisplayed } = props;
+  const { component, organization } = props;
 
   return (
     <header className="navbar-context-header">
       <OrganizationHelmet
-        organization={organization && shouldOrganizationBeDisplayed ? organization : undefined}
+        organization={organization && isSonarCloud() ? organization : undefined}
         title={component.name}
       />
       {organization &&
-        shouldOrganizationBeDisplayed && (
+        isSonarCloud() && (
           <>
             <OrganizationAvatar organization={organization} />
             <OrganizationLink
@@ -104,7 +99,7 @@ function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[]) {
   const lastItem = breadcrumbs[breadcrumbs.length - 1];
   return breadcrumbs.map((item, index) => {
     const isPath = item.qualifier === 'DIR';
-    const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
+    const itemName = isPath ? collapsePath(item.name, 15) : item.name;
 
     return (
       <React.Fragment key={item.key}>
@@ -122,8 +117,7 @@ function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[]) {
 }
 
 const mapStateToProps = (state: Store, ownProps: OwnProps): StateProps => ({
-  organization: getOrganizationByKey(state, ownProps.component.organization),
-  shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
+  organization: getOrganizationByKey(state, ownProps.component.organization)
 });
 
 export default connect(mapStateToProps)(ComponentNavHeader);
