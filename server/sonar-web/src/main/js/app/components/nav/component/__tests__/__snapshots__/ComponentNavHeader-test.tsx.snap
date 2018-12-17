@@ -11,23 +11,12 @@ exports[`should not render breadcrumbs with one element 1`] = `
     className="spacer-right"
     qualifier="TRK"
   />
-  <Link
-    className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
-    onlyActiveOnIndex={false}
-    style={Object {}}
+  <span
+    className="navbar-context-header-breadcrumb-link"
     title="My Project"
-    to={
-      Object {
-        "pathname": "/dashboard",
-        "query": Object {
-          "branch": undefined,
-          "id": "my-project",
-        },
-      }
-    }
   >
     My Project
-  </Link>
+  </span>
 </header>
 `;
 
@@ -73,23 +62,12 @@ exports[`should render alm links 1`] = `
     className="spacer-right"
     qualifier="TRK"
   />
-  <Link
-    className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
-    onlyActiveOnIndex={false}
-    style={Object {}}
+  <span
+    className="navbar-context-header-breadcrumb-link"
     title="My Project"
-    to={
-      Object {
-        "pathname": "/dashboard",
-        "query": Object {
-          "branch": undefined,
-          "id": "my-project",
-        },
-      }
-    }
   >
     My Project
-  </Link>
+  </span>
   <a
     className="link-no-underline"
     href="https://bitbucket.org/foo"
@@ -149,22 +127,11 @@ exports[`should render organization 1`] = `
     className="spacer-right"
     qualifier="TRK"
   />
-  <Link
-    className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
-    onlyActiveOnIndex={false}
-    style={Object {}}
+  <span
+    className="navbar-context-header-breadcrumb-link"
     title="My Project"
-    to={
-      Object {
-        "pathname": "/dashboard",
-        "query": Object {
-          "branch": undefined,
-          "id": "my-project",
-        },
-      }
-    }
   >
     My Project
-  </Link>
+  </span>
 </header>
 `;

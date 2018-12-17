@@ -30,6 +30,7 @@ import { sanitizeAlmId } from '../../../../helpers/almIntegrations';
 import { collapsePath } from '../../../../helpers/path';
 import { getProjectUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isSonarCloud } from '../../../../helpers/system';
+import { isMainBranch } from '../../../../helpers/branches';
 
 interface StateProps {
   organization?: T.Organization;
@@ -42,7 +43,7 @@ interface OwnProps {
   location?: any;
 }
 
-interface Props extends StateProps, OwnProps {}
+type Props = StateProps & OwnProps;
 
 export function ComponentNavHeader(props: Props) {
   const { component, organization } = props;
@@ -65,7 +66,10 @@ export function ComponentNavHeader(props: Props) {
             <span className="slash-separator" />
           </>
         )}
-      {renderBreadcrumbs(component.breadcrumbs)}
+      {renderBreadcrumbs(
+        component.breadcrumbs,
+        props.currentBranchLike !== undefined && !isMainBranch(props.currentBranchLike)
+      )}
       {isSonarCloud() &&
         component.alm && (
           <a
@@ -95,7 +99,7 @@ export function ComponentNavHeader(props: Props) {
   );
 }
 
-function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[]) {
+function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[], shouldLinkLast: boolean) {
   const lastItem = breadcrumbs[breadcrumbs.length - 1];
   return breadcrumbs.map((item, index) => {
     const isPath = item.qualifier === 'DIR';
@@ -104,12 +108,18 @@ function renderBreadcrumbs(breadcrumbs: T.Breadcrumb[]) {
     return (
       <React.Fragment key={item.key}>
         {index === 0 && <QualifierIcon className="spacer-right" qualifier={lastItem.qualifier} />}
-        <Link
-          className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
-          title={item.name}
-          to={getProjectUrl(item.key)}>
-          {itemName}
-        </Link>
+        {shouldLinkLast || index < breadcrumbs.length - 1 ? (
+          <Link
+            className="navbar-context-header-breadcrumb-link link-base-color link-no-underline"
+            title={item.name}
+            to={getProjectUrl(item.key)}>
+            {itemName}
+          </Link>
+        ) : (
+          <span className="navbar-context-header-breadcrumb-link" title={item.name}>
+            {itemName}
+          </span>
+        )}
         {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
       </React.Fragment>
     );
