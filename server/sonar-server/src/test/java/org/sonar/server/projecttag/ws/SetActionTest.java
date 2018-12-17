@@ -43,8 +43,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -201,8 +201,8 @@ public class SetActionTest {
 
   private TestResponse call(@Nullable String projectKey, @Nullable String tags) {
     TestRequest request = ws.newRequest();
-    setNullable(projectKey, p -> request.setParam("project", p));
-    setNullable(tags, t -> request.setParam("tags", tags));
+    ofNullable(projectKey).ifPresent(p -> request.setParam("project", p));
+    ofNullable(tags).ifPresent(t -> request.setParam("tags", tags));
 
     return request.execute();
   }

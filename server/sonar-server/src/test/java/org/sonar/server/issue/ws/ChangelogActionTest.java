@@ -44,11 +44,11 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog.Diff;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
@@ -323,7 +323,7 @@ public class ChangelogActionTest {
 
   private ChangelogWsResponse call(@Nullable String issueKey) {
     TestRequest request = tester.newRequest();
-    setNullable(issueKey, e -> request.setParam("issue", e));
+    ofNullable(issueKey).ifPresent(e -> request.setParam("issue", e));
     return request.executeProtobuf(ChangelogWsResponse.class);
   }
 

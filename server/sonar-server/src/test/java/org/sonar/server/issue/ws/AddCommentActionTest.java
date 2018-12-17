@@ -57,6 +57,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -65,7 +66,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 
 public class AddCommentActionTest {
@@ -204,8 +204,8 @@ public class AddCommentActionTest {
 
   private TestResponse call(@Nullable String issueKey, @Nullable String commentText) {
     TestRequest request = tester.newRequest();
-    setNullable(issueKey, issue -> request.setParam("issue", issue));
-    setNullable(commentText, text -> request.setParam("text", text));
+    ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
+    ofNullable(commentText).ifPresent(text -> request.setParam("text", text));
     return request.execute();
   }
 

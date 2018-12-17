@@ -46,8 +46,8 @@ import org.sonarqube.ws.ProjectAnalyses.Event;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.event.EventValidator.MAX_NAME_LENGTH;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
@@ -178,7 +178,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
       .setCategory(fromLabel(dbEvent.getCategory()).name())
       .setAnalysis(dbEvent.getAnalysisUuid())
       .setName(dbEvent.getName());
-    setNullable(dbEvent.getDescription(), wsEvent::setDescription);
+    ofNullable(dbEvent.getDescription()).ifPresent(wsEvent::setDescription);
 
     return CreateEventResponse.newBuilder().setEvent(wsEvent).build();
   }

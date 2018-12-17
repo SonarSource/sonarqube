@@ -47,12 +47,12 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
@@ -357,10 +357,10 @@ public class CreateActionTest {
   private CreateWsResponse call(CreateRequest request) {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
-    setNullable(request.getOrganization(), e -> httpRequest.setParam("organization", e));
-    setNullable(request.getKey(), e -> httpRequest.setParam("project", e));
-    setNullable(request.getName(), e -> httpRequest.setParam("name", e));
-    setNullable(request.getBranch(), e -> httpRequest.setParam("branch", e));
+    ofNullable(request.getOrganization()).ifPresent(org -> httpRequest.setParam("organization", org));
+    ofNullable(request.getKey()).ifPresent(key -> httpRequest.setParam("project", key));
+    ofNullable(request.getName()).ifPresent(name -> httpRequest.setParam("name", name));
+    ofNullable(request.getBranch()).ifPresent(branch -> httpRequest.setParam("branch", branch));
     return httpRequest.executeProtobuf(CreateWsResponse.class);
   }
 

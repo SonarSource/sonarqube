@@ -59,13 +59,13 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -227,7 +227,7 @@ public class SetTagsActionTest {
 
   private TestResponse call(@Nullable String issueKey, String... tags) {
     TestRequest request = ws.newRequest();
-    setNullable(issueKey, issue -> request.setParam("issue", issue));
+    ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
     if (tags.length > 0) {
       request.setParam("tags", Arrays.stream(tags).collect(join(Joiner.on(","))));
     }

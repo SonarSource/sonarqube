@@ -21,7 +21,6 @@ package org.sonar.core.util;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,7 +30,6 @@ import org.sonar.test.TestUtils;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.test.Test.Fake;
-import static org.sonar.core.util.Protobuf.setNullable;
 
 public class ProtobufTest {
 
@@ -115,34 +113,5 @@ public class ProtobufTest {
     CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.parser());
     assertThat(it).isNotNull();
     assertThat(it.hasNext()).isFalse();
-  }
-
-  @Test
-  public void setNullable_sets_field_if_value_is_not_null() {
-    Fake.Builder builder = Fake.newBuilder();
-
-    setNullable("foo", builder::setLabel);
-    assertThat(builder.getLabel()).isEqualTo("foo");
-
-    builder.clear();
-    setNullable(null, builder::setLabel);
-    assertThat(builder.hasLabel()).isFalse();
-  }
-
-  @Test
-  public void setNullable_converts_value_and_sets_field_if_value_is_not_null() {
-    Fake.Builder builder = Fake.newBuilder();
-
-    setNullable("foo", builder::setLabel, StringUtils::upperCase);
-    assertThat(builder.getLabel()).isEqualTo("FOO");
-
-    builder.clear();
-    setNullable((String)null, builder::setLabel, StringUtils::upperCase);
-    assertThat(builder.hasLabel()).isFalse();
-
-    // do not set field if value is present but result of conversion is null
-    builder.clear();
-    setNullable("    ", builder::setLabel, StringUtils::trimToNull);
-    assertThat(builder.hasLabel()).isFalse();
   }
 }

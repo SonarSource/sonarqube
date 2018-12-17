@@ -40,7 +40,7 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -143,7 +143,7 @@ public class ShowAction implements QualityGatesWsAction {
         .setId(condition.getId())
         .setMetric(metric.getKey())
         .setOp(condition.getOperator());
-      setNullable(condition.getErrorThreshold(), builder::setError);
+      ofNullable(condition.getErrorThreshold()).ifPresent(builder::setError);
       return builder.build();
     };
   }

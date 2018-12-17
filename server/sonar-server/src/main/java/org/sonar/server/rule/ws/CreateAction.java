@@ -45,7 +45,7 @@ import org.sonarqube.ws.Rules;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements RulesWsAction {
@@ -161,7 +161,7 @@ public class CreateAction implements RulesWsAction {
         if (!isNullOrEmpty(params)) {
           newRule.setParameters(KeyValueFormat.parse(params));
         }
-        setNullable(request.param(PARAM_TYPE), t -> newRule.setType(RuleType.valueOf(t)));
+        ofNullable(request.param(PARAM_TYPE)).ifPresent(t -> newRule.setType(RuleType.valueOf(t)));
         writeResponse(dbSession, request, response, ruleCreator.create(dbSession, newRule));
       } catch (ReactivationException e) {
         response.stream().setStatus(HTTP_CONFLICT);

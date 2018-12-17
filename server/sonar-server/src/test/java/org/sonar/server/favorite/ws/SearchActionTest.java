@@ -41,11 +41,11 @@ import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Favorites.SearchResponse;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -189,8 +189,8 @@ public class SearchActionTest {
   private SearchResponse call(@Nullable Integer page, @Nullable Integer pageSize) {
     TestRequest request = ws.newRequest()
       .setMethod(POST.name());
-    setNullable(page, p -> request.setParam(Param.PAGE, p.toString()));
-    setNullable(pageSize, ps -> request.setParam(Param.PAGE_SIZE, ps.toString()));
+    ofNullable(page).ifPresent(p -> request.setParam(Param.PAGE, p.toString()));
+    ofNullable(pageSize).ifPresent(ps -> request.setParam(Param.PAGE_SIZE, ps.toString()));
 
     return request.executeProtobuf(SearchResponse.class);
   }

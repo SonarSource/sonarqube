@@ -44,10 +44,10 @@ import org.sonarqube.ws.MediaTypes;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -133,17 +133,17 @@ public class IssuesAction implements BatchWsAction {
     issueBuilder.setKey(issue.getKey());
     String moduleUuid = extractModuleUuid(issue);
     issueBuilder.setModuleKey(keysByUUid.get(moduleUuid));
-    setNullable(issue.getFilePath(), issueBuilder::setPath);
+    ofNullable(issue.getFilePath()).ifPresent(issueBuilder::setPath);
     issueBuilder.setRuleRepository(issue.getRuleRepo());
     issueBuilder.setRuleKey(issue.getRule());
-    setNullable(issue.getChecksum(), issueBuilder::setChecksum);
-    setNullable(issue.getAssigneeUuid(), issueBuilder::setAssigneeLogin);
-    setNullable(issue.getLine(), issueBuilder::setLine);
-    setNullable(issue.getMessage(), issueBuilder::setMsg);
+    ofNullable(issue.getChecksum()).ifPresent(issueBuilder::setChecksum);
+    ofNullable(issue.getAssigneeUuid()).ifPresent(issueBuilder::setAssigneeLogin);
+    ofNullable(issue.getLine()).ifPresent(issueBuilder::setLine);
+    ofNullable(issue.getMessage()).ifPresent(issueBuilder::setMsg);
     issueBuilder.setSeverity(org.sonar.scanner.protocol.Constants.Severity.valueOf(issue.getSeverity()));
     issueBuilder.setManualSeverity(issue.isManualSeverity());
     issueBuilder.setStatus(issue.getStatus());
-    setNullable(issue.getResolution(), issueBuilder::setResolution);
+    ofNullable(issue.getResolution()).ifPresent(issueBuilder::setResolution);
     issueBuilder.setType(RuleType.valueOf(issue.getType()).name());
     issueBuilder.setCreationDate(issue.getIssueCreationTime());
     try {

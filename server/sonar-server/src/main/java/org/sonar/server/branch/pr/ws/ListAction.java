@@ -47,11 +47,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -141,8 +141,8 @@ public class ListAction implements PullRequestWsAction {
 
     DbProjectBranches.PullRequestData pullRequestData = requireNonNull(branch.getPullRequestData(), "Pull request data should be available for branch type PULL_REQUEST");
     builder.setBranch(pullRequestData.getBranch());
-    setNullable(emptyToNull(pullRequestData.getUrl()), builder::setUrl);
-    setNullable(emptyToNull(pullRequestData.getTitle()), builder::setTitle);
+    ofNullable(emptyToNull(pullRequestData.getUrl())).ifPresent(builder::setUrl);
+    ofNullable(emptyToNull(pullRequestData.getTitle())).ifPresent(builder::setTitle);
 
     if (mergeBranch.isPresent()) {
       String mergeBranchKey = mergeBranch.get().getKey();
@@ -150,7 +150,7 @@ public class ListAction implements PullRequestWsAction {
     } else {
       builder.setIsOrphan(true);
     }
-    setNullable(analysisDate, builder::setAnalysisDate);
+    ofNullable(analysisDate).ifPresent(builder::setAnalysisDate);
     setQualityGate(builder, qualityGateMeasure, branchStatistics);
     response.addPullRequests(builder);
   }
@@ -158,7 +158,7 @@ public class ListAction implements PullRequestWsAction {
   private static void setQualityGate(ProjectPullRequests.PullRequest.Builder builder, @Nullable LiveMeasureDto qualityGateMeasure, @Nullable BranchStatistics branchStatistics) {
     ProjectPullRequests.Status.Builder statusBuilder = ProjectPullRequests.Status.newBuilder();
     if (qualityGateMeasure != null) {
-      setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
+      ofNullable(qualityGateMeasure.getDataAsString()).ifPresent(statusBuilder::setQualityGateStatus);
     }
     statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());
     statusBuilder.setVulnerabilities(branchStatistics == null ? 0L : branchStatistics.getVulnerabilities());

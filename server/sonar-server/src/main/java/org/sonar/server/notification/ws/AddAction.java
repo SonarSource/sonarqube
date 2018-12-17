@@ -41,7 +41,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
 import static java.util.Optional.empty;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_ADD;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
@@ -150,8 +150,8 @@ public class AddAction implements NotificationsWsAction {
     AddRequest add = new AddRequest()
       .setType(request.mandatoryParam(PARAM_TYPE))
       .setChannel(request.mandatoryParam(PARAM_CHANNEL));
-    setNullable(request.param(PARAM_PROJECT), add::setProject);
-    setNullable(request.param(PARAM_LOGIN), add::setLogin);
+    ofNullable(request.param(PARAM_PROJECT)).ifPresent(add::setProject);
+    ofNullable(request.param(PARAM_LOGIN)).ifPresent(add::setLogin);
 
     if (add.getProject() == null) {
       checkRequest(dispatchers.getGlobalDispatchers().contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",

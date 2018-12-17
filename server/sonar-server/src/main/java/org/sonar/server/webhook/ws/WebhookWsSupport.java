@@ -19,12 +19,12 @@
  */
 package org.sonar.server.webhook.ws;
 
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonarqube.ws.Webhooks;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 class WebhookWsSupport {
@@ -41,16 +41,16 @@ class WebhookWsSupport {
       .setUrl(dto.getUrl())
       .setSuccess(dto.isSuccess())
       .setComponentKey(component.getDbKey());
-    Protobuf.setNullable(dto.getCeTaskUuid(), builder::setCeTaskId);
-    Protobuf.setNullable(dto.getHttpStatus(), builder::setHttpStatus);
-    Protobuf.setNullable(dto.getDurationMs(), builder::setDurationMs);
+    ofNullable(dto.getCeTaskUuid()).ifPresent(builder::setCeTaskId);
+    ofNullable(dto.getHttpStatus()).ifPresent(builder::setHttpStatus);
+    ofNullable(dto.getDurationMs()).ifPresent(builder::setDurationMs);
     return builder;
   }
 
   static Webhooks.Delivery.Builder copyDtoToProtobuf(ComponentDto component, WebhookDeliveryDto dto, Webhooks.Delivery.Builder builder) {
     copyDtoToProtobuf(component, (WebhookDeliveryLiteDto) dto, builder);
     builder.setPayload(dto.getPayload());
-    Protobuf.setNullable(dto.getErrorStacktrace(), builder::setErrorStacktrace);
+    ofNullable(dto.getErrorStacktrace()).ifPresent(builder::setErrorStacktrace);
     return builder;
   }
 }

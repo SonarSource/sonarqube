@@ -43,10 +43,10 @@ import org.sonarqube.ws.ProjectTags.SearchResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -128,8 +128,8 @@ public class SearchActionTest {
 
   private SearchResponse call(@Nullable String textQuery, @Nullable Integer pageSize) {
     TestRequest request = ws.newRequest();
-    setNullable(textQuery, s -> request.setParam("q", s));
-    setNullable(pageSize, ps -> request.setParam("ps", ps.toString()));
+    ofNullable(textQuery).ifPresent(s -> request.setParam("q", s));
+    ofNullable(pageSize).ifPresent(ps -> request.setParam("ps", ps.toString()));
 
     return request.executeProtobuf(SearchResponse.class);
   }

@@ -32,8 +32,6 @@ import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.emptyToNull;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;

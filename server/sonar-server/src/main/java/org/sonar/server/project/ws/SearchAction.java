@@ -44,12 +44,12 @@ import org.sonarqube.ws.Projects.SearchWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.project.Visibility.PRIVATE;
@@ -191,16 +191,15 @@ public class SearchAction implements ProjectsWsAction {
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
 
-    setNullable(request.getQuery(), q -> {
+    ofNullable(request.getQuery()).ifPresent(q -> {
       query.setNameOrKeyQuery(q);
       query.setPartialMatchOnKey(true);
-      return query;
     });
-    setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
-    setNullable(request.getAnalyzedBefore(), d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
-    setNullable(request.isOnProvisionedOnly(), query::setOnProvisionedOnly);
-    setNullable(request.getProjects(), keys -> query.setComponentKeys(new HashSet<>(keys)));
-    setNullable(request.getProjectIds(), uuids -> query.setComponentUuids(new HashSet<>(uuids)));
+    ofNullable(request.getVisibility()).ifPresent(v -> query.setPrivate(Visibility.isPrivate(v)));
+    ofNullable(request.getAnalyzedBefore()).ifPresent(d -> query.setAnalyzedBefore(parseDateOrDateTime(d).getTime()));
+    query.setOnProvisionedOnly(request.isOnProvisionedOnly());
+    ofNullable(request.getProjects()).ifPresent(keys -> query.setComponentKeys(new HashSet<>(keys)));
+    ofNullable(request.getProjectIds()).ifPresent(uuids -> query.setComponentUuids(new HashSet<>(uuids)));
 
     return query.build();
   }
@@ -239,7 +238,7 @@ public class SearchAction implements ProjectsWsAction {
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
-    setNullable(analysisDate, d -> builder.setLastAnalysisDate(formatDateTime(d)));
+    ofNullable(analysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
 
     return builder.build();
   }

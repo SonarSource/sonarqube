@@ -41,7 +41,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
 import static java.util.Optional.empty;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_REMOVE;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
@@ -149,8 +149,8 @@ public class RemoveAction implements NotificationsWsAction {
     RemoveRequest remove = new RemoveRequest()
       .setType(request.mandatoryParam(PARAM_TYPE))
       .setChannel(request.mandatoryParam(PARAM_CHANNEL));
-    setNullable(request.param(PARAM_PROJECT), remove::setProject);
-    setNullable(request.param(PARAM_LOGIN), remove::setLogin);
+    ofNullable(request.param(PARAM_PROJECT)).ifPresent(remove::setProject);
+    ofNullable(request.param(PARAM_LOGIN)).ifPresent(remove::setLogin);
 
     if (remove.getProject() == null) {
       checkRequest(dispatchers.getGlobalDispatchers().contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",

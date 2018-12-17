@@ -22,10 +22,10 @@ package org.sonar.ce.task.projectanalysis.issue;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueLocationsTest {
@@ -102,7 +102,7 @@ public class IssueLocationsTest {
   private static DbIssues.Location newLocation(@Nullable String componentId, int startLine, int endLine) {
     DbIssues.Location.Builder builder = DbIssues.Location.newBuilder()
       .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(startLine).setEndLine(endLine).build());
-    Protobuf.setNullable(componentId, builder::setComponentId);
+    ofNullable(componentId).ifPresent(builder::setComponentId);
     return builder.build();
   }
 }

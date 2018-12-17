@@ -51,8 +51,8 @@ import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Paging.offset;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.project.ws.SearchMyProjectsData.builder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -139,7 +139,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
         .setName(dto.name());
       data.lastAnalysisDateFor(dto.uuid()).ifPresent(project::setLastAnalysisDate);
       data.qualityGateStatusFor(dto.uuid()).ifPresent(project::setQualityGate);
-      setNullable(emptyToNull(dto.description()), project::setDescription);
+      ofNullable(emptyToNull(dto.description())).ifPresent(project::setDescription);
 
       data.projectLinksFor(dto.uuid()).stream()
         .map(ProjectLinkDtoToWs.INSTANCE)

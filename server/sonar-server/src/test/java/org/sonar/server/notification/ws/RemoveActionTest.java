@@ -47,10 +47,10 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
@@ -326,9 +326,9 @@ public class RemoveActionTest {
   private TestResponse call(RemoveRequest remove) {
     TestRequest request = ws.newRequest();
     request.setParam(PARAM_TYPE, remove.getType());
-    setNullable(remove.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
-    setNullable(remove.getProject(), project -> request.setParam(PARAM_PROJECT, project));
-    setNullable(remove.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
+    ofNullable(remove.getChannel()).ifPresent(channel -> request.setParam(PARAM_CHANNEL, channel));
+    ofNullable(remove.getProject()).ifPresent(project -> request.setParam(PARAM_PROJECT, project));
+    ofNullable(remove.getLogin()).ifPresent(login -> request.setParam(PARAM_LOGIN, login));
     return request.execute();
   }
 

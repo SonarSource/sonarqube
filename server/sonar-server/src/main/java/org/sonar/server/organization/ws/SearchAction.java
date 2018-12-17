@@ -41,7 +41,7 @@ import org.sonarqube.ws.Organizations.Organization;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
@@ -161,9 +161,9 @@ public class SearchAction implements OrganizationsWsAction {
       .setName(organization.getName())
       .setKey(organization.getKey())
       .setGuarded(organization.isGuarded());
-    setNullable(organization.getDescription(), builder::setDescription);
-    setNullable(organization.getUrl(), builder::setUrl);
-    setNullable(organization.getAvatarUrl(), builder::setAvatar);
+    ofNullable(organization.getDescription()).ifPresent(builder::setDescription);
+    ofNullable(organization.getUrl()).ifPresent(builder::setUrl);
+    ofNullable(organization.getAvatarUrl()).ifPresent(builder::setAvatar);
     if (onlyMembershipOrganizations && organizationAlmBinding != null) {
       builder.setAlm(Organization.Alm.newBuilder()
         .setKey(organizationAlmBinding.getAlm().getId())

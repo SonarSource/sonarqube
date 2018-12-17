@@ -43,8 +43,8 @@ import javax.annotation.CheckForNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
@@ -168,7 +168,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
 
   private static Function<EventDto, EventDto> updateNameAndDescription(UpdateEventRequest request) {
     return event -> {
-      setNullable(request.getName(), event::setName);
+      ofNullable(request.getName()).ifPresent(event::setName);
       return event;
     };
   }
@@ -179,8 +179,8 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
         .setKey(dbEvent.getUuid())
         .setCategory(fromLabel(dbEvent.getCategory()).name())
         .setAnalysis(dbEvent.getAnalysisUuid());
-      setNullable(dbEvent.getName(), wsEvent::setName);
-      setNullable(dbEvent.getDescription(), wsEvent::setDescription);
+      ofNullable(dbEvent.getName()).ifPresent(wsEvent::setName);
+      ofNullable(dbEvent.getDescription()).ifPresent(wsEvent::setDescription);
 
       return UpdateEventResponse.newBuilder().setEvent(wsEvent).build();
     };

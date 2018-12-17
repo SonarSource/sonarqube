@@ -55,13 +55,13 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
@@ -410,11 +410,11 @@ public class CreateActionTest {
 
   private CreateWsResponse call(CreateRequest createRequest) {
     TestRequest request = tester.newRequest();
-    setNullable(createRequest.getLogin(), e -> request.setParam("login", e));
-    setNullable(createRequest.getName(), e -> request.setParam("name", e));
-    setNullable(createRequest.getEmail(), e -> request.setParam("email", e));
-    setNullable(createRequest.getPassword(), e -> request.setParam("password", e));
-    setNullable(createRequest.getScmAccounts(), e -> request.setMultiParam("scmAccount", e));
+    ofNullable(createRequest.getLogin()).ifPresent(e4 -> request.setParam("login", e4));
+    ofNullable(createRequest.getName()).ifPresent(e3 -> request.setParam("name", e3));
+    ofNullable(createRequest.getEmail()).ifPresent(e2 -> request.setParam("email", e2));
+    ofNullable(createRequest.getPassword()).ifPresent(e1 -> request.setParam("password", e1));
+    ofNullable(createRequest.getScmAccounts()).ifPresent(e -> request.setMultiParam("scmAccount", e));
     request.setParam("local", createRequest.isLocal() ? "true" : "false");
     return request.executeProtobuf(CreateWsResponse.class);
   }

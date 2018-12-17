@@ -33,7 +33,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.UserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -149,7 +149,7 @@ public class GroupWsSupport {
       .setName(group.getName())
       .setMembersCount(membersCount)
       .setDefault(isDefault);
-    setNullable(group.getDescription(), wsGroup::setDescription);
+    ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
     return wsGroup;
   }
 

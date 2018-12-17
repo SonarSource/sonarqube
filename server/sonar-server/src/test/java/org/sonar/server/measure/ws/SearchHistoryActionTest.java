@@ -57,11 +57,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -433,10 +433,10 @@ public class SearchHistoryActionTest {
 
     request.setParam(PARAM_COMPONENT, wsRequest.getComponent());
     request.setParam(PARAM_METRICS, String.join(",", wsRequest.getMetrics()));
-    setNullable(wsRequest.getFrom(), from -> request.setParam(PARAM_FROM, from));
-    setNullable(wsRequest.getTo(), to -> request.setParam(PARAM_TO, to));
-    setNullable(wsRequest.getPage(), p -> request.setParam(Param.PAGE, String.valueOf(p)));
-    setNullable(wsRequest.getPageSize(), ps -> request.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
+    ofNullable(wsRequest.getFrom()).ifPresent(from -> request.setParam(PARAM_FROM, from));
+    ofNullable(wsRequest.getTo()).ifPresent(to -> request.setParam(PARAM_TO, to));
+    ofNullable(wsRequest.getPage()).ifPresent(p -> request.setParam(Param.PAGE, String.valueOf(p)));
+    ofNullable(wsRequest.getPageSize()).ifPresent(ps -> request.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
 
     return request.executeProtobuf(SearchHistoryResponse.class);
   }

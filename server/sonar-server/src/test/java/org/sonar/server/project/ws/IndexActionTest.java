@@ -37,8 +37,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -238,9 +238,9 @@ public class IndexActionTest {
 
   private String call(@Nullable String key, @Nullable String search, @Nullable Boolean subprojects) {
     TestRequest httpRequest = ws.newRequest();
-    setNullable(key, e -> httpRequest.setParam("key", e));
-    setNullable(search, e -> httpRequest.setParam("search", e));
-    setNullable(subprojects, e -> httpRequest.setParam("subprojects", Boolean.toString(e)));
+    ofNullable(key).ifPresent(e2 -> httpRequest.setParam("key", e2));
+    ofNullable(search).ifPresent(e1 -> httpRequest.setParam("search", e1));
+    ofNullable(subprojects).ifPresent(e -> httpRequest.setParam("subprojects", Boolean.toString(e)));
     return httpRequest.execute().getInput();
   }
 

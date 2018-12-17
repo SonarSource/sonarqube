@@ -40,9 +40,9 @@ import org.sonarqube.ws.ProjectAnalyses.QualityGate;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
 
@@ -93,9 +93,9 @@ class SearchResponseBuilder {
 
   private Event.Builder dbToWsEvent(EventDto dbEvent) {
     wsEvent.clear().setKey(dbEvent.getUuid());
-    setNullable(dbEvent.getName(), wsEvent::setName);
-    setNullable(dbEvent.getDescription(), wsEvent::setDescription);
-    setNullable(dbEvent.getCategory(), cat -> wsEvent.setCategory(fromLabel(cat).name()));
+    ofNullable(dbEvent.getName()).ifPresent(wsEvent::setName);
+    ofNullable(dbEvent.getDescription()).ifPresent(wsEvent::setDescription);
+    ofNullable(dbEvent.getCategory()).ifPresent(cat -> wsEvent.setCategory(fromLabel(cat).name()));
     if (dbEvent.getCategory() != null) {
       switch (EventCategory.fromLabel(dbEvent.getCategory())) {
         case DEFINITION_CHANGE:
@@ -308,9 +308,9 @@ class SearchResponseBuilder {
         .setKey(key)
         .setName(name)
         .setChangeType(changeType);
-      setNullable(branch, builder::setBranch);
-      setNullable(oldBranch, builder::setOldBranch);
-      setNullable(newBranch, builder::setNewBranch);
+      ofNullable(branch).ifPresent(builder::setBranch);
+      ofNullable(oldBranch).ifPresent(builder::setOldBranch);
+      ofNullable(newBranch).ifPresent(builder::setNewBranch);
       return builder.build();
     }
   }

@@ -50,7 +50,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
@@ -128,10 +127,10 @@ public class CurrentAction implements UsersWsAction {
       .setHomepage(buildHomepage(dbSession, user))
       .setShowOnboardingTutorial(!user.isOnboarded())
       .addAllSettings(loadUserSettings(dbSession, user));
-    setNullable(emptyToNull(user.getEmail()), builder::setEmail);
-    setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
-    setNullable(user.getExternalLogin(), builder::setExternalIdentity);
-    setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
+    ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
+    ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
+    ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);
+    ofNullable(user.getExternalIdentityProvider()).ifPresent(builder::setExternalProvider);
     personalOrganization.ifPresent(org -> builder.setPersonalOrganization(org.getKey()));
     return builder.build();
   }
@@ -190,7 +189,7 @@ public class CurrentAction implements UsersWsAction {
     CurrentWsResponse.Homepage.Builder homepage = CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()))
       .setComponent(projectOptional.get().getKey());
-    setNullable(projectOptional.get().getBranch(), homepage::setBranch);
+    ofNullable(projectOptional.get().getBranch()).ifPresent(homepage::setBranch);
     return of(homepage.build());
   }
 

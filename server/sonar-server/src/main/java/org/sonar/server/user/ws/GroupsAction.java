@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.Users.GroupsWsResponse.Group;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
@@ -176,7 +176,7 @@ public class GroupsAction implements UsersWsAction {
       .setName(group.getName())
       .setSelected(group.getUserId() != null)
       .setDefault(defaultGroup.getId().longValue() == group.getId());
-    Protobuf.setNullable(group.getDescription(), groupBuilder::setDescription);
+    ofNullable(group.getDescription()).ifPresent(groupBuilder::setDescription);
     return groupBuilder.build();
   }
 

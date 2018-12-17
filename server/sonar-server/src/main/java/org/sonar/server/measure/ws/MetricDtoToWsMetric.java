@@ -22,7 +22,7 @@ package org.sonar.server.measure.ws;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Common.Metric;
 
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 
 class MetricDtoToWsMetric {
@@ -35,17 +35,17 @@ class MetricDtoToWsMetric {
     metric.setKey(metricDto.getKey());
     metric.setType(metricDto.getValueType());
     metric.setName(metricDto.getShortName());
-    setNullable(metricDto.getDescription(), metric::setDescription);
-    setNullable(metricDto.getDomain(), metric::setDomain);
+    ofNullable(metricDto.getDescription()).ifPresent(metric::setDescription);
+    ofNullable(metricDto.getDomain()).ifPresent(metric::setDomain);
     if (metricDto.getDirection() != 0) {
       metric.setHigherValuesAreBetter(metricDto.getDirection() > 0);
     }
     metric.setQualitative(metricDto.isQualitative());
     metric.setHidden(metricDto.isHidden());
     metric.setCustom(metricDto.isUserManaged());
-    setNullable(metricDto.getDecimalScale(), metric::setDecimalScale);
-    setNullable(metricDto.getBestValue(), bv -> metric.setBestValue(formatNumericalValue(bv, metricDto)));
-    setNullable(metricDto.getWorstValue(), wv -> metric.setWorstValue(formatNumericalValue(wv, metricDto)));
+    ofNullable(metricDto.getDecimalScale()).ifPresent(metric::setDecimalScale);
+    ofNullable(metricDto.getBestValue()).ifPresent(bv -> metric.setBestValue(formatNumericalValue(bv, metricDto)));
+    ofNullable(metricDto.getWorstValue()).ifPresent(wv -> metric.setWorstValue(formatNumericalValue(wv, metricDto)));
 
     return metric.build();
   }

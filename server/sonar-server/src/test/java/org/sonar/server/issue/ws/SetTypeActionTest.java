@@ -56,6 +56,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,7 +68,6 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
@@ -193,8 +193,8 @@ public class SetTypeActionTest {
 
   private TestResponse call(@Nullable String issueKey, @Nullable String type) {
     TestRequest request = tester.newRequest();
-    setNullable(issueKey, issue -> request.setParam("issue", issue));
-    setNullable(type, t -> request.setParam("type", t));
+    ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
+    ofNullable(type).ifPresent(t -> request.setParam("type", t));
     return request.execute();
   }
 

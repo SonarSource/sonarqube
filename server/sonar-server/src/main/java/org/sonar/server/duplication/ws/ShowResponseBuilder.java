@@ -36,7 +36,7 @@ import org.sonarqube.ws.Duplications;
 import org.sonarqube.ws.Duplications.Block;
 import org.sonarqube.ws.Duplications.ShowResponse;
 
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 
 public class ShowResponseBuilder {
 
@@ -46,7 +46,8 @@ public class ShowResponseBuilder {
     this.componentDao = dbClient.componentDao();
   }
 
-  @VisibleForTesting ShowResponseBuilder(ComponentDao componentDao) {
+  @VisibleForTesting
+  ShowResponseBuilder(ComponentDao componentDao) {
     this.componentDao = componentDao;
   }
 
@@ -110,8 +111,8 @@ public class ShowResponseBuilder {
     String keyWithoutBranch = ComponentDto.removeBranchAndPullRequestFromKey(componentKey);
     wsFile.setKey(keyWithoutBranch);
     wsFile.setName(StringUtils.substringAfterLast(keyWithoutBranch, ":"));
-    setNullable(branch, wsFile::setBranch);
-    setNullable(pullRequest, wsFile::setPullRequest);
+    ofNullable(branch).ifPresent(wsFile::setBranch);
+    ofNullable(pullRequest).ifPresent(wsFile::setPullRequest);
     return wsFile.build();
   }
 
@@ -121,7 +122,8 @@ public class ShowResponseBuilder {
     wsFile.setKey(file.getKey());
     wsFile.setUuid(file.uuid());
     wsFile.setName(file.longName());
-    setNullable(project, p -> {
+    // Do not return sub project if sub project and project are the same
+    ofNullable(project).ifPresent(p -> {
       wsFile.setProject(p.getKey());
       wsFile.setProjectUuid(p.uuid());
       wsFile.setProjectName(p.longName());
@@ -132,9 +134,8 @@ public class ShowResponseBuilder {
         wsFile.setSubProjectUuid(subProject.uuid());
         wsFile.setSubProjectName(subProject.longName());
       }
-      setNullable(branch, wsFile::setBranch);
-      setNullable(pullRequest, wsFile::setPullRequest);
-      return wsFile;
+      ofNullable(branch).ifPresent(wsFile::setBranch);
+      ofNullable(pullRequest).ifPresent(wsFile::setPullRequest);
     });
     return wsFile.build();
   }

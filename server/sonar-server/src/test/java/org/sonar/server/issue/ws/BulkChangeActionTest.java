@@ -66,6 +66,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,7 +83,6 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 
@@ -655,13 +655,13 @@ public class BulkChangeActionTest {
 
   private BulkChangeWsResponse call(BulkChangeRequest bulkChangeRequest) {
     TestRequest request = tester.newRequest();
-    setNullable(bulkChangeRequest.getIssues(), value -> request.setParam("issues", String.join(",", value)));
-    setNullable(bulkChangeRequest.getAssign(), value -> request.setParam("assign", value));
-    setNullable(bulkChangeRequest.getSetSeverity(), value -> request.setParam("set_severity", value));
-    setNullable(bulkChangeRequest.getSetType(), value -> request.setParam("set_type", value));
-    setNullable(bulkChangeRequest.getDoTransition(), value -> request.setParam("do_transition", value));
-    setNullable(bulkChangeRequest.getComment(), value -> request.setParam("comment", value));
-    setNullable(bulkChangeRequest.getSendNotifications(), value -> request.setParam("sendNotifications", value != null ? value ? "true" : "false" : null));
+    ofNullable(bulkChangeRequest.getIssues()).ifPresent(value6 -> request.setParam("issues", String.join(",", value6)));
+    ofNullable(bulkChangeRequest.getAssign()).ifPresent(value5 -> request.setParam("assign", value5));
+    ofNullable(bulkChangeRequest.getSetSeverity()).ifPresent(value4 -> request.setParam("set_severity", value4));
+    ofNullable(bulkChangeRequest.getSetType()).ifPresent(value3 -> request.setParam("set_type", value3));
+    ofNullable(bulkChangeRequest.getDoTransition()).ifPresent(value2 -> request.setParam("do_transition", value2));
+    ofNullable(bulkChangeRequest.getComment()).ifPresent(value1 -> request.setParam("comment", value1));
+    ofNullable(bulkChangeRequest.getSendNotifications()).ifPresent(value -> request.setParam("sendNotifications", value != null ? value ? "true" : "false" : null));
     if (!bulkChangeRequest.getAddTags().isEmpty()) {
       request.setParam("add_tags", String.join(",", bulkChangeRequest.getAddTags()));
     }

@@ -42,6 +42,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -49,7 +50,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 
 public class DeleteCommentActionTest {
 
@@ -175,7 +175,7 @@ public class DeleteCommentActionTest {
 
   private TestResponse call(@Nullable String commentKey) {
     TestRequest request = tester.newRequest();
-    setNullable(commentKey, comment -> request.setParam("comment", comment));
+    ofNullable(commentKey).ifPresent(comment -> request.setParam("comment", comment));
     return request.execute();
   }
 

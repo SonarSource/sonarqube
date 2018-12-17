@@ -39,6 +39,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualityprofiles;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
@@ -46,7 +47,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
@@ -154,7 +154,7 @@ public class SearchGroupsAction implements QProfileWsAction {
     Qualityprofiles.SearchGroupsResponse.Group.Builder builder = Qualityprofiles.SearchGroupsResponse.Group.newBuilder()
       .setName(group.getName())
       .setSelected(isSelected);
-    setNullable(group.getDescription(), builder::setDescription);
+    ofNullable(group.getDescription()).ifPresent(builder::setDescription);
     return builder.build();
   }
 

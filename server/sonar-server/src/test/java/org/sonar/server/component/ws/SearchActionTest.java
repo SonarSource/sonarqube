@@ -56,6 +56,7 @@ import org.sonarqube.ws.MediaTypes;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -67,7 +68,6 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -287,12 +287,12 @@ public class SearchActionTest {
 
   private SearchWsResponse call(SearchRequest wsRequest) {
     TestRequest request = ws.newRequest();
-    setNullable(wsRequest.getOrganization(), p -> request.setParam(PARAM_ORGANIZATION, p));
-    setNullable(wsRequest.getLanguage(), p -> request.setParam(PARAM_LANGUAGE, p));
-    setNullable(wsRequest.getQualifiers(), p -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p)));
-    setNullable(wsRequest.getQuery(), p -> request.setParam(TEXT_QUERY, p));
-    setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
-    setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
+    ofNullable(wsRequest.getOrganization()).ifPresent(p3 -> request.setParam(PARAM_ORGANIZATION, p3));
+    ofNullable(wsRequest.getLanguage()).ifPresent(p2 -> request.setParam(PARAM_LANGUAGE, p2));
+    ofNullable(wsRequest.getQualifiers()).ifPresent(p1 -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p1)));
+    ofNullable(wsRequest.getQuery()).ifPresent(p -> request.setParam(TEXT_QUERY, p));
+    ofNullable(wsRequest.getPage()).ifPresent(page -> request.setParam(PAGE, String.valueOf(page)));
+    ofNullable(wsRequest.getPageSize()).ifPresent(pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
     return request.executeProtobuf(SearchWsResponse.class);
   }
 

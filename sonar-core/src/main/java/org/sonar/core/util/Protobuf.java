@@ -29,8 +29,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.Function;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -169,43 +167,6 @@ public class Protobuf {
     @Override
     protected void doClose() {
       IOUtils.closeQuietly(input);
-    }
-  }
-
-  /**
-   * Call a setter method of {@link com.google.protobuf.GeneratedMessage.Builder} if the parameter
-   * is not null. Do nothing if parameter is null.
-   * <br/>
-   * This utility method is convenient as the setter methods of Protobuf 2 do not accept
-   * {@code null} parameters. It avoid increasing complexity with "if not null" conditions.
-   * <br/>
-   * Example:
-   * <pre>
-   * setNullable(dto.getLine(), issueBuilder::setLine);
-   * </pre>
-   */
-  public static <PARAM> void setNullable(@Nullable PARAM parameter, Function<PARAM, ?> setter) {
-    if (parameter != null) {
-      setter.apply(parameter);
-    }
-  }
-
-  /**
-   * Same as {@link #setNullable(Object, Function)} but the parameter is converted by the function "{@code paramConverter}"
-   * before being applied to setter. If the converter returns {@code null}, then setter method
-   * is not called.
-   * <br/>
-   * Example:
-   * <pre>
-   * setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
-   * </pre>
-   * @see #setNullable(Object, Function)
-   */
-  public static <PARAM, PARAM2> void setNullable(@Nullable PARAM param, Function<PARAM2, ?> setter,
-    Function<PARAM, PARAM2> paramConverter) {
-    if (param != null) {
-      PARAM2 output = paramConverter.apply(param);
-      setNullable(output, setter);
     }
   }
 }

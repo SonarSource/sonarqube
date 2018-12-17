@@ -40,9 +40,9 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
@@ -145,7 +145,7 @@ public class SearchAction implements UserGroupsWsAction {
       groupBuilder.setName(group.getName());
     }
     if (fields.contains(FIELD_DESCRIPTION)) {
-      setNullable(group.getDescription(), groupBuilder::setDescription);
+      ofNullable(group.getDescription()).ifPresent(groupBuilder::setDescription);
     }
     if (fields.contains(FIELD_MEMBERS_COUNT)) {
       groupBuilder.setMembersCount(memberCount);

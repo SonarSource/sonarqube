@@ -41,6 +41,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
@@ -48,7 +49,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -158,7 +158,7 @@ public class SearchUsersAction implements QProfileWsAction {
       .setLogin(user.getLogin())
       .setName(user.getName())
       .setSelected(isSelected);
-    setNullable(emptyToNull(user.getEmail()), e -> builder.setAvatar(avatarResolver.create(user)));
+    ofNullable(emptyToNull(user.getEmail())).ifPresent(e -> builder.setAvatar(avatarResolver.create(user)));
     return builder
       .build();
   }

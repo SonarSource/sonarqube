@@ -50,8 +50,8 @@ import org.sonarqube.ws.Components.SearchWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
@@ -203,7 +203,7 @@ public class SearchAction implements ComponentsWsAction {
       .setProject(projectKey)
       .setName(dto.name())
       .setQualifier(dto.qualifier());
-    setNullable(dto.language(), builder::setLanguage);
+    ofNullable(dto.language()).ifPresent(builder::setLanguage);
     return builder.build();
   }
 

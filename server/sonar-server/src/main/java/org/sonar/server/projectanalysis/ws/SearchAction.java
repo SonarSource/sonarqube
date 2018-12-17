@@ -42,9 +42,9 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.ProjectAnalyses;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
@@ -160,8 +160,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setComponentUuid(data.getProject().uuid())
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setSort(BY_DATE, DESC);
-    setNullable(data.getRequest().getFrom(), from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
-    setNullable(data.getRequest().getTo(), to -> dbQuery.setCreatedBefore(parseEndingDateOrDateTime(to).getTime() + 1_000L));
+    ofNullable(data.getRequest().getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
+    ofNullable(data.getRequest().getTo()).ifPresent(to -> dbQuery.setCreatedBefore(parseEndingDateOrDateTime(to).getTime() + 1_000L));
     data.setAnalyses(dbClient.snapshotDao().selectAnalysesByQuery(data.getDbSession(), dbQuery));
   }
 

@@ -45,7 +45,6 @@ import org.sonarqube.ws.Components.ProvisionedWsResponse.Component;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Paging.offset;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
@@ -124,10 +123,9 @@ public class ProvisionedAction implements ProjectsWsAction {
       .setQualifiers(Qualifiers.PROJECT)
       .setOnProvisionedOnly(true);
 
-    setNullable(nameOrKeyQuery, q -> {
+    ofNullable(nameOrKeyQuery).ifPresent(q -> {
       dbQuery.setPartialMatchOnKey(true);
       dbQuery.setNameOrKeyQuery(q);
-      return dbQuery;
     });
 
     return dbQuery.build();

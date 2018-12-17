@@ -56,6 +56,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -65,7 +66,6 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
@@ -174,8 +174,8 @@ public class SetSeverityActionTest {
 
   private TestResponse call(@Nullable String issueKey, @Nullable String severity) {
     TestRequest request = tester.newRequest();
-    setNullable(issueKey, issue -> request.setParam("issue", issue));
-    setNullable(severity, value -> request.setParam("severity", value));
+    ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
+    ofNullable(severity).ifPresent(value -> request.setParam("severity", value));
     return request.execute();
   }
 

@@ -69,11 +69,11 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
@@ -464,7 +464,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
           wsComponent.setAnalysisDate(formatDateTime(snapshotDto.getCreatedAt()));
         }
         if (request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-          setNullable(snapshotDto.getPeriodDate(), leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
+          ofNullable(snapshotDto.getPeriodDate()).ifPresent(leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
         }
       }
 

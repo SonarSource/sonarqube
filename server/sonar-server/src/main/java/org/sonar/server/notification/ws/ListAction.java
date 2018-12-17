@@ -51,7 +51,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toOneElement;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_LIST;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
@@ -186,8 +186,7 @@ public class ListAction implements NotificationsWsAction {
       List<String> propertyKey = Splitter.on(".").splitToList(property.getKey());
       notification.setType(propertyKey.get(1));
       notification.setChannel(propertyKey.get(2));
-      setNullable(property.getResourceId(),
-        componentId -> populateProjectFields(notification, componentId, organizationsByUuid, projectsById));
+      ofNullable(property.getResourceId()).ifPresent(componentId -> populateProjectFields(notification, componentId, organizationsByUuid, projectsById));
 
       return notification.build();
     };

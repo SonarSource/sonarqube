@@ -45,7 +45,7 @@ import org.sonarqube.ws.Permissions.UsersWsResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
@@ -152,9 +152,9 @@ public class UsersAction implements PermissionsWsAction {
       Permissions.User.Builder userResponse = response.addUsersBuilder()
         .setLogin(user.getLogin())
         .addAllPermissions(permissionsByUserId.get(user.getId()));
-      setNullable(user.getEmail(), userResponse::setEmail);
-      setNullable(emptyToNull(user.getEmail()), u -> userResponse.setAvatar(avatarResolver.create(user)));
-      setNullable(user.getName(), userResponse::setName);
+      ofNullable(user.getEmail()).ifPresent(userResponse::setEmail);
+      ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> userResponse.setAvatar(avatarResolver.create(user)));
+      ofNullable(user.getName()).ifPresent(userResponse::setName);
     });
 
     response.getPagingBuilder()

@@ -65,8 +65,8 @@ import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
@@ -162,13 +162,13 @@ public class SearchResponseFormat {
 
   private void formatIssue(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
-    setNullable(dto.getType(), issueBuilder::setType, Common.RuleType::forNumber);
+    ofNullable(dto.getType()).map(Common.RuleType::forNumber).ifPresent(issueBuilder::setType);
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
     issueBuilder.setComponent(component.getKey());
-    setNullable(component.getBranch(), issueBuilder::setBranch);
-    setNullable(component.getPullRequest(), issueBuilder::setPullRequest);
+    ofNullable(component.getBranch()).ifPresent(issueBuilder::setBranch);
+    ofNullable(component.getPullRequest()).ifPresent(issueBuilder::setPullRequest);
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
@@ -183,8 +183,8 @@ public class SearchResponseFormat {
     }
     issueBuilder.setFromHotspot(dto.isFromHotspot());
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
-    setNullable(data.getUserByUuid(dto.getAssigneeUuid()), assignee -> issueBuilder.setAssignee(assignee.getLogin()));
-    setNullable(emptyToNull(dto.getResolution()), issueBuilder::setResolution);
+    ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
+    ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllTags(dto.getTags());
@@ -194,17 +194,17 @@ public class SearchResponseFormat {
       issueBuilder.setDebt(effortValue);
       issueBuilder.setEffort(effortValue);
     }
-    setNullable(dto.getLine(), issueBuilder::setLine);
-    setNullable(emptyToNull(dto.getChecksum()), issueBuilder::setHash);
+    ofNullable(dto.getLine()).ifPresent(issueBuilder::setLine);
+    ofNullable(emptyToNull(dto.getChecksum())).ifPresent(issueBuilder::setHash);
     completeIssueLocations(dto, issueBuilder, data);
 
     // Filter author only if user is member of the organization
     if (data.getUserOrganizationUuids().contains(component.getOrganizationUuid())) {
       issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
     }
-    setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
-    setNullable(dto.getIssueUpdateDate(), issueBuilder::setUpdateDate, DateUtils::formatDateTime);
-    setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);
+    ofNullable(dto.getIssueCreationDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCreationDate);
+    ofNullable(dto.getIssueUpdateDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setUpdateDate);
+    ofNullable(dto.getIssueCloseDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCloseDate);
   }
 
   private static String engineNameFrom(RuleKey ruleKey) {
@@ -241,7 +241,7 @@ public class SearchResponseFormat {
       target.setTextRange(targetRange);
     }
     if (source.hasComponentId()) {
-      setNullable(data.getComponentByUuid(source.getComponentId()), c -> target.setComponent(c.getKey()));
+      ofNullable(data.getComponentByUuid(source.getComponentId())).ifPresent(c -> target.setComponent(c.getKey()));
     } else {
       target.setComponent(issueBuilder.getComponent());
     }
@@ -297,7 +297,7 @@ public class SearchResponseFormat {
           .setKey(comment.getKey())
           .setUpdatable(data.isUpdatableComment(comment.getKey()))
           .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getIssueChangeCreationDate())));
-        setNullable(data.getUserByUuid(comment.getUserUuid()), user -> wsComment.setLogin(user.getLogin()));
+        ofNullable(data.getUserByUuid(comment.getUserUuid())).ifPresent(user -> wsComment.setLogin(user.getLogin()));
         if (markdown != null) {
           wsComment
             .setHtmlText(Markdown.convertToHtml(markdown))
@@ -331,9 +331,9 @@ public class SearchResponseFormat {
         .setName(nullToEmpty(dto.name()))
         .setLongName(nullToEmpty(dto.longName()))
         .setEnabled(dto.isEnabled());
-      setNullable(dto.getBranch(), builder::setBranch);
-      setNullable(dto.getPullRequest(), builder::setPullRequest);
-      setNullable(emptyToNull(dto.path()), builder::setPath);
+      ofNullable(dto.getBranch()).ifPresent(builder::setBranch);
+      ofNullable(dto.getPullRequest()).ifPresent(builder::setPullRequest);
+      ofNullable(emptyToNull(dto.path())).ifPresent(builder::setPath);
 
       result.add(builder.build());
     }
@@ -356,7 +356,7 @@ public class SearchResponseFormat {
       .setLogin(user.getLogin())
       .setName(nullToEmpty(user.getName()))
       .setActive(user.isActive());
-    setNullable(emptyToNull(user.getEmail()), email -> builder.setAvatar(avatarFactory.create(user)));
+    ofNullable(emptyToNull(user.getEmail())).ifPresent(email -> builder.setAvatar(avatarFactory.create(user)));
     return builder;
   }
 

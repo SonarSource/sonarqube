@@ -30,7 +30,7 @@ import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.IdentityProvidersWsResponse;
 
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class IdentityProvidersAction implements UsersWsAction {
@@ -72,7 +72,7 @@ public class IdentityProvidersAction implements UsersWsAction {
         .setName(input.getName())
         .setIconPath(display.getIconPath())
         .setBackgroundColor(display.getBackgroundColor());
-      setNullable(display.getHelpMessage(), builder::setHelpMessage);
+      ofNullable(display.getHelpMessage()).ifPresent(builder::setHelpMessage);
       return builder.build();
     };
   }

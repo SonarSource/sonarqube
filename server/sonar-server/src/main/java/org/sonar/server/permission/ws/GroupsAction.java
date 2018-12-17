@@ -45,7 +45,7 @@ import org.sonarqube.ws.Permissions.Group;
 import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
@@ -141,7 +141,7 @@ public class GroupsAction implements PermissionsWsAction {
       if (group.getId() != 0) {
         wsGroup.setId(String.valueOf(group.getId()));
       }
-      setNullable(group.getDescription(), wsGroup::setDescription);
+      ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
       wsGroup.addAllPermissions(permissionsByGroupId.get(group.getId()));
     });
 

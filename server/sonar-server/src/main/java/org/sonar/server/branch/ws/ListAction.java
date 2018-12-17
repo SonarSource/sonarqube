@@ -51,12 +51,12 @@ import org.sonarqube.ws.ProjectBranches;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
@@ -144,7 +144,7 @@ public class ListAction implements BranchWsAction {
   private static ProjectBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch) {
     ProjectBranches.Branch.Builder builder = ProjectBranches.Branch.newBuilder();
     String branchKey = branch.getKey();
-    setNullable(branchKey, builder::setName);
+    ofNullable(branchKey).ifPresent(builder::setName);
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
     if (branch.getBranchType() == SHORT) {
@@ -162,7 +162,7 @@ public class ListAction implements BranchWsAction {
     @Nullable BranchStatistics branchStatistics) {
     ProjectBranches.Status.Builder statusBuilder = ProjectBranches.Status.newBuilder();
     if (qualityGateMeasure != null) {
-      setNullable(qualityGateMeasure.getDataAsString(), statusBuilder::setQualityGateStatus);
+      ofNullable(qualityGateMeasure.getDataAsString()).ifPresent(statusBuilder::setQualityGateStatus);
     }
     if (branch.getBranchType() == BranchType.SHORT) {
       statusBuilder.setBugs(branchStatistics == null ? 0L : branchStatistics.getBugs());

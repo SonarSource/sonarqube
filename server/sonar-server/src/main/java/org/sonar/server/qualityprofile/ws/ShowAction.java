@@ -44,9 +44,9 @@ import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -166,10 +166,10 @@ public class ShowAction implements QProfileWsAction {
       .setActiveRuleCount(activeRules)
       .setActiveDeprecatedRuleCount(deprecatedActiveRules)
       .setProjectCount(projects);
-    setNullable(profile.getRulesUpdatedAt(), profileBuilder::setRulesUpdatedAt);
-    setNullable(profile.getLastUsed(), last -> profileBuilder.setLastUsed(formatDateTime(last)));
-    setNullable(profile.getUserUpdatedAt(), userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
-    setNullable(compareToSonarWay, showResponseBuilder::setCompareToSonarWay);
+    ofNullable(profile.getRulesUpdatedAt()).ifPresent(profileBuilder::setRulesUpdatedAt);
+    ofNullable(profile.getLastUsed()).ifPresent(last -> profileBuilder.setLastUsed(formatDateTime(last)));
+    ofNullable(profile.getUserUpdatedAt()).ifPresent(userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
+    ofNullable(compareToSonarWay).ifPresent(showResponseBuilder::setCompareToSonarWay);
     return showResponseBuilder.setProfile(profileBuilder).build();
   }
 

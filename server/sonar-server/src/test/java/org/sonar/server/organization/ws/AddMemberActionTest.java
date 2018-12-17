@@ -51,8 +51,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
@@ -256,8 +256,8 @@ public class AddMemberActionTest {
 
   private AddMemberWsResponse call(@Nullable String organizationKey, @Nullable String login) {
     TestRequest request = ws.newRequest();
-    setNullable(organizationKey, o -> request.setParam(PARAM_ORGANIZATION, o));
-    setNullable(login, l -> request.setParam("login", l));
+    ofNullable(organizationKey).ifPresent(o -> request.setParam(PARAM_ORGANIZATION, o));
+    ofNullable(login).ifPresent(l -> request.setParam("login", l));
     return request.executeProtobuf(AddMemberWsResponse.class);
   }
 

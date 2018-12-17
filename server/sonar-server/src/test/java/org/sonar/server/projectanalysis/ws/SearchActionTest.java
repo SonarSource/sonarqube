@@ -61,12 +61,12 @@ import org.sonarqube.ws.ProjectAnalyses.Project;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -700,21 +700,21 @@ public class SearchActionTest {
 
   private SearchResponse call(@Nullable String project) {
     SearchRequest.Builder request = SearchRequest.builder();
-    setNullable(project, request::setProject);
+    ofNullable(project).ifPresent(request::setProject);
     return call(request.build());
   }
 
   private SearchResponse call(SearchRequest wsRequest) {
     TestRequest request = ws.newRequest()
       .setMethod(POST.name());
-    setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
-    setNullable(wsRequest.getBranch(), branch -> request.setParam(PARAM_BRANCH, branch));
-    setNullable(wsRequest.getPullRequest(), branch -> request.setParam(PARAM_PULL_REQUEST, branch));
-    setNullable(wsRequest.getCategory(), category -> request.setParam(PARAM_CATEGORY, category.name()));
-    setNullable(wsRequest.getPage(), page -> request.setParam(Param.PAGE, String.valueOf(page)));
-    setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));
-    setNullable(wsRequest.getFrom(), from -> request.setParam(PARAM_FROM, from));
-    setNullable(wsRequest.getTo(), to -> request.setParam(PARAM_TO, to));
+    ofNullable(wsRequest.getProject()).ifPresent(project -> request.setParam(PARAM_PROJECT, project));
+    ofNullable(wsRequest.getBranch()).ifPresent(branch1 -> request.setParam(PARAM_BRANCH, branch1));
+    ofNullable(wsRequest.getPullRequest()).ifPresent(branch -> request.setParam(PARAM_PULL_REQUEST, branch));
+    ofNullable(wsRequest.getCategory()).ifPresent(category -> request.setParam(PARAM_CATEGORY, category.name()));
+    ofNullable(wsRequest.getPage()).ifPresent(page -> request.setParam(Param.PAGE, String.valueOf(page)));
+    ofNullable(wsRequest.getPageSize()).ifPresent(pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));
+    ofNullable(wsRequest.getFrom()).ifPresent(from -> request.setParam(PARAM_FROM, from));
+    ofNullable(wsRequest.getTo()).ifPresent(to -> request.setParam(PARAM_TO, to));
 
     return request.executeProtobuf(SearchResponse.class);
   }

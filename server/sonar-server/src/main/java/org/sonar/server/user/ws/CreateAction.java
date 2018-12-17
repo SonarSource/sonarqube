@@ -40,7 +40,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
@@ -162,7 +162,7 @@ public class CreateAction implements UsersWsAction {
       .setActive(userDto.isActive())
       .setLocal(userDto.isLocal())
       .addAllScmAccounts(userDto.getScmAccountsAsList());
-    setNullable(emptyToNull(userDto.getEmail()), userBuilder::setEmail);
+    ofNullable(emptyToNull(userDto.getEmail())).ifPresent(userBuilder::setEmail);
     return CreateWsResponse.newBuilder().setUser(userBuilder).build();
   }
 

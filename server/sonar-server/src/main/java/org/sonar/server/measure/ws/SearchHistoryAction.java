@@ -50,9 +50,9 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
@@ -187,8 +187,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setComponentUuid(component.projectUuid())
       .setStatus(STATUS_PROCESSED)
       .setSort(SORT_FIELD.BY_DATE, SORT_ORDER.ASC);
-    setNullable(request.getFrom(), from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
-    setNullable(request.getTo(), to -> dbQuery.setCreatedBefore(parseEndingDateOrDateTime(to).getTime() + 1_000L));
+    ofNullable(request.getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
+    ofNullable(request.getTo()).ifPresent(to -> dbQuery.setCreatedBefore(parseEndingDateOrDateTime(to).getTime() + 1_000L));
 
     return dbClient.snapshotDao().selectAnalysesByQuery(dbSession, dbQuery);
   }

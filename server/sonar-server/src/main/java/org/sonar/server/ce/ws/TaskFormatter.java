@@ -48,8 +48,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
@@ -79,7 +79,7 @@ public class TaskFormatter {
   private Ce.Task formatQueue(CeQueueDto dto, DtoCache cache) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = cache.getOrganizationKey(dto.getComponentUuid());
-    setNullable(organizationKey, builder::setOrganization);
+    ofNullable(organizationKey).ifPresent(builder::setOrganization);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       setComponent(builder, dto.getComponentUuid(), cache);
@@ -90,8 +90,8 @@ public class TaskFormatter {
     builder.setLogs(false);
     cache.getUser(dto.getSubmitterUuid()).ifPresent(user -> builder.setSubmitterLogin(user.getLogin()));
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
-    setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
-    setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
+    ofNullable(dto.getStartedAt()).map(DateUtils::formatDateTime).ifPresent(builder::setStartedAt);
+    ofNullable(computeExecutionTimeMs(dto)).ifPresent(builder::setExecutionTimeMs);
     setBranchOrPullRequest(builder, dto.getUuid(), cache);
     return builder.build();
   }
@@ -110,25 +110,25 @@ public class TaskFormatter {
   private static Ce.Task formatActivity(CeActivityDto dto, DtoCache cache, @Nullable String scannerContext, List<String> warnings) {
     Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = cache.getOrganizationKey(dto.getComponentUuid());
-    setNullable(organizationKey, builder::setOrganization);
+    ofNullable(organizationKey).ifPresent(builder::setOrganization);
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
-    setNullable(dto.getComponentUuid(), uuid -> setComponent(builder, uuid, cache).setComponentId(uuid));
+    ofNullable(dto.getComponentUuid()).ifPresent(uuid -> setComponent(builder, uuid, cache).setComponentId(uuid));
     String analysisUuid = dto.getAnalysisUuid();
-    setNullable(analysisUuid, builder::setAnalysisId);
+    ofNullable(analysisUuid).ifPresent(builder::setAnalysisId);
     setBranchOrPullRequest(builder, dto.getUuid(), cache);
-    setNullable(analysisUuid, builder::setAnalysisId);
+    ofNullable(analysisUuid).ifPresent(builder::setAnalysisId);
     cache.getUser(dto.getSubmitterUuid()).ifPresent(user -> builder.setSubmitterLogin(user.getLogin()));
     builder.setSubmittedAt(formatDateTime(new Date(dto.getSubmittedAt())));
-    setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
-    setNullable(dto.getExecutedAt(), builder::setExecutedAt, DateUtils::formatDateTime);
-    setNullable(dto.getExecutionTimeMs(), builder::setExecutionTimeMs);
-    setNullable(dto.getErrorMessage(), builder::setErrorMessage);
-    setNullable(dto.getErrorStacktrace(), builder::setErrorStacktrace);
-    setNullable(dto.getErrorType(), builder::setErrorType);
-    setNullable(scannerContext, builder::setScannerContext);
+    ofNullable(dto.getStartedAt()).map(DateUtils::formatDateTime).ifPresent(builder::setStartedAt);
+    ofNullable(dto.getExecutedAt()).map(DateUtils::formatDateTime).ifPresent(builder::setExecutedAt);
+    ofNullable(dto.getExecutionTimeMs()).ifPresent(builder::setExecutionTimeMs);
+    ofNullable(dto.getErrorMessage()).ifPresent(builder::setErrorMessage);
+    ofNullable(dto.getErrorStacktrace()).ifPresent(builder::setErrorStacktrace);
+    ofNullable(dto.getErrorType()).ifPresent(builder::setErrorType);
+    ofNullable(scannerContext).ifPresent(builder::setScannerContext);
     builder.setHasScannerContext(dto.isHasScannerContext());
     builder.setWarningCount(dto.getWarningCount());
     warnings.forEach(builder::addWarnings);

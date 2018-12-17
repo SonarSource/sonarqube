@@ -34,7 +34,7 @@ import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 import org.sonarqube.ws.Batch.WsProjectResponse.FileData.Builder;
 
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -110,7 +110,7 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse buildResponse(ProjectRepositories data) {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
-    setNullable(data.lastAnalysisDate(), response::setLastAnalysisDate, Date::getTime);
+    ofNullable(data.lastAnalysisDate()).map(Date::getTime).ifPresent(response::setLastAnalysisDate);
     response.setTimestamp(data.timestamp());
     if (data instanceof SingleProjectRepository) {
       response.putAllFileDataByPath(buildFileDataByPath((SingleProjectRepository) data));
@@ -142,8 +142,8 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse.FileData toFileDataResponse(FileData fileData) {
     Builder fileDataBuilder = WsProjectResponse.FileData.newBuilder();
-    setNullable(fileData.hash(), fileDataBuilder::setHash);
-    setNullable(fileData.revision(), fileDataBuilder::setRevision);
+    ofNullable(fileData.hash()).ifPresent(fileDataBuilder::setHash);
+    ofNullable(fileData.revision()).ifPresent(fileDataBuilder::setRevision);
     return fileDataBuilder.build();
   }
 }

@@ -42,10 +42,10 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
@@ -131,7 +131,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       if (group.getId() != 0) {
         wsGroup.setId(String.valueOf(group.getId()));
       }
-      setNullable(group.getDescription(), wsGroup::setDescription);
+      ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
       wsGroup.addAllPermissions(permissionsByGroupId.get(group.getId()));
     });
 

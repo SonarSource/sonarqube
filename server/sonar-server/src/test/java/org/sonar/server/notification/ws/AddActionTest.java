@@ -46,11 +46,11 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
@@ -357,9 +357,9 @@ public class AddActionTest {
   private TestResponse call(String type, @Nullable String channel, @Nullable String project, @Nullable String login) {
     TestRequest request = ws.newRequest();
     request.setParam(PARAM_TYPE, type);
-    setNullable(channel, channel1 -> request.setParam(PARAM_CHANNEL, channel1));
-    setNullable(project, project1 -> request.setParam(PARAM_PROJECT, project1));
-    setNullable(login, login1 -> request.setParam(PARAM_LOGIN, login1));
+    ofNullable(channel).ifPresent(channel1 -> request.setParam(PARAM_CHANNEL, channel1));
+    ofNullable(project).ifPresent(project1 -> request.setParam(PARAM_PROJECT, project1));
+    ofNullable(login).ifPresent(login1 -> request.setParam(PARAM_LOGIN, login1));
     return request.execute();
   }
 

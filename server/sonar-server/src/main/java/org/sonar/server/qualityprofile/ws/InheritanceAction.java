@@ -38,7 +38,7 @@ import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse;
 import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse.QualityProfile;
 
 import static java.util.Collections.singleton;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -138,7 +138,7 @@ public class InheritanceAction implements QProfileWsAction {
       .setActiveRuleCount(statistics.countRulesByProfileKey.getOrDefault(key, 0L))
       .setOverridingRuleCount(statistics.countOverridingRulesByProfileKey.getOrDefault(key, 0L))
       .setIsBuiltIn(qualityProfile.isBuiltIn());
-    setNullable(qualityProfile.getParentKee(), builder::setParent);
+    ofNullable(qualityProfile.getParentKee()).ifPresent(builder::setParent);
     return builder.build();
   }
 

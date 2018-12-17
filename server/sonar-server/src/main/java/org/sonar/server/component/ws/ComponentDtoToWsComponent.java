@@ -32,8 +32,8 @@ import org.sonarqube.ws.Components;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 
 class ComponentDtoToWsComponent {
 
@@ -61,17 +61,17 @@ class ComponentDtoToWsComponent {
       .setKey(dto.getKey())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
-    setNullable(emptyToNull(dto.getBranch()), wsComponent::setBranch);
-    setNullable(emptyToNull(dto.getPullRequest()), wsComponent::setPullRequest);
-    setNullable(emptyToNull(dto.path()), wsComponent::setPath);
-    setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
-    setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
+    ofNullable(emptyToNull(dto.getBranch())).ifPresent(wsComponent::setBranch);
+    ofNullable(emptyToNull(dto.getPullRequest())).ifPresent(wsComponent::setPullRequest);
+    ofNullable(emptyToNull(dto.path())).ifPresent(wsComponent::setPath);
+    ofNullable(emptyToNull(dto.description())).ifPresent(wsComponent::setDescription);
+    ofNullable(emptyToNull(dto.language())).ifPresent(wsComponent::setLanguage);
     setTags(dto, wsComponent);
     lastAnalysis.ifPresent(
       analysis -> {
         wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt()));
-        setNullable(analysis.getPeriodDate(), leak -> wsComponent.setLeakPeriodDate(formatDateTime(leak)));
-        setNullable(analysis.getVersion(), wsComponent::setVersion);
+        ofNullable(analysis.getPeriodDate()).ifPresent(leak -> wsComponent.setLeakPeriodDate(formatDateTime(leak)));
+        ofNullable(analysis.getVersion()).ifPresent(wsComponent::setVersion);
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));

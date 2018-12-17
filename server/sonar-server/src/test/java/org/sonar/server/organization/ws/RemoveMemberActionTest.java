@@ -57,6 +57,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -64,7 +65,6 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -365,8 +365,8 @@ public class RemoveMemberActionTest {
 
   private TestResponse call(@Nullable String organizationKey, @Nullable String login) {
     TestRequest request = ws.newRequest();
-    setNullable(organizationKey, o -> request.setParam(PARAM_ORGANIZATION, o));
-    setNullable(login, l -> request.setParam("login", l));
+    ofNullable(organizationKey).ifPresent(o -> request.setParam(PARAM_ORGANIZATION, o));
+    ofNullable(login).ifPresent(l -> request.setParam("login", l));
 
     return request.execute();
   }

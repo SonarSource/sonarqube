@@ -50,8 +50,8 @@ import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.issue.IssueFieldsSetter.FILE;
 import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
@@ -128,7 +128,7 @@ public class ChangelogAction implements IssuesWsAction {
       if (user != null) {
         changelogBuilder.setUser(user.getLogin());
         changelogBuilder.setUserName(user.getName());
-        setNullable(emptyToNull(user.getEmail()), email -> changelogBuilder.setAvatar(avatarFactory.create(user)));
+        ofNullable(emptyToNull(user.getEmail())).ifPresent(email -> changelogBuilder.setAvatar(avatarFactory.create(user)));
       }
       change.diffs().entrySet().stream()
         .map(toWsDiff(results))
@@ -146,12 +146,12 @@ public class ChangelogAction implements IssuesWsAction {
       String newValue = value.newValue() != null ? value.newValue().toString() : null;
       if (key.equals(FILE)) {
         diffBuilder.setKey(key);
-        setNullable(results.getFileLongName(emptyToNull(newValue)), diffBuilder::setNewValue);
-        setNullable(results.getFileLongName(emptyToNull(oldValue)), diffBuilder::setOldValue);
+        ofNullable(results.getFileLongName(emptyToNull(newValue))).ifPresent(diffBuilder::setNewValue);
+        ofNullable(results.getFileLongName(emptyToNull(oldValue))).ifPresent(diffBuilder::setOldValue);
       } else {
         diffBuilder.setKey(key.equals(TECHNICAL_DEBT) ? EFFORT_CHANGELOG_KEY : key);
-        setNullable(emptyToNull(newValue), diffBuilder::setNewValue);
-        setNullable(emptyToNull(oldValue), diffBuilder::setOldValue);
+        ofNullable(emptyToNull(newValue)).ifPresent(diffBuilder::setNewValue);
+        ofNullable(emptyToNull(oldValue)).ifPresent(diffBuilder::setOldValue);
       }
       return diffBuilder.build();
     };

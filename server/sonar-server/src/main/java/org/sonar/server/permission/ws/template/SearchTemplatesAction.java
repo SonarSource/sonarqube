@@ -50,8 +50,8 @@ import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse.TemplateIdQualifier;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -140,8 +140,8 @@ public class SearchTemplatesAction implements PermissionsWsAction {
         .setName(templateDto.getName())
         .setCreatedAt(formatDateTime(templateDto.getCreatedAt()))
         .setUpdatedAt(formatDateTime(templateDto.getUpdatedAt()));
-      setNullable(templateDto.getKeyPattern(), templateBuilder::setProjectKeyPattern);
-      setNullable(templateDto.getDescription(), templateBuilder::setDescription);
+      ofNullable(templateDto.getKeyPattern()).ifPresent(templateBuilder::setProjectKeyPattern);
+      ofNullable(templateDto.getDescription()).ifPresent(templateBuilder::setDescription);
       for (String permission : permissionService.getAllProjectPermissions()) {
         templateBuilder.addPermissions(
           permissionResponse

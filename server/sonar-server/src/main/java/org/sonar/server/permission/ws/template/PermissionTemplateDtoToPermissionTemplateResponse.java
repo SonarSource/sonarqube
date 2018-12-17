@@ -25,7 +25,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 
 public class PermissionTemplateDtoToPermissionTemplateResponse {
 
@@ -46,8 +46,8 @@ public class PermissionTemplateDtoToPermissionTemplateResponse {
         .setName(permissionTemplate.getName())
         .setCreatedAt(DateUtils.formatDateTime(permissionTemplate.getCreatedAt()))
         .setUpdatedAt(DateUtils.formatDateTime(permissionTemplate.getUpdatedAt()));
-      setNullable(permissionTemplate.getDescription(), permissionTemplateBuilder::setDescription);
-      setNullable(permissionTemplate.getKeyPattern(), permissionTemplateBuilder::setProjectKeyPattern);
+      ofNullable(permissionTemplate.getDescription()).ifPresent(permissionTemplateBuilder::setDescription);
+      ofNullable(permissionTemplate.getKeyPattern()).ifPresent(permissionTemplateBuilder::setProjectKeyPattern);
       return permissionTemplateBuilder.build();
     }
   }

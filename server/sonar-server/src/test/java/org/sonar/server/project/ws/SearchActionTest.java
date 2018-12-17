@@ -50,6 +50,7 @@ import org.sonarqube.ws.client.component.ComponentsWsParameters;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -57,7 +58,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -428,18 +428,18 @@ public class SearchActionTest {
 
   private SearchWsResponse call(SearchRequest wsRequest) {
     TestRequest request = ws.newRequest();
-    setNullable(wsRequest.getOrganization(), organization -> request.setParam(PARAM_ORGANIZATION, organization));
+    ofNullable(wsRequest.getOrganization()).ifPresent(organization -> request.setParam(PARAM_ORGANIZATION, organization));
     List<String> qualifiers = wsRequest.getQualifiers();
     if (!qualifiers.isEmpty()) {
       request.setParam(ComponentsWsParameters.PARAM_QUALIFIERS, Joiner.on(",").join(qualifiers));
     }
-    setNullable(wsRequest.getQuery(), query -> request.setParam(TEXT_QUERY, query));
-    setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
-    setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
-    setNullable(wsRequest.getVisibility(), v -> request.setParam(PARAM_VISIBILITY, v));
-    setNullable(wsRequest.getAnalyzedBefore(), d -> request.setParam(PARAM_ANALYZED_BEFORE, d));
-    setNullable(wsRequest.getProjects(), l -> request.setParam(PARAM_PROJECTS, String.join(",", l)));
-    setNullable(wsRequest.getProjectIds(), l -> request.setParam(PARAM_PROJECT_IDS, String.join(",", l)));
+    ofNullable(wsRequest.getQuery()).ifPresent(query -> request.setParam(TEXT_QUERY, query));
+    ofNullable(wsRequest.getPage()).ifPresent(page -> request.setParam(PAGE, String.valueOf(page)));
+    ofNullable(wsRequest.getPageSize()).ifPresent(pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
+    ofNullable(wsRequest.getVisibility()).ifPresent(v -> request.setParam(PARAM_VISIBILITY, v));
+    ofNullable(wsRequest.getAnalyzedBefore()).ifPresent(d -> request.setParam(PARAM_ANALYZED_BEFORE, d));
+    ofNullable(wsRequest.getProjects()).ifPresent(l1 -> request.setParam(PARAM_PROJECTS, String.join(",", l1)));
+    ofNullable(wsRequest.getProjectIds()).ifPresent(l -> request.setParam(PARAM_PROJECT_IDS, String.join(",", l)));
     request.setParam(PARAM_ON_PROVISIONED_ONLY, String.valueOf(wsRequest.isOnProvisionedOnly()));
     return request.executeProtobuf(SearchWsResponse.class);
   }

@@ -56,7 +56,7 @@ import org.sonarqube.ws.Rules.SearchResponse;
 
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
@@ -208,7 +208,7 @@ public class ActiveRuleCompleter {
 
   private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QProfileDto profile) {
     Rules.QProfile.Builder profileResponse = Rules.QProfile.newBuilder();
-    setNullable(profile.getName(), profileResponse::setName);
+    ofNullable(profile.getName()).ifPresent(profileResponse::setName);
 
     if (profile.getLanguage() != null) {
       profileResponse.setLang(profile.getLanguage());
@@ -216,7 +216,7 @@ public class ActiveRuleCompleter {
       String langName = language == null ? profile.getLanguage() : language.getName();
       profileResponse.setLangName(langName);
     }
-    setNullable(profile.getParentKee(), profileResponse::setParent);
+    ofNullable(profile.getParentKee()).ifPresent(profileResponse::setParent);
 
     profilesResponse.put(profile.getKee(), profileResponse.build());
   }

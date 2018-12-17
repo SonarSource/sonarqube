@@ -42,8 +42,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RenameActionTest {
@@ -269,8 +269,8 @@ public class RenameActionTest {
     TestRequest request = ws.newRequest()
       .setMethod("POST");
 
-    setNullable(key, k -> request.setParam("key", k));
-    setNullable(name, n -> request.setParam("name", n));
+    ofNullable(key).ifPresent(k -> request.setParam("key", k));
+    ofNullable(name).ifPresent(n -> request.setParam("name", n));
 
     request.execute();
   }

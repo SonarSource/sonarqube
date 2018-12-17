@@ -49,8 +49,8 @@ import org.sonarqube.ws.Organizations.User;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
@@ -139,8 +139,8 @@ public class SearchMembersAction implements OrganizationsWsAction {
           .clear()
           .setLogin(login)
           .setName(userDto.getName());
-        setNullable(emptyToNull(userDto.getEmail()), text -> wsUser.setAvatar(avatarResolver.create(userDto)));
-        setNullable(groupCountByLogin, count -> wsUser.setGroupCount(groupCountByLogin.count(login)));
+        ofNullable(emptyToNull(userDto.getEmail())).ifPresent(text -> wsUser.setAvatar(avatarResolver.create(userDto)));
+        ofNullable(groupCountByLogin).ifPresent(count -> wsUser.setGroupCount(groupCountByLogin.count(login)));
         return wsUser;
       })
       .forEach(response::addUsers);

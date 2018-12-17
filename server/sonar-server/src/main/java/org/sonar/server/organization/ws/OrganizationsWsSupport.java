@@ -26,7 +26,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonarqube.ws.Organizations.Organization;
 
-import static org.sonar.core.util.Protobuf.setNullable;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.organization.OrganizationValidation.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.organization.OrganizationValidation.NAME_MAX_LENGTH;
 import static org.sonar.server.organization.OrganizationValidation.NAME_MIN_LENGTH;
@@ -113,9 +113,9 @@ public class OrganizationsWsSupport {
       .setName(dto.getName())
       .setKey(dto.getKey())
       .setGuarded(dto.isGuarded());
-    setNullable(dto.getDescription(), builder::setDescription);
-    setNullable(dto.getUrl(), builder::setUrl);
-    setNullable(dto.getAvatarUrl(), builder::setAvatar);
+    ofNullable(dto.getDescription()).ifPresent(builder::setDescription);
+    ofNullable(dto.getUrl()).ifPresent(builder::setUrl);
+    ofNullable(dto.getAvatarUrl()).ifPresent(builder::setAvatar);
     return builder;
   }
 }

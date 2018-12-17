@@ -45,8 +45,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
@@ -173,7 +173,7 @@ public class AddActionTest {
 
   private TestResponse call(@Nullable String componentKey) {
     TestRequest request = ws.newRequest();
-    setNullable(componentKey, c -> request.setParam(PARAM_COMPONENT, c));
+    ofNullable(componentKey).ifPresent(c -> request.setParam(PARAM_COMPONENT, c));
 
     return request.execute();
   }
