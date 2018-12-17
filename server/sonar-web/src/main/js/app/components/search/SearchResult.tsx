@@ -122,28 +122,28 @@ export default class SearchResult extends React.PureComponent<Props, State> {
           placement="left"
           visible={this.state.tooltipVisible}>
           <Link
-            className="navbar-search-item-link"
             data-key={component.key}
             onClick={this.props.onClose}
-            onMouseEnter={this.handleMouseEnter}
             to={getProjectUrl(component.key)}>
-            <span className="navbar-search-item-icons little-spacer-right">
-              {component.isFavorite && <FavoriteIcon favorite={true} size={12} />}
-              {!component.isFavorite && component.isRecentlyBrowsed && <ClockIcon size={12} />}
-              <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
+            <span className="navbar-search-item-link" onMouseEnter={this.handleMouseEnter}>
+              <span className="navbar-search-item-icons little-spacer-right">
+                {component.isFavorite && <FavoriteIcon favorite={true} size={12} />}
+                {!component.isFavorite && component.isRecentlyBrowsed && <ClockIcon size={12} />}
+                <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
+              </span>
+
+              {component.match ? (
+                <span
+                  className="navbar-search-item-match"
+                  dangerouslySetInnerHTML={{ __html: component.match }}
+                />
+              ) : (
+                <span className="navbar-search-item-match">{component.name}</span>
+              )}
+
+              {this.renderOrganization(component)}
+              {this.renderProject(component)}
             </span>
-
-            {component.match ? (
-              <span
-                className="navbar-search-item-match"
-                dangerouslySetInnerHTML={{ __html: component.match }}
-              />
-            ) : (
-              <span className="navbar-search-item-match">{component.name}</span>
-            )}
-
-            {this.renderOrganization(component)}
-            {this.renderProject(component)}
           </Link>
         </Tooltip>
       </li>

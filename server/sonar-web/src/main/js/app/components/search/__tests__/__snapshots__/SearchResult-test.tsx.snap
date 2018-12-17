@@ -11,10 +11,8 @@ exports[`renders favorite 1`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -28,21 +26,26 @@ exports[`renders favorite 1`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <FavoriteIcon
-          favorite={true}
-          size={12}
-        />
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
-        />
-      </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        foo
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <FavoriteIcon
+            favorite={true}
+            size={12}
+          />
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          foo
+        </span>
       </span>
     </Link>
   </Tooltip>
@@ -60,10 +63,8 @@ exports[`renders match 1`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -77,21 +78,26 @@ exports[`renders match 1`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "f<mark>o</mark>o",
+            }
+          }
         />
       </span>
-      <span
-        className="navbar-search-item-match"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "f<mark>o</mark>o",
-          }
-        }
-      />
     </Link>
   </Tooltip>
 </li>
@@ -108,10 +114,8 @@ exports[`renders organizations 1`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -125,26 +129,31 @@ exports[`renders organizations 1`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <ClockIcon
-          size={12}
-        />
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
-        />
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <ClockIcon
+            size={12}
+          />
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          foo
+        </span>
+        <div
+          className="navbar-search-item-right text-muted-2"
+        >
+          bar
+        </div>
       </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        foo
-      </span>
-      <div
-        className="navbar-search-item-right text-muted-2"
-      >
-        bar
-      </div>
     </Link>
   </Tooltip>
 </li>
@@ -161,10 +170,8 @@ exports[`renders organizations 2`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -178,20 +185,25 @@ exports[`renders organizations 2`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <ClockIcon
-          size={12}
-        />
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
-        />
-      </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        foo
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <ClockIcon
+            size={12}
+          />
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          foo
+        </span>
       </span>
     </Link>
   </Tooltip>
@@ -209,10 +221,8 @@ exports[`renders projects 1`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="qwe"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -226,26 +236,31 @@ exports[`renders projects 1`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <ClockIcon
-          size={12}
-        />
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="BRC"
-        />
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <ClockIcon
+            size={12}
+          />
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="BRC"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          qwe
+        </span>
+        <div
+          className="navbar-search-item-right text-muted-2"
+        >
+          foo
+        </div>
       </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        qwe
-      </span>
-      <div
-        className="navbar-search-item-right text-muted-2"
-      >
-        foo
-      </div>
     </Link>
   </Tooltip>
 </li>
@@ -262,10 +277,8 @@ exports[`renders recently browsed 1`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -279,20 +292,25 @@ exports[`renders recently browsed 1`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <ClockIcon
-          size={12}
-        />
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
-        />
-      </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        foo
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <ClockIcon
+            size={12}
+          />
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          foo
+        </span>
       </span>
     </Link>
   </Tooltip>
@@ -310,10 +328,8 @@ exports[`renders selected 1`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -327,17 +343,22 @@ exports[`renders selected 1`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
-        />
-      </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        foo
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          foo
+        </span>
       </span>
     </Link>
   </Tooltip>
@@ -356,10 +377,8 @@ exports[`renders selected 2`] = `
     visible={false}
   >
     <Link
-      className="navbar-search-item-link"
       data-key="foo"
       onClick={[MockFunction]}
-      onMouseEnter={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -373,17 +392,22 @@ exports[`renders selected 2`] = `
       }
     >
       <span
-        className="navbar-search-item-icons little-spacer-right"
+        className="navbar-search-item-link"
+        onMouseEnter={[Function]}
       >
-        <QualifierIcon
-          className="little-spacer-right"
-          qualifier="TRK"
-        />
-      </span>
-      <span
-        className="navbar-search-item-match"
-      >
-        foo
+        <span
+          className="navbar-search-item-icons little-spacer-right"
+        >
+          <QualifierIcon
+            className="little-spacer-right"
+            qualifier="TRK"
+          />
+        </span>
+        <span
+          className="navbar-search-item-match"
+        >
+          foo
+        </span>
       </span>
     </Link>
   </Tooltip>
