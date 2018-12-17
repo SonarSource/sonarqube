@@ -98,7 +98,7 @@ interface Props<T> {
   height: number;
   items: BubbleItem<T>[];
   onBubbleClick?: (ref?: T) => void;
-  padding?: [number, number, number, number];
+  padding: [number, number, number, number];
   sizeDomain?: [number, number];
   sizeRange?: [number, number];
   xDomain?: [number, number];
@@ -122,6 +122,7 @@ export default class BubbleChart<T> extends React.Component<Props<T>, State> {
     displayXTicks: true,
     displayYGrid: true,
     displayYTicks: true,
+    padding: [0, 0, 0, 0],
     sizeRange: [5, 45]
   };
 
@@ -146,7 +147,15 @@ export default class BubbleChart<T> extends React.Component<Props<T>, State> {
   };
 
   zoomed = () => {
-    this.setState({ transform: event.transform });
+    const { padding } = this.props;
+    const { x, y, k } = event.transform as { x: number; y: number; k: number };
+    this.setState({
+      transform: {
+        x: x + padding[3] * (k - 1),
+        y: y + padding[0] * (k - 1),
+        k
+      }
+    });
   };
 
   resetZoom = (event: React.MouseEvent<Link>) => {

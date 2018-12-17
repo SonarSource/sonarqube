@@ -19,7 +19,12 @@
  */
 import * as React from 'react';
 import { mount } from 'enzyme';
+import { AutoSizerProps } from 'react-virtualized';
 import BubbleChart, { Bubble } from '../BubbleChart';
+
+jest.mock('react-virtualized/dist/commonjs/AutoSizer', () => ({
+  AutoSizer: ({ children }: AutoSizerProps) => children({ width: 100, height: NaN })
+}));
 
 it('should display bubbles', () => {
   const items = [{ x: 1, y: 10, size: 7 }, { x: 2, y: 30, size: 5 }];
