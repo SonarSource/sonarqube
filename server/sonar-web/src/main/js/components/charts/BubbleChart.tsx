@@ -210,7 +210,8 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
       const x = xScale(tick) * transform.k + transform.x;
       const y = yScale.range()[0];
       const innerText = this.props.formatXTick(tick);
-      return x > 0 ? (
+      // as we modified the `x` using `transform`, check that it is inside the range again
+      return x > 0 && x < xScale.range()[1] ? (
         <text className="bubble-chart-tick" dy="1.5em" key={index} x={x} y={y}>
           {innerText}
         </text>
@@ -230,7 +231,8 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
       const x = xScale.range()[0];
       const y = yScale(tick) * transform.k + transform.y;
       const innerText = this.props.formatYTick(tick);
-      return y > 0 && y < this.props.height - 80 ? (
+      // as we modified the `y` using `transform`, check that it is inside the range again
+      return y > 0 && y < yScale.range()[0] ? (
         <text
           className="bubble-chart-tick bubble-chart-tick-y"
           dx="-0.5em"
@@ -299,8 +301,8 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
           <clipPath id="graph-region">
             <rect
               // Extend clip by 2 pixels: one for clipRect border, and one for Bubble borders
-              height={this.props.height - this.props.padding[0] - this.props.padding[2] + 4}
-              width={width + 4}
+              height={availableHeight + 4}
+              width={availableWidth + 4}
               x={-2}
               y={-2}
             />
