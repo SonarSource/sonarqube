@@ -42,6 +42,7 @@ import org.sonarqube.ws.Webhooks.ListResponseElement;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.LIST_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
@@ -138,13 +139,12 @@ public class ListAction implements WebhooksWsAction {
   private static void writeResponse(Request request, Response response, List<WebhookDto> webhookDtos, Map<String, WebhookDeliveryLiteDto> lastDeliveries) {
     ListResponse.Builder responseBuilder = ListResponse.newBuilder();
     webhookDtos
-      .stream()
       .forEach(webhook -> {
         ListResponseElement.Builder responseElementBuilder = responseBuilder.addWebhooksBuilder();
         responseElementBuilder
           .setKey(webhook.getUuid())
           .setName(webhook.getName())
-          .setUrl(webhook.getUrl());
+          .setUrl(obfuscateCredentials(webhook.getUrl()));
         addLastDelivery(responseElementBuilder, webhook, lastDeliveries);
       });
     writeProtobuf(responseBuilder.build(), request, response);

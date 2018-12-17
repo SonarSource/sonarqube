@@ -29,9 +29,17 @@ import okhttp3.HttpUrl;
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.repeat;
 
-final class HttpUrlHelper {
+public final class HttpUrlHelper {
   private HttpUrlHelper() {
     // prevents instantiation
+  }
+
+  public static String obfuscateCredentials(String originalUrl) {
+    HttpUrl parsedUrl = HttpUrl.parse(originalUrl);
+    if (parsedUrl != null) {
+      return obfuscateCredentials(originalUrl, parsedUrl);
+    }
+    return originalUrl;
   }
 
   /**
@@ -44,7 +52,7 @@ final class HttpUrlHelper {
    * This function replaces the chars of the username and the password from the {@code originalUrl} by '*' chars
    * based on username and password parsed in {@code parsedUrl}.
    */
-  public static String toEffectiveUrl(String originalUrl, HttpUrl parsedUrl) {
+  static String obfuscateCredentials(String originalUrl, HttpUrl parsedUrl) {
     String username = parsedUrl.username();
     String password = parsedUrl.password();
     if (username.isEmpty() && password.isEmpty()) {
@@ -93,6 +101,7 @@ final class HttpUrlHelper {
     return authentStringOf(repeat("*", userName.length()), password == null ? null : repeat("*", password.length()));
   }
 
+  @CheckForNull
   private static String replaceOrDieImpl(String original, String target, String replacement) {
     String res = original.replace(target, replacement);
     if (!res.equals(original)) {

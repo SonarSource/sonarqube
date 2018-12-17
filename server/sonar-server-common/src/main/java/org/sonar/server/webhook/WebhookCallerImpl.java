@@ -68,7 +68,7 @@ public class WebhookCallerImpl implements WebhookCaller {
       if (url == null) {
         throw new IllegalArgumentException("Webhook URL is not valid: " + webhook.getUrl());
       }
-      builder.setEffectiveUrl(HttpUrlHelper.toEffectiveUrl(webhook.getUrl(), url));
+      builder.setEffectiveUrl(HttpUrlHelper.obfuscateCredentials(webhook.getUrl(), url));
       Request request = buildHttpRequest(url, payload);
       try (Response response = execute(request)) {
         builder.setHttpStatus(response.code());

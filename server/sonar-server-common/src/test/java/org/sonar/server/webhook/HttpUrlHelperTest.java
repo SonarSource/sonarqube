@@ -31,18 +31,21 @@ import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 
 @RunWith(DataProviderRunner.class)
 public class HttpUrlHelperTest {
 
   @Test
-  @UseDataProvider("toEffectiveUrlUseCases")
-  public void verify_toEffectiveUrl(String originalUrl, String expectedUrl) {
-    assertThat(HttpUrlHelper.toEffectiveUrl(originalUrl, HttpUrl.parse(originalUrl))).isEqualTo(expectedUrl);
+  @UseDataProvider("obfuscateCredentialsUseCases")
+  public void verify_obfuscateCredentials(String originalUrl, String expectedUrl) {
+    assertThat(obfuscateCredentials(originalUrl, HttpUrl.parse(originalUrl)))
+      .isEqualTo(obfuscateCredentials(originalUrl))
+      .isEqualTo(expectedUrl);
   }
 
   @DataProvider
-  public static Object[][] toEffectiveUrlUseCases() {
+  public static Object[][] obfuscateCredentialsUseCases() {
     List<Object[]> rows = new ArrayList<>();
     for (String before : Arrays.asList("http://", "https://")) {
       for (String host : Arrays.asList("foo", "127.0.0.1", "[2001:db8:85a3:0:0:8a2e:370:7334]", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]")) {

@@ -148,6 +148,26 @@ public class ListActionTest {
   }
 
   @Test
+  public void obfuscate_credentials_in_webhook_URLs() {
+    String url = "http://foo:barouf@toto/bop";
+    String expectedUrl = "http://***:******@toto/bop";
+    WebhookDto webhook1 = webhookDbTester.insert(newOrganizationWebhook("aaa", defaultOrganizationProvider.get().getUuid(), t -> t.setUrl(url)));
+    webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
+    webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
+    WebhookDto webhook2 = webhookDbTester.insert(newOrganizationWebhook("bbb", db.getDefaultOrganization().getUuid(), t -> t.setUrl(url)));
+
+    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
+
+    ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
+
+    List<Webhooks.ListResponseElement> elements = response.getWebhooksList();
+    assertThat(elements)
+      .hasSize(2)
+      .extracting(Webhooks.ListResponseElement::getUrl)
+      .containsOnly(expectedUrl);
+  }
+
+  @Test
   public void list_global_webhooks() {
     WebhookDto dto1 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
     WebhookDto dto2 = webhookDbTester.insertWebhook(db.getDefaultOrganization());

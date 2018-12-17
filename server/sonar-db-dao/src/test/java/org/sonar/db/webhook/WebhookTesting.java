@@ -19,6 +19,8 @@
  */
 package org.sonar.db.webhook;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -47,17 +49,21 @@ public class WebhookTesting {
       .setOrganizationUuid(organizationDto.getUuid());
   }
 
-  public static WebhookDto newOrganizationWebhook(String name, String organizationUuid) {
-    return getWebhookDto()
+  @SafeVarargs
+  public static WebhookDto newOrganizationWebhook(String name, String organizationUuid, Consumer<WebhookDto>... consumers) {
+    return getWebhookDto(consumers)
             .setName(name)
             .setOrganizationUuid(organizationUuid);
   }
 
-  private static WebhookDto getWebhookDto() {
-    return new WebhookDto()
+  @SafeVarargs
+  private static WebhookDto getWebhookDto(Consumer<WebhookDto>... consumers) {
+    WebhookDto res = new WebhookDto()
       .setUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(64))
       .setUrl("https://www.random-site/" + randomAlphanumeric(256))
       .setCreatedAt(Calendar.getInstance().getTimeInMillis());
+    Arrays.stream(consumers).forEach(consumer -> consumer.accept(res));
+    return res;
   }
 }
