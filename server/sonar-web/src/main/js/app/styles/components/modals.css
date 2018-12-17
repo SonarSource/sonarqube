@@ -79,7 +79,7 @@
 .modal-open,
 .ReactModal__Body--open {
   overflow: hidden;
-  margin-right: 15px;
+  margin-right: var(--sbw);
 }
 
 .modal-container {

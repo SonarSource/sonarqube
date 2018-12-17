@@ -53,6 +53,7 @@ class App extends React.PureComponent<Props> {
   componentDidMount() {
     this.mounted = true;
     this.props.fetchLanguages();
+    this.setScrollbarWidth();
     const { appState, currentUser } = this.props;
     if (appState && isSonarCloud() && currentUser && isLoggedIn(currentUser)) {
       this.props.fetchMyOrganizations();
@@ -62,6 +63,31 @@ class App extends React.PureComponent<Props> {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  setScrollbarWidth = () => {
+    // See https://stackoverflow.com/questions/13382516/getting-scroll-bar-width-using-javascript
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.width = '100px';
+    outer.style.msOverflowStyle = 'scrollbar';
+
+    document.body.appendChild(outer);
+
+    const widthNoScroll = outer.offsetWidth;
+    outer.style.overflow = 'scroll';
+
+    const inner = document.createElement('div');
+    inner.style.width = '100%';
+    outer.appendChild(inner);
+
+    const widthWithScroll = inner.offsetWidth;
+
+    if (outer.parentNode) {
+      outer.parentNode.removeChild(outer);
+    }
+
+    document.body.style.setProperty('--sbw', `${widthNoScroll - widthWithScroll}px`);
+  };
 
   renderPreconnectLink = () => {
     const parser = document.createElement('a');

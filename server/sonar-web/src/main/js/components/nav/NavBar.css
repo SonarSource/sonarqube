@@ -32,6 +32,10 @@
   right: 0;
 }
 
+.ReactModal__Body--open .navbar-inner {
+  padding-right: var(--sbw);
+}
+
 .navbar-limited {
   position: relative;
   min-width: var(--minPageWidth);
