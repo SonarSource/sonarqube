@@ -44,7 +44,8 @@
     window.official = %OFFICIAL%;
   </script>
   <% for (let chunk in htmlWebpackPlugin.files.chunks) { %>
-    <script src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+    <script type="module" src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+    <script nomodule src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry.replace(/m\.[\w\d]+/, htmlWebpackPlugin.options.timestamp) %>"></script>
   <% } %>
 </body>
 

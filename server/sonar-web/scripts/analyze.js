@@ -22,9 +22,10 @@ process.env.NODE_ENV = 'production';
 
 const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const getConfig = require('../config/webpack.config');
+const getConfigs = require('../config/webpack.config');
 
-const config = getConfig({ production: true });
+const configs = getConfigs({ production: true });
+const config = configs.find(config => config.name === 'modern');
 
 config.plugins.push(new BundleAnalyzerPlugin());
 

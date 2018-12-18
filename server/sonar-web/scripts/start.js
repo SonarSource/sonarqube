@@ -28,10 +28,11 @@ const clearConsole = require('react-dev-utils/clearConsole');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const errorOverlayMiddleware = require('react-error-overlay/middleware');
 const getMessages = require('./utils/getMessages');
-const getConfig = require('../config/webpack.config');
+const getConfigs = require('../config/webpack.config');
 const paths = require('../config/paths');
 
-const config = getConfig({ production: false });
+const configs = getConfigs({ production: false });
+const config = configs.find(config => config.name === 'modern');
 
 const port = process.env.PORT || 3000;
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';

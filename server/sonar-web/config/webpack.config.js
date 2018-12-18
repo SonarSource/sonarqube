@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-extraneous-dependencies, complexity */
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -29,92 +29,79 @@ const InterpolateHtmlPlugin = require('./InterpolateHtmlPlugin');
 const paths = require('./paths');
 const utils = require('./utils');
 
-module.exports = ({ production = true }) => ({
-  mode: production ? 'production' : 'development',
-  devtool: production ? 'source-map' : 'cheap-module-source-map',
-  resolve: {
-    // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js', '.json'],
-    // import from 'Docs/foo.md' is rewritten to import from 'sonar-docs/src/foo.md'
-    alias: {
-      Docs: path.resolve(__dirname, '../../sonar-docs/src')
-    }
-  },
-  entry: [
-    !production && require.resolve('react-dev-utils/webpackHotDevClient'),
-    require.resolve('./polyfills'),
-    !production && require.resolve('react-error-overlay'),
-    './src/main/js/app/utils/setPublicPath.js',
-    './src/main/js/app/index.ts'
-  ].filter(Boolean),
-  output: {
-    path: paths.appBuild,
-    pathinfo: !production,
-    filename: production ? 'js/[name].[chunkhash:8].js' : 'js/[name].js',
-    chunkFilename: production ? 'js/[name].[chunkhash:8].chunk.js' : 'js/[name].chunk.js'
-  },
-  module: {
-    rules: [
-      {
-        test: /(\.js$|\.ts(x?)$)/,
-        exclude: /(node_modules|libs)/,
-        use: [
-          { loader: 'babel-loader' },
-          {
-            loader: 'ts-loader',
-            options: { transpileOnly: true }
-          }
-        ]
-      },
-      {
-        // extract styles from 'app/' into separate file
-        test: /\.css$/,
-        include: path.resolve(__dirname, '../src/main/js/app/styles'),
-        use: [
-          production ? MiniCssExtractPlugin.loader : 'style-loader',
-          utils.cssLoader({ production }),
-          utils.postcssLoader()
-        ]
-      },
-      {
-        // inline all other styles
-        test: /\.css$/,
-        exclude: path.resolve(__dirname, '../src/main/js/app/styles'),
-        use: ['style-loader', utils.cssLoader({ production }), utils.postcssLoader()]
-      },
-      {
-        test: /\.md$/,
-        use: 'raw-loader'
-      },
-      { test: require.resolve('react'), loader: 'expose-loader?React' },
-      { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' },
-      {
-        test: /\.directory-loader\.js$/,
-        loader: path.resolve(__dirname, 'documentation-loader/index.js')
+/*
+ This webpack config is actually two: one for modern browsers and one for the legacy ones (e.g. ie11)
+
+ The modern one transpilies the code to ES2018 (i.e. with classes, async functions, etc.) and
+ does not include any polyfills. It's included in the result index.html using <script type="module">.
+ Legacy browsers ignore this tag.
+
+ The legacy one transpilies the code to ES5 and polyfills ES5+ features (promises, generators, etc.).
+ It's included in the result index.html using <script nomodule>. Modern browsers do not load such scripts.
+ 
+ There is a trick to have both scripts in the index.html. We generate this file only once, during the
+ build for modern browsers. We want unique file names for each version to invalidate browser cache. 
+ For modern browsers we generate a file suffix using the content hash (as previously). For legacy ones
+ we can't do the same, because we need to know the file names without the build.
+
+ To work-around the problem, we use a build timestamp which is added to the legacy build file names.
+ This way assuming that the build generates exactly the same entry chunks, we know the name of the 
+ legacy files. Inside index.html template we use a simple regex to replace the file hash of a modern 
+ file name to the timestamp. To simplify the regex we use ".m." suffix for modern files.
+
+ This whole thing might be simplified when (if) the following issue is resolved:
+ https://github.com/jantimon/html-webpack-plugin/issues/1051
+*/
+
+module.exports = ({ production = true }) => {
+  const timestamp = Date.now();
+
+  const commonConfig = {
+    mode: production ? 'production' : 'development',
+    devtool: production ? 'source-map' : 'cheap-module-source-map',
+    resolve: {
+      // Add '.ts' and '.tsx' as resolvable extensions.
+      extensions: ['.ts', '.tsx', '.js', '.json'],
+      // import from 'Docs/foo.md' is rewritten to import from 'sonar-docs/src/foo.md'
+      alias: {
+        Docs: path.resolve(__dirname, '../../sonar-docs/src')
       }
-    ]
-  },
-  plugins: [
-    // `allowExternal: true` to remove files outside of the current dir
-    production && new CleanWebpackPlugin([paths.appBuild], { allowExternal: true, verbose: false }),
+    },
+    optimization: {
+      splitChunks: { chunks: 'all' }
+    }
+  };
 
-    production &&
-      new CopyWebpackPlugin([
-        {
-          from: paths.docImages,
-          to: paths.appBuild + '/images/embed-doc/images'
-        }
-      ]),
+  const commonRules = [
+    {
+      // extract styles from 'app/' into separate file
+      test: /\.css$/,
+      include: path.resolve(__dirname, '../src/main/js/app/styles'),
+      use: [
+        production ? MiniCssExtractPlugin.loader : 'style-loader',
+        utils.cssLoader({ production }),
+        utils.postcssLoader()
+      ]
+    },
+    {
+      // inline all other styles
+      test: /\.css$/,
+      exclude: path.resolve(__dirname, '../src/main/js/app/styles'),
+      use: ['style-loader', utils.cssLoader({ production }), utils.postcssLoader()]
+    },
+    {
+      test: /\.md$/,
+      use: 'raw-loader'
+    },
+    { test: require.resolve('react'), loader: 'expose-loader?React' },
+    { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' },
+    {
+      test: /\.directory-loader\.js$/,
+      loader: path.resolve(__dirname, 'documentation-loader/index.js')
+    }
+  ];
 
-    production &&
-      new CopyWebpackPlugin([
-        {
-          from: paths.appPublic,
-          to: paths.appBuild,
-          ignore: [paths.appHtml]
-        }
-      ]),
-
+  const commonPlugins = [
     production &&
       new MiniCssExtractPlugin({
         filename: 'css/[name].[chunkhash:8].css',
@@ -129,34 +116,132 @@ module.exports = ({ production = true }) => ({
       exotics: true, // used to compare "exotic" values, like dates
       memoizing: true,
       flattening: true
+    })
+  ];
+
+  return [
+    Object.assign({ name: 'modern' }, commonConfig, {
+      entry: [
+        !production && require.resolve('react-dev-utils/webpackHotDevClient'),
+        !production && require.resolve('react-error-overlay'),
+        './src/main/js/app/utils/setPublicPath.js',
+        './src/main/js/app/index.ts'
+      ].filter(Boolean),
+      output: {
+        path: paths.appBuild,
+        pathinfo: !production,
+        filename: production ? 'js/[name].m.[chunkhash:8].js' : 'js/[name].js',
+        chunkFilename: production ? 'js/[name].m.[chunkhash:8].chunk.js' : 'js/[name].chunk.js'
+      },
+      module: {
+        rules: [
+          {
+            test: /(\.js$|\.ts(x?)$)/,
+            exclude: /(node_modules|libs)/,
+            use: [
+              { loader: 'babel-loader' },
+              {
+                loader: 'ts-loader',
+                options: { transpileOnly: true }
+              }
+            ]
+          },
+          ...commonRules
+        ]
+      },
+      plugins: [
+        // `allowExternal: true` to remove files outside of the current dir
+        production &&
+          new CleanWebpackPlugin([paths.appBuild], { allowExternal: true, verbose: false }),
+
+        production &&
+          new CopyWebpackPlugin([
+            {
+              from: paths.docImages,
+              to: paths.appBuild + '/images/embed-doc/images'
+            }
+          ]),
+
+        production &&
+          new CopyWebpackPlugin([
+            {
+              from: paths.appPublic,
+              to: paths.appBuild,
+              ignore: [paths.appHtml]
+            }
+          ]),
+
+        ...commonPlugins,
+
+        new HtmlWebpackPlugin({
+          inject: false,
+          template: paths.appHtml,
+          minify: utils.minifyParams({ production }),
+          timestamp
+        }),
+
+        // keep `InterpolateHtmlPlugin` after `HtmlWebpackPlugin`
+        !production &&
+          new InterpolateHtmlPlugin({
+            WEB_CONTEXT: process.env.WEB_CONTEXT || '',
+            SERVER_STATUS: process.env.SERVER_STATUS || 'UP',
+            INSTANCE: process.env.INSTANCE || 'SonarQube',
+            OFFICIAL: process.env.OFFICIAL || 'true'
+          }),
+
+        !production && new webpack.HotModuleReplacementPlugin()
+      ].filter(Boolean),
+      performance: production
+        ? {
+            // ignore source maps and documentation chunk
+            assetFilter: assetFilename =>
+              !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
+            hints: 'error'
+          }
+        : undefined
     }),
 
-    new HtmlWebpackPlugin({
-      inject: false,
-      template: paths.appHtml,
-      minify: utils.minifyParams({ production })
-    }),
-
-    // keep `InterpolateHtmlPlugin` after `HtmlWebpackPlugin`
-    !production &&
-      new InterpolateHtmlPlugin({
-        WEB_CONTEXT: process.env.WEB_CONTEXT || '',
-        SERVER_STATUS: process.env.SERVER_STATUS || 'UP',
-        INSTANCE: process.env.INSTANCE || 'SonarQube',
-        OFFICIAL: process.env.OFFICIAL || 'true'
-      }),
-
-    !production && new webpack.HotModuleReplacementPlugin()
-  ].filter(Boolean),
-  optimization: {
-    splitChunks: { chunks: 'all' }
-  },
-  performance: production
-    ? {
-        // ignore source maps and documentation chunk
-        assetFilter: assetFilename =>
-          !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
-        hints: 'error'
-      }
-    : undefined
-});
+    Object.assign({ name: 'legacy' }, commonConfig, {
+      entry: [
+        !production && require.resolve('react-dev-utils/webpackHotDevClient'),
+        require.resolve('./polyfills'),
+        !production && require.resolve('react-error-overlay'),
+        './src/main/js/app/utils/setPublicPath.js',
+        './src/main/js/app/index.ts'
+      ].filter(Boolean),
+      output: {
+        path: paths.appBuild,
+        pathinfo: !production,
+        filename: production ? `js/[name].${timestamp}.js` : 'js/[name].js',
+        chunkFilename: production ? `js/[name].${timestamp}.chunk.js` : 'js/[name].chunk.js'
+      },
+      module: {
+        rules: [
+          {
+            test: /(\.js$|\.ts(x?)$)/,
+            exclude: /(node_modules|libs)/,
+            use: [
+              {
+                loader: 'babel-loader',
+                options: {
+                  configFile: path.join(__dirname, '../babel.config.legacy.js')
+                }
+              },
+              {
+                loader: 'ts-loader',
+                options: {
+                  configFile: 'tsconfig.legacy.json',
+                  transpileOnly: true
+                }
+              }
+            ]
+          },
+          ...commonRules
+        ]
+      },
+      plugins: [...commonPlugins, !production && new webpack.HotModuleReplacementPlugin()].filter(
+        Boolean
+      )
+    })
+  ];
+};
