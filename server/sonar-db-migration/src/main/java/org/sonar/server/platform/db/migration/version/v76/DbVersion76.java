@@ -28,6 +28,7 @@ public class DbVersion76 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2500, "Create table USER_PROPERTIES", CreateUserPropertiesTable.class)
-      .add(2501, "Add index in table USER_PROPERTIES", AddUniqueIndexInUserPropertiesTable.class);
+      .add(2501, "Add index in table USER_PROPERTIES", AddUniqueIndexInUserPropertiesTable.class)
+      .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class);
   }
 }
