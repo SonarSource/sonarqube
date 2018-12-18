@@ -38,7 +38,7 @@ import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.projectanalysis.component.VisitException;
-import org.sonar.ce.task.step.TypedException;
+import org.sonar.ce.task.TypedException;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
