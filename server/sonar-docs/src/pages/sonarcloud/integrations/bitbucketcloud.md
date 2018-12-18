@@ -13,25 +13,34 @@ In Bitbucket Cloud, go to your team's "Settings > Find integrations" page, searc
 
 ## Analyzing with Pipelines
 
-SonarCloud integrates with Bitbucket Pipelines to make it easier to trigger analyses. Follow the steps:
+SonarCloud integrates with Bitbucket Pipelines to make it easier to trigger analyses. Follow these steps:
 
-1.  On SonarCloud, once your project is created, follow the tutorial on the dashboard of the project. You can copy-paste the command line displayed at the end.
+1.  On SonarCloud, once your project is created, follow the tutorial on the dashboard of the project. Copy-paste the command line displayed at the end but without the `sonar.login` setting.
 
-2.  On Bitbucket Cloud, go to the "Settings > Pipelines > Environment variables" page of your team, and add a new SONAR_TOKEN variable that contains the value of the SonarCloud token (something like `9ad01c85336b265406fa6554a9a681a4b281135f`) which you created during the tutorial (and which is available inside the command line that you copy-pasted). **Make sure that you click on the "Lock" icon to encrypt and hide this token.**
+2.  On Bitbucket Cloud, go to the "Settings > Pipelines > Account variables" page of your team, and add a new SONAR_TOKEN variable that contains the value of the SonarCloud token which you created during the tutorial (something like `9ad01c85336b265406fa6554a9a681a4b281135f`). **Make sure that you click on the "Lock" icon to encrypt and hide this token.**
 
-3.  Inside the `bitbucket-pipelines.yml` file of your repository, copy the command line provided by the tutorial and replace the actual token by its variable name. For example, for a Java Maven-based project, you should have something like:
+3.  Inside the `bitbucket-pipelines.yml` file of your repository paste the command you copied in step 1. For example, for a Java Maven-based project, you should have something like:
 
 ```
 script:
-  -mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=my-project -Dsonar.organization=my-team-org -Dsonar.login=$SONAR_TOKEN
+  -mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=my-project -Dsonar.organization=my-team-org
 ```
 
-When this change on `bitbucket-pipelines.yml` is committed and pushed, Pipelines should automatically run a new build and therefore trigger the analysis of the repository. Shortly after, your project will appear on SonarCloud in your organization.
+When this change on `bitbucket-pipelines.yml` is committed and pushed, Pipelines should automatically run a new build and therefore trigger the analysis of the repository. Shortly after, your project will appear on SonarCloud in your organization. 
 
-From now on, everytime Pipelines triggers a build, SonarCloud will:
+## Analyzing pull requests with Pipelines
 
-* Analyze every new branch that contains the change on the `bitbucket-pipelines.yml` file.
-* Analyze and decorate every pull request based on such a branch.
+In order to trigger SonarCloud analysis on each pull request update, you have to supply the copied command in `pull-requests` section of `bitbucket-pipelines.yml` (check [Configure bitbucket-pipelines.yml](https://confluence.atlassian.com/bitbucket/configure-bitbucket-pipelines-yml-792298910.html#Configurebitbucket-pipelines.yml-ci_pull-requests) for more details about that section). Here is a sample configuration:
+```
+pipelines:
+  ...
+  pull-requests:
+    feature/*:
+      - step:
+          script:
+            - mvn -B verify sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=... -Dsonar.organization=...
+  ...
+```
 
 ## Quality widget
 

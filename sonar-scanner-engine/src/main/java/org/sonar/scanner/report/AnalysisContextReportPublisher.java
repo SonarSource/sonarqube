@@ -112,9 +112,15 @@ public class AnalysisContextReportPublisher {
   private void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Environment variables:\n");
     Map<String, String> envVariables = system.envVariables();
-    for (String env : new TreeSet<>(envVariables.keySet())) {
-      fileWriter.append(String.format(KEY_VALUE_FORMAT, env, envVariables.get(env))).append('\n');
-    }
+    new TreeSet<>(envVariables.keySet())
+      .forEach(envKey -> {
+        try {
+          String envValue = isSensitiveEnvVariable(envKey) ? "******" : envVariables.get(envKey);
+          fileWriter.append(String.format(KEY_VALUE_FORMAT, envKey, envValue)).append('\n');
+        } catch (IOException e) {
+          throw new IllegalStateException(e);
+        }
+      });
   }
 
   private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
@@ -146,7 +152,7 @@ public class AnalysisContextReportPublisher {
   }
 
   private static void dumpPropIfNotSensitive(BufferedWriter fileWriter, String prop, String value) throws IOException {
-    fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sensitive(prop) ? "******" : StringUtils.abbreviate(value, MAX_WIDTH))).append('\n');
+    fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, isSensitiveProperty(prop) ? "******" : StringUtils.abbreviate(value, MAX_WIDTH))).append('\n');
   }
 
   /**
@@ -183,7 +189,11 @@ public class AnalysisContextReportPublisher {
     return propKey.startsWith(ENV_PROP_PREFIX) && system.envVariables().containsKey(propKey.substring(ENV_PROP_PREFIX.length()));
   }
 
-  private static boolean sensitive(String key) {
-    return key.equals(CoreProperties.LOGIN) || key.contains(".password") || key.contains(".secured");
+  private static boolean isSensitiveEnvVariable(String key) {
+    return key.contains("_TOKEN") || key.contains("_PASSWORD") || key.contains("_SECURED");
+  }
+
+  private static boolean isSensitiveProperty(String key) {
+    return key.equals(CoreProperties.LOGIN) || key.contains(".password") || key.contains(".secured") || key.contains(".token");
   }
 }

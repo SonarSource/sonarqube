@@ -22,6 +22,7 @@ package org.sonar.scanner.bootstrap;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;
@@ -39,13 +40,15 @@ public class ScannerWsClientProvider extends ProviderAdapter {
 
   private ScannerWsClient wsClient;
 
-  public synchronized ScannerWsClient provide(final GlobalProperties settings, final EnvironmentInformation env, GlobalAnalysisMode globalMode) {
+  public synchronized ScannerWsClient provide(final GlobalProperties settings, final EnvironmentInformation env,
+                                              GlobalAnalysisMode globalMode, System2 system) {
     if (wsClient == null) {
       String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
       String timeoutSec = defaultIfBlank(settings.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
-      String login = defaultIfBlank(settings.property(CoreProperties.LOGIN), null);
+      String token = defaultIfBlank(system.envVariable("SONAR_TOKEN"), null);
+      String login = defaultIfBlank(settings.property(CoreProperties.LOGIN), token);
       connectorBuilder
         .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)
         .connectTimeoutMilliseconds(CONNECT_TIMEOUT_MS)
