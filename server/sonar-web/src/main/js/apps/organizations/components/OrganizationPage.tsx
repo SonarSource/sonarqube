@@ -22,7 +22,6 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Location } from 'history';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
-import { fetchOrganization } from '../actions';
 import NotFound from '../../../app/components/NotFound';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
@@ -31,6 +30,7 @@ import {
   getMyOrganizations,
   Store
 } from '../../../store/rootReducer';
+import { fetchOrganization } from '../../../store/rootActions';
 
 interface OwnProps {
   children?: React.ReactNode;

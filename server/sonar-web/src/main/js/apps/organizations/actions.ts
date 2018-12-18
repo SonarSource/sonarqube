@@ -23,17 +23,6 @@ import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
-export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
-  return Promise.all([api.getOrganization(key), api.getOrganizationNavigation(key)]).then(
-    ([organization, navigation]) => {
-      if (organization) {
-        const organizationWithPermissions = { ...organization, ...navigation };
-        dispatch(actions.receiveOrganizations([organizationWithPermissions]));
-      }
-    }
-  );
-};
-
 export const createOrganization = (organization: T.OrganizationBase) => (
   dispatch: Dispatch<any>
 ) => {

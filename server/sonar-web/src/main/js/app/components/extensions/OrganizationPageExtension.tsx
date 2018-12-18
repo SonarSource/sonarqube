@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import Extension from './Extension';
 import NotFound from '../NotFound';
 import { getOrganizationByKey, Store } from '../../../store/rootReducer';
-import { fetchOrganization } from '../../../apps/organizations/actions';
+import { fetchOrganization } from '../../../store/rootActions';
 
 interface StateToProps {
   organization?: T.Organization;

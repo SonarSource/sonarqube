@@ -1,0 +1,293 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should hide QG and QP links if the organization has a paid plan, and the user is not a member 1`] = `
+<div
+  className="overview-meta"
+>
+  <div
+    className="overview-meta-card"
+  >
+    <h4
+      className="overview-meta-header"
+    >
+      overview.about_this_project.TRK
+    </h4>
+    <MetaTags
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </div>
+  <MetaLinks
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <div
+    className="overview-meta-card"
+  >
+    <MetaKey
+      componentKey="my-project"
+      qualifier="TRK"
+    />
+    <MetaOrganizationKey
+      organization="foo"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="overview-meta"
+>
+  <div
+    className="overview-meta-card"
+  >
+    <h4
+      className="overview-meta-header"
+    >
+      overview.about_this_project.TRK
+    </h4>
+    <MetaTags
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </div>
+  <div
+    className="overview-meta-card"
+    id="overview-meta-quality-gate"
+  >
+    <MetaQualityGate
+      organization="foo"
+      qualityGate={
+        Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        }
+      }
+    />
+    <Connect(MetaQualityProfiles)
+      headerClassName="big-spacer-top"
+      organization="foo"
+      profiles={
+        Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ]
+      }
+    />
+  </div>
+  <MetaLinks
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <div
+    className="overview-meta-card"
+  >
+    <MetaKey
+      componentKey="my-project"
+      qualifier="TRK"
+    />
+    <MetaOrganizationKey
+      organization="foo"
+    />
+  </div>
+</div>
+`;
+
+exports[`should show QG and QP links if the organization has a paid plan, and the user is a member 1`] = `
+<div
+  className="overview-meta"
+>
+  <div
+    className="overview-meta-card"
+  >
+    <h4
+      className="overview-meta-header"
+    >
+      overview.about_this_project.TRK
+    </h4>
+    <MetaTags
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </div>
+  <div
+    className="overview-meta-card"
+    id="overview-meta-quality-gate"
+  >
+    <MetaQualityGate
+      organization="foo"
+      qualityGate={
+        Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        }
+      }
+    />
+    <Connect(MetaQualityProfiles)
+      headerClassName="big-spacer-top"
+      organization="foo"
+      profiles={
+        Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ]
+      }
+    />
+  </div>
+  <MetaLinks
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+  />
+  <div
+    className="overview-meta-card"
+  >
+    <MetaKey
+      componentKey="my-project"
+      qualifier="TRK"
+    />
+    <MetaOrganizationKey
+      organization="foo"
+    />
+  </div>
+</div>
+`;

@@ -24,7 +24,7 @@ import forSingleOrganization from '../organizations/forSingleOrganization';
 import { getAppState, getOrganizationByKey, getCurrentUser, Store } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
-import { fetchOrganization } from '../organizations/actions';
+import { fetchOrganization } from '../../store/rootActions';
 
 interface StateProps {
   appState: { defaultOrganization: string; qualifiers: string[] };

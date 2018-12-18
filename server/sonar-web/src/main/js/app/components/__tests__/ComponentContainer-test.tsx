@@ -78,7 +78,7 @@ it('changes component', () => {
   const wrapper = shallow<ComponentContainer>(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
@@ -105,7 +105,7 @@ it("loads branches for module's project", async () => {
   mount(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'moduleKey' } }}>
       <Inner />
     </ComponentContainer>
@@ -122,7 +122,7 @@ it("doesn't load branches portfolio", async () => {
   const wrapper = mount(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
     </ComponentContainer>
@@ -141,7 +141,7 @@ it('updates branches on change', () => {
   const wrapper = shallow(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
     </ComponentContainer>
@@ -169,7 +169,7 @@ it('updates the branch measures', async () => {
   const wrapper = shallow(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'foo', branch: 'feature' } }}>
       <Inner />
     </ComponentContainer>
@@ -195,18 +195,18 @@ it('updates the branch measures', async () => {
 it('loads organization', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
 
-  const fetchOrganizations = jest.fn();
+  const fetchOrganization = jest.fn();
   mount(
     <ComponentContainer
       appState={{ organizationsEnabled: true }}
-      fetchOrganizations={fetchOrganizations}
+      fetchOrganization={fetchOrganization}
       location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
   );
 
   await new Promise(setImmediate);
-  expect(fetchOrganizations).toBeCalledWith(['org']);
+  expect(fetchOrganization).toBeCalledWith('org');
 });
 
 it('fetches status', async () => {
@@ -215,7 +215,7 @@ it('fetches status', async () => {
   mount(
     <ComponentContainer
       appState={{ organizationsEnabled: true }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
@@ -229,7 +229,7 @@ it('filters correctly the pending tasks for a main branch', () => {
   const wrapper = shallow(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
@@ -297,7 +297,7 @@ it('reload component after task progress finished', async () => {
   const wrapper = shallow(
     <ComponentContainer
       appState={{ organizationsEnabled: false }}
-      fetchOrganizations={jest.fn()}
+      fetchOrganization={jest.fn()}
       location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>

@@ -261,7 +261,9 @@ export class OverviewApp extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps: DispatchToProps = { fetchMetrics };
+const mapDispatchToProps: DispatchToProps = {
+  fetchMetrics
+};
 
 const mapStateToProps = (state: Store): StateToProps => ({
   metrics: getMetrics(state)

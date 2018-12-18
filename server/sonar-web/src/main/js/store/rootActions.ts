@@ -25,7 +25,7 @@ import { receiveOrganizations } from './organizations';
 import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
-import { getOrganizations } from '../api/organizations';
+import { getOrganizations, getOrganization, getOrganizationNavigation } from '../api/organizations';
 
 export function fetchLanguages() {
   return (dispatch: Dispatch) => {
@@ -47,6 +47,17 @@ export function fetchOrganizations(organizations: string[]) {
     );
   };
 }
+
+export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
+  return Promise.all([getOrganization(key), getOrganizationNavigation(key)]).then(
+    ([organization, navigation]) => {
+      if (organization) {
+        const organizationWithPermissions = { ...organization, ...navigation };
+        dispatch(receiveOrganizations([organizationWithPermissions]));
+      }
+    }
+  );
+};
 
 export function doLogin(login: string, password: string) {
   return (dispatch: Dispatch<any>) =>

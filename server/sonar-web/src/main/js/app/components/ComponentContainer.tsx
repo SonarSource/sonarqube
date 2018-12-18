@@ -29,7 +29,7 @@ import { getTasksForComponent, getAnalysisStatus } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getMeasures } from '../../api/measures';
 import { getComponentNavigation } from '../../api/nav';
-import { fetchOrganizations } from '../../store/rootActions';
+import { fetchOrganization } from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
 import {
   isPullRequest,
@@ -44,7 +44,7 @@ import { Store, getAppState } from '../../store/rootReducer';
 interface Props {
   appState: Pick<T.AppState, 'organizationsEnabled'>;
   children: any;
-  fetchOrganizations: (organizations: string[]) => void;
+  fetchOrganization: (organization: string) => void;
   location: {
     query: { branch?: string; id: string; pullRequest?: string };
   };
@@ -116,7 +116,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         const component = this.addQualifier({ ...nav, ...data });
 
         if (this.props.appState.organizationsEnabled) {
-          this.props.fetchOrganizations([component.organization]);
+          this.props.fetchOrganization(component.organization);
         }
         return component;
       })
@@ -379,7 +379,7 @@ const mapStateToProps = (state: Store) => ({
   appState: getAppState(state)
 });
 
-const mapDispatchToProps = { fetchOrganizations };
+const mapDispatchToProps = { fetchOrganization };
 
 export default connect(
   mapStateToProps,

@@ -20,7 +20,7 @@
 import { connect } from 'react-redux';
 import App from './App';
 import { getCurrentUser, getOrganizationByKey, Store } from '../../../../store/rootReducer';
-import { fetchOrganization } from '../../../organizations/actions';
+import { fetchOrganization } from '../../../../store/rootActions';
 
 interface OwnProps {
   component: T.Component;
