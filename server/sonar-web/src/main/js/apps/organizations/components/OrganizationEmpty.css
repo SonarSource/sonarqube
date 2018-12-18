@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.organization-just-created {
-  margin: 120px auto 0;
+.organization-empty {
+  margin: 100px auto 0;
   width: 800px;
 }

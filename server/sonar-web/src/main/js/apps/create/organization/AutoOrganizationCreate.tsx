@@ -48,7 +48,7 @@ interface Props {
   handleOrgDetailsFinish: (organization: T.Organization) => Promise<void>;
   handleOrgDetailsStepOpen: () => void;
   onDone: () => void;
-  onOrgCreated: (organization: string, justCreated?: boolean) => void;
+  onOrgCreated: (organization: string) => void;
   onUpgradeFail: () => void;
   organization?: T.Organization;
   step: Step;
@@ -72,7 +72,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
     return bindAlmOrganization({
       organization,
       installationId: this.props.almInstallId
-    }).then(() => this.props.onOrgCreated(organization, false));
+    }).then(() => this.props.onOrgCreated(organization));
   };
 
   handleCreateOrganization = () => {

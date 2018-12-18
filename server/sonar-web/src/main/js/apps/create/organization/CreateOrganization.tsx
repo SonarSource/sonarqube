@@ -205,7 +205,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     this.updateUrlQuery({ almInstallId: undefined, almKey: undefined });
   };
 
-  handleOrgCreated = (organization: string, justCreated = true) => {
+  handleOrgCreated = (organization: string) => {
     this.props.skipOnboarding();
     if (this.isStoredTimestampValid(ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP)) {
       this.props.router.push({
@@ -213,10 +213,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
         state: { organization, tab: this.state.almOrganization ? 'auto' : 'manual' }
       });
     } else {
-      this.props.router.push({
-        pathname: getOrganizationUrl(organization),
-        state: { justCreated }
-      });
+      this.props.router.push({ pathname: getOrganizationUrl(organization) });
     }
   };
 

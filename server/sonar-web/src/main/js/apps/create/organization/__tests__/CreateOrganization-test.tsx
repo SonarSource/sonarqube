@@ -226,16 +226,7 @@ it('should redirect to organization page after creation', async () => {
 
   wrapper.setState({ organization: boundOrganization });
   wrapper.instance().handleOrgCreated('foo');
-  expect(push).toHaveBeenCalledWith({
-    pathname: '/organizations/foo',
-    state: { justCreated: true }
-  });
-
-  wrapper.instance().handleOrgCreated('foo', false);
-  expect(push).toHaveBeenCalledWith({
-    pathname: '/organizations/foo',
-    state: { justCreated: false }
-  });
+  expect(push).toHaveBeenCalledWith({ pathname: '/organizations/foo' });
 });
 
 it('should redirect to projects creation page after creation', async () => {

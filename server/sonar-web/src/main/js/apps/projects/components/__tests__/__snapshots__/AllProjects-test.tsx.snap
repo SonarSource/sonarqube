@@ -231,3 +231,203 @@ exports[`renders 2`] = `
   </div>
 </div>
 `;
+
+exports[`renders correctly empty organization 1`] = `
+<div
+  className="layout-page projects-page"
+  id="projects-page"
+>
+  <Suggestions
+    suggestions="projects"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <div
+    className="display-flex-space-around width-100 huge-spacer-top"
+  >
+    <DeferredSpinner
+      timeout={100}
+    />
+  </div>
+</div>
+`;
+
+exports[`renders correctly empty organization 2`] = `
+<div
+  className="layout-page projects-page"
+  id="projects-page"
+>
+  <Suggestions
+    suggestions="projects"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <div
+    className="layout-page-main"
+  >
+    <ContextConsumer>
+      <Component />
+    </ContextConsumer>
+  </div>
+</div>
+`;
+
+exports[`renders correctly empty organization 3`] = `
+<div
+  className="layout-page projects-page"
+  id="projects-page"
+>
+  <Suggestions
+    suggestions="projects"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <ScreenPositionHelper
+    className="layout-page-side-outer"
+  >
+    <Component />
+  </ScreenPositionHelper>
+  <div
+    className="layout-page-main"
+  >
+    <div
+      className="layout-page-header-panel layout-page-main-header"
+    >
+      <div
+        className="layout-page-header-panel-inner layout-page-main-header-inner"
+      >
+        <div
+          className="layout-page-main-inner"
+        >
+          <PageHeader
+            currentUser={
+              Object {
+                "isLoggedIn": true,
+              }
+            }
+            isFavorite={false}
+            loading={false}
+            onPerspectiveChange={[Function]}
+            onQueryChange={[Function]}
+            onSortChange={[Function]}
+            organization={
+              Object {
+                "key": "foo",
+                "name": "Foo",
+              }
+            }
+            projects={
+              Array [
+                Object {
+                  "key": "foo",
+                  "measures": Object {},
+                  "name": "Foo",
+                },
+              ]
+            }
+            query={
+              Object {
+                "coverage": undefined,
+                "duplications": undefined,
+                "gate": undefined,
+                "languages": undefined,
+                "maintainability": undefined,
+                "new_coverage": undefined,
+                "new_duplications": undefined,
+                "new_lines": undefined,
+                "new_maintainability": undefined,
+                "new_reliability": undefined,
+                "new_security": undefined,
+                "reliability": undefined,
+                "search": undefined,
+                "security": undefined,
+                "size": undefined,
+                "sort": undefined,
+                "tags": undefined,
+                "view": undefined,
+                "visualization": undefined,
+              }
+            }
+            selectedSort="name"
+            total={0}
+            view="overall"
+            visualization="risk"
+          />
+        </div>
+      </div>
+    </div>
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <ProjectsList
+          cardType="overall"
+          currentUser={
+            Object {
+              "isLoggedIn": true,
+            }
+          }
+          isFavorite={false}
+          isFiltered={false}
+          organization={
+            Object {
+              "key": "foo",
+              "name": "Foo",
+            }
+          }
+          projects={
+            Array [
+              Object {
+                "key": "foo",
+                "measures": Object {},
+                "name": "Foo",
+              },
+            ]
+          }
+          query={
+            Object {
+              "coverage": undefined,
+              "duplications": undefined,
+              "gate": undefined,
+              "languages": undefined,
+              "maintainability": undefined,
+              "new_coverage": undefined,
+              "new_duplications": undefined,
+              "new_lines": undefined,
+              "new_maintainability": undefined,
+              "new_reliability": undefined,
+              "new_security": undefined,
+              "reliability": undefined,
+              "search": undefined,
+              "security": undefined,
+              "size": undefined,
+              "sort": undefined,
+              "tags": undefined,
+              "view": undefined,
+              "visualization": undefined,
+            }
+          }
+        />
+        <ListFooter
+          count={1}
+          loadMore={[Function]}
+          ready={true}
+          total={0}
+        />
+      </div>
+    </DeferredSpinner>
+  </div>
+</div>
+`;

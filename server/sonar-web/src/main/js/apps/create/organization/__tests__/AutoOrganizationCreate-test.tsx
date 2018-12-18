@@ -87,7 +87,7 @@ it('should bind existing organization', async () => {
     organization: 'foo'
   });
   await waitAndUpdate(wrapper);
-  expect(onOrgCreated).toHaveBeenCalledWith('foo', false);
+  expect(onOrgCreated).toHaveBeenCalledWith('foo');
 });
 
 function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {

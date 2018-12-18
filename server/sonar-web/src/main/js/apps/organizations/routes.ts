@@ -34,11 +34,8 @@ const routes = [
       {
         indexRoute: {
           onEnter(nextState: RouterState, replace: RedirectFunction) {
-            const { location, params } = nextState;
-            const justCreated = Boolean(location.state && location.state.justCreated);
-            if (!justCreated) {
-              replace(`/organizations/${params.organizationKey}/projects`);
-            }
+            const { params } = nextState;
+            replace(`/organizations/${params.organizationKey}/projects`);
           }
         }
       },

@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
 import '../../tutorials/styles.css';
-import './OrganizationJustCreated.css';
+import './OrganizationEmpty.css';
 
 interface Props {
   openProjectOnboarding: OnboardingContextShape;
@@ -33,7 +33,7 @@ interface Props {
   router: Pick<Router, 'push'>;
 }
 
-export class OrganizationJustCreated extends React.PureComponent<Props> {
+export class OrganizationEmpty extends React.PureComponent<Props> {
   handleNewProjectClick = () => {
     this.props.openProjectOnboarding(this.props.organization);
   };
@@ -45,7 +45,7 @@ export class OrganizationJustCreated extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className="organization-just-created">
+      <div className="organization-empty">
         <h3 className="text-center">{translate('onboarding.create_organization.ready')}</h3>
         <div className="onboarding-choices">
           <Button className="onboarding-choice" onClick={this.handleNewProjectClick}>
@@ -66,4 +66,4 @@ export class OrganizationJustCreated extends React.PureComponent<Props> {
   }
 }
 
-export default withRouter(OrganizationJustCreated);
+export default withRouter(OrganizationEmpty);

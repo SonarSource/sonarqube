@@ -26,6 +26,7 @@ import PageSidebar from './PageSidebar';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
+import OrganizationEmpty from '../../organizations/components/OrganizationEmpty';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import Visualizations from '../visualizations/Visualizations';
@@ -33,11 +34,12 @@ import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '../query';
 import { translate } from '../../../helpers/l10n';
-import { addSideBarFooterClass, removeSideBarFooterClass } from '../../../helpers/pages';
+import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { RawQuery } from '../../../helpers/query';
 import { get, save } from '../../../helpers/storage';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
+import { OnboardingContext } from '../../../app/components/OnboardingContext';
 import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import '../styles.css';
@@ -47,13 +49,13 @@ interface Props {
   isFavorite: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
   organization: T.Organization | undefined;
-  organizationsEnabled?: boolean;
   router: Pick<Router, 'push' | 'replace'>;
   storageOptionsSuffix?: string;
 }
 
 interface State {
   facets?: Facets;
+  initialLoading: boolean;
   loading: boolean;
   pageIndex?: number;
   projects?: Project[];
@@ -70,7 +72,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { loading: true, query: {} };
+    this.state = { initialLoading: true, loading: true, query: {} };
   }
 
   componentDidMount() {
@@ -81,31 +83,29 @@ export class AllProjects extends React.PureComponent<Props, State> {
       return;
     }
     this.handleQueryChange(true);
-    addSideBarFooterClass();
+    this.updateFooterClass();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange(false);
     }
+
+    if (
+      prevProps.organization &&
+      this.props.organization &&
+      prevProps.organization.key !== this.props.organization.key
+    ) {
+      this.setState({ initialLoading: true });
+    }
+
+    this.updateFooterClass();
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    removeSideBarFooterClass();
+    removeSideBarClass();
   }
-
-  getView = () => this.state.query.view || 'overall';
-
-  getVisualization = () => this.state.query.visualization || 'risk';
-
-  getSort = () => this.state.query.sort || 'name';
-
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
 
   fetchProjects = (query: any) => {
     this.setState({ loading: true, query });
@@ -113,6 +113,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
+          initialLoading: false,
           loading: false,
           pageIndex: 1,
           projects: response.projects,
@@ -141,6 +142,8 @@ export class AllProjects extends React.PureComponent<Props, State> {
     }
   };
 
+  getSort = () => this.state.query.sort || 'name';
+
   getStorageOptions = () => {
     const { storageOptionsSuffix } = this.props;
     const options: {
@@ -158,6 +161,14 @@ export class AllProjects extends React.PureComponent<Props, State> {
       options.visualization = get(PROJECTS_VISUALIZATION, storageOptionsSuffix) || undefined;
     }
     return options;
+  };
+
+  getView = () => this.state.query.view || 'overall';
+
+  getVisualization = () => this.state.query.visualization || 'risk';
+
+  handleClearAll = () => {
+    this.props.router.push({ pathname: this.props.location.pathname });
   };
 
   handlePerspectiveChange = ({ view, visualization }: { view: string; visualization?: string }) => {
@@ -188,12 +199,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
     save(PROJECTS_VISUALIZATION, visualization, storageOptionsSuffix);
   };
 
-  handleSortChange = (sort: string, desc: boolean) => {
-    const asString = (desc ? '-' : '') + sort;
-    this.updateLocationQuery({ sort: asString });
-    save(PROJECTS_SORT, asString, this.props.storageOptionsSuffix);
-  };
-
   handleQueryChange(initialMount: boolean) {
     const query = parseUrlQuery(this.props.location.query);
     const savedOptions = this.getStorageOptions();
@@ -207,13 +212,34 @@ export class AllProjects extends React.PureComponent<Props, State> {
     }
   }
 
+  handleSortChange = (sort: string, desc: boolean) => {
+    const asString = (desc ? '-' : '') + sort;
+    this.updateLocationQuery({ sort: asString });
+    save(PROJECTS_SORT, asString, this.props.storageOptionsSuffix);
+  };
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ initialLoading: false, loading: false });
+    }
+  };
+
   updateLocationQuery = (newQuery: RawQuery) => {
     const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
     this.props.router.push({ pathname: this.props.location.pathname, query });
   };
 
-  handleClearAll = () => {
-    this.props.router.push({ pathname: this.props.location.pathname });
+  updateFooterClass = () => {
+    const { organization } = this.props;
+    const { initialLoading, projects } = this.state;
+    const isOrganizationContext = isSonarCloud() && organization;
+    const isEmpty = projects && projects.length === 0;
+
+    if (isOrganizationContext && (initialLoading || isEmpty)) {
+      removeSideBarClass();
+    } else {
+      addSideBarClass();
+    }
   };
 
   renderSide = () => (
@@ -270,7 +296,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
           <div className="layout-page-main-inner">
             {this.state.projects && (
               <Visualizations
-                displayOrganizations={!this.props.organization && this.props.organizationsEnabled}
+                displayOrganizations={!this.props.organization && isSonarCloud()}
                 projects={this.state.projects}
                 sort={this.state.query.sort}
                 total={this.state.total}
@@ -304,17 +330,44 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { organization } = this.props;
+    const { projects } = this.state;
+    const isOrganizationContext = isSonarCloud() && organization;
+    const initialLoading = isOrganizationContext && this.state.initialLoading;
+    const organizationEmpty = isOrganizationContext && projects && projects.length === 0;
+
     return (
       <div className="layout-page projects-page" id="projects-page">
         <Suggestions suggestions="projects" />
         <Helmet title={translate('projects.page')} />
 
-        {this.renderSide()}
+        {initialLoading ? (
+          <div className="display-flex-space-around width-100 huge-spacer-top">
+            <DeferredSpinner />
+          </div>
+        ) : (
+          <>
+            {!organizationEmpty && this.renderSide()}
 
-        <div className="layout-page-main">
-          {this.renderHeader()}
-          {this.renderMain()}
-        </div>
+            <div className="layout-page-main">
+              {organizationEmpty && organization ? (
+                <OnboardingContext.Consumer>
+                  {openProjectOnboarding => (
+                    <OrganizationEmpty
+                      openProjectOnboarding={openProjectOnboarding}
+                      organization={organization}
+                    />
+                  )}
+                </OnboardingContext.Consumer>
+              ) : (
+                <>
+                  {this.renderHeader()}
+                  {this.renderMain()}
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
     );
   }

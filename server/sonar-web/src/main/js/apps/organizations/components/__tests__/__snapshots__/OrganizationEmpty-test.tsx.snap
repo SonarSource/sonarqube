@@ -2,7 +2,7 @@
 
 exports[`should render 1`] = `
 <div
-  className="organization-just-created"
+  className="organization-empty"
 >
   <h3
     className="text-center"

@@ -22,6 +22,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { AllProjects } from '../AllProjects';
 import { get, save } from '../../../../helpers/storage';
+import { isSonarCloud } from '../../../../helpers/system';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../ProjectsList', () => ({
   // eslint-disable-next-line
@@ -55,11 +57,14 @@ jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn()
 }));
 
-const fetchProjects = require('../../utils').fetchProjects as jest.Mock<any>;
+jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+
+const fetchProjects = require('../../utils').fetchProjects as jest.Mock;
 
 beforeEach(() => {
-  (get as jest.Mock<any>).mockImplementation(() => null);
-  (save as jest.Mock<any>).mockClear();
+  (get as jest.Mock).mockImplementation(() => null);
+  (save as jest.Mock).mockClear();
+  (isSonarCloud as jest.Mock).mockReturnValue(false);
   fetchProjects.mockClear();
 });
 
@@ -100,7 +105,7 @@ it('fetches projects', () => {
 });
 
 it('redirects to the saved search', () => {
-  (get as jest.Mock<any>).mockImplementation(
+  (get as jest.Mock).mockImplementation(
     (key: string) => (key === 'sonarqube.projects.view' ? 'leak' : null)
   );
   const replace = jest.fn();
@@ -161,6 +166,28 @@ it('changes perspective to risk visualization', () => {
   expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', 'risk', undefined);
 });
 
+it('renders correctly empty organization', async () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
+  const wrapper = shallow(
+    <AllProjects
+      currentUser={{ isLoggedIn: true }}
+      isFavorite={false}
+      location={{ pathname: '/projects', query: {} }}
+      organization={{ key: 'foo', name: 'Foo' }}
+      router={{ push: jest.fn(), replace: jest.fn() }}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({
+    loading: false,
+    projects: [{ key: 'foo', measures: {}, name: 'Foo' }],
+    total: 0
+  });
+  expect(wrapper).toMatchSnapshot();
+});
+
 function shallowRender(
   props: Partial<AllProjects['props']> = {},
   push = jest.fn(),
@@ -172,7 +199,6 @@ function shallowRender(
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
       organization={undefined}
-      organizationsEnabled={false}
       router={{ push, replace }}
       {...props}
     />

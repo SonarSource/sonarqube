@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { OrganizationJustCreated } from '../OrganizationJustCreated';
+import { OrganizationEmpty } from '../OrganizationEmpty';
 import { click } from '../../../../helpers/testUtils';
 
 const organization: T.Organization = { key: 'foo', name: 'Foo' };
@@ -27,7 +27,7 @@ const organization: T.Organization = { key: 'foo', name: 'Foo' };
 it('should render', () => {
   expect(
     shallow(
-      <OrganizationJustCreated
+      <OrganizationEmpty
         openProjectOnboarding={jest.fn()}
         organization={organization}
         router={{ push: jest.fn() }}
@@ -39,7 +39,7 @@ it('should render', () => {
 it('should create new project', () => {
   const openProjectOnboarding = jest.fn();
   const wrapper = shallow(
-    <OrganizationJustCreated
+    <OrganizationEmpty
       openProjectOnboarding={openProjectOnboarding}
       organization={organization}
       router={{ push: jest.fn() }}
@@ -52,7 +52,7 @@ it('should create new project', () => {
 it('should add members', () => {
   const router = { push: jest.fn() };
   const wrapper = shallow(
-    <OrganizationJustCreated
+    <OrganizationEmpty
       openProjectOnboarding={jest.fn()}
       organization={organization}
       router={router}
