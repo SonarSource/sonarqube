@@ -70,7 +70,6 @@ import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.crea
  * {@link CoreMetrics#ALERT_STATUS_KEY}</li>
  * </ul>
  *
- * It must be executed after the computation of differential measures {@link ComputeMeasureVariationsStep}
  */
 public class QualityGateMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;

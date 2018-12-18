@@ -79,10 +79,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     PostMeasuresComputationChecksStep.class,
 
-    // Must be executed after computation of all measures
-    ComputeMeasureVariationsStep.class,
-
-    // Must be executed after computation of differential measures
     QualityGateMeasuresStep.class,
     // Must be executed after computation of language distribution
     ComputeQProfileMeasureStep.class,
