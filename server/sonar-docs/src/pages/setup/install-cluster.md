@@ -108,7 +108,7 @@ sonar.auth.jwtBase64Hs256Secret=Vf4TRrfS6tvsFIHsQlgfhDUkiw3r8=
 ```
 
 **server3**
-````
+```
 sonar.cluster.enabled=true
 sonar.cluster.hosts=ip1,ip2,ip3,ip4,ip5
 sonar.cluster.search.hosts=ip3,ip4,ip5
@@ -134,7 +134,7 @@ sonar.cluster.node.type=search
 sonar.search.host=ip5
 ```
 
-The full set of cluster parameters is listed here.
+The full set of cluster parameters is listed [here](/setup/operate-cluster/).
 
 Once this configuration is done, take a break and a coffee, then you can [Operate your Cluster](/setup/operate-cluster/).
 
