@@ -49,6 +49,12 @@ import {
   translateWithParameters,
   translate
 } from '../../../helpers/l10n';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../helpers/pages';
 import { RawQuery } from '../../../helpers/query';
 import '../../../components/search-navigator.css';
 import '../style.css';
@@ -107,30 +113,15 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.measures.length === 0 && this.state.measures.length > 0) {
-      document.body.classList.add('white-page');
-      if (document.documentElement) {
-        document.documentElement.classList.add('white-page');
-      }
-      const footer = document.getElementById('footer');
-      if (footer) {
-        footer.classList.add('page-footer-with-sidebar');
-      }
+      addWhitePageClass();
+      addSideBarClass();
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
-
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
-
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar');
-    }
-
+    removeWhitePageClass();
+    removeSideBarClass();
     key.deleteScope('measures-files');
   }
 

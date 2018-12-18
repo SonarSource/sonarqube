@@ -23,18 +23,19 @@ import { omitBy } from 'lodash';
 import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import Visualizations from '../visualizations/Visualizations';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { translate } from '../../../helpers/l10n';
-import { get, save } from '../../../helpers/storage';
-import { RawQuery } from '../../../helpers/query';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import Visualizations from '../visualizations/Visualizations';
 import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query, hasFilterParams, hasVisualizationParams } from '../query';
+import { translate } from '../../../helpers/l10n';
+import { addSideBarFooterClass, removeSideBarFooterClass } from '../../../helpers/pages';
+import { RawQuery } from '../../../helpers/query';
+import { get, save } from '../../../helpers/storage';
 import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
@@ -80,10 +81,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       return;
     }
     this.handleQueryChange(true);
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar');
-    }
+    addSideBarFooterClass();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -94,11 +92,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar');
-    }
+    removeSideBarFooterClass();
   }
 
   getView = () => this.state.query.view || 'overall';

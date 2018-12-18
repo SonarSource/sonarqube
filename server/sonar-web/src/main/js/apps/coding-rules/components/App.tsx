@@ -58,11 +58,17 @@ import {
   getAppState
 } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
+import { hasPrivateAccess } from '../../../helpers/organizations';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../helpers/pages';
 import { RawQuery } from '../../../helpers/query';
 import { scrollToElement } from '../../../helpers/scrolling';
 import '../../../components/search-navigator.css';
 import '../styles.css';
-import { hasPrivateAccess } from '../../../helpers/organizations';
 
 const PAGE_SIZE = 100;
 const LIMIT_BEFORE_LOAD_MORE = 5;
@@ -114,14 +120,8 @@ export class App extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    document.body.classList.add('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar');
-    }
+    addWhitePageClass();
+    addSideBarClass();
     this.attachShortcuts();
     this.fetchInitialData();
   }
@@ -153,14 +153,8 @@ export class App extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar');
-    }
+    removeWhitePageClass();
+    removeSideBarClass();
     this.detachShortcuts();
   }
 

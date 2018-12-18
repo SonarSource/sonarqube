@@ -23,7 +23,6 @@ import { keyBy } from 'lodash';
 import { Link } from 'react-router';
 import { Location } from 'history';
 import AboutProjects from './AboutProjects';
-import EntryIssueTypes from './EntryIssueTypes';
 import AboutLanguages from './AboutLanguages';
 import AboutCleanCode from './AboutCleanCode';
 import AboutQualityModel from './AboutQualityModel';
@@ -31,9 +30,11 @@ import AboutQualityGates from './AboutQualityGates';
 import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
+import EntryIssueTypes from './EntryIssueTypes';
+import GlobalContainer from '../../../app/components/GlobalContainer';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import GlobalContainer from '../../../app/components/GlobalContainer';
+import { fetchAboutPageSettings } from '../actions';
 import {
   getAppState,
   getCurrentUser,
@@ -41,7 +42,7 @@ import {
   Store
 } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
-import { fetchAboutPageSettings } from '../actions';
+import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import '../styles.css';
 
 interface Props {
@@ -69,18 +70,12 @@ class AboutApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.loadData();
-    document.body.classList.add('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
+    addWhitePageClass();
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
+    removeWhitePageClass();
   }
 
   loadProjects() {

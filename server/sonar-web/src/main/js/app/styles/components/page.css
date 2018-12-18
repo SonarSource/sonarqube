@@ -151,12 +151,12 @@
   color: var(--blue);
 }
 
-.page-footer-with-sidebar {
+.sidebar-page #footer {
   padding-left: calc(50vw - 370px + 10px) !important;
 }
 
-.page-footer-with-sidebar div,
-.page-footer-with-sidebar .page-footer-menu {
+.sidebar-page #footer div,
+.sidebar-page #footer .page-footer-menu {
   max-width: 980px;
 }
 
@@ -333,7 +333,7 @@
     left: 301px;
   }
 
-  .page-footer-with-sidebar {
+  .sidebar-page #footer {
     padding-left: 310px !important;
   }
 }

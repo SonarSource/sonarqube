@@ -20,15 +20,16 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link, withRouter, WithRouterProps } from 'react-router';
+import Domain from './Domain';
 import Menu from './Menu';
 import Search from './Search';
-import Domain from './Domain';
-import { Domain as DomainType, fetchWebApi } from '../../../api/web-api';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { getActionKey, isDomainPathActive, Query, serializeQuery, parseQuery } from '../utils';
-import { scrollToElement } from '../../../helpers/scrolling';
-import { translate } from '../../../helpers/l10n';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import { Domain as DomainType, fetchWebApi } from '../../../api/web-api';
+import { getActionKey, isDomainPathActive, Query, serializeQuery, parseQuery } from '../utils';
+import { translate } from '../../../helpers/l10n';
+import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
+import { scrollToElement } from '../../../helpers/scrolling';
 import '../styles/web-api.css';
 
 type Props = WithRouterProps;
@@ -44,10 +45,7 @@ class WebApiApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchList();
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar');
-    }
+    addSideBarClass();
   }
 
   componentDidUpdate() {
@@ -57,10 +55,7 @@ class WebApiApp extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar');
-    }
+    removeSideBarClass();
   }
 
   fetchList() {

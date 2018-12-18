@@ -50,13 +50,14 @@ import {
   listUnboundApplications
 } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
+import * as api from '../../../api/organizations';
 import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
+import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { get, remove } from '../../../helpers/storage';
 import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
-import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
 import '../../tutorials/styles.css'; // TODO remove me
 
@@ -104,10 +105,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   componentDidMount() {
     this.mounted = true;
-    document.body.classList.add('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
+    addWhitePageClass();
     const initRequests = [this.fetchSubscriptionPlans()];
     if (hasAdvancedALMIntegration(this.props.currentUser)) {
       initRequests.push(this.fetchAlmApplication());
@@ -137,10 +135,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   componentWillUnmount() {
     this.mounted = false;
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
+    removeWhitePageClass();
   }
 
   deleteOrganization = () => {

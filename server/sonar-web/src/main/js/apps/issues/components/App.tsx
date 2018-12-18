@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
 import * as key from 'keymaster';
+import Helmet from 'react-helmet';
 import { keyBy, omit, union, without } from 'lodash';
 import BulkChangeModal from './BulkChangeModal';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
@@ -32,7 +32,6 @@ import PageActions from './PageActions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
 import Sidebar from '../sidebar/Sidebar';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import * as actions from '../actions';
 import {
   areMyIssuesSelected,
@@ -52,12 +51,17 @@ import {
   STANDARDS,
   ReferencedRule
 } from '../utils';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import Dropdown from '../../../components/controls/Dropdown';
-import ListFooter from '../../../components/controls/ListFooter';
-import FiltersHeader from '../../../components/common/FiltersHeader';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { Button } from '../../../components/ui/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import Dropdown from '../../../components/controls/Dropdown';
+import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import EmptySearch from '../../../components/common/EmptySearch';
+import FiltersHeader from '../../../components/common/FiltersHeader';
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import ListFooter from '../../../components/controls/ListFooter';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   isShortLivingBranch,
   isSameBranchLike,
@@ -67,12 +71,14 @@ import {
 } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
-import EmptySearch from '../../../components/common/EmptySearch';
-import Checkbox from '../../../components/controls/Checkbox';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../helpers/system';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import '../styles.css';
@@ -164,16 +170,8 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
 
-    document.body.classList.add('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
-
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar');
-    }
-
+    addWhitePageClass();
+    addSideBarClass();
     this.attachShortcuts();
     this.fetchFirstIssues();
   }
@@ -223,18 +221,9 @@ export class App extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.detachShortcuts();
-
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
-
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar');
-    }
-
     this.mounted = false;
+    removeWhitePageClass();
+    removeSideBarClass();
   }
 
   attachShortcuts() {

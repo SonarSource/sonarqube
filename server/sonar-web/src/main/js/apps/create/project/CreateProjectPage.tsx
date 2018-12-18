@@ -27,11 +27,12 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
-import { skipOnboarding } from '../../../store/users';
 import { getAlmAppInfo } from '../../../api/alm-integration';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
+import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { getProjectUrl, getOrganizationUrl } from '../../../helpers/urls';
+import { skipOnboarding } from '../../../store/users';
 import './style.css';
 
 interface Props {
@@ -64,18 +65,12 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
     } else {
       this.setState({ loading: false });
     }
-    document.body.classList.add('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
+    addWhitePageClass();
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
+    removeWhitePageClass();
   }
 
   handleProjectCreate = (projectKeys: string[], organization?: string) => {

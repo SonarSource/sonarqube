@@ -21,8 +21,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Footer from './Footer';
-import { getCurrentUser, getMyOrganizations, Store } from '../../../../store/rootReducer';
 import GlobalContainer from '../../../../app/components/GlobalContainer';
+import { getCurrentUser, getMyOrganizations, Store } from '../../../../store/rootReducer';
+import { addWhitePageClass, removeWhitePageClass } from '../../../../helpers/pages';
 
 interface StateProps {
   currentUser: T.CurrentUser;
@@ -37,17 +38,11 @@ type Props = StateProps & WithRouterProps & OwnProps;
 
 class SQPageContainer extends React.Component<Props> {
   componentDidMount() {
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
-    document.body.classList.add('white-page');
+    addWhitePageClass();
   }
 
   componentWillUnmount() {
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
-    document.body.classList.remove('white-page');
+    removeWhitePageClass();
   }
 
   render() {

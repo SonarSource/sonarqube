@@ -26,6 +26,12 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchQualityGates } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
+import {
+  addSideBarClass,
+  addWhitePageClass,
+  removeSideBarClass,
+  removeWhitePageClass
+} from '../../../helpers/pages';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import '../../../components/search-navigator.css';
 import '../styles.css';
@@ -51,27 +57,14 @@ class QualityGatesApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchQualityGates();
-
-    document.body.classList.add('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar');
-    }
+    addWhitePageClass();
+    addSideBarClass();
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    document.body.classList.remove('white-page');
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar');
-    }
+    removeWhitePageClass();
+    removeSideBarClass();
   }
 
   fetchQualityGates = () => {

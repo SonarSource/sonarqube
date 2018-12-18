@@ -21,25 +21,20 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import Footer from './components/Footer';
 import { TopNavBar, FixedNavBar } from './components/NavBars';
-import { getBaseUrl } from '../../../helpers/urls';
+import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
+import { getBaseUrl } from '../../../helpers/urls';
 import './new_style.css';
 
 export default class Pricing extends React.PureComponent {
   container?: HTMLElement | null;
 
   componentDidMount() {
-    if (document.documentElement) {
-      document.documentElement.classList.add('white-page');
-    }
-    document.body.classList.add('white-page');
+    addWhitePageClass();
   }
 
   componentWillUnmount() {
-    if (document.documentElement) {
-      document.documentElement.classList.remove('white-page');
-    }
-    document.body.classList.remove('white-page');
+    removeWhitePageClass();
   }
 
   handleClick = (event: React.MouseEvent) => {
