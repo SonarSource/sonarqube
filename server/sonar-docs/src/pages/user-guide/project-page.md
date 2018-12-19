@@ -20,7 +20,7 @@ The Project Page answers two questions:
 
 Since the [Quality Gate](/user-guide/quality-gates/) is your most powerful tool to enforce your quality policy, the page starts with the project's current Quality Gate status. If the project passes, a simple, green all-clear is shown.
 
-If not, details and drill-downs are immediately available to quickly identify what went wrong, with a section for each error or warning condition showing what the current project value is and what it should be. As usual, you'll be able to click through on current values to get to drilldowns.
+If not, details and drill-downs are immediately available to quickly identify what went wrong, with a section for each error condition showing what the current project value is and what it should be. As usual, you'll be able to click through on current values to get to drilldowns.
 
 ## What should I fix first?
 Because the best way to improve a project's quality is to catch and fix new problems before they become entrenched, the first view of a project is centered around the New Code Period, which is highlighted in yellow on the right of the project homepage. The project space page shows a high-level summary of critical metrics, both current values and their New Code Period values.

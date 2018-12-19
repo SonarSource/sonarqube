@@ -59,15 +59,12 @@ To manage quality gates, go to **[Quality Gates](/#sonarqube#/quality_gates)** (
 Each Quality Gate condition is a combination of:
 
 * measure
-* period: **Value** (to date) or **New Code** (differential value over the New Code period)
 * comparison operator
-* warning value (optional)
-* error value (optional)
+* error value
 
 For instance, a condition might be:
 
 * measure: Blocker issue
-* period: Value
 * comparison operator: >
 * error value: 0
 

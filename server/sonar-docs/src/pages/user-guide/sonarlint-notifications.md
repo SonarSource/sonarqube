@@ -8,7 +8,7 @@ _SonarLint Smart Notifications is available as part of the [Developer Edition](h
 
 Smart notifications allow developers using Connected Mode in SonarLint to receive in-IDE notifications from {instance} when:
 
-* the Quality Gate status (failed / success / warning) of a project /solution _open in the IDE_ changes
+* the Quality Gate status (failed / success) of a project /solution _open in the IDE_ changes
 * a {instance} analysis raises new issues _introduced by this developer in a project /solution open in the IDE_
 
 ## Activate/deactivate Notifications

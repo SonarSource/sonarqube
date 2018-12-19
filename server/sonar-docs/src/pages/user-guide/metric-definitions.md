@@ -121,7 +121,8 @@ Ratio between the cost to develop the code changed in the New Code period and th
 ---
 ## Quality Gates
 **Quality Gate Status** (`alert_status`)  
-State of the Quality Gate associated to your Project. Possible values are : `ERROR`, `WARN`, `OK`
+State of the Quality Gate associated to your Project. Possible values are : `ERROR`, `OK`
+WARN value has been removed since 7.6.
 
 **Quality Gate Details** (`quality_gate_details`)  
 For all the conditions of your Quality Gate, you know which condition is failing and which is not.
