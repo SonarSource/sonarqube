@@ -57,7 +57,7 @@ class WebApiApp extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate() {
-    this.toggleInternalInitially();
+    this.enforceFlags();
     this.scrollToAction();
   }
 
@@ -100,21 +100,20 @@ class WebApiApp extends React.PureComponent<Props, State> {
     this.props.router.push({ pathname: this.props.location.pathname, query });
   };
 
-  toggleInternalInitially() {
+  enforceFlags() {
     const splat = this.props.params.splat || '';
     const { domains } = this.state;
     const query = parseQuery(this.props.location.query);
 
-    if (!query.internal && splat) {
-      const domain = domains.find(domain => domain.path.startsWith(splat));
-      if (domain) {
-        let action;
-        if (domain.path !== splat) {
-          action = domain.actions.find(action => getActionKey(domain.path, action.key) === splat);
-        }
-        if (domain.internal || (action && action.internal)) {
-          this.updateQuery({ internal: true });
-        }
+    const domain = domains.find(domain => splat.startsWith(domain.path));
+    if (domain) {
+      const action = domain.actions.find(action => getActionKey(domain.path, action.key) === splat);
+      const internal = Boolean(!query.internal && (domain.internal || (action && action.internal)));
+      const deprecated = Boolean(
+        !query.deprecated && (domain.deprecatedSince || (action && action.deprecatedSince))
+      );
+      if (internal || deprecated) {
+        this.updateQuery({ internal, deprecated });
       }
     }
   }
@@ -123,27 +122,29 @@ class WebApiApp extends React.PureComponent<Props, State> {
     this.updateQuery({ search });
   };
 
-  handleToggleInternal = () => {
+  toggleFlag(flag: 'deprecated' | 'internal', domainFlag: 'deprecatedSince' | 'internal') {
     const splat = this.props.params.splat || '';
     const { domains } = this.state;
     const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
     const query = parseQuery(this.props.location.query);
-    const internal = !query.internal;
+    const value = !query[flag];
 
-    if (domain && domain.internal && !internal) {
+    if (domain && domain[domainFlag] && !value) {
       this.props.router.push({
         pathname: '/web_api',
-        query: { ...serializeQuery(query), internal: false }
+        query: serializeQuery({ ...query, [flag]: false })
       });
-      return;
+    } else {
+      this.updateQuery({ [flag]: value });
     }
+  }
 
-    this.updateQuery({ internal });
+  handleToggleInternal = () => {
+    this.toggleFlag('internal', 'internal');
   };
 
   handleToggleDeprecated = () => {
-    const query = parseQuery(this.props.location.query);
-    this.updateQuery({ deprecated: !query.deprecated });
+    this.toggleFlag('deprecated', 'deprecatedSince');
   };
 
   render() {
@@ -202,9 +203,9 @@ function getLatestDeprecatedAction(domain: Pick<T.WebApi.Domain, 'actions'>) {
   );
   const latestDeprecation =
     allActionsDeprecated &&
-    (maxBy(domain.actions, action => {
+    maxBy(domain.actions, action => {
       const version = (action.deprecatedSince && parseVersion(action.deprecatedSince)) || noVersion;
       return version.major * 1024 + version.minor;
-    }) as T.WebApi.Action);
+    });
   return latestDeprecation || undefined;
 }

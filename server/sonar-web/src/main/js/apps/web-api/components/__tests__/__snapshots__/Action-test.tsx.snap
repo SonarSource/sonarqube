@@ -104,6 +104,7 @@ exports[`should render correctly 1`] = `
       to={
         Object {
           "pathname": "/web_api/foo/foo",
+          "query": Object {},
         }
       }
     >

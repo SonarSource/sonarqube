@@ -25,7 +25,7 @@ import ResponseExample from './ResponseExample';
 import ActionChangelog from './ActionChangelog';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
-import { getActionKey } from '../utils';
+import { getActionKey, serializeQuery } from '../utils';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -133,7 +133,13 @@ export default class Action extends React.PureComponent<Props, State> {
         <header className="web-api-action-header boxed-group-header">
           <Link
             className="spacer-right link-no-underline"
-            to={{ pathname: '/web_api/' + actionKey }}>
+            to={{
+              pathname: '/web_api/' + actionKey,
+              query: serializeQuery({
+                deprecated: Boolean(action.deprecatedSince),
+                internal: Boolean(action.internal)
+              })
+            }}>
             <LinkIcon />
           </Link>
 

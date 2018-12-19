@@ -72,7 +72,7 @@ export const parseQuery = memoize(
 );
 
 export const serializeQuery = memoize(
-  (query: Query): RawQuery =>
+  (query: Partial<Query>): RawQuery =>
     cleanQuery({
       query: query.search ? serializeString(query.search) : undefined,
       deprecated: query.deprecated || undefined,
