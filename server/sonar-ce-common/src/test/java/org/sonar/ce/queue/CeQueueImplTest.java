@@ -52,6 +52,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.hamcrest.Matchers.startsWith;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_MAIN_COMPONENT;
@@ -59,8 +60,9 @@ import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_MAIN_COMP
 public class CeQueueImplTest {
 
   private static final String WORKER_UUID = "workerUuid";
+  private static final long NOW = 1_450_000_000_000L;
 
-  private System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -72,7 +74,7 @@ public class CeQueueImplTest {
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private CeQueue underTest = new CeQueueImpl(db.getDbClient(), uuidFactory, defaultOrganizationProvider);
+  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory, defaultOrganizationProvider);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -476,6 +478,33 @@ public class CeQueueImplTest {
     assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
   }
 
+  @Test
+  public void fail_in_progress_task() {
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().peek(db.getSession(), WORKER_UUID).get();
+
+    underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
+
+    Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
+    assertThat(activity.isPresent()).isTrue();
+    assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.FAILED);
+    assertThat(activity.get().getErrorType()).isEqualTo("TIMEOUT");
+    assertThat(activity.get().getErrorMessage()).isEqualTo("Failed on timeout");
+    assertThat(activity.get().getExecutedAt()).isEqualTo(NOW);
+    assertThat(activity.get().getWorkerUuid()).isEqualTo(WORKER_UUID);
+  }
+
+  @Test
+  public void fail_throws_exception_if_task_is_pending() {
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
+
+    Throwable thrown = catchThrowable(() -> underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout"));
+
+    assertThat(thrown)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Task is not in-progress and can't be marked as failed [uuid=" + task.getUuid() + "]");
+  }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto, UserDto userDto) {
     verifyCeTask(taskSubmit, task, componentDto, componentDto, userDto);

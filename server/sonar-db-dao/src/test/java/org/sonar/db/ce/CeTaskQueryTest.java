@@ -76,4 +76,20 @@ public class CeTaskQueryTest {
     assertThat(underTest.getMainComponentUuids()).hasSize(CeTaskQuery.MAX_COMPONENT_UUIDS + 2);
     assertThat(underTest.isShortCircuitedByMainComponentUuids()).isTrue();
   }
+
+  @Test
+  public void test_errorTypes() {
+    assertThat(underTest.getErrorTypes()).isNull();
+
+    underTest.setErrorTypes(asList("foo", "bar"));
+    assertThat(underTest.getErrorTypes()).containsExactlyInAnyOrder("foo", "bar");
+  }
+
+  @Test
+  public void test_minExecutedAt() {
+    assertThat(underTest.getMinExecutedAt()).isNull();
+
+    underTest.setMinExecutedAt(1_000L);
+    assertThat(underTest.getMinExecutedAt()).isEqualTo(1_000L);
+  }
 }

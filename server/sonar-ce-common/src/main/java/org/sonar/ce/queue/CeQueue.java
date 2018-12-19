@@ -22,6 +22,7 @@ package org.sonar.ce.queue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
@@ -85,6 +86,16 @@ public interface CeQueue {
    * @return the number of canceled tasks
    */
   int cancelAll();
+
+  /**
+   * Mark a task in status {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS} as failed. An unchecked
+   * exception is thrown if the status is not {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS}.
+   *
+   * The {@code dbSession} is committed.
+
+   * @throws RuntimeException if the task is concurrently removed from the queue
+   */
+  void fail(DbSession dbSession, CeQueueDto ceQueueDto, @Nullable String errorType, @Nullable String errorMessage);
 
   /**
    * Requests workers to stop peeking tasks from queue. Does nothing if workers are already paused or being paused.

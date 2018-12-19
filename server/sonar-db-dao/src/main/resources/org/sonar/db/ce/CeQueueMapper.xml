@@ -207,6 +207,17 @@
       and cq.started_at is not null
   </select>
 
+  <select id="selectInProgressStartedBefore" resultType="org.sonar.db.ce.CeQueueDto">
+    select
+    <include refid="columns"/>
+    from
+    ce_queue cq
+    where
+    cq.status = 'IN_PROGRESS'
+    and cq.started_at is not null
+    and cq.started_at &lt; #{date,jdbcType=BIGINT}
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">
     insert into ce_queue
     (
@@ -216,9 +227,11 @@
       main_component_uuid,
       status,
       submitter_uuid,
+      worker_uuid,
       execution_count,
       created_at,
-      updated_at
+      updated_at,
+      started_at
     )
     values (
       #{uuid,jdbcType=VARCHAR},
@@ -227,9 +240,11 @@
       #{mainComponentUuid,jdbcType=VARCHAR},
       #{status,jdbcType=VARCHAR},
       #{submitterUuid,jdbcType=VARCHAR},
+      #{workerUuid,jdbcType=VARCHAR},
       0,
       #{createdAt,jdbcType=BIGINT},
-      #{updatedAt,jdbcType=BIGINT}
+      #{updatedAt,jdbcType=BIGINT},
+      #{startedAt,jdbcType=BIGINT}
     )
   </insert>
 

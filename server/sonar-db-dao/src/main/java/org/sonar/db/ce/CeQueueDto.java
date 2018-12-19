@@ -145,10 +145,7 @@ public class CeQueueDto {
     return workerUuid;
   }
 
-  /**
-   * Accessed by MyBatis through reflexion. Field is otherwise read-only.
-   */
-  protected CeQueueDto setWorkerUuid(@Nullable String workerUuid) {
+  public CeQueueDto setWorkerUuid(@Nullable String workerUuid) {
     this.workerUuid = workerUuid;
     return this;
   }
@@ -158,10 +155,7 @@ public class CeQueueDto {
     return startedAt;
   }
 
-  /**
-   * Accessed by MyBatis through reflexion. Field is otherwise read-only.
-   */
-  protected CeQueueDto setStartedAt(@Nullable Long l) {
+  public CeQueueDto setStartedAt(@Nullable Long l) {
     this.startedAt = l;
     return this;
   }

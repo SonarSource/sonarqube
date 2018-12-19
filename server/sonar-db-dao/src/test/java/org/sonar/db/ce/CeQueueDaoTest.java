@@ -557,6 +557,26 @@ public class CeQueueDaoTest {
     assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
   }
 
+  @Test
+  public void selectInProgressStartedBefore() {
+    // pending task is ignored
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setStatus(PENDING)
+      .setStartedAt(1_000L));
+    // in-progress tasks
+    insertPending(newCeQueueDto(TASK_UUID_2)
+      .setStatus(IN_PROGRESS)
+      .setStartedAt(1_000L));
+    insertPending(newCeQueueDto(TASK_UUID_3)
+      .setStatus(IN_PROGRESS)
+      .setStartedAt(2_000L));
+
+    assertThat(underTest.selectInProgressStartedBefore(db.getSession(), 500L)).isEmpty();
+    assertThat(underTest.selectInProgressStartedBefore(db.getSession(), 1_000L)).isEmpty();
+    assertThat(underTest.selectInProgressStartedBefore(db.getSession(), 1_500L)).extracting(CeQueueDto::getUuid).containsExactly(TASK_UUID_2);
+    assertThat(underTest.selectInProgressStartedBefore(db.getSession(), 3_000L)).extracting(CeQueueDto::getUuid).containsExactlyInAnyOrder(TASK_UUID_2, TASK_UUID_3);
+  }
+
   private void insertPending(CeQueueDto dto) {
     underTest.insert(db.getSession(), dto);
     db.commit();
@@ -574,6 +594,7 @@ public class CeQueueDaoTest {
   }
 
   private int pendingComponentUuidGenerator = new Random().nextInt(200);
+
   private CeQueueDto insertPending(String uuid, String mainComponentUuid) {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid(uuid);
@@ -608,7 +629,7 @@ public class CeQueueDaoTest {
   }
 
   private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2) {
-    verifyCeQueueStatuses(new String[] {taskUuid1, taskUuid2}, new CeQueueDto.Status[] {taskStatus1, taskStatus2});
+    verifyCeQueueStatuses(new String[]{taskUuid1, taskUuid2}, new CeQueueDto.Status[]{taskStatus1, taskStatus2});
   }
 
   private void verifyCeQueueStatuses(String[] taskUuids, CeQueueDto.Status[] statuses) {

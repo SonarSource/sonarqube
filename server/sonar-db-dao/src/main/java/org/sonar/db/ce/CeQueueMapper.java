@@ -53,6 +53,11 @@ public interface CeQueueMapper {
   List<CeQueueDto> selectWornout();
 
   /**
+   * The tasks that are in the in-progress status for too long
+   */
+  List<CeQueueDto> selectInProgressStartedBefore(@Param("date") long date);
+
+  /**
    * Select all tasks whose worker UUID is not present in {@code knownWorkerUUIDs}
    */
   void resetTasksWithUnknownWorkerUUIDs(@Param("knownWorkerUUIDs") List<String> knownWorkerUUIDs, @Param("updatedAt") long updatedAt);

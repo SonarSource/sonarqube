@@ -60,15 +60,13 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
   private static final Logger LOG = Loggers.get(InternalCeQueueImpl.class);
 
-  private final System2 system2;
   private final DbClient dbClient;
   private final CEQueueStatus queueStatus;
   private final ComputeEngineStatus computeEngineStatus;
 
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus,
     DefaultOrganizationProvider defaultOrganizationProvider, ComputeEngineStatus computeEngineStatus) {
-    super(dbClient, uuidFactory, defaultOrganizationProvider);
-    this.system2 = system2;
+    super(system2, dbClient, uuidFactory, defaultOrganizationProvider);
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
     this.computeEngineStatus = computeEngineStatus;
@@ -174,18 +172,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       LOG.debug("Failed to getStacktrace out of error", e);
       return null;
     }
-  }
-
-  private long updateExecutionFields(CeActivityDto activityDto) {
-    Long startedAt = activityDto.getStartedAt();
-    if (startedAt == null) {
-      return 0L;
-    }
-    long now = system2.now();
-    long executionTimeInMs = now - startedAt;
-    activityDto.setExecutedAt(now);
-    activityDto.setExecutionTimeMs(executionTimeInMs);
-    return executionTimeInMs;
   }
 
   @Override

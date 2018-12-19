@@ -111,6 +111,12 @@
           #{status,jdbcType=VARCHAR}
         </foreach>
       </if>
+      <if test="query.errorTypes != null and !query.errorTypes.isEmpty()">
+        and ca.error_type in
+        <foreach collection="query.errorTypes" open="(" close=")" item="errorType" separator=",">
+          #{errorType,jdbcType=VARCHAR}
+        </foreach>
+      </if>
       <if test="query.type != null">
         and ca.task_type=#{query.type,jdbcType=VARCHAR}
       </if>
@@ -119,6 +125,9 @@
       </if>
       <if test="query.maxExecutedAt != null">
         and ca.executed_at &lt;= #{query.maxExecutedAt,jdbcType=BIGINT}
+      </if>
+      <if test="query.minExecutedAt != null">
+        and ca.executed_at &gt;= #{query.minExecutedAt,jdbcType=BIGINT}
       </if>
     </where>
   </sql>

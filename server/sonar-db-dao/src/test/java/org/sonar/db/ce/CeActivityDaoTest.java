@@ -557,7 +557,21 @@ public class CeActivityDaoTest {
       .setMinSubmittedAt(1_400_000_000_000L)
       .setMaxExecutedAt(1_475_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsOnly("UUID1");
+  }
 
+  @Test
+  public void select_by_minExecutedAt() {
+    insertWithDates("UUID1", 1_450_000_000_000L, 1_470_000_000_000L);
+    insertWithDates("UUID2", 1_460_000_000_000L, 1_480_000_000_000L);
+
+    CeTaskQuery query = new CeTaskQuery().setMinExecutedAt(1_460_000_000_000L);
+    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsExactlyInAnyOrder("UUID1", "UUID2");
+
+    query = new CeTaskQuery().setMinExecutedAt(1_475_000_000_000L);
+    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsExactlyInAnyOrder("UUID2");
+
+    query = new CeTaskQuery().setMinExecutedAt(1_485_000_000_000L);
+    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).isEmpty();
   }
 
   private void insertWithDates(String uuid, long submittedAt, long executedAt) {

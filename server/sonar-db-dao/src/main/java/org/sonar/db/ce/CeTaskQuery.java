@@ -36,11 +36,20 @@ public class CeTaskQuery {
 
   private boolean onlyCurrents = false;
   // SONAR-7681 a public implementation of List must be used in MyBatis - potential concurrency exceptions otherwise
+  @Nullable
   private ArrayList<String> mainComponentUuids;
+  @Nullable
   private ArrayList<String> statuses;
+  @Nullable
   private String type;
+  @Nullable
   private Long minSubmittedAt;
+  @Nullable
   private Long maxExecutedAt;
+  @Nullable
+  private Long minExecutedAt;
+  @Nullable
+  private ArrayList<String> errorTypes;
 
   @CheckForNull
   public List<String> getMainComponentUuids() {
@@ -85,6 +94,16 @@ public class CeTaskQuery {
   }
 
   @CheckForNull
+  public List<String> getErrorTypes() {
+    return errorTypes;
+  }
+
+  public CeTaskQuery setErrorTypes(@Nullable List<String> l) {
+    this.errorTypes = l == null ? null : newArrayList(l);
+    return this;
+  }
+
+  @CheckForNull
   public String getType() {
     return type;
   }
@@ -101,6 +120,16 @@ public class CeTaskQuery {
 
   public CeTaskQuery setMaxExecutedAt(@Nullable Long l) {
     this.maxExecutedAt = l;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getMinExecutedAt() {
+    return minExecutedAt;
+  }
+
+  public CeTaskQuery setMinExecutedAt(@Nullable Long l) {
+    this.minExecutedAt = l;
     return this;
   }
 
