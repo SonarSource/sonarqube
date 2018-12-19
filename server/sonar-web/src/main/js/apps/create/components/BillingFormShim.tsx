@@ -33,7 +33,7 @@ interface Props {
   children: (props: ChildrenProps) => React.ReactNode;
   initialCountry?: string;
   currentUser: T.CurrentUser;
-  onCommit: () => void;
+  onCommit: () => void | Promise<void>;
   onFailToUpgrade?: () => void;
   organizationKey: string | (() => Promise<string>);
   subscriptionPlans: T.SubscriptionPlan[];
