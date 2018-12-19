@@ -23,14 +23,15 @@ import * as classNames from 'classnames';
 interface Props {
   checked: boolean;
   className?: string;
-  onCheck: () => void;
+  onCheck: (value: string) => void;
+  value: string;
 }
 
 export default class Radio extends React.PureComponent<Props> {
   handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.props.onCheck();
+    this.props.onCheck(this.props.value);
   };
 
   render() {

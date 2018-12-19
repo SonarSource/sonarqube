@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getSubscriptionPlans(): Promise<T.SubscriptionPlan[]> {
@@ -25,4 +25,12 @@ export function getSubscriptionPlans(): Promise<T.SubscriptionPlan[]> {
     ({ subscriptionPlans }) => subscriptionPlans,
     throwGlobalError
   );
+}
+
+export function giveDowngradeFeedback(data: {
+  organization: string;
+  feedback: string;
+  additionalFeedback?: string;
+}): Promise<void> {
+  return post('/api/billing/send_feedback', data);
 }

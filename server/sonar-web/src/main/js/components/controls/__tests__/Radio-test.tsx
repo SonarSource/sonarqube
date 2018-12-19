@@ -24,11 +24,12 @@ import { click } from '../../../helpers/testUtils';
 
 it('should render and check', () => {
   const onCheck = jest.fn();
-  const wrapper = shallow(<Radio checked={false} onCheck={onCheck} />);
+  const value = 'value';
+  const wrapper = shallow(<Radio checked={false} onCheck={onCheck} value={value} />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper);
-  expect(onCheck).toBeCalled();
+  expect(onCheck).toBeCalledWith(value);
   wrapper.setProps({ checked: true });
   expect(wrapper).toMatchSnapshot();
 });

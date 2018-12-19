@@ -19,6 +19,7 @@
  */
 import { ShallowWrapper, ReactWrapper } from 'enzyme';
 import { InjectedRouter } from 'react-router';
+import { Location } from 'history';
 import { EditionKey } from '../apps/marketplace/utils';
 
 export const mockEvent = {
@@ -131,6 +132,18 @@ export function doAsync(fn?: Function): Promise<void> {
 export async function waitAndUpdate(wrapper: ShallowWrapper<any, any> | ReactWrapper<any, any>) {
   await new Promise(setImmediate);
   wrapper.update();
+}
+
+export function mockLocation(overrides = {}): Location {
+  return {
+    action: 'PUSH',
+    key: 'key',
+    pathname: '/path',
+    query: {},
+    search: '',
+    state: {},
+    ...overrides
+  };
 }
 
 export function mockRouter(overrides: { push?: Function; replace?: Function } = {}) {

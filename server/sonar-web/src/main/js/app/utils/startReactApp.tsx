@@ -183,12 +183,20 @@ export default function startReactApp(
                 <Route path="issues" component={IssuesPageSelector} />
                 <RouteWithChildRoutes path="onboarding" childRoutes={onboardingRoutes} />
                 {isSonarCloud() && (
-                  <Route
-                    path="create-organization"
-                    component={lazyLoad(() =>
-                      import('../../apps/create/organization/CreateOrganization')
-                    )}
-                  />
+                  <>
+                    <Route
+                      path="create-organization"
+                      component={lazyLoad(() =>
+                        import('../../apps/create/organization/CreateOrganization')
+                      )}
+                    />
+                    <Route
+                      path="feedback/downgrade"
+                      component={lazyLoad(() =>
+                        import('../../apps/feedback/downgrade/DowngradeFeedback')
+                      )}
+                    />
+                  </>
                 )}
                 <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
                 <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />

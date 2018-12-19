@@ -47,6 +47,5 @@ export const updateOrganization = (key: string, changes: T.OrganizationBase) => 
 export const deleteOrganization = (key: string) => (dispatch: Dispatch<any>) => {
   return api.deleteOrganization(key).then(() => {
     dispatch(actions.deleteOrganization(key));
-    dispatch(addGlobalSuccessMessage(translate('organization.deleted')));
   });
 };

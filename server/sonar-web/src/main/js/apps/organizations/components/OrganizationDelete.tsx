@@ -29,6 +29,7 @@ import { getOrganizationBilling } from '../../../api/organizations';
 import { isSonarCloud } from '../../../helpers/system';
 import { Alert } from '../../../components/ui/Alert';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
+import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 
 interface DispatchToProps {
   deleteOrganization: (key: string) => Promise<void>;
@@ -78,7 +79,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
     }
   };
 
-  handleInput = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ verify: event.currentTarget.value });
   };
 
@@ -87,8 +88,24 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
   };
 
   onDelete = () => {
-    return this.props.deleteOrganization(this.props.organization.key).then(() => {
-      this.props.router.replace('/');
+    const { organization } = this.props;
+    return this.props.deleteOrganization(organization.key).then(() => {
+      if (this.state.hasPaidPlan) {
+        this.props.router.replace({
+          pathname: '/feedback/downgrade',
+          state: {
+            confirmationMessage: translateWithParameters(
+              'organization.deleted_x',
+              organization.name
+            ),
+            organization,
+            title: translate('billing.downgrade.reason.title_deleted')
+          }
+        });
+      } else {
+        addGlobalSuccessMessage(translate('organization.deleted'));
+        this.props.router.replace('/');
+      }
     });
   };
 

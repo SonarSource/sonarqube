@@ -1,0 +1,80 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.billing-downgrade-feedback > .alert {
+  max-width: 400px;
+  margin: 30px auto 50px auto;
+}
+
+.billing-downgrade-feedback .boxed-group {
+  margin-top: 5vh;
+}
+
+.billing-downgrade-feedback .boxed-group-header {
+  padding-top: 40px;
+  text-align: center;
+}
+
+.billing-downgrade-feedback .boxed-group-inner {
+  padding: 50px 50px 40px 50px;
+}
+
+.billing-downgrade-feedback h2 {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.billing-downgrade-feedback .boxed-group-list li {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.billing-downgrade-feedback input[type='radio'] {
+  margin-right: 1em;
+}
+
+.billing-downgrade-feedback-form-actions {
+  margin-top: 36px;
+}
+
+.billing-downgrade-feedback-explain-wrapper {
+  margin-left: 25px;
+  padding-top: 20px;
+}
+
+.billing-downgrade-feedback-explain-wrapper label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.billing-downgrade-feedback-explain-wrapper label .note {
+  font-weight: normal;
+  margin-left: 0.5em;
+}
+
+.billing-downgrade-feedback-explain-wrapper textarea {
+  display: block;
+  min-height: 70px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #cdcdcd;
+  border-radius: 2px;
+}

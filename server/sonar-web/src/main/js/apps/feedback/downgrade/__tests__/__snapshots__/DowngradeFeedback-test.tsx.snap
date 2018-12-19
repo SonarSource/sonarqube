@@ -1,0 +1,129 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should enforce choosing a reason, and show an extra textarea if a reason was chosen 1`] = `
+<SubmitButton
+  className="spacer-right"
+  disabled={true}
+>
+  billing.send
+</SubmitButton>
+`;
+
+exports[`should enforce choosing a reason, and show an extra textarea if a reason was chosen 2`] = `
+<SubmitButton
+  className="spacer-right"
+  disabled={false}
+>
+  billing.send
+</SubmitButton>
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="billing-downgrade-feedback"
+>
+  <Alert
+    variant="success"
+  >
+    Downgrade successful
+  </Alert>
+  <div
+    className="boxed-group boxed-group-centered"
+  >
+    <div
+      className="boxed-group-header"
+    >
+      <h2>
+        Title
+      </h2>
+      <div>
+        billing.downgrade.reason.explanation
+      </div>
+    </div>
+    <div
+      className="boxed-group-inner"
+    >
+      <form
+        className="billing-downgrade-feedback-form"
+        onSubmit={[Function]}
+      >
+        <ul
+          className="boxed-group-list"
+        >
+          <li
+            key="did_not_work"
+          >
+            <Radio
+              checked={false}
+              onCheck={[Function]}
+              value="did_not_work"
+            >
+              billing.downgrade.reason.option.did_not_work.label
+            </Radio>
+          </li>
+          <li
+            key="did_not_match_expectations"
+          >
+            <Radio
+              checked={false}
+              onCheck={[Function]}
+              value="did_not_match_expectations"
+            >
+              billing.downgrade.reason.option.did_not_match_expectations.label
+            </Radio>
+          </li>
+          <li
+            key="company_policy"
+          >
+            <Radio
+              checked={false}
+              onCheck={[Function]}
+              value="company_policy"
+            >
+              billing.downgrade.reason.option.company_policy.label
+            </Radio>
+          </li>
+          <li
+            key="just_testing"
+          >
+            <Radio
+              checked={false}
+              onCheck={[Function]}
+              value="just_testing"
+            >
+              billing.downgrade.reason.option.just_testing.label
+            </Radio>
+          </li>
+          <li
+            key="other"
+          >
+            <Radio
+              checked={false}
+              onCheck={[Function]}
+              value="other"
+            >
+              billing.downgrade.reason.option.other.label
+            </Radio>
+          </li>
+        </ul>
+        <div
+          className="billing-downgrade-feedback-form-actions"
+        >
+          <SubmitButton
+            className="spacer-right"
+            disabled={true}
+          >
+            billing.send
+          </SubmitButton>
+          <a
+            href="#"
+            onClick={[Function]}
+          >
+            billing.skip
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;

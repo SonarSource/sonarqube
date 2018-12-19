@@ -24,6 +24,12 @@
   background-color: #fff;
 }
 
+.boxed-group-centered {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 500px;
+}
+
 .boxed-group > h2 {
   line-height: var(--controlHeight);
   padding: calc(2 * var(--gridSize)) 20px 0;

@@ -69,7 +69,8 @@ select:invalid {
   outline: none;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--secondFontColor);
 }
 
