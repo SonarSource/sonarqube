@@ -28,6 +28,7 @@ exports[`should show a info message for paying organization 1`] = `
     </header>
     <ConfirmButton
       confirmButtonText="delete"
+      confirmDisable={true}
       isDestructive={true}
       modalBody={
         <div>
@@ -39,9 +40,30 @@ exports[`should show a info message for paying organization 1`] = `
           <p>
             organization.delete.question
           </p>
+          <div
+            className="spacer-top"
+          >
+            <label
+              htmlFor="downgrade-organization-name"
+            >
+              billing.downgrade.modal.type_to_proceed
+            </label>
+            <div
+              className="little-spacer-top"
+            >
+              <input
+                autoFocus={true}
+                className="input-super-large"
+                id="downgrade-organization-name"
+                onChange={[Function]}
+                type="text"
+                value=""
+              />
+            </div>
+          </div>
         </div>
       }
-      modalHeader="organization.delete"
+      modalHeader="organization.delete_x.Foo"
       onConfirm={[Function]}
     >
       <Component />
@@ -78,15 +100,37 @@ exports[`smoke test 1`] = `
     </header>
     <ConfirmButton
       confirmButtonText="delete"
+      confirmDisable={true}
       isDestructive={true}
       modalBody={
         <div>
           <p>
             organization.delete.question
           </p>
+          <div
+            className="spacer-top"
+          >
+            <label
+              htmlFor="downgrade-organization-name"
+            >
+              billing.downgrade.modal.type_to_proceed
+            </label>
+            <div
+              className="little-spacer-top"
+            >
+              <input
+                autoFocus={true}
+                className="input-super-large"
+                id="downgrade-organization-name"
+                onChange={[Function]}
+                type="text"
+                value=""
+              />
+            </div>
+          </div>
         </div>
       }
-      modalHeader="organization.delete"
+      modalHeader="organization.delete_x.Foo"
       onConfirm={[Function]}
     >
       <Component />

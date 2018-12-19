@@ -22,7 +22,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { deleteOrganization } from '../actions';
 import { Button } from '../../../components/ui/buttons';
 import { getOrganizationBilling } from '../../../api/organizations';
@@ -43,11 +43,12 @@ type Props = OwnProps & DispatchToProps;
 
 interface State {
   hasPaidPlan?: boolean;
+  verify: string;
 }
 
 export class OrganizationDelete extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {};
+  state: State = { verify: '' };
 
   componentDidMount() {
     this.mounted = true;
@@ -77,6 +78,14 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
     }
   };
 
+  handleInput = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({ verify: event.currentTarget.value });
+  };
+
+  isVerified = () => {
+    return this.state.verify.toLowerCase() === this.props.organization.name.toLowerCase();
+  };
+
   onDelete = () => {
     return this.props.deleteOrganization(this.props.organization.key).then(() => {
       this.props.router.replace('/');
@@ -98,6 +107,7 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
           </header>
           <ConfirmButton
             confirmButtonText={translate('delete')}
+            confirmDisable={!this.isVerified()}
             isDestructive={true}
             modalBody={
               <div>
@@ -107,9 +117,27 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
                   </Alert>
                 )}
                 <p>{translate('organization.delete.question')}</p>
+                <div className="spacer-top">
+                  <label htmlFor="downgrade-organization-name">
+                    {translate('billing.downgrade.modal.type_to_proceed')}
+                  </label>
+                  <div className="little-spacer-top">
+                    <input
+                      autoFocus={true}
+                      className="input-super-large"
+                      id="downgrade-organization-name"
+                      onChange={this.handleInput}
+                      type="text"
+                      value={this.state.verify}
+                    />
+                  </div>
+                </div>
               </div>
             }
-            modalHeader={translate('organization.delete')}
+            modalHeader={translateWithParameters(
+              'organization.delete_x',
+              this.props.organization.name
+            )}
             onConfirm={this.onDelete}>
             {({ onClick }) => (
               <Button className="js-custom-measure-delete button-red" onClick={onClick}>
