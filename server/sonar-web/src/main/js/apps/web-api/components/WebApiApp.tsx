@@ -20,13 +20,21 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link, withRouter, WithRouterProps } from 'react-router';
+import { maxBy } from 'lodash';
 import Domain from './Domain';
 import Menu from './Menu';
 import Search from './Search';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { Domain as DomainType, fetchWebApi } from '../../../api/web-api';
-import { getActionKey, isDomainPathActive, Query, serializeQuery, parseQuery } from '../utils';
+import { fetchWebApi } from '../../../api/web-api';
+import {
+  getActionKey,
+  isDomainPathActive,
+  Query,
+  serializeQuery,
+  parseQuery,
+  parseVersion
+} from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -35,7 +43,7 @@ import '../styles/web-api.css';
 type Props = WithRouterProps;
 
 interface State {
-  domains: DomainType[];
+  domains: T.WebApi.Domain[];
 }
 
 class WebApiApp extends React.PureComponent<Props, State> {
@@ -62,11 +70,19 @@ class WebApiApp extends React.PureComponent<Props, State> {
     fetchWebApi().then(
       domains => {
         if (this.mounted) {
-          this.setState({ domains });
+          this.setState({ domains: this.parseDomains(domains) });
         }
       },
       () => {}
     );
+  }
+
+  parseDomains(domains: any[]): T.WebApi.Domain[] {
+    return domains.map(domain => {
+      const deprecated = getLatestDeprecatedAction(domain);
+      const internal = !domain.actions.find((action: any) => !action.internal);
+      return { ...domain, deprecatedSince: deprecated && deprecated.deprecatedSince, internal };
+    });
   }
 
   scrollToAction = () => {
@@ -177,3 +193,18 @@ class WebApiApp extends React.PureComponent<Props, State> {
 }
 
 export default withRouter(WebApiApp);
+
+/** Checks if all actions are deprecated, and returns the latest deprecated one */
+function getLatestDeprecatedAction(domain: Pick<T.WebApi.Domain, 'actions'>) {
+  const noVersion = { major: 0, minor: 0 };
+  const allActionsDeprecated = domain.actions.every(
+    ({ deprecatedSince }) => deprecatedSince !== undefined
+  );
+  const latestDeprecation =
+    allActionsDeprecated &&
+    (maxBy(domain.actions, action => {
+      const version = (action.deprecatedSince && parseVersion(action.deprecatedSince)) || noVersion;
+      return version.major * 1024 + version.minor;
+    }) as T.WebApi.Action);
+  return latestDeprecation || undefined;
+}

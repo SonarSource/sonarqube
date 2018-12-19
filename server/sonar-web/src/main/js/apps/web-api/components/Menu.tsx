@@ -23,10 +23,9 @@ import * as classNames from 'classnames';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { isDomainPathActive, actionsFilter, Query, serializeQuery } from '../utils';
-import { Domain } from '../../../api/web-api';
 
 interface Props {
-  domains: Domain[];
+  domains: T.WebApi.Domain[];
   query: Query;
   splat: string;
 }
@@ -40,24 +39,27 @@ export default function Menu(props: Props) {
     })
     .filter(domain => domain.filteredActions.length);
 
+  const renderDomain = (domain: T.WebApi.Domain) => {
+    const internal = !domain.actions.find(action => !action.internal);
+    return (
+      <Link
+        className={classNames('list-group-item', {
+          active: isDomainPathActive(domain.path, splat)
+        })}
+        key={domain.path}
+        to={{ pathname: '/web_api/' + domain.path, query: serializeQuery(query) }}>
+        <h3 className="list-group-item-heading">
+          {domain.path}
+          {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}
+          {internal && <InternalBadge />}
+        </h3>
+      </Link>
+    );
+  };
+
   return (
     <div className="api-documentation-results panel">
-      <div className="list-group">
-        {filteredDomains.map(domain => (
-          <Link
-            className={classNames('list-group-item', {
-              active: isDomainPathActive(domain.path, splat)
-            })}
-            key={domain.path}
-            to={{ pathname: '/web_api/' + domain.path, query: serializeQuery(query) }}>
-            <h3 className="list-group-item-heading">
-              {domain.path}
-              {domain.deprecated && <DeprecatedBadge />}
-              {domain.internal && <InternalBadge />}
-            </h3>
-          </Link>
-        ))}
-      </div>
+      <div className="list-group">{filteredDomains.map(renderDomain)}</div>
     </div>
   );
 }

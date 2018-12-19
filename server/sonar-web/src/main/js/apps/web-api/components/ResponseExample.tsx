@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import {
-  Action,
-  Domain,
-  Example,
-  fetchResponseExample as fetchResponseExampleApi
-} from '../../../api/web-api';
+import { fetchResponseExample as fetchResponseExampleApi } from '../../../api/web-api';
 
 interface Props {
-  action: Action;
-  domain: Domain;
+  action: T.WebApi.Action;
+  domain: T.WebApi.Domain;
 }
 
 interface State {
-  responseExample?: Example;
+  responseExample?: T.WebApi.Example;
 }
 
 export default class ResponseExample extends React.PureComponent<Props, State> {

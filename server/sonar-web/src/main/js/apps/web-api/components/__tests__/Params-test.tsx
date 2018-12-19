@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Params from '../Params';
-import { Param } from '../../../../api/web-api';
 
-const DEFAULT_PARAM = {
+const DEFAULT_PARAM: T.WebApi.Param = {
   key: 'foo',
   description: 'Foo desc',
   internal: false,
@@ -57,7 +56,7 @@ it('should render deprecated key', () => {
 });
 
 it('should render different value constraints', () => {
-  const param: Param = {
+  const param: T.WebApi.Param = {
     ...DEFAULT_PARAM,
     defaultValue: 'def',
     exampleValue: 'foo',

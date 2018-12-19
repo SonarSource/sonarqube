@@ -886,4 +886,56 @@ declare namespace T {
     id: string;
     success: boolean;
   }
+
+  export namespace WebApi {
+    export interface Action {
+      key: string;
+      changelog: Changelog[];
+      description: string;
+      deprecatedSince?: string;
+      hasResponseExample: boolean;
+      internal: boolean;
+      params?: Param[];
+      post: boolean;
+      since?: string;
+    }
+
+    export interface Changelog {
+      description: string;
+      version: string;
+    }
+
+    export interface Domain {
+      actions: Action[];
+      deprecatedSince?: string;
+      description: string;
+      internal?: boolean;
+      path: string;
+      since?: string;
+    }
+
+    export interface Example {
+      example: string;
+      format: string;
+    }
+
+    export interface Param {
+      defaultValue?: string;
+      deprecatedKey?: string;
+      deprecatedKeySince?: string;
+      deprecatedSince?: string;
+      description: string;
+      exampleValue?: string;
+      internal: boolean;
+      key: string;
+      maximumLength?: number;
+      maximumValue?: number;
+      maxValuesAllowed?: number;
+      minimumLength?: number;
+      minimumValue?: number;
+      possibleValues?: string[];
+      required: boolean;
+      since?: string;
+    }
+  }
 }

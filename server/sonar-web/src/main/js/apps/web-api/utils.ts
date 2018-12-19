@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
-import { Domain, Action } from '../../api/web-api';
 import {
   cleanQuery,
   RawQuery,
@@ -33,7 +32,7 @@ export interface Query {
   internal: boolean;
 }
 
-export function actionsFilter(query: Query, domain: Domain, action: Action) {
+export function actionsFilter(query: Query, domain: T.WebApi.Domain, action: T.WebApi.Action) {
   const lowSearchQuery = query.search.toLowerCase();
   return (
     (query.internal || !action.internal) &&
@@ -80,3 +79,12 @@ export const serializeQuery = memoize(
       internal: query.internal || undefined
     })
 );
+
+export function parseVersion(version: string) {
+  const match = /(\d+)\.(\d+)/.exec(version);
+  if (match) {
+    return { major: Number(match[1]), minor: Number(match[2]) };
+  } else {
+    return undefined;
+  }
+}

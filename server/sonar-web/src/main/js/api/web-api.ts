@@ -20,69 +20,22 @@
 import { getJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export interface Changelog {
-  description: string;
-  version: string;
-}
-
-export interface Param {
-  defaultValue?: string;
-  deprecatedKey?: string;
-  deprecatedKeySince?: string;
+interface RawDomain {
+  actions: T.WebApi.Action[];
   deprecatedSince?: string;
   description: string;
-  exampleValue?: string;
-  internal: boolean;
-  key: string;
-  maximumLength?: number;
-  maximumValue?: number;
-  maxValuesAllowed?: number;
-  minimumLength?: number;
-  minimumValue?: number;
-  possibleValues?: string[];
-  required: boolean;
-  since?: string;
-}
-
-export interface Action {
-  key: string;
-  changelog: Changelog[];
-  description: string;
-  deprecatedSince?: string;
-  hasResponseExample: boolean;
-  internal: boolean;
-  params?: Param[];
-  post: boolean;
-  since?: string;
-}
-
-export interface Domain {
-  actions: Action[];
-  description: string;
-  deprecated: boolean;
   internal: boolean;
   path: string;
   since?: string;
 }
 
-export interface Example {
-  example: string;
-  format: string;
-}
-
-export function fetchWebApi(showInternal = true): Promise<Domain[]> {
+export function fetchWebApi(showInternal = true): Promise<RawDomain[]> {
   return getJSON('/api/webservices/list', { include_internals: showInternal })
-    .then(r =>
-      r.webServices.map((domain: any) => {
-        const deprecated = !domain.actions.find((action: any) => !action.deprecatedSince);
-        const internal = !domain.actions.find((action: any) => !action.internal);
-        return { ...domain, deprecated, internal };
-      })
-    )
+    .then(r => r.webServices)
     .catch(throwGlobalError);
 }
 
-export function fetchResponseExample(domain: string, action: string): Promise<Example> {
+export function fetchResponseExample(domain: string, action: string): Promise<T.WebApi.Example> {
   return getJSON('/api/webservices/response_example', { controller: domain, action }).catch(
     throwGlobalError
   );

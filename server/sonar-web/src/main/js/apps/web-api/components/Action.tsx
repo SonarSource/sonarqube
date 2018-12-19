@@ -27,12 +27,11 @@ import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { getActionKey } from '../utils';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
-import { Action as ActionType, Domain as DomainType } from '../../../api/web-api';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  action: ActionType;
-  domain: DomainType;
+  action: T.WebApi.Action;
+  domain: T.WebApi.Domain;
   showDeprecated: boolean;
   showInternal: boolean;
 }
@@ -52,29 +51,29 @@ export default class Action extends React.PureComponent<Props, State> {
 
   handleShowParamsClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    this.setState({
+    this.setState(state => ({
       showChangelog: false,
       showResponse: false,
-      showParams: !this.state.showParams
-    });
+      showParams: !state.showParams
+    }));
   };
 
   handleShowResponseClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    this.setState({
+    this.setState(state => ({
       showChangelog: false,
       showParams: false,
-      showResponse: !this.state.showResponse
-    });
+      showResponse: !state.showResponse
+    }));
   };
 
   handleChangelogClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    this.setState({
-      showChangelog: !this.state.showChangelog,
+    this.setState(state => ({
+      showChangelog: !state.showChangelog,
       showParams: false,
       showResponse: false
-    });
+    }));
   };
 
   renderTabs() {

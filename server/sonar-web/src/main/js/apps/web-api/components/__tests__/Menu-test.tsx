@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Menu from '../Menu';
 
-const ACTION = {
+const ACTION: T.WebApi.Action = {
   key: 'foo',
   changelog: [],
   description: 'Foo Desc',
@@ -29,19 +29,15 @@ const ACTION = {
   internal: false,
   post: false
 };
-const DOMAIN1 = {
+const DOMAIN1: T.WebApi.Domain = {
   actions: [ACTION],
   path: 'foo',
-  description: 'API Foo',
-  deprecated: false,
-  internal: false
+  description: 'API Foo'
 };
-const DOMAIN2 = {
+const DOMAIN2: T.WebApi.Domain = {
   actions: [ACTION],
   path: 'bar',
-  description: 'API Bar',
-  deprecated: false,
-  internal: false
+  description: 'API Bar'
 };
 const PROPS = {
   domains: [DOMAIN1, DOMAIN2],
@@ -55,7 +51,7 @@ const SEARCH_FOO = { search: 'Foo', deprecated: false, internal: false };
 const SEARCH_BAR = { search: 'Bar', deprecated: false, internal: false };
 
 it('should render deprecated domains', () => {
-  const domain = {
+  const domain: T.WebApi.Domain = {
     ...DOMAIN2,
     deprecatedSince: '5.0',
     actions: [{ ...ACTION, deprecatedSince: '5.0' }]
@@ -65,7 +61,7 @@ it('should render deprecated domains', () => {
 });
 
 it('should not render deprecated domains', () => {
-  const domain = {
+  const domain: T.WebApi.Domain = {
     ...DOMAIN2,
     deprecatedSince: '5.0',
     actions: [{ ...ACTION, deprecatedSince: '5.0' }]
@@ -75,32 +71,40 @@ it('should not render deprecated domains', () => {
 });
 
 it('should render internal domains', () => {
-  const domain = { ...DOMAIN2, internal: true, actions: [{ ...ACTION, internal: true }] };
+  const domain: T.WebApi.Domain = {
+    ...DOMAIN2,
+    internal: true,
+    actions: [{ ...ACTION, internal: true }]
+  };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SHOW_INTERNAL} />)).toMatchSnapshot();
 });
 
 it('should not render internal domains', () => {
-  const domain = { ...DOMAIN2, internal: true, actions: [{ ...ACTION, internal: true }] };
+  const domain: T.WebApi.Domain = {
+    ...DOMAIN2,
+    internal: true,
+    actions: [{ ...ACTION, internal: true }]
+  };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} />)).toMatchSnapshot();
 });
 
 it('should render only domains with an action matching the query', () => {
-  const domain = {
+  const domain: T.WebApi.Domain = {
     ...DOMAIN2,
-    actions: [{ ...ACTION, key: 'bar', path: 'bar', description: 'Bar Desc' }]
+    actions: [{ ...ACTION, key: 'bar', description: 'Bar Desc' }]
   };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SEARCH_FOO} />)).toMatchSnapshot();
 });
 
 it('should also render domains with an actions description matching the query', () => {
-  const domain = {
+  const domain: T.WebApi.Domain = {
     ...DOMAIN1,
     path: 'baz',
     description: 'API Baz',
-    actions: [{ ...ACTION, key: 'baz', path: 'baz', description: 'barbaz' }]
+    actions: [{ ...ACTION, key: 'baz', description: 'barbaz' }]
   };
   const domains = [DOMAIN1, DOMAIN2, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SEARCH_BAR} />)).toMatchSnapshot();

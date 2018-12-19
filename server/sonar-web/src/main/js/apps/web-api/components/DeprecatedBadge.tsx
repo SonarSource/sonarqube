@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { parseVersion } from '../utils';
 
 export default function DeprecatedBadge({ since }: { since?: string }) {
   const version = since && parseVersion(since);
@@ -34,13 +35,4 @@ export default function DeprecatedBadge({ since }: { since?: string }) {
       <span className="badge badge-warning">{label}</span>
     </Tooltip>
   );
-}
-
-function parseVersion(version: string) {
-  const match = /(\d+)\.(\d+)/.exec(version);
-  if (match) {
-    return { major: Number(match[1]), minor: Number(match[2]) };
-  } else {
-    return undefined;
-  }
 }

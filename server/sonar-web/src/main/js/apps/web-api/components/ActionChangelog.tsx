@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Changelog } from '../../../api/web-api';
 
 interface Props {
-  changelog: Changelog[];
+  changelog: T.WebApi.Changelog[];
 }
 
 export default function ActionChangelog({ changelog }: Props) {

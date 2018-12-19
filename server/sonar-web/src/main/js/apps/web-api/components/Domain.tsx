@@ -22,10 +22,9 @@ import Action from './Action';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { getActionKey, actionsFilter, Query } from '../utils';
-import { Domain as DomainType } from '../../../api/web-api';
 
 interface Props {
-  domain: DomainType;
+  domain: T.WebApi.Domain;
   query: Query;
 }
 
@@ -37,9 +36,9 @@ export default function Domain({ domain, query }: Props) {
       <header className="web-api-domain-header">
         <h2 className="web-api-domain-title">{domain.path}</h2>
 
-        {domain.deprecated && (
+        {domain.deprecatedSince && (
           <span className="spacer-left">
-            <DeprecatedBadge />
+            <DeprecatedBadge since={domain.deprecatedSince} />
           </span>
         )}
 
