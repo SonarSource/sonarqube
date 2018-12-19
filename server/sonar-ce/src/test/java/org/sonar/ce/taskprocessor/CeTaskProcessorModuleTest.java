@@ -21,7 +21,9 @@ package org.sonar.ce.taskprocessor;
 
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
+import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,5 +53,16 @@ public class CeTaskProcessorModuleTest {
       .stream()
       .map(ComponentAdapter::getComponentImplementation))
         .contains(ReportAnalysisFailureNotificationExecutionListener.class);
+  }
+
+  @Test
+  public void defines_CeTaskInterrupterProvider_object() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+
+    assertThat(container.getPicoContainer().getComponentAdapter(CeTaskInterrupter.class))
+      .isInstanceOf(CeTaskInterrupterProvider.class);
   }
 }

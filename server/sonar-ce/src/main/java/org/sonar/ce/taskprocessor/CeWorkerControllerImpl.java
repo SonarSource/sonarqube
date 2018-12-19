@@ -19,19 +19,20 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.configuration.CeConfiguration;
 
-public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController {
-  private final ConcurrentHashMap<CeWorker, Status> map = new ConcurrentHashMap<>();
+public class CeWorkerControllerImpl implements CeWorkerController {
+  private final ConcurrentHashMap<CeWorker, Status> workerStatuses = new ConcurrentHashMap<>();
   private final CeConfiguration ceConfiguration;
 
   enum Status {
     PROCESSING, PAUSED
   }
 
-  public EnabledCeWorkerControllerImpl(CeConfiguration ceConfiguration) {
+  public CeWorkerControllerImpl(CeConfiguration ceConfiguration) {
     this.ceConfiguration = ceConfiguration;
     logEnabledWorkerCount();
   }
@@ -39,8 +40,15 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
   private void logEnabledWorkerCount() {
     int workerCount = ceConfiguration.getWorkerCount();
     if (workerCount > 1) {
-      Loggers.get(EnabledCeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", workerCount);
+      Loggers.get(CeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", workerCount);
     }
+  }
+
+  @Override
+  public Optional<CeWorker> getCeWorkerIn(Thread thread) {
+    return workerStatuses.keySet().stream()
+      .filter(t -> t.isExecutedBy(thread))
+      .findFirst();
   }
 
   @Override
@@ -50,7 +58,7 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
 
   @Override
   public boolean hasAtLeastOneProcessingWorker() {
-    return map.entrySet().stream().anyMatch(e -> e.getValue() == Status.PROCESSING);
+    return workerStatuses.entrySet().stream().anyMatch(e -> e.getValue() == Status.PROCESSING);
   }
 
   /**
@@ -69,12 +77,12 @@ public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController 
 
     private ProcessingRecorderHookImpl(CeWorker ceWorker) {
       this.ceWorker = ceWorker;
-      map.put(this.ceWorker, Status.PROCESSING);
+      workerStatuses.put(this.ceWorker, Status.PROCESSING);
     }
 
     @Override
     public void close() {
-      map.put(ceWorker, Status.PAUSED);
+      workerStatuses.put(ceWorker, Status.PAUSED);
     }
   }
 }

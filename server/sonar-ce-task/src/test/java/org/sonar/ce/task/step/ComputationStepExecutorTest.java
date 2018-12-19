@@ -27,15 +27,18 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.ce.task.ChangeLogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -47,13 +50,14 @@ public class ComputationStepExecutorTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private final ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
+  private final CeTaskInterrupter taskInterrupter = mock(CeTaskInterrupter.class);
   private final ComputationStep computationStep1 = mockComputationStep("step1");
   private final ComputationStep computationStep2 = mockComputationStep("step2");
   private final ComputationStep computationStep3 = mockComputationStep("step3");
 
   @Test
   public void execute_call_execute_on_each_ComputationStep_in_order_returned_by_instances_method() {
-    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3))
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3), taskInterrupter)
       .execute();
 
     InOrder inOrder = inOrder(computationStep1, computationStep2, computationStep3);
@@ -75,7 +79,7 @@ public class ComputationStepExecutorTest {
       .when(computationStep)
       .execute(any());
 
-    ComputationStepExecutor computationStepExecutor = new ComputationStepExecutor(mockComputationSteps(computationStep));
+    ComputationStepExecutor computationStepExecutor = new ComputationStepExecutor(mockComputationSteps(computationStep), taskInterrupter);
 
     expectedException.expect(RuntimeException.class);
     expectedException.expectMessage(message);
@@ -93,7 +97,7 @@ public class ComputationStepExecutorTest {
       ChangeLogLevel logLevel1 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
       ChangeLogLevel logLevel2 = new ChangeLogLevel(step2.getClass(), LoggerLevel.INFO);
       ChangeLogLevel logLevel3 = new ChangeLogLevel(step3.getClass(), LoggerLevel.INFO)) {
-      new ComputationStepExecutor(mockComputationSteps(step1, step2, step3)).execute();
+      new ComputationStepExecutor(mockComputationSteps(step1, step2, step3), taskInterrupter).execute();
 
       List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
       assertThat(infoLogs).hasSize(3);
@@ -114,7 +118,7 @@ public class ComputationStepExecutorTest {
         super.execute(context);
         throw expected;
       }
-    } ;
+    };
 
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO);
       ChangeLogLevel logLevel1 = new ChangeLogLevel(step1.getClass(), LoggerLevel.INFO);
@@ -122,7 +126,7 @@ public class ComputationStepExecutorTest {
       ChangeLogLevel logLevel3 = new ChangeLogLevel(step3.getClass(), LoggerLevel.INFO)) {
 
       try {
-        new ComputationStepExecutor(mockComputationSteps(step1, step2, step3)).execute();
+        new ComputationStepExecutor(mockComputationSteps(step1, step2, step3), taskInterrupter).execute();
         fail("a RuntimeException should have been thrown");
       } catch (RuntimeException e) {
         List<String> infoLogs = logTester.logs(LoggerLevel.INFO);
@@ -142,7 +146,7 @@ public class ComputationStepExecutorTest {
       expectedException.expect(IllegalArgumentException.class);
       expectedException.expectMessage("Statistic with key [time] is not accepted");
 
-      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
     }
   }
 
@@ -154,7 +158,7 @@ public class ComputationStepExecutorTest {
       expectedException.expect(IllegalArgumentException.class);
       expectedException.expectMessage("Statistic with key [foo] is already present");
 
-      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
     }
   }
 
@@ -166,7 +170,7 @@ public class ComputationStepExecutorTest {
       expectedException.expect(NullPointerException.class);
       expectedException.expectMessage("Statistic has null key");
 
-      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
     }
   }
 
@@ -178,13 +182,13 @@ public class ComputationStepExecutorTest {
       expectedException.expect(NullPointerException.class);
       expectedException.expectMessage("Statistic with key [bar] has null value");
 
-      new ComputationStepExecutor(mockComputationSteps(step)).execute();
+      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
     }
   }
 
   @Test
   public void execute_calls_listener_finished_method_with_all_step_runs() {
-    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), taskInterrupter, listener)
       .execute();
 
     verify(listener).finished(true);
@@ -199,7 +203,7 @@ public class ComputationStepExecutorTest {
       .execute(any());
 
     try {
-      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
+      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), taskInterrupter, listener)
         .execute();
       fail("exception toBeThrown should have been raised");
     } catch (RuntimeException e) {
@@ -216,7 +220,76 @@ public class ComputationStepExecutorTest {
       .when(listener)
       .finished(anyBoolean());
 
-    new ComputationStepExecutor(mockComputationSteps(computationStep1), listener).execute();
+    new ComputationStepExecutor(mockComputationSteps(computationStep1), taskInterrupter, listener).execute();
+  }
+
+  @Test
+  public void execute_fails_with_exception_thrown_by_interrupter() throws Throwable {
+    executeFailsWithExceptionThrownByInterrupter();
+
+    reset(computationStep1, computationStep2, computationStep3, taskInterrupter);
+    runInOtherThread(this::executeFailsWithExceptionThrownByInterrupter);
+  }
+
+  private void executeFailsWithExceptionThrownByInterrupter() {
+    Thread currentThread = Thread.currentThread();
+    ComputationStepExecutor underTest = new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3), taskInterrupter);
+    RuntimeException exception = new RuntimeException("mocking fail of method check()");
+    doNothing()
+      .doNothing()
+      .doThrow(exception)
+      .when(taskInterrupter)
+      .check(currentThread);
+
+    try {
+      underTest.execute();
+      fail("execute should have thrown an exception");
+    } catch (Exception e) {
+      assertThat(e).isSameAs(exception);
+    }
+  }
+
+  @Test
+  public void execute_calls_interrupter_with_current_thread_before_each_step() throws Throwable {
+    executeCallsInterrupterWithCurrentThreadBeforeEachStep();
+
+    reset(computationStep1, computationStep2, computationStep3, taskInterrupter);
+    runInOtherThread(this::executeCallsInterrupterWithCurrentThreadBeforeEachStep);
+  }
+
+  private void executeCallsInterrupterWithCurrentThreadBeforeEachStep() {
+    InOrder inOrder = inOrder(computationStep1, computationStep2, computationStep3, taskInterrupter);
+    ComputationStepExecutor underTest = new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3), taskInterrupter);
+
+    underTest.execute();
+
+    inOrder.verify(taskInterrupter).check(Thread.currentThread());
+    inOrder.verify(computationStep1).execute(any());
+    inOrder.verify(computationStep1).getDescription();
+    inOrder.verify(taskInterrupter).check(Thread.currentThread());
+    inOrder.verify(computationStep2).execute(any());
+    inOrder.verify(computationStep2).getDescription();
+    inOrder.verify(taskInterrupter).check(Thread.currentThread());
+    inOrder.verify(computationStep3).execute(any());
+    inOrder.verify(computationStep3).getDescription();
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  private void runInOtherThread(Runnable r) throws Throwable {
+    Throwable[] otherThreadException = new Throwable[1];
+    Thread t = new Thread(() -> {
+      try {
+        r.run();
+      } catch (Throwable e) {
+        otherThreadException[0] = e;
+      }
+    });
+    t.start();
+    t.join();
+
+    if (otherThreadException[0] != null) {
+      throw otherThreadException[0];
+    }
   }
 
   private static ComputationSteps mockComputationSteps(ComputationStep... computationSteps) {

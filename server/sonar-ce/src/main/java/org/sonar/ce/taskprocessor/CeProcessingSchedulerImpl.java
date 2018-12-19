@@ -41,12 +41,12 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   private final long delayBetweenEnabledTasks;
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
-  private final EnabledCeWorkerController ceWorkerController;
+  private final CeWorkerController ceWorkerController;
   private final int gracefulStopTimeoutInMs;
 
   public CeProcessingSchedulerImpl(CeConfiguration ceConfiguration,
     CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory,
-    EnabledCeWorkerController ceWorkerController) {
+    CeWorkerController ceWorkerController) {
     this.executorService = processingExecutorService;
 
     this.delayBetweenEnabledTasks = ceConfiguration.getQueuePollingDelay();

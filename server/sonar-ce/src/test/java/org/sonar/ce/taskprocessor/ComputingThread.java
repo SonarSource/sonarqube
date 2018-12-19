@@ -19,23 +19,37 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.core.platform.Module;
+class ComputingThread extends Thread {
+  private boolean kill = false;
 
-public class CeTaskProcessorModule extends Module {
+  public ComputingThread(String name) {
+    setName(name);
+  }
+
+  private long fibo(int i) {
+    if (kill) {
+      return i;
+    }
+    if (i == 0) {
+      return 0;
+    }
+    if (i == 1) {
+      return 1;
+    }
+    return fibo(i - 1) + fibo(i - 2);
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      new CeTaskInterrupterProvider(),
-      CeTaskInterrupterWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      CeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class
+  public void run() {
+    for (int i = 2; i < 50; i++) {
+      fibo(i);
+      if (kill) {
+        break;
+      }
+    }
+  }
 
-    );
+  public void kill() {
+    this.kill = true;
   }
 }

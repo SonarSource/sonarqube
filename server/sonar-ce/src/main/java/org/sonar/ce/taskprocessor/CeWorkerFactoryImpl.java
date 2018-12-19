@@ -30,7 +30,7 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   private final UuidFactory uuidFactory;
   private final InternalCeQueue queue;
   private final CeTaskProcessorRepository taskProcessorRepository;
-  private final EnabledCeWorkerController enabledCeWorkerController;
+  private final CeWorkerController ceWorkerController;
   private final CeWorker.ExecutionListener[] executionListeners;
   private Set<CeWorker> ceWorkers = Collections.emptySet();
 
@@ -38,24 +38,24 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
    * Used by Pico when there is no {@link CeWorker.ExecutionListener} in the container.
    */
   public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-    UuidFactory uuidFactory, EnabledCeWorkerController enabledCeWorkerController) {
-    this(queue, taskProcessorRepository, uuidFactory, enabledCeWorkerController, new CeWorker.ExecutionListener[0]);
+    UuidFactory uuidFactory, CeWorkerController ceWorkerController) {
+    this(queue, taskProcessorRepository, uuidFactory, ceWorkerController, new CeWorker.ExecutionListener[0]);
   }
 
   public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-    UuidFactory uuidFactory, EnabledCeWorkerController enabledCeWorkerController,
+    UuidFactory uuidFactory, CeWorkerController ceWorkerController,
     CeWorker.ExecutionListener[] executionListeners) {
     this.queue = queue;
     this.taskProcessorRepository = taskProcessorRepository;
     this.uuidFactory = uuidFactory;
-    this.enabledCeWorkerController = enabledCeWorkerController;
+    this.ceWorkerController = ceWorkerController;
     this.executionListeners = executionListeners;
   }
 
   @Override
   public CeWorker create(int ordinal) {
     String uuid = uuidFactory.create();
-    CeWorkerImpl ceWorker = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, enabledCeWorkerController, executionListeners);
+    CeWorkerImpl ceWorker = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController, executionListeners);
     ceWorkers = Stream.concat(ceWorkers.stream(), Stream.of(ceWorker)).collect(MoreCollectors.toSet(ceWorkers.size() + 1));
     return ceWorker;
   }

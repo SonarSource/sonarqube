@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +34,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskInterruptedException;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.logs.Profiler;
@@ -39,9 +42,11 @@ import org.sonar.db.ce.CeActivityDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.ce.task.CeTaskInterruptedException.isTaskInterruptedException;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.DISABLED;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
+import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 
 public class CeWorkerImpl implements CeWorker {
 
@@ -51,18 +56,19 @@ public class CeWorkerImpl implements CeWorker {
   private final String uuid;
   private final InternalCeQueue queue;
   private final CeTaskProcessorRepository taskProcessorRepository;
-  private final EnabledCeWorkerController enabledCeWorkerController;
+  private final CeWorkerController ceWorkerController;
   private final List<ExecutionListener> listeners;
+  private final AtomicReference<RunningState> runningState = new AtomicReference<>();
 
   public CeWorkerImpl(int ordinal, String uuid,
     InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-    EnabledCeWorkerController enabledCeWorkerController,
+    CeWorkerController ceWorkerController,
     ExecutionListener... listeners) {
     this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
     this.taskProcessorRepository = taskProcessorRepository;
-    this.enabledCeWorkerController = enabledCeWorkerController;
+    this.ceWorkerController = ceWorkerController;
     this.listeners = Arrays.asList(listeners);
   }
 
@@ -73,22 +79,71 @@ public class CeWorkerImpl implements CeWorker {
 
   @Override
   public Result call() {
-    return withCustomizedThreadName(this::findAndProcessTask);
-  }
-
-  private <T> T withCustomizedThreadName(Supplier<T> supplier) {
-    Thread currentThread = Thread.currentThread();
-    String oldName = currentThread.getName();
-    try {
-      currentThread.setName(String.format("Worker %s (UUID=%s) on %s", getOrdinal(), getUUID(), oldName));
-      return supplier.get();
-    } finally {
-      currentThread.setName(oldName);
+    try (TrackRunningState trackRunningState = new TrackRunningState(this::findAndProcessTask)) {
+      return trackRunningState.get();
     }
   }
 
-  private Result findAndProcessTask() {
-    if (!enabledCeWorkerController.isEnabled(this)) {
+  @Override
+  public int getOrdinal() {
+    return ordinal;
+  }
+
+  @Override
+  public String getUUID() {
+    return uuid;
+  }
+
+  @Override
+  public boolean isExecutedBy(Thread thread) {
+    return Optional.ofNullable(runningState.get())
+      .filter(state -> state.runningThread.equals(thread))
+      .isPresent();
+  }
+
+  @Override
+  public Optional<CeTask> getCurrentTask() {
+    return Optional.ofNullable(runningState.get())
+      .flatMap(RunningState::getTask);
+  }
+
+  private class TrackRunningState implements AutoCloseable, Supplier<Result> {
+    private final RunningState localRunningState;
+    private final Function<RunningState, Result> delegate;
+    private final String oldName;
+
+    private TrackRunningState(Function<RunningState, Result> delegate) {
+      Thread currentThread = Thread.currentThread();
+      localRunningState = new RunningState(currentThread);
+      if (!runningState.compareAndSet(null, localRunningState)) {
+        LOG.warn("Worker {} (UUID=%s) starts executing with new Thread {} while running state isn't null. " +
+          "Forcefully updating Workers's running state to new Thread.",
+          getOrdinal(), getUUID(), currentThread);
+        runningState.set(localRunningState);
+      }
+      this.delegate = delegate;
+      this.oldName = currentThread.getName();
+    }
+
+    @Override
+    public Result get() {
+      localRunningState.runningThread.setName(String.format("Worker %s (UUID=%s) on %s", getOrdinal(), getUUID(), oldName));
+      return delegate.apply(localRunningState);
+    }
+
+    @Override
+    public void close() {
+      localRunningState.runningThread.setName(oldName);
+      if (!runningState.compareAndSet(localRunningState, null)) {
+        LOG.warn("Worker {} (UUID=%s) ending execution in Thread {} while running state has already changed." +
+          " Keeping this new state.",
+          getOrdinal(), getUUID(), localRunningState.runningThread);
+      }
+    }
+  }
+
+  private Result findAndProcessTask(RunningState localRunningState) {
+    if (!ceWorkerController.isEnabled(this)) {
       return DISABLED;
     }
     Optional<CeTask> ceTask = tryAndFindTaskToExecute();
@@ -96,8 +151,9 @@ public class CeWorkerImpl implements CeWorker {
       return NO_TASK;
     }
 
-    try (EnabledCeWorkerController.ProcessingRecorderHook processing = enabledCeWorkerController.registerProcessingFor(this)) {
-      executeTask(ceTask.get());
+    try (CeWorkerController.ProcessingRecorderHook processing = ceWorkerController.registerProcessingFor(this);
+      ExecuteTask executeTask = new ExecuteTask(localRunningState, ceTask.get())) {
+      executeTask.run();
     } catch (Exception e) {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
@@ -113,68 +169,95 @@ public class CeWorkerImpl implements CeWorker {
     return Optional.empty();
   }
 
-  @Override
-  public int getOrdinal() {
-    return ordinal;
-  }
+  private final class ExecuteTask implements Runnable, AutoCloseable {
+    private final CeTask task;
+    private final RunningState localRunningState;
+    private final Profiler ceProfiler;
+    private CeActivityDto.Status status = FAILED;
+    private CeTaskResult taskResult = null;
+    private Throwable error = null;
 
-  @Override
-  public String getUUID() {
-    return uuid;
-  }
+    private ExecuteTask(RunningState localRunningState, CeTask task) {
+      this.task = task;
+      this.localRunningState = localRunningState;
+      this.ceProfiler = startLogProfiler(task);
+    }
 
-  private void executeTask(CeTask task) {
-    callListeners(t -> t.onStart(task));
-    Profiler ceProfiler = startLogProfiler(task);
+    @Override
+    public void run() {
+      beforeExecute();
+      executeTask();
+    }
 
-    CeActivityDto.Status status = CeActivityDto.Status.FAILED;
-    CeTaskResult taskResult = null;
-    Throwable error = null;
-    try {
-      // TODO delegate the message to the related task processor, according to task type
-      Optional<CeTaskProcessor> taskProcessor = taskProcessorRepository.getForCeTask(task);
-      if (taskProcessor.isPresent()) {
-        taskResult = taskProcessor.get().process(task);
-        status = CeActivityDto.Status.SUCCESS;
-      } else {
-        LOG.error("No CeTaskProcessor is defined for task of type {}. Plugin configuration may have changed", task.getType());
-        status = CeActivityDto.Status.FAILED;
+    @Override
+    public void close() {
+      afterExecute();
+    }
+
+    private void beforeExecute() {
+      localRunningState.setTask(task);
+      callListeners(t -> t.onStart(task));
+    }
+
+    private void executeTask() {
+      try {
+        // TODO delegate the message to the related task processor, according to task type
+        Optional<CeTaskProcessor> taskProcessor = taskProcessorRepository.getForCeTask(task);
+        if (taskProcessor.isPresent()) {
+          taskResult = taskProcessor.get().process(task);
+          status = CeActivityDto.Status.SUCCESS;
+        } else {
+          LOG.error("No CeTaskProcessor is defined for task of type {}. Plugin configuration may have changed", task.getType());
+          status = FAILED;
+        }
+      } catch (MessageException e) {
+        // error
+        error = e;
+      } catch (Throwable e) {
+        Optional<CeTaskInterruptedException> taskInterruptedException = isTaskInterruptedException(e);
+        if (taskInterruptedException.isPresent()) {
+          LOG.trace("Task interrupted", e);
+          CeTaskInterruptedException exception = taskInterruptedException.get();
+          CeActivityDto.Status interruptionStatus = exception.getStatus();
+          status = interruptionStatus;
+          error = (interruptionStatus == FAILED ? exception : null);
+        } else {
+          // error
+          LOG.error("Failed to execute task {}", task.getUuid(), e);
+          error = e;
+        }
       }
-    } catch (MessageException e) {
-      // error
-      error = e;
-    } catch (Throwable e) {
-      // error
-      LOG.error("Failed to execute task {}", task.getUuid(), e);
-      error = e;
-    } finally {
+    }
+
+    private void afterExecute() {
+      localRunningState.setTask(null);
       finalizeTask(task, ceProfiler, status, taskResult, error);
     }
-  }
 
-  private void callListeners(Consumer<ExecutionListener> call) {
-    listeners.forEach(listener -> {
+    private void finalizeTask(CeTask task, Profiler ceProfiler, CeActivityDto.Status status,
+      @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
       try {
-        call.accept(listener);
-      } catch (Throwable t) {
-        LOG.error(format("Call to listener %s failed.", listener.getClass().getSimpleName()), t);
+        queue.remove(task, status, taskResult, error);
+      } catch (Exception e) {
+        if (error != null) {
+          e.addSuppressed(error);
+        }
+        LOG.error(format("Failed to finalize task with uuid '%s' and persist its state to db", task.getUuid()), e);
+      } finally {
+        // finalize
+        stopLogProfiler(ceProfiler, status);
+        callListeners(t -> t.onEnd(task, status, taskResult, error));
       }
-    });
-  }
+    }
 
-  private void finalizeTask(CeTask task, Profiler ceProfiler, CeActivityDto.Status status,
-    @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
-    try {
-      queue.remove(task, status, taskResult, error);
-    } catch (Exception e) {
-      if (error != null) {
-        e.addSuppressed(error);
-      }
-      LOG.error(format("Failed to finalize task with uuid '%s' and persist its state to db", task.getUuid()), e);
-    } finally {
-      // finalize
-      stopLogProfiler(ceProfiler, status);
-      callListeners(t -> t.onEnd(task, status, taskResult, error));
+    private void callListeners(Consumer<ExecutionListener> call) {
+      listeners.forEach(listener -> {
+        try {
+          call.accept(listener);
+        } catch (Throwable t) {
+          LOG.error(format("Call to listener %s failed.", listener.getClass().getSimpleName()), t);
+        }
+      });
     }
   }
 
@@ -210,4 +293,22 @@ public class CeWorkerImpl implements CeWorker {
     profiler.addContext("status", status.name());
     profiler.stopInfo("Executed task");
   }
+
+  private static final class RunningState {
+    private final Thread runningThread;
+    private CeTask task;
+
+    private RunningState(Thread runningThread) {
+      this.runningThread = runningThread;
+    }
+
+    public Optional<CeTask> getTask() {
+      return Optional.ofNullable(task);
+    }
+
+    public void setTask(@Nullable CeTask task) {
+      this.task = task;
+    }
+  }
+
 }

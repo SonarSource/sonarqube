@@ -35,8 +35,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
+import org.sonar.ce.taskprocessor.CeWorkerController;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.ce.taskprocessor.EnabledCeWorkerController;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
@@ -61,8 +61,8 @@ public class CeTasksMBeanImplTest {
     })
     .collect(MoreCollectors.toSet());
 
-  private EnabledCeWorkerController enabledCeWorkerController = mock(EnabledCeWorkerController.class);
-  private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), enabledCeWorkerController);
+  private CeWorkerController ceWorkerController = mock(CeWorkerController.class);
+  private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), ceWorkerController);
 
   @Test
   public void register_and_unregister() throws Exception {
@@ -124,9 +124,9 @@ public class CeTasksMBeanImplTest {
     for (CeWorker worker : WORKERS) {
       if (i < enabledWorkerCount) {
         enabledWorkers[i] = worker;
-        when(enabledCeWorkerController.isEnabled(worker)).thenReturn(true);
+        when(ceWorkerController.isEnabled(worker)).thenReturn(true);
       } else {
-        when(enabledCeWorkerController.isEnabled(worker)).thenReturn(false);
+        when(ceWorkerController.isEnabled(worker)).thenReturn(false);
       }
       i++;
     }

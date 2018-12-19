@@ -17,25 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.task;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.core.platform.Module;
+import org.sonar.db.ce.CeActivityDto;
 
-public class CeTaskProcessorModule extends Module {
+/**
+ * This exception will stop the task and make it be archived with the {@link CeActivityDto.Status#FAILED FAILED}
+ * status and the error type {@code TIMEOUT}.
+ * <p>
+ * This exception has no stacktrace:
+ * <ul>
+ *   <li>it's irrelevant to the end user</li>
+ *   <li>we don't want to leak any implementation detail</li>
+ * </ul>
+ */
+public final class CeTaskTimeoutException extends CeTaskInterruptedException implements TypedException {
+
+  public CeTaskTimeoutException(String message) {
+    super(message, CeActivityDto.Status.FAILED);
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      new CeTaskInterrupterProvider(),
-      CeTaskInterrupterWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      CeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class
+  public String getType() {
+    return "TIMEOUT";
+  }
 
-    );
+  /**
+   * Does not fill in the stack trace
+   *
+   * @see Throwable#fillInStackTrace()
+   */
+  @Override
+  public synchronized Throwable fillInStackTrace() {
+    return this;
   }
 }

@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.core.util.logs.Profiler;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -33,6 +34,7 @@ public final class ComputationStepExecutor {
   private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
 
   private final ComputationSteps steps;
+  private final CeTaskInterrupter taskInterrupter;
   @CheckForNull
   private final Listener listener;
 
@@ -40,12 +42,13 @@ public final class ComputationStepExecutor {
    * Used when no {@link ComputationStepExecutor.Listener} is available in pico
    * container.
    */
-  public ComputationStepExecutor(ComputationSteps steps) {
-    this(steps, null);
+  public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter) {
+    this(steps, taskInterrupter, null);
   }
 
-  public ComputationStepExecutor(ComputationSteps steps, @Nullable Listener listener) {
+  public ComputationStepExecutor(ComputationSteps steps, CeTaskInterrupter taskInterrupter, @Nullable Listener listener) {
     this.steps = steps;
+    this.taskInterrupter = taskInterrupter;
     this.listener = listener;
   }
 
@@ -70,10 +73,11 @@ public final class ComputationStepExecutor {
     }
   }
 
-  private static void executeStep(Profiler stepProfiler, ComputationStep.Context context, ComputationStep step) {
+  private void executeStep(Profiler stepProfiler, ComputationStep.Context context, ComputationStep step) {
     String status = "FAILED";
     stepProfiler.start();
     try {
+      taskInterrupter.check(Thread.currentThread());
       step.execute(context);
       status = "SUCCESS";
     } finally {

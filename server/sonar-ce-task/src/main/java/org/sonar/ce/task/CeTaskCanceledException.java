@@ -17,25 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.task;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.core.platform.Module;
+import org.sonar.db.ce.CeActivityDto;
 
-public class CeTaskProcessorModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      new CeTaskInterrupterProvider(),
-      CeTaskInterrupterWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      CeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class
+import static java.lang.String.format;
 
-    );
+public final class CeTaskCanceledException extends CeTaskInterruptedException {
+  public CeTaskCanceledException(Thread thread) {
+    super(format("CeWorker executing in Thread '%s' has been interrupted", thread.getName()),
+      CeActivityDto.Status.CANCELED);
   }
 }

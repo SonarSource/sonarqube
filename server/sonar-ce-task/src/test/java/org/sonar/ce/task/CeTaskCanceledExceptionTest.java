@@ -17,25 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.task;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.db.ce.CeActivityDto;
 
-public class CeTaskProcessorModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      new CeTaskInterrupterProvider(),
-      CeTaskInterrupterWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      CeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThat;
 
-    );
+public class CeTaskCanceledExceptionTest {
+  @Test
+  public void message_is_based_on_specified_thread_name() {
+    Thread t = new Thread();
+    t.setName(randomAlphabetic(29));
+
+    CeTaskCanceledException underTest = new CeTaskCanceledException(t);
+
+    assertThat(underTest.getMessage()).isEqualTo("CeWorker executing in Thread '" + t.getName() + "' has been interrupted");
+  }
+
+  @Test
+  public void getStatus_returns_CANCELED() {
+    CeTaskCanceledException underTest = new CeTaskCanceledException(new Thread());
+
+    assertThat(underTest.getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 }

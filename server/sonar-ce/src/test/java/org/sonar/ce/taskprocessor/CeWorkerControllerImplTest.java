@@ -27,10 +27,12 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.configuration.CeConfigurationRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-public class EnabledCeWorkerControllerImplTest {
+public class CeWorkerControllerImplTest {
   private Random random = new Random();
   /** 1 <= workerCount <= 5 */
   private int randomWorkerCount = 1 + random.nextInt(5);
@@ -42,7 +44,7 @@ public class EnabledCeWorkerControllerImplTest {
   public LogTester logTester = new LogTester();
 
   private CeWorker ceWorker = mock(CeWorker.class);
-  private EnabledCeWorkerControllerImpl underTest = new EnabledCeWorkerControllerImpl(ceConfigurationRule);
+  private CeWorkerControllerImpl underTest = new CeWorkerControllerImpl(ceConfigurationRule);
 
   @Test
   public void isEnabled_returns_true_if_worker_ordinal_is_less_than_CeConfiguration_workerCount() {
@@ -76,7 +78,7 @@ public class EnabledCeWorkerControllerImplTest {
     ceConfigurationRule.setWorkerCount(1);
     logTester.clear();
 
-    new EnabledCeWorkerControllerImpl(ceConfigurationRule);
+    new CeWorkerControllerImpl(ceConfigurationRule);
 
     assertThat(logTester.logs()).isEmpty();
   }
@@ -87,7 +89,7 @@ public class EnabledCeWorkerControllerImplTest {
     ceConfigurationRule.setWorkerCount(newWorkerCount);
     logTester.clear();
 
-    new EnabledCeWorkerControllerImpl(ceConfigurationRule);
+    new CeWorkerControllerImpl(ceConfigurationRule);
 
     verifyInfoLog(newWorkerCount);
   }
@@ -101,6 +103,65 @@ public class EnabledCeWorkerControllerImplTest {
 
     ceConfigurationRule.setWorkerCount(2);
     assertThat(underTest.isEnabled(ceWorker)).isTrue();
+  }
+
+  @Test
+  public void getCeWorkerIn_returns_empty_if_worker_is_unregistered_in_CeWorkerController() {
+    CeWorker ceWorker = mock(CeWorker.class);
+    Thread currentThread = Thread.currentThread();
+    Thread otherThread = new Thread();
+
+    mockWorkerIsRunningOnNoThread(ceWorker);
+    assertThat(underTest.getCeWorkerIn(currentThread)).isEmpty();
+    assertThat(underTest.getCeWorkerIn(otherThread)).isEmpty();
+
+    mockWorkerIsRunningOnThread(ceWorker, currentThread);
+    assertThat(underTest.getCeWorkerIn(currentThread)).isEmpty();
+    assertThat(underTest.getCeWorkerIn(otherThread)).isEmpty();
+
+    mockWorkerIsRunningOnThread(ceWorker, otherThread);
+    assertThat(underTest.getCeWorkerIn(currentThread)).isEmpty();
+    assertThat(underTest.getCeWorkerIn(otherThread)).isEmpty();
+  }
+
+  @Test
+  public void getCeWorkerIn_returns_empty_if_worker_registered_in_CeWorkerController_but_has_no_current_thread() {
+    CeWorker ceWorker = mock(CeWorker.class);
+    Thread currentThread = Thread.currentThread();
+    Thread otherThread = new Thread();
+
+    underTest.registerProcessingFor(ceWorker);
+
+    mockWorkerIsRunningOnNoThread(ceWorker);
+    assertThat(underTest.getCeWorkerIn(currentThread)).isEmpty();
+    assertThat(underTest.getCeWorkerIn(otherThread)).isEmpty();
+  }
+
+  @Test
+  public void getCeWorkerIn_returns_thread_if_worker_registered_in_CeWorkerController_but_has_a_current_thread() {
+    CeWorker ceWorker = mock(CeWorker.class);
+    Thread currentThread = Thread.currentThread();
+    Thread otherThread = new Thread();
+
+    underTest.registerProcessingFor(ceWorker);
+
+    mockWorkerIsRunningOnThread(ceWorker, currentThread);
+    assertThat(underTest.getCeWorkerIn(currentThread)).contains(ceWorker);
+    assertThat(underTest.getCeWorkerIn(otherThread)).isEmpty();
+
+    mockWorkerIsRunningOnThread(ceWorker, otherThread);
+    assertThat(underTest.getCeWorkerIn(currentThread)).isEmpty();
+    assertThat(underTest.getCeWorkerIn(otherThread)).contains(ceWorker);
+  }
+
+  private void mockWorkerIsRunningOnThread(CeWorker ceWorker, Thread thread) {
+    reset(ceWorker);
+    when(ceWorker.isExecutedBy(thread)).thenReturn(true);
+  }
+
+  private void mockWorkerIsRunningOnNoThread(CeWorker ceWorker) {
+    reset(ceWorker);
+    when(ceWorker.isExecutedBy(any())).thenReturn(false);
   }
 
   private void verifyInfoLog(int workerCount) {

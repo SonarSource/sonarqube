@@ -17,25 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+package org.sonar.ce.task;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.core.platform.Module;
+/**
+ * Method {@link #check(Thread)} of the {@link CeTaskInterrupter} can be called during the processing of a
+ * {@link CeTask} to check whether processing of this task must be interrupted.
+ * <p>
+ * Interruption cause may be user cancelling the task, operator stopping the Compute Engine, execution running for
+ * too long, ...
+ */
+public interface CeTaskInterrupter {
+  /**
+   * @throws CeTaskInterruptedException if the execution of the task must be interrupted
+   */
+  void check(Thread currentThread) throws CeTaskInterruptedException;
 
-public class CeTaskProcessorModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      new CeTaskInterrupterProvider(),
-      CeTaskInterrupterWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      CeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class
+  /**
+   * Lets the interrupter know that the processing of the specified task has started.
+   */
+  void onStart(CeTask ceTask);
 
-    );
-  }
+  /**
+   * Lets the interrupter know that the processing of the specified task has ended.
+   */
+  void onEnd(CeTask ceTask);
 }

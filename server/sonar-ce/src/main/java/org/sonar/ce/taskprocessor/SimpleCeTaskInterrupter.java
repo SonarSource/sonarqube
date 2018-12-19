@@ -19,25 +19,32 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskCanceledException;
+import org.sonar.ce.task.CeTaskInterruptedException;
+import org.sonar.ce.task.CeTaskInterrupter;
+
 /**
- * This class is responsible of knowing/deciding which {@link CeWorker} is enabled and should actually try and find a
- * task to process.
+ * An implementation of {@link CeTaskInterrupter} which will only interrupt the processing if the current thread
+ * has been interrupted.
+ *
+ * @see Thread#isInterrupted()
  */
-public interface EnabledCeWorkerController {
-  interface ProcessingRecorderHook extends AutoCloseable {
+public class SimpleCeTaskInterrupter implements CeTaskInterrupter {
+  @Override
+  public void check(Thread currentThread) throws CeTaskInterruptedException {
+    if (currentThread.isInterrupted()) {
+      throw new CeTaskCanceledException(currentThread);
+    }
   }
 
-  /**
-   * Returns {@code true} if the specified {@link CeWorker} is enabled
-   */
-  boolean isEnabled(CeWorker ceWorker);
+  @Override
+  public void onStart(CeTask ceTask) {
+    // nothing to do
+  }
 
-  ProcessingRecorderHook registerProcessingFor(CeWorker ceWorker);
-
-  /**
-   * Whether at least one worker is being processed a task or not.
-   * Returns {@code false} when all workers are waiting for tasks
-   * or are being stopped.
-   */
-  boolean hasAtLeastOneProcessingWorker();
+  @Override
+  public void onEnd(CeTask ceTask) {
+    // nothing to do
+  }
 }

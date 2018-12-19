@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.taskprocessor;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
 import org.sonar.ce.queue.CeQueue;
@@ -32,6 +33,7 @@ import org.sonar.db.ce.CeActivityDto;
  * {@code false} otherwise.
  */
 public interface CeWorker extends Callable<CeWorker.Result> {
+
   enum Result {
     /** Worker is disabled */
     DISABLED,
@@ -50,6 +52,16 @@ public interface CeWorker extends Callable<CeWorker.Result> {
    * UUID of the current CeWorker.
    */
   String getUUID();
+
+  /**
+   * @return {@code true} if this CeWorker currently being executed by the specified {@link Thread}.
+   */
+  boolean isExecutedBy(Thread thread);
+
+  /**
+   * @return the {@link CeTask} currently being executed by this worker, if any.
+   */
+  Optional<CeTask> getCurrentTask();
 
   /**
    * Classes implementing will be called a task start and finishes executing.

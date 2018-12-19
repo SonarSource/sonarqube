@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 import org.picocontainer.Startable;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
+import org.sonar.ce.taskprocessor.CeWorkerController;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.ce.taskprocessor.EnabledCeWorkerController;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -35,13 +35,13 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
   private final CeWorkerFactory ceWorkerFactory;
-  private final EnabledCeWorkerController enabledCeWorkerController;
+  private final CeWorkerController ceWorkerController;
 
-  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration, CeWorkerFactory ceWorkerFactory, EnabledCeWorkerController enabledCeWorkerController) {
+  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration, CeWorkerFactory ceWorkerFactory, CeWorkerController CeWorkerController) {
     this.queueStatus = queueStatus;
     this.ceConfiguration = ceConfiguration;
     this.ceWorkerFactory = ceWorkerFactory;
-    this.enabledCeWorkerController = enabledCeWorkerController;
+    this.ceWorkerController = CeWorkerController;
   }
 
   @Override
@@ -105,7 +105,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   public List<String> getEnabledWorkerUuids() {
     Set<CeWorker> workers = ceWorkerFactory.getWorkers();
     return workers.stream()
-      .filter(enabledCeWorkerController::isEnabled)
+      .filter(ceWorkerController::isEnabled)
       .map(CeWorker::getUUID)
       .sorted()
       .collect(Collectors.toList());

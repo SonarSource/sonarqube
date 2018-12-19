@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 public class CeWorkerFactoryImplTest {
   private int randomOrdinal = new Random().nextInt(20);
   private CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class),
-    mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(EnabledCeWorkerController.class));
+    mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(CeWorkerController.class));
 
   @Test
   public void create_return_CeWorker_object_with_specified_ordinal() {
@@ -49,7 +49,7 @@ public class CeWorkerFactoryImplTest {
     CeWorker.ExecutionListener executionListener1 = mock(CeWorker.ExecutionListener.class);
     CeWorker.ExecutionListener executionListener2 = mock(CeWorker.ExecutionListener.class);
     CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class),
-      mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(EnabledCeWorkerController.class),
+      mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(CeWorkerController.class),
       new CeWorker.ExecutionListener[] {executionListener1, executionListener2});
 
     CeWorker ceWorker = underTest.create(randomOrdinal);

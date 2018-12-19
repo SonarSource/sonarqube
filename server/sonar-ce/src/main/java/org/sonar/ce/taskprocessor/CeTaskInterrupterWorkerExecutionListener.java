@@ -19,23 +19,26 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.core.platform.Module;
+import javax.annotation.Nullable;
+import org.sonar.ce.task.CeTask;
+import org.sonar.ce.task.CeTaskInterrupter;
+import org.sonar.ce.task.CeTaskResult;
+import org.sonar.db.ce.CeActivityDto;
 
-public class CeTaskProcessorModule extends Module {
+public class CeTaskInterrupterWorkerExecutionListener implements CeWorker.ExecutionListener {
+  private final CeTaskInterrupter interrupter;
+
+  public CeTaskInterrupterWorkerExecutionListener(CeTaskInterrupter interrupter) {
+    this.interrupter = interrupter;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeLoggingWorkerExecutionListener.class,
-      ReportAnalysisFailureNotificationExecutionListener.class,
-      new CeTaskInterrupterProvider(),
-      CeTaskInterrupterWorkerExecutionListener.class,
-      CeWorkerFactoryImpl.class,
-      CeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class
+  public void onStart(CeTask ceTask) {
+    interrupter.onStart(ceTask);
+  }
 
-    );
+  @Override
+  public void onEnd(CeTask ceTask, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+    interrupter.onEnd(ceTask);
   }
 }
