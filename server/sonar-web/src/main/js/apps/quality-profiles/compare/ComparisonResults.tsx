@@ -20,24 +20,21 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import ComparisonEmpty from './ComparisonEmpty';
+import ComparisonResultActivation from './ComparisonResultActivation';
 import SeverityIcon from '../../../components/icons-components/SeverityIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { CompareResponse, Profile } from '../../../api/quality-profiles';
+import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
+import ChevronLeftIcon from '../../../components/icons-components/ChevronLeftIcon';
 
 type Params = { [p: string]: string };
 
-interface Props {
-  left: { name: string };
-  right: { name: string };
-  inLeft: Array<{ key: string; name: string; severity: string }>;
-  inRight: Array<{ key: string; name: string; severity: string }>;
-  modified: Array<{
-    key: string;
-    name: string;
-    left: { params: Params; severity: string };
-    right: { params: Params; severity: string };
-  }>;
-  organization: string | null;
+interface Props extends CompareResponse {
+  organization?: string;
+  leftProfile: Profile;
+  refresh: () => Promise<void>;
+  rightProfile?: Profile;
 }
 
 export default class ComparisonResults extends React.PureComponent<Props> {
@@ -45,7 +42,9 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     return (
       <div>
         <SeverityIcon severity={severity} />{' '}
-        <Link to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}>{rule.name}</Link>
+        <Link to={getRulesUrl({ rule_key: rule.key, open: rule.key }, this.props.organization)}>
+          {rule.name}
+        </Link>
       </div>
     );
   }
@@ -90,7 +89,18 @@ export default class ComparisonResults extends React.PureComponent<Props> {
         {this.props.inLeft.map(rule => (
           <tr className="js-comparison-in-left" key={`left-${rule.key}`}>
             <td>{this.renderRule(rule, rule.severity)}</td>
-            <td>&nbsp;</td>
+            <td>
+              {this.props.rightProfile && (
+                <ComparisonResultActivation
+                  key={rule.key}
+                  onDone={this.props.refresh}
+                  organization={this.props.organization || undefined}
+                  profile={this.props.rightProfile}
+                  ruleKey={rule.key}>
+                  <ChevronRightIcon />
+                </ComparisonResultActivation>
+              )}
+            </td>
           </tr>
         ))}
       </>
@@ -117,7 +127,16 @@ export default class ComparisonResults extends React.PureComponent<Props> {
         </tr>
         {this.props.inRight.map(rule => (
           <tr className="js-comparison-in-right" key={`right-${rule.key}`}>
-            <td>&nbsp;</td>
+            <td className="text-right">
+              <ComparisonResultActivation
+                key={rule.key}
+                onDone={this.props.refresh}
+                organization={this.props.organization || undefined}
+                profile={this.props.leftProfile}
+                ruleKey={rule.key}>
+                <ChevronLeftIcon />
+              </ComparisonResultActivation>
+            </td>
             <td>{this.renderRule(rule, rule.severity)}</td>
           </tr>
         ))}

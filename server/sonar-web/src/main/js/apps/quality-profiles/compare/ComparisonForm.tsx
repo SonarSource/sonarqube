@@ -30,9 +30,9 @@ interface Props {
 }
 
 export default class ComparisonForm extends React.PureComponent<Props> {
-  handleChange(option: { value: string }) {
+  handleChange = (option: { value: string }) => {
     this.props.onCompare(option.value);
-  }
+  };
 
   render() {
     const { profile, profiles, withKey } = this.props;
@@ -46,7 +46,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
         <Select
           className="input-large"
           clearable={false}
-          onChange={this.handleChange.bind(this)}
+          onChange={this.handleChange}
           options={options}
           placeholder={translate('select_verb')}
           value={withKey}

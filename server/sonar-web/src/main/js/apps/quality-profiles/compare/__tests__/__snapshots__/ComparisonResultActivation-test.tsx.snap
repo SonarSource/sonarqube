@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should activate 1`] = `
+<DeferredSpinner
+  loading={false}
+  timeout={100}
+>
+  <Button
+    disabled={false}
+    onClick={[Function]}
+  />
+</DeferredSpinner>
+`;
+
+exports[`should activate 2`] = `
+<DeferredSpinner
+  loading={true}
+  timeout={100}
+>
+  <Button
+    disabled={true}
+    onClick={[Function]}
+  />
+</DeferredSpinner>
+`;
+
+exports[`should activate 3`] = `
+<DeferredSpinner
+  loading={false}
+  timeout={100}
+>
+  <Button
+    disabled={true}
+    onClick={[Function]}
+  />
+  <ActivationFormModal
+    modalHeader="coding_rules.activate_in_quality_profile"
+    onClose={[Function]}
+    onDone={[MockFunction]}
+    profiles={
+      Array [
+        Object {
+          "actions": Object {
+            "edit": true,
+          },
+          "key": "profile-key",
+        },
+      ]
+    }
+  />
+</DeferredSpinner>
+`;
+
+exports[`should activate 4`] = `
+<DeferredSpinner
+  loading={false}
+  timeout={100}
+>
+  <Button
+    disabled={false}
+    onClick={[Function]}
+  />
+</DeferredSpinner>
+`;

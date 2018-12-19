@@ -161,7 +161,20 @@ export function getProfileChangelog(data: RequestData): Promise<any> {
   return getJSON('/api/qualityprofiles/changelog', data);
 }
 
-export function compareProfiles(leftKey: string, rightKey: string): Promise<any> {
+export interface CompareResponse {
+  left: { name: string };
+  right: { name: string };
+  inLeft: Array<{ key: string; name: string; severity: string }>;
+  inRight: Array<{ key: string; name: string; severity: string }>;
+  modified: Array<{
+    key: string;
+    name: string;
+    left: { params: { [p: string]: string }; severity: string };
+    right: { params: { [p: string]: string }; severity: string };
+  }>;
+}
+
+export function compareProfiles(leftKey: string, rightKey: string): Promise<CompareResponse> {
   return getJSON('/api/qualityprofiles/compare', { leftKey, rightKey });
 }
 

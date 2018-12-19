@@ -36,7 +36,6 @@ interface Props {
   organization: string | undefined;
   profiles: BaseProfile[];
   rule: T.Rule | T.RuleDetails;
-  updateMode?: boolean;
 }
 
 interface State {

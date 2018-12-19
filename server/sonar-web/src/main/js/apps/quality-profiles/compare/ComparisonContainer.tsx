@@ -21,31 +21,18 @@ import * as React from 'react';
 import { withRouter, WithRouterProps } from 'react-router';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
-import { compareProfiles } from '../../../api/quality-profiles';
+import { compareProfiles, CompareResponse } from '../../../api/quality-profiles';
 import { getProfileComparePath } from '../utils';
 import { Profile } from '../types';
 
 interface Props extends WithRouterProps {
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   profiles: Profile[];
 }
 
-type Params = { [p: string]: string };
-
-interface State {
-  loading: boolean;
-  left?: { name: string };
-  right?: { name: string };
-  inLeft?: Array<{ key: string; name: string; severity: string }>;
-  inRight?: Array<{ key: string; name: string; severity: string }>;
-  modified?: Array<{
-    key: string;
-    name: string;
-    left: { params: Params; severity: string };
-    right: { params: Params; severity: string };
-  }>;
-}
+type State = { loading: boolean } & Partial<CompareResponse>;
+type StateWithResults = { loading: boolean } & CompareResponse;
 
 class ComparisonContainer extends React.PureComponent<Props, State> {
   mounted = false;
@@ -66,27 +53,27 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  loadResults() {
+  loadResults = () => {
     const { withKey } = this.props.location.query;
     if (!withKey) {
       this.setState({ left: undefined, loading: false });
-      return;
+      return Promise.resolve();
     }
 
     this.setState({ loading: true });
-    compareProfiles(this.props.profile.key, withKey).then((r: any) => {
-      if (this.mounted) {
-        this.setState({
-          left: r.left,
-          right: r.right,
-          inLeft: r.inLeft,
-          inRight: r.inRight,
-          modified: r.modified,
-          loading: false
-        });
+    return compareProfiles(this.props.profile.key, withKey).then(
+      ({ left, right, inLeft, inRight, modified }) => {
+        if (this.mounted) {
+          this.setState({ left, right, inLeft, inRight, modified, loading: false });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
-  }
+    );
+  };
 
   handleCompare = (withKey: string) => {
     const path = getProfileComparePath(
@@ -98,10 +85,13 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
     this.props.router.push(path);
   };
 
+  hasResults(state: State): state is StateWithResults {
+    return state.left !== undefined;
+  }
+
   render() {
     const { profile, profiles, location } = this.props;
     const { withKey } = location.query;
-    const { left, right, inLeft, inRight, modified } = this.state;
 
     return (
       <div className="boxed-group boxed-group-inner js-profile-comparison">
@@ -116,22 +106,21 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
           {this.state.loading && <i className="spinner spacer-left" />}
         </header>
 
-        {left != null &&
-          inLeft != null &&
-          right != null &&
-          inRight != null &&
-          modified != null && (
-            <div className="spacer-top">
-              <ComparisonResults
-                inLeft={inLeft}
-                inRight={inRight}
-                left={left}
-                modified={modified}
-                organization={this.props.organization}
-                right={right}
-              />
-            </div>
-          )}
+        {this.hasResults(this.state) && (
+          <div className="spacer-top">
+            <ComparisonResults
+              inLeft={this.state.inLeft}
+              inRight={this.state.inRight}
+              left={this.state.left}
+              leftProfile={profile}
+              modified={this.state.modified}
+              organization={this.props.organization}
+              refresh={this.loadResults}
+              right={this.state.right}
+              rightProfile={profiles.find(p => p.key === withKey)}
+            />
+          </div>
+        )}
       </div>
     );
   }

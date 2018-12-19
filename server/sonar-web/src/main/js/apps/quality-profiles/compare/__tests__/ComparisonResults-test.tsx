@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import ComparisonResults from '../ComparisonResults';
 import ComparisonEmpty from '../ComparisonEmpty';
+import { Profile } from '../../../../api/quality-profiles';
 
 it('should render ComparisonEmpty', () => {
   const output = shallow(
@@ -29,8 +30,9 @@ it('should render ComparisonEmpty', () => {
       inLeft={[]}
       inRight={[]}
       left={{ name: 'left' }}
+      leftProfile={{} as Profile}
       modified={[]}
-      organization={null}
+      refresh={jest.fn()}
       right={{ name: 'right' }}
     />
   );
@@ -63,8 +65,9 @@ it('should compare', () => {
       inLeft={inLeft}
       inRight={inRight}
       left={{ name: 'left' }}
+      leftProfile={{} as Profile}
       modified={modified}
-      organization={null}
+      refresh={jest.fn()}
       right={{ name: 'right' }}
     />
   );
@@ -72,7 +75,10 @@ it('should compare', () => {
   const leftDiffs = output.find('.js-comparison-in-left');
   expect(leftDiffs.length).toBe(1);
   expect(leftDiffs.find(Link).length).toBe(1);
-  expect(leftDiffs.find(Link).prop('to')).toHaveProperty('query', { rule_key: 'rule1' });
+  expect(leftDiffs.find(Link).prop('to')).toHaveProperty('query', {
+    rule_key: 'rule1',
+    open: 'rule1'
+  });
   expect(leftDiffs.find(Link).prop('children')).toContain('rule1');
   expect(leftDiffs.find('SeverityIcon').length).toBe(1);
   expect(leftDiffs.find('SeverityIcon').prop('severity')).toBe('BLOCKER');
@@ -85,7 +91,7 @@ it('should compare', () => {
       .at(0)
       .find(Link)
       .prop('to')
-  ).toHaveProperty('query', { rule_key: 'rule2' });
+  ).toHaveProperty('query', { rule_key: 'rule2', open: 'rule2' });
   expect(
     rightDiffs
       .at(0)
@@ -107,7 +113,7 @@ it('should compare', () => {
       .find(Link)
       .at(0)
       .prop('to')
-  ).toHaveProperty('query', { rule_key: 'rule4' });
+  ).toHaveProperty('query', { rule_key: 'rule4', open: 'rule4' });
   expect(
     modifiedDiffs
       .find(Link)

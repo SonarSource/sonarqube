@@ -31,7 +31,6 @@ interface Props {
   organization: string | undefined;
   profiles: BaseProfile[];
   rule: T.Rule | T.RuleDetails;
-  updateMode?: boolean;
 }
 
 interface State {
@@ -39,16 +38,7 @@ interface State {
 }
 
 export default class ActivationButton extends React.PureComponent<Props, State> {
-  mounted = false;
   state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
 
   handleButtonClick = () => {
     this.setState({ modal: true });
@@ -77,7 +67,6 @@ export default class ActivationButton extends React.PureComponent<Props, State> 
             organization={this.props.organization}
             profiles={this.props.profiles}
             rule={this.props.rule}
-            updateMode={this.props.updateMode}
           />
         )}
       </>
