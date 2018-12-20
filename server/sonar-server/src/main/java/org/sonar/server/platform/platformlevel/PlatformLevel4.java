@@ -121,9 +121,7 @@ import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.monitoring.WebSystemInfoModule;
 import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
-import org.sonar.server.platform.ws.ChangeLogLevelAction;
-import org.sonar.server.platform.ws.ChangeLogLevelClusterService;
-import org.sonar.server.platform.ws.ChangeLogLevelStandaloneService;
+import org.sonar.server.platform.ws.ChangeLogLevelActionModule;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.HealthActionModule;
 import org.sonar.server.platform.ws.L10nWs;
@@ -256,11 +254,7 @@ public class PlatformLevel4 extends PlatformLevel {
       MetadataIndex.class,
       EsDbCompatibilityImpl.class);
 
-    addIfCluster(
-      NodeHealthModule.class,
-      ChangeLogLevelClusterService.class);
-    addIfStandalone(
-      ChangeLogLevelStandaloneService.class);
+    addIfCluster(NodeHealthModule.class);
 
     add(
       ClusterVerification.class,
@@ -513,7 +507,7 @@ public class PlatformLevel4 extends PlatformLevel {
       StatusAction.class,
       MigrateDbAction.class,
       LogsAction.class,
-      ChangeLogLevelAction.class,
+      ChangeLogLevelActionModule.class,
       DbMigrationStatusAction.class,
       HealthActionModule.class,
       SystemWs.class,
