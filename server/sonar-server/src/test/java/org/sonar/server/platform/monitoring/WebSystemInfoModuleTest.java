@@ -19,23 +19,81 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Collection;
+import javax.annotation.Nullable;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.picocontainer.ComponentAdapter;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.platform.WebServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
+@RunWith(DataProviderRunner.class)
 public class WebSystemInfoModuleTest {
+  private WebServer webServer = mock(WebServer.class);
+  private MapSettings settings = new MapSettings();
+  private WebSystemInfoModule underTest = new WebSystemInfoModule(settings.asConfig(), webServer);
 
   @Test
-  public void test_forStandaloneMode() {
-    assertThat(WebSystemInfoModule.forStandaloneMode())
-      .isNotEmpty()
-      .doesNotContainNull();
+  @UseDataProvider("notOnSonarCloud")
+  public void verify_system_info_configuration_in_cluster_mode(@Nullable Boolean notOnSonarCloud) {
+    when(webServer.isStandalone()).thenReturn(false);
+    if (notOnSonarCloud != null) {
+      settings.setProperty("sonar.sonarcloud.enabled", notOnSonarCloud);
+    }
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
+    assertThat(adapters)
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 18);
   }
 
   @Test
-  public void test_forClusterMode() {
-    assertThat(WebSystemInfoModule.forClusterMode())
-      .isNotEmpty()
-      .doesNotContainNull();
+  @UseDataProvider("notOnSonarCloud")
+  public void verify_system_info_configuration_in_standalone_mode(@Nullable Boolean notOnSonarCloud) {
+    when(webServer.isStandalone()).thenReturn(true);
+    if (notOnSonarCloud != null) {
+      settings.setProperty("sonar.sonarcloud.enabled", notOnSonarCloud);
+    }
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    verifyConfigurationStandaloneSQ(container);
+  }
+
+  @Test
+  public void verify_system_info_configuration_on_SonarCloud() {
+    when(webServer.isStandalone()).thenReturn(false);
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    verifyConfigurationStandaloneSQ(container);
+  }
+
+  public void verifyConfigurationStandaloneSQ(ComponentContainer container) {
+    Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
+    assertThat(adapters)
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
+  }
+
+  @DataProvider
+  public static Object[][] notOnSonarCloud() {
+    return new Object[][] {
+      {null},
+      {false}
+    };
   }
 }

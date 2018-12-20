@@ -19,65 +19,71 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import org.sonar.api.config.Configuration;
+import org.sonar.core.platform.Module;
 import org.sonar.process.systeminfo.JvmPropertiesSection;
 import org.sonar.process.systeminfo.JvmStateSection;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoaderImpl;
 import org.sonar.server.platform.monitoring.cluster.CeQueueGlobalSection;
+import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
-import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
 import org.sonar.server.platform.ws.ClusterSystemInfoWriter;
 import org.sonar.server.platform.ws.InfoAction;
 import org.sonar.server.platform.ws.StandaloneSystemInfoWriter;
 
-public class WebSystemInfoModule {
+public class WebSystemInfoModule extends Module {
+  private final Configuration configuration;
+  private final WebServer webServer;
 
-  private WebSystemInfoModule() {
-    // do not instantiate
+  public WebSystemInfoModule(Configuration configuration, WebServer webServer) {
+    this.configuration = configuration;
+    this.webServer = webServer;
   }
 
-  public static Object[] forStandaloneMode() {
-    return new Object[] {
+  @Override
+  protected void configureModule() {
+    boolean sonarcloud = configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false);
+    boolean standalone = webServer.isStandalone();
+
+    add(
       new JvmPropertiesSection("Web JVM Properties"),
       new JvmStateSection("Web JVM State"),
       DbSection.class,
       DbConnectionSection.class,
-      EsStateSection.class,
       EsIndexesSection.class,
       LoggingSection.class,
       PluginsSection.class,
       SettingsSection.class,
-      StandaloneSystemSection.class,
-
-      StandaloneSystemInfoWriter.class,
       InfoAction.class
-    };
+
+      );
+    if (standalone || sonarcloud) {
+      add(
+        EsStateSection.class,
+        StandaloneSystemSection.class,
+        StandaloneSystemInfoWriter.class
+
+      );
+    } else {
+      add(
+        CeQueueGlobalSection.class,
+        EsClusterStateSection.class,
+        GlobalSystemSection.class,
+        NodeSystemSection.class,
+
+        ProcessInfoProvider.class,
+        GlobalInfoLoader.class,
+        AppNodesInfoLoaderImpl.class,
+        SearchNodesInfoLoaderImpl.class,
+        ClusterSystemInfoWriter.class
+
+      );
+    }
   }
 
-  public static Object[] forClusterMode() {
-    return new Object[] {
-      new JvmPropertiesSection("Web JVM Properties"),
-      new JvmStateSection("Web JVM State"),
-      CeQueueGlobalSection.class,
-      DbSection.class,
-      DbConnectionSection.class,
-      EsIndexesSection.class,
-      EsClusterStateSection.class,
-      GlobalSystemSection.class,
-      LoggingSection.class,
-      NodeSystemSection.class,
-      PluginsSection.class,
-      SettingsSection.class,
-
-      ProcessInfoProvider.class,
-      GlobalInfoLoader.class,
-      AppNodesInfoLoaderImpl.class,
-      SearchNodesInfoLoaderImpl.class,
-      ClusterSystemInfoWriter.class,
-      InfoAction.class
-    };
-  }
 }

@@ -572,7 +572,7 @@ public class PlatformLevel4 extends PlatformLevel {
     addIfStartupLeader(TelemetryDaemon.class, TelemetryClient.class);
 
     // system info
-    addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());
+    add(WebSystemInfoModule.class);
 
     addAll(level4AddedComponents);
   }
