@@ -109,7 +109,7 @@ import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGenerator;
-import org.sonar.scanner.scan.filesystem.ProjectCoverageExclusions;
+import org.sonar.scanner.scan.filesystem.ProjectCoverageAndDuplicationExclusions;
 import org.sonar.scanner.scan.filesystem.ProjectExclusionFilters;
 import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
@@ -244,7 +244,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ScannerProperties.class,
       new ProjectConfigurationProvider(),
 
-      ProjectCoverageExclusions.class,
+      ProjectCoverageAndDuplicationExclusions.class,
 
       // Report
       ScannerMetrics.class,

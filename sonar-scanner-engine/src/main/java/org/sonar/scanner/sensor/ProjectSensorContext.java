@@ -186,7 +186,7 @@ public class ProjectSensorContext implements SensorContext {
     if (analysisMode.isIssues()) {
       return NO_OP_NEW_CPD_TOKENS;
     }
-    return new DefaultCpdTokens(config, sensorStorage);
+    return new DefaultCpdTokens(sensorStorage);
   }
 
   @Override

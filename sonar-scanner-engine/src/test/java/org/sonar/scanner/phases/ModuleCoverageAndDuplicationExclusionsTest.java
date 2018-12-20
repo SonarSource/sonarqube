@@ -24,21 +24,22 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.scan.ModuleConfiguration;
-import org.sonar.scanner.scan.filesystem.ModuleCoverageExclusions;
+import org.sonar.scanner.scan.filesystem.ModuleCoverageAndDuplicationExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ModuleCoverageExclusionsTest {
+public class ModuleCoverageAndDuplicationExclusionsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ModuleCoverageExclusions coverageExclusions;
+  private ModuleCoverageAndDuplicationExclusions coverageExclusions;
   private File baseDir;
 
   @Before
@@ -51,8 +52,8 @@ public class ModuleCoverageExclusionsTest {
     DefaultInputFile file = TestInputFileBuilder.create("foo", new File(baseDir, "moduleA"), new File(baseDir, "moduleA/src/org/polop/File.php"))
       .setProjectBaseDir(baseDir.toPath())
       .build();
-    coverageExclusions = new ModuleCoverageExclusions(mockConfig("src/org/polop/*"));
-    assertThat(coverageExclusions.isExcluded(file)).isTrue();
+    coverageExclusions = new ModuleCoverageAndDuplicationExclusions(mockConfig("src/org/polop/*", ""));
+    assertThat(coverageExclusions.isExcludedForCoverage(file)).isTrue();
   }
 
   @Test
@@ -60,13 +61,14 @@ public class ModuleCoverageExclusionsTest {
     DefaultInputFile file = TestInputFileBuilder.create("foo", new File(baseDir, "moduleA"), new File(baseDir, "moduleA/src/org/polop/File.php"))
       .setProjectBaseDir(baseDir.toPath())
       .build();
-    coverageExclusions = new ModuleCoverageExclusions(mockConfig("src/org/other/*"));
-    assertThat(coverageExclusions.isExcluded(file)).isFalse();
+    coverageExclusions = new ModuleCoverageAndDuplicationExclusions(mockConfig("src/org/other/*", ""));
+    assertThat(coverageExclusions.isExcludedForCoverage(file)).isFalse();
   }
 
-  private ModuleConfiguration mockConfig(String... values) {
+  private ModuleConfiguration mockConfig(String coverageExclusions, String cpdExclusions) {
     ModuleConfiguration config = mock(ModuleConfiguration.class);
-    when(config.getStringArray("sonar.coverage.exclusions")).thenReturn(values);
+    when(config.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)).thenReturn(new String[] {coverageExclusions});
+    when(config.getStringArray(CoreProperties.CPD_EXCLUSIONS)).thenReturn(new String[] {cpdExclusions});
     return config;
   }
 }

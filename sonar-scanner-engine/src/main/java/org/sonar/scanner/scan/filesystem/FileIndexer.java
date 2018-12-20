@@ -51,7 +51,7 @@ public class FileIndexer {
   private final ScanProperties properties;
   private final InputFileFilter[] filters;
   private final ProjectExclusionFilters projectExclusionFilters;
-  private final ProjectCoverageExclusions projectCoverageExclusions;
+  private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final MetadataGenerator metadataGenerator;
   private final DefaultInputProject project;
@@ -62,15 +62,16 @@ public class FileIndexer {
 
   private boolean warnExclusionsAlreadyLogged;
   private boolean warnCoverageExclusionsAlreadyLogged;
+  private boolean warnDuplicationExclusionsAlreadyLogged;
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageExclusions projectCoverageExclusions, IssueExclusionsLoader issueExclusionsLoader,
-    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
-    InputFileFilter[] filters) {
+                     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
+                     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
+                     InputFileFilter[] filters) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
-    this.projectCoverageExclusions = projectCoverageExclusions;
+    this.projectCoverageAndDuplicationExclusions = projectCoverageAndDuplicationExclusions;
     this.issueExclusionsLoader = issueExclusionsLoader;
     this.metadataGenerator = metadataGenerator;
     this.sensorStrategy = sensorStrategy;
@@ -82,17 +83,17 @@ public class FileIndexer {
   }
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageExclusions projectCoverageExclusions, IssueExclusionsLoader issueExclusionsLoader,
-    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
-    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageExclusions, issueExclusionsLoader, metadataGenerator, sensorStrategy,
+                     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
+                     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
+    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader, metadataGenerator, sensorStrategy,
       languageDetection,
       analysisWarnings,
       properties, new InputFileFilter[0]);
   }
 
-  public void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageExclusions moduleCoverageExclusions, Path sourceFile,
-    InputFile.Type type, ProgressReport progressReport,
-    AtomicInteger excludedByPatternsCount)
+  public void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path sourceFile,
+                        InputFile.Type type, ProgressReport progressReport,
+                        AtomicInteger excludedByPatternsCount)
     throws IOException {
     // get case of real file without resolving link
     Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
@@ -136,7 +137,8 @@ public class FileIndexer {
     componentStore.put(module.key(), inputFile);
     issueExclusionsLoader.addMulticriteriaPatterns(inputFile);
     LOG.debug("'{}' indexed {}with language '{}'", projectRelativePath, type == Type.TEST ? "as test " : "", inputFile.language());
-    evaluateCoverageExclusions(moduleCoverageExclusions, inputFile);
+    evaluateCoverageExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
+    evaluateDuplicationExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     if (properties.preloadFileMetadata()) {
       inputFile.checkMetadata();
     }
@@ -151,19 +153,35 @@ public class FileIndexer {
     }
   }
 
-  private void evaluateCoverageExclusions(ModuleCoverageExclusions moduleCoverageExclusions, DefaultInputFile inputFile) {
-    boolean excludedByProjectConfiguration = projectCoverageExclusions.isExcluded(inputFile);
+  private void evaluateCoverageExclusions(ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, DefaultInputFile inputFile) {
+    boolean excludedByProjectConfiguration = projectCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile);
     if (excludedByProjectConfiguration) {
       inputFile.setExcludedForCoverage(true);
       LOG.debug("File {} excluded for coverage", inputFile);
-    } else if (moduleCoverageExclusions.isExcluded(inputFile)) {
+    } else if (moduleCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile)) {
       inputFile.setExcludedForCoverage(true);
-      if (Arrays.equals(moduleCoverageExclusions.getCoverageExclusionConfig(), projectCoverageExclusions.getCoverageExclusionConfig())) {
+      if (Arrays.equals(moduleCoverageAndDuplicationExclusions.getCoverageExclusionConfig(), projectCoverageAndDuplicationExclusions.getCoverageExclusionConfig())) {
         warnOnceDeprecatedCoverageExclusion(
           "Specifying module-relative paths at project level in the property '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' is deprecated. " +
             "To continue matching files like '" + inputFile + "', update this property so that patterns refer to project-relative paths.");
       }
       LOG.debug("File {} excluded for coverage", inputFile);
+    }
+  }
+
+  private void evaluateDuplicationExclusions(ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, DefaultInputFile inputFile) {
+    boolean excludedByProjectConfiguration = projectCoverageAndDuplicationExclusions.isExcludedForDuplication(inputFile);
+    if (excludedByProjectConfiguration) {
+      inputFile.setExcludedForDuplication(true);
+      LOG.debug("File {} excluded for duplication", inputFile);
+    } else if (moduleCoverageAndDuplicationExclusions.isExcludedForDuplication(inputFile)) {
+      inputFile.setExcludedForDuplication(true);
+      if (Arrays.equals(moduleCoverageAndDuplicationExclusions.getDuplicationExclusionConfig(), projectCoverageAndDuplicationExclusions.getDuplicationExclusionConfig())) {
+        warnOnceDeprecatedDuplicationExclusion(
+          "Specifying module-relative paths at project level in the property '" + CoreProperties.CPD_EXCLUSIONS + "' is deprecated. " +
+            "To continue matching files like '" + inputFile + "', update this property so that patterns refer to project-relative paths.");
+      }
+      LOG.debug("File {} excluded for duplication", inputFile);
     }
   }
 
@@ -180,6 +198,14 @@ public class FileIndexer {
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);
       warnCoverageExclusionsAlreadyLogged = true;
+    }
+  }
+
+  private void warnOnceDeprecatedDuplicationExclusion(String msg) {
+    if (!warnDuplicationExclusionsAlreadyLogged) {
+      LOG.warn(msg);
+      analysisWarnings.addUnique(msg);
+      warnDuplicationExclusionsAlreadyLogged = true;
     }
   }
 

@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,41 +29,59 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.WildcardPattern;
 
+import static java.util.stream.Collectors.toList;
+
 @Immutable
-public abstract class AbstractCoverageExclusions {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractCoverageExclusions.class);
+public abstract class AbstractCoverageAndDuplicationExclusions {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractCoverageAndDuplicationExclusions.class);
   private final Function<DefaultInputFile, String> pathExtractor;
   private final String[] coverageExclusionConfig;
+  private final String[] duplicationExclusionConfig;
 
-  private Collection<WildcardPattern> exclusionPatterns;
+  private final Collection<WildcardPattern> coverageExclusionPatterns;
+  private final Collection<WildcardPattern> duplicationExclusionPatterns;
 
-  public AbstractCoverageExclusions(Function<String, String[]> configProvider, Function<DefaultInputFile, String> pathExtractor) {
+  public AbstractCoverageAndDuplicationExclusions(Function<String, String[]> configProvider, Function<DefaultInputFile, String> pathExtractor) {
     this.pathExtractor = pathExtractor;
-    Builder<WildcardPattern> builder = ImmutableList.builder();
     coverageExclusionConfig = configProvider.apply(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY);
-    for (String pattern : coverageExclusionConfig) {
-      builder.add(WildcardPattern.create(pattern));
-    }
-    exclusionPatterns = builder.build();
+    coverageExclusionPatterns = Stream.of(coverageExclusionConfig).map(WildcardPattern::create).collect(toList());
+    duplicationExclusionConfig = configProvider.apply(CoreProperties.CPD_EXCLUSIONS);
+    duplicationExclusionPatterns = Stream.of(duplicationExclusionConfig).map(WildcardPattern::create).collect(toList());
   }
 
   public String[] getCoverageExclusionConfig() {
     return coverageExclusionConfig;
   }
 
+  public String[] getDuplicationExclusionConfig() {
+    return duplicationExclusionConfig;
+  }
+
   void log() {
-    if (!exclusionPatterns.isEmpty()) {
-      log("Excluded sources for coverage: ", exclusionPatterns);
+    if (!coverageExclusionPatterns.isEmpty()) {
+      log("Excluded sources for coverage: ", coverageExclusionPatterns);
+    }
+    if (!duplicationExclusionPatterns.isEmpty()) {
+      log("Excluded sources for duplication: ", duplicationExclusionPatterns);
     }
   }
 
-  public boolean isExcluded(DefaultInputFile file) {
-    boolean found = false;
-    Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();
-    while (!found && iterator.hasNext()) {
-      found = iterator.next().match(pathExtractor.apply(file));
+  public boolean isExcludedForCoverage(DefaultInputFile file) {
+    return isExcluded(file, coverageExclusionPatterns);
+  }
+
+  public boolean isExcludedForDuplication(DefaultInputFile file) {
+    return isExcluded(file, duplicationExclusionPatterns);
+  }
+
+  private boolean isExcluded(DefaultInputFile file, Collection<WildcardPattern> patterns) {
+    if (patterns.isEmpty()) {
+      return false;
     }
-    return found;
+    final String path = pathExtractor.apply(file);
+    return patterns
+      .stream()
+      .anyMatch(p -> p.match(path));
   }
 
   private static void log(String title, Collection<WildcardPattern> patterns) {

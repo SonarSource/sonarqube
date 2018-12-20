@@ -60,6 +60,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Metadata metadata;
   private boolean published;
   private boolean excludedForCoverage;
+  private boolean excludedForDuplication;
   private final Set<Integer> noSonarLines = new HashSet<>();
   private boolean ignoreAllIssues;
   private Collection<int[]> ignoreIssuesOnlineRanges = new ArrayList<>();
@@ -125,6 +126,15 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   public boolean isExcludedForCoverage() {
     return excludedForCoverage;
+  }
+
+  public DefaultInputFile setExcludedForDuplication(boolean excludedForDuplication) {
+    this.excludedForDuplication = excludedForDuplication;
+    return this;
+  }
+
+  public boolean isExcludedForDuplication() {
+    return excludedForDuplication;
   }
 
   /**

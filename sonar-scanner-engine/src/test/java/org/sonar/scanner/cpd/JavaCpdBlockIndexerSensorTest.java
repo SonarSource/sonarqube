@@ -32,8 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.duplications.block.Block;
@@ -57,7 +56,7 @@ public class JavaCpdBlockIndexerSensorTest {
   @Captor
   private ArgumentCaptor<List<Block>> blockCaptor;
 
-  private InputFile file;
+  private DefaultInputFile file;
 
   @Before
   public void prepare() throws IOException {
@@ -75,7 +74,7 @@ public class JavaCpdBlockIndexerSensorTest {
 
   @Test
   public void testExclusions() {
-    context.settings().setProperty(CoreProperties.CPD_EXCLUSIONS, "**");
+    file.setExcludedForDuplication(true);
     new JavaCpdBlockIndexerSensor(index).execute(context);
     verifyZeroInteractions(index);
   }

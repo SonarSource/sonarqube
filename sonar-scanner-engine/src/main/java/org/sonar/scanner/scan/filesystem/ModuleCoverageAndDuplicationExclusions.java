@@ -24,9 +24,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.scan.ModuleConfiguration;
 
 @Immutable
-public class ModuleCoverageExclusions extends AbstractCoverageExclusions {
+public class ModuleCoverageAndDuplicationExclusions extends AbstractCoverageAndDuplicationExclusions {
 
-  public ModuleCoverageExclusions(ModuleConfiguration moduleConfiguration) {
+  public ModuleCoverageAndDuplicationExclusions(ModuleConfiguration moduleConfiguration) {
     super(moduleConfiguration::getStringArray, DefaultInputFile::getModuleRelativePath);
   }
 }

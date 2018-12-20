@@ -67,7 +67,6 @@ public class CoverageMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -103,7 +102,6 @@ public class CoverageMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -141,7 +139,6 @@ public class CoverageMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -169,35 +166,34 @@ public class CoverageMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    File xooUtCoverageFileA = new File(srcDirA, "sample.xoo.coverage");
+    File xooFileA = new File(srcDirA, "sampleA.xoo");
+    File xooUtCoverageFileA = new File(srcDirA, "sampleA.xoo.coverage");
     FileUtils.write(xooFileA, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(xooUtCoverageFileA, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    File xooUtCoverageFileB = new File(srcDirB, "sample.xoo.coverage");
+    File xooFileB = new File(srcDirB, "sampleB.xoo");
+    File xooUtCoverageFileB = new File(srcDirB, "sampleB.xoo.coverage");
     FileUtils.write(xooFileB, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
     FileUtils.write(xooUtCoverageFileB, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
         .put("sonar.modules", "moduleA,moduleB")
-        .put("sonar.coverage.exclusions", "src/sample.xoo")
+        .put("sonar.coverage.exclusions", "src/sampleA.xoo")
         .build())
       .execute();
 
-    InputFile fileA = result.inputFile("moduleA/src/sample.xoo");
+    InputFile fileA = result.inputFile("moduleA/src/sampleA.xoo");
     assertThat(result.coverageFor(fileA, 2)).isNull();
 
-    InputFile fileB = result.inputFile("moduleB/src/sample.xoo");
-    assertThat(result.coverageFor(fileB, 2)).isNull();
+    InputFile fileB = result.inputFile("moduleB/src/sampleB.xoo");
+    assertThat(result.coverageFor(fileB, 2)).isNotNull();
 
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.coverage.exclusions' is deprecated. " +
-      "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
+      "To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
   }
 
   @Test
@@ -225,7 +221,6 @@ public class CoverageMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -257,7 +252,6 @@ public class CoverageMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -302,7 +296,6 @@ public class CoverageMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.modules", "module1")

@@ -32,6 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -260,6 +261,96 @@ public class CpdMediumTest {
 
     List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
     assertThat(duplicationGroupsFile2).isEmpty();
+  }
+
+  @Test
+  public void cross_module_duplication() throws IOException {
+
+    String duplicatedStuff = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sampleA.xoo");
+    FileUtils.write(xooFileA, duplicatedStuff, StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sampleB.xoo");
+    FileUtils.write(xooFileB, duplicatedStuff, StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.cpd.xoo.minimumTokens", "10")
+        .build())
+      .execute();
+
+    InputFile inputFile1 = result.inputFile("moduleA/src/sampleA.xoo");
+    InputFile inputFile2 = result.inputFile("moduleB/src/sampleB.xoo");
+
+    List<ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    assertThat(duplicationGroupsFile1).isNotEmpty();
+
+    List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    assertThat(duplicationGroupsFile2).isNotEmpty();
+  }
+
+  @Test
+  public void warn_user_for_outdated_inherited_scanner_side_exclusions_for_multi_module_project() throws IOException {
+
+    String duplicatedStuff = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sampleA.xoo");
+    FileUtils.write(xooFileA, duplicatedStuff, StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sampleB.xoo");
+    FileUtils.write(xooFileB, duplicatedStuff, StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.cpd.xoo.minimumTokens", "10")
+        .put("sonar.cpd.exclusions", "src/sampleA.xoo")
+        .build())
+      .execute();
+
+    InputFile inputFile1 = result.inputFile("moduleA/src/sampleA.xoo");
+    InputFile inputFile2 = result.inputFile("moduleB/src/sampleB.xoo");
+
+    List<ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    assertThat(duplicationGroupsFile1).isEmpty();
+
+    List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    assertThat(duplicationGroupsFile2).isEmpty();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in the property 'sonar.cpd.exclusions' is deprecated. " +
+      "To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
   }
 
   @Test

@@ -24,9 +24,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.scan.ProjectConfiguration;
 
 @Immutable
-public class ProjectCoverageExclusions extends AbstractCoverageExclusions {
+public class ProjectCoverageAndDuplicationExclusions extends AbstractCoverageAndDuplicationExclusions {
 
-  public ProjectCoverageExclusions(ProjectConfiguration projectConfig) {
+  public ProjectCoverageAndDuplicationExclusions(ProjectConfiguration projectConfig) {
     super(projectConfig::getStringArray, DefaultInputFile::getProjectRelativePath);
     log();
   }

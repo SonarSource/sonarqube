@@ -323,7 +323,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    return new DefaultCpdTokens(config(), sensorStorage);
+    return new DefaultCpdTokens(sensorStorage);
   }
 
   @Override
