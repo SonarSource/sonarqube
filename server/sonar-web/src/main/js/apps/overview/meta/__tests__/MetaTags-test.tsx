@@ -20,30 +20,22 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MetaTags from '../MetaTags';
+import { mockComponent } from '../../../../helpers/testUtils';
 
-const component = {
-  key: 'my-project',
-  tags: [],
+const component = mockComponent({
   configuration: {
     showSettings: false
-  },
-  organization: 'foo',
-  qualifier: 'TRK',
-  name: 'MyProject',
-  breadcrumbs: []
-};
+  }
+});
 
-const componentWithTags = {
+const componentWithTags = mockComponent({
   key: 'my-second-project',
   tags: ['foo', 'bar'],
   configuration: {
     showSettings: true
   },
-  organization: 'foo',
-  qualifier: 'TRK',
-  name: 'MySecondProject',
-  breadcrumbs: []
-};
+  name: 'MySecondProject'
+});
 
 it('should render without tags and admin rights', () => {
   expect(

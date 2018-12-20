@@ -19,6 +19,7 @@
  */
 import { ShallowWrapper, ReactWrapper } from 'enzyme';
 import { InjectedRouter } from 'react-router';
+import { EditionKey } from '../apps/marketplace/utils';
 
 export const mockEvent = {
   target: { blur() {} },
@@ -129,4 +130,55 @@ export function mockRouter(overrides: { push?: Function; replace?: Function } = 
     setRouteLeaveHook: jest.fn(),
     ...overrides
   } as InjectedRouter;
+}
+
+export function mockAppState(overrides = {}): T.AppState {
+  return {
+    defaultOrganization: 'foo',
+    edition: EditionKey.community,
+    productionDatabase: true,
+    qualifiers: ['TRK'],
+    settings: {},
+    version: '1.0',
+    ...overrides
+  };
+}
+
+export function mockComponent(overrides = {}): T.Component {
+  return {
+    breadcrumbs: [],
+    key: 'my-project',
+    name: 'MyProject',
+    organization: 'foo',
+    qualifier: 'TRK',
+    qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
+    qualityProfiles: [mockQualityProfile()],
+    tags: [],
+    ...overrides
+  };
+}
+
+export function mockCurrentUser(overrides = {}): T.CurrentUser {
+  return {
+    isLoggedIn: true,
+    ...overrides
+  };
+}
+
+export function mockOrganization(overrides = {}): T.Organization {
+  return {
+    key: 'foo',
+    name: 'Foo',
+    ...overrides
+  };
+}
+
+export function mockQualityProfile(overrides = {}): T.ComponentQualityProfile {
+  return {
+    deleted: false,
+    key: 'my-qp',
+    language: 'ts',
+    name: 'Sonar way',
+    ...overrides
+  };
 }
