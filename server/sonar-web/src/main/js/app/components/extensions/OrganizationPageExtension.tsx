@@ -44,8 +44,9 @@ interface OwnProps {
 type Props = OwnProps & StateToProps & DispatchProps;
 
 class OrganizationPageExtension extends React.PureComponent<Props> {
-  refreshOrganization = () =>
-    this.props.organization && this.props.fetchOrganization(this.props.organization.key);
+  refreshOrganization = () => {
+    return this.props.organization && this.props.fetchOrganization(this.props.organization.key);
+  };
 
   render() {
     const { extensionKey, pluginKey } = this.props.params;
