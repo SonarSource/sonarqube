@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import fetch from 'isomorphic-fetch';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronUpIcon from './icons/ChevronUpIcon';
 import OutsideClickHandler from './OutsideClickHandler';
@@ -35,18 +34,13 @@ export default class VersionSelect extends React.PureComponent {
   };
 
   render() {
-    const { versions } = this.props;
+    const { isOnCurrentVersion, selectedVersionValue, versions } = this.props;
     const hasVersions = versions.length > 1;
-    const currentVersion = versions.find(v => v.current);
-    const versionLabel =
-      this.props.version === 'latest' && currentVersion ? currentVersion.value : this.props.version;
-    const isOnCurrentVersion =
-      !hasVersions || (currentVersion && versionLabel === currentVersion.value);
 
     return (
       <div className="version-select">
         <button onClick={this.handleClick} type="button">
-          Docs <span className={isOnCurrentVersion ? 'current' : ''}>{versionLabel}</span>
+          Docs <span className={isOnCurrentVersion ? 'current' : ''}>{selectedVersionValue}</span>
           {hasVersions && !this.state.open && <ChevronDownIcon size={10} />}
           {hasVersions && this.state.open && <ChevronUpIcon size={10} />}
         </button>

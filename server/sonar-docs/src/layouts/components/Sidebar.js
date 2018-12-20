@@ -124,9 +124,11 @@ export default class Sidebar extends React.PureComponent {
   };
 
   render() {
-    const isOnCurrentVersion =
-      this.props.version === 'latest' ||
-      this.state.versions.find(v => v.value === this.props.version) !== undefined;
+    const { versions } = this.state;
+    const currentVersion = versions.find(v => v.current);
+    const selectedVersionValue =
+      currentVersion && this.props.version === 'latest' ? currentVersion.value : this.props.version;
+    const isOnCurrentVersion = !currentVersion || selectedVersionValue === currentVersion.value;
     return (
       <div className="page-sidebar">
         <div className="sidebar-header">
@@ -140,11 +142,10 @@ export default class Sidebar extends React.PureComponent {
             />
           </Link>
           <VersionSelect
-            location={this.props.location}
-            version={this.props.version}
-            versions={this.state.versions}
+            isOnCurrentVersion={isOnCurrentVersion}
+            selectedVersionValue={selectedVersionValue}
+            versions={versions}
           />
-
           {this.state.loaded &&
             !isOnCurrentVersion && (
               <div className="alert alert-warning">
@@ -160,8 +161,7 @@ export default class Sidebar extends React.PureComponent {
             onResultsChange={this.handleSearch}
             pages={this.props.pages}
           />
-          {this.state.query !== '' && this.renderResults()}
-          {this.state.query === '' && this.renderCategories(NavigationTree)}
+          {this.state.query !== '' ? this.renderResults() : this.renderCategories(NavigationTree)}
         </div>
         <div className="sidebar-footer">
           <a href="https://www.sonarqube.org/" rel="noopener noreferrer" target="_blank">
