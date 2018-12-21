@@ -27,10 +27,12 @@ module.exports = {
   lightBlue: '#cae3f2',
   darkBlue: '#236a97',
   green: '#00aa00',
+  lineCoverageGreen: '#b4dd78',
   lightGreen: '#b0d513',
   yellow: '#eabe06',
   orange: '#ed7d20',
   red: '#d4333f',
+  lineCoverageRed: '#a4030f',
   purple: '#9139d4',
 
   gray94: '#efefef',

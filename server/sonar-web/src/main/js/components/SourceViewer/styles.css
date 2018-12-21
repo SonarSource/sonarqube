@@ -235,15 +235,15 @@
 }
 
 .source-line-covered {
-  background-color: var(--green) !important;
+  background-color: var(--lineCoverageGreen) !important;
 }
 
 .source-line-uncovered {
-  background-color: var(--red) !important;
+  background-color: var(--lineCoverageRed) !important;
 }
 
 .source-line-partially-covered {
-  background-color: var(--orange) !important;
+  background-color: var(--lineCoverageRed) !important;
   background-image: repeating-linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.5) 4px,
