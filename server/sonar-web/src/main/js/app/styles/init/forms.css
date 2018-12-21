@@ -69,6 +69,10 @@ select:invalid {
   outline: none;
 }
 
+input::placeholder {
+  color: var(--secondFontColor);
+}
+
 input[type='text'].is-valid,
 input[type='password'].is-valid,
 input[type='email'].is-valid,

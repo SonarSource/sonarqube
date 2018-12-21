@@ -39,11 +39,6 @@
   font-size: var(--baseFontSize);
 }
 
-.search-box-input::placeholder {
-  color: var(--secondFontColor);
-  opacity: 1;
-}
-
 .search-box-input::-webkit-search-decoration,
 .search-box-input::-webkit-search-cancel-button,
 .search-box-input::-webkit-search-results-button,
