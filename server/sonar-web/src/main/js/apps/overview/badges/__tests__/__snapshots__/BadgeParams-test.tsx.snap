@@ -3,10 +3,11 @@
 exports[`should display marketing badge params 1`] = `
 <div>
   <label
-    className="big-spacer-right"
+    className="spacer-right"
     htmlFor="badge-color"
   >
     color
+    :
   </label>
   <Select
     className="input-medium"
@@ -32,16 +33,44 @@ exports[`should display marketing badge params 1`] = `
     searchable={false}
     value="white"
   />
+  <label
+    className="spacer-right big-spacer-left"
+    htmlFor="badge-format"
+  >
+    format
+    :
+  </label>
+  <Select
+    className="input-medium"
+    clearable={false}
+    name="badge-format"
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "overview.badges.options.formats.md",
+          "value": "md",
+        },
+        Object {
+          "label": "overview.badges.options.formats.url",
+          "value": "url",
+        },
+      ]
+    }
+    searchable={false}
+    value="md"
+  />
 </div>
 `;
 
 exports[`should display measure badge params 1`] = `
 <div>
   <label
-    className="big-spacer-right"
+    className="spacer-right"
     htmlFor="badge-metric"
   >
     overview.badges.metric
+    :
   </label>
   <Select
     className="input-medium"
@@ -51,6 +80,65 @@ exports[`should display measure badge params 1`] = `
     options={Array []}
     searchable={false}
     value="alert_status"
+  />
+  <label
+    className="spacer-right big-spacer-left"
+    htmlFor="badge-format"
+  >
+    format
+    :
+  </label>
+  <Select
+    className="input-medium"
+    clearable={false}
+    name="badge-format"
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "overview.badges.options.formats.md",
+          "value": "md",
+        },
+        Object {
+          "label": "overview.badges.options.formats.url",
+          "value": "url",
+        },
+      ]
+    }
+    searchable={false}
+    value="md"
+  />
+</div>
+`;
+
+exports[`should display quality gate badge params 1`] = `
+<div>
+  <label
+    className="spacer-right"
+    htmlFor="badge-format"
+  >
+    format
+    :
+  </label>
+  <Select
+    className="input-medium"
+    clearable={false}
+    name="badge-format"
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "overview.badges.options.formats.md",
+          "value": "md",
+        },
+        Object {
+          "label": "overview.badges.options.formats.url",
+          "value": "url",
+        },
+      ]
+    }
+    searchable={false}
+    value="md"
   />
 </div>
 `;

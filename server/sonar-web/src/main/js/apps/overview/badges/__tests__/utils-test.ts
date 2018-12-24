@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getBadgeUrl, BadgeOptions, BadgeType } from '../utils';
+import { getBadgeUrl, BadgeOptions, BadgeType, getBadgeSnippet } from '../utils';
+import { Location } from '../../../../helpers/urls';
 
 jest.mock('../../../../helpers/urls', () => ({
-  getHostUrl: () => 'host'
+  ...require.requireActual('../../../../helpers/urls'),
+  getHostUrl: () => 'host',
+  getPathUrlAsString: (o: Location) =>
+    `host${o.pathname}?id=${o.query ? o.query.id : ''}&branch=${o.query ? o.query.branch : ''}`
 }));
 
 const options: BadgeOptions = {
   branch: 'master',
   color: 'white',
-  project: 'foo',
-  metric: 'alert_status'
+  metric: 'alert_status',
+  project: 'foo'
 };
 
 describe('#getBadgeUrl', () => {
@@ -41,7 +45,9 @@ describe('#getBadgeUrl', () => {
   });
 
   it('should generate correct quality gate badge links', () => {
-    expect(getBadgeUrl(BadgeType.qualityGate, options));
+    expect(getBadgeUrl(BadgeType.qualityGate, options)).toBe(
+      'host/api/project_badges/quality_gate?branch=master&project=foo'
+    );
   });
 
   it('should generate correct measures badge links', () => {
@@ -53,6 +59,14 @@ describe('#getBadgeUrl', () => {
   it('should ignore undefined parameters', () => {
     expect(getBadgeUrl(BadgeType.measure, { color: 'white', metric: 'alert_status' })).toBe(
       'host/api/project_badges/measure?metric=alert_status'
+    );
+  });
+});
+
+describe('#getBadgeSnippet', () => {
+  it('should generate a correct markdown image', () => {
+    expect(getBadgeSnippet(BadgeType.marketing, { ...options, format: 'md' })).toBe(
+      '[![SonarCloud](host/images/project_badges/sonarcloud-white.svg)](host/dashboard?id=foo&branch=master)'
     );
   });
 });

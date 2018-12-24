@@ -44,8 +44,10 @@ export function getHostUrl(): string {
   return window.location.origin + getBaseUrl();
 }
 
-export function getPathUrlAsString(path: Location): string {
-  return `${getBaseUrl()}${path.pathname}?${stringify(omitBy(path.query, isNil))}`;
+export function getPathUrlAsString(path: Location, internal = true): string {
+  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname}?${stringify(
+    omitBy(path.query, isNil)
+  )}`;
 }
 
 export function getProjectUrl(project: string, branch?: string): Location {

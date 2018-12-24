@@ -20,7 +20,7 @@
 import * as React from 'react';
 import BadgeButton from './BadgeButton';
 import BadgeParams from './BadgeParams';
-import { BadgeType, BadgeOptions, getBadgeUrl } from './utils';
+import { BadgeType, BadgeOptions, getBadgeUrl, getBadgeSnippet } from './utils';
 import CodeSnippet from '../../../components/common/CodeSnippet';
 import Modal from '../../../components/controls/Modal';
 import { getBranchLikeQuery } from '../../../helpers/branches';
@@ -108,7 +108,10 @@ export default class BadgesModal extends React.PureComponent<Props, State> {
                 type={selectedType}
                 updateOptions={this.handleUpdateOptions}
               />
-              <CodeSnippet isOneLine={true} snippet={getBadgeUrl(selectedType, fullBadgeOptions)} />
+              <CodeSnippet
+                isOneLine={true}
+                snippet={getBadgeSnippet(selectedType, fullBadgeOptions)}
+              />
             </div>
             <footer className="modal-foot">
               <ResetButtonLink className="js-modal-close" onClick={this.handleClose}>

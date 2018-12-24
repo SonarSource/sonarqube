@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { BadgeColors, BadgeType, BadgeOptions } from './utils';
+import * as classNames from 'classnames';
+import { BadgeColors, BadgeType, BadgeOptions, BadgeFormats } from './utils';
 import Select from '../../../components/controls/Select';
 import { fetchWebApi } from '../../../api/web-api';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
@@ -65,66 +66,105 @@ export default class BadgeParams extends React.PureComponent<Props> {
     );
   }
 
-  getColorOptions = () =>
-    ['white', 'black', 'orange'].map(color => ({
+  getColorOptions = () => {
+    return ['white', 'black', 'orange'].map(color => ({
       label: translate('overview.badges.options.colors', color),
       value: color
     }));
+  };
 
-  getMetricOptions = () =>
-    this.state.badgeMetrics.map(key => {
+  getFormatOptions = () => {
+    return ['md', 'url'].map(format => ({
+      label: translate('overview.badges.options.formats', format),
+      value: format
+    }));
+  };
+
+  getMetricOptions = () => {
+    return this.state.badgeMetrics.map(key => {
       const metric = this.props.metrics[key];
       return {
         value: key,
         label: metric ? getLocalizedMetricName(metric) : key
       };
     });
+  };
 
-  handleColorChange = ({ value }: { value: BadgeColors }) =>
+  handleColorChange = ({ value }: { value: BadgeColors }) => {
     this.props.updateOptions({ color: value });
+  };
 
-  handleMetricChange = ({ value }: { value: string }) =>
+  handleFormatChange = ({ value }: { value: BadgeFormats }) => {
+    this.props.updateOptions({ format: value });
+  };
+
+  handleMetricChange = ({ value }: { value: string }) => {
     this.props.updateOptions({ metric: value });
+  };
+
+  renderBadgeType = (type: BadgeType, options: BadgeOptions) => {
+    if (type === BadgeType.marketing) {
+      return (
+        <>
+          <label className="spacer-right" htmlFor="badge-color">
+            {translate('color')}:
+          </label>
+          <Select
+            className="input-medium"
+            clearable={false}
+            name="badge-color"
+            onChange={this.handleColorChange}
+            options={this.getColorOptions()}
+            searchable={false}
+            value={options.color}
+          />
+        </>
+      );
+    } else if (type === BadgeType.measure) {
+      return (
+        <>
+          <label className="spacer-right" htmlFor="badge-metric">
+            {translate('overview.badges.metric')}:
+          </label>
+          <Select
+            className="input-medium"
+            clearable={false}
+            name="badge-metric"
+            onChange={this.handleMetricChange}
+            options={this.getMetricOptions()}
+            searchable={false}
+            value={options.metric}
+          />
+        </>
+      );
+    } else {
+      return null;
+    }
+  };
 
   render() {
     const { className, options, type } = this.props;
-    switch (type) {
-      case BadgeType.marketing:
-        return (
-          <div className={className}>
-            <label className="big-spacer-right" htmlFor="badge-color">
-              {translate('color')}
-            </label>
-            <Select
-              className="input-medium"
-              clearable={false}
-              name="badge-color"
-              onChange={this.handleColorChange}
-              options={this.getColorOptions()}
-              searchable={false}
-              value={options.color}
-            />
-          </div>
-        );
-      case BadgeType.measure:
-        return (
-          <div className={className}>
-            <label className="big-spacer-right" htmlFor="badge-metric">
-              {translate('overview.badges.metric')}
-            </label>
-            <Select
-              className="input-medium"
-              clearable={false}
-              name="badge-metric"
-              onChange={this.handleMetricChange}
-              options={this.getMetricOptions()}
-              searchable={false}
-              value={options.metric}
-            />
-          </div>
-        );
-      default:
-        return null;
-    }
+    return (
+      <div className={className}>
+        {this.renderBadgeType(type, options)}
+
+        <label
+          className={classNames('spacer-right', {
+            'big-spacer-left': type !== BadgeType.qualityGate
+          })}
+          htmlFor="badge-format">
+          {translate('format')}:
+        </label>
+        <Select
+          className="input-medium"
+          clearable={false}
+          name="badge-format"
+          onChange={this.handleFormatChange}
+          options={this.getFormatOptions()}
+          searchable={false}
+          value={this.props.options.format || 'md'}
+        />
+      </div>
+    );
   }
 }

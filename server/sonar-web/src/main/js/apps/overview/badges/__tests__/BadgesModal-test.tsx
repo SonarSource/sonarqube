@@ -22,8 +22,13 @@ import { shallow } from 'enzyme';
 import BadgesModal from '../BadgesModal';
 import { click } from '../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../helpers/system';
+import { Location } from '../../../../helpers/urls';
 
-jest.mock('../../../../helpers/urls', () => ({ getHostUrl: () => 'host' }));
+jest.mock('../../../../helpers/urls', () => ({
+  getHostUrl: () => 'host',
+  getProjectUrl: () => ({ pathname: '/dashboard' } as Location),
+  getPathUrlAsString: (l: Location) => l.pathname
+}));
 jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 const shortBranch: T.ShortLivingBranch = {
@@ -33,7 +38,7 @@ const shortBranch: T.ShortLivingBranch = {
   type: 'SHORT'
 };
 
-it('should display the modal after click on sonar cloud', () => {
+it('should display the modal after click on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
   const wrapper = shallow(
     <BadgesModal branchLike={shortBranch} metrics={{}} project="foo" qualifier="TRK" />
@@ -43,7 +48,7 @@ it('should display the modal after click on sonar cloud', () => {
   expect(wrapper.find('Modal')).toMatchSnapshot();
 });
 
-it('should display the modal after click on sonar qube', () => {
+it('should display the modal after click on sonarqube', () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
   const wrapper = shallow(
     <BadgesModal branchLike={shortBranch} metrics={{}} project="foo" qualifier="TRK" />

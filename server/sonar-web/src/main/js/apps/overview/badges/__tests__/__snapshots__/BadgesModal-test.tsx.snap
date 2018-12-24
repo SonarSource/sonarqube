@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display the modal after click on sonar cloud 1`] = `
+exports[`should display the modal after click on sonarcloud 1`] = `
 <div
   className="overview-meta-card"
 >
@@ -13,7 +13,7 @@ exports[`should display the modal after click on sonar cloud 1`] = `
 </div>
 `;
 
-exports[`should display the modal after click on sonar cloud 2`] = `
+exports[`should display the modal after click on sonarcloud 2`] = `
 <Modal
   contentLabel="overview.badges.title"
   onRequestClose={[Function]}
@@ -77,7 +77,7 @@ exports[`should display the modal after click on sonar cloud 2`] = `
     />
     <CodeSnippet
       isOneLine={true}
-      snippet="host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status"
+      snippet="[![alert_status](host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status)](/dashboard)"
     />
   </div>
   <footer
@@ -93,7 +93,7 @@ exports[`should display the modal after click on sonar cloud 2`] = `
 </Modal>
 `;
 
-exports[`should display the modal after click on sonar qube 1`] = `
+exports[`should display the modal after click on sonarqube 1`] = `
 <div
   className="overview-meta-card"
 >
@@ -106,7 +106,7 @@ exports[`should display the modal after click on sonar qube 1`] = `
 </div>
 `;
 
-exports[`should display the modal after click on sonar qube 2`] = `
+exports[`should display the modal after click on sonarqube 2`] = `
 <Modal
   contentLabel="overview.badges.title"
   onRequestClose={[Function]}
@@ -163,7 +163,7 @@ exports[`should display the modal after click on sonar qube 2`] = `
     />
     <CodeSnippet
       isOneLine={true}
-      snippet="host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status"
+      snippet="[![alert_status](host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status)](/dashboard)"
     />
   </div>
   <footer
