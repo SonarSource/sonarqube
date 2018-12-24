@@ -24,13 +24,13 @@ import { WithRouterProps } from 'react-router';
 import ProfileContainer from '../ProfileContainer';
 import ProfileNotFound from '../ProfileNotFound';
 import ProfileHeader from '../../details/ProfileHeader';
-import { createFakeProfile } from '../../utils';
+import { mockQualityProfile } from '../../testUtils';
 
 const routerProps = { router: {} } as WithRouterProps;
 
 it('should render ProfileHeader', () => {
-  const targetProfile = createFakeProfile({ language: 'js', name: 'fake' });
-  const profiles = [targetProfile, createFakeProfile({ language: 'js', name: 'another' })];
+  const targetProfile = mockQualityProfile({ name: 'fake' });
+  const profiles = [targetProfile, mockQualityProfile({ name: 'another' })];
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
@@ -49,10 +49,7 @@ it('should render ProfileHeader', () => {
 });
 
 it('should render ProfileNotFound', () => {
-  const profiles = [
-    createFakeProfile({ language: 'js', name: 'fake' }),
-    createFakeProfile({ language: 'js', name: 'another' })
-  ];
+  const profiles = [mockQualityProfile({ name: 'fake' }), mockQualityProfile({ name: 'another' })];
   const output = shallow(
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'random' } }}
@@ -67,11 +64,12 @@ it('should render ProfileNotFound', () => {
 });
 
 it('should render Helmet', () => {
-  const profiles = [createFakeProfile({ language: 'js', name: 'First Profile' })];
+  const name = 'First Profile';
+  const profiles = [mockQualityProfile({ name })];
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      location={{ pathname: '', query: { language: 'js', name: 'First Profile' } }}
+      location={{ pathname: '', query: { language: 'js', name } }}
       organization={null}
       profiles={profiles}
       updateProfiles={updateProfiles}
@@ -81,5 +79,5 @@ it('should render Helmet', () => {
   );
   const helmet = output.find(Helmet);
   expect(helmet.length).toBe(1);
-  expect(helmet.prop('title')).toContain('First Profile');
+  expect(helmet.prop('title')).toContain(name);
 });

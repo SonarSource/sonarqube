@@ -1,0 +1,210 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated"
+>
+  <div
+    className="spacer-bottom"
+  >
+    <strong>
+      quality_profiles.deprecated_rules
+    </strong>
+  </div>
+  <div
+    className="spacer-bottom"
+  >
+    quality_profiles.deprecated_rules_are_still_activated.4
+  </div>
+  <ul>
+    <li
+      className="spacer-top"
+      key="qp-5"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <ProfileLink
+          className="link-no-underline"
+          language="js"
+          name="Quality Profile 5"
+          organization="foo"
+        >
+          Quality Profile 5
+        </ProfileLink>
+      </div>
+      <div
+        className="note"
+      >
+        JavaScript
+        , 
+        <Link
+          className="text-muted"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/foo/rules",
+              "query": Object {
+                "activation": "true",
+                "qprofile": "qp-5",
+                "statuses": "DEPRECATED",
+              },
+            }
+          }
+        >
+          quality_profile.x_rules.4
+        </Link>
+        <div
+          className="muted"
+          key="qp-2"
+        >
+           
+          coding_rules.filters.inheritance.x_inherited_from_y.2.Quality Profile 2
+        </div>
+        <div
+          className="muted"
+          key="qp-4"
+        >
+           
+          coding_rules.filters.inheritance.x_inherited_from_y.1.Quality Profile 4
+        </div>
+      </div>
+    </li>
+    <li
+      className="spacer-top"
+      key="qp-4"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <ProfileLink
+          className="link-no-underline"
+          language="js"
+          name="Quality Profile 4"
+          organization="foo"
+        >
+          Quality Profile 4
+        </ProfileLink>
+      </div>
+      <div
+        className="note"
+      >
+        JavaScript
+        , 
+        <Link
+          className="text-muted"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/foo/rules",
+              "query": Object {
+                "activation": "true",
+                "qprofile": "qp-4",
+                "statuses": "DEPRECATED",
+              },
+            }
+          }
+        >
+          quality_profile.x_rules.3
+        </Link>
+        <div
+          className="muted"
+          key="qp-2"
+        >
+           
+          coding_rules.filters.inheritance.x_inherited_from_y.2.Quality Profile 2
+        </div>
+      </div>
+    </li>
+    <li
+      className="spacer-top"
+      key="qp-2"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <ProfileLink
+          className="link-no-underline"
+          language="js"
+          name="Quality Profile 2"
+          organization="foo"
+        >
+          Quality Profile 2
+        </ProfileLink>
+      </div>
+      <div
+        className="note"
+      >
+        JavaScript
+        , 
+        <Link
+          className="text-muted"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/foo/rules",
+              "query": Object {
+                "activation": "true",
+                "qprofile": "qp-2",
+                "statuses": "DEPRECATED",
+              },
+            }
+          }
+        >
+          quality_profile.x_rules.2
+        </Link>
+      </div>
+    </li>
+    <li
+      className="spacer-top"
+      key="qp-3"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <ProfileLink
+          className="link-no-underline"
+          language="js"
+          name="Quality Profile 3"
+          organization="foo"
+        >
+          Quality Profile 3
+        </ProfileLink>
+      </div>
+      <div
+        className="note"
+      >
+        JavaScript
+        , 
+        <Link
+          className="text-muted"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/organizations/foo/rules",
+              "query": Object {
+                "activation": "true",
+                "qprofile": "qp-3",
+                "statuses": "DEPRECATED",
+              },
+            }
+          }
+        >
+          quality_profile.x_rules.2
+        </Link>
+        <div
+          className="muted"
+          key="qp-2"
+        >
+           
+          coding_rules.filters.inheritance.x_inherited_from_y.2.Quality Profile 2
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+`;

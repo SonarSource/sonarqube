@@ -51,21 +51,6 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   return result;
 }
 
-export function createFakeProfile(overrides?: any) {
-  return {
-    key: 'key',
-    name: 'name',
-    isDefault: false,
-    isInherited: false,
-    language: 'js',
-    languageName: 'JavaScript',
-    activeRuleCount: 10,
-    activeDeprecatedRuleCount: 2,
-    projectCount: 3,
-    ...overrides
-  };
-}
-
 export function isStagnant(profile: Profile): boolean {
   if (profile.rulesUpdatedAt) {
     const updateDate = parseDate(profile.rulesUpdatedAt);

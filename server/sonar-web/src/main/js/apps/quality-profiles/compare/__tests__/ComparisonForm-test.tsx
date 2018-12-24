@@ -20,14 +20,14 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ComparisonForm from '../ComparisonForm';
-import { createFakeProfile } from '../../utils';
+import { mockQualityProfile } from '../../testUtils';
 
 it('should render Select with right options', () => {
-  const profile = createFakeProfile();
+  const profile = mockQualityProfile();
   const profiles = [
     profile,
-    createFakeProfile({ key: 'another', name: 'another name' }),
-    createFakeProfile({ key: 'java', name: 'java', language: 'java' })
+    mockQualityProfile({ key: 'another', name: 'another name' }),
+    mockQualityProfile({ key: 'java', name: 'java', language: 'java' })
   ];
 
   const output = shallow(

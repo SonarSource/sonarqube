@@ -21,22 +21,16 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ProfileActions } from '../ProfileActions';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockQualityProfile } from '../../testUtils';
 
-const PROFILE = {
+const PROFILE = mockQualityProfile({
   activeRuleCount: 68,
   activeDeprecatedRuleCount: 0,
-  childrenCount: 0,
   depth: 0,
-  isBuiltIn: false,
-  isDefault: false,
-  isInherited: false,
-  key: 'foo',
-  language: 'java',
-  languageName: 'Java',
-  name: 'Foo',
+  language: 'js',
   organization: 'org',
   rulesUpdatedAt: '2017-06-28T12:58:44+0000'
-};
+});
 
 it('renders with no permissions', () => {
   expect(
@@ -107,7 +101,7 @@ it('should copy profile', async () => {
 
   expect(push).toBeCalledWith({
     pathname: '/organizations/org/quality_profiles/show',
-    query: { language: 'java', name: 'new-name' }
+    query: { language: 'js', name: 'new-name' }
   });
   expect(wrapper.find('CopyProfileForm').exists()).toBe(false);
 });

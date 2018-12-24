@@ -10,7 +10,7 @@ exports[`renders with all permissions 1`] = `
           "pathname": "/organizations/org/rules",
           "query": Object {
             "activation": "false",
-            "qprofile": "foo",
+            "qprofile": "key",
           },
         }
       }
@@ -18,9 +18,9 @@ exports[`renders with all permissions 1`] = `
       quality_profiles.activate_more_rules
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      download="foo.xml"
+      download="key.xml"
       id="quality-profile-backup"
-      to="/api/qualityprofiles/backup?profileKey=foo"
+      to="/api/qualityprofiles/backup?profileKey=key"
     >
       backup_verb
     </ActionsDropdownItem>
@@ -30,8 +30,8 @@ exports[`renders with all permissions 1`] = `
         Object {
           "pathname": "/organizations/org/quality_profiles/compare",
           "query": Object {
-            "language": "java",
-            "name": "Foo",
+            "language": "js",
+            "name": "name",
           },
         }
       }
@@ -72,9 +72,9 @@ exports[`renders with no permissions 1`] = `
 <Fragment>
   <ActionsDropdown>
     <ActionsDropdownItem
-      download="foo.xml"
+      download="key.xml"
       id="quality-profile-backup"
-      to="/api/qualityprofiles/backup?profileKey=foo"
+      to="/api/qualityprofiles/backup?profileKey=key"
     >
       backup_verb
     </ActionsDropdownItem>
@@ -84,8 +84,8 @@ exports[`renders with no permissions 1`] = `
         Object {
           "pathname": "/organizations/org/quality_profiles/compare",
           "query": Object {
-            "language": "java",
-            "name": "Foo",
+            "language": "js",
+            "name": "name",
           },
         }
       }
@@ -106,7 +106,7 @@ exports[`renders with permission to edit only 1`] = `
           "pathname": "/organizations/org/rules",
           "query": Object {
             "activation": "false",
-            "qprofile": "foo",
+            "qprofile": "key",
           },
         }
       }
@@ -114,9 +114,9 @@ exports[`renders with permission to edit only 1`] = `
       quality_profiles.activate_more_rules
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      download="foo.xml"
+      download="key.xml"
       id="quality-profile-backup"
-      to="/api/qualityprofiles/backup?profileKey=foo"
+      to="/api/qualityprofiles/backup?profileKey=key"
     >
       backup_verb
     </ActionsDropdownItem>
@@ -126,8 +126,8 @@ exports[`renders with permission to edit only 1`] = `
         Object {
           "pathname": "/organizations/org/quality_profiles/compare",
           "query": Object {
-            "language": "java",
-            "name": "Foo",
+            "language": "js",
+            "name": "name",
           },
         }
       }

@@ -152,7 +152,14 @@ export function mockComponent(overrides = {}): T.Component {
     organization: 'foo',
     qualifier: 'TRK',
     qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
-    qualityProfiles: [mockQualityProfile()],
+    qualityProfiles: [
+      {
+        deleted: false,
+        key: 'my-qp',
+        language: 'ts',
+        name: 'Sonar way'
+      }
+    ],
     tags: [],
     ...overrides
   };
@@ -169,16 +176,6 @@ export function mockOrganization(overrides = {}): T.Organization {
   return {
     key: 'foo',
     name: 'Foo',
-    ...overrides
-  };
-}
-
-export function mockQualityProfile(overrides = {}): T.ComponentQualityProfile {
-  return {
-    deleted: false,
-    key: 'my-qp',
-    language: 'ts',
-    name: 'Sonar way',
     ...overrides
   };
 }
