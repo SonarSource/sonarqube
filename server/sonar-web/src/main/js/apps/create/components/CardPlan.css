@@ -30,6 +30,17 @@
   transition: all 0.2s ease;
 }
 
+.card-plan.animated {
+  height: 0;
+  border-width: 0;
+  overflow: hidden;
+}
+
+.card-plan.animated.open {
+  height: 210px;
+  border-width: 1px;
+}
+
 .card-plan.highlight {
   box-shadow: var(--defaultShadow);
 }

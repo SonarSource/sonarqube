@@ -75,6 +75,7 @@ export function createProject(data: {
   name: string;
   project: string;
   organization?: string;
+  visibility?: T.Visibility;
 }): Promise<{ project: ProjectBase }> {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);
 }

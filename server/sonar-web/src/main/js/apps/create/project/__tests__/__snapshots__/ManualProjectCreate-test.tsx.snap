@@ -1,44 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<Fragment>
-  <form
-    onSubmit={[Function]}
+<div
+  className="create-project"
+>
+  <div
+    className="flex-1 huge-spacer-right"
   >
-    <withRouter(OrganizationInput)
-      onChange={[Function]}
-      organization=""
-      organizations={
-        Array [
-          Object {
-            "key": "foo",
-            "name": "Foo",
-          },
-          Object {
-            "key": "bar",
-            "name": "Bar",
-          },
-        ]
-      }
-    />
-    <ProjectKeyInput
-      className="form-field"
-      onChange={[Function]}
-    />
-    <ProjectNameInput
-      className="form-field"
-      onChange={[Function]}
-    />
-    <SubmitButton
-      disabled={true}
+    <form
+      className="manual-project-create"
+      onSubmit={[Function]}
     >
-      setup
-    </SubmitButton>
-    <DeferredSpinner
-      className="spacer-left"
-      loading={false}
-      timeout={100}
-    />
-  </form>
-</Fragment>
+      <withRouter(OrganizationInput)
+        onChange={[Function]}
+        organization=""
+        organizations={
+          Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+            },
+            Object {
+              "key": "bar",
+              "name": "Bar",
+              "subscription": "PAID",
+            },
+          ]
+        }
+      />
+      <ProjectKeyInput
+        className="form-field"
+        onChange={[Function]}
+      />
+      <ProjectNameInput
+        className="form-field"
+        onChange={[Function]}
+      />
+      <SubmitButton
+        disabled={true}
+      >
+        setup
+      </SubmitButton>
+      <DeferredSpinner
+        className="spacer-left"
+        loading={false}
+        timeout={100}
+      />
+    </form>
+  </div>
+</div>
 `;

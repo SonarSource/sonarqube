@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import OrganizationInput from './OrganizationInput';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
@@ -25,9 +26,14 @@ import { createProject } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import ProjectKeyInput from '../components/ProjectKeyInput';
 import ProjectNameInput from '../components/ProjectNameInput';
+import VisibilitySelector from '../../../components/common/VisibilitySelector';
+import { isSonarCloud } from '../../../helpers/system';
+import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
+import './ManualProjectCreate.css';
 
 interface Props {
   currentUser: T.LoggedInUser;
+  fetchMyOrganizations: () => Promise<void>;
   onProjectCreate: (projectKeys: string[]) => void;
   organization?: string;
   userOrganizations: T.Organization[];
@@ -36,11 +42,13 @@ interface Props {
 interface State {
   projectName?: string;
   projectKey?: string;
-  selectedOrganization: string;
+  selectedOrganization?: T.Organization;
+  selectedVisibility?: T.Visibility;
   submitting: boolean;
 }
 
-type ValidState = State & Required<Pick<State, 'projectName' | 'projectKey'>>;
+type ValidState = State &
+  Required<Pick<State, 'projectName' | 'projectKey' | 'selectedOrganization'>>;
 
 export default class ManualProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
@@ -61,19 +69,27 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.mounted = false;
   }
 
+  canChoosePrivate = (selectedOrganization: T.Organization | undefined) => {
+    return Boolean(selectedOrganization && selectedOrganization.subscription === 'PAID');
+  };
+
   canSubmit(state: State): state is ValidState {
     return Boolean(state.projectKey && state.projectName && state.selectedOrganization);
   }
 
-  getInitialSelectedOrganization(props: Props) {
+  getInitialSelectedOrganization = (props: Props) => {
     if (props.organization) {
-      return props.organization;
+      return this.getOrganization(props.organization);
     } else if (props.userOrganizations.length === 1) {
-      return props.userOrganizations[0].key;
+      return props.userOrganizations[0];
     } else {
-      return '';
+      return undefined;
     }
-  }
+  };
+
+  getOrganization = (organizationKey: string) => {
+    return this.props.userOrganizations.find(({ key }: T.Organization) => key === organizationKey);
+  };
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,7 +99,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       createProject({
         project: state.projectKey,
         name: state.projectName,
-        organization: state.selectedOrganization
+        organization: state.selectedOrganization.key,
+        visibility: this.state.selectedVisibility
       }).then(
         ({ project }) => this.props.onProjectCreate([project.key]),
         () => {
@@ -96,7 +113,34 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   handleOrganizationSelect = ({ key }: T.Organization) => {
-    this.setState({ selectedOrganization: key });
+    const selectedOrganization = this.getOrganization(key);
+    let { selectedVisibility } = this.state;
+
+    if (selectedVisibility === undefined) {
+      selectedVisibility = this.canChoosePrivate(selectedOrganization) ? 'private' : 'public';
+    }
+
+    this.setState({
+      selectedOrganization,
+      selectedVisibility
+    });
+  };
+
+  handleOrganizationUpgrade = () => {
+    this.props.fetchMyOrganizations().then(
+      () => {
+        this.setState(prevState => {
+          if (prevState.selectedOrganization) {
+            const selectedOrganization = this.getOrganization(prevState.selectedOrganization.key);
+            return {
+              selectedOrganization
+            };
+          }
+          return null;
+        });
+      },
+      () => {}
+    );
   };
 
   handleProjectNameChange = (projectName?: string) => {
@@ -107,32 +151,65 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.setState({ projectKey });
   };
 
+  handleVisibilityChange = (selectedVisibility: T.Visibility) => {
+    this.setState({ selectedVisibility });
+  };
+
   render() {
-    const { submitting } = this.state;
+    const { selectedOrganization, submitting } = this.state;
+    const canChoosePrivate = this.canChoosePrivate(selectedOrganization);
+
     return (
-      <>
-        <form onSubmit={this.handleFormSubmit}>
-          <OrganizationInput
-            onChange={this.handleOrganizationSelect}
-            organization={this.state.selectedOrganization}
-            organizations={this.props.userOrganizations}
-          />
-          <ProjectKeyInput
-            className="form-field"
-            initialValue={this.state.projectKey}
-            onChange={this.handleProjectKeyChange}
-          />
-          <ProjectNameInput
-            className="form-field"
-            initialValue={this.state.projectName}
-            onChange={this.handleProjectNameChange}
-          />
-          <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
-            {translate('setup')}
-          </SubmitButton>
-          <DeferredSpinner className="spacer-left" loading={submitting} />
-        </form>
-      </>
+      <div className="create-project">
+        <div className="flex-1 huge-spacer-right">
+          <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
+            <OrganizationInput
+              onChange={this.handleOrganizationSelect}
+              organization={selectedOrganization ? selectedOrganization.key : ''}
+              organizations={this.props.userOrganizations}
+            />
+            <ProjectKeyInput
+              className="form-field"
+              initialValue={this.state.projectKey}
+              onChange={this.handleProjectKeyChange}
+            />
+            <ProjectNameInput
+              className="form-field"
+              initialValue={this.state.projectName}
+              onChange={this.handleProjectNameChange}
+            />
+            {isSonarCloud() &&
+              selectedOrganization && (
+                <div
+                  className={classNames('visibility-select-wrapper', {
+                    open: Boolean(this.state.selectedOrganization)
+                  })}>
+                  <VisibilitySelector
+                    canTurnToPrivate={canChoosePrivate}
+                    onChange={this.handleVisibilityChange}
+                    showDetails={true}
+                    visibility={canChoosePrivate ? this.state.selectedVisibility : 'public'}
+                  />
+                </div>
+              )}
+            <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
+              {translate('setup')}
+            </SubmitButton>
+            <DeferredSpinner className="spacer-left" loading={submitting} />
+          </form>
+        </div>
+
+        {isSonarCloud() &&
+          selectedOrganization && (
+            <div className="create-project-side-sticky">
+              <UpgradeOrganizationBox
+                className={classNames('animated', { open: !canChoosePrivate })}
+                onOrganizationUpgrade={this.handleOrganizationUpgrade}
+                organization={selectedOrganization}
+              />
+            </div>
+          )}
+      </div>
     );
   }
 }

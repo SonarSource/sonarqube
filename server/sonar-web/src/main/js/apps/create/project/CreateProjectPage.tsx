@@ -148,6 +148,7 @@ export class CreateProjectPage extends React.PureComponent<Props & WithRouterPro
               {showManualTab || !almApplication ? (
                 <ManualProjectCreate
                   currentUser={currentUser}
+                  fetchMyOrganizations={this.props.fetchMyOrganizations}
                   onProjectCreate={this.handleProjectCreate}
                   organization={state.organization}
                   userOrganizations={userOrganizations.filter(

@@ -1,9 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`changes visibility 1`] = `
-<div>
+<div
+  className="visibility-select"
+>
   <a
-    className="link-base-color link-no-underline"
+    className="link-base-color link-no-underline visibility-select-option"
     href="#"
     id="visibility-public"
     onClick={[Function]}
@@ -18,7 +20,7 @@ exports[`changes visibility 1`] = `
     </span>
   </a>
   <a
-    className="link-base-color link-no-underline huge-spacer-left"
+    className="link-base-color link-no-underline huge-spacer-left visibility-select-option"
     href="#"
     id="visibility-private"
     onClick={[Function]}
@@ -36,9 +38,11 @@ exports[`changes visibility 1`] = `
 `;
 
 exports[`changes visibility 2`] = `
-<div>
+<div
+  className="visibility-select"
+>
   <a
-    className="link-base-color link-no-underline"
+    className="link-base-color link-no-underline visibility-select-option"
     href="#"
     id="visibility-public"
     onClick={[Function]}
@@ -53,7 +57,7 @@ exports[`changes visibility 2`] = `
     </span>
   </a>
   <a
-    className="link-base-color link-no-underline huge-spacer-left"
+    className="link-base-color link-no-underline huge-spacer-left visibility-select-option"
     href="#"
     id="visibility-private"
     onClick={[Function]}
@@ -71,9 +75,11 @@ exports[`changes visibility 2`] = `
 `;
 
 exports[`renders disabled 1`] = `
-<div>
+<div
+  className="visibility-select"
+>
   <a
-    className="link-base-color link-no-underline"
+    className="link-base-color link-no-underline visibility-select-option"
     href="#"
     id="visibility-public"
     onClick={[Function]}
@@ -88,7 +94,7 @@ exports[`renders disabled 1`] = `
     </span>
   </a>
   <span
-    className="huge-spacer-left text-muted cursor-not-allowed"
+    className="huge-spacer-left text-muted cursor-not-allowed visibility-select-option"
     id="visibility-private"
   >
     <i
