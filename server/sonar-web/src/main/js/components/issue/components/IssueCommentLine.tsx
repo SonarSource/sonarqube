@@ -98,6 +98,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
           {comment.updatable && (
             <div className="dropdown">
               <Toggler
+                closeOnClickOutside={false}
                 onRequestClose={this.closePopups}
                 open={this.state.openPopup === 'edit'}
                 overlay={

@@ -50,6 +50,7 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
       className="dropdown"
     >
       <Toggler
+        closeOnClickOutside={false}
         onRequestClose={[Function]}
         open={false}
         overlay={
@@ -175,6 +176,7 @@ exports[`should render correctly a comment that is updatable 1`] = `
       className="dropdown"
     >
       <Toggler
+        closeOnClickOutside={false}
         onRequestClose={[Function]}
         open={false}
         overlay={

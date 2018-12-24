@@ -51,6 +51,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
     return (
       <li className="issue-meta dropdown">
         <Toggler
+          closeOnClickOutside={false}
           onRequestClose={this.handleClose}
           open={this.props.currentPopup === 'comment'}
           overlay={
