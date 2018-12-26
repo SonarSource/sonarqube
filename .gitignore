@@ -15,6 +15,10 @@ target/
 .idea/
 out/
 
+# ---- VS Code
+.vscode/
+*.code-workspace
+
 # Directories generated on build on Windows
 bin/
 
@@ -48,7 +52,6 @@ Desktop.ini
 # ---- frontend
 node/
 node_modules/
-.vscode/
 
 # ---- SonarQube
 .sonar/
