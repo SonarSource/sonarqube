@@ -3,14 +3,55 @@
 exports[`should search 1`] = `
 <Fragment>
   <SearchResultEntry
+    active={true}
+    key="foobar"
+    result={
+      Object {
+        "exactMatch": true,
+        "highlights": Object {
+          "text": Array [
+            Array [
+              111,
+              6,
+            ],
+            Array [
+              118,
+              4,
+            ],
+          ],
+          "title": Array [
+            Array [
+              23,
+              4,
+            ],
+          ],
+        },
+        "longestTerm": "simply",
+        "page": Object {
+          "content": "Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.",
+          "navTitle": undefined,
+          "relativeName": "foobar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.",
+          "title": "Where does Foobar come from?",
+          "url": "/foobar",
+        },
+      }
+    }
+  />
+  <SearchResultEntry
     active={false}
     key="lorem/origin"
     result={
       Object {
+        "exactMatch": false,
         "highlights": Object {
           "text": Array [
             Array [
-              121,
+              15,
+              6,
+            ],
+            Array [
+              28,
               4,
             ],
           ],
@@ -21,7 +62,7 @@ exports[`should search 1`] = `
             ],
           ],
         },
-        "longestTerm": "from",
+        "longestTerm": "simply",
         "page": Object {
           "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
           "navTitle": undefined,
@@ -29,31 +70,6 @@ exports[`should search 1`] = `
           "text": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
           "title": "Where does it come from?",
           "url": "/lorem/origin",
-        },
-      }
-    }
-  />
-  <SearchResultEntry
-    active={true}
-    key="foobar"
-    result={
-      Object {
-        "highlights": Object {
-          "title": Array [
-            Array [
-              23,
-              4,
-            ],
-          ],
-        },
-        "longestTerm": "from",
-        "page": Object {
-          "content": "Foobar is a universal variable understood to represent whatever is being discussed.",
-          "navTitle": undefined,
-          "relativeName": "foobar",
-          "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
-          "title": "Where does Foobar come from?",
-          "url": "/foobar",
         },
       }
     }

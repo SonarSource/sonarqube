@@ -28,10 +28,28 @@ jest.mock('lunr', () => ({
       {
         ref: 'lorem/origin',
         matchData: {
-          metadata: { from: { title: { position: [[19, 5]] }, text: { position: [[121, 4]] } } }
+          metadata: {
+            simply: {
+              title: { position: [[19, 5]] },
+              text: {
+                position: [[15, 6], [28, 4]],
+                tokenContext: ['is simply dummy', 'simply dummy text']
+              }
+            }
+          }
         }
       },
-      { ref: 'foobar', matchData: { metadata: { from: { title: { position: [[23, 4]] } } } } }
+      {
+        ref: 'foobar',
+        matchData: {
+          metadata: {
+            simply: {
+              title: { position: [[23, 4]] },
+              text: { position: [[111, 6], [118, 4]], tokenContext: ['keywords simply text'] }
+            }
+          }
+        }
+      }
     ])
   }))
 }));
@@ -54,7 +72,7 @@ const pages = [
   createPage(
     'Where does Foobar come from?',
     'foobar',
-    'Foobar is a universal variable understood to represent whatever is being discussed.'
+    'Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.'
   )
 ];
 
@@ -63,11 +81,13 @@ it('should search', () => {
     <SearchResults
       navigation={['lorem/index', 'lorem/origin', 'foobar']}
       pages={pages}
-      query="from"
+      query="simply text"
       splat="foobar"
     />
   );
   expect(wrapper).toMatchSnapshot();
   expect(lunr).toBeCalled();
-  expect((wrapper.instance() as SearchResults).index.search).toBeCalledWith('from~1 from*');
+  expect((wrapper.instance() as SearchResults).index.search).toBeCalledWith(
+    'simply~1 simply* text~1 text*'
+  );
 });

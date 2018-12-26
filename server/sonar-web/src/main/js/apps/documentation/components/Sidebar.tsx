@@ -37,7 +37,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   state: State = { query: '' };
 
   handleSearch = (query: string) => {
-    this.setState({ query });
+    this.setState({ query: query.trim() });
   };
 
   render() {

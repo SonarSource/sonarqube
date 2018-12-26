@@ -29,6 +29,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
+import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { DocsNavigationItem } from '../utils';
 import '../styles.css';
 
@@ -41,17 +42,11 @@ export default class App extends React.PureComponent<Props> {
   pages = getPages();
 
   componentDidMount() {
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.add('page-footer-with-sidebar', 'documentation-footer');
-    }
+    addSideBarClass();
   }
 
   componentWillUnmount() {
-    const footer = document.getElementById('footer');
-    if (footer) {
-      footer.classList.remove('page-footer-with-sidebar', 'documentation-footer');
-    }
+    removeSideBarClass();
   }
 
   render() {

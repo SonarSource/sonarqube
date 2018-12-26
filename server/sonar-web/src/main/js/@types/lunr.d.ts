@@ -25,7 +25,18 @@ declare module 'lunr' {
 
     ref(field: string): void;
 
+    use(fn: Function): void;
+
     metadataWhitelist?: string[];
+  }
+
+  export interface LunrBuilder {
+    pipeline: any;
+    metadataWhitelist: string[];
+  }
+
+  export interface LunrIndex {
+    search(query: string): LunrMatch[];
   }
 
   export interface LunrInit {
@@ -38,8 +49,9 @@ declare module 'lunr' {
     matchData: { metadata: any };
   }
 
-  export interface LunrIndex {
-    search(query: string): LunrMatch[];
+  export interface LunrToken {
+    str: string;
+    metadata: any;
   }
 
   function lunr(initializer: LunrInit): LunrIndex;

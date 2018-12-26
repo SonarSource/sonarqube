@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { highlightMarks, cutWords, DocumentationEntry } from '../utils';
 
 export interface SearchResult {
+  exactMatch?: boolean;
   highlights: { [field: string]: [number, number][] };
   longestTerm: string;
   page: DocumentationEntry;
