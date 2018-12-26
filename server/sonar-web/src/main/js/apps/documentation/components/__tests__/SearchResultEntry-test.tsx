@@ -25,21 +25,10 @@ import SearchResultEntry, {
   SearchResultTokens
 } from '../SearchResultEntry';
 
-const page = {
-  content: '',
-  relativeName: 'foo/bar',
-  url: '/foo/bar',
-  text: 'Foobar is a universal variable understood to represent whatever is being discussed.',
-  title: 'Foobar',
-  navTitle: undefined
-};
-
 describe('SearchResultEntry', () => {
   it('should render', () => {
     expect(
-      shallow(
-        <SearchResultEntry active={true} result={{ page, highlights: {}, longestTerm: '' }} />
-      )
+      shallow(<SearchResultEntry active={true} result={mockSearchResult()} />)
     ).toMatchSnapshot();
   });
 });
@@ -47,32 +36,34 @@ describe('SearchResultEntry', () => {
 describe('SearchResultText', () => {
   it('should render with highlights', () => {
     expect(
+      shallow(<SearchResultText result={mockSearchResult({ highlights: { text: [[12, 9]] } })} />)
+    ).toMatchSnapshot();
+  });
+
+  it('should correctly extract exact matches', () => {
+    expect(
       shallow(
-        <SearchResultText result={{ page, highlights: { text: [[12, 9]] }, longestTerm: '' }} />
+        <SearchResultText
+          result={mockSearchResult({ exactMatch: true, query: 'variable understood' })}
+        />
       )
     ).toMatchSnapshot();
   });
 
   it('should render without highlights', () => {
-    expect(
-      shallow(<SearchResultText result={{ page, highlights: {}, longestTerm: '' }} />)
-    ).toMatchSnapshot();
+    expect(shallow(<SearchResultText result={mockSearchResult()} />)).toMatchSnapshot();
   });
 });
 
 describe('SearchResultTitle', () => {
   it('should render with highlights', () => {
     expect(
-      shallow(
-        <SearchResultTitle result={{ page, highlights: { title: [[0, 6]] }, longestTerm: '' }} />
-      )
+      shallow(<SearchResultTitle result={mockSearchResult({ highlights: { title: [[0, 6]] } })} />)
     ).toMatchSnapshot();
   });
 
   it('should render not without highlights', () => {
-    expect(
-      shallow(<SearchResultTitle result={{ page, highlights: {}, longestTerm: '' }} />)
-    ).toMatchSnapshot();
+    expect(shallow(<SearchResultTitle result={mockSearchResult()} />)).toMatchSnapshot();
   });
 });
 
@@ -94,3 +85,20 @@ describe('SearchResultTokens', () => {
     ).toMatchSnapshot();
   });
 });
+
+function mockSearchResult(overrides = {}) {
+  return {
+    page: {
+      content: '',
+      relativeName: 'foo/bar',
+      url: '/foo/bar',
+      text: 'Foobar is a universal variable understood to represent whatever is being discussed.',
+      title: 'Foobar',
+      navTitle: undefined
+    },
+    highlights: {},
+    longestTerm: '',
+    query: '',
+    ...overrides
+  };
+}

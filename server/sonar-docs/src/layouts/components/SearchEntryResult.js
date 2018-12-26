@@ -50,9 +50,32 @@ export function SearchResultTitle({ result }) {
 
 export function SearchResultText({ result }) {
   const textHighlights = result.highlights.text;
-  if (textHighlights && textHighlights.length > 0) {
-    const { text } = result.page;
-    const tokens = highlightMarks(text, textHighlights.map(h => ({ from: h[0], to: h[0] + h[1] })));
+  const { text } = result.page;
+  let tokens = [];
+
+  if (result.exactMatch) {
+    const pageText = result.page.text.toLowerCase();
+    const highlights = [];
+    let start = 0;
+    let index;
+    let loopCount = 0;
+
+    while ((index = pageText.indexOf(result.query, start)) > -1 && loopCount < 10) {
+      loopCount++;
+      highlights.push({ from: index, to: index + result.query.length });
+      start = index + 1;
+    }
+
+    if (highlights.length) {
+      tokens = highlightMarks(text, highlights);
+    }
+  }
+
+  if (tokens.length === 0 && textHighlights && textHighlights.length > 0) {
+    tokens = highlightMarks(text, textHighlights.map(h => ({ from: h[0], to: h[0] + h[1] })));
+  }
+
+  if (tokens.length) {
     return (
       <div className="note">
         <SearchResultTokens tokens={cutWords(tokens)} />

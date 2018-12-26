@@ -20,6 +20,7 @@ exports[`SearchResultEntry should render 1`] = `
           "title": "Foobar",
           "url": "/foo/bar",
         },
+        "query": "",
       }
     }
   />
@@ -36,10 +37,36 @@ exports[`SearchResultEntry should render 1`] = `
           "title": "Foobar",
           "url": "/foo/bar",
         },
+        "query": "",
       }
     }
   />
 </Link>
+`;
+
+exports[`SearchResultText should correctly extract exact matches 1`] = `
+<div
+  className="note"
+>
+  <SearchResultTokens
+    tokens={
+      Array [
+        Object {
+          "marked": false,
+          "text": "Foobar is a universal ",
+        },
+        Object {
+          "marked": true,
+          "text": "variable understood",
+        },
+        Object {
+          "marked": false,
+          "text": " to represent whatever is being discussed.",
+        },
+      ]
+    }
+  />
+</div>
 `;
 
 exports[`SearchResultText should render with highlights 1`] = `

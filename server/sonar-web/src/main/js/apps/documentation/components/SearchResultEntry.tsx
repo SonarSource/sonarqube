@@ -27,6 +27,7 @@ export interface SearchResult {
   highlights: { [field: string]: [number, number][] };
   longestTerm: string;
   page: DocumentationEntry;
+  query: string;
 }
 
 interface Props {
@@ -69,9 +70,36 @@ export function SearchResultTitle({ result }: { result: SearchResult }) {
 
 export function SearchResultText({ result }: { result: SearchResult }) {
   const textHighlights = result.highlights.text;
-  if (textHighlights && textHighlights.length > 0) {
-    const { text } = result.page;
-    const tokens = highlightMarks(text, textHighlights.map(h => ({ from: h[0], to: h[0] + h[1] })));
+  const { text } = result.page;
+  let tokens: {
+    text: string;
+    marked: boolean;
+  }[] = [];
+
+  if (result.exactMatch) {
+    const pageText = result.page.text.toLowerCase();
+    const highlights: { from: number; to: number }[] = [];
+    let start = 0;
+    let index = pageText.indexOf(result.query, start);
+    let loopCount = 0;
+
+    while (index > -1 && loopCount < 10) {
+      loopCount++;
+      highlights.push({ from: index, to: index + result.query.length });
+      start = index + 1;
+      index = pageText.indexOf(result.query, start);
+    }
+
+    if (highlights.length) {
+      tokens = highlightMarks(text, highlights);
+    }
+  }
+
+  if (tokens.length === 0 && textHighlights && textHighlights.length > 0) {
+    tokens = highlightMarks(text, textHighlights.map(h => ({ from: h[0], to: h[0] + h[1] })));
+  }
+
+  if (tokens.length) {
     return (
       <div className="note">
         <SearchResultTokens tokens={cutWords(tokens)} />

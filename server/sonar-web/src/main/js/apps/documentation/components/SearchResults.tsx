@@ -89,7 +89,7 @@ export default class SearchResults extends React.PureComponent<Props> {
           });
         });
 
-        return { page, highlights, longestTerm, exactMatch };
+        return { exactMatch, highlights, longestTerm, page, query };
       })
       .filter(result => result.page) as SearchResult[];
 

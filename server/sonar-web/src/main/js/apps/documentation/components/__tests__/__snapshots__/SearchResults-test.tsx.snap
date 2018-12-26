@@ -35,6 +35,7 @@ exports[`should search 1`] = `
           "title": "Where does Foobar come from?",
           "url": "/foobar",
         },
+        "query": "simply text",
       }
     }
   />
@@ -71,6 +72,7 @@ exports[`should search 1`] = `
           "title": "Where does it come from?",
           "url": "/lorem/origin",
         },
+        "query": "simply text",
       }
     }
   />
