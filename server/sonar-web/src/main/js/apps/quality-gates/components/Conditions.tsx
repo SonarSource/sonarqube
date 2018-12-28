@@ -39,6 +39,7 @@ interface Props {
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
+const FORBIDDEN_METRICS = ['alert_status', 'releasability_rating'];
 
 export default class Conditions extends React.PureComponent<Props> {
   getConditionKey = (condition: T.Condition, index: number) => {
@@ -71,7 +72,10 @@ export default class Conditions extends React.PureComponent<Props> {
 
     const availableMetrics = differenceWith(
       map(metrics, metric => metric).filter(
-        metric => !metric.hidden && !FORBIDDEN_METRIC_TYPES.includes(metric.type)
+        metric =>
+          !metric.hidden &&
+          !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
+          !FORBIDDEN_METRICS.includes(metric.key)
       ),
       conditions,
       (metric, condition) => metric.key === condition.metric
