@@ -12,7 +12,7 @@ exports[`should match snapshot 1`] = `
       className="boxed-group-inner"
     >
       <table
-        className="form"
+        className="data zebra"
       >
         <thead>
           <tr>
@@ -86,7 +86,7 @@ exports[`should show SonarCloud options if in SC context 1`] = `
       className="boxed-group-inner"
     >
       <table
-        className="form"
+        className="data zebra"
       >
         <thead>
           <tr>

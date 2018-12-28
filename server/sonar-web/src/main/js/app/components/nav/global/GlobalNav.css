@@ -101,7 +101,7 @@
 }
 
 .global-navbar-menu-right .navbar-search {
-  flex: 0 1 310px; /* Workaround for SONAR-10971 */
+  flex: 0 1 240px; /* Workaround for SONAR-10971 */
   min-width: 0;
 }
 

@@ -18,15 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import GlobalNav from './nav/global/GlobalNav';
 import StartupModal from './StartupModal';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
 import Workspace from '../../components/workspace/Workspace';
-import { isSonarCloud } from '../../helpers/system';
-import '../styles/sonarcloud.css';
 
 interface Props {
   children: React.ReactNode;
@@ -40,7 +37,7 @@ export default function GlobalContainer(props: Props) {
   return (
     <SuggestionsProvider>
       <StartupModal>
-        <div className={classNames('global-container', { sonarcloud: isSonarCloud() })}>
+        <div className="global-container">
           <div className="page-wrapper" id="container">
             <div className="page-container">
               <Workspace>

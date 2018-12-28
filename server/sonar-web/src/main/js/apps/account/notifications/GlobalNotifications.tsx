@@ -38,7 +38,7 @@ export default function GlobalNotifications(props: Props) {
         <h2>{translate('my_profile.overall_notifications.title')}</h2>
 
         <div className="boxed-group-inner">
-          <table className="form">
+          <table className="data zebra">
             <thead>
               <tr>
                 <th />

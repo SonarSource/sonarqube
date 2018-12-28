@@ -23,8 +23,6 @@ import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
-import NotificationsSidebar from '../../notifications/NotificationsSidebar';
-import NavLatestNotification from '../../notifications/NavLatestNotification';
 import Search from '../../search/Search';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import * as theme from '../../../theme';
@@ -46,10 +44,18 @@ import { isSonarCloud } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
 import { OnboardingContext } from '../../OnboardingContext';
 import { setCurrentUserSetting } from '../../../../store/users';
-import './GlobalNav.css';
 import { parseDate } from '../../../../helpers/dates';
+import './GlobalNav.css';
 
 const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
+const NotificationsSidebar = lazyLoad(
+  () => import('../../notifications/NotificationsSidebar'),
+  'NotificationsSidebar'
+);
+const NavLatestNotification = lazyLoad(
+  () => import('../../notifications/NavLatestNotification'),
+  'NavLatestNotification'
+);
 
 interface Props {
   accessToken?: string;

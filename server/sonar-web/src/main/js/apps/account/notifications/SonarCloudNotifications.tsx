@@ -42,7 +42,7 @@ export class SonarCloudNotifications extends React.PureComponent<Props> {
       <section className="boxed-group">
         <h2>{translate('my_profile.sonarcloud_feature_notifications.title')}</h2>
         <div className="boxed-group-inner">
-          <table className="form">
+          <table className="data zebra">
             <thead>
               <tr>
                 <th />
