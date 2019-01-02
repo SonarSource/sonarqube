@@ -35,17 +35,13 @@ class X extends React.Component<{
 
 const UnderTest = withUserOrganizations(X);
 
-// TODO Find a way to make this work, currently getting the following error : Actions must be plain objects. Use custom middleware for async actions.
-it.skip('should pass user organizations and logged in user', () => {
+it('should pass user organizations and logged in user', () => {
   const org = { key: 'my-org', name: 'My Organization' };
   const store = createStore(state => state, {
     organizations: { byKey: { 'my-org': org }, my: ['my-org'] }
   });
-  const wrapper = shallow(<UnderTest />, { context: { store } });
-  const wrappedComponent = wrapper
-    .dive()
-    .dive()
-    .dive();
+  const wrapper = shallow(<UnderTest />, { context: { store }, disableLifecycleMethods: true });
+  const wrappedComponent = wrapper.dive();
   expect(wrappedComponent.type()).toBe(X);
   expect(wrappedComponent.prop('userOrganizations')).toEqual([org]);
 });
