@@ -169,7 +169,9 @@ export default function startReactApp(
 
               <Route component={GlobalContainer}>
                 <RouteWithChildRoutes path="account" childRoutes={accountRoutes} />
-                <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
+                {!isSonarCloud() && (
+                  <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
+                )}
                 <RouteWithChildRoutes path="component" childRoutes={componentRoutes} />
                 <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />
                 <Route path="explore" component={Explore}>

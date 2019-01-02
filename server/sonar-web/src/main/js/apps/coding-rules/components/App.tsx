@@ -101,8 +101,6 @@ interface State {
   selected?: string;
 }
 
-// TODO redirect to default organization's rules page
-
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
 
