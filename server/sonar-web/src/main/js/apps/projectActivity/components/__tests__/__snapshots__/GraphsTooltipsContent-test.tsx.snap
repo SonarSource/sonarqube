@@ -9,7 +9,8 @@ exports[`should render correctly 1`] = `
     className="thin"
   >
     <ChartLegendIcon
-      className="spacer-right line-chart-legend line-chart-legend-1"
+      className="spacer-right"
+      index={1}
     />
   </td>
   <td

@@ -21,18 +21,16 @@ import * as React from 'react';
 import ChartLegendIcon from '../icons-components/ChartLegendIcon';
 
 interface Props {
-  style: string;
+  index: number;
   translatedName: string;
   value: string;
 }
 
-export default function PreviewGraphTooltipsContent({ style, translatedName, value }: Props) {
+export default function PreviewGraphTooltipsContent({ index, translatedName, value }: Props) {
   return (
     <tr className="overview-analysis-graph-tooltip-line">
       <td className="thin">
-        <ChartLegendIcon
-          className={'little-spacer-right line-chart-legend line-chart-legend-' + style}
-        />
+        <ChartLegendIcon className="little-spacer-right" index={index} />
       </td>
       <td className="overview-analysis-graph-tooltip-value text-right little-spacer-right thin">
         {value}

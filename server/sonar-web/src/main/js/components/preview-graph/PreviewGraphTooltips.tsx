@@ -64,8 +64,8 @@ export default class PreviewGraphTooltips extends React.PureComponent<Props> {
                 }
                 return (
                   <PreviewGraphTooltipsContent
+                    index={idx}
                     key={serie.name}
-                    style={idx.toString()}
                     translatedName={serie.translatedName}
                     value={this.props.formatValue(point.y)}
                   />

@@ -9,11 +9,11 @@ exports[`should render correctly the list of series 1`] = `
     key="bugs"
   >
     <GraphsLegendItem
+      index={0}
       metric="bugs"
       name="Bugs"
       removeMetric={[Function]}
       showWarning={false}
-      style="0"
     />
   </span>
   <span
@@ -21,11 +21,11 @@ exports[`should render correctly the list of series 1`] = `
     key="my_metric"
   >
     <GraphsLegendItem
+      index={1}
       metric="my_metric"
       name="My Metric"
       removeMetric={[Function]}
       showWarning={false}
-      style="1"
     />
   </span>
   <Tooltip
@@ -36,11 +36,11 @@ exports[`should render correctly the list of series 1`] = `
       className="spacer-left spacer-right"
     >
       <GraphsLegendItem
+        index={2}
         metric="foo"
         name="Foo"
         removeMetric={[Function]}
         showWarning={true}
-        style="2"
       />
     </span>
   </Tooltip>

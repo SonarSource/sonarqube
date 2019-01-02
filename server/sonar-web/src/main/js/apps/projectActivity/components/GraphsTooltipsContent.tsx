@@ -18,23 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 
 interface Props {
   name: string;
-  style: string;
+  index: number;
   translatedName: string;
   value: string;
 }
 
-export default function GraphsTooltipsContent({ name, style, translatedName, value }: Props) {
+export default function GraphsTooltipsContent({ name, index, translatedName, value }: Props) {
   return (
     <tr className="project-activity-graph-tooltip-line" key={name}>
       <td className="thin">
-        <ChartLegendIcon
-          className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + style)}
-        />
+        <ChartLegendIcon className="spacer-right" index={index} />
       </td>
       <td className="project-activity-graph-tooltip-value text-right spacer-right thin">{value}</td>
       <td>{translatedName}</td>

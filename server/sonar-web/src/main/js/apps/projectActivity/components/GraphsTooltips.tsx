@@ -54,10 +54,10 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
       if (this.props.graph === DEFAULT_GRAPH) {
         return (
           <GraphsTooltipsContentIssues
+            index={idx}
             key={serie.name}
             measuresHistory={this.props.measuresHistory}
             name={serie.name}
-            style={idx.toString()}
             tooltipIdx={tooltipIdx}
             translatedName={serie.translatedName}
             value={this.props.formatValue(point.y)}
@@ -66,9 +66,9 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
       } else {
         return (
           <GraphsTooltipsContent
+            index={idx}
             key={serie.name}
             name={serie.name}
-            style={idx.toString()}
             translatedName={serie.translatedName}
             value={this.props.formatValue(point.y)}
           />

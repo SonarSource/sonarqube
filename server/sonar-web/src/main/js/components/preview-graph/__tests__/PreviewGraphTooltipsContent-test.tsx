@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import PreviewGraphTooltipsContent from '../PreviewGraphTooltipsContent';
 
 const DEFAULT_PROPS = {
-  style: '1',
+  index: 1,
   translatedName: 'Code Smells',
   value: '1.2k'
 };

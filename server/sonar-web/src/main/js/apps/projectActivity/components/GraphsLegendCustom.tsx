@@ -35,11 +35,11 @@ export default function GraphsLegendCustom({ removeMetric, series }: Props) {
         const hasData = hasDataValues(serie);
         const legendItem = (
           <GraphsLegendItem
+            index={idx}
             metric={serie.name}
             name={serie.translatedName}
             removeMetric={removeMetric}
             showWarning={!hasData}
-            style={idx.toString()}
           />
         );
         if (!hasData) {

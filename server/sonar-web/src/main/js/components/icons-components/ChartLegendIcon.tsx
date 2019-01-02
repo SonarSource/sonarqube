@@ -18,9 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Icon, { IconProps } from './Icon';
+import Icon from './Icon';
+import * as theme from '../../app/theme';
 
-export default function ChartLegendIcon({ className, fill = 'currentColor', size }: IconProps) {
+interface Props {
+  className?: string;
+  index: number;
+  size?: number;
+}
+
+const COLORS = [theme.blue, theme.darkBlue, '#24c6e0'];
+
+export default function ChartLegendIcon({ className, index, size }: Props) {
+  const fill = COLORS[index] || COLORS[0];
   return (
     <Icon className={className} size={size}>
       <path

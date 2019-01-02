@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import GraphsLegendItem from '../GraphsLegendItem';
 
 it('should render correctly a legend', () => {
-  expect(shallow(<GraphsLegendItem metric="bugs" name="Bugs" style="2" />)).toMatchSnapshot();
+  expect(shallow(<GraphsLegendItem index={2} metric="bugs" name="Bugs" />)).toMatchSnapshot();
 });
 
 it('should render correctly an actionable legend', () => {
@@ -30,10 +30,10 @@ it('should render correctly an actionable legend', () => {
     shallow(
       <GraphsLegendItem
         className="myclass"
+        index={1}
         metric="foo"
         name="Foo"
         removeMetric={() => {}}
-        style="1"
       />
     )
   ).toMatchSnapshot();
@@ -42,7 +42,7 @@ it('should render correctly an actionable legend', () => {
 it('should render correctly legends with warning', () => {
   expect(
     shallow(
-      <GraphsLegendItem className="myclass" metric="foo" name="Foo" showWarning={true} style="1" />
+      <GraphsLegendItem className="myclass" index={1} metric="foo" name="Foo" showWarning={true} />
     )
   ).toMatchSnapshot();
 });

@@ -40,9 +40,9 @@ const MEASURES_ISSUES = [
 ];
 
 const DEFAULT_PROPS = {
+  index: 2,
   measuresHistory: MEASURES_ISSUES,
   name: 'bugs',
-  style: '2',
   tooltipIdx: 1,
   translatedName: 'Bugs',
   value: '1.2k'

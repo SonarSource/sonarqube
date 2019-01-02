@@ -31,10 +31,10 @@ export default function GraphsLegendStatic({ series }: Props) {
       {series.map((serie, idx) => (
         <GraphsLegendItem
           className="big-spacer-left big-spacer-right"
+          index={idx}
           key={serie.name}
           metric={serie.name}
           name={serie.translatedName}
-          style={idx.toString()}
         />
       ))}
     </div>

@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 import Rating from '../../../components/ui/Rating';
 import { MeasureHistory } from '../utils';
 
 interface Props {
+  index: number;
   measuresHistory: MeasureHistory[];
   name: string;
-  style: string;
   tooltipIdx: number;
   translatedName: string;
   value: string;
@@ -49,12 +48,7 @@ export default function GraphsTooltipsContentIssues(props: Props) {
   return (
     <tr className="project-activity-graph-tooltip-issues-line" key={props.name}>
       <td className="thin">
-        <ChartLegendIcon
-          className={classNames(
-            'spacer-right line-chart-legend',
-            'line-chart-legend-' + props.style
-          )}
-        />
+        <ChartLegendIcon className="spacer-right" index={props.index} />
       </td>
       <td className="text-right spacer-right">
         <span className="project-activity-graph-tooltip-value">{props.value}</span>

@@ -27,10 +27,10 @@ import ClearIcon from '../../../components/icons-components/ClearIcon';
 
 interface Props {
   className?: string;
+  index: number;
   metric: string;
   name: string;
   showWarning?: boolean;
-  style: string;
   removeMetric?: (metric: string) => void;
 }
 
@@ -52,12 +52,7 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
         {this.props.showWarning ? (
           <AlertWarnIcon className="spacer-right" />
         ) : (
-          <ChartLegendIcon
-            className={classNames(
-              'text-middle spacer-right line-chart-legend',
-              'line-chart-legend-' + this.props.style
-            )}
-          />
+          <ChartLegendIcon className="text-middle spacer-right" index={this.props.index} />
         )}
         <span className="text-middle">{this.props.name}</span>
         {isActionable && (

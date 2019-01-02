@@ -8,7 +8,8 @@ exports[`should render correctly 1`] = `
     className="thin"
   >
     <ChartLegendIcon
-      className="little-spacer-right line-chart-legend line-chart-legend-1"
+      className="little-spacer-right"
+      index={1}
     />
   </td>
   <td

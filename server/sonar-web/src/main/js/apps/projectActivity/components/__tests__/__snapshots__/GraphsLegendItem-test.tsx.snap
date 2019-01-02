@@ -5,7 +5,8 @@ exports[`should render correctly a legend 1`] = `
   className=""
 >
   <ChartLegendIcon
-    className="text-middle spacer-right line-chart-legend line-chart-legend-2"
+    className="text-middle spacer-right"
+    index={2}
   />
   <span
     className="text-middle"
@@ -20,7 +21,8 @@ exports[`should render correctly an actionable legend 1`] = `
   className="project-activity-graph-legend-actionable myclass"
 >
   <ChartLegendIcon
-    className="text-middle spacer-right line-chart-legend line-chart-legend-1"
+    className="text-middle spacer-right"
+    index={1}
   />
   <span
     className="text-middle"

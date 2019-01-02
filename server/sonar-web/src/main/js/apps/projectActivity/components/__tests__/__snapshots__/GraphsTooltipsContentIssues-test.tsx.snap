@@ -9,7 +9,8 @@ exports[`should render correctly 1`] = `
     className="thin"
   >
     <ChartLegendIcon
-      className="spacer-right line-chart-legend line-chart-legend-2"
+      className="spacer-right"
+      index={2}
     />
   </td>
   <td
@@ -41,7 +42,8 @@ exports[`should render correctly when rating data is missing 1`] = `
     className="thin"
   >
     <ChartLegendIcon
-      className="spacer-right line-chart-legend line-chart-legend-2"
+      className="spacer-right"
+      index={2}
     />
   </td>
   <td

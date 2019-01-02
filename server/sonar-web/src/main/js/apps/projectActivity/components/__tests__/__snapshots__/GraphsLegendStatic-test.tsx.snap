@@ -6,17 +6,17 @@ exports[`should render correctly the list of series 1`] = `
 >
   <GraphsLegendItem
     className="big-spacer-left big-spacer-right"
+    index={0}
     key="bugs"
     metric="bugs"
     name="Bugs"
-    style="0"
   />
   <GraphsLegendItem
     className="big-spacer-left big-spacer-right"
+    index={1}
     key="code_smells"
     metric="code_smells"
     name="Code Smells"
-    style="1"
   />
 </div>
 `;
