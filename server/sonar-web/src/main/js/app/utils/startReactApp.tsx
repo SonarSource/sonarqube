@@ -34,7 +34,6 @@ import accountRoutes from '../../apps/account/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
-import componentRoutes from '../../apps/component/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
@@ -172,7 +171,6 @@ export default function startReactApp(
                 {!isSonarCloud() && (
                   <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
                 )}
-                <RouteWithChildRoutes path="component" childRoutes={componentRoutes} />
                 <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />
                 <Route path="explore" component={Explore}>
                   <Route path="issues" component={ExploreIssues} />

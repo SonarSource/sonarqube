@@ -9,15 +9,19 @@ exports[`should render 1`] = `
   >
     <Link
       className="js-get-permalink"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
+      rel="noopener noreferrer"
       style={Object {}}
+      target="_blank"
       to={
         Object {
-          "pathname": "/component",
+          "pathname": "/code",
           "query": Object {
             "branch": "feature",
-            "id": "foo",
+            "id": "prj",
             "line": 3,
+            "selected": "foo",
           },
         }
       }

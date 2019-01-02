@@ -19,7 +19,6 @@ exports[`render line 3 1`] = `
     open={false}
     overlay={
       <LineOptionsPopup
-        componentKey="foo"
         line={
           Object {
             "line": 3,

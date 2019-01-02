@@ -32,7 +32,8 @@ import {
   getPathUrlAsString,
   getBranchLikeUrl,
   getComponentIssuesUrl,
-  getBaseUrl
+  getBaseUrl,
+  getCodeUrl
 } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
@@ -136,15 +137,13 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 </a>
               </li>
               <li>
-                <a
+                <Link
                   className="js-new-window"
-                  href={getPathUrlAsString({
-                    pathname: '/component',
-                    query: { id: key, ...getBranchLikeQuery(this.props.branchLike) }
-                  })}
-                  target="_blank">
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  to={getCodeUrl(this.props.sourceViewerFile.project, this.props.branchLike, key)}>
                   {translate('component_viewer.new_window')}
-                </a>
+                </Link>
               </li>
               {!workspace && (
                 <li>
@@ -154,7 +153,11 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                 </li>
               )}
               <li>
-                <a className="js-raw-source" href={rawSourcesLink} target="_blank">
+                <a
+                  className="js-raw-source"
+                  href={rawSourcesLink}
+                  rel="noopener noreferrer"
+                  target="_blank">
                   {translate('component_viewer.show_raw_source')}
                 </a>
               </li>

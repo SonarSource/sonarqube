@@ -22,26 +22,32 @@ import { Link } from 'react-router';
 import { DropdownOverlay } from '../../controls/Dropdown';
 import { PopupPlacement } from '../../ui/popups';
 import { translate } from '../../../helpers/l10n';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getCodeUrl } from '../../../helpers/urls';
+import { SourceViewerContext } from '../SourceViewerContext';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
-  componentKey: string;
   line: T.SourceLine;
 }
 
-export default function LineOptionsPopup({ branchLike, componentKey, line }: Props) {
-  const permalink = {
-    pathname: '/component',
-    query: { id: componentKey, line: line.line, ...getBranchLikeQuery(branchLike) }
-  };
+export default function LineOptionsPopup({ line }: Props) {
   return (
-    <DropdownOverlay placement={PopupPlacement.RightTop}>
-      <div className="source-viewer-bubble-popup nowrap">
-        <Link className="js-get-permalink" to={permalink}>
-          {translate('component_viewer.get_permalink')}
-        </Link>
-      </div>
-    </DropdownOverlay>
+    <SourceViewerContext.Consumer>
+      {({ branchLike, file }) => (
+        <DropdownOverlay placement={PopupPlacement.RightTop}>
+          <div className="source-viewer-bubble-popup nowrap">
+            <Link
+              className="js-get-permalink"
+              onClick={event => {
+                event.stopPropagation();
+              }}
+              rel="noopener noreferrer"
+              target="_blank"
+              to={getCodeUrl(file.project, branchLike, file.key, line.line)}>
+              {translate('component_viewer.get_permalink')}
+            </Link>
+          </div>
+        </DropdownOverlay>
+      )}
+    </SourceViewerContext.Consumer>
   );
 }

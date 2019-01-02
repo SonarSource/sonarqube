@@ -30,7 +30,6 @@ import LineCode from './LineCode';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
-  componentKey: string;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
   displayDuplications: boolean;
@@ -112,8 +111,6 @@ export default class Line extends React.PureComponent<Props> {
     return (
       <tr className={className} data-line-number={line.line}>
         <LineNumber
-          branchLike={this.props.branchLike}
-          componentKey={this.props.componentKey}
           line={line}
           onPopupToggle={this.props.onLinePopupToggle}
           popupOpen={this.isPopupOpen('line-number')}

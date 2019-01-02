@@ -21,14 +21,18 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import LineOptionsPopup from '../LineOptionsPopup';
 
+jest.mock('../../SourceViewerContext', () => ({
+  SourceViewerContext: {
+    Consumer: (props: any) =>
+      props.children({
+        branchLike: { isMain: false, name: 'feature', type: 'SHORT' },
+        file: { project: 'prj', key: 'foo' }
+      })
+  }
+}));
+
 it('should render', () => {
   const line = { line: 3 };
-  const branch: T.ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: 'master',
-    name: 'feature',
-    type: 'SHORT'
-  };
-  const wrapper = shallow(<LineOptionsPopup branchLike={branch} componentKey="foo" line={line} />);
+  const wrapper = shallow(<LineOptionsPopup line={line} />).dive();
   expect(wrapper).toMatchSnapshot();
 });

@@ -41,6 +41,7 @@ exports[`renders 1`] = `
         "pathname": "/code",
         "query": Object {
           "id": "proj",
+          "line": undefined,
           "selected": "comp",
         },
       }
@@ -122,6 +123,7 @@ exports[`renders with branch 1`] = `
         "query": Object {
           "branch": "feature",
           "id": "proj",
+          "line": undefined,
           "selected": "comp",
         },
       }
@@ -200,6 +202,7 @@ exports[`renders with sub-project 1`] = `
         "pathname": "/code",
         "query": Object {
           "id": "proj",
+          "line": undefined,
           "selected": "comp",
         },
       }

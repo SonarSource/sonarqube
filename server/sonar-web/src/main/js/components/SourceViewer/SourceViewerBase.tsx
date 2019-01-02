@@ -22,6 +22,7 @@ import * as classNames from 'classnames';
 import { intersection, uniqBy } from 'lodash';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
+import { SourceViewerContext } from './SourceViewerContext';
 import DuplicationPopup from './components/DuplicationPopup';
 import defaultLoadIssues from './helpers/loadIssues';
 import getCoverageStatus from './helpers/getCoverageStatus';
@@ -703,23 +704,25 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     });
 
     return (
-      <div className={className} ref={node => (this.node = node)}>
-        <WorkspaceContext.Consumer>
-          {({ openComponent }) => (
-            <SourceViewerHeader
-              branchLike={this.props.branchLike}
-              openComponent={openComponent}
-              sourceViewerFile={component}
-            />
+      <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
+        <div className={className} ref={node => (this.node = node)}>
+          <WorkspaceContext.Consumer>
+            {({ openComponent }) => (
+              <SourceViewerHeader
+                branchLike={this.props.branchLike}
+                openComponent={openComponent}
+                sourceViewerFile={component}
+              />
+            )}
+          </WorkspaceContext.Consumer>
+          {sourceRemoved && (
+            <Alert className="spacer-top" variant="warning">
+              {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
+            </Alert>
           )}
-        </WorkspaceContext.Consumer>
-        {sourceRemoved && (
-          <Alert className="spacer-top" variant="warning">
-            {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
-          </Alert>
-        )}
-        {!sourceRemoved && sources !== undefined && this.renderCode(sources)}
-      </div>
+          {!sourceRemoved && sources !== undefined && this.renderCode(sources)}
+        </div>
+      </SourceViewerContext.Provider>
     );
   }
 }

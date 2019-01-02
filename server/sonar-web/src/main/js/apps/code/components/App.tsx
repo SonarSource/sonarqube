@@ -21,13 +21,14 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { Location } from 'history';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import Search from './Search';
+import SourceViewerWrapper from './SourceViewerWrapper';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
 import ListFooter from '../../../components/controls/ListFooter';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
@@ -46,7 +47,7 @@ interface DispatchToProps {
 interface OwnProps {
   branchLike?: T.BranchLike;
   component: T.Component;
-  location: { query: { [x: string]: string } };
+  location: Pick<Location, 'query'>;
 }
 
 type Props = StateToProps & DispatchToProps & OwnProps;
@@ -175,7 +176,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, component } = this.props;
+    const { branchLike, component, location } = this.props;
     const { loading, baseComponent, components, breadcrumbs, total, sourceViewer } = this.state;
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
@@ -224,7 +225,11 @@ export class App extends React.PureComponent<Props, State> {
 
           {sourceViewer !== undefined && (
             <div className="spacer-top">
-              <SourceViewer branchLike={branchLike} component={sourceViewer.key} />
+              <SourceViewerWrapper
+                branchLike={branchLike}
+                component={sourceViewer.key}
+                location={location}
+              />
             </div>
           )}
         </div>

@@ -219,8 +219,16 @@ export function getMarkdownHelpUrl(): string {
   return getBaseUrl() + '/markdown/help';
 }
 
-export function getCodeUrl(project: string, branchLike?: T.BranchLike, selected?: string) {
-  return { pathname: '/code', query: { id: project, ...getBranchLikeQuery(branchLike), selected } };
+export function getCodeUrl(
+  project: string,
+  branchLike?: T.BranchLike,
+  selected?: string,
+  line?: number
+) {
+  return {
+    pathname: '/code',
+    query: { id: project, ...getBranchLikeQuery(branchLike), selected, line }
+  };
 }
 
 export function getOrganizationUrl(organization: string) {

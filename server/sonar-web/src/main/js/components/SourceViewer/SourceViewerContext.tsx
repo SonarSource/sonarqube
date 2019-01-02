@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from '../../components/lazyLoad';
+import * as React from 'react';
 
-const routes = [
-  {
-    indexRoute: { component: lazyLoad(() => import('./components/App')) }
-  }
-];
+interface SourceViewerContextShape {
+  branchLike?: T.BranchLike;
+  file: T.SourceViewerFile;
+}
 
-export default routes;
+export const SourceViewerContext = React.createContext({
+  branchLike: {},
+  file: {}
+}) as React.Context<SourceViewerContextShape>;

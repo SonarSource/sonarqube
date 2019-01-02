@@ -22,8 +22,6 @@ import LineOptionsPopup from './LineOptionsPopup';
 import Toggler from '../../controls/Toggler';
 
 interface Props {
-  branchLike: T.BranchLike | undefined;
-  componentKey: string;
   line: T.SourceLine;
   onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
   popupOpen: boolean;
@@ -46,7 +44,7 @@ export default class LineNumber extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branchLike, componentKey, line, popupOpen } = this.props;
+    const { line, popupOpen } = this.props;
     const { line: lineNumber } = line;
     const hasLineNumber = !!lineNumber;
     return hasLineNumber ? (
@@ -60,9 +58,7 @@ export default class LineNumber extends React.PureComponent<Props> {
         <Toggler
           onRequestClose={this.closePopup}
           open={popupOpen}
-          overlay={
-            <LineOptionsPopup branchLike={branchLike} componentKey={componentKey} line={line} />
-          }
+          overlay={<LineOptionsPopup line={line} />}
         />
       </td>
     ) : (

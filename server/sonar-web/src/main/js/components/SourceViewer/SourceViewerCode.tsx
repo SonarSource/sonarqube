@@ -156,7 +156,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     return (
       <Line
         branchLike={this.props.branchLike}
-        componentKey={this.props.componentKey}
         displayAllIssues={this.props.displayAllIssues}
         displayCoverage={displayCoverage}
         displayDuplications={displayDuplications}
