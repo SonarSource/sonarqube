@@ -35,6 +35,10 @@ jest.mock('../../lazyLoad', () => ({
   }
 }));
 
+beforeAll(() => {
+  Date.prototype.getFullYear = jest.fn().mockReturnValue(2018); // eslint-disable-line no-extend-native
+});
+
 const dateA = parseDate('2018-01-17T00:00:00.000Z');
 const dateB = parseDate('2018-02-05T00:00:00.000Z');
 
