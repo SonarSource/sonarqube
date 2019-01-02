@@ -229,7 +229,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                     className="note"
                     dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }}
                   />
-                  {param.extra && <div className="note">{param.extra}</div>}
                 </div>
               ))
             )}

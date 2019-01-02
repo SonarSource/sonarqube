@@ -687,8 +687,6 @@ declare namespace T {
   export type RuleInheritance = 'NONE' | 'INHERITED' | 'OVERRIDES';
 
   export interface RuleParameter {
-    // TODO is this extra really returned?
-    extra?: string;
     defaultValue?: string;
     htmlDesc?: string;
     key: string;

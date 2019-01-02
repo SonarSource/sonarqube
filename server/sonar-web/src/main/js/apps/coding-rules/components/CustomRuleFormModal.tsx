@@ -329,7 +329,6 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           />
         )}
         <div className="note" dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }} />
-        {param.extra && <div className="note">{param.extra}</div>}
       </td>
     </tr>
   );
