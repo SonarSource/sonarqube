@@ -26,12 +26,17 @@ interface Props {
 }
 
 export default function ChangesList({ changes }: Props) {
+  const renderSeverity = (key: string) => {
+    const severity = changes[key];
+    return severity ? <SeverityChange severity={severity} /> : null;
+  };
+
   return (
     <ul>
       {Object.keys(changes).map(key => (
         <li key={key}>
           {key === 'severity' ? (
-            <SeverityChange severity={changes[key]} />
+            renderSeverity(key)
           ) : (
             <ParameterChange name={key} value={changes[key]} />
           )}

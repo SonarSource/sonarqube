@@ -22,7 +22,7 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  severity: string | null;
+  severity: string;
 }
 
 export default function SeverityChange({ severity }: Props) {

@@ -23,8 +23,7 @@ import { translate } from '../../helpers/l10n';
 
 interface Props {
   className?: string;
-  // TODO avoid passing nil values
-  severity: string | undefined | null;
+  severity: string;
 }
 
 export default function SeverityHelper({ className, severity }: Props) {
