@@ -21,9 +21,11 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
+import slug from 'remark-slug';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import DocLink from './DocLink';
 import DocImg from './DocImg';
+import DocToc from './DocToc';
 import DocTooltipLink from './DocTooltipLink';
 import remarkToc from './plugins/remark-toc';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
@@ -36,6 +38,7 @@ interface Props {
   content: string | undefined;
   displayH1?: boolean;
   isTooltip?: boolean;
+  stickyToc?: boolean;
 }
 
 export default class DocMarkdownBlock extends React.PureComponent<Props> {
@@ -43,46 +46,62 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
 
   handleAnchorClick = (href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
     if (this.node) {
-      const element = this.node.querySelector(`#${href.substr(1)}`);
+      const element = this.node.querySelector(href);
       if (element) {
         event.preventDefault();
         scrollToElement(element, { bottomOffset: window.innerHeight - 80 });
+        if (history.pushState) {
+          history.pushState(null, '', href);
+        }
       }
     }
   };
 
   render() {
-    const { childProps, content, className, displayH1, isTooltip } = this.props;
+    const { childProps, content, className, displayH1, stickyToc, isTooltip } = this.props;
     const parsed = separateFrontMatter(content || '');
+    let filteredContent = filterContent(parsed.content);
+    const tocContent = filteredContent;
+    const md = remark();
+
+    // TODO find a way to replace these custom blocks with real Alert components
+    md.use(remarkCustomBlocks, {
+      danger: { classes: 'alert alert-danger' },
+      warning: { classes: 'alert alert-warning' },
+      info: { classes: 'alert alert-info' },
+      success: { classes: 'alert alert-success' },
+      collapse: { classes: 'collapse' }
+    })
+      .use(reactRenderer, {
+        remarkReactComponents: {
+          div: Block,
+          // use custom link to render documentation anchors
+          a: isTooltip
+            ? withChildProps(DocTooltipLink, childProps)
+            : withChildProps(DocLink, { onAnchorClick: this.handleAnchorClick }),
+          // use custom img tag to render documentation images
+          img: DocImg
+        },
+        toHast: {},
+        sanitize: false
+      })
+      .use(slug);
+
+    if (stickyToc) {
+      filteredContent = filteredContent.replace(/#*\s*(toc|table[ -]of[ -]contents?).*/i, '');
+    } else {
+      md.use(remarkToc, { maxDepth: 3 });
+    }
+
     return (
-      <div className={classNames('markdown', className)} ref={ref => (this.node = ref)}>
-        {displayH1 && <h1>{parsed.frontmatter.title}</h1>}
-        {
-          remark()
-            .use(remarkToc, { maxDepth: 3 })
-            // TODO find a way to replace these custom blocks with real Alert components
-            .use(remarkCustomBlocks, {
-              danger: { classes: 'alert alert-danger' },
-              warning: { classes: 'alert alert-warning' },
-              info: { classes: 'alert alert-info' },
-              success: { classes: 'alert alert-success' },
-              collapse: { classes: 'collapse' }
-            })
-            .use(reactRenderer, {
-              remarkReactComponents: {
-                div: Block,
-                // use custom link to render documentation anchors
-                a: isTooltip
-                  ? withChildProps(DocTooltipLink, childProps)
-                  : withChildProps(DocLink, { onAnchorClick: this.handleAnchorClick }),
-                // use custom img tag to render documentation images
-                img: DocImg
-              },
-              toHast: {},
-              sanitize: false
-            })
-            .processSync(filterContent(parsed.content)).contents
-        }
+      <div
+        className={classNames('markdown', className, { 'has-toc': stickyToc })}
+        ref={ref => (this.node = ref)}>
+        <div className="markdown-content">
+          {displayH1 && <h1 className="documentation-title">{parsed.frontmatter.title}</h1>}
+          {md.processSync(filteredContent).contents}
+        </div>
+        {stickyToc && <DocToc content={tocContent} onAnchorClick={this.handleAnchorClick} />}
       </div>
     );
   }

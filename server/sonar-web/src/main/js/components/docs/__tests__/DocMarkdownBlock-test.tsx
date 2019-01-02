@@ -22,7 +22,29 @@ import { shallow } from 'enzyme';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 import { isSonarCloud } from '../../../helpers/system';
 
-// mock `remark` and `remark-react` to work around the issue with cjs imports
+const CONTENT_WITH_TOC = `
+## Table of Contents
+
+## Lorem ipsum
+
+Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
+
+## Sit amet
+
+### Maecenas diam
+
+Velit, vestibulum nec ultrices id, mollis eget arcu. Sed dapibus, sapien ut auctor consectetur, mi tortor vestibulum ante, eget dapibus lacus risus.
+
+### Integer
+
+At cursus turpis. Aenean at elit fringilla, porttitor mi eget, dapibus nisi. Donec quis congue odio.
+
+## Nam blandit 
+
+Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
+`;
+
+// mock `remark` & co to work around the issue with cjs imports
 jest.mock('remark', () => {
   const remark = require.requireActual('remark');
   return { default: remark };
@@ -33,18 +55,23 @@ jest.mock('remark-react', () => {
   return { default: remarkReact };
 });
 
+jest.mock('remark-slug', () => {
+  const remarkSlug = require.requireActual('remark-slug');
+  return { default: remarkSlug };
+});
+
 jest.mock('../../../helpers/system', () => ({
   getInstance: jest.fn(),
   isSonarCloud: jest.fn()
 }));
 
 it('should render simple markdown', () => {
-  expect(shallow(<DocMarkdownBlock content="this is *bold* text" />)).toMatchSnapshot();
+  expect(shallowRender({ content: 'this is *bold* text' })).toMatchSnapshot();
 });
 
 it('should use custom component for links', () => {
   expect(
-    shallow(<DocMarkdownBlock content="some [link](/quality-profiles)" />).find('withChildProps')
+    shallowRender({ content: 'some [link](/quality-profiles)' }).find('withChildProps')
   ).toMatchSnapshot();
 });
 
@@ -73,20 +100,34 @@ static
 text`;
 
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
-  expect(shallow(<DocMarkdownBlock content={content} />)).toMatchSnapshot();
+  expect(shallowRender({ content })).toMatchSnapshot();
 
   (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  expect(shallow(<DocMarkdownBlock content={content} />)).toMatchSnapshot();
+  expect(shallowRender({ content })).toMatchSnapshot();
 });
 
 it('should render with custom props for links', () => {
   expect(
-    shallow(
-      <DocMarkdownBlock
-        childProps={{ foo: 'bar' }}
-        content="some [link](#quality-profiles)"
-        isTooltip={true}
-      />
-    ).find('withChildProps')
+    shallowRender({
+      childProps: { foo: 'bar' },
+      content: 'some [link](#quality-profiles)',
+      isTooltip: true
+    }).find('withChildProps')
   ).toMatchSnapshot();
 });
+
+it('should render a TOC if available', () => {
+  const wrapper = shallowRender({ content: CONTENT_WITH_TOC });
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('ul').exists()).toBe(true);
+});
+
+it('should render a sticky TOC if available', () => {
+  const wrapper = shallowRender({ content: CONTENT_WITH_TOC, stickyToc: true });
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('DocToc').exists()).toBe(true);
+});
+
+function shallowRender(props: Partial<DocMarkdownBlock['props']> = {}) {
+  return shallow(<DocMarkdownBlock content="" {...props} />);
+}

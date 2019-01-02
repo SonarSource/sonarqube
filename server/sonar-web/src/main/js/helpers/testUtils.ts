@@ -101,6 +101,22 @@ export function resizeWindowTo(width?: number, height?: number) {
   window.dispatchEvent(resizeEvent);
 }
 
+export function scrollTo({ left = 0, top = 0 }) {
+  Object.defineProperty(window, 'pageYOffset', { value: top });
+  Object.defineProperty(window, 'pageXOffset', { value: left });
+  const resizeEvent = new Event('scroll');
+  window.dispatchEvent(resizeEvent);
+}
+
+export function setNodeRect({ width = 50, height = 50, left = 0, top = 0 }) {
+  const { findDOMNode } = require('react-dom');
+  const element = document.createElement('div');
+  Object.defineProperty(element, 'getBoundingClientRect', {
+    value: () => ({ width, height, left, top })
+  });
+  findDOMNode.mockReturnValue(element);
+}
+
 export function doAsync(fn?: Function): Promise<void> {
   return new Promise(resolve => {
     setImmediate(() => {

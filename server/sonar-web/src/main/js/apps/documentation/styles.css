@@ -31,11 +31,12 @@
 }
 
 .documentation-content.markdown {
+  position: relative;
   font-size: 16px;
   line-height: 1.7;
 }
 
-.documentation-content.markdown > h1 {
+.documentation-content.markdown .documentation-title {
   font-size: 24px;
   padding-top: var(--gridSize);
   margin-bottom: 2em;
@@ -115,4 +116,48 @@
 
 .documentation-content.markdown .collapse-container *:last-child {
   margin-bottom: 0;
+}
+
+.markdown.has-toc {
+  display: flex;
+  padding-right: var(--gridSize);
+}
+
+.markdown.has-toc .markdown-content {
+  flex-shrink: 1;
+}
+
+.markdown-toc {
+  flex: 0 0 240px;
+}
+
+.markdown-toc-content {
+  margin-left: calc(4 * var(--gridSize));
+  padding: 0 var(--gridSize);
+  font-size: var(--baseFontSize);
+  background: white;
+  position: sticky;
+  top: calc(20px + var(--globalNavHeight));
+}
+
+.markdown-toc-content h4 {
+  margin: 0 var(--gridSize) var(--gridSize) var(--gridSize);
+  font-size: var(--mediumFontSize);
+}
+
+.markdown-toc-content a {
+  display: block;
+  color: var(--sonarcloudBlack900);
+  padding: calc(var(--gridSize) / 2) var(--gridSize);
+  border: 1px solid white;
+  line-height: 1.2;
+  transition: none;
+}
+
+.markdown-toc a:hover {
+  border-color: var(--blue);
+}
+
+.markdown-toc a.active {
+  font-weight: bold;
 }

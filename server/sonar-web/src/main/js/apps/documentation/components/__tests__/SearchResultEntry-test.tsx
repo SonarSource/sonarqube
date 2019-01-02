@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import SearchResultEntry, {
+  SearchResult,
   SearchResultText,
   SearchResultTitle,
   SearchResultTokens
@@ -86,7 +87,7 @@ describe('SearchResultTokens', () => {
   });
 });
 
-function mockSearchResult(overrides = {}) {
+function mockSearchResult(overrides: Partial<SearchResult> = {}) {
   return {
     page: {
       content: '',

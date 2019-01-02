@@ -65,11 +65,13 @@
   line-height: 1.5;
 }
 
-.cut-margins > *:first-child {
+.cut-margins > *:first-child,
+.cut-margins > .markdown-content > *:first-child {
   margin-top: 0 !important;
 }
 
-.cut-margins > *:last-child {
+.cut-margins > *:last-child,
+.cut-margins > .markdown-content > *:last-child {
   margin-bottom: 0 !important;
 }
 

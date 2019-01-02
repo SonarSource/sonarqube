@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { mount } from 'enzyme';
 import ScreenPositionFixer from '../ScreenPositionFixer';
-import { resizeWindowTo } from '../../../helpers/testUtils';
+import { resizeWindowTo, setNodeRect } from '../../../helpers/testUtils';
 
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
@@ -33,7 +33,7 @@ jest.mock('react-dom', () => ({
 }));
 
 beforeEach(() => {
-  setNodeRect({ width: 50, height: 50, left: 50, top: 50 });
+  setNodeRect({ left: 50, top: 50 });
   resizeWindowTo(1000, 1000);
 });
 
@@ -41,18 +41,18 @@ it('should fix position', () => {
   const renderer = jest.fn(() => <div />);
   mount(<ScreenPositionFixer>{renderer}</ScreenPositionFixer>);
 
-  setNodeRect({ width: 50, height: 50, left: 50, top: 50 });
+  setNodeRect({ left: 50, top: 50 });
   resizeWindowTo(75, 1000);
   expect(renderer).toHaveBeenLastCalledWith({ leftFix: -29, topFix: 0 });
 
   resizeWindowTo(1000, 75);
   expect(renderer).toHaveBeenLastCalledWith({ leftFix: 0, topFix: -29 });
 
-  setNodeRect({ width: 50, height: 50, left: -10, top: 50 });
+  setNodeRect({ left: -10, top: 50 });
   resizeWindowTo(1000, 1000);
   expect(renderer).toHaveBeenLastCalledWith({ leftFix: 14, topFix: 0 });
 
-  setNodeRect({ width: 50, height: 50, left: 50, top: -10 });
+  setNodeRect({ left: 50, top: -10 });
   resizeWindowTo();
   expect(renderer).toHaveBeenLastCalledWith({ leftFix: 0, topFix: 14 });
 });
@@ -87,10 +87,3 @@ it('should re-position when window is resized', () => {
   resizeWindowTo();
   expect(renderer).toHaveBeenCalledTimes(3);
 });
-
-function setNodeRect(rect: { width: number; height: number; left: number; top: number }) {
-  const findDOMNode = require('react-dom').findDOMNode as jest.Mock<any>;
-  const element = document.createElement('div');
-  Object.defineProperty(element, 'getBoundingClientRect', { value: () => rect });
-  findDOMNode.mockReturnValue(element);
-}

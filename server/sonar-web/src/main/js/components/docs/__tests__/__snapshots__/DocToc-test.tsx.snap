@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DocToc
+  content="
+## toc
+
+
+## Lorem ipsum
+
+Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
+
+## Sit amet
+
+### Maecenas diam
+
+Velit, vestibulum nec ultrices id, mollis eget arcu. Sed dapibus, sapien ut auctor consectetur, mi tortor vestibulum ante, eget dapibus lacus risus.
+
+### Integer
+
+At cursus turpis. Aenean at elit fringilla, porttitor mi eget, dapibus nisi. Donec quis congue odio.
+
+## Nam blandit 
+
+Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
+
+"
+  onAnchorClick={[MockFunction]}
+>
+  <div
+    className="markdown-toc"
+  >
+    <div
+      className="markdown-toc-content"
+    >
+      <h4>
+        documentation.on_this_page
+      </h4>
+      <a
+        className=""
+        href="#lorem-ipsum"
+        key="Lorem ipsum"
+        onClick={[Function]}
+      >
+        Lorem ipsum
+      </a>
+      <a
+        className=""
+        href="#sit-amet"
+        key="Sit amet"
+        onClick={[Function]}
+      >
+        Sit amet
+      </a>
+      <a
+        className=""
+        href="#nam-blandit"
+        key="Nam blandit"
+        onClick={[Function]}
+      >
+        Nam blandit
+      </a>
+    </div>
+  </div>
+</DocToc>
+`;
+
+exports[`should render correctly if no TOC is available 1`] = `
+<DocToc
+  content="
+## Lorem ipsum
+
+Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
+
+## Sit amet
+
+### Maecenas diam
+
+Velit, vestibulum nec ultrices id, mollis eget arcu. Sed dapibus, sapien ut auctor consectetur, mi tortor vestibulum ante, eget dapibus lacus risus.
+
+### Integer
+
+At cursus turpis. Aenean at elit fringilla, porttitor mi eget, dapibus nisi. Donec quis congue odio.
+
+## Nam blandit 
+
+Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
+"
+  onAnchorClick={[MockFunction]}
+/>
+`;

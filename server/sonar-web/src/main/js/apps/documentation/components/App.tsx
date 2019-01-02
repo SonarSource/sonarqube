@@ -100,6 +100,7 @@ export default class App extends React.PureComponent<Props> {
                 className="documentation-content cut-margins boxed-group-inner"
                 content={page.content}
                 displayH1={true}
+                stickyToc={true}
               />
             </div>
           </div>
