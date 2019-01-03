@@ -197,6 +197,45 @@ public class CoverageMediumTest {
   }
 
   @Test
+  public void module_level_exclusions_override_parent_for_multi_module_project() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sampleA.xoo");
+    File xooUtCoverageFileA = new File(srcDirA, "sampleA.xoo.coverage");
+    FileUtils.write(xooFileA, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(xooUtCoverageFileA, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sampleB.xoo");
+    File xooUtCoverageFileB = new File(srcDirB, "sampleB.xoo.coverage");
+    FileUtils.write(xooFileB, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
+    FileUtils.write(xooUtCoverageFileB, "2:2:2:1\n3:1", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.coverage.exclusions", "**/*.xoo")
+        .put("moduleA.sonar.coverage.exclusions", "**/*.nothing")
+        .build())
+      .execute();
+
+    InputFile fileA = result.inputFile("moduleA/src/sampleA.xoo");
+    assertThat(result.coverageFor(fileA, 2)).isNotNull();
+
+    InputFile fileB = result.inputFile("moduleB/src/sampleB.xoo");
+    assertThat(result.coverageFor(fileB, 2)).isNull();
+  }
+
+  @Test
   public void warn_user_for_outdated_server_side_exclusions_for_multi_module_project() throws IOException {
 
     File baseDir = temp.getRoot();

@@ -354,6 +354,52 @@ public class CpdMediumTest {
   }
 
   @Test
+  public void module_level_exclusions_override_parent_for_multi_module_project() throws IOException {
+
+    String duplicatedStuff = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
+
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sampleA.xoo");
+    FileUtils.write(xooFileA, duplicatedStuff, StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sampleB.xoo");
+    FileUtils.write(xooFileB, duplicatedStuff, StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.cpd.xoo.minimumTokens", "10")
+        .put("sonar.cpd.exclusions", "**/*")
+        .put("moduleA.sonar.cpd.exclusions", "**/*.nothing")
+        .put("moduleB.sonar.cpd.exclusions", "**/*.nothing")
+        .build())
+      .execute();
+
+    InputFile inputFile1 = result.inputFile("moduleA/src/sampleA.xoo");
+    InputFile inputFile2 = result.inputFile("moduleB/src/sampleB.xoo");
+
+    List<ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    assertThat(duplicationGroupsFile1).isNotEmpty();
+
+    List<ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    assertThat(duplicationGroupsFile2).isNotEmpty();
+  }
+
+  @Test
   public void enableCrossProjectDuplication() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();

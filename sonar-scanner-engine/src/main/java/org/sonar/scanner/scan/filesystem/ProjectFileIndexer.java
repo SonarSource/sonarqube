@@ -84,8 +84,8 @@ public class ProjectFileIndexer {
     int totalIndexed = componentStore.inputFiles().size();
     progressReport.stop(totalIndexed + " " + pluralizeFiles(totalIndexed) + " indexed");
 
-    if (projectExclusionFilters.hasPattern()) {
-      int excludedFileCount = excludedByPatternsCount.get();
+    int excludedFileCount = excludedByPatternsCount.get();
+    if (projectExclusionFilters.hasPattern() || excludedFileCount > 0) {
       LOG.info("{} {} ignored because of inclusion/exclusion patterns", excludedFileCount, pluralizeFiles(excludedFileCount));
     }
   }
@@ -139,8 +139,8 @@ public class ProjectFileIndexer {
     return count == 1 ? "file" : "files";
   }
 
-  private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, List<Path> sources,
-                          Type type, AtomicInteger excludedByPatternsCount) {
+  private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
+    List<Path> sources, Type type, AtomicInteger excludedByPatternsCount) {
     try {
       for (Path dirOrFile : sources) {
         if (dirOrFile.toFile().isDirectory()) {
@@ -154,8 +154,8 @@ public class ProjectFileIndexer {
     }
   }
 
-  private void indexDirectory(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path dirToIndex,
-                              Type type, AtomicInteger excludedByPatternsCount)
+  private void indexDirectory(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters,
+    ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path dirToIndex, Type type, AtomicInteger excludedByPatternsCount)
     throws IOException {
     Files.walkFileTree(dirToIndex.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
       new IndexFileVisitor(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, type, excludedByPatternsCount));
@@ -168,8 +168,9 @@ public class ProjectFileIndexer {
     private final Type type;
     private final AtomicInteger excludedByPatternsCount;
 
-    IndexFileVisitor(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Type type,
-                     AtomicInteger excludedByPatternsCount) {
+    IndexFileVisitor(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
+      Type type,
+      AtomicInteger excludedByPatternsCount) {
       this.module = module;
       this.moduleExclusionFilters = moduleExclusionFilters;
       this.moduleCoverageAndDuplicationExclusions = moduleCoverageAndDuplicationExclusions;

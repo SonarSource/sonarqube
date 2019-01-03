@@ -91,38 +91,6 @@ public abstract class AbstractExclusionFilters {
     }
   }
 
-  public boolean accept(Path absolutePath, Path relativePath, InputFile.Type type) {
-    PathPattern[] inclusionPatterns;
-    PathPattern[] exclusionPatterns;
-    if (InputFile.Type.MAIN == type) {
-      inclusionPatterns = mainInclusionsPattern;
-      exclusionPatterns = mainExclusionsPattern;
-    } else if (InputFile.Type.TEST == type) {
-      inclusionPatterns = testInclusionsPattern;
-      exclusionPatterns = testExclusionsPattern;
-    } else {
-      throw new IllegalArgumentException("Unknown file type: " + type);
-    }
-
-    if (inclusionPatterns.length > 0) {
-      boolean matchInclusion = false;
-      for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(absolutePath, relativePath);
-      }
-      if (!matchInclusion) {
-        return false;
-      }
-    }
-    if (exclusionPatterns.length > 0) {
-      for (PathPattern pattern : exclusionPatterns) {
-        if (pattern.match(absolutePath, relativePath)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
   private static PathPattern[] prepareMainInclusions(String[] sourceInclusions) {
     if (sourceInclusions.length > 0) {
       // User defined params
@@ -145,27 +113,43 @@ public abstract class AbstractExclusionFilters {
     return PathPattern.create(testExclusions);
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof AbstractExclusionFilters)) {
-      return false;
-    }
-    AbstractExclusionFilters that = (AbstractExclusionFilters) o;
-    return Arrays.equals(sourceInclusions, that.sourceInclusions) &&
-      Arrays.equals(testInclusions, that.testInclusions) &&
-      Arrays.equals(sourceExclusions, that.sourceExclusions) &&
-      Arrays.equals(testExclusions, that.testExclusions);
+  public String[] getInclusionsConfig(InputFile.Type type) {
+    return type == InputFile.Type.MAIN ? sourceInclusions : testInclusions;
   }
 
-  @Override
-  public int hashCode() {
-    int result = Arrays.hashCode(sourceInclusions);
-    result = 31 * result + Arrays.hashCode(testInclusions);
-    result = 31 * result + Arrays.hashCode(sourceExclusions);
-    result = 31 * result + Arrays.hashCode(testExclusions);
-    return result;
+  public String[] getExclusionsConfig(InputFile.Type type) {
+    return type == InputFile.Type.MAIN ? sourceExclusions : testExclusions;
+  }
+
+  public boolean isIncluded(Path absolutePath, Path relativePath, InputFile.Type type) {
+    PathPattern[] inclusionPatterns = InputFile.Type.MAIN == type ? mainInclusionsPattern : testInclusionsPattern;
+
+    if (inclusionPatterns.length == 0) {
+      return true;
+    }
+
+    for (PathPattern pattern : inclusionPatterns) {
+      if (pattern.match(absolutePath, relativePath)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public boolean isExcluded(Path absolutePath, Path relativePath, InputFile.Type type) {
+    PathPattern[] exclusionPatterns = InputFile.Type.MAIN == type ? mainExclusionsPattern : testExclusionsPattern;
+
+    if (exclusionPatterns.length == 0) {
+      return false;
+    }
+
+    for (PathPattern pattern : exclusionPatterns) {
+      if (pattern.match(absolutePath, relativePath)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

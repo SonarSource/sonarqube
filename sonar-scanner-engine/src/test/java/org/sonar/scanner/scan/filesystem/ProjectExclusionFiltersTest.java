@@ -53,8 +53,10 @@ public class ProjectExclusionFiltersTest {
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.TEST)).isTrue();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.TEST)).isFalse();
+    assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
+    assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.TEST)).isTrue();
   }
 
   @Test
@@ -63,10 +65,10 @@ public class ProjectExclusionFiltersTest {
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
+    assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
 
     indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
+    assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
   }
 
   @Test
@@ -75,10 +77,10 @@ public class ProjectExclusionFiltersTest {
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
+    assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
 
     indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDto.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
+    assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
   }
 
   @Test
@@ -89,14 +91,14 @@ public class ProjectExclusionFiltersTest {
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
 
     indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
 
     // source exclusions do not apply to tests
     indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/test/java/com/mycompany/FooDao.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.TEST)).isTrue();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.TEST)).isFalse();
   }
 
   @Test
@@ -108,10 +110,10 @@ public class ProjectExclusionFiltersTest {
     ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Foo.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
 
     indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Bar.java", null);
-    assertThat(filter.accept(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
+    assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
   }
 
   @Test

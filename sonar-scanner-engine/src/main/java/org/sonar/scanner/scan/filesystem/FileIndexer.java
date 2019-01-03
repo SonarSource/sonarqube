@@ -24,6 +24,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
+import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -60,14 +62,15 @@ public class FileIndexer {
   private final SensorStrategy sensorStrategy;
   private final LanguageDetection langDetection;
 
+  private boolean warnInclusionsAlreadyLogged;
   private boolean warnExclusionsAlreadyLogged;
   private boolean warnCoverageExclusionsAlreadyLogged;
   private boolean warnDuplicationExclusionsAlreadyLogged;
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-                     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
-                     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
-                     InputFileFilter[] filters) {
+    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
+    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
+    InputFileFilter[] filters) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
@@ -83,17 +86,19 @@ public class FileIndexer {
   }
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-                     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
-                     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
-    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader, metadataGenerator, sensorStrategy,
+    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
+    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
+    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader, metadataGenerator,
+      sensorStrategy,
       languageDetection,
       analysisWarnings,
       properties, new InputFileFilter[0]);
   }
 
-  public void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path sourceFile,
-                        InputFile.Type type, ProgressReport progressReport,
-                        AtomicInteger excludedByPatternsCount)
+  void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
+    Path sourceFile,
+    InputFile.Type type, ProgressReport progressReport,
+    AtomicInteger excludedByPatternsCount)
     throws IOException {
     // get case of real file without resolving link
     Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
@@ -103,17 +108,13 @@ public class FileIndexer {
     }
     Path projectRelativePath = project.getBaseDir().relativize(realAbsoluteFile);
     Path moduleRelativePath = module.getBaseDir().relativize(realAbsoluteFile);
-    if (!projectExclusionFilters.accept(realAbsoluteFile, projectRelativePath, type)) {
+    boolean included = evaluateInclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
+    if (!included) {
       excludedByPatternsCount.incrementAndGet();
       return;
     }
-    if (!moduleExclusionFilters.accept(realAbsoluteFile, moduleRelativePath, type)) {
-      if (projectExclusionFilters.equals(moduleExclusionFilters)) {
-        warnOnceDeprecatedExclusion(
-          "Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
-            "To continue matching files like '" + projectRelativePath + "', " +
-            "update these properties so that patterns refer to project-relative paths.");
-      }
+    boolean excluded = evaluateExclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
+    if (excluded) {
       excludedByPatternsCount.incrementAndGet();
       return;
     }
@@ -146,6 +147,42 @@ public class FileIndexer {
     progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.getProjectRelativePath() + ")");
   }
 
+  private boolean evaluateInclusionsFilters(ModuleExclusionFilters moduleExclusionFilters, Path realAbsoluteFile, Path projectRelativePath, Path moduleRelativePath,
+    InputFile.Type type) {
+    if (!Arrays.equals(moduleExclusionFilters.getInclusionsConfig(type), projectExclusionFilters.getInclusionsConfig(type))) {
+      // Module specific configuration
+      return moduleExclusionFilters.isIncluded(realAbsoluteFile, moduleRelativePath, type);
+    }
+    boolean includedByProjectConfiguration = projectExclusionFilters.isIncluded(realAbsoluteFile, projectRelativePath, type);
+    if (includedByProjectConfiguration) {
+      return true;
+    } else if (moduleExclusionFilters.isIncluded(realAbsoluteFile, moduleRelativePath, type)) {
+      warnOnce(
+        type == Type.MAIN ? CoreProperties.PROJECT_INCLUSIONS_PROPERTY : CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY,
+        FilenameUtils.normalize(projectRelativePath.toString(), true), () -> warnInclusionsAlreadyLogged, () -> warnInclusionsAlreadyLogged = true);
+      return true;
+    }
+    return false;
+  }
+
+  private boolean evaluateExclusionsFilters(ModuleExclusionFilters moduleExclusionFilters, Path realAbsoluteFile, Path projectRelativePath, Path moduleRelativePath,
+    InputFile.Type type) {
+    if (!Arrays.equals(moduleExclusionFilters.getExclusionsConfig(type), projectExclusionFilters.getExclusionsConfig(type))) {
+      // Module specific configuration
+      return moduleExclusionFilters.isExcluded(realAbsoluteFile, moduleRelativePath, type);
+    }
+    boolean includedByProjectConfiguration = projectExclusionFilters.isExcluded(realAbsoluteFile, projectRelativePath, type);
+    if (includedByProjectConfiguration) {
+      return true;
+    } else if (moduleExclusionFilters.isExcluded(realAbsoluteFile, moduleRelativePath, type)) {
+      warnOnce(
+        type == Type.MAIN ? CoreProperties.PROJECT_EXCLUSIONS_PROPERTY : CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY,
+        FilenameUtils.normalize(projectRelativePath.toString(), true), () -> warnExclusionsAlreadyLogged, () -> warnExclusionsAlreadyLogged = true);
+      return true;
+    }
+    return false;
+  }
+
   private void checkIfAlreadyIndexed(DefaultInputFile inputFile) {
     if (componentStore.inputFile(inputFile.getProjectRelativePath()) != null) {
       throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
@@ -154,58 +191,60 @@ public class FileIndexer {
   }
 
   private void evaluateCoverageExclusions(ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, DefaultInputFile inputFile) {
-    boolean excludedByProjectConfiguration = projectCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile);
-    if (excludedByProjectConfiguration) {
-      inputFile.setExcludedForCoverage(true);
-      LOG.debug("File {} excluded for coverage", inputFile);
-    } else if (moduleCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile)) {
-      inputFile.setExcludedForCoverage(true);
-      if (Arrays.equals(moduleCoverageAndDuplicationExclusions.getCoverageExclusionConfig(), projectCoverageAndDuplicationExclusions.getCoverageExclusionConfig())) {
-        warnOnceDeprecatedCoverageExclusion(
-          "Specifying module-relative paths at project level in the property '" + CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY + "' is deprecated. " +
-            "To continue matching files like '" + inputFile + "', update this property so that patterns refer to project-relative paths.");
-      }
+    boolean excludedForCoverage = isExcludedForCoverage(moduleCoverageAndDuplicationExclusions, inputFile);
+    inputFile.setExcludedForCoverage(excludedForCoverage);
+    if (excludedForCoverage) {
       LOG.debug("File {} excluded for coverage", inputFile);
     }
+  }
+
+  private boolean isExcludedForCoverage(ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, DefaultInputFile inputFile) {
+    if (!Arrays.equals(moduleCoverageAndDuplicationExclusions.getCoverageExclusionConfig(), projectCoverageAndDuplicationExclusions.getCoverageExclusionConfig())) {
+      // Module specific configuration
+      return moduleCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile);
+    }
+    boolean excludedByProjectConfiguration = projectCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile);
+    if (excludedByProjectConfiguration) {
+      return true;
+    } else if (moduleCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile)) {
+      warnOnce(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY, inputFile.getProjectRelativePath(), () -> warnCoverageExclusionsAlreadyLogged,
+        () -> warnCoverageExclusionsAlreadyLogged = true);
+      return true;
+    }
+    return false;
   }
 
   private void evaluateDuplicationExclusions(ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, DefaultInputFile inputFile) {
+    boolean excludedForDuplications = isExcludedForDuplications(moduleCoverageAndDuplicationExclusions, inputFile);
+    inputFile.setExcludedForDuplication(excludedForDuplications);
+    if (excludedForDuplications) {
+      LOG.debug("File {} excluded for duplication", inputFile);
+    }
+  }
+
+  private boolean isExcludedForDuplications(ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, DefaultInputFile inputFile) {
+    if (!Arrays.equals(moduleCoverageAndDuplicationExclusions.getDuplicationExclusionConfig(), projectCoverageAndDuplicationExclusions.getDuplicationExclusionConfig())) {
+      // Module specific configuration
+      return moduleCoverageAndDuplicationExclusions.isExcludedForDuplication(inputFile);
+    }
     boolean excludedByProjectConfiguration = projectCoverageAndDuplicationExclusions.isExcludedForDuplication(inputFile);
     if (excludedByProjectConfiguration) {
-      inputFile.setExcludedForDuplication(true);
-      LOG.debug("File {} excluded for duplication", inputFile);
+      return true;
     } else if (moduleCoverageAndDuplicationExclusions.isExcludedForDuplication(inputFile)) {
-      inputFile.setExcludedForDuplication(true);
-      if (Arrays.equals(moduleCoverageAndDuplicationExclusions.getDuplicationExclusionConfig(), projectCoverageAndDuplicationExclusions.getDuplicationExclusionConfig())) {
-        warnOnceDeprecatedDuplicationExclusion(
-          "Specifying module-relative paths at project level in the property '" + CoreProperties.CPD_EXCLUSIONS + "' is deprecated. " +
-            "To continue matching files like '" + inputFile + "', update this property so that patterns refer to project-relative paths.");
-      }
-      LOG.debug("File {} excluded for duplication", inputFile);
+      warnOnce(CoreProperties.CPD_EXCLUSIONS, inputFile.getProjectRelativePath(), () -> warnDuplicationExclusionsAlreadyLogged,
+        () -> warnDuplicationExclusionsAlreadyLogged = true);
+      return true;
     }
+    return false;
   }
 
-  private void warnOnceDeprecatedExclusion(String msg) {
-    if (!warnExclusionsAlreadyLogged) {
+  private void warnOnce(String propKey, String filePath, BooleanSupplier alreadyLoggedGetter, Runnable markAsLogged) {
+    if (!alreadyLoggedGetter.getAsBoolean()) {
+      String msg = "Specifying module-relative paths at project level in the property '" + propKey + "' is deprecated. " +
+        "To continue matching files like '" + filePath + "', update this property so that patterns refer to project-relative paths.";
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);
-      warnExclusionsAlreadyLogged = true;
-    }
-  }
-
-  private void warnOnceDeprecatedCoverageExclusion(String msg) {
-    if (!warnCoverageExclusionsAlreadyLogged) {
-      LOG.warn(msg);
-      analysisWarnings.addUnique(msg);
-      warnCoverageExclusionsAlreadyLogged = true;
-    }
-  }
-
-  private void warnOnceDeprecatedDuplicationExclusion(String msg) {
-    if (!warnDuplicationExclusionsAlreadyLogged) {
-      LOG.warn(msg);
-      analysisWarnings.addUnique(msg);
-      warnDuplicationExclusionsAlreadyLogged = true;
+      markAsLogged.run();
     }
   }
 

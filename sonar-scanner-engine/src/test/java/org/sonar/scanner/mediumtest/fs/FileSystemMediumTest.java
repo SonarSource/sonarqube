@@ -509,6 +509,99 @@ public class FileSystemMediumTest {
   }
 
   @Test
+  public void test_inclusions_on_multi_modules() throws IOException {
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "tests");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "tests");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sampleTestA.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sampleTestB.xoo");
+    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    final ImmutableMap.Builder<String, String> builder = ImmutableMap.<String, String>builder()
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.sources", "")
+      .put("sonar.tests", "tests")
+      .put("sonar.modules", "moduleA,moduleB");
+
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder.build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(2);
+    
+    InputFile fileA = result.inputFile("moduleA/tests/sampleTestA.xoo");
+    assertThat(fileA).isNotNull();
+
+    InputFile fileB = result.inputFile("moduleB/tests/sampleTestB.xoo");
+    assertThat(fileB).isNotNull();
+
+    result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.test.inclusions", "moduleA/tests/**")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+
+    fileA = result.inputFile("moduleA/tests/sampleTestA.xoo");
+    assertThat(fileA).isNotNull();
+
+    fileB = result.inputFile("moduleB/tests/sampleTestB.xoo");
+    assertThat(fileB).isNull();
+  }
+
+  @Test
+  public void test_module_level_inclusions_override_parent_on_multi_modules() throws IOException {
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sampleA.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sampleB.xoo");
+    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    final ImmutableMap.Builder<String, String> builder = ImmutableMap.<String, String>builder()
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.sources", "src")
+      .put("sonar.modules", "moduleA,moduleB")
+      .put("sonar.inclusions", "**/*.php");
+
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder.build())
+      .execute();
+
+    assertThat(result.inputFiles()).isEmpty();
+
+    result = tester.newAnalysis()
+      .properties(builder
+        .put("moduleA.sonar.inclusions", "**/*.xoo")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+
+    InputFile fileA = result.inputFile("moduleA/src/sampleA.xoo");
+    assertThat(fileA).isNotNull();
+  }
+
+  @Test
   public void warn_user_for_outdated_scanner_side_inherited_exclusions_for_multi_module_project() throws IOException {
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");
@@ -526,7 +619,6 @@ public class FileSystemMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -542,8 +634,8 @@ public class FileSystemMediumTest {
     assertThat(fileB).isNull();
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
-        "To continue matching files like 'moduleA/src/sample.xoo', update these properties so that patterns refer to project-relative paths.");
+      .contains("Specifying module-relative paths at project level in the property 'sonar.exclusions' is deprecated. " +
+        "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
   }
 
   @Test
@@ -566,7 +658,6 @@ public class FileSystemMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", "src")
@@ -581,8 +672,8 @@ public class FileSystemMediumTest {
     assertThat(fileB).isNull();
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Specifying module-relative paths at project level in the files exclusions/inclusions properties is deprecated. " +
-        "To continue matching files like 'moduleA/src/sample.xoo', update these properties so that patterns refer to project-relative paths.");
+      .contains("Specifying module-relative paths at project level in the property 'sonar.exclusions' is deprecated. " +
+        "To continue matching files like 'moduleA/src/sample.xoo', update this property so that patterns refer to project-relative paths.");
   }
 
   @Test
