@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="quality-profiles-list-header clearfix"
+>
+  <span
+    className="spacer-right"
+  >
+    quality_profiles.filter_by
+    :
+  </span>
+  <Select
+    className="input-medium"
+    clearable={true}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "JavaScript",
+          "value": "js",
+        },
+        Object {
+          "label": "Java",
+          "value": "java",
+        },
+      ]
+    }
+  />
+</header>
+`;

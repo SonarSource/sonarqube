@@ -18,62 +18,56 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexLink } from 'react-router';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Option } from 'react-select';
+import { translate } from '../../../helpers/l10n';
 import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
-import Dropdown from '../../../components/controls/Dropdown';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import Select from '../../../components/controls/Select';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
 
 interface Props {
   currentFilter?: string;
   languages: Array<{ key: string; name: string }>;
   organization: string | null;
+  router: Pick<Router, 'replace'>;
 }
 
-export default function ProfilesListHeader({ currentFilter, languages, organization }: Props) {
-  if (languages.length < 2) {
-    return null;
+export class ProfilesListHeader extends React.PureComponent<Props> {
+  handleChange = (option: { value: string } | null) => {
+    const { organization, router } = this.props;
+
+    router.replace(
+      !option
+        ? getProfilesPath(organization)
+        : getProfilesForLanguagePath(option.value, organization)
+    );
+  };
+
+  render() {
+    const { currentFilter, languages } = this.props;
+    if (languages.length < 2) {
+      return null;
+    }
+
+    const options: Option[] = languages.map(language => ({
+      label: language.name,
+      value: language.key
+    }));
+
+    const currentLanguage = currentFilter && options.find(l => l.value === currentFilter);
+
+    return (
+      <header className="quality-profiles-list-header clearfix">
+        <span className="spacer-right">{translate('quality_profiles.filter_by')}:</span>
+        <Select
+          className="input-medium"
+          clearable={true}
+          onChange={this.handleChange}
+          options={options}
+          value={currentLanguage}
+        />
+      </header>
+    );
   }
-
-  const currentLanguage = currentFilter && languages.find(l => l.key === currentFilter);
-
-  // if unknown language, then
-  if (currentFilter && !currentLanguage) {
-    return null;
-  }
-
-  const label = currentLanguage
-    ? translateWithParameters('quality_profiles.x_Profiles', currentLanguage.name)
-    : translate('quality_profiles.all_profiles');
-
-  return (
-    <header className="quality-profiles-list-header clearfix">
-      <Dropdown
-        className="display-inline-block"
-        overlay={
-          <ul className="menu">
-            <li>
-              <IndexLink to={getProfilesPath(organization)}>
-                {translate('quality_profiles.all_profiles')}
-              </IndexLink>
-            </li>
-            {languages.map(language => (
-              <li key={language.key}>
-                <IndexLink
-                  className="js-language-filter-option"
-                  data-language={language.key}
-                  to={getProfilesForLanguagePath(language.key, organization)}>
-                  {language.name}
-                </IndexLink>
-              </li>
-            ))}
-          </ul>
-        }>
-        <a className="dropdown-toggle link-no-underline js-language-filter" href="#">
-          <span className="text-middle">{label}</span>
-          <DropdownIcon className="little-spacer-left text-middle" />
-        </a>
-      </Dropdown>
-    </header>
-  );
 }
+
+export default withRouter(ProfilesListHeader);
