@@ -19,18 +19,41 @@
  */
 package org.sonar.server.platform.db.migration.version.v76;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class DbVersion76 implements DbVersion {
+@SupportsBlueGreen
+public class FixDirectionOfMetrics extends DataChange {
+
+  public FixDirectionOfMetrics(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2500, "Create table USER_PROPERTIES", CreateUserPropertiesTable.class)
-      .add(2501, "Add index in table USER_PROPERTIES", AddUniqueIndexInUserPropertiesTable.class)
-      .add(2505, "Fix the direction values of certain metrics (prepare for migration of conditions)", FixDirectionOfMetrics.class)
-      .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class)
-    ;
+  protected void execute(Context context) throws SQLException {
+    String sql = "UPDATE metrics SET direction = ? WHERE name = ? AND direction != ?";
+
+    context.prepareUpsert(sql)
+      .setInt(1, 1)
+      .setString(2, "tests")
+      .setInt(3, 1)
+      .execute()
+      .commit();
+
+    context.prepareUpsert(sql)
+      .setInt(1, -1)
+      .setString(2, "conditions_to_cover")
+      .setInt(3, -1)
+      .execute()
+      .commit();
+
+    context.prepareUpsert(sql)
+      .setInt(1, -1)
+      .setString(2, "new_conditions_to_cover")
+      .setInt(3, -1)
+      .execute()
+      .commit();
   }
 }

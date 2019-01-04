@@ -524,7 +524,7 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> TESTS = new Metric.Builder(TESTS_KEY, "Unit Tests", Metric.ValueType.INT)
     .setDescription("Number of unit tests")
-    .setDirection(Metric.DIRECTION_WORST)
+    .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
     .create();
@@ -704,12 +704,14 @@ public final class CoreMetrics {
   public static final Metric<Integer> CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Conditions to Cover", Metric.ValueType.INT)
     .setDescription("Conditions to cover")
     .setDomain(DOMAIN_COVERAGE)
+    .setDirection(Metric.DIRECTION_WORST)
     .create();
 
   public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
   public static final Metric<Integer> NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, "Conditions to Cover on New Code", Metric.ValueType.INT)
     .setDescription("Conditions to cover on new code")
     .setDomain(DOMAIN_COVERAGE)
+    .setDirection(Metric.DIRECTION_WORST)
     .setDeleteHistoricalData(true)
     .create();
 
