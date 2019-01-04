@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v76;
 
 import java.sql.SQLException;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -31,17 +32,23 @@ import org.sonar.server.platform.db.migration.step.MassUpdate;
 @SupportsBlueGreen
 public class DeleteModuleAndFolderMeasures extends DataChange {
 
-  public DeleteModuleAndFolderMeasures(Database db) {
+  private final Configuration configuration;
+
+  public DeleteModuleAndFolderMeasures(Database db, Configuration configuration) {
     super(db);
+    this.configuration = configuration;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
+    if (isSonarCloud(configuration)) {
+      return;
+    }
     MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("components");
     massUpdate.select("SELECT p.uuid FROM projects p WHERE p.qualifier in ('DIR', 'BRC') AND exists(SELECT 1 FROM project_measures m WHERE m.component_uuid = p.uuid)");
     massUpdate.update("DELETE FROM project_measures WHERE component_uuid=?")
       // important to keep the number of rows in a transaction under control. A component may have dozens/hundreds of measures to be deleted.
-      .setBatchSize(1);
+      .setBatchSize(10);
     massUpdate.execute((row, update) -> {
       String componentUuid = row.getString(1);
       update.setString(1, componentUuid);

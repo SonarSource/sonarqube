@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.version.v76;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
@@ -36,13 +37,26 @@ public class DeleteModuleAndFolderMeasuresTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteModuleAndFolderMeasuresTest.class, "project_measures.sql");
 
-  private DeleteModuleAndFolderMeasures underTest = new DeleteModuleAndFolderMeasures(db.database());
+  private MapSettings settings = new MapSettings();
+  private DeleteModuleAndFolderMeasures underTest = new DeleteModuleAndFolderMeasures(db.database(), settings.asConfig());
 
   @Test
   public void migration_has_no_effect_on_empty_tables() throws SQLException {
     underTest.execute();
 
     assertThat(db.countRowsOfTable(TABLE_MEASURES)).isZero();
+  }
+
+  @Test
+  public void execute_has_no_effect_on_SonarCloud() throws SQLException {
+    String moduleUuid = insertComponent(1, "BRC");
+    insertMeasure(1, moduleUuid);
+
+    settings.setProperty("sonar.sonarcloud.enabled", true);
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable(TABLE_MEASURES)).isEqualTo(1);
   }
 
   @Test
