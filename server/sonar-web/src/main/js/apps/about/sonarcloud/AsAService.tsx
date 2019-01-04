@@ -75,7 +75,7 @@ export default function AsAService() {
             <li className="sc-feature sc-child-feature">
               <h3 className="sc-feature-title">Get started in minutes</h3>
               <p className="sc-feature-description">
-                Simply sign up, create an oganization for your team, and you are ready to run your
+                Simply sign up, create an organization for your team, and you are ready to run your
                 builds to get your projects analyzed in minutes.
               </p>
             </li>

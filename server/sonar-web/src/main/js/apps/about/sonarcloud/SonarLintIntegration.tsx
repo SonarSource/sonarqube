@@ -84,7 +84,7 @@ export default function SonarLintIntegration() {
             <li className="sc-feature sc-child-feature">
               <h3 className="sc-feature-title">Share configuration</h3>
               <p className="sc-feature-description">
-                Project configuration such as exclutions, parameters and false positives get
+                Project configuration such as exclusions, parameters and false positives get
                 conveyed to the IDE as they get defined, enabling the team get exactly the same view
                 on the project they are working on.
               </p>
