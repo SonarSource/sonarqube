@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import DocMarkdownBlock from '../DocMarkdownBlock';
-import { isSonarCloud } from '../../../helpers/system';
 
 const CONTENT_WITH_TOC = `
 ## Table of Contents
@@ -73,37 +72,6 @@ it('should use custom component for links', () => {
   expect(
     shallowRender({ content: 'some [link](/quality-profiles)' }).find('withChildProps')
   ).toMatchSnapshot();
-});
-
-it('should cut sonarqube/sonarcloud/static content', () => {
-  const content = `
-some
-
-<!-- sonarqube -->
-sonarqube
-<!-- /sonarqube -->
-
-<!-- sonarcloud -->
-sonarcloud
-<!-- /sonarcloud -->
-
-<!-- static -->
-static
-<!-- /static -->
-
-<!-- sonarqube -->
-  long
-
-  multiline
-<!-- /sonarqube -->
-
-text`;
-
-  (isSonarCloud as jest.Mock).mockImplementation(() => false);
-  expect(shallowRender({ content })).toMatchSnapshot();
-
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  expect(shallowRender({ content })).toMatchSnapshot();
 });
 
 it('should render with custom props for links', () => {

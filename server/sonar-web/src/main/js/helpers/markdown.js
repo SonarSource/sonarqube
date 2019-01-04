@@ -71,12 +71,16 @@ function parseFrontMatter(lines) {
  * @returns {string}
  */
 function filterContent(content) {
+  const regexBase = '<!-- \\/?(sonarqube|sonarcloud|static) -->';
   const { isSonarCloud, getInstance } = require('./system');
   const contentWithInstance = content.replace(/{instance}/gi, getInstance());
   const contentWithoutStatic = cutConditionalContent(contentWithInstance, 'static');
-  return isSonarCloud()
+  const filteredContent = isSonarCloud()
     ? cutConditionalContent(contentWithoutStatic, 'sonarqube')
     : cutConditionalContent(contentWithoutStatic, 'sonarcloud');
+  return filteredContent
+    .replace(new RegExp(`^${regexBase}(\n|\r|\r\n|$)`, 'gm'), '') // First, remove single-line ones, including ending carriage-returns.
+    .replace(new RegExp(`${regexBase}`, 'g'), ''); // Now remove all remaining ones.
 }
 
 /**

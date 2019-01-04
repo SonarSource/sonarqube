@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should cut sonarqube/sonarcloud/static content 1`] = `
+"
+This text has inline text for SonarQube. Donec sed nulla magna.
+
+This is text for SonarQube, multi-line. Consectetur adipiscing elit. Duis dignissim nulla at massa iaculis interdum.
+Aenean sit amet lacus a tortor ullamcorper interdum. Donec sed nulla magna.
+
+
+
+
+
+This is text for SonarQube, single line.
+
+* In hac habitasse
+* Duis sagittis semper sapien nec tempor
+* This is a bullet point for SonarQube
+
+* Platea dictumst
+
+Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum aliquam.
+
+| Parameter Name        | Description |
+| --------------------- | ------------------ |
+| sonar.pullrequest.github.repository | SLUG of the GitHub Repo |
+| sonar.pullrequest.github.endpoint | The API url for your GitHub instance. |
+"
+`;
+
+exports[`should cut sonarqube/sonarcloud/static content 2`] = `
+"
+This text has inline text for SonarCloud. Donec sed nulla magna.
+
+
+
+This is text for SonarCloud, multi-line. In hac habitasse platea dictumst. Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum aliquam. Mauris volutpat nunc non fermentum rhoncus. Aenean laoreet, orci vitae tempor bibendum,
+metus nisl euismod neque, vitae euismod nibh nisl eu velit. Vivamus luctus suscipit elit vel semper.
+
+
+
+
+
+* In hac habitasse
+* Duis sagittis semper sapien nec tempor
+
+* This is a bullet point for SonarCloud
+* Platea dictumst
+
+Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum aliquam.
+
+| Parameter Name        | Description |
+| --------------------- | ------------------ |
+| sonar.pullrequest.github.repository | SLUG of the GitHub Repo |
+
+"
+`;

@@ -46,15 +46,13 @@ export default class Page extends React.PureComponent {
 
   render() {
     const page = this.props.data.markdownRemark;
-    let htmlWithInclusions = cutSonarCloudContent(page.html).replace(
-      /<p>@include (.*)<\/p>/,
-      (_, path) => {
-        const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
-        return chunk ? chunk.node.html : '';
-      }
-    );
+    let htmlWithInclusions = page.html.replace(/<p>@include (.*)<\/p>/, (_, path) => {
+      const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
+      return chunk ? chunk.node.html : '';
+    });
 
     const realHeadingsList = removeExtraHeadings(page.html, page.headings);
+
     htmlWithInclusions = removeTableOfContents(htmlWithInclusions);
     htmlWithInclusions = createAnchorForHeadings(htmlWithInclusions, realHeadingsList);
     htmlWithInclusions = replaceDynamicLinks(htmlWithInclusions);
@@ -189,20 +187,4 @@ function createAnchorForHeadings(content, headings) {
 
 function removeTableOfContents(content) {
   return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/i, '');
-}
-
-function cutSonarCloudContent(content) {
-  const beginning = '<!-- sonarcloud -->';
-  const ending = '<!-- /sonarcloud -->';
-
-  let newContent = content;
-  let start = newContent.indexOf(beginning);
-  let end = newContent.indexOf(ending);
-  while (start !== -1 && end !== -1) {
-    newContent = newContent.substring(0, start) + newContent.substring(end + ending.length);
-    start = newContent.indexOf(beginning);
-    end = newContent.indexOf(ending);
-  }
-
-  return newContent;
 }
