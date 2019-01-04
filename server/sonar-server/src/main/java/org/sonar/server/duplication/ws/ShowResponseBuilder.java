@@ -97,7 +97,7 @@ public class ShowResponseBuilder {
 
       if (file != null) {
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
-        ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
+        ComponentDto parentModule = getParentProject(file.moduleUuid(), parentModulesByUuid, session);
         response.putFiles(ref.getId(), toWsFile(file, project, parentModule, branch, pullRequest));
       } else {
         response.putFiles(ref.getId(), toWsFile(ref.getComponentKey(), branch, pullRequest));

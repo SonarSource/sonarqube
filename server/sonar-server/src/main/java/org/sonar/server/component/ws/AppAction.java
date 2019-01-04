@@ -167,13 +167,13 @@ public class AppAction implements ComponentsWsAction {
     json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
-    ComponentDto parentProject = retrieveRootIfNotCurrentComponent(component, session);
+    ComponentDto parentModule = retrieveParentModuleIfNotCurrentComponent(component, session);
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
 
-    // Do not display parent project if parent project and project are the same
-    boolean displayParentProject = parentProject != null && !parentProject.uuid().equals(project.uuid());
-    json.prop("subProject", displayParentProject ? parentProject.getKey() : null);
-    json.prop("subProjectName", displayParentProject ? parentProject.longName() : null);
+    // Do not display parent module if parent module and project are the same
+    boolean displayParentModule = parentModule != null && !parentModule.uuid().equals(project.uuid());
+    json.prop("subProject", displayParentModule ? parentModule.getKey() : null);
+    json.prop("subProjectName", displayParentModule ? parentModule.longName() : null);
     json.prop("project", project.getKey());
     json.prop("projectName", project.longName());
     String branch = project.getBranch();
@@ -211,11 +211,12 @@ public class AppAction implements ComponentsWsAction {
   }
 
   @CheckForNull
-  private ComponentDto retrieveRootIfNotCurrentComponent(ComponentDto componentDto, DbSession session) {
-    if (componentDto.uuid().equals(componentDto.getRootUuid())) {
+  private ComponentDto retrieveParentModuleIfNotCurrentComponent(ComponentDto componentDto, DbSession session) {
+    final String moduleUuid = componentDto.moduleUuid();
+    if (moduleUuid == null || componentDto.uuid().equals(moduleUuid)) {
       return null;
     }
-    return dbClient.componentDao().selectOrFailByUuid(session, componentDto.getRootUuid());
+    return dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
   }
 
   @CheckForNull
