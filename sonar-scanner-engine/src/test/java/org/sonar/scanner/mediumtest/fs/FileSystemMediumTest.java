@@ -886,4 +886,72 @@ public class FileSystemMediumTest {
     assertThat(result.inputFiles()).hasSize(1);
   }
 
+  @Test
+  public void log_all_exclusions_properties_per_modules() throws IOException {
+    File baseDir = temp.getRoot();
+    File baseDirModuleA = new File(baseDir, "moduleA");
+    File baseDirModuleB = new File(baseDir, "moduleB");
+    File srcDirA = new File(baseDirModuleA, "src");
+    srcDirA.mkdirs();
+    File srcDirB = new File(baseDirModuleB, "src");
+    srcDirB.mkdirs();
+
+    File xooFileA = new File(srcDirA, "sample.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFileB = new File(srcDirB, "sample.xoo");
+    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.sources", "src")
+        .put("sonar.modules", "moduleA,moduleB")
+        .put("sonar.inclusions", "**/global.inclusions")
+        .put("sonar.test.inclusions", "**/global.test.inclusions")
+        .put("sonar.exclusions", "**/global.exclusions")
+        .put("sonar.test.exclusions", "**/global.test.exclusions")
+        .put("sonar.coverage.exclusions", "**/coverage.exclusions")
+        .put("sonar.cpd.exclusions", "**/cpd.exclusions")
+        .build())
+      .execute();
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .containsSequence("Indexing files...",
+        "Project configuration:",
+        "  Included sources: **/global.inclusions",
+        "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
+        "  Included tests: **/global.test.inclusions",
+        "  Excluded tests: **/global.test.exclusions",
+        "  Excluded sources for coverage: **/coverage.exclusions",
+        "  Excluded sources for duplication: **/cpd.exclusions",
+        "Indexing files of module 'moduleA'",
+        "  Base dir: " + baseDirModuleA.getAbsolutePath(),
+        "  Source paths: src",
+        "  Included sources: **/global.inclusions",
+        "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
+        "  Included tests: **/global.test.inclusions",
+        "  Excluded tests: **/global.test.exclusions",
+        "  Excluded sources for coverage: **/coverage.exclusions",
+        "  Excluded sources for duplication: **/cpd.exclusions",
+        "Indexing files of module 'moduleB'",
+        "  Base dir: " + baseDirModuleB.getAbsolutePath(),
+        "  Source paths: src",
+        "  Included sources: **/global.inclusions",
+        "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
+        "  Included tests: **/global.test.inclusions",
+        "  Excluded tests: **/global.test.exclusions",
+        "  Excluded sources for coverage: **/coverage.exclusions",
+        "  Excluded sources for duplication: **/cpd.exclusions",
+        "Indexing files of module 'com.foo.project'",
+        "  Base dir: " + baseDir.getAbsolutePath(),
+        "  Included sources: **/global.inclusions",
+        "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
+        "  Included tests: **/global.test.inclusions",
+        "  Excluded tests: **/global.test.exclusions",
+        "  Excluded sources for coverage: **/coverage.exclusions",
+        "  Excluded sources for duplication: **/cpd.exclusions");
+  }
+
 }

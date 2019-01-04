@@ -22,6 +22,7 @@ package org.sonar.scanner.scan.filesystem;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,11 +56,11 @@ public abstract class AbstractExclusionFilters {
     this.testExclusionsPattern = prepareTestExclusions(testExclusions);
   }
 
-  protected void log() {
-    log("Included sources: ", mainInclusionsPattern);
-    log("Excluded sources: ", mainExclusionsPattern);
-    log("Included tests: ", testInclusionsPattern);
-    log("Excluded tests: ", testExclusionsPattern);
+  public void log(String indent) {
+    log("Included sources:", mainInclusionsPattern, indent);
+    log("Excluded sources:", mainExclusionsPattern, indent);
+    log("Included tests:", testInclusionsPattern, indent);
+    log("Excluded tests:", testExclusionsPattern, indent);
   }
 
   private String[] inclusions(Function<String, String[]> configProvider, String propertyKey) {
@@ -82,12 +83,9 @@ public abstract class AbstractExclusionFilters {
     return mainInclusionsPattern.length > 0 || mainExclusionsPattern.length > 0 || testInclusionsPattern.length > 0 || testExclusionsPattern.length > 0;
   }
 
-  private static void log(String title, PathPattern[] patterns) {
+  private static void log(String title, PathPattern[] patterns, String indent) {
     if (patterns.length > 0) {
-      LOG.info(title);
-      for (PathPattern pattern : patterns) {
-        LOG.info("  {}", pattern);
-      }
+      LOG.info("{}{} {}", indent, title, Arrays.stream(patterns).map(PathPattern::toString).collect(Collectors.joining(", ")));
     }
   }
 

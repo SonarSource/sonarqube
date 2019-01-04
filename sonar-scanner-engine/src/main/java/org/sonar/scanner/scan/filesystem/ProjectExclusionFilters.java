@@ -25,7 +25,6 @@ public class ProjectExclusionFilters extends AbstractExclusionFilters {
 
   public ProjectExclusionFilters(Configuration projectConfig) {
     super(projectConfig::getStringArray);
-    log();
   }
 
 }

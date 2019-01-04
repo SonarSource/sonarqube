@@ -28,6 +28,5 @@ public class ProjectCoverageAndDuplicationExclusions extends AbstractCoverageAnd
 
   public ProjectCoverageAndDuplicationExclusions(ProjectConfiguration projectConfig) {
     super(projectConfig::getStringArray, DefaultInputFile::getProjectRelativePath);
-    log();
   }
 }

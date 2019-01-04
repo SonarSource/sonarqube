@@ -35,12 +35,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.ModuleConfiguration;
 import org.sonar.scanner.scan.ModuleConfigurationProvider;
@@ -52,8 +52,9 @@ import org.sonar.scanner.util.ProgressReport;
  */
 public class ProjectFileIndexer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectFileIndexer.class);
-  private final AbstractExclusionFilters projectExclusionFilters;
+  private static final Logger LOG = Loggers.get(ProjectFileIndexer.class);
+  private final ProjectExclusionFilters projectExclusionFilters;
+  private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
   private final GlobalConfiguration globalConfig;
@@ -62,20 +63,24 @@ public class ProjectFileIndexer {
 
   private ProgressReport progressReport;
 
-  public ProjectFileIndexer(InputComponentStore componentStore, AbstractExclusionFilters exclusionFilters,
+  public ProjectFileIndexer(InputComponentStore componentStore, ProjectExclusionFilters exclusionFilters,
     InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, ProjectServerSettings projectServerSettings,
-    FileIndexer fileIndexer) {
+    FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions) {
     this.componentStore = componentStore;
     this.inputModuleHierarchy = inputModuleHierarchy;
     this.globalConfig = globalConfig;
     this.projectServerSettings = projectServerSettings;
     this.fileIndexer = fileIndexer;
     this.projectExclusionFilters = exclusionFilters;
+    this.projectCoverageAndDuplicationExclusions = projectCoverageAndDuplicationExclusions;
   }
 
   public void index() {
     progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
-    progressReport.start("Index files");
+    progressReport.start("Indexing files...");
+    LOG.info("Project configuration:");
+    projectExclusionFilters.log("  ");
+    projectCoverageAndDuplicationExclusions.log("  ");
 
     AtomicInteger excludedByPatternsCount = new AtomicInteger(0);
 
@@ -96,16 +101,18 @@ public class ProjectFileIndexer {
   }
 
   private void index(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
-    if (componentStore.allModules().size() > 1) {
-      LOG.info("  Indexing files from module {}", module.getName());
-      LOG.info("    Base dir: {}", module.getBaseDir().toAbsolutePath());
-      logPaths("    Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
-      logPaths("    Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
-    }
     // Emulate creation of module level settings
     ModuleConfiguration moduleConfig = new ModuleConfigurationProvider().provide(globalConfig, module, projectServerSettings);
     ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig);
     ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions = new ModuleCoverageAndDuplicationExclusions(moduleConfig);
+    if (componentStore.allModules().size() > 1) {
+      LOG.info("Indexing files of module '{}'", module.getName());
+      LOG.info("  Base dir: {}", module.getBaseDir().toAbsolutePath());
+      logPaths("  Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
+      logPaths("  Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
+      moduleExclusionFilters.log("  ");
+      moduleCoverageAndDuplicationExclusions.log("  ");
+    }
     indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getSourceDirsOrFiles(), Type.MAIN, excludedByPatternsCount);
     indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getTestDirsOrFiles(), Type.TEST, excludedByPatternsCount);
   }

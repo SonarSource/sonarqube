@@ -21,19 +21,20 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.WildcardPattern;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.util.stream.Collectors.toList;
 
 @Immutable
 public abstract class AbstractCoverageAndDuplicationExclusions {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractCoverageAndDuplicationExclusions.class);
+  private static final Logger LOG = Loggers.get(AbstractCoverageAndDuplicationExclusions.class);
   private final Function<DefaultInputFile, String> pathExtractor;
   private final String[] coverageExclusionConfig;
   private final String[] duplicationExclusionConfig;
@@ -57,12 +58,12 @@ public abstract class AbstractCoverageAndDuplicationExclusions {
     return duplicationExclusionConfig;
   }
 
-  void log() {
+  void log(String indent) {
     if (!coverageExclusionPatterns.isEmpty()) {
-      log("Excluded sources for coverage: ", coverageExclusionPatterns);
+      log("Excluded sources for coverage:", coverageExclusionPatterns, indent);
     }
     if (!duplicationExclusionPatterns.isEmpty()) {
-      log("Excluded sources for duplication: ", duplicationExclusionPatterns);
+      log("Excluded sources for duplication:", duplicationExclusionPatterns, indent);
     }
   }
 
@@ -84,12 +85,9 @@ public abstract class AbstractCoverageAndDuplicationExclusions {
       .anyMatch(p -> p.match(path));
   }
 
-  private static void log(String title, Collection<WildcardPattern> patterns) {
+  private static void log(String title, Collection<WildcardPattern> patterns, String ident) {
     if (!patterns.isEmpty()) {
-      LOG.info(title);
-      for (WildcardPattern pattern : patterns) {
-        LOG.info("  {}", pattern);
-      }
+      LOG.info("{}{} {}", ident, title, patterns.stream().map(WildcardPattern::toString).collect(Collectors.joining(", ")));
     }
   }
 }
