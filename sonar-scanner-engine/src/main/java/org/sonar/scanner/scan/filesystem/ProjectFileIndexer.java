@@ -42,6 +42,7 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.scan.ModuleConfiguration;
 import org.sonar.scanner.scan.ModuleConfigurationProvider;
 import org.sonar.scanner.scan.ProjectServerSettings;
@@ -58,17 +59,19 @@ public class ProjectFileIndexer {
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
   private final GlobalConfiguration globalConfig;
+  private final GlobalServerSettings globalServerSettings;
   private final ProjectServerSettings projectServerSettings;
   private final FileIndexer fileIndexer;
 
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(InputComponentStore componentStore, ProjectExclusionFilters exclusionFilters,
-    InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, ProjectServerSettings projectServerSettings,
+    InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
     FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions) {
     this.componentStore = componentStore;
     this.inputModuleHierarchy = inputModuleHierarchy;
     this.globalConfig = globalConfig;
+    this.globalServerSettings = globalServerSettings;
     this.projectServerSettings = projectServerSettings;
     this.fileIndexer = fileIndexer;
     this.projectExclusionFilters = exclusionFilters;
@@ -102,7 +105,7 @@ public class ProjectFileIndexer {
 
   private void index(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
     // Emulate creation of module level settings
-    ModuleConfiguration moduleConfig = new ModuleConfigurationProvider().provide(globalConfig, module, projectServerSettings);
+    ModuleConfiguration moduleConfig = new ModuleConfigurationProvider().provide(globalConfig, module, globalServerSettings, projectServerSettings);
     ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig);
     ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions = new ModuleCoverageAndDuplicationExclusions(moduleConfig);
     if (componentStore.allModules().size() > 1) {

@@ -27,15 +27,19 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.sonar.scanner.bootstrap.GlobalServerSettings;
 
 public class ModuleConfigurationProvider extends ProviderAdapter {
 
   private ModuleConfiguration moduleConfiguration;
 
-  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, ProjectServerSettings projectServerSettings) {
+  public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, GlobalServerSettings globalServerSettings,
+    ProjectServerSettings projectServerSettings) {
     if (moduleConfiguration == null) {
 
-      Map<String, String> settings = new LinkedHashMap<>(projectServerSettings.properties());
+      Map<String, String> settings = new LinkedHashMap<>();
+      settings.putAll(globalServerSettings.properties());
+      settings.putAll(projectServerSettings.properties());
       addScannerSideProperties(settings, module.definition());
 
       moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
