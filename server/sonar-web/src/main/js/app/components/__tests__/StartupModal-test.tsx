@@ -19,13 +19,11 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
-import { Location } from 'history';
-import { InjectedRouter } from 'react-router';
 import { StartupModal } from '../StartupModal';
 import { showLicense } from '../../../api/marketplace';
 import { save, get } from '../../../helpers/storage';
 import { hasMessage } from '../../../helpers/l10n';
-import { waitAndUpdate, mockRouter } from '../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { differenceInDays, toShortNotSoISOString } from '../../../helpers/dates';
 import { EditionKey } from '../../../apps/marketplace/utils';
 
@@ -113,29 +111,9 @@ it('should render license prompt', async () => {
   await shouldDisplayLicense(getWrapper());
 });
 
-it('should render onboarding modal', async () => {
-  await shouldDisplayOnboarding(
-    getWrapper({
-      canAdmin: false,
-      currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true }
-    })
-  );
-
-  (showLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidEdition: true });
-  await shouldDisplayOnboarding(
-    getWrapper({ currentUser: { ...LOGGED_IN_USER, showOnboardingTutorial: true } })
-  );
-});
-
 async function shouldNotHaveModals(wrapper: ShallowWrapper) {
   await waitAndUpdate(wrapper);
   expect(wrapper.find('LicensePromptModal').exists()).toBeFalsy();
-  expect(wrapper.find('ProjectOnboardingModal').exists()).toBeFalsy();
-}
-
-async function shouldDisplayOnboarding(wrapper: ShallowWrapper) {
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('ProjectOnboardingModal').exists()).toBeTruthy();
 }
 
 async function shouldDisplayLicense(wrapper: ShallowWrapper) {
@@ -143,15 +121,14 @@ async function shouldDisplayLicense(wrapper: ShallowWrapper) {
   expect(wrapper.find('LicensePromptModal').exists()).toBeTruthy();
 }
 
-function getWrapper(props = {}) {
+function getWrapper(props: Partial<StartupModal['props']> = {}) {
   return shallow(
-    // @ts-ignore avoid passing everything from WithRouterProps
     <StartupModal
       canAdmin={true}
       currentEdition={EditionKey.enterprise}
       currentUser={LOGGED_IN_USER}
-      location={{ pathname: 'foo/bar' } as Location}
-      router={mockRouter() as InjectedRouter}
+      location={{ pathname: 'foo/bar' }}
+      router={{ push: jest.fn() }}
       skipOnboarding={jest.fn()}
       {...props}>
       <div />

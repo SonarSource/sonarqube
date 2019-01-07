@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { CreateProjectPage } from '../CreateProjectPage';
+import { CreateProjectPageSonarCloud } from '../CreateProjectPageSonarCloud';
 import { waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
 import { getAlmAppInfo } from '../../../../api/alm-integration';
 
@@ -77,7 +77,7 @@ it('should switch tabs', async () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <CreateProjectPage
+    <CreateProjectPageSonarCloud
       addGlobalErrorMessage={jest.fn()}
       currentUser={user}
       // @ts-ignore avoid passing everything from WithRouterProps

@@ -130,7 +130,7 @@ export default class SetupProjectBox extends React.PureComponent<Props, State> {
           </div>
           <div>
             <SubmitButton className="button-large" disabled={this.state.submitting}>
-              {translate('setup')}
+              {translate('set_up')}
             </SubmitButton>
             <DeferredSpinner className="spacer-left" loading={this.state.submitting} />
           </div>

@@ -55,7 +55,7 @@ export default class EmptyInstance extends React.PureComponent<Props> {
             </p>
             <p className="big-spacer-top">
               <Button onClick={this.analyzeNewProject}>
-                {translate('embed_docs.analyze_new_project')}
+                {translate('my_account.create_new.TRK')}
               </Button>
             </p>
           </div>

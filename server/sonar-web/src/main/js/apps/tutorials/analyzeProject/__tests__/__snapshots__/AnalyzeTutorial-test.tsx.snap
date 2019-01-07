@@ -13,7 +13,9 @@ exports[`renders correctly 1`] = `
     <p
       className="page-description"
     >
-      onboarding.project_analysis.description
+      <InstanceMessage
+        message="onboarding.project_analysis.description"
+      />
     </p>
   </div>
   <AnalyzeTutorialSuggestion />

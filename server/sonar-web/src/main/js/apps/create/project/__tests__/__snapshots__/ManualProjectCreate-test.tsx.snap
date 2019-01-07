@@ -39,7 +39,7 @@ exports[`should render correctly 1`] = `
       <SubmitButton
         disabled={true}
       >
-        setup
+        set_up
       </SubmitButton>
       <DeferredSpinner
         className="spacer-left"

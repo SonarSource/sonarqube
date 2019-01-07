@@ -27,6 +27,10 @@ jest.mock('../../../../api/components', () => ({
   createProject: jest.fn().mockResolvedValue({ project: { key: 'bar', name: 'Bar' } })
 }));
 
+jest.mock('../../../../helpers/system', () => ({
+  isSonarCloud: jest.fn().mockReturnValue(true)
+}));
+
 beforeEach(() => {
   (createProject as jest.Mock<any>).mockClear();
 });

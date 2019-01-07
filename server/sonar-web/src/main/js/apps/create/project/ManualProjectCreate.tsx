@@ -33,10 +33,10 @@ import './ManualProjectCreate.css';
 
 interface Props {
   currentUser: T.LoggedInUser;
-  fetchMyOrganizations: () => Promise<void>;
+  fetchMyOrganizations?: () => Promise<void>;
   onProjectCreate: (projectKeys: string[]) => void;
   organization?: string;
-  userOrganizations: T.Organization[];
+  userOrganizations?: T.Organization[];
 }
 
 interface State {
@@ -47,8 +47,7 @@ interface State {
   submitting: boolean;
 }
 
-type ValidState = State &
-  Required<Pick<State, 'projectName' | 'projectKey' | 'selectedOrganization'>>;
+type ValidState = State & Required<Pick<State, 'projectName' | 'projectKey'>>;
 
 export default class ManualProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
@@ -74,13 +73,15 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   canSubmit(state: State): state is ValidState {
-    return Boolean(state.projectKey && state.projectName && state.selectedOrganization);
+    return Boolean(
+      state.projectKey && state.projectName && (!isSonarCloud() || state.selectedOrganization)
+    );
   }
 
   getInitialSelectedOrganization = (props: Props) => {
     if (props.organization) {
       return this.getOrganization(props.organization);
-    } else if (props.userOrganizations.length === 1) {
+    } else if (props.userOrganizations && props.userOrganizations.length === 1) {
       return props.userOrganizations[0];
     } else {
       return undefined;
@@ -88,7 +89,10 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   getOrganization = (organizationKey: string) => {
-    return this.props.userOrganizations.find(({ key }: T.Organization) => key === organizationKey);
+    return (
+      this.props.userOrganizations &&
+      this.props.userOrganizations.find(({ key }: T.Organization) => key === organizationKey)
+    );
   };
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -99,7 +103,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       createProject({
         project: state.projectKey,
         name: state.projectName,
-        organization: state.selectedOrganization.key,
+        organization: state.selectedOrganization && state.selectedOrganization.key,
         visibility: this.state.selectedVisibility
       }).then(
         ({ project }) => this.props.onProjectCreate([project.key]),
@@ -127,7 +131,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   handleOrganizationUpgrade = () => {
-    this.props.fetchMyOrganizations().then(
+    this.props.fetchMyOrganizations!().then(
       () => {
         this.setState(prevState => {
           if (prevState.selectedOrganization) {
@@ -163,11 +167,14 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       <div className="create-project">
         <div className="flex-1 huge-spacer-right">
           <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-            <OrganizationInput
-              onChange={this.handleOrganizationSelect}
-              organization={selectedOrganization ? selectedOrganization.key : ''}
-              organizations={this.props.userOrganizations}
-            />
+            {isSonarCloud() &&
+              this.props.userOrganizations && (
+                <OrganizationInput
+                  onChange={this.handleOrganizationSelect}
+                  organization={selectedOrganization ? selectedOrganization.key : ''}
+                  organizations={this.props.userOrganizations}
+                />
+              )}
             <ProjectKeyInput
               className="form-field"
               initialValue={this.state.projectKey}
@@ -193,7 +200,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 </div>
               )}
             <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
-              {translate('setup')}
+              {translate('set_up')}
             </SubmitButton>
             <DeferredSpinner className="spacer-left" loading={submitting} />
           </form>

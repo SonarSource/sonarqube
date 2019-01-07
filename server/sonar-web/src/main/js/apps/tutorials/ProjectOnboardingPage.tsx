@@ -19,32 +19,15 @@
  */
 import * as React from 'react';
 import { withRouter, WithRouterProps } from 'react-router';
-import { connect } from 'react-redux';
-import ProjectOnboardingModal from './ProjectOnboardingModal';
-import { skipOnboarding } from '../../../store/users';
 
-interface DispatchProps {
-  skipOnboarding: () => void;
-}
-
-type Props = DispatchProps & WithRouterProps;
-
-export class ProjectOnboardingPage extends React.PureComponent<Props> {
-  onSkipOnboardingTutorial = () => {
-    this.props.skipOnboarding();
-    this.props.router.replace('/');
-  };
+export class ProjectOnboardingPage extends React.PureComponent<WithRouterProps> {
+  componentDidMount() {
+    this.props.router.replace('/projects/create');
+  }
 
   render() {
-    return <ProjectOnboardingModal onFinish={this.onSkipOnboardingTutorial} />;
+    return null;
   }
 }
 
-const mapDispatchToProps: DispatchProps = { skipOnboarding };
-
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(ProjectOnboardingPage)
-);
+export default withRouter(ProjectOnboardingPage);

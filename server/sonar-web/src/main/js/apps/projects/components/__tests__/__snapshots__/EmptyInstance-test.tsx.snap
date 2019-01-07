@@ -29,7 +29,7 @@ exports[`renders correctly for SC 2`] = `
       <Button
         onClick={[Function]}
       >
-        embed_docs.analyze_new_project
+        my_account.create_new.TRK
       </Button>
     </p>
   </div>
@@ -65,7 +65,7 @@ exports[`renders correctly for SQ 2`] = `
       <Button
         onClick={[Function]}
       >
-        embed_docs.analyze_new_project
+        my_account.create_new.TRK
       </Button>
     </p>
   </div>

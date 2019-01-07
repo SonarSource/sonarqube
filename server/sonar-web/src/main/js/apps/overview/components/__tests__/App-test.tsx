@@ -50,16 +50,7 @@ it('should render OverviewApp', () => {
 it('should render EmptyOverview', () => {
   expect(
     getWrapper({ component: { key: 'foo' } as T.Component })
-      .find('EmptyOverview')
-      .exists()
-  ).toBeTruthy();
-});
-
-it('should render SonarCloudEmptyOverview', () => {
-  (isSonarCloud as jest.Mock<any>).mockReturnValue(true);
-  expect(
-    getWrapper({ component: { key: 'foo' } as T.Component })
-      .find('Connect(SonarCloudEmptyOverview)')
+      .find('Connect(EmptyOverview)')
       .exists()
   ).toBeTruthy();
 });

@@ -1,67 +1,100 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`does not render warning 1`] = `
-<div
-  className="page page-limited"
->
-  <div>
-    <h4>
-      key
-    </h4>
-    <code>
-      abcd
-    </code>
-  </div>
-</div>
-`;
-
-exports[`renders 1`] = `
+exports[`renders correctly 1`] = `
 <div
   className="page page-limited"
 >
   <div
-    className="big-spacer-bottom"
+    className="overview page-with-sidebar"
   >
-    <Alert
-      variant="warning"
-    >
-      provisioning.no_analysis
-    </Alert>
     <div
-      className="big-spacer-top"
+      className="overview-main page-main"
     >
-      <FormattedMessage
-        defaultMessage="provisioning.no_analysis.delete"
-        id="provisioning.no_analysis.delete"
-        values={
+      <AnalyzeTutorial
+        component={
           Object {
-            "link": <Link
-              className="text-danger"
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/project/deletion",
-                  "query": Object {
-                    "id": "abcd",
-                  },
-                }
-              }
-            >
-              provisioning.no_analysis.delete_project
-            </Link>,
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        currentUser={
+          Object {
+            "isLoggedIn": true,
+            "login": "luke",
+            "name": "Skywalker",
           }
         }
       />
     </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
   </div>
-  <div>
-    <h4>
-      key
-    </h4>
-    <code>
-      abcd
-    </code>
+</div>
+`;
+
+exports[`should not render the tutorial 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <div
+      className="overview-main page-main"
+    />
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
   </div>
 </div>
 `;
@@ -71,34 +104,47 @@ exports[`should render another message when there are branches 1`] = `
   className="page page-limited"
 >
   <div
-    className="big-spacer-bottom"
+    className="overview page-with-sidebar"
   >
-    <Alert
-      variant="warning"
+    <div
+      className="overview-main page-main"
     >
-      <FormattedMessage
-        defaultMessage="provisioning.no_analysis_on_main_branch"
-        id="provisioning.no_analysis_on_main_branch"
-        values={
+      <WarningMessage
+        branchLike={
           Object {
-            "branchName": "b",
-            "branchType": <div
-              className="outline-badge text-baseline"
-            >
-              branches.main_branch
-            </div>,
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
           }
         }
+        message="provisioning.no_analysis_on_main_branch"
       />
-    </Alert>
-  </div>
-  <div>
-    <h4>
-      key
-    </h4>
-    <code>
-      abcd
-    </code>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
   </div>
 </div>
 `;
@@ -108,34 +154,68 @@ exports[`should render another message when there are branches 2`] = `
   className="page page-limited"
 >
   <div
-    className="big-spacer-bottom"
+    className="overview page-with-sidebar"
   >
-    <Alert
-      variant="warning"
+    <div
+      className="overview-main page-main"
     >
-      <FormattedMessage
-        defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
-        id="provisioning.no_analysis_on_main_branch.bad_configuration"
-        values={
+      <WarningMessage
+        branchLike={
           Object {
-            "branchName": "b",
-            "branchType": <div
-              className="outline-badge text-baseline"
-            >
-              branches.main_branch
-            </div>,
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
           }
         }
+        message="provisioning.no_analysis_on_main_branch.bad_configuration"
       />
-    </Alert>
-  </div>
-  <div>
-    <h4>
-      key
-    </h4>
-    <code>
-      abcd
-    </code>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "isMain": true,
+            "name": "b",
+            "type": "LONG",
+          }
+        }
+        component={
+          Object {
+            "analysisDate": "2016-01-01",
+            "breadcrumbs": Array [],
+            "key": "foo",
+            "name": "Foo",
+            "organization": "org",
+            "qualifier": "TRK",
+            "version": "0.0.1",
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
   </div>
 </div>
+`;
+
+exports[`should render warning message 1`] = `
+<Alert
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="foo"
+    id="foo"
+    values={
+      Object {
+        "branchName": "b",
+        "branchType": <div
+          className="outline-badge text-baseline"
+        >
+          branches.main_branch
+        </div>,
+      }
+    }
+  />
+</Alert>
 `;

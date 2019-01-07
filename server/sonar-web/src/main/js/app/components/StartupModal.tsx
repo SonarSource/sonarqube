@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { withRouter, WithRouterProps } from 'react-router';
 import { OnboardingContext } from './OnboardingContext';
 import { differenceInDays, parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { getCurrentUser, getAppState, Store } from '../../store/rootReducer';
@@ -30,15 +29,12 @@ import { save, get } from '../../helpers/storage';
 import { isSonarCloud } from '../../helpers/system';
 import { lazyLoad } from '../../components/lazyLoad';
 import { isLoggedIn } from '../../helpers/users';
+import { withRouter, Router, Location } from '../../components/hoc/withRouter';
 
 const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
 const LicensePromptModal = lazyLoad(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
   'LicensePromptModal'
-);
-const ProjectOnboardingModal = lazyLoad(
-  () => import('../../apps/tutorials/projectOnboarding/ProjectOnboardingModal'),
-  'ProjectOnboardingModal'
 );
 const TeamOnboardingModal = lazyLoad(() =>
   import('../../apps/tutorials/teamOnboarding/TeamOnboardingModal')
@@ -58,24 +54,27 @@ interface OwnProps {
   children?: React.ReactNode;
 }
 
+interface WithRouterProps {
+  location: Pick<Location, 'pathname'>;
+  router: Pick<Router, 'push'>;
+}
+
 type Props = StateProps & DispatchProps & OwnProps & WithRouterProps;
 
 enum ModalKey {
   license,
   onboarding,
-  projectOnboarding,
   teamOnboarding
 }
 
 interface State {
-  automatic: boolean;
   modal?: ModalKey;
 }
 
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
 export class StartupModal extends React.PureComponent<Props, State> {
-  state: State = { automatic: false };
+  state: State = {};
 
   componentDidMount() {
     this.tryAutoOpenLicense().catch(this.tryAutoOpenOnboarding);
@@ -85,7 +84,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.setState(state => {
       if (state.modal !== ModalKey.license) {
         this.props.skipOnboarding();
-        return { automatic: false, modal: undefined };
+        return { modal: undefined };
       }
       return null;
     });
@@ -94,7 +93,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   closeLicense = () => {
     this.setState(state => {
       if (state.modal === ModalKey.license) {
-        return { automatic: false, modal: undefined };
+        return { modal: undefined };
       }
       return null;
     });
@@ -105,17 +104,13 @@ export class StartupModal extends React.PureComponent<Props, State> {
   };
 
   openProjectOnboarding = (organization?: T.Organization) => {
-    if (isSonarCloud()) {
-      this.setState({ automatic: false, modal: undefined });
-      const state: { organization?: string; tab?: string } = {};
-      if (organization) {
-        state.organization = organization.key;
-        state.tab = organization.alm ? 'auto' : 'manual';
-      }
-      this.props.router.push({ pathname: `/projects/create`, state });
-    } else {
-      this.setState({ modal: ModalKey.projectOnboarding });
+    this.setState({ modal: undefined });
+    const state: { organization?: string; tab?: string } = {};
+    if (organization) {
+      state.organization = organization.key;
+      state.tab = organization.alm ? 'auto' : 'manual';
     }
+    this.props.router.push({ pathname: `/projects/create`, state });
   };
 
   openTeamOnboarding = () => {
@@ -134,7 +129,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
         return showLicense().then(license => {
           if (!license || !license.isValidEdition) {
             save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
-            this.setState({ automatic: true, modal: ModalKey.license });
+            this.setState({ modal: ModalKey.license });
             return Promise.resolve();
           }
           return Promise.reject();
@@ -152,7 +147,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
         path => location.pathname.startsWith(path)
       )
     ) {
-      this.setState({ automatic: true });
       if (isSonarCloud()) {
         this.openOnboarding();
       } else {
@@ -162,7 +156,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { automatic, modal } = this.state;
+    const { modal } = this.state;
     return (
       <OnboardingContext.Provider value={this.openProjectOnboarding}>
         {this.props.children}
@@ -173,9 +167,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
             onOpenProjectOnboarding={this.openProjectOnboarding}
             onOpenTeamOnboarding={this.openTeamOnboarding}
           />
-        )}
-        {modal === ModalKey.projectOnboarding && (
-          <ProjectOnboardingModal automatic={automatic} onFinish={this.closeOnboarding} />
         )}
         {modal === ModalKey.teamOnboarding && (
           <TeamOnboardingModal onFinish={this.closeOnboarding} />

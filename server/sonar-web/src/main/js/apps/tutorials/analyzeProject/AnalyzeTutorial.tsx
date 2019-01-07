@@ -23,6 +23,8 @@ import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
 import TokenStep from '../components/TokenStep';
 import { isVSTS } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
+import InstanceMessage from '../../../components/common/InstanceMessage';
+import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 
 enum Steps {
@@ -60,17 +62,18 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
       <>
         <div className="page-header big-spacer-bottom">
           <h1 className="page-title">{translate('onboarding.project_analysis.header')}</h1>
-          <p className="page-description">{translate('onboarding.project_analysis.description')}</p>
+          <p className="page-description">
+            <InstanceMessage message={translate('onboarding.project_analysis.description')} />
+          </p>
         </div>
 
-        <AnalyzeTutorialSuggestion almKey={almKey} />
+        {isSonarCloud() && <AnalyzeTutorialSuggestion almKey={almKey} />}
 
         {!isVSTS(almKey) && (
           <>
             <TokenStep
               currentUser={currentUser}
               finished={Boolean(this.state.token)}
-              // put date to ensure uniqueness of the token name
               initialTokenName={`Analyze "${component.name}"`}
               onContinue={this.handleTokenDone}
               onOpen={this.handleTokenOpen}
@@ -82,7 +85,7 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
               component={component}
               displayRowLayout={true}
               open={step === Steps.ANALYSIS}
-              organization={component.organization}
+              organization={isSonarCloud() ? component.organization : undefined}
               stepNumber={2}
               token={token}
             />

@@ -25,9 +25,7 @@ const routes = [
     indexRoute: {
       component: lazyLoad(
         () =>
-          isSonarCloud()
-            ? import('./onboarding/OnboardingPage')
-            : import('./projectOnboarding/ProjectOnboardingPage')
+          isSonarCloud() ? import('./onboarding/OnboardingPage') : import('./ProjectOnboardingPage')
       )
     }
   }

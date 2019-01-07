@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet';
-import EmptyOverview from './EmptyOverview';
 import OverviewApp from './OverviewApp';
-import SonarCloudEmptyOverview from './SonarCloudEmptyOverview';
+import EmptyOverview from './EmptyOverview';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { isShortLivingBranch } from '../../../helpers/branches';
 import {
@@ -78,23 +77,15 @@ export class App extends React.PureComponent<Props> {
         )}
         <Suggestions suggestions="overview" />
 
-        {!component.analysisDate &&
-          (isSonarCloud() ? (
-            <SonarCloudEmptyOverview
-              branchLike={branchLike}
-              branchLikes={branchLikes}
-              component={component}
-              hasAnalyses={this.props.isPending || this.props.isInProgress}
-              onComponentChange={this.props.onComponentChange}
-            />
-          ) : (
-            <EmptyOverview
-              branchLike={branchLike}
-              branchLikes={branchLikes}
-              component={component.key}
-              showWarning={!this.props.isPending && !this.props.isInProgress}
-            />
-          ))}
+        {!component.analysisDate && (
+          <EmptyOverview
+            branchLike={branchLike}
+            branchLikes={branchLikes}
+            component={component}
+            hasAnalyses={this.props.isPending || this.props.isInProgress}
+            onComponentChange={this.props.onComponentChange}
+          />
+        )}
         {component.analysisDate && (
           <OverviewApp
             branchLike={branchLike}

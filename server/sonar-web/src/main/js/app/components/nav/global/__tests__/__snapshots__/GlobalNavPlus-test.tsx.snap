@@ -12,7 +12,7 @@ exports[`render 1`] = `
           href="#"
           onClick={[Function]}
         >
-          provisioning.analyze_new_project
+          my_account.create_new.TRK
         </a>
       </li>
     </ul>

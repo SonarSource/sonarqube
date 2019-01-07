@@ -106,7 +106,9 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
     return (
       <li>
         <a className="js-new-project" href="#" onClick={this.handleNewProjectClick}>
-          {translate('provisioning.analyze_new_project')}
+          {isSonarCloud()
+            ? translate('provisioning.analyze_new_project')
+            : translate('my_account.create_new.TRK')}
         </a>
       </li>
     );
