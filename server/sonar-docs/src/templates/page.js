@@ -46,13 +46,10 @@ export default class Page extends React.PureComponent {
 
   render() {
     const page = this.props.data.markdownRemark;
-    let htmlWithInclusions = page.html.replace(/<p>@include (.*)<\/p>/, (_, path) => {
-      const chunk = data.allMarkdownRemark.edges.find(edge => edge.node.fields.slug === path);
-      return chunk ? chunk.node.html : '';
-    });
 
     const realHeadingsList = removeExtraHeadings(page.html, page.headings);
 
+    let htmlWithInclusions = page.html;
     htmlWithInclusions = removeTableOfContents(htmlWithInclusions);
     htmlWithInclusions = createAnchorForHeadings(htmlWithInclusions, realHeadingsList);
     htmlWithInclusions = replaceDynamicLinks(htmlWithInclusions);

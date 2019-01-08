@@ -20,20 +20,23 @@
 const { createFilePath, createRemoteFileNode } = require('gatsby-source-filesystem');
 const fs = require('fs-extra');
 
-function loadNodeContent(fileNode) {
+function loadNodeContentSync(fileNode) {
   const content = fs.readFileSync(fileNode.absolutePath, 'utf-8');
-  return new Promise((resolve, reject) => {
-    let newContent = cutSonarCloudContent(content);
-    newContent = removeRemainingContentTags(newContent);
-    resolve(newContent);
-  });
+  let newContent = cutSonarCloudContent(content);
+  newContent = removeRemainingContentTags(newContent);
+  newContent = handleIncludes(newContent, fileNode);
+  return newContent;
+}
+
+function loadNodeContent(fileNode) {
+  return Promise.resolve(loadNodeContentSync(fileNode));
 }
 
 function removeRemainingContentTags(content) {
   const regexBase = '<!-- \\/?(sonarqube|sonarcloud|static) -->';
   return content
-    .replace(new RegExp(`^${regexBase}(\n|\r|\r\n|$)`, 'gm'), '') // First, remove single-line ones, including ending carriage-returns.
-    .replace(new RegExp(`${regexBase}`, 'g'), ''); // Now remove all remaining ones.
+    .replace(new RegExp(`^${regexBase}(\n|\r|\r\n|$)`, 'gm'), '')
+    .replace(new RegExp(`${regexBase}`, 'g'), '');
 }
 
 function cutSonarCloudContent(content) {
@@ -50,6 +53,27 @@ function cutSonarCloudContent(content) {
   }
 
   return newContent;
+}
+
+function handleIncludes(content, fileNode) {
+  return content.replace(/@include (.*)/g, (_, path) => {
+    const relativePath = `${path}.md`;
+    const absolutePath = `${__dirname}/../../src/${relativePath}`;
+
+    if (relativePath === fileNode.relativePath) {
+      throw new Error(`Error in ${fileNode.relativePath}: The file is trying to include itself.`);
+    } else if (!fs.existsSync(absolutePath)) {
+      throw new Error(
+        `Error in ${fileNode.relativePath}: Couldn't load "${relativePath}" for inclusion.`
+      );
+    } else {
+      const fileContent = loadNodeContentSync({ absolutePath, relativePath });
+      return fileContent
+        .replace(/^---[\w\W]+?---$/m, '')
+        .replace(/^#+ *(toc|table[ -]of[ -]contents?)$/gim, '')
+        .trim();
+    }
+  });
 }
 
 exports.createFilePath = createFilePath;
