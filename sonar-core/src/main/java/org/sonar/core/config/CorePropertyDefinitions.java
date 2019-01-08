@@ -33,7 +33,6 @@ import static org.sonar.api.PropertyType.BOOLEAN;
 public class CorePropertyDefinitions {
 
   public static final String LEAK_PERIOD = "sonar.leak.period";
-  public static final String LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS = "previous_analysis";
   public static final String LEAK_PERIOD_MODE_DATE = "date";
   public static final String LEAK_PERIOD_MODE_VERSION = "version";
   public static final String LEAK_PERIOD_MODE_DAYS = "days";

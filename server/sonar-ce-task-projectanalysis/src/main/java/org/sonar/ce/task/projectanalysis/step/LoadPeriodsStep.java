@@ -19,12 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -129,7 +130,7 @@ public class LoadPeriodsStep implements ComputationStep {
     if (days != null) {
       return resolveByDays(dbSession, projectUuid, days, propertyValue);
     }
-    Date date = parseDate(propertyValue);
+    Instant date = parseDate(propertyValue);
     if (date != null) {
       return resolveByDate(dbSession, projectUuid, date, propertyValue);
     }
@@ -141,12 +142,12 @@ public class LoadPeriodsStep implements ComputationStep {
 
     String mostRecentVersion = Optional.ofNullable(versions.iterator().next().getName())
       .orElseThrow(() -> new IllegalStateException("selectVersionsByMostRecentFirst returned a DTO which didn't have a name"));
-    if (versions.size() == 1) {
-      return resolveWhenOnlyOneExistingVersion(dbSession, projectUuid, mostRecentVersion, propertyValue);
-    }
 
     boolean previousVersionPeriod = LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(propertyValue);
     if (previousVersionPeriod) {
+      if (versions.size() == 1) {
+        return resolvePreviousVersionWithOnlyOneExistingVersion(dbSession, projectUuid);
+      }
       return resolvePreviousVersion(dbSession, analysisProjectVersion, versions, mostRecentVersion);
     }
 
@@ -154,10 +155,10 @@ public class LoadPeriodsStep implements ComputationStep {
   }
 
   @CheckForNull
-  private static Date parseDate(String propertyValue) {
+  private static Instant parseDate(String propertyValue) {
     try {
       LocalDate localDate = LocalDate.parse(propertyValue);
-      return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+      return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
     } catch (DateTimeParseException e) {
       boolean invalidDate = e.getCause() == null || e.getCause() == e || !e.getCause().getMessage().contains("Invalid date");
       checkPeriodProperty(invalidDate, propertyValue, "Invalid date");
@@ -171,24 +172,23 @@ public class LoadPeriodsStep implements ComputationStep {
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(dbSession, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
     ensureNotOnFirstAnalysis(!snapshots.isEmpty());
 
-    long targetDate = DateUtils.addDays(new Date(analysisDate), -days).getTime();
-    LOG.debug("Resolving new code period by {} days: {}", days, async(() -> logDate(targetDate)));
+    Instant targetDate = DateUtils.addDays(Instant.ofEpochMilli(analysisDate), -days);
+    LOG.debug("Resolving new code period by {} days: {}", days, supplierToString(() -> logDate(targetDate)));
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
 
     return Optional.of(newPeriod(LEAK_PERIOD_MODE_DAYS, String.valueOf((int) days), snapshot));
   }
 
-  private Optional<Period> resolveByDate(DbSession dbSession, String projectUuid, Date date, String propertyValue) {
-    long now = system2.now();
-    checkPeriodProperty(date.compareTo(new Date(now)) <= 0, propertyValue,
-      "date is in the future (now: '%s')", async(() -> logDate(now)));
+  private Optional<Period> resolveByDate(DbSession dbSession, String projectUuid, Instant date, String propertyValue) {
+    Instant now = Instant.ofEpochMilli(system2.now());
+    checkPeriodProperty(date.compareTo(now) <= 0, propertyValue,
+      "date is in the future (now: '%s')", supplierToString(() -> logDate(now)));
 
-    LOG.debug("Resolving new code period by date: {}", async(() -> logDate(date)));
-    Optional<Period> period = findFirstSnapshot(dbSession, createCommonQuery(projectUuid).setCreatedAfter(date.getTime()).setSort(BY_DATE, ASC))
+    LOG.debug("Resolving new code period by date: {}", supplierToString(() -> logDate(date)));
+    Optional<Period> period = findFirstSnapshot(dbSession, createCommonQuery(projectUuid).setCreatedAfter(date.toEpochMilli()).setSort(BY_DATE, ASC))
       .map(dto -> newPeriod(LEAK_PERIOD_MODE_DATE, DateUtils.formatDate(date), dto));
 
-    checkPeriodProperty(period.isPresent(), propertyValue, "No analysis found created after date '%s'", async(() -> logDate(date)));
-
+    checkPeriodProperty(period.isPresent(), propertyValue, "No analysis found created after date '%s'", supplierToString(() -> logDate(date)));
     return period;
   }
 
@@ -205,15 +205,8 @@ public class LoadPeriodsStep implements ComputationStep {
     return findOldestAnalysis(dbSession, periodMode, projectUuid);
   }
 
-  private Optional<Period> resolveWhenOnlyOneExistingVersion(DbSession dbSession, String projectUuid, String mostRecentVersion, String propertyValue) {
-    boolean previousVersionPeriod = LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(propertyValue);
+  private Optional<Period> resolvePreviousVersionWithOnlyOneExistingVersion(DbSession dbSession, String projectUuid) {
     LOG.debug("Resolving first analysis as new code period as there is only one existing version");
-
-    // only one existing version. Period must either be PREVIOUS_VERSION or the only valid version: the only existing one
-    checkPeriodProperty(previousVersionPeriod || propertyValue.equals(mostRecentVersion), propertyValue,
-      "Only one existing version, but period is neither %s nor this one version '%s' (actual: '%s')",
-      LEAK_PERIOD_MODE_PREVIOUS_VERSION, mostRecentVersion, propertyValue);
-
     return findOldestAnalysis(dbSession, LEAK_PERIOD_MODE_PREVIOUS_VERSION, projectUuid);
   }
 
@@ -234,7 +227,7 @@ public class LoadPeriodsStep implements ComputationStep {
     LOG.debug("Resolving new code period by version: {}", propertyValue);
     Optional<EventDto> version = versions.stream().filter(t -> propertyValue.equals(t.getName())).findFirst();
     checkPeriodProperty(version.isPresent(), propertyValue,
-      "version is none of the existing ones: %s", async(() -> toVersions(versions)));
+      "version is none of the existing ones: %s", supplierToString(() -> toVersions(versions)));
 
     return newPeriod(dbSession, LEAK_PERIOD_MODE_VERSION, version.get());
   }
@@ -253,7 +246,7 @@ public class LoadPeriodsStep implements ComputationStep {
     return Arrays.toString(versions.stream().map(EventDto::getName).toArray(String[]::new));
   }
 
-  public static Object async(Supplier<String> s) {
+  private static Object supplierToString(Supplier<String> s) {
     return new Object() {
       @Override
       public String toString() {
@@ -268,7 +261,7 @@ public class LoadPeriodsStep implements ComputationStep {
 
   private static void checkPeriodProperty(boolean test, String propertyValue, String testDescription, Object... args) {
     if (!test) {
-      LOG.debug("Invalid code period '{}': {}", propertyValue, async(() -> format(testDescription, args)));
+      LOG.debug("Invalid code period '{}': {}", propertyValue, supplierToString(() -> format(testDescription, args)));
       throw MessageException.of(format("Invalid new code period. '%s' is not one of: " +
         "integer > 0, date before current analysis j, \"previous_version\", or version string that exists in the project' \n" +
         "Please contact a project administrator to correct this setting", propertyValue));
@@ -295,13 +288,15 @@ public class LoadPeriodsStep implements ComputationStep {
     }
   }
 
-  private static SnapshotDto findNearestSnapshotToTargetDate(List<SnapshotDto> snapshots, Long targetDate) {
-    long bestDistance = Long.MAX_VALUE;
+  private static SnapshotDto findNearestSnapshotToTargetDate(List<SnapshotDto> snapshots, Instant targetDate) {
+    // FIXME shouldn't this be the first analysis after targetDate?
+    Duration bestDuration = null;
     SnapshotDto nearest = null;
     for (SnapshotDto snapshot : snapshots) {
-      long distance = Math.abs(snapshot.getCreatedAt() - targetDate);
-      if (distance <= bestDistance) {
-        bestDistance = distance;
+      Instant createdAt = Instant.ofEpochMilli(snapshot.getCreatedAt());
+      Duration duration = Duration.between(targetDate, createdAt).abs();
+      if (bestDuration == null || duration.compareTo(bestDuration) <= 0) {
+        bestDuration = duration;
         nearest = snapshot;
       }
     }
@@ -312,11 +307,7 @@ public class LoadPeriodsStep implements ComputationStep {
     return new SnapshotQuery().setComponentUuid(projectUuid).setStatus(STATUS_PROCESSED);
   }
 
-  private static String logDate(long date) {
-    return logDate(new Date(date));
-  }
-
-  private static String logDate(Date date1) {
-    return DateUtils.formatDate(Date.from(date1.toInstant().truncatedTo(ChronoUnit.SECONDS)));
+  private static String logDate(Instant instant) {
+    return DateUtils.formatDate(instant.truncatedTo(ChronoUnit.SECONDS));
   }
 }

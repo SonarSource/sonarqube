@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -138,19 +139,15 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", textDate);
     underTest.execute(new TestComputationStepContext());
 
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
-    assertThat(period.getModeParameter()).isEqualTo(textDate);
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis.getUuid());
+    assertPeriod(LEAK_PERIOD_MODE_DATE, textDate, analysis.getCreatedAt(), analysis.getUuid());
   }
 
   @Test
   public void ignore_unprocessed_snapshots() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setStatus(STATUS_UNPROCESSED).setCreatedAt(1226379600000L).setLast(false));// 2008-11-11
+    SnapshotDto analysis1 = dbTester.components()
+      .insertSnapshot(project, snapshot -> snapshot.setStatus(STATUS_UNPROCESSED).setCreatedAt(1226379600000L).setLast(false));// 2008-11-11
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(project,
       snapshot -> snapshot.setStatus(STATUS_PROCESSED).setVersion("not provided").setCreatedAt(1226379600000L).setLast(false));// 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis1).setName("not provided").setCategory(CATEGORY_VERSION).setDate(analysis1.getCreatedAt()));
@@ -162,13 +159,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "100");
     underTest.execute(new TestComputationStepContext());
 
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DAYS);
-    assertThat(period.getModeParameter()).isEqualTo("100");
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis2.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis2.getUuid());
-
+    assertPeriod(LEAK_PERIOD_MODE_DAYS, "100", analysis2.getCreatedAt(), analysis2.getUuid());
     verifyDebugLogs("Resolving new code period by 100 days: 2008-08-22");
   }
 
@@ -190,12 +181,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // Return analysis from given date 2008-11-22
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
-    assertThat(period.getModeParameter()).isEqualTo(textDate);
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis4.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis4.getUuid());
+    assertPeriod(LEAK_PERIOD_MODE_DATE, textDate, analysis4.getCreatedAt(), analysis4.getUuid());
 
     verifyDebugLogs("Resolving new code period by date: 2008-11-22");
   }
@@ -218,13 +204,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-20
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
-    assertThat(period.getModeParameter()).isEqualTo(date);
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis3.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis3.getUuid());
-
+    assertPeriod(LEAK_PERIOD_MODE_DATE, date, analysis3.getCreatedAt(), analysis3.getUuid());
     verifyDebugLogs("Resolving new code period by date: 2008-11-13");
   }
 
@@ -415,12 +395,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // return analysis from 2008-11-20
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DAYS);
-    assertThat(period.getModeParameter()).isEqualTo("10");
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis3.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis3.getUuid());
+    assertPeriod(LEAK_PERIOD_MODE_DAYS, "10", analysis3.getCreatedAt(), analysis3.getUuid());
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.getLogs(LoggerLevel.DEBUG))
@@ -448,12 +423,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-12
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
-    assertThat(period.getModeParameter()).isEqualTo("1.0");
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis2.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis2.getUuid());
+    assertPeriod(LEAK_PERIOD_MODE_PREVIOUS_VERSION, "1.0", analysis2.getCreatedAt(), analysis2.getUuid());
 
     verifyDebugLogs("Resolving new code period by previous version: 1.0");
   }
@@ -476,12 +446,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-11
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
-    assertThat(period.getModeParameter()).isEqualTo("0.9");
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis1.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis1.getUuid());
+    assertPeriod(LEAK_PERIOD_MODE_PREVIOUS_VERSION, "0.9", analysis1.getCreatedAt(), analysis1.getUuid());
   }
 
   @Test
@@ -498,12 +463,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "previous_version");
     underTest.execute(new TestComputationStepContext());
 
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
-    assertThat(period.getModeParameter()).isNull();
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis1.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis1.getUuid());
+    assertPeriod(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, analysis1.getCreatedAt(), analysis1.getUuid());
 
     verifyDebugLogs("Resolving first analysis as new code period as there is only one existing version");
   }
@@ -521,13 +481,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.leak.period", "previous_version");
     underTest.execute(new TestComputationStepContext());
 
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
-    assertThat(period.getModeParameter()).isNull();
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis.getUuid());
-
+    assertPeriod(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, analysis.getCreatedAt(), analysis.getUuid());
     verifyDebugLogs("Resolving first analysis as new code period as there is only one existing version");
   }
 
@@ -551,14 +505,38 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // Analysis form 2008-11-11
+    assertPeriod(LEAK_PERIOD_MODE_VERSION, "1.0", analysis2.getCreatedAt(), analysis2.getUuid());
+    verifyDebugLogs("Resolving new code period by version: 1.0");
+  }
+
+  /**
+   * SONAR-11492
+   */
+  @Test
+  public void feed_period_by_version_with_only_one_existing_version() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(true)); // 2008-11-11
+    dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION));
+    when(system2Mock.now()).thenReturn(november30th2008.getTime());
+    when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
+    setupRoot(project, "0.9");
+
+    settings.setProperty("sonar.leak.period", "0.9");
+    underTest.execute(new TestComputationStepContext());
+
+    // Analysis form 2008-11-11
+    assertPeriod(LEAK_PERIOD_MODE_VERSION, "0.9", analysis1.getCreatedAt(), analysis1.getUuid());
+    verifyDebugLogs("Resolving new code period by version: 0.9");
+  }
+
+  private void assertPeriod(String mode, @Nullable String modeParameter, long snapshotDate, String analysisUuid) {
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_VERSION);
-    assertThat(period.getModeParameter()).isEqualTo("1.0");
-    assertThat(period.getSnapshotDate()).isEqualTo(analysis2.getCreatedAt());
-    assertThat(period.getAnalysisUuid()).isEqualTo(analysis2.getUuid());
-
-    verifyDebugLogs("Resolving new code period by version: 1.0");
+    assertThat(period.getMode()).isEqualTo(mode);
+    assertThat(period.getModeParameter()).isEqualTo(modeParameter);
+    assertThat(period.getSnapshotDate()).isEqualTo(snapshotDate);
+    assertThat(period.getAnalysisUuid()).isEqualTo(analysisUuid);
   }
 
   private void verifyDebugLogs(String log, String... otherLogs) {

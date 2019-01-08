@@ -56,6 +56,15 @@ public final class DateUtils {
 
   /**
    * Warning: relies on default timezone!
+   *
+   * @since 7.6
+   */
+  public static String formatDate(Instant d) {
+    return d.atZone(ZoneId.systemDefault()).toLocalDate().toString();
+  }
+
+  /**
+   * Warning: relies on default timezone!
    */
   public static String formatDateTime(Date d) {
     return formatDateTime(OffsetDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault()));
@@ -94,6 +103,7 @@ public final class DateUtils {
 
   /**
    * Return a date at the start of day.
+   *
    * @param s string in format {@link #DATE_FORMAT}
    * @throws SonarException when string cannot be parsed
    */
@@ -218,8 +228,9 @@ public final class DateUtils {
 
   /**
    * Warning: may rely on default timezone!
-   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   *
    * @return the datetime, {@code null} if stringDate is null
+   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
    * @since 6.1
    */
   @CheckForNull
@@ -241,7 +252,8 @@ public final class DateUtils {
 
   /**
    * Warning: may rely on default timezone!
-   * @see #parseDateOrDateTime(String) 
+   *
+   * @see #parseDateOrDateTime(String)
    */
   @CheckForNull
   public static Date parseStartingDateOrDateTime(@Nullable String stringDate) {
@@ -251,9 +263,10 @@ public final class DateUtils {
   /**
    * Return the datetime if @param stringDate is a datetime, date + 1 day if stringDate is a date.
    * So '2016-09-01' would return a date equivalent to '2016-09-02T00:00:00+0000' in GMT (Warning: relies on default timezone!)
-   * @see #parseDateOrDateTime(String)
-   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   *
    * @return the datetime, {@code null} if stringDate is null
+   * @throws IllegalArgumentException if stringDate is not a correctly formed date or datetime
+   * @see #parseDateOrDateTime(String)
    * @since 6.1
    */
   @CheckForNull
@@ -277,12 +290,19 @@ public final class DateUtils {
    * Adds a number of days to a date returning a new object.
    * The original date object is unchanged.
    *
-   * @param date  the date, not null
-   * @param numberOfDays  the amount to add, may be negative
+   * @param date         the date, not null
+   * @param numberOfDays the amount to add, may be negative
    * @return the new date object with the amount added
    */
   public static Date addDays(Date date, int numberOfDays) {
     return Date.from(date.toInstant().plus(numberOfDays, ChronoUnit.DAYS));
+  }
+
+  /**
+   * @since 7.6
+   */
+  public static Instant addDays(Instant instant, int numberOfDays) {
+    return instant.plus(numberOfDays, ChronoUnit.DAYS);
   }
 
   @CheckForNull
