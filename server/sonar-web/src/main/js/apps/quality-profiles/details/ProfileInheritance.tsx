@@ -103,7 +103,12 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
   };
 
   handleParentChange = () => {
-    this.props.updateProfiles();
+    this.props.updateProfiles().then(
+      () => {
+        this.loadData();
+      },
+      () => {}
+    );
     this.closeForm();
   };
 
