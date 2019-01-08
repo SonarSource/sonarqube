@@ -64,7 +64,7 @@ For example if your SonarQube instance had only SonarJava SonarJS on board, all 
 
 ## What about branches and pull requests?
 _Developer Edition_ adds the ability to analyze your project's release / [long-lived branches](/branches/long-lived-branches/), feature / [short-lived branches](/branches/short-lived-branches/), and [pull requests](/analysis/pull-request/) as well as the ability to automatically decorate pull requests in some SCM interfaces. For more on branches see the [branches overview](/branches/overview/).
-<!-- /sonarqube>
+<!-- /sonarqube -->
 
 ## What happens during analysis?
 During analysis, data is requested from the server, the files provided to the analysis are analyzed, and the resulting data is sent back to the server at the end in the form of a report, which is then analyzed asynchronously server-side.
