@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
-  initialValue?: string;
+  value?: string;
   onChange: (value: string | undefined) => void;
 }
 
@@ -32,23 +32,22 @@ interface State {
   editing: boolean;
   error?: string;
   touched: boolean;
-  value: string;
 }
 
 export default class ProjectNameInput extends React.PureComponent<Props, State> {
-  state: State = { error: undefined, editing: false, touched: false, value: '' };
+  state: State = { error: undefined, editing: false, touched: false };
 
   componentDidMount() {
-    if (this.props.initialValue) {
-      const error = this.validateName(this.props.initialValue);
-      this.setState({ error, touched: Boolean(error), value: this.props.initialValue });
+    if (this.props.value) {
+      const error = this.validateName(this.props.value);
+      this.setState({ error, touched: Boolean(error) });
     }
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     const error = this.validateName(value);
-    this.setState({ error, touched: true, value });
+    this.setState({ error, touched: true });
     this.props.onChange(error === undefined ? value : undefined);
   };
 
@@ -69,12 +68,13 @@ export default class ProjectNameInput extends React.PureComponent<Props, State> 
 
   render() {
     const isInvalid = this.state.touched && !this.state.editing && this.state.error !== undefined;
-    const isValid = this.state.touched && this.state.error === undefined && this.state.value !== '';
+    const isValid = this.state.touched && this.state.error === undefined && this.props.value !== '';
     return (
       <ValidationInput
         className={this.props.className}
         description={translate('onboarding.create_project.display_name.description')}
         error={this.state.error}
+        help={translate('onboarding.create_project.display_name.help')}
         id="project-name"
         isInvalid={isInvalid}
         isValid={isValid}
@@ -91,9 +91,8 @@ export default class ProjectNameInput extends React.PureComponent<Props, State> 
           onBlur={this.handleBlur}
           onChange={this.handleChange}
           onFocus={this.handleFocus}
-          required={true}
           type="text"
-          value={this.state.value}
+          value={this.props.value || ''}
         />
       </ValidationInput>
     );

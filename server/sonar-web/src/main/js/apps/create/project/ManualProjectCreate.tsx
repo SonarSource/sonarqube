@@ -41,13 +41,14 @@ interface Props {
 
 interface State {
   projectName?: string;
+  projectNameChanged: boolean;
   projectKey?: string;
   selectedOrganization?: T.Organization;
   selectedVisibility?: T.Visibility;
   submitting: boolean;
 }
 
-type ValidState = State & Required<Pick<State, 'projectName' | 'projectKey'>>;
+type ValidState = State & Required<Pick<State, 'projectKey' | 'projectName'>>;
 
 export default class ManualProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
@@ -55,6 +56,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   constructor(props: Props) {
     super(props);
     this.state = {
+      projectNameChanged: false,
       selectedOrganization: this.getInitialSelectedOrganization(props),
       submitting: false
     };
@@ -102,7 +104,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       this.setState({ submitting: true });
       createProject({
         project: state.projectKey,
-        name: state.projectName,
+        name: state.projectName || state.projectKey,
         organization: state.selectedOrganization && state.selectedOrganization.key,
         visibility: this.state.selectedVisibility
       }).then(
@@ -147,12 +149,15 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     );
   };
 
-  handleProjectNameChange = (projectName?: string) => {
-    this.setState({ projectName });
+  handleProjectNameChange = (projectName: string | undefined) => {
+    this.setState({ projectName, projectNameChanged: true });
   };
 
   handleProjectKeyChange = (projectKey?: string) => {
-    this.setState({ projectKey });
+    this.setState(state => ({
+      projectKey,
+      projectName: state.projectNameChanged ? state.projectName : projectKey || ''
+    }));
   };
 
   handleVisibilityChange = (selectedVisibility: T.Visibility) => {
@@ -182,8 +187,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             />
             <ProjectNameInput
               className="form-field"
-              initialValue={this.state.projectName}
               onChange={this.handleProjectNameChange}
+              value={this.state.projectName}
             />
             {isSonarCloud() &&
               selectedOrganization && (

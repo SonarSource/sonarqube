@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import ProjectNameInput from '../ProjectNameInput';
 
 it('should render correctly', () => {
-  const wrapper = shallow(<ProjectNameInput initialValue="Project Name" onChange={jest.fn()} />);
+  const wrapper = shallow(<ProjectNameInput onChange={jest.fn()} value="Project Name" />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ touched: true });
   expect(wrapper.find('ValidationInput').prop('isValid')).toMatchSnapshot();
@@ -30,7 +30,7 @@ it('should render correctly', () => {
 
 it('should have an error when name is too long', () => {
   expect(
-    shallow(<ProjectNameInput initialValue={'x'.repeat(501)} onChange={jest.fn()} />)
+    shallow(<ProjectNameInput onChange={jest.fn()} value={'x'.repeat(501)} />)
       .find('ValidationInput')
       .prop('isInvalid')
   ).toBe(true);

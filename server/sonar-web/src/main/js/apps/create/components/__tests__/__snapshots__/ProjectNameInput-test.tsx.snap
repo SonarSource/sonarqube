@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <ValidationInput
   description="onboarding.create_project.display_name.description"
+  help="onboarding.create_project.display_name.help"
   id="project-name"
   isInvalid={false}
   isValid={false}
@@ -17,7 +18,6 @@ exports[`should render correctly 1`] = `
     onBlur={[Function]}
     onChange={[Function]}
     onFocus={[Function]}
-    required={true}
     type="text"
     value="Project Name"
   />

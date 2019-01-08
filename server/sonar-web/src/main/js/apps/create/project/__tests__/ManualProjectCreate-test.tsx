@@ -45,8 +45,6 @@ it('should correctly create a public project', async () => {
   wrapper.find('withRouter(OrganizationInput)').prop<Function>('onChange')({ key: 'foo' });
 
   change(wrapper.find('ProjectKeyInput'), 'bar');
-  expect(wrapper.find('SubmitButton').prop('disabled')).toBe(true);
-
   change(wrapper.find('ProjectNameInput'), 'Bar');
   expect(wrapper.find('SubmitButton').prop('disabled')).toBe(false);
 
