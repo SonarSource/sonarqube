@@ -38,7 +38,7 @@ interface Props {
   deleteEvent: (analysis: string, event: string) => Promise<void>;
   graphLoading: boolean;
   initializing: boolean;
-  project: Pick<T.Component, 'configuration' | 'leakPeriodDate' | 'qualifier'>;
+  project: Pick<T.Component, 'configuration' | 'key' | 'leakPeriodDate' | 'qualifier'>;
   metrics: T.Metric[];
   measuresHistory: MeasureHistory[];
   query: Query;
@@ -93,6 +93,7 @@ export default function ProjectActivityApp(props: Props) {
             loading={props.graphLoading}
             measuresHistory={measuresHistory}
             metrics={props.metrics}
+            project={props.project.key}
             query={query}
             updateQuery={props.updateQuery}
           />

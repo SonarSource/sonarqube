@@ -27,20 +27,18 @@ import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { parseDate } from '../../../helpers/dates';
-import { get } from '../../../helpers/storage';
 import {
   customMetricsChanged,
   DEFAULT_GRAPH,
   getHistoryMetrics,
+  getProjectActivityGraph,
   isCustomGraph,
-  parseQuery,
-  PROJECT_ACTIVITY_GRAPH,
-  PROJECT_ACTIVITY_GRAPH_CUSTOM,
-  serializeQuery,
-  serializeUrlQuery,
   MeasureHistory,
+  parseQuery,
+  ParsedAnalysis,
   Query,
-  ParsedAnalysis
+  serializeQuery,
+  serializeUrlQuery
 } from '../utils';
 import { RawQuery } from '../../../helpers/query';
 
@@ -81,10 +79,10 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   componentDidMount() {
     this.mounted = true;
     if (this.shouldRedirect()) {
-      const newQuery = { ...this.state.query, graph: get(PROJECT_ACTIVITY_GRAPH) || 'issues' };
+      const { graph, customGraphs } = getProjectActivityGraph(this.props.component.key);
+      const newQuery = { ...this.state.query, graph };
       if (isCustomGraph(newQuery.graph)) {
-        const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
-        newQuery.customMetrics = customGraphs ? customGraphs.split(',') : [];
+        newQuery.customMetrics = customGraphs;
       }
       this.props.router.replace({
         pathname: this.props.location.pathname,
@@ -98,14 +96,14 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.location.query !== this.props.location.query) {
-      const query = parseQuery(nextProps.location.query);
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.location.query !== this.props.location.query) {
+      const query = parseQuery(this.props.location.query);
       if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
         if (this.state.initialized) {
           this.updateGraphData(query.graph, query.customMetrics);
         } else {
-          this.firstLoadData(query, nextProps.component);
+          this.firstLoadData(query, this.props.component);
         }
       }
       this.setState({ query });
@@ -185,6 +183,26 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     );
   };
 
+  fetchAllActivities = (topLevelComponent: string) => {
+    this.setState({ analysesLoading: true });
+    this.loadAllActivities(topLevelComponent).then(
+      ({ analyses, paging }) => {
+        if (this.mounted) {
+          this.setState({
+            analyses,
+            analysesLoading: false,
+            paging
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ analysesLoading: false });
+        }
+      }
+    );
+  };
+
   loadAllActivities = (
     project: string,
     prevResult?: { analyses: ParsedAnalysis[]; paging: T.Paging }
@@ -230,7 +248,6 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
         if (this.mounted) {
           this.setState({
             analyses: response[0].analyses,
-            analysesLoading: true,
             graphLoading: false,
             initialized: true,
             measuresHistory: response[2],
@@ -238,20 +255,12 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
             paging: response[0].paging
           });
 
-          this.loadAllActivities(topLevelComponent).then(({ analyses, paging }) => {
-            if (this.mounted) {
-              this.setState({
-                analyses,
-                analysesLoading: false,
-                paging
-              });
-            }
-          });
+          this.fetchAllActivities(topLevelComponent);
         }
       },
       () => {
         if (this.mounted) {
-          this.setState({ initialized: true, analysesLoading: false, graphLoading: false });
+          this.setState({ initialized: true, graphLoading: false });
         }
       }
     );
@@ -298,10 +307,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
       key => key !== 'id' && locationQuery[key] !== ''
     );
 
-    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
-    const graph = get(PROJECT_ACTIVITY_GRAPH) || 'issues';
-    const emptyCustomGraph =
-      isCustomGraph(graph) && customGraphs && customGraphs.split(',').length <= 0;
+    const { graph, customGraphs } = getProjectActivityGraph(this.props.component.key);
+    const emptyCustomGraph = isCustomGraph(graph) && customGraphs.length <= 0;
 
     // if there is no filter, but there are saved preferences in the localStorage
     // also don't redirect to custom if there is no metrics selected for it

@@ -61,6 +61,7 @@ const DEFAULT_PROPS: ProjectActivityGraphs['props'] = {
     }
   ],
   metrics: METRICS,
+  project: 'foo',
   query: {
     category: '',
     customMetrics: [],

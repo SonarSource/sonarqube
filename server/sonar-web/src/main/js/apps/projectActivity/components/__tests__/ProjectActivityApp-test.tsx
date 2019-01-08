@@ -70,6 +70,7 @@ const DEFAULT_PROPS = {
   graphLoading: false,
   initializing: false,
   project: {
+    key: 'foo',
     leakPeriodDate: '2017-05-16T13:50:02+0200',
     qualifier: 'TRK'
   },

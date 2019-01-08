@@ -22,7 +22,7 @@ import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import GraphsHistory from './GraphsHistory';
-import { get, save } from '../../../helpers/storage';
+import { save } from '../../../helpers/storage';
 import {
   datesQueryChanged,
   generateSeries,
@@ -30,14 +30,15 @@ import {
   getSeriesMetricType,
   historyQueryChanged,
   isCustomGraph,
+  MeasureHistory,
+  ParsedAnalysis,
+  Point,
   PROJECT_ACTIVITY_GRAPH,
   PROJECT_ACTIVITY_GRAPH_CUSTOM,
-  splitSeriesInGraphs,
-  MeasureHistory,
   Query,
   Serie,
-  Point,
-  ParsedAnalysis
+  splitSeriesInGraphs,
+  getProjectActivityGraph
 } from '../utils';
 
 interface Props {
@@ -46,6 +47,7 @@ interface Props {
   loading: boolean;
   measuresHistory: MeasureHistory[];
   metrics: T.Metric[];
+  project: string;
   query: Query;
   updateQuery: (changes: Partial<Query>) => void;
 }
@@ -77,23 +79,23 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     let newSeries;
     let newGraphs;
     if (
-      nextProps.measuresHistory !== this.props.measuresHistory ||
-      historyQueryChanged(this.props.query, nextProps.query)
+      prevProps.measuresHistory !== this.props.measuresHistory ||
+      historyQueryChanged(prevProps.query, this.props.query)
     ) {
       newSeries = generateSeries(
-        nextProps.measuresHistory,
-        nextProps.query.graph,
-        nextProps.metrics,
-        getDisplayedHistoryMetrics(nextProps.query.graph, nextProps.query.customMetrics)
+        this.props.measuresHistory,
+        this.props.query.graph,
+        this.props.metrics,
+        getDisplayedHistoryMetrics(this.props.query.graph, this.props.query.customMetrics)
       );
       newGraphs = splitSeriesInGraphs(newSeries, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH);
     }
 
-    const newDates = this.getStateZoomDates(this.props, nextProps, newSeries);
+    const newDates = this.getStateZoomDates(prevProps, this.props, newSeries);
 
     if (newSeries || newDates) {
       let newState = {} as State;
@@ -110,28 +112,27 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     }
   }
 
-  getStateZoomDates = (props: Props | undefined, nextProps: Props, newSeries?: Serie[]) => {
+  getStateZoomDates = (prevProps: Props | undefined, props: Props, newSeries?: Serie[]) => {
     const newDates = {
-      from: nextProps.query.from || undefined,
-      to: nextProps.query.to || undefined
+      from: props.query.from || undefined,
+      to: props.query.to || undefined
     };
-    if (!props || datesQueryChanged(props.query, nextProps.query)) {
+    if (!prevProps || datesQueryChanged(prevProps.query, props.query)) {
       return { graphEndDate: newDates.to, graphStartDate: newDates.from };
     }
 
     if (newDates.to === undefined && newDates.from === undefined && newSeries !== undefined) {
-      const series = newSeries ? newSeries : this.state.series;
       const firstValid = minBy(
-        series.map(serie => serie.data.find(p => Boolean(p.y || p.y === 0))),
+        newSeries.map(serie => serie.data.find(p => Boolean(p.y || p.y === 0))),
         'x'
       );
       const lastValid = maxBy<Point>(
-        series.map(serie => findLast(serie.data, p => Boolean(p.y || p.y === 0))!),
+        newSeries.map(serie => findLast(serie.data, p => Boolean(p.y || p.y === 0))!),
         'x'
       );
       return {
-        graphEndDate: lastValid ? lastValid.x : newDates.to,
-        graphStartDate: firstValid ? firstValid.x : newDates.from
+        graphEndDate: lastValid && lastValid.x,
+        graphStartDate: firstValid && firstValid.x
       };
     }
     return null;
@@ -148,21 +149,21 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
 
   addCustomMetric = (metric: string) => {
     const customMetrics = [...this.props.query.customMetrics, metric];
-    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','));
+    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','), this.props.project);
     this.props.updateQuery({ customMetrics });
   };
 
   removeCustomMetric = (removedMetric: string) => {
     const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
-    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','));
+    save(PROJECT_ACTIVITY_GRAPH_CUSTOM, customMetrics.join(','), this.props.project);
     this.props.updateQuery({ customMetrics });
   };
 
   updateGraph = (graph: string) => {
-    save(PROJECT_ACTIVITY_GRAPH, graph);
+    save(PROJECT_ACTIVITY_GRAPH, graph, this.props.project);
     if (isCustomGraph(graph) && this.props.query.customMetrics.length <= 0) {
-      const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
-      this.props.updateQuery({ graph, customMetrics: customGraphs ? customGraphs.split(',') : [] });
+      const { customGraphs } = getProjectActivityGraph(this.props.project);
+      this.props.updateQuery({ graph, customMetrics: customGraphs });
     } else {
       this.props.updateQuery({ graph, customMetrics: [] });
     }

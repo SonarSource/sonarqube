@@ -21,14 +21,12 @@ import * as React from 'react';
 import {
   getDisplayedHistoryMetrics,
   DEFAULT_GRAPH,
-  PROJECT_ACTIVITY_GRAPH,
-  PROJECT_ACTIVITY_GRAPH_CUSTOM
+  getProjectActivityGraph
 } from '../../projectActivity/utils';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { get } from '../../../helpers/storage';
 
 interface Props {
   component: string;
@@ -64,11 +62,8 @@ export default class Activity extends React.PureComponent<Props> {
   fetchHistory = () => {
     const { component } = this.props;
 
-    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
-    let graphMetrics = getDisplayedHistoryMetrics(
-      get(PROJECT_ACTIVITY_GRAPH) || 'issues',
-      customGraphs ? customGraphs.split(',') : []
-    );
+    const { graph, customGraphs } = getProjectActivityGraph(component);
+    let graphMetrics = getDisplayedHistoryMetrics(graph, customGraphs);
     if (!graphMetrics || graphMetrics.length <= 0) {
       graphMetrics = getDisplayedHistoryMetrics(DEFAULT_GRAPH, []);
     }

@@ -24,16 +24,14 @@ import PreviewGraphTooltips from './PreviewGraphTooltips';
 import AdvancedTimeline from '../charts/AdvancedTimeline';
 import {
   DEFAULT_GRAPH,
-  getDisplayedHistoryMetrics,
   generateSeries,
+  getDisplayedHistoryMetrics,
+  getProjectActivityGraph,
   getSeriesMetricType,
   hasHistoryDataValue,
-  PROJECT_ACTIVITY_GRAPH,
-  PROJECT_ACTIVITY_GRAPH_CUSTOM,
-  splitSeriesInGraphs,
-  Serie
+  Serie,
+  splitSeriesInGraphs
 } from '../../apps/projectActivity/utils';
-import { get } from '../../helpers/storage';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { getBranchLikeQuery } from '../../helpers/branches';
 import { withRouter, Router } from '../hoc/withRouter';
@@ -67,9 +65,7 @@ const MAX_SERIES_PER_GRAPH = 3;
 class PreviewGraph extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
-    const graph = get(PROJECT_ACTIVITY_GRAPH) || 'issues';
-    const customMetrics = customGraphs ? customGraphs.split(',') : [];
+    const { graph, customGraphs: customMetrics } = getProjectActivityGraph(props.project);
     const series = splitSeriesInGraphs(
       this.getSeries(props.history, graph, customMetrics, props.metrics),
       MAX_GRAPH_NB,
@@ -82,13 +78,11 @@ class PreviewGraph extends React.PureComponent<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.history !== this.props.history || nextProps.metrics !== this.props.metrics) {
-      const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM);
-      const graph = get(PROJECT_ACTIVITY_GRAPH) || 'issues';
-      const customMetrics = customGraphs ? customGraphs.split(',') : [];
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.history !== this.props.history || prevProps.metrics !== this.props.metrics) {
+      const { graph, customGraphs: customMetrics } = getProjectActivityGraph(this.props.project);
       const series = splitSeriesInGraphs(
-        this.getSeries(nextProps.history, graph, customMetrics, nextProps.metrics),
+        this.getSeries(this.props.history, graph, customMetrics, this.props.metrics),
         MAX_GRAPH_NB,
         MAX_SERIES_PER_GRAPH
       );

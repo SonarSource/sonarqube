@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
     category=""
     project={
       Object {
+        "key": "foo",
         "leakPeriodDate": "2017-05-16T13:50:02+0200",
         "qualifier": "TRK",
       }
@@ -78,6 +79,7 @@ exports[`should render correctly 1`] = `
         initializing={false}
         project={
           Object {
+            "key": "foo",
             "leakPeriodDate": "2017-05-16T13:50:02+0200",
             "qualifier": "TRK",
           }
@@ -162,6 +164,7 @@ exports[`should render correctly 1`] = `
             },
           ]
         }
+        project="foo"
         query={
           Object {
             "category": "",

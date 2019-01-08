@@ -30,6 +30,7 @@ import {
 } from '../../helpers/query';
 import { parseDate, startOfDay } from '../../helpers/dates';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
+import { get } from '../../helpers/storage';
 
 export type ParsedAnalysis = T.Omit<T.Analysis, 'date'> & { date: Date };
 
@@ -84,12 +85,8 @@ export const GRAPHS_METRICS: { [x: string]: string[] } = {
   duplications: GRAPHS_METRICS_DISPLAYED['duplications'].concat(['duplicated_lines_density'])
 };
 
-export const PROJECT_ACTIVITY_GRAPH = 'sonarqube.project_activity.graph';
-export const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonarqube.project_activity.graph.custom';
-
-export function datesQueryChanged(prevQuery: Query, nextQuery: Query) {
-  return !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
-}
+export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
+export const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonar_project_activity.graph.custom';
 
 export function activityQueryChanged(prevQuery: Query, nextQuery: Query) {
   return prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
@@ -97,6 +94,10 @@ export function activityQueryChanged(prevQuery: Query, nextQuery: Query) {
 
 export function customMetricsChanged(prevQuery: Query, nextQuery: Query) {
   return !isEqual(prevQuery.customMetrics, nextQuery.customMetrics);
+}
+
+export function datesQueryChanged(prevQuery: Query, nextQuery: Query) {
+  return !isEqual(prevQuery.from, nextQuery.from) || !isEqual(prevQuery.to, nextQuery.to);
 }
 
 export function hasDataValues(serie: Serie) {
@@ -244,6 +245,14 @@ export function getDisplayedHistoryMetrics(graph: string, customMetrics: string[
 
 export function getHistoryMetrics(graph: string, customMetrics: string[]) {
   return isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph];
+}
+
+export function getProjectActivityGraph(project: string) {
+  const customGraphs = get(PROJECT_ACTIVITY_GRAPH_CUSTOM, project);
+  return {
+    graph: get(PROJECT_ACTIVITY_GRAPH, project) || 'issues',
+    customGraphs: customGraphs ? customGraphs.split(',') : []
+  };
 }
 
 function parseGraph(value?: string) {
