@@ -32,6 +32,7 @@ interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   organization: string | null;
+  profiles: Profile[];
   router: Pick<Router, 'push'>;
   updateProfiles: () => Promise<void>;
 }
@@ -121,6 +122,7 @@ class PageHeader extends React.PureComponent<Props, State> {
             onClose={this.closeCreateForm}
             onCreate={this.handleCreate}
             organization={this.props.organization}
+            profiles={this.props.profiles}
           />
         )}
       </header>
