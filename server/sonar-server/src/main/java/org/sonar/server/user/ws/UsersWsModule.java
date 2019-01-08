@@ -36,6 +36,7 @@ public class UsersWsModule extends Module {
       UsersWs.class,
       CreateAction.class,
       UpdateAction.class,
+      UpdateLoginAction.class,
       DeactivateAction.class,
       ChangePasswordAction.class,
       CurrentAction.class,

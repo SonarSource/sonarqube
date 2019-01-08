@@ -225,14 +225,18 @@ public class UserUpdater {
 
   private boolean updateLogin(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String newLogin = updateUser.login();
-    if (updateUser.isLoginChanged() && validateLoginFormat(newLogin, messages) && !Objects.equals(userDto.getLogin(), newLogin)) {
-      checkLoginUniqueness(dbSession, newLogin);
-      dbClient.propertiesDao().selectByKeyAndMatchingValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, userDto.getLogin())
-        .forEach(p -> dbClient.propertiesDao().saveProperty(p.setValue(newLogin)));
-      userDto.setLogin(newLogin);
-      return true;
+    if (!updateUser.isLoginChanged() || !validateLoginFormat(newLogin, messages) || Objects.equals(userDto.getLogin(), newLogin)) {
+      return false;
     }
-    return false;
+    checkLoginUniqueness(dbSession, newLogin);
+    dbClient.propertiesDao().selectByKeyAndMatchingValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, userDto.getLogin())
+      .forEach(p -> dbClient.propertiesDao().saveProperty(p.setValue(newLogin)));
+    userDto.setLogin(newLogin);
+    if (userDto.isLocal()) {
+      userDto.setExternalLogin(newLogin);
+      userDto.setExternalId(newLogin);
+    }
+    return true;
   }
 
   private static boolean updateName(UpdateUser updateUser, UserDto userDto, List<String> messages) {
