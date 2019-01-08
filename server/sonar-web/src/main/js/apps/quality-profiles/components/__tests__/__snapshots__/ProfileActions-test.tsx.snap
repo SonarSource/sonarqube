@@ -45,6 +45,12 @@ exports[`renders with all permissions 1`] = `
       copy
     </ActionsDropdownItem>
     <ActionsDropdownItem
+      id="quality-profile-extend"
+      onClick={[Function]}
+    >
+      extend
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
       id="quality-profile-rename"
       onClick={[Function]}
     >

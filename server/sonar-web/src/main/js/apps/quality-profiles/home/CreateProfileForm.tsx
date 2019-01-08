@@ -87,7 +87,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
     this.setState({ parent: option ? option.value : undefined });
   };
 
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  handleFormSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     this.setState({ loading: true });
@@ -97,26 +97,17 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
       data.append('organization', this.props.organization);
     }
 
-    createQualityProfile(data).then(
-      ({ profile }: { profile: Profile }) => {
-        if (this.state.parent) {
-          // eslint-disable-next-line promise/no-nesting
-          changeProfileParent(profile.key, this.state.parent).then(
-            () => {
-              this.props.onCreate(profile);
-            },
-            () => {}
-          );
-        } else {
-          this.props.onCreate(profile);
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+    try {
+      const { profile } = await createQualityProfile(data);
+      if (this.state.parent) {
+        await changeProfileParent(profile.key, this.state.parent);
       }
-    );
+      this.props.onCreate(profile);
+    } finally {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    }
   };
 
   render() {

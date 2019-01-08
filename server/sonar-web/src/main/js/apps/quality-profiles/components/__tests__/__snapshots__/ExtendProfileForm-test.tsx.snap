@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="quality_profiles.extend_x_title.name.JavaScript"
+  onRequestClose={[MockFunction]}
+>
+  <form>
+    <div
+      className="modal-head"
+    >
+      <h2>
+        quality_profiles.extend_x_title.name.JavaScript
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="extend-profile-name"
+        >
+          quality_profiles.copy_new_name
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          autoFocus={true}
+          id="extend-profile-name"
+          maxLength={100}
+          name="name"
+          onChange={[Function]}
+          required={true}
+          size={50}
+          type="text"
+          value=""
+        />
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        disabled={true}
+        id="extend-profile-submit"
+        onClick={[Function]}
+      >
+        copy
+      </SubmitButton>
+      <ResetButtonLink
+        id="extend-profile-cancel"
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;

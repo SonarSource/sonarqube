@@ -21,6 +21,7 @@ import * as React from 'react';
 import RenameProfileForm from './RenameProfileForm';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
+import ExtendProfileForm from './ExtendProfileForm';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
@@ -43,6 +44,7 @@ interface Props {
 
 interface State {
   copyFormOpen: boolean;
+  extendFormOpen: boolean;
   deleteFormOpen: boolean;
   renameFormOpen: boolean;
 }
@@ -50,12 +52,56 @@ interface State {
 export class ProfileActions extends React.PureComponent<Props, State> {
   state: State = {
     copyFormOpen: false,
+    extendFormOpen: false,
     deleteFormOpen: false,
     renameFormOpen: false
   };
 
+  closeCopyForm = () => {
+    this.setState({ copyFormOpen: false });
+  };
+
+  closeDeleteForm = () => {
+    this.setState({ deleteFormOpen: false });
+  };
+
+  closeExtendForm = () => {
+    this.setState({ extendFormOpen: false });
+  };
+
+  closeRenameForm = () => {
+    this.setState({ renameFormOpen: false });
+  };
+
+  handleCopyClick = () => {
+    this.setState({ copyFormOpen: true });
+  };
+
+  handleDeleteClick = () => {
+    this.setState({ deleteFormOpen: true });
+  };
+
+  handleExtendClick = () => {
+    this.setState({ extendFormOpen: true });
+  };
+
   handleRenameClick = () => {
     this.setState({ renameFormOpen: true });
+  };
+
+  handleProfileCopy = (name: string) => {
+    this.closeCopyForm();
+    this.navigateToNewProfile(name);
+  };
+
+  handleProfileDelete = () => {
+    this.props.router.replace(getProfilesPath(this.props.organization));
+    this.props.updateProfiles();
+  };
+
+  handleProfileExtend = (name: string) => {
+    this.closeExtendForm();
+    this.navigateToNewProfile(name);
   };
 
   handleProfileRename = (name: string) => {
@@ -72,16 +118,11 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     );
   };
 
-  closeRenameForm = () => {
-    this.setState({ renameFormOpen: false });
+  handleSetDefaultClick = () => {
+    setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles, () => {});
   };
 
-  handleCopyClick = () => {
-    this.setState({ copyFormOpen: true });
-  };
-
-  handleProfileCopy = (name: string) => {
-    this.closeCopyForm();
+  navigateToNewProfile = (name: string) => {
     this.props.updateProfiles().then(
       () => {
         this.props.router.push(
@@ -90,27 +131,6 @@ export class ProfileActions extends React.PureComponent<Props, State> {
       },
       () => {}
     );
-  };
-
-  closeCopyForm = () => {
-    this.setState({ copyFormOpen: false });
-  };
-
-  handleSetDefaultClick = () => {
-    setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles, () => {});
-  };
-
-  handleDeleteClick = () => {
-    this.setState({ deleteFormOpen: true });
-  };
-
-  handleProfileDelete = () => {
-    this.props.router.replace(getProfilesPath(this.props.organization));
-    this.props.updateProfiles();
-  };
-
-  closeDeleteForm = () => {
-    this.setState({ deleteFormOpen: false });
   };
 
   render() {
@@ -156,9 +176,15 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           </ActionsDropdownItem>
 
           {actions.copy && (
-            <ActionsDropdownItem id="quality-profile-copy" onClick={this.handleCopyClick}>
-              {translate('copy')}
-            </ActionsDropdownItem>
+            <>
+              <ActionsDropdownItem id="quality-profile-copy" onClick={this.handleCopyClick}>
+                {translate('copy')}
+              </ActionsDropdownItem>
+
+              <ActionsDropdownItem id="quality-profile-extend" onClick={this.handleExtendClick}>
+                {translate('extend')}
+              </ActionsDropdownItem>
+            </>
           )}
 
           {actions.edit && (
@@ -191,6 +217,15 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           <CopyProfileForm
             onClose={this.closeCopyForm}
             onCopy={this.handleProfileCopy}
+            profile={profile}
+          />
+        )}
+
+        {this.state.extendFormOpen && (
+          <ExtendProfileForm
+            onClose={this.closeExtendForm}
+            onExtend={this.handleProfileExtend}
+            organization={this.props.organization}
             profile={profile}
           />
         )}

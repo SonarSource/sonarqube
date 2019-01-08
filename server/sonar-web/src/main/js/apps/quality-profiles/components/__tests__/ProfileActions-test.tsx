@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ProfileActions } from '../ProfileActions';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { click, waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
 import { mockQualityProfile } from '../../testUtils';
 
 const PROFILE = mockQualityProfile({
@@ -33,75 +33,87 @@ const PROFILE = mockQualityProfile({
 });
 
 it('renders with no permissions', () => {
-  expect(
-    shallow(
-      <ProfileActions
-        organization="org"
-        profile={PROFILE}
-        router={{ push: jest.fn(), replace: jest.fn() }}
-        updateProfiles={jest.fn()}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders with permission to edit only', () => {
-  expect(
-    shallow(
-      <ProfileActions
-        organization="org"
-        profile={{ ...PROFILE, actions: { edit: true } }}
-        router={{ push: jest.fn(), replace: jest.fn() }}
-        updateProfiles={jest.fn()}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ profile: { ...PROFILE, actions: { edit: true } } })).toMatchSnapshot();
 });
 
 it('renders with all permissions', () => {
   expect(
-    shallow(
-      <ProfileActions
-        organization="org"
-        profile={{
-          ...PROFILE,
-          actions: {
-            copy: true,
-            edit: true,
-            delete: true,
-            setAsDefault: true,
-            associateProjects: true
-          }
-        }}
-        router={{ push: jest.fn(), replace: jest.fn() }}
-        updateProfiles={jest.fn()}
-      />
-    )
+    shallowRender({
+      profile: {
+        ...PROFILE,
+        actions: {
+          copy: true,
+          edit: true,
+          delete: true,
+          setAsDefault: true,
+          associateProjects: true
+        }
+      }
+    })
   ).toMatchSnapshot();
 });
 
 it('should copy profile', async () => {
+  const name = 'new-name';
   const updateProfiles = jest.fn(() => Promise.resolve());
   const push = jest.fn();
-  const wrapper = shallow(
-    <ProfileActions
-      organization="org"
-      profile={{ ...PROFILE, actions: { copy: true } }}
-      router={{ push, replace: jest.fn() }}
-      updateProfiles={updateProfiles}
-    />
-  );
+  const wrapper = shallowRender({
+    profile: { ...PROFILE, actions: { copy: true } },
+    router: { push, replace: jest.fn() },
+    updateProfiles
+  });
 
   click(wrapper.find('[id="quality-profile-copy"]'));
   expect(wrapper.find('CopyProfileForm').exists()).toBe(true);
 
-  wrapper.find('CopyProfileForm').prop<Function>('onCopy')('new-name');
+  wrapper.find('CopyProfileForm').prop<Function>('onCopy')(name);
   expect(updateProfiles).toBeCalled();
   await waitAndUpdate(wrapper);
 
   expect(push).toBeCalledWith({
     pathname: '/organizations/org/quality_profiles/show',
-    query: { language: 'js', name: 'new-name' }
+    query: { language: 'js', name }
   });
   expect(wrapper.find('CopyProfileForm').exists()).toBe(false);
 });
+
+it('should extend profile', async () => {
+  const name = 'new-name';
+  const updateProfiles = jest.fn(() => Promise.resolve());
+  const push = jest.fn();
+  const wrapper = shallowRender({
+    profile: { ...PROFILE, actions: { copy: true } },
+    router: { push, replace: jest.fn() },
+    updateProfiles
+  });
+
+  click(wrapper.find('[id="quality-profile-extend"]'));
+  expect(wrapper.find('ExtendProfileForm').exists()).toBe(true);
+
+  wrapper.find('ExtendProfileForm').prop<Function>('onExtend')(name);
+  expect(updateProfiles).toBeCalled();
+  await waitAndUpdate(wrapper);
+
+  expect(push).toBeCalledWith({
+    pathname: '/organizations/org/quality_profiles/show',
+    query: { language: 'js', name }
+  });
+  expect(wrapper.find('ExtendProfileForm').exists()).toBe(false);
+});
+
+function shallowRender(props: Partial<ProfileActions['props']> = {}) {
+  const router = mockRouter();
+  return shallow(
+    <ProfileActions
+      organization="org"
+      profile={PROFILE}
+      router={router}
+      updateProfiles={jest.fn()}
+      {...props}
+    />
+  );
+}
