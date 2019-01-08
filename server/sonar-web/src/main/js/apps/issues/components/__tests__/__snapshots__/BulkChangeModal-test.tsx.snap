@@ -34,13 +34,11 @@ exports[`should display error message when no issues available 1`] = `
       >
         apply
       </SubmitButton>
-      <a
-        href="#"
-        id="bulk-change-cancel"
+      <ResetButtonLink
         onClick={[Function]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </div>
   </form>
 </Modal>
@@ -90,14 +88,36 @@ exports[`should display form when issues are present 1`] = `
       >
         apply
       </SubmitButton>
-      <a
-        href="#"
-        id="bulk-change-cancel"
+      <ResetButtonLink
         onClick={[Function]}
       >
         cancel
-      </a>
+      </ResetButtonLink>
     </div>
   </form>
 </Modal>
+`;
+
+exports[`should display warning when too many issues are passed 1`] = `
+<h2>
+  issue_bulk_change.form.title.1
+</h2>
+`;
+
+exports[`should display warning when too many issues are passed 2`] = `
+<Alert
+  variant="warning"
+>
+  <FormattedMessage
+    defaultMessage="issue_bulk_change.max_issues_reached"
+    id="issue_bulk_change.max_issues_reached"
+    values={
+      Object {
+        "max": <strong>
+          1
+        </strong>,
+      }
+    }
+  />
+</Alert>
 `;

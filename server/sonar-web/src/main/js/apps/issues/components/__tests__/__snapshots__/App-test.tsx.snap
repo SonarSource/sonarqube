@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should check all issues, even the ones that are not visible 1`] = `
+<Button
+  disabled={false}
+  id="issues-bulk-change"
+  onClick={[Function]}
+>
+  issues.bulk_change_X_issues.250
+</Button>
+`;
+
+exports[`should check max 500 issues 1`] = `
+<Button
+  disabled={false}
+  id="issues-bulk-change"
+  onClick={[Function]}
+>
+  issues.bulk_change_X_issues.500
+</Button>
+`;

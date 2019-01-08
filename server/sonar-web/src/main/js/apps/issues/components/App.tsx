@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import * as key from 'keymaster';
 import Helmet from 'react-helmet';
 import { keyBy, omit, union, without } from 'lodash';
-import BulkChangeModal from './BulkChangeModal';
+import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -51,11 +52,10 @@ import {
   STANDARDS,
   ReferencedRule
 } from '../utils';
+import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Dropdown from '../../../components/controls/Dropdown';
-import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
@@ -110,7 +110,8 @@ interface Props {
 }
 
 export interface State {
-  bulkChange?: 'all' | 'selected';
+  bulkChangeModal: boolean;
+  checkAll?: boolean;
   checked: string[];
   effortTotal?: number;
   facets: { [facet: string]: Facet };
@@ -144,6 +145,7 @@ export class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      bulkChangeModal: false,
       checked: [],
       facets: {},
       issues: [],
@@ -210,6 +212,7 @@ export class App extends React.PureComponent<Props, State> {
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
       this.fetchFirstIssues();
+      this.setState({ checkAll: false });
     } else if (
       !this.state.openIssue &&
       (prevState.selected !== this.state.selected || prevState.openIssue)
@@ -515,7 +518,7 @@ export class App extends React.PureComponent<Props, State> {
 
     const p = paging.pageIndex + 1;
 
-    this.setState({ loadingMore: true });
+    this.setState({ checkAll: false, loadingMore: true });
     this.fetchIssuesPage(p).then(
       response => {
         if (this.mounted) {
@@ -621,6 +624,21 @@ export class App extends React.PureComponent<Props, State> {
       .filter((issue): issue is T.Issue => issue !== undefined);
     const paging = { pageIndex: 1, pageSize: issues.length, total: issues.length };
     return Promise.resolve({ issues, paging });
+  };
+
+  getButtonLabel = (checked: string[], checkAll?: boolean, paging?: T.Paging) => {
+    if (checked.length > 0) {
+      let count;
+      if (checkAll && paging) {
+        count = paging.total > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : paging.total;
+      } else {
+        count = Math.min(checked.length, MAX_PAGE_SIZE);
+      }
+
+      return translateWithParameters('issues.bulk_change_X_issues', count);
+    } else {
+      return translate('bulk_change');
+    }
   };
 
   handleFilterChange = (changes: Partial<Query>) => {
@@ -739,10 +757,11 @@ export class App extends React.PureComponent<Props, State> {
             ? union(checked, [state.issues[i].key])
             : without(checked, state.issues[i].key);
         }
-        return { checked };
+        return { checkAll: false, checked };
       });
     } else {
       this.setState(state => ({
+        checkAll: false,
         lastChecked: issue,
         checked: state.checked.includes(issue)
           ? without(state.checked, issue)
@@ -757,29 +776,20 @@ export class App extends React.PureComponent<Props, State> {
     }));
   };
 
-  openBulkChange = (mode: 'all' | 'selected') => {
-    this.setState({ bulkChange: mode });
+  handleOpenBulkChange = () => {
     key.setScope('issues-bulk-change');
+    this.setState({ bulkChangeModal: true });
   };
 
-  closeBulkChange = () => {
+  handleCloseBulkChange = () => {
     key.setScope('issues');
-    this.setState({ bulkChange: undefined });
-  };
-
-  handleBulkChangeClick = () => {
-    this.openBulkChange('all');
-  };
-
-  handleBulkChangeSelectedClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.openBulkChange('selected');
+    this.setState({ bulkChangeModal: false });
   };
 
   handleBulkChangeDone = () => {
+    this.setState({ checkAll: false });
     this.fetchFirstIssues();
-    this.closeBulkChange();
+    this.handleCloseBulkChange();
   };
 
   handleReload = () => {
@@ -812,11 +822,14 @@ export class App extends React.PureComponent<Props, State> {
     this.setState(actions.selectPreviousLocation);
   };
 
-  onCheckAll = (checked: boolean) => {
+  handleCheckAll = (checked: boolean) => {
     if (checked) {
-      this.setState(state => ({ checked: state.issues.map(issue => issue.key) }));
+      this.setState(state => ({
+        checkAll: true,
+        checked: state.issues.map(issue => issue.key)
+      }));
     } else {
-      this.setState({ checked: [] });
+      this.setState({ checkAll: false, checked: [] });
     }
   };
 
@@ -834,7 +847,7 @@ export class App extends React.PureComponent<Props, State> {
 
   renderBulkChange(openIssue: T.Issue | undefined) {
     const { component, currentUser } = this.props;
-    const { bulkChange, checked, paging, issues } = this.state;
+    const { checkAll, bulkChangeModal, checked, issues, paging } = this.state;
 
     const isAllChecked = checked.length > 0 && issues.length === checked.length;
     const thirdState = checked.length > 0 && !isAllChecked;
@@ -851,45 +864,22 @@ export class App extends React.PureComponent<Props, State> {
           className="spacer-right vertical-middle"
           disabled={issues.length === 0}
           id="issues-selection"
-          onCheck={this.onCheckAll}
+          onCheck={this.handleCheckAll}
           thirdState={thirdState}
         />
-        {checked.length > 0 ? (
-          <Dropdown
-            className="display-inline-block"
-            overlay={
-              <ul className="menu">
-                <li>
-                  <a href="#" onClick={this.handleBulkChangeClick}>
-                    {translateWithParameters('issues.bulk_change', paging ? paging.total : 0)}
-                  </a>
-                </li>
-                <li>
-                  <a href="#" onClick={this.handleBulkChangeSelectedClick}>
-                    {translateWithParameters('issues.bulk_change_selected', checked.length)}
-                  </a>
-                </li>
-              </ul>
-            }>
-            <Button id="issues-bulk-change">
-              {translate('bulk_change')}
-              <DropdownIcon className="little-spacer-left" />
-            </Button>
-          </Dropdown>
-        ) : (
-          <Button
-            disabled={issues.length === 0}
-            id="issues-bulk-change"
-            onClick={this.handleBulkChangeClick}>
-            {translate('bulk_change')}
-          </Button>
-        )}
-        {bulkChange && (
+        <Button
+          disabled={checked.length === 0}
+          id="issues-bulk-change"
+          onClick={this.handleOpenBulkChange}>
+          {this.getButtonLabel(checked, checkAll, paging)}
+        </Button>
+
+        {bulkChangeModal && (
           <BulkChangeModal
             component={component}
             currentUser={currentUser}
-            fetchIssues={bulkChange === 'all' ? this.fetchIssues : this.getCheckedIssues}
-            onClose={this.closeBulkChange}
+            fetchIssues={checkAll ? this.fetchIssues : this.getCheckedIssues}
+            onClose={this.handleCloseBulkChange}
             onDone={this.handleBulkChangeDone}
             organization={this.props.organization}
           />
@@ -1073,7 +1063,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   renderPage() {
-    const { loading, openIssue } = this.state;
+    const { checkAll, loading, openIssue, paging } = this.state;
     return (
       <div className="layout-page-main-inner">
         {openIssue ? (
@@ -1089,7 +1079,20 @@ export class App extends React.PureComponent<Props, State> {
             selectedLocationIndex={this.state.selectedLocationIndex}
           />
         ) : (
-          <DeferredSpinner loading={loading}>{this.renderList()}</DeferredSpinner>
+          <DeferredSpinner loading={loading}>
+            {checkAll &&
+              paging &&
+              paging.total > MAX_PAGE_SIZE && (
+                <Alert className="big-spacer-bottom" variant="warning">
+                  <FormattedMessage
+                    defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                    id="issue_bulk_change.max_issues_reached"
+                    values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                  />
+                </Alert>
+              )}
+            {this.renderList()}
+          </DeferredSpinner>
         )}
       </div>
     );

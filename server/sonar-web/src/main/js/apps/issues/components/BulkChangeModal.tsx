@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { pickBy, sortBy } from 'lodash';
 import { searchAssignees } from '../utils';
 import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
@@ -30,7 +31,7 @@ import Select from '../../../components/controls/Select';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Avatar from '../../../components/ui/Avatar';
-import { SubmitButton } from '../../../components/ui/buttons';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Alert } from '../../../components/ui/Alert';
@@ -85,6 +86,8 @@ const AssigneeSelect = SearchSelect as AssigneeSelectType;
 type TagSelectType = new () => SearchSelect<TagOption>;
 const TagSelect = SearchSelect as TagSelectType;
 
+export const MAX_PAGE_SIZE = 500;
+
 export default class BulkChangeModal extends React.PureComponent<Props, State> {
   mounted = false;
 
@@ -104,13 +107,17 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       this.loadIssues(),
       searchIssueTags({ organization: this.state.organization })
     ]).then(
-      ([issues, tags]) => {
+      ([{ issues, paging }, tags]) => {
         if (this.mounted) {
+          if (issues.length > MAX_PAGE_SIZE) {
+            issues = issues.slice(0, MAX_PAGE_SIZE);
+          }
+
           this.setState({
             initialTags: tags.map(tag => ({ label: tag, value: tag })),
-            issues: issues.issues,
+            issues,
             loading: false,
-            paging: issues.paging
+            paging
           });
         }
       },
@@ -122,7 +129,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  loadIssues = () => this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: 250 });
+  loadIssues = () => {
+    return this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: MAX_PAGE_SIZE });
+  };
 
   getDefaultAssignee = () => {
     const { currentUser } = this.props;
@@ -147,12 +156,6 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     return options;
-  };
-
-  handleCloseClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onClose();
   };
 
   handleAssigneeSearch = (query: string) => {
@@ -250,12 +253,6 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }));
   }
 
-  renderCancelButton = () => (
-    <a href="#" id="bulk-change-cancel" onClick={this.handleCloseClick}>
-      {translate('cancel')}
-    </a>
-  );
-
   renderLoading = () => (
     <div>
       <div className="modal-head">
@@ -266,7 +263,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <i className="spinner spinner-margin" />
         </div>
       </div>
-      <div className="modal-foot">{this.renderCancelButton()}</div>
+      <div className="modal-foot">
+        <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
+      </div>
     </div>
   );
 
@@ -496,7 +495,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   renderForm = () => {
     const { issues, paging, submitting } = this.state;
 
-    const limitReached = paging !== undefined && paging.total > paging.pageIndex * paging.pageSize;
+    const limitReached = paging && paging.total > MAX_PAGE_SIZE;
 
     return (
       <form id="bulk-change-form" onSubmit={this.handleSubmit}>
@@ -507,7 +506,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
         <div className="modal-body">
           {limitReached && (
             <Alert variant="warning">
-              {translateWithParameters('issue_bulk_change.max_issues_reached', issues.length)}
+              <FormattedMessage
+                defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                id="issue_bulk_change.max_issues_reached"
+                values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+              />
             </Alert>
           )}
 
@@ -529,7 +532,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <SubmitButton disabled={submitting || issues.length === 0} id="bulk-change-submit">
             {translate('apply')}
           </SubmitButton>
-          {this.renderCancelButton()}
+          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </form>
     );

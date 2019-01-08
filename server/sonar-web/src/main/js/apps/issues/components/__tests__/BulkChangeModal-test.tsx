@@ -19,12 +19,19 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import BulkChangeModal from '../BulkChangeModal';
+import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
+import { mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/issues', () => ({
   searchIssueTags: () => Promise.resolve([undefined, []])
 }));
+
+jest.mock('../BulkChangeModal', () => {
+  const mock = require.requireActual('../BulkChangeModal');
+  mock.MAX_PAGE_SIZE = 1;
+  return mock;
+});
 
 it('should display error message when no issues available', async () => {
   const wrapper = getWrapper([]);
@@ -33,34 +40,21 @@ it('should display error message when no issues available', async () => {
 });
 
 it('should display form when issues are present', async () => {
-  const wrapper = getWrapper([
-    {
-      actions: [],
-      component: 'foo',
-      componentLongName: 'foo',
-      componentQualifier: 'foo',
-      componentUuid: 'foo',
-      creationDate: 'foo',
-      key: 'foo',
-      flows: [],
-      fromHotspot: false,
-      message: 'foo',
-      organization: 'foo',
-      project: 'foo',
-      projectName: 'foo',
-      projectOrganization: 'foo',
-      projectKey: 'foo',
-      rule: 'foo',
-      ruleName: 'foo',
-      secondaryLocations: [],
-      severity: 'foo',
-      status: 'foo',
-      transitions: [],
-      type: 'BUG'
-    }
-  ]);
+  const wrapper = getWrapper([mockIssue()]);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should display warning when too many issues are passed', async () => {
+  const issues: T.Issue[] = [];
+  for (let i = MAX_PAGE_SIZE + 1; i > 0; i--) {
+    issues.push(mockIssue());
+  }
+
+  const wrapper = getWrapper(issues);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('h2')).toMatchSnapshot();
+  expect(wrapper.find('Alert')).toMatchSnapshot();
 });
 
 const getWrapper = (issues: T.Issue[]) => {
@@ -72,9 +66,9 @@ const getWrapper = (issues: T.Issue[]) => {
         Promise.resolve({
           issues,
           paging: {
-            pageIndex: 0,
-            pageSize: 0,
-            total: 0
+            pageIndex: issues.length,
+            pageSize: issues.length,
+            total: issues.length
           }
         })
       }
