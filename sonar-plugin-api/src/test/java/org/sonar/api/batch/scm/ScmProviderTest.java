@@ -57,4 +57,10 @@ public class ScmProviderTest {
     thrown.expect(UnsupportedOperationException.class);
     provider.revisionId(Paths.get("foo"));
   }
+
+  @Test
+  public void default_implementation_does_not_support_ignore() {
+    thrown.expect(UnsupportedOperationException.class);
+    provider.ignoreCommand();
+  }
 }

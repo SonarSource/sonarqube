@@ -87,6 +87,10 @@ public abstract class ScmProvider {
     throw new UnsupportedOperationException(formatUnsupportedMessage("Getting relative path from SCM root"));
   }
 
+  public IgnoreCommand ignoreCommand() {
+    throw new UnsupportedOperationException(formatUnsupportedMessage("Checking for ignored files"));
+  }
+
   /**
    * The current revision id of the analyzed code,
    * for example the SHA1 of the current HEAD in a Git branch.
