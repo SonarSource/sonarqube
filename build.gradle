@@ -341,7 +341,6 @@ subprojects {
 
   license {
     header = rootProject.file('HEADER')
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
     strictCheck true
     mapping {
       java = 'SLASHSTAR_STYLE'
