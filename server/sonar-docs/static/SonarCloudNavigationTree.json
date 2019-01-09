@@ -1,11 +1,7 @@
 [
   {
     "title": "Get Started",
-    "children": [
-      "/integrations/github/", 
-      "/integrations/bitbucketcloud/",
-      "/integrations/vsts/"
-    ]
+    "children": ["/integrations/github/", "/integrations/bitbucketcloud/", "/integrations/vsts/"]
   },
   {
     "title": "Analyzing Source Code",
@@ -15,7 +11,8 @@
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
-      "/analysis/pull-request/"
+      "/analysis/pull-request/",
+      "/analysis/supported-languages/"
     ]
   },
   {
@@ -65,11 +62,6 @@
   },
   {
     "title": "Appendices",
-    "children": [
-      "/sonarcloud-pricing/",
-      "/privacy/",
-      "/security/",
-      "/faq/"
-    ]
+    "children": ["/sonarcloud-pricing/", "/privacy/", "/security/", "/faq/"]
   }
 ]
