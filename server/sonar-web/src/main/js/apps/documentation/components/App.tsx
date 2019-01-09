@@ -60,7 +60,7 @@ export default class App extends React.PureComponent<Props> {
       : ((navigationTreeSonarQube as any).default as DocsNavigationItem[]);
     const { splat = '' } = this.props.params;
     const page = this.pages.find(p => p.url === '/' + splat);
-    const mainTitle = translate('documentation.page');
+    const mainTitle = translate('documentation.page_title');
 
     if (!page) {
       return (
@@ -77,7 +77,7 @@ export default class App extends React.PureComponent<Props> {
 
     return (
       <div className="layout-page">
-        <Helmet title={isIndex || !page.title ? mainTitle : `${page.title} - ${mainTitle}`}>
+        <Helmet title={isIndex || !page.title ? mainTitle : `${page.title} | ${mainTitle}`}>
           {!isSonarCloud() && <meta content="noindex nofollow" name="robots" />}
         </Helmet>
 
