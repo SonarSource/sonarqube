@@ -181,6 +181,7 @@ export class GlobalNav extends React.PureComponent<Props, State> {
 
         <ul className="global-navbar-menu global-navbar-menu-right">
           {isSonarCloud() &&
+            isLoggedIn(currentUser) &&
             news.length > 0 && (
               <NavLatestNotification
                 lastNews={news[0]}
@@ -207,6 +208,7 @@ export class GlobalNav extends React.PureComponent<Props, State> {
           <GlobalNavUserContainer appState={appState} currentUser={currentUser} />
         </ul>
         {isSonarCloud() &&
+          isLoggedIn(currentUser) &&
           this.state.notificationSidebar && (
             <NotificationsSidebar
               fetchMoreFeatureNews={this.fetchMoreFeatureNews}

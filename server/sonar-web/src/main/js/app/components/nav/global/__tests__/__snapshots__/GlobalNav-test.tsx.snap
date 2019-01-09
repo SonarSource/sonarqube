@@ -19,7 +19,7 @@ exports[`should render correctly if there are new features 1`] = `
     }
     currentUser={
       Object {
-        "isLoggedIn": false,
+        "isLoggedIn": true,
       }
     }
     location={
@@ -72,10 +72,15 @@ exports[`should render correctly if there are new features 1`] = `
       }
       currentUser={
         Object {
-          "isLoggedIn": false,
+          "isLoggedIn": true,
         }
       }
     />
+    <ContextConsumer
+      data-test="global-nav-plus"
+    >
+      <Component />
+    </ContextConsumer>
     <Connect(withRouter(GlobalNavUser))
       appState={
         Object {
@@ -87,7 +92,7 @@ exports[`should render correctly if there are new features 1`] = `
       }
       currentUser={
         Object {
-          "isLoggedIn": false,
+          "isLoggedIn": true,
         }
       }
     />
@@ -114,7 +119,7 @@ exports[`should render for SonarCloud 1`] = `
     }
     currentUser={
       Object {
-        "isLoggedIn": false,
+        "isLoggedIn": true,
       }
     }
     location={
@@ -146,10 +151,15 @@ exports[`should render for SonarCloud 1`] = `
       }
       currentUser={
         Object {
-          "isLoggedIn": false,
+          "isLoggedIn": true,
         }
       }
     />
+    <ContextConsumer
+      data-test="global-nav-plus"
+    >
+      <Component />
+    </ContextConsumer>
     <Connect(withRouter(GlobalNavUser))
       appState={
         Object {
@@ -161,7 +171,7 @@ exports[`should render for SonarCloud 1`] = `
       }
       currentUser={
         Object {
-          "isLoggedIn": false,
+          "isLoggedIn": true,
         }
       }
     />
