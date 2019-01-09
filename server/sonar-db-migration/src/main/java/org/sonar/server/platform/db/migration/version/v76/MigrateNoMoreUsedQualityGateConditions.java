@@ -41,6 +41,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.platform.db.migration.step.Select.LONG_READER;
 
 @SupportsBlueGreen
 public class MigrateNoMoreUsedQualityGateConditions extends DataChange {
@@ -96,22 +97,22 @@ public class MigrateNoMoreUsedQualityGateConditions extends DataChange {
   @Override
   protected void execute(Context context) throws SQLException {
     MigrationContext migrationContext = new MigrationContext(context, new Date(system2.now()), loadMetrics(context));
-    context.prepareSelect("SELECT id FROM quality_gates qg " +
-      "WHERE qg.is_built_in=?")
+    List<Long> qualityGateIds = context.prepareSelect("SELECT id FROM quality_gates qg WHERE qg.is_built_in=?")
       .setBoolean(1, false)
-      .scroll(row -> {
-        List<QualityGateCondition> conditions = loadConditions(context, row.getInt(1));
+      .list(LONG_READER);
+    for (long qualityGateId : qualityGateIds) {
+      List<QualityGateCondition> conditions = loadConditions(context, qualityGateId);
 
-        markNoMoreSupportedConditionsAsToBeDeleted(migrationContext, conditions);
-        markConditionsHavingOnlyWarningAsToBeDeleted(conditions);
-        markConditionsUsingLeakPeriodHavingNoRelatedLeakMetricAsToBeDeleted(migrationContext, conditions);
-        markConditionsUsingLeakPeriodHavingAlreadyRelatedConditionAsToBeDeleted(migrationContext, conditions);
-        updateConditionsUsingLeakPeriod(migrationContext, conditions);
-        updateConditionsHavingErrorAndWarningByRemovingWarning(migrationContext, conditions);
-        dropConditionsIfNeeded(migrationContext, conditions);
+      markNoMoreSupportedConditionsAsToBeDeleted(migrationContext, conditions);
+      markConditionsHavingOnlyWarningAsToBeDeleted(conditions);
+      markConditionsUsingLeakPeriodHavingNoRelatedLeakMetricAsToBeDeleted(migrationContext, conditions);
+      markConditionsUsingLeakPeriodHavingAlreadyRelatedConditionAsToBeDeleted(migrationContext, conditions);
+      updateConditionsUsingLeakPeriod(migrationContext, conditions);
+      updateConditionsHavingErrorAndWarningByRemovingWarning(migrationContext, conditions);
+      dropConditionsIfNeeded(migrationContext, conditions);
 
-        migrationContext.increaseNumberOfProcessedQualityGate();
-      });
+      migrationContext.increaseNumberOfProcessedQualityGate();
+    }
     LOG.info("{} custom quality gates have been loaded", migrationContext.getNbOfQualityGates());
     LOG.info("{} conditions have been removed", migrationContext.getNbOfRemovedConditions());
     LOG.info("{} conditions have been updated", migrationContext.getNbOfUpdatedConditions());
@@ -124,10 +125,10 @@ public class MigrateNoMoreUsedQualityGateConditions extends DataChange {
       .list(row -> new Metric(row.getInt(1), row.getString(2), row.getString(3), row.getInt(4)));
   }
 
-  private static List<QualityGateCondition> loadConditions(Context context, int qualityGateId) throws SQLException {
+  private static List<QualityGateCondition> loadConditions(Context context, long qualityGateId) throws SQLException {
     return context.prepareSelect("SELECT qgc.id, qgc.metric_id, qgc.operator, qgc.value_error, qgc.value_warning, qgc.period FROM quality_gate_conditions qgc " +
       "WHERE qgc.qgate_id=? ")
-      .setInt(1, qualityGateId)
+      .setLong(1, qualityGateId)
       .list(
         row -> new QualityGateCondition(row.getInt(1), row.getInt(2), row.getString(3),
           row.getString(4), row.getString(5), row.getInt(6)));
