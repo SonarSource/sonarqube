@@ -110,7 +110,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         onConfirm={this.handleFormSubmit}>
         {this.state.errorMessage && <Alert variant="error">{this.state.errorMessage}</Alert>}
         <div className="modal-field">
-          <label htmlFor="create-user-login">{translate('quality_gates.conditions.metric')}</label>
+          <label htmlFor="condition-metric">{translate('quality_gates.conditions.metric')}</label>
           {metrics && <MetricSelect metrics={metrics} onMetricChange={this.handleMetricChange} />}
           {this.props.metric && (
             <span className="note">{getLocalizedMetricName(this.props.metric)}</span>
@@ -119,7 +119,9 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         {metric && (
           <>
             <div className="modal-field">
-              <label>{translate('quality_gates.conditions.operator')}</label>
+              <label htmlFor="condition-operator">
+                {translate('quality_gates.conditions.operator')}
+              </label>
               <ConditionOperator
                 metric={metric}
                 onOperatorChange={this.handleOperatorChange}
@@ -127,7 +129,9 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
               />
             </div>
             <div className="modal-field">
-              <label>{translate('quality_gates.conditions.error')}</label>
+              <label htmlFor="condition-threshold">
+                {translate('quality_gates.conditions.error')}
+              </label>
               <ThresholdInput
                 metric={metric}
                 name="error"

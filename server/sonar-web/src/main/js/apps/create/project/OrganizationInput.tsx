@@ -47,8 +47,10 @@ export class OrganizationInput extends React.PureComponent<Props & WithRouterPro
     return (
       <div className="form-field spacer-bottom">
         <label htmlFor="select-organization">
-          {translate('onboarding.create_project.organization')}
-          <em className="mandatory">*</em>
+          <span className="text-middle">
+            <strong>{translate('onboarding.create_project.organization')}</strong>
+            <em className="mandatory">*</em>
+          </span>
         </label>
         <OrganizationSelect
           hideIcons={!autoImport}

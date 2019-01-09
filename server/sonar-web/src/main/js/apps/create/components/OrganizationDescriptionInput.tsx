@@ -72,7 +72,7 @@ export default class OrganizationDescriptionInput extends React.PureComponent<Pr
     return (
       <ValidationInput
         error={this.state.error}
-        id="organization-display-name"
+        id="organization-description"
         isInvalid={isInvalid}
         isValid={isValid}
         label={translate('onboarding.create_organization.description')}>

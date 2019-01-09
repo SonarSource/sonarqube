@@ -135,6 +135,7 @@ exports[`should render form 2`] = `
         <Select
           autoFocus={true}
           clearable={false}
+          id="create-custom-measure-metric"
           onChange={[Function]}
           options={
             Array [

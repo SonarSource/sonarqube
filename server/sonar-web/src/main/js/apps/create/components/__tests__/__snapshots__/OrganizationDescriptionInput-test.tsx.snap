@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <ValidationInput
-  id="organization-display-name"
+  id="organization-description"
   isInvalid={false}
   isValid={false}
   label="onboarding.create_organization.description"

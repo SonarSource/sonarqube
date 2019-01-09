@@ -270,8 +270,12 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     </div>
   );
 
-  renderCheckbox = (field: keyof FormFields) => (
-    <Checkbox checked={this.state[field] !== undefined} onCheck={this.handleFieldCheck(field)} />
+  renderCheckbox = (field: keyof FormFields, id?: string) => (
+    <Checkbox
+      checked={this.state[field] !== undefined}
+      id={id}
+      onCheck={this.handleFieldCheck(field)}
+    />
   );
 
   renderAffected = (affected: number) => (
@@ -485,7 +489,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   renderNotificationsField = () => (
     <div className="modal-field">
       <label htmlFor="send-notifications">{translate('issue.send_notifications')}</label>
-      {this.renderCheckbox('notifications')}
+      {this.renderCheckbox('notifications', 'send-notifications')}
     </div>
   );
 

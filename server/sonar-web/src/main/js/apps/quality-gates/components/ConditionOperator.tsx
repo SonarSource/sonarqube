@@ -53,6 +53,7 @@ export default class ConditionOperator extends React.PureComponent<Props> {
           autoFocus={true}
           className="input-medium"
           clearable={false}
+          id="condition-operator"
           name="operator"
           onChange={this.handleChange}
           options={operatorOptions}

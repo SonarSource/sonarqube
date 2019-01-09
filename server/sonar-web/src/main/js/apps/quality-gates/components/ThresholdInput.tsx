@@ -54,6 +54,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
       <Select
         className="input-tiny text-middle"
         clearable={true}
+        id="condition-threshold"
         name={name}
         onChange={this.handleSelectChange}
         options={options}
@@ -75,6 +76,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
       <input
         className="input-tiny text-middle"
         data-type={metric.type}
+        id="condition-threshold"
         name={name}
         onChange={this.handleChange}
         type="text"

@@ -121,6 +121,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
                       {this.state.permissionTemplates && (
                         <Select
                           clearable={false}
+                          id="project-permissions-template"
                           onChange={this.handlePermissionTemplateChange}
                           options={this.state.permissionTemplates.map(permissionTemplate => ({
                             label: permissionTemplate.name,

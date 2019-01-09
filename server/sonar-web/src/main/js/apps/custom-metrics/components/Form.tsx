@@ -149,6 +149,7 @@ export default class Form extends React.PureComponent<Props, State> {
               <div className="modal-field">
                 <label htmlFor="create-metric-domain">{translate('custom_metrics.domain')}</label>
                 <Creatable
+                  id="create-metric-domain"
                   onChange={this.handleDomainChange}
                   options={domains.map(domain => ({ label: domain, value: domain }))}
                   value={this.state.domain}
@@ -161,6 +162,7 @@ export default class Form extends React.PureComponent<Props, State> {
                 </label>
                 <Select
                   clearable={false}
+                  id="create-metric-type"
                   onChange={this.handleTypeChange}
                   options={this.props.types.map(type => ({
                     label: translate('metric.type', type),

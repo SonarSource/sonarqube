@@ -189,10 +189,6 @@ em.mandatory {
   font-style: italic;
 }
 
-label[for] {
-  cursor: pointer;
-}
-
 .form-field {
   clear: both;
   display: block;

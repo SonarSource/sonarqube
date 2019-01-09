@@ -89,6 +89,7 @@ exports[`should render form 1`] = `
           custom_metrics.domain
         </label>
         <Creatable
+          id="create-metric-domain"
           onChange={[Function]}
           options={
             Array [
@@ -119,6 +120,7 @@ exports[`should render form 1`] = `
         </label>
         <Select
           clearable={false}
+          id="create-metric-type"
           onChange={[Function]}
           options={
             Array [

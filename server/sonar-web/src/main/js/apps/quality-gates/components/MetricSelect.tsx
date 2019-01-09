@@ -75,6 +75,7 @@ export default class MetricSelect extends React.PureComponent<Props, State> {
     return (
       <Select
         className="text-middle input-large"
+        id="condition-metric"
         onChange={this.handleChange}
         options={optionsWithDomains}
         placeholder={translate('search.search_for_metrics')}

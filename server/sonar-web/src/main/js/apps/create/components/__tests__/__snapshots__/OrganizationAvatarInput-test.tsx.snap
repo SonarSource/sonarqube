@@ -19,7 +19,7 @@ exports[`should display the fallback avatar when there is no url 1`] = `
   />
   <input
     className="input-super-large text-middle"
-    id="organization-display-name"
+    id="organization-avatar"
     onBlur={[Function]}
     onChange={[Function]}
     onFocus={[Function]}
@@ -49,7 +49,7 @@ exports[`should render correctly 1`] = `
   />
   <input
     className="input-super-large text-middle"
-    id="organization-display-name"
+    id="organization-avatar"
     onBlur={[Function]}
     onChange={[Function]}
     onFocus={[Function]}

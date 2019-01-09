@@ -75,6 +75,7 @@ exports[`should display form when issues are present 1`] = `
         </label>
         <Checkbox
           checked={false}
+          id="send-notifications"
           onCheck={[Function]}
           thirdState={false}
         />

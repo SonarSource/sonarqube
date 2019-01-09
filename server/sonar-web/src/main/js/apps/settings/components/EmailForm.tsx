@@ -150,7 +150,7 @@ class EmailForm extends React.PureComponent<Props, State> {
             <textarea
               className="settings-large-input"
               disabled={this.state.loading}
-              id="test-email-title"
+              id="test-email-message"
               onChange={this.onMessageChange}
               required={true}
               rows={5}

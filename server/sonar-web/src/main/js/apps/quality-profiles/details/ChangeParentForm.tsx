@@ -107,6 +107,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
               </label>
               <Select
                 clearable={false}
+                id="change-profile-parent"
                 name="parentKey"
                 onChange={this.handleSelectChange}
                 options={options}

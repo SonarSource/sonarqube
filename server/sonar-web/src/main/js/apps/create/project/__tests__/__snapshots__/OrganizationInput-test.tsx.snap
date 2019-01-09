@@ -7,12 +7,18 @@ exports[`should render correctly 1`] = `
   <label
     htmlFor="select-organization"
   >
-    onboarding.create_project.organization
-    <em
-      className="mandatory"
+    <span
+      className="text-middle"
     >
-      *
-    </em>
+      <strong>
+        onboarding.create_project.organization
+      </strong>
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+    </span>
   </label>
   <OrganizationSelect
     hideIcons={true}

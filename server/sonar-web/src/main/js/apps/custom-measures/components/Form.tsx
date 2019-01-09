@@ -123,6 +123,7 @@ export default class Form extends React.PureComponent<Props, State> {
           <Select
             autoFocus={true}
             clearable={false}
+            id="create-custom-measure-metric"
             onChange={this.handleMetricSelect}
             options={options}
             value={this.state.metricKey}

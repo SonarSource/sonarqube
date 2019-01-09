@@ -97,7 +97,7 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
               'is-invalid': isInvalid,
               'is-valid': isValid
             })}
-            id="organization-display-name"
+            id="organization-avatar"
             onBlur={this.handleBlur}
             onChange={this.handleChange}
             onFocus={this.handleFocus}

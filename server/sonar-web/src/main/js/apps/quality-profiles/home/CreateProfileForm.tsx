@@ -142,6 +142,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                 </label>
                 <Select
                   clearable={false}
+                  id="create-profile-language"
                   name="language"
                   onChange={this.handleLanguageChange}
                   options={languages.map(language => ({
