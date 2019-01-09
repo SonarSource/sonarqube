@@ -24,6 +24,8 @@ import java.util.Collection;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 /**
  * Propagate analysis warnings from scanner report.
@@ -43,7 +45,9 @@ public class PersistAnalysisWarningsStep implements ComputationStep {
   @Override
   public void execute(Context context) {
     Collection<CeTaskMessages.Message> warnings = new ArrayList<>();
-    reportReader.readAnalysisWarnings().forEachRemaining(w -> warnings.add(new CeTaskMessages.Message(w.getText(), w.getTimestamp())));
+    try (CloseableIterator<ScannerReport.AnalysisWarning> it = reportReader.readAnalysisWarnings()) {
+      it.forEachRemaining(w -> warnings.add(new CeTaskMessages.Message(w.getText(), w.getTimestamp())));
+    }
     if (!warnings.isEmpty()) {
       ceTaskMessages.addAll(warnings);
     }

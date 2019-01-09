@@ -24,10 +24,12 @@ import java.util.List;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
 
@@ -55,18 +57,20 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    final List<AnalysisPropertyDto> analysisPropertyDtos = new ArrayList<>();
-    reportReader.readContextProperties().forEachRemaining(
-      contextProperty -> {
-        String propertyKey = contextProperty.getKey();
-        if (propertyKey.startsWith(SONAR_ANALYSIS) || propertyKey.startsWith(SONAR_PULL_REQUEST)) {
-          analysisPropertyDtos.add(new AnalysisPropertyDto()
-            .setUuid(uuidFactory.create())
-            .setKey(propertyKey)
-            .setValue(contextProperty.getValue())
-            .setSnapshotUuid(analysisMetadataHolder.getUuid()));
-        }
-      });
+    List<AnalysisPropertyDto> analysisPropertyDtos = new ArrayList<>();
+    try (CloseableIterator<ScannerReport.ContextProperty> it = reportReader.readContextProperties()) {
+      it.forEachRemaining(
+        contextProperty -> {
+          String propertyKey = contextProperty.getKey();
+          if (propertyKey.startsWith(SONAR_ANALYSIS) || propertyKey.startsWith(SONAR_PULL_REQUEST)) {
+            analysisPropertyDtos.add(new AnalysisPropertyDto()
+              .setUuid(uuidFactory.create())
+              .setKey(propertyKey)
+              .setValue(contextProperty.getValue())
+              .setSnapshotUuid(analysisMetadataHolder.getUuid()));
+          }
+        });
+    }
 
     analysisMetadataHolder.getScmRevisionId().ifPresent(scmRevisionId -> analysisPropertyDtos.add(new AnalysisPropertyDto()
       .setUuid(uuidFactory.create())

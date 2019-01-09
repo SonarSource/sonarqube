@@ -85,13 +85,12 @@ public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository 
 
   private List<String> createLineHashes(Component component, Optional<LineRange[]> significantCodePerLine) {
     LineHashesComputer processor = createLineHashesProcessor(component.getFileAttributes().getLines(), significantCodePerLine);
-    CloseableIterator<String> lines = sourceLinesRepository.readLines(component);
-
-    while (lines.hasNext()) {
-      processor.addLine(lines.next());
+    try (CloseableIterator<String> lines = sourceLinesRepository.readLines(component)) {
+      while (lines.hasNext()) {
+        processor.addLine(lines.next());
+      }
+      return processor.getResult();
     }
-
-    return processor.getResult();
   }
 
   public interface LineHashesComputer {
