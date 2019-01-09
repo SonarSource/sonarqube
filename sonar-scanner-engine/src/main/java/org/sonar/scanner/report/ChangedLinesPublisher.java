@@ -73,7 +73,6 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   }
 
   private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer, String targetScmBranch) {
-
     Path rootBaseDir = inputModuleHierarchy.root().getBaseDir();
     Map<Path, DefaultInputFile> changedFiles = StreamSupport.stream(inputComponentStore.allChangedFilesToPublish().spliterator(), false)
       .collect(Collectors.toMap(DefaultInputFile::path, f -> f));

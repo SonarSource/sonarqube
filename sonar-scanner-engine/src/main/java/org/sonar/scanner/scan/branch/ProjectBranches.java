@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -31,10 +30,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class ProjectBranches {
-
   private final Map<String, BranchInfo> branches;
-
-  @Nullable
   private final String defaultBranchName;
 
   public ProjectBranches(List<BranchInfo> branchInfos) {
@@ -59,7 +55,6 @@ public class ProjectBranches {
     return branches.isEmpty();
   }
 
-  @CheckForNull
   public String defaultBranchName() {
     return defaultBranchName;
   }

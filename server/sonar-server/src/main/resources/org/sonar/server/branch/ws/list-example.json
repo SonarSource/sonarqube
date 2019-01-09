@@ -1,19 +1,10 @@
 {
   "branches": [
     {
-      "name": "feature/bar",
-      "isMain": false,
-      "type": "LONG",
-      "status": {
-        "qualityGateStatus": "OK"
-      },
-      "analysisDate": "2017-04-01T01:15:42+0100"
-    },
-    {
       "name": "feature/foo",
       "isMain": false,
       "type": "SHORT",
-      "mergeBranch": "feature/bar",
+      "mergeBranch": "master",
       "status": {
         "qualityGateStatus": "OK",
         "bugs": 1,
@@ -21,6 +12,15 @@
         "codeSmells": 0
       },
       "analysisDate": "2017-04-03T13:37:00+0100"
+    },
+    {
+      "name": "master",
+      "isMain": true,
+      "type": "LONG",
+      "status": {
+        "qualityGateStatus": "ERROR"
+      },
+      "analysisDate": "2017-04-01T01:15:42+0100"
     }
   ]
 }

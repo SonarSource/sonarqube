@@ -107,16 +107,13 @@ public class ListActionTest {
 
   @Test
   public void test_example() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
-
-    ComponentDto longLivingBranch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(org.sonar.db.component.BranchType.LONG));
+    ComponentDto project = db.components().insertMainBranch(p -> p.setDbKey("sonarqube"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      newAnalysis(longLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.measures().insertLiveMeasure(longLivingBranch, qualityGateStatus, m -> m.setData("OK"));
+      newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
 
     ComponentDto shortLivingBranch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(SHORT).setMergeBranchUuid(project.uuid()));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(shortLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(shortLivingBranch, qualityGateStatus, m -> m.setData("OK"));
@@ -139,16 +136,13 @@ public class ListActionTest {
 
   @Test
   public void test_with_SCAN_EXCUTION_permission() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("sonarqube"));
-
-    ComponentDto longLivingBranch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/bar").setBranchType(org.sonar.db.component.BranchType.LONG));
+    ComponentDto project = db.components().insertMainBranch(p -> p.setDbKey("sonarqube"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
-      newAnalysis(longLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
-    db.measures().insertLiveMeasure(longLivingBranch, qualityGateStatus, m -> m.setData("OK"));
+      newAnalysis(project).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
+    db.measures().insertLiveMeasure(project, qualityGateStatus, m -> m.setData("ERROR"));
 
     ComponentDto shortLivingBranch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(SHORT).setMergeBranchUuid(longLivingBranch.uuid()));
+      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(SHORT).setMergeBranchUuid(project.uuid()));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(shortLivingBranch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(shortLivingBranch, qualityGateStatus, m -> m.setData("OK"));
