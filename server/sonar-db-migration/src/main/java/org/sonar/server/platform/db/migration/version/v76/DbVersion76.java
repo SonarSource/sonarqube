@@ -35,6 +35,7 @@ public class DbVersion76 implements DbVersion {
       .add(2505, "Fix the direction values of certain metrics (prepare for migration of conditions)", FixDirectionOfMetrics.class)
       .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class)
       .add(2507, "Delete sonar.onboardingTutorial.showToNewUsers from settings", DeleteUselessOnboardingSetting.class)
+      .add(2508, "Add unique index on EXTERNAL_LOGIN and EXTERNAL_IDENTITY_PROVIDER columns in table USERS", AddUniqueIndexOnExternalLoginInUsersTable.class)
     ;
   }
 }

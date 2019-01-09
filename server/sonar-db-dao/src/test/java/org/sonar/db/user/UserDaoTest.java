@@ -597,6 +597,16 @@ public class UserDaoTest {
   }
 
   @Test
+  public void select_by_external_login_and_identity_provider() {
+    UserDto activeUser = db.users().insertUser();
+    UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
+
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, activeUser.getExternalLogin(), activeUser.getExternalIdentityProvider())).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, disableUser.getExternalLogin(), disableUser.getExternalIdentityProvider())).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "unknown", "unknown")).isNull();
+  }
+
+  @Test
   public void setRoot_does_not_fail_on_non_existing_login() {
     underTest.setRoot(session, "unkown", true);
     underTest.setRoot(session, "unkown", false);

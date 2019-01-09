@@ -98,13 +98,17 @@ public class UserRegistrarImpl implements UserRegistrar {
 
   @CheckForNull
   private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
+    // First, try to authenticate using the external ID
     UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, getProviderIdOrProviderLogin(userIdentity), provider.getKey());
     if (user != null) {
       return user;
     }
-    // We need to search by login because :
-    // 1. user may have been provisioned,
-    // 2. user may have been disabled.
+    // Then, try with the external login, for instance when for instance external ID has changed
+    user = dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
+    if (user != null) {
+      return user;
+    }
+    // Last, try with login, for instance when external ID and external login has been updated
     String login = userIdentity.getLogin();
     if (login == null) {
       return null;
@@ -153,10 +157,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     }
 
     UserDto existingUser = existingUsers.get(0);
-    if (existingUser == null
-      || Objects.equals(existingUser.getLogin(), authenticatorParameters.getUserIdentity().getLogin())
-      || (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
-        && Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()))) {
+    if (existingUser == null || isSameUser(existingUser, authenticatorParameters)) {
       return Optional.empty();
     }
     ExistingEmailStrategy existingEmailStrategy = authenticatorParameters.getExistingEmailStrategy();
@@ -172,6 +173,15 @@ public class UserRegistrarImpl implements UserRegistrar {
       default:
         throw new IllegalStateException(format("Unknown strategy %s", existingEmailStrategy));
     }
+  }
+
+  private static boolean isSameUser(UserDto existingUser, UserRegistration authenticatorParameters) {
+    // Check if same login
+    return Objects.equals(existingUser.getLogin(), authenticatorParameters.getUserIdentity().getLogin()) ||
+    // Check if same identity provider and same provider id or provider login
+      (Objects.equals(existingUser.getExternalIdentityProvider(), authenticatorParameters.getProvider().getKey()) &&
+        (Objects.equals(existingUser.getExternalId(), getProviderIdOrProviderLogin(authenticatorParameters.getUserIdentity()))
+          || Objects.equals(existingUser.getExternalLogin(), authenticatorParameters.getUserIdentity().getProviderLogin())));
   }
 
   private void detectLoginUpdate(DbSession dbSession, UserDto user, UpdateUser update, UserRegistration authenticatorParameters) {

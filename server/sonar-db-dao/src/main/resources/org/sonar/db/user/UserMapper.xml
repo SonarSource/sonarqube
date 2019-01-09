@@ -140,14 +140,21 @@
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.external_id=#{externalId} AND u.external_identity_provider=#{externalIdentityProvider}
+        WHERE u.external_id=#{externalId} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.external_login=#{externalLogin} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
     <select id="selectByExternalIdentityProvider" parameterType="map" resultType="User">
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.external_identity_provider=#{externalIdentityProvider}
+        WHERE u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
     <select id="countRootUsersButLogin" parameterType="String" resultType="long">

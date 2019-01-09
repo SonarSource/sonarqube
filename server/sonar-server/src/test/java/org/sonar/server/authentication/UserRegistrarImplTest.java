@@ -426,6 +426,31 @@ public class UserRegistrarImplTest {
   }
 
   @Test
+  public void authenticate_and_update_existing_user_matching_external_login() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("Old login")
+      .setName("Old name")
+      .setEmail(USER_IDENTITY.getEmail())
+      .setExternalId("Old id")
+      .setExternalLogin(USER_IDENTITY.getProviderLogin())
+      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
+
+    underTest.register(UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
+      .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
+      .build());
+
+    assertThat(db.users().selectUserByLogin("Old login")).isNotPresent();
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains(USER_LOGIN, "John", "john@email.com", "ABCD", "johndoo", "github", true);
+  }
+
+  @Test
   public void authenticate_existing_user_and_update_only_login() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("old login")

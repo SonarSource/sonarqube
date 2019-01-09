@@ -62,6 +62,8 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectByExternalIdAndIdentityProvider(@Param("externalId") String externalId, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
+  UserDto selectByExternalLoginAndIdentityProvider(@Param("externalLogin") String externalLogin, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
+
   List<UserDto> selectByExternalIdentityProvider(@Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
   void scrollAll(ResultHandler<UserDto> handler);
@@ -70,8 +72,6 @@ public interface UserMapper {
    * Count actives users which are root and which login is not the specified one.
    */
   long countRootUsersButLogin(@Param("login") String login);
-
-
 
   void insert(@Param("user") UserDto userDto);
 
