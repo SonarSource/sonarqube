@@ -30,8 +30,7 @@ import static org.sonar.server.organization.BillingValidations.Organization;
 
 public class BillingValidationsProxyImplTest {
 
-  private static String ORGANIZATION_KEY = "ORGANIZATION_KEY";
-  private static String ORGANIZATION_UUID = "ORGANIZATION_UUID";
+  private static final Organization ORGANIZATION = new Organization("ORGANIZATION_KEY", "ORGANIZATION_UUID", "ORGANIZATION_NAME");
 
   private BillingValidationsExtension billingValidationsExtension = mock(BillingValidationsExtension.class);
 
@@ -40,19 +39,17 @@ public class BillingValidationsProxyImplTest {
   @Test
   public void checkOnProjectAnalysis_calls_extension_when_available() {
     underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
-    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    underTest.checkBeforeProjectAnalysis(organization);
+    underTest.checkBeforeProjectAnalysis(ORGANIZATION);
 
-    verify(billingValidationsExtension).checkBeforeProjectAnalysis(organization);
+    verify(billingValidationsExtension).checkBeforeProjectAnalysis(ORGANIZATION);
   }
 
   @Test
   public void checkOnProjectAnalysis_does_nothing_when_no_extension_available() {
     underTest = new BillingValidationsProxyImpl();
-    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    underTest.checkBeforeProjectAnalysis(organization);
+    underTest.checkBeforeProjectAnalysis(ORGANIZATION);
 
     verifyZeroInteractions(billingValidationsExtension);
   }
@@ -60,19 +57,17 @@ public class BillingValidationsProxyImplTest {
   @Test
   public void checkCanUpdateProjectsVisibility_calls_extension_when_available() {
     underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
-    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    underTest.checkCanUpdateProjectVisibility(organization, true);
+    underTest.checkCanUpdateProjectVisibility(ORGANIZATION, true);
 
-    verify(billingValidationsExtension).checkCanUpdateProjectVisibility(organization, true);
+    verify(billingValidationsExtension).checkCanUpdateProjectVisibility(ORGANIZATION, true);
   }
 
   @Test
   public void checkCanUpdateProjectsVisibility_does_nothing_when_no_extension_available() {
     underTest = new BillingValidationsProxyImpl();
-    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    underTest.checkCanUpdateProjectVisibility(organization, true);
+    underTest.checkCanUpdateProjectVisibility(ORGANIZATION, true);
 
     verifyZeroInteractions(billingValidationsExtension);
   }
@@ -80,21 +75,19 @@ public class BillingValidationsProxyImplTest {
   @Test
   public void canUpdateProjectsVisibilityToPrivate_calls_extension_when_available() {
     underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
-    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
-    when(billingValidationsExtension.canUpdateProjectVisibilityToPrivate(organization)).thenReturn(false);
+    when(billingValidationsExtension.canUpdateProjectVisibilityToPrivate(ORGANIZATION)).thenReturn(false);
 
-    boolean result = underTest.canUpdateProjectVisibilityToPrivate(organization);
+    boolean result = underTest.canUpdateProjectVisibilityToPrivate(ORGANIZATION);
 
     assertThat(result).isFalse();
-    verify(billingValidationsExtension).canUpdateProjectVisibilityToPrivate(organization);
+    verify(billingValidationsExtension).canUpdateProjectVisibilityToPrivate(ORGANIZATION);
   }
 
   @Test
   public void canUpdateProjectsVisibilityToPrivate_return_true_when_no_extension() {
     underTest = new BillingValidationsProxyImpl();
-    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
 
-    boolean result = underTest.canUpdateProjectVisibilityToPrivate(organization);
+    boolean result = underTest.canUpdateProjectVisibilityToPrivate(ORGANIZATION);
 
     assertThat(result).isTrue();
     verifyZeroInteractions(billingValidationsExtension);

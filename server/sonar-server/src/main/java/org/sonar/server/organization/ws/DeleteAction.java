@@ -122,7 +122,7 @@ public class DeleteAction implements OrganizationsWsAction {
       deleteQualityGates(dbSession, organization);
       deleteOrganizationAlmBinding(dbSession, organization);
       deleteOrganization(dbSession, organization);
-      billingValidations.onDelete(new BillingValidations.Organization(organization.getKey(), organization.getUuid()));
+      billingValidations.onDelete(new BillingValidations.Organization(organization.getKey(), organization.getUuid(), organization.getName()));
 
       response.noContent();
     }

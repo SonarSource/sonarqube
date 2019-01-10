@@ -117,7 +117,7 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("subscription", organization.getSubscription().name())
       .prop("canUpdateProjectsVisibilityToPrivate",
         userSession.hasPermission(ADMINISTER, organization) &&
-          billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid())));
+          billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid(), organization.getName())));
     writeAlm(json, organizationAlmBinding);
     json.name("pages");
     writePages(json, pageRepository.getOrganizationPages(false));

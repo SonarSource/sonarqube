@@ -76,6 +76,8 @@ public class VerifyBillingStepTest {
     verify(validations).checkBeforeProjectAnalysis(orgCaptor.capture());
     BillingValidations.Organization calledOrg = orgCaptor.getValue();
     assertThat(calledOrg.getKey()).isEqualTo(organization.getKey());
+    assertThat(calledOrg.getUuid()).isEqualTo(organization.getUuid());
+    assertThat(calledOrg.getName()).isEqualTo(organization.getName());
   }
 
 }

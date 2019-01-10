@@ -57,10 +57,12 @@ public interface BillingValidations {
   class Organization {
     private final String key;
     private final String uuid;
+    private final String name;
 
-    public Organization(String key, String uuid) {
+    public Organization(String key, String uuid, String name) {
       this.key = requireNonNull(key, "Organization key cannot be null");
       this.uuid = requireNonNull(uuid, "Organization uuid cannot be null");
+      this.name = requireNonNull(name, "Organization name cannot be null");
     }
 
     public String getKey() {
@@ -69,6 +71,10 @@ public interface BillingValidations {
 
     public String getUuid() {
       return uuid;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 

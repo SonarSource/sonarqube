@@ -314,7 +314,7 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showBackgroundTasks", showBackgroundTasks);
     json.prop("canApplyPermissionTemplate", isOrganizationAdmin);
     json.prop("canUpdateProjectVisibilityToPrivate", isProjectAdmin &&
-      billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid())));
+      billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid(), organization.getName())));
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {

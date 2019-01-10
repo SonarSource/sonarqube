@@ -60,9 +60,10 @@ public class ProjectsWsSupport {
       "No organization for key '%s'", organizationKey);
   }
 
-  void checkCanUpdateProjectsVisibility(OrganizationDto organization, boolean newProjectsPrivate) {
+  void checkCanUpdateProjectsVisibility(OrganizationDto organizationDto, boolean newProjectsPrivate) {
     try {
-      billingValidations.checkCanUpdateProjectVisibility(new BillingValidations.Organization(organization.getKey(), organization.getUuid()), newProjectsPrivate);
+      BillingValidations.Organization organization = new BillingValidations.Organization(organizationDto.getKey(), organizationDto.getUuid(), organizationDto.getName());
+      billingValidations.checkCanUpdateProjectVisibility(organization, newProjectsPrivate);
     } catch (BillingValidations.BillingValidationsException e) {
       throw new IllegalArgumentException(e.getMessage());
     }
