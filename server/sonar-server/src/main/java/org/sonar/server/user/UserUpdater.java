@@ -56,9 +56,9 @@ import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
-import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
@@ -317,7 +317,7 @@ public class UserUpdater {
   }
 
   private void setOnboarded(UserDto userDto) {
-    boolean showOnboarding = config.getBoolean(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS).orElse(false);
+    boolean showOnboarding = config.getBoolean(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey()).orElse(false);
     userDto.setOnboarded(!showOnboarding);
   }
 

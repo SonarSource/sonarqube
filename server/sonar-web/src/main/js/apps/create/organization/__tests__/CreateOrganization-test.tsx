@@ -77,8 +77,7 @@ const user: T.LoggedInUser = {
   isLoggedIn: true,
   login: 'luke',
   name: 'Skywalker',
-  scmAccounts: [],
-  showOnboardingTutorial: false
+  scmAccounts: []
 };
 
 const fooAlmOrganization = {

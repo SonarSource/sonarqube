@@ -33,6 +33,8 @@ public class DbVersion76 implements DbVersion {
       .add(2503, "Delete useless 'sonar.dbcleaner.cleanDirectory' property", DeleteUselessProperty.class)
       .add(2504, "Delete useless module and folder level measures", DeleteModuleAndFolderMeasures.class)
       .add(2505, "Fix the direction values of certain metrics (prepare for migration of conditions)", FixDirectionOfMetrics.class)
-      .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class);
+      .add(2506, "Migrate quality gate conditions using warning, period and no more supported operations", MigrateNoMoreUsedQualityGateConditions.class)
+      .add(2507, "Delete sonar.onboardingTutorial.showToNewUsers from settings", DeleteUselessOnboardingSetting.class)
+    ;
   }
 }

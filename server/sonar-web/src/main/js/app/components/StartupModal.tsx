@@ -140,18 +140,14 @@ export class StartupModal extends React.PureComponent<Props, State> {
   };
 
   tryAutoOpenOnboarding = () => {
-    const { currentUser, location } = this.props;
     if (
-      currentUser.showOnboardingTutorial &&
+      isSonarCloud() &&
+      this.props.currentUser.showOnboardingTutorial &&
       !['/about', '/documentation', '/onboarding', '/projects/create', '/create-organization'].some(
-        path => location.pathname.startsWith(path)
+        path => this.props.location.pathname.startsWith(path)
       )
     ) {
-      if (isSonarCloud()) {
-        this.openOnboarding();
-      } else {
-        this.openProjectOnboarding();
-      }
+      this.openOnboarding();
     }
   };
 

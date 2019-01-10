@@ -44,7 +44,6 @@ public class CorePropertyDefinitions {
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
-  public static final String ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS = "sonar.onboardingTutorial.showToNewUsers";
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
   private CorePropertyDefinitions() {
@@ -91,13 +90,6 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .multiValues(true)
         .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
-        .build(),
-      PropertyDefinition.builder(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS)
-        .name("Show an onboarding tutorial to new users")
-        .type(BOOLEAN)
-        .description("Show an onboarding tutorial to new users, that explains how to analyze a first project, after logging in for the first time.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .defaultValue(String.valueOf(false))
         .build(),
       PropertyDefinition.builder("sonar.authenticator.downcase")
         .name("Downcase login")

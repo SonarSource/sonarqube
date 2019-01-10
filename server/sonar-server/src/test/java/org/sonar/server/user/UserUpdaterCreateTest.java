@@ -59,8 +59,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newLocalUser;
+import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class UserUpdaterCreateTest {
@@ -282,7 +282,7 @@ public class UserUpdaterCreateTest {
 
   @Test
   public void create_not_onboarded_user_if_onboarding_setting_is_set_to_false() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
     createDefaultGroup();
 
     underTest.createAndCommit(db.getSession(), NewUser.builder()
@@ -296,7 +296,7 @@ public class UserUpdaterCreateTest {
 
   @Test
   public void create_onboarded_user_if_onboarding_setting_is_set_to_true() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
     createDefaultGroup();
 
     underTest.createAndCommit(db.getSession(), NewUser.builder()

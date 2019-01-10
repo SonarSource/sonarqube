@@ -47,7 +47,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
+import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 
 public class UserUpdaterReactivateTest {
 
@@ -285,7 +285,7 @@ public class UserUpdaterReactivateTest {
 
   @Test
   public void reactivate_not_onboarded_user_if_onboarding_setting_is_set_to_false() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
     UserDto user = db.users().insertDisabledUser(u -> u.setOnboarded(false));
     createDefaultGroup();
 
@@ -300,7 +300,7 @@ public class UserUpdaterReactivateTest {
 
   @Test
   public void reactivate_onboarded_user_if_onboarding_setting_is_set_to_true() {
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
     UserDto user = db.users().insertDisabledUser(u -> u.setOnboarded(true));
     createDefaultGroup();
 

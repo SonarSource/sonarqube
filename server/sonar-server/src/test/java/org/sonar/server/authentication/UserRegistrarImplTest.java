@@ -61,8 +61,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy.FORBID;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
@@ -214,7 +214,7 @@ public class UserRegistrarImplTest {
   @Test
   public void authenticate_new_user_sets_onboarded_flag_to_false_when_onboarding_setting_is_set_to_true() {
     organizationFlags.setEnabled(true);
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
 
     underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
@@ -230,7 +230,7 @@ public class UserRegistrarImplTest {
   @Test
   public void authenticate_new_user_sets_onboarded_flag_to_true_when_onboarding_setting_is_set_to_false() {
     organizationFlags.setEnabled(true);
-    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
 
     underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)

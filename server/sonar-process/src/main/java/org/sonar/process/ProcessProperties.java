@@ -110,6 +110,7 @@ public class ProcessProperties {
     SONARCLOUD_ENABLED("sonar.sonarcloud.enabled", "false"),
     SONAR_PRISMIC_ACCESS_TOKEN("sonar.prismic.accessToken", ""),
     SONAR_ANALYTICS_TRACKING_ID("sonar.analytics.trackingId", ""),
+    ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS("sonar.onboardingTutorial.showToNewUsers", "true"),
 
     BITBUCKETCLOUD_APP_KEY("sonar.bitbucketcloud.appKey", "sonarcloud"),
     BITBUCKETCLOUD_ENDPOINT("sonar.bitbucketcloud.endpoint", "https://api.bitbucket.org"),

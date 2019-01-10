@@ -17,28 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v65;
+package org.sonar.server.platform.db.migration.version.v76;
 
-import java.sql.SQLException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulateUsersOnboarded extends DataChange {
+import java.sql.SQLException;
 
-  private final System2 system2;
+/**
+ * Remove the "sonar.onboardingTutorial.showToNewUsers" settings from the PROPERTIES table
+ */
+public class DeleteUselessOnboardingSetting extends DataChange {
 
-  public PopulateUsersOnboarded(Database db, System2 system2) {
+  public DeleteUselessOnboardingSetting(Database db) {
     super(db);
-    this.system2 = system2;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.prepareUpsert("update users set onboarded=?, updated_at=?")
-      .setBoolean(1, true)
-      .setLong(2, system2.now())
-      .execute()
-      .commit();
+    MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("useless onboarding settings");
+    massUpdate.select("SELECT id FROM properties WHERE prop_key=?")
+      .setString(1, "sonar.onboardingTutorial.showToNewUsers");
+    massUpdate.update("DELETE FROM properties WHERE id=?");
+    massUpdate.execute((row, update) -> {
+      long propertyId = row.getLong(1);
+      update.setLong(1, propertyId);
+      return true;
+    });
   }
+
 }

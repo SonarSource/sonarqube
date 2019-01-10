@@ -33,8 +33,8 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 public class PopulateUsersOnboardedTest {
 
-  private final static long PAST = 100_000_000_000l;
-  private final static long NOW = 500_000_000_000l;
+  private final static long PAST = 100_000_000_000L;
+  private final static long NOW = 500_000_000_000L;
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
@@ -52,24 +52,6 @@ public class PopulateUsersOnboardedTest {
     underTest.execute();
 
     assertUsers(tuple("admin", true, NOW), tuple("user", true, NOW));
-  }
-
-  @Test
-  public void set_onboarded_to_false_when_single_admin_user() throws SQLException {
-    insertUser("admin");
-
-    underTest.execute();
-
-    assertUsers(tuple("admin", false, NOW));
-  }
-
-  @Test
-  public void set_onboarded_to_true_when_single_user_but_not_admin() throws SQLException {
-    insertUser("user");
-
-    underTest.execute();
-
-    assertUsers(tuple("user", true, NOW));
   }
 
   private void insertUser(String login) {

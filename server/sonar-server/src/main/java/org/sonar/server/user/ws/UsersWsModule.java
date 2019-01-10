@@ -19,9 +19,17 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.Module;
+import org.sonar.process.ProcessProperties;
 
 public class UsersWsModule extends Module {
+  private final Configuration configuration;
+
+  public UsersWsModule(Configuration configuration) {
+    this.configuration = configuration;
+  }
+
   @Override
   protected void configureModule() {
     add(
@@ -36,9 +44,13 @@ public class UsersWsModule extends Module {
       IdentityProvidersAction.class,
       UserPropertiesWs.class,
       UserJsonWriter.class,
-      SkipOnboardingTutorialAction.class,
       SetHomepageAction.class,
       HomepageTypesImpl.class,
       SetSettingAction.class);
+
+    if (configuration.getBoolean(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey()).orElse(false)) {
+      // onboarding tutorial is available only in SonarCloud
+      add(SkipOnboardingTutorialAction.class);
+    }
   }
 }

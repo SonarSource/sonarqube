@@ -51,8 +51,7 @@ const LOGGED_IN_USER: T.LoggedInUser = {
   isLoggedIn: true,
   login: 'luke',
   name: 'Skywalker',
-  scmAccounts: [],
-  showOnboardingTutorial: false
+  scmAccounts: []
 };
 
 beforeEach(() => {
