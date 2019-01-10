@@ -19,18 +19,18 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.util.Collections;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * @since 4.2
  */
 public class RelativePathPredicate extends AbstractFilePredicate {
 
+  @Nullable
   private final String path;
 
   RelativePathPredicate(String path) {
@@ -43,13 +43,22 @@ public class RelativePathPredicate extends AbstractFilePredicate {
 
   @Override
   public boolean apply(InputFile f) {
+    if (path == null) {
+      return false;
+    }
+
     return path.equals(f.relativePath());
   }
 
   @Override
   public Iterable<InputFile> get(Index index) {
-    InputFile f = index.inputFile(this.path);
-    return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
+    if (path != null) {
+      InputFile f = index.inputFile(this.path);
+      if (f != null) {
+        return Collections.singletonList(f);
+      }
+    }
+    return Collections.emptyList();
   }
 
   @Override

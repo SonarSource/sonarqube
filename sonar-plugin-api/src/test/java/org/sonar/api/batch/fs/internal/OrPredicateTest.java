@@ -33,14 +33,14 @@ public class OrPredicateTest {
     PathPatternPredicate pathPatternPredicate1 = new PathPatternPredicate(PathPattern.create("foo1/**"));
     PathPatternPredicate pathPatternPredicate2 = new PathPatternPredicate(PathPattern.create("foo2/**"));
     PathPatternPredicate pathPatternPredicate3 = new PathPatternPredicate(PathPattern.create("foo3/**"));
-    FilePredicate orPredicate = OrPredicate.create(Arrays.<FilePredicate>asList(pathPatternPredicate1,
-      OrPredicate.create(Arrays.<FilePredicate>asList(pathPatternPredicate2, pathPatternPredicate3))));
+    FilePredicate orPredicate = OrPredicate.create(Arrays.asList(pathPatternPredicate1,
+      OrPredicate.create(Arrays.asList(pathPatternPredicate2, pathPatternPredicate3))));
     assertThat(((OrPredicate) orPredicate).predicates()).containsExactly(pathPatternPredicate1, pathPatternPredicate2, pathPatternPredicate3);
   }
 
   @Test
   public void simplifyOrExpressionsWhenEmpty() {
-    FilePredicate orPredicate = OrPredicate.create(Arrays.<FilePredicate>asList());
+    FilePredicate orPredicate = OrPredicate.create(Arrays.asList());
     assertThat(orPredicate).isEqualTo(TruePredicate.TRUE);
   }
 
@@ -48,7 +48,7 @@ public class OrPredicateTest {
   public void simplifyOrExpressionsWhenFalse() {
     PathPatternPredicate pathPatternPredicate1 = new PathPatternPredicate(PathPattern.create("foo1/**"));
     PathPatternPredicate pathPatternPredicate2 = new PathPatternPredicate(PathPattern.create("foo2/**"));
-    FilePredicate andPredicate = OrPredicate.create(Arrays.<FilePredicate>asList(pathPatternPredicate1,
+    FilePredicate andPredicate = OrPredicate.create(Arrays.asList(pathPatternPredicate1,
       FalsePredicate.FALSE, pathPatternPredicate2));
     assertThat(((OrPredicate) andPredicate).predicates()).containsExactly(pathPatternPredicate1, pathPatternPredicate2);
   }
@@ -57,7 +57,7 @@ public class OrPredicateTest {
   public void simplifyAndExpressionsWhenTrue() {
     PathPatternPredicate pathPatternPredicate1 = new PathPatternPredicate(PathPattern.create("foo1/**"));
     PathPatternPredicate pathPatternPredicate2 = new PathPatternPredicate(PathPattern.create("foo2/**"));
-    FilePredicate andPredicate = OrPredicate.create(Arrays.<FilePredicate>asList(pathPatternPredicate1,
+    FilePredicate andPredicate = OrPredicate.create(Arrays.asList(pathPatternPredicate1,
       TruePredicate.TRUE, pathPatternPredicate2));
     assertThat(andPredicate).isEqualTo(TruePredicate.TRUE);
   }

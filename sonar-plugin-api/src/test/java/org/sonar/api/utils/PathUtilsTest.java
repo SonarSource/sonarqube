@@ -42,14 +42,19 @@ public class PathUtilsTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void testSanitize() throws Exception {
+  public void sanitize_succeeds() {
     assertThat(PathUtils.sanitize("foo/bar/..")).isEqualTo("foo/");
     assertThat(PathUtils.sanitize("C:\\foo\\..\\bar")).isEqualTo("C:/bar");
     assertThat(PathUtils.sanitize(null)).isNull();
   }
 
   @Test
-  public void test_canonicalPath() throws Exception {
+  public void sanitize_invalid_paths_returns_null() {
+    assertThat(PathUtils.sanitize("../foo")).isNull();
+  }
+
+  @Test
+  public void canonicalPath_succeeds() throws Exception {
     File file = temp.newFile();
     String path = PathUtils.canonicalPath(file);
     assertThat(path).isEqualTo(FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
