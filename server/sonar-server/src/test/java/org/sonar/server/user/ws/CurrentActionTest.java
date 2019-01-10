@@ -188,7 +188,7 @@ public class CurrentActionTest {
 
     assertThat(response.getSettingsList())
       .extracting(CurrentWsResponse.Setting::getKey, CurrentWsResponse.Setting::getValue)
-      .containsExactly(
+      .containsExactlyInAnyOrder(
         tuple("notifications.optOut", "true"),
         tuple("notifications.readDate", "1234"));
   }
