@@ -124,6 +124,7 @@ public class NewEffortAggregatorTest {
     DefaultIssue unresolved1 = newBugIssue(10L);
     DefaultIssue old1 = oldBugIssue(100L);
     DefaultIssue unresolved2 = newBugIssue(30L);
+
     DefaultIssue old2 = oldBugIssue(300L);
     DefaultIssue unresolvedWithoutDebt = newBugIssueWithoutEffort();
     DefaultIssue resolved = newBugIssue(50L).setResolution(RESOLUTION_FIXED);
@@ -264,9 +265,22 @@ public class NewEffortAggregatorTest {
     assertThat(measureRepository.getRawMeasures(FILE)).isEmpty();
   }
 
+  @Test
+  public void should_have_empty_measures_if_no_issues() {
+    periodsHolder.setPeriod(PERIOD);
+
+    underTest.beforeComponent(FILE);
+    underTest.afterComponent(FILE);
+
+    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 0);
+    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 0);
+    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 0);
+  }
+
   private void assertVariation(Component component, String metricKey, int variation) {
     Measure newMeasure = measureRepository.getRawMeasure(component, metricRepository.getByKey(metricKey)).get();
     assertThat(newMeasure.getVariation()).isEqualTo(variation);
+    assertThat(newMeasure.getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
   private static DefaultIssue newCodeSmellIssue(long effort) {

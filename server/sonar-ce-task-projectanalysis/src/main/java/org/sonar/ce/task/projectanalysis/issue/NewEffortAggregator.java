@@ -24,13 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
@@ -85,16 +85,17 @@ public class NewEffortAggregator extends IssueVisitor {
 
   @Override
   public void afterComponent(Component component) {
-    computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
-    computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
-    computeMeasure(component, newSecurityEffortMetric, counter.securitySum);
+    if (periodHolder.hasPeriod()) {
+      computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
+      computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
+      computeMeasure(component, newSecurityEffortMetric, counter.securitySum);
+    }
     counter = null;
   }
 
   private void computeMeasure(Component component, Metric metric, EffortSum effortSum) {
-    if (!effortSum.isEmpty) {
-      measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariation(effortSum.newEffort).createNoValue());
-    }
+    double variation = effortSum.isEmpty ? 0.0 : effortSum.newEffort;
+    measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariation(variation).createNoValue());
   }
 
   private static class NewEffortCounter {
