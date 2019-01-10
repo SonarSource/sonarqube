@@ -120,15 +120,18 @@
 
 .markdown.has-toc {
   display: flex;
-  padding-right: var(--gridSize);
 }
 
 .markdown.has-toc .markdown-content {
   flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-x: auto;
 }
 
 .markdown-toc {
   flex: 0 0 240px;
+  margin-right: -40px;
 }
 
 .markdown-toc-content {
