@@ -107,7 +107,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
     removeSideBarClass();
   }
 
-  fetchProjects = (query: any) => {
+  fetchProjects = (query: Query) => {
     this.setState({ loading: true, query });
     fetchProjects(query, this.props.isFavorite, this.props.organization).then(response => {
       if (this.mounted) {
@@ -334,7 +334,12 @@ export class AllProjects extends React.PureComponent<Props, State> {
     const { projects } = this.state;
     const isOrganizationContext = isSonarCloud() && organization;
     const initialLoading = isOrganizationContext && this.state.initialLoading;
-    const organizationEmpty = isOrganizationContext && projects && projects.length === 0;
+    const organizationEmpty =
+      isOrganizationContext &&
+      projects &&
+      projects.length === 0 &&
+      !this.state.loading &&
+      !hasFilterParams(this.state.query);
 
     return (
       <div className="layout-page projects-page" id="projects-page">
