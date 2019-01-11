@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { treemap as d3Treemap, hierarchy as d3Hierarchy } from 'd3-hierarchy';
 import TreeMapRect from './TreeMapRect';
-import { translate } from '../../helpers/l10n';
 import { Location } from '../../helpers/urls';
 import './TreeMap.css';
 
@@ -61,24 +60,8 @@ export default class TreeMap extends React.PureComponent<Props> {
     return prefix.substr(0, prefix.length - lastPrefixPart.length);
   };
 
-  renderNoData() {
-    return (
-      <div className="sonar-d3">
-        <div
-          className="treemap-container"
-          style={{ width: this.props.width, height: this.props.height }}>
-          {translate('no_data')}
-        </div>
-      </div>
-    );
-  }
-
   render() {
     const { items, height, width } = this.props;
-    if (items.length <= 0) {
-      return this.renderNoData();
-    }
-
     const hierarchy = d3Hierarchy({ children: items } as HierarchicalTreemapItem)
       .sum(d => d.size)
       .sort((a, b) => (b.value || 0) - (a.value || 0));

@@ -78,6 +78,9 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
         }
 
         const sizeValue = Number(rawSizeValue);
+        if (sizeValue < 1) {
+          return undefined;
+        }
         return {
           color:
             colorValue !== undefined ? (colorScale as Function)(colorValue) : theme.secondFontColor,
