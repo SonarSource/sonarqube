@@ -101,6 +101,7 @@ interface Props {
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
+  multiOrganizations?: boolean;
   myIssues?: boolean;
   onBranchesChange: () => void;
   organization?: { key: string };
@@ -438,7 +439,10 @@ export class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters, requestOrganizations);
+    return this.props.fetchIssues(
+      parameters,
+      Boolean(requestOrganizations && this.props.multiOrganizations)
+    );
   };
 
   fetchFirstIssues() {
