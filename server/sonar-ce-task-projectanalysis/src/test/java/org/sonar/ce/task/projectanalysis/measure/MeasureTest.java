@@ -19,13 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,7 +40,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 @RunWith(DataProviderRunner.class)
 public class MeasureTest {
 
-  private static final Measure INT_MEASURE = newMeasureBuilder().create((int) 1);
+  private static final Measure INT_MEASURE = newMeasureBuilder().create(1);
   private static final Measure LONG_MEASURE = newMeasureBuilder().create(1l);
   private static final Measure DOUBLE_MEASURE = newMeasureBuilder().create(1d, 1);
   private static final Measure STRING_MEASURE = newMeasureBuilder().create("some_sT ring");
@@ -95,12 +93,7 @@ public class MeasureTest {
 
   private static Object[][] getMeasuresExcept(final ValueType valueType) {
     return from(MEASURES)
-      .filter(new Predicate<Measure>() {
-        @Override
-        public boolean apply(@Nonnull Measure input) {
-          return input.getValueType() != valueType;
-        }
-      }).transform(WrapInSingleElementArray.INSTANCE)
+      .filter(input -> input.getValueType() != valueType).transform(WrapInSingleElementArray.INSTANCE)
       .toArray(Object[].class);
   }
 

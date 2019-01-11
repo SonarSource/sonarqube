@@ -238,7 +238,7 @@ public final class Measure {
    */
   public boolean getBooleanValue() {
     checkValueType(ValueType.BOOLEAN);
-    return value == 1.0D;
+    return value != null && value.intValue() == 1;
   }
 
   /**
