@@ -131,7 +131,7 @@ export default function Footer() {
 
       <div className="sc-footer-copy">
         <div className="sc-footer-limited">
-          © 2008-2018, SonarCloud by{' '}
+          © 2008-2019, SonarCloud by{' '}
           <a
             className="sc-footer-link sc-footer-copy-link"
             href="https://www.sonarsource.com"
