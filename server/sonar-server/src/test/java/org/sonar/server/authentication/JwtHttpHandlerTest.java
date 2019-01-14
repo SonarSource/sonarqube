@@ -51,14 +51,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.System2.INSTANCE;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class JwtHttpHandlerTest {
 
   private static final String JWT_TOKEN = "TOKEN";
   private static final String CSRF_STATE = "CSRF_STATE";
-  private static final String USER_LOGIN = "john";
 
   private static final long NOW = 10_000_000_000L;
   private static final long FOUR_MINUTES_AGO = NOW - 4 * 60 * 1000L;
@@ -69,10 +67,10 @@ public class JwtHttpHandlerTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(INSTANCE);
+  public DbTester db = DbTester.create();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
   private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
   private ArgumentCaptor<JwtSerializer.JwtSession> jwtArgumentCaptor = ArgumentCaptor.forClass(JwtSerializer.JwtSession.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
@@ -82,7 +80,6 @@ public class JwtHttpHandlerTest {
   private MapSettings settings = new MapSettings();
   private JwtSerializer jwtSerializer = mock(JwtSerializer.class);
   private JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
-  private UserDto userDto = newUserDto().setLogin(USER_LOGIN);
 
   private JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
 
@@ -92,25 +89,25 @@ public class JwtHttpHandlerTest {
     when(request.getSession()).thenReturn(httpSession);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
     when(jwtCsrfVerifier.generateState(eq(request), eq(response), anyInt())).thenReturn(CSRF_STATE);
-    dbClient.userDao().insert(dbSession, userDto);
-    dbSession.commit();
   }
 
   @Test
   public void create_token() {
-    underTest.generateToken(userDto, request, response);
+    UserDto user = db.users().insertUser();
+    underTest.generateToken(user, request, response);
 
     Optional<Cookie> jwtCookie = findCookie("JWT-SESSION");
     assertThat(jwtCookie).isPresent();
     verifyCookie(jwtCookie.get(), JWT_TOKEN, 3 * 24 * 60 * 60);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
-    verifyToken(jwtArgumentCaptor.getValue(), 3 * 24 * 60 * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getValue(), user, 3 * 24 * 60 * 60, NOW);
   }
 
   @Test
   public void generate_csrf_state_when_creating_token() {
-    underTest.generateToken(userDto, request, response);
+    UserDto user = db.users().insertUser();
+    underTest.generateToken(user, request, response);
 
     verify(jwtCsrfVerifier).generateState(request, response, 3 * 24 * 60 * 60);
 
@@ -121,30 +118,32 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void generate_token_is_using_session_timeout_from_settings() {
+    UserDto user = db.users().insertUser();
     int sessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", sessionTimeoutInMinutes);
 
     underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
-    underTest.generateToken(userDto, request, response);
+    underTest.generateToken(user, request, response);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
-    verifyToken(jwtArgumentCaptor.getValue(), sessionTimeoutInMinutes * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getValue(), user, sessionTimeoutInMinutes * 60, NOW);
   }
 
   @Test
   public void session_timeout_property_cannot_be_updated() {
+    UserDto user = db.users().insertUser();
     int firstSessionTimeoutInMinutes = 10;
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", firstSessionTimeoutInMinutes);
 
     underTest = new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
-    underTest.generateToken(userDto, request, response);
+    underTest.generateToken(user, request, response);
 
     // The property is updated, but it won't be taking into account
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 15);
-    underTest.generateToken(userDto, request, response);
+    underTest.generateToken(user, request, response);
     verify(jwtSerializer, times(2)).encode(jwtArgumentCaptor.capture());
-    verifyToken(jwtArgumentCaptor.getAllValues().get(0), firstSessionTimeoutInMinutes * 60, NOW);
-    verifyToken(jwtArgumentCaptor.getAllValues().get(1), firstSessionTimeoutInMinutes * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getAllValues().get(0), user,firstSessionTimeoutInMinutes * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getAllValues().get(1), user, firstSessionTimeoutInMinutes * 60, NOW);
   }
 
   @Test
@@ -179,9 +178,9 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void validate_token() {
+    UserDto user = db.users().insertUser();
     addJwtCookie();
-
-    Claims claims = createToken(USER_LOGIN, NOW);
+    Claims claims = createToken(user.getUuid(), NOW);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
     assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
@@ -191,10 +190,10 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void validate_token_refresh_session_when_refresh_time_is_reached() {
+    UserDto user = db.users().insertUser();
     addJwtCookie();
-
     // Token was created 10 days ago and refreshed 6 minutes ago
-    Claims claims = createToken(USER_LOGIN, TEN_DAYS_AGO);
+    Claims claims = createToken(user.getUuid(), TEN_DAYS_AGO);
     claims.put("lastRefreshTime", SIX_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
@@ -205,10 +204,10 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void validate_token_does_not_refresh_session_when_refresh_time_is_not_reached() {
+    UserDto user = db.users().insertUser();
     addJwtCookie();
-
     // Token was created 10 days ago and refreshed 4 minutes ago
-    Claims claims = createToken(USER_LOGIN, TEN_DAYS_AGO);
+    Claims claims = createToken(user.getUuid(), TEN_DAYS_AGO);
     claims.put("lastRefreshTime", FOUR_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
@@ -219,10 +218,10 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void validate_token_does_not_refresh_session_when_disconnected_timeout_is_reached() {
+    UserDto user = db.users().insertUser();
     addJwtCookie();
-
     // Token was created 4 months ago, refreshed 4 minutes ago, and it expired in 5 minutes
-    Claims claims = createToken(USER_LOGIN, NOW - (4L * 30 * 24 * 60 * 60 * 1000));
+    Claims claims = createToken(user.getUuid(), NOW - (4L * 30 * 24 * 60 * 60 * 1000));
     claims.setExpiration(new Date(NOW + 5 * 60 * 1000));
     claims.put("lastRefreshTime", FOUR_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
@@ -270,22 +269,24 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void validate_token_verify_csrf_state() {
+    UserDto user = db.users().insertUser();
     addJwtCookie();
-    Claims claims = createToken(USER_LOGIN, NOW);
+    Claims claims = createToken(user.getUuid(), NOW);
     claims.put("xsrfToken", CSRF_STATE);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
     underTest.validateToken(request, response);
 
-    verify(jwtCsrfVerifier).verifyState(request, CSRF_STATE, USER_LOGIN);
+    verify(jwtCsrfVerifier).verifyState(request, CSRF_STATE, user.getUuid());
   }
 
   @Test
   public void validate_token_refresh_state_when_refreshing_token() {
+    UserDto user = db.users().insertUser();
     addJwtCookie();
 
     // Token was created 10 days ago and refreshed 6 minutes ago
-    Claims claims = createToken(USER_LOGIN, TEN_DAYS_AGO);
+    Claims claims = createToken(user.getUuid(), TEN_DAYS_AGO);
     claims.put("xsrfToken", "CSRF_STATE");
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
@@ -303,9 +304,9 @@ public class JwtHttpHandlerTest {
     verify(jwtCsrfVerifier).removeState(request, response);
   }
 
-  private void verifyToken(JwtSerializer.JwtSession token, int expectedExpirationTime, long expectedRefreshTime) {
+  private void verifyToken(JwtSerializer.JwtSession token, UserDto user, int expectedExpirationTime, long expectedRefreshTime) {
     assertThat(token.getExpirationTimeInSeconds()).isEqualTo(expectedExpirationTime);
-    assertThat(token.getUserLogin()).isEqualTo(USER_LOGIN);
+    assertThat(token.getUserLogin()).isEqualTo(user.getUuid());
     assertThat(token.getProperties().get("lastRefreshTime")).isEqualTo(expectedRefreshTime);
   }
 
@@ -338,15 +339,15 @@ public class JwtHttpHandlerTest {
     return cookie;
   }
 
-  private Claims createToken(String userLogin, long createdAt) {
+  private Claims createToken(String userUuid, long createdAt) {
     // Expired in 5 minutes by default
-    return createToken(userLogin, createdAt, NOW + 5 * 60 * 1000);
+    return createToken(userUuid, createdAt, NOW + 5 * 60 * 1000);
   }
 
-  private Claims createToken(String userLogin, long createdAt, long expiredAt) {
+  private Claims createToken(String userUuid, long createdAt, long expiredAt) {
     DefaultClaims claims = new DefaultClaims();
     claims.setId("ID");
-    claims.setSubject(userLogin);
+    claims.setSubject(userUuid);
     claims.setIssuedAt(new Date(createdAt));
     claims.setExpiration(new Date(expiredAt));
     claims.put("lastRefreshTime", createdAt);

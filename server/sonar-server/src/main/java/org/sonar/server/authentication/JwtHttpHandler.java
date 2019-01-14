@@ -82,7 +82,7 @@ public class JwtHttpHandler {
     String csrfState = jwtCsrfVerifier.generateState(request, response, sessionTimeoutInSeconds);
 
     String token = jwtSerializer.encode(new JwtSerializer.JwtSession(
-      user.getLogin(),
+      user.getUuid(),
       sessionTimeoutInSeconds,
       ImmutableMap.<String, Object>builder()
         .putAll(properties)
@@ -142,7 +142,7 @@ public class JwtHttpHandler {
       refreshToken(token, request, response);
     }
 
-    Optional<UserDto> user = selectUserFromDb(token.getSubject());
+    Optional<UserDto> user = selectUserFromUuid(token.getSubject());
     if (!user.isPresent()) {
       return Optional.empty();
     }
@@ -170,9 +170,10 @@ public class JwtHttpHandler {
     return newCookieBuilder(request).setName(name).setValue(value).setHttpOnly(true).setExpiry(expirationInSeconds).build();
   }
 
-  private Optional<UserDto> selectUserFromDb(String userLogin) {
+  private Optional<UserDto> selectUserFromUuid(String userUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return Optional.ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin));
+      UserDto user = dbClient.userDao().selectByUuid(dbSession, userUuid);
+      return Optional.ofNullable(user != null && user.isActive() ? user : null);
     }
   }
 
