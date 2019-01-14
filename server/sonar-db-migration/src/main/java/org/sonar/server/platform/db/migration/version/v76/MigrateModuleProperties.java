@@ -53,12 +53,12 @@ public class MigrateModuleProperties extends DataChange {
     AtomicReference<Integer> currentProjectId = new AtomicReference<>();
     AtomicReference<String> currentModuleUuid = new AtomicReference<>();
 
-    context.prepareSelect("select prop.prop_key, prop.text_value, prop.clob_value, mod.name, mod.uuid, root.id as project_id, root.name as project_name " +
+    context.prepareSelect("select prop.prop_key, prop.text_value, prop.clob_value, module1.name, module1.uuid, root.id as project_id, root.name as project_name " +
       "from properties prop " +
-      "left join projects mod on mod.id = prop.resource_id " +
-      "left join projects root on root.uuid = mod.project_uuid " +
-      "where mod.qualifier = 'BRC' and prop.user_id is null " +
-      "order by root.uuid, mod.uuid, prop.prop_key")
+      "left join projects module1 on module1.id = prop.resource_id " +
+      "left join projects root on root.uuid = module1.project_uuid " +
+      "where module1.qualifier = 'BRC' and prop.user_id is null " +
+      "order by root.uuid, module1.uuid, prop.prop_key")
       .scroll(row -> {
         String propertyKey = row.getString(1);
         String propertyTextValue = row.getString(2);
@@ -114,8 +114,8 @@ public class MigrateModuleProperties extends DataChange {
     MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("module level properties");
     massUpdate.select("select prop.id as property_id " +
       "from properties prop " +
-      "left join projects mod on mod.id = prop.resource_id " +
-      "where mod.qualifier = 'BRC'");
+      "left join projects module1 on module1.id = prop.resource_id " +
+      "where module1.qualifier = 'BRC'");
     massUpdate.update("delete from properties where id=?");
     massUpdate.execute((row, update) -> {
       update.setInt(1, row.getInt(1));

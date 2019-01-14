@@ -225,7 +225,7 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByKeyAndBranch(dbSession, "unknown", "my_branch")).isNotPresent();
     assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "unknown")).isNotPresent();
   }
-  
+
   @DataProvider
   public static Object[][] branchBranchTypes() {
     return new Object[][] {
@@ -445,6 +445,20 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void count_enabled_modules_by_project_uuid() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    db.components().insertComponent(newModuleDto(module));
+    ComponentDto subModule2 = newModuleDto(module);
+    subModule2.setEnabled(false);
+    db.components().insertComponent(subModule2);
+
+    int result = underTest.countEnabledModulesByProjectUuid(dbSession, project.uuid());
+
+    assertThat(result).isEqualTo(2);
+  }
+
+  @Test
   public void find_sub_projects_by_component_keys() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
@@ -547,8 +561,7 @@ public class ComponentDaoTest {
         module.uuid(),
         subModule.uuid(),
         directory.uuid(),
-        file.uuid()
-      );
+        file.uuid());
   }
 
   @Test
