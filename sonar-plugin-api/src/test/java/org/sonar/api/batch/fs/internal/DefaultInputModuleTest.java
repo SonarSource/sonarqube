@@ -39,7 +39,7 @@ public class DefaultInputModuleTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void testGetters() throws IOException {
+  public void check_getters() throws IOException {
     ProjectDefinition def = ProjectDefinition.create();
     def.setKey("moduleKey");
     File baseDir = temp.newFolder();
@@ -66,6 +66,17 @@ public class DefaultInputModuleTest {
     assertThat(module.getEncoding()).isEqualTo(Charset.defaultCharset());
 
     assertThat(module.isFile()).isFalse();
+  }
+
+  @Test
+  public void working_directory_should_be_hidden() throws IOException {
+    ProjectDefinition def = ProjectDefinition.create();
+    File workDir = temp.newFolder(".sonar");
+    def.setWorkDir(workDir);
+    File baseDir = temp.newFolder();
+    def.setBaseDir(baseDir);
+    DefaultInputModule module = new DefaultInputModule(def);
+    assertThat(workDir.isHidden()).isTrue();
   }
 
 }

@@ -25,8 +25,10 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.DosFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -35,6 +37,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -190,12 +193,7 @@ public class ProjectFileIndexer {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-      Path fileName = dir.getFileName();
-
-      if (fileName != null && fileName.toString().length() > 1 && fileName.toString().charAt(0) == '.') {
-        return FileVisitResult.SKIP_SUBTREE;
-      }
-      if (Files.isHidden(dir)) {
+      if (isHidden(dir)) {
         return FileVisitResult.SKIP_SUBTREE;
       }
       return FileVisitResult.CONTINUE;
@@ -223,6 +221,18 @@ public class ProjectFileIndexer {
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
       return FileVisitResult.CONTINUE;
     }
-  }
 
+    private boolean isHidden(Path path) throws IOException {
+      if (SystemUtils.IS_OS_WINDOWS) {
+        try {
+          DosFileAttributes dosFileAttributes = Files.readAttributes(path, DosFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+          return dosFileAttributes.isHidden();
+        } catch (UnsupportedOperationException e) {
+          return path.toFile().isHidden();
+        }
+      } else {
+        return Files.isHidden(path);
+      }
+    }
+  }
 }

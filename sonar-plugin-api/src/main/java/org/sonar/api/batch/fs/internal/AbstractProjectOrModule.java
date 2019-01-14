@@ -22,6 +22,7 @@ package org.sonar.api.batch.fs.internal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -30,12 +31,15 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 @Immutable
 public abstract class AbstractProjectOrModule extends DefaultInputComponent {
-
+  private static final Logger LOGGER = Loggers.get(AbstractProjectOrModule.class);
   private final Path baseDir;
   private final Path workDir;
   private final String name;
@@ -92,7 +96,15 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
 
   private static Path initWorkingDir(ProjectDefinition module) {
     File workingDirAsFile = module.getWorkDir();
-    return workingDirAsFile.getAbsoluteFile().toPath().normalize();
+    Path workingDir = workingDirAsFile.getAbsoluteFile().toPath().normalize();
+    if (SystemUtils.IS_OS_WINDOWS) {
+      try {
+        Files.setAttribute(workingDir, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
+      } catch (IOException e) {
+        LOGGER.warn("Failed to set working directory hidden: {}", e.getMessage());
+      }
+    }
+    return workingDir;
   }
 
   /**
