@@ -346,7 +346,7 @@ public class ComponentTreeBuilder {
     }
     // FIXME SONAR-11631 code below applies to the analysisVersion, not the project version, fix it
     if (baseAnalysis != null) {
-      return firstNonNull(baseAnalysis.getVersion(), DEFAULT_PROJECT_VERSION);
+      return firstNonNull(baseAnalysis.getCodePeriodVersion(), DEFAULT_PROJECT_VERSION);
     }
     return DEFAULT_PROJECT_VERSION;
   }

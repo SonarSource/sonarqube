@@ -276,7 +276,7 @@ public class ShowActionTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    db.components().insertSnapshot(project, s -> s.setVersion("1.1"));
+    db.components().insertSnapshot(project, s -> s.setCodePeriodVersion("1.1"));
     userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(null, file.getDbKey());
@@ -296,7 +296,7 @@ public class ShowActionTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    db.components().insertSnapshot(branch, s -> s.setVersion("1.1"));
+    db.components().insertSnapshot(branch, s -> s.setCodePeriodVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -322,7 +322,7 @@ public class ShowActionTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    db.components().insertSnapshot(branch, s -> s.setVersion("1.1"));
+    db.components().insertSnapshot(branch, s -> s.setCodePeriodVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -448,7 +448,7 @@ public class ShowActionTest {
       .setQualifier(Qualifiers.PROJECT)
       .setTagsString("language, plugin"));
     db.components().insertSnapshot(project, snapshot -> snapshot
-      .setVersion("1.1")
+      .setCodePeriodVersion("1.1")
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())
       .setPeriodDate(parseDateTime("2017-01-01T11:39:03+0100").getTime()));
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")

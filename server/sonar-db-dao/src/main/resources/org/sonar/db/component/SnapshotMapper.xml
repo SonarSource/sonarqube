@@ -11,7 +11,7 @@
     s.status as status,
     s.purge_status as purgeStatus,
     s.islast as last,
-    s.version as rawVersion,
+    s.version as rawCodePeriodVersion,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
     s.period1_date as periodDate
@@ -72,8 +72,8 @@
       <if test="query.status != null">
         AND s.status=#{query.status,jdbcType=VARCHAR}
       </if>
-      <if test="query.version != null">
-        AND s.version=#{query.version,jdbcType=VARCHAR}
+      <if test="query.codePeriodVersion != null">
+        AND s.version=#{query.codePeriodVersion,jdbcType=VARCHAR}
       </if>
       <if test="query.isLast != null">
         AND s.islast=#{query.isLast}
@@ -151,7 +151,7 @@
 
   <update id="update" parameterType="Snapshot">
     update snapshots
-    set version = #{version, jdbcType=VARCHAR},
+    set version = #{codePeriodVersion, jdbcType=VARCHAR},
         status = #{status, jdbcType=VARCHAR}
     where uuid = #{uuid,jdbcType=VARCHAR}
   </update>
@@ -177,7 +177,7 @@
     #{status, jdbcType=VARCHAR},
     #{purgeStatus, jdbcType=INTEGER},
     #{last, jdbcType=BOOLEAN},
-    #{version, jdbcType=VARCHAR},
+    #{codePeriodVersion, jdbcType=VARCHAR},
     #{periodMode, jdbcType=VARCHAR},
     #{periodParam, jdbcType=VARCHAR},
     #{periodDate, jdbcType=BIGINT})

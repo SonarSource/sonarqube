@@ -32,7 +32,7 @@ public final class SnapshotDto {
    */
   public static final String STATUS_UNPROCESSED = "U";
   public static final String STATUS_PROCESSED = "P";
-  public static final int MAX_VERSION_LENGTH = 100;
+  private static final int MAX_VERSION_LENGTH = 100;
 
   private Long id;
   private String uuid;
@@ -42,7 +42,7 @@ public final class SnapshotDto {
   private String status = STATUS_UNPROCESSED;
   private Integer purgeStatus;
   private Boolean last;
-  private String version;
+  private String codePeriodVersion;
   private String periodMode;
   private String periodParam;
   private Long periodDate;
@@ -115,24 +115,24 @@ public final class SnapshotDto {
    * Version is only available on projects and modules
    */
   @CheckForNull
-  public String getVersion() {
-    return version;
+  public String getCodePeriodVersion() {
+    return codePeriodVersion;
   }
 
-  public SnapshotDto setVersion(@Nullable String version) {
-    if (version != null) {
-      checkArgument(version.length() <= MAX_VERSION_LENGTH,
-        "Event name length (%s) is longer than the maximum authorized (%s). '%s' was provided.", version.length(), MAX_VERSION_LENGTH, version);
+  public SnapshotDto setCodePeriodVersion(@Nullable String codePeriodVersion) {
+    if (codePeriodVersion != null) {
+      checkArgument(codePeriodVersion.length() <= MAX_VERSION_LENGTH,
+        "Event name length (%s) is longer than the maximum authorized (%s). '%s' was provided.", codePeriodVersion.length(), MAX_VERSION_LENGTH, codePeriodVersion);
     }
-    this.version = version;
+    this.codePeriodVersion = codePeriodVersion;
     return this;
   }
 
   /**
    * Used by MyBatis
    */
-  private void setRawVersion(@Nullable String version) {
-    this.version = version;
+  private void setRawCodePeriodVersion(@Nullable String codePeriodVersion) {
+    this.codePeriodVersion = codePeriodVersion;
   }
 
   public SnapshotDto setPeriodMode(@Nullable String p) {
@@ -194,7 +194,7 @@ public final class SnapshotDto {
       Objects.equals(status, that.status) &&
       Objects.equals(purgeStatus, that.purgeStatus) &&
       Objects.equals(last, that.last) &&
-      Objects.equals(version, that.version) &&
+      Objects.equals(codePeriodVersion, that.codePeriodVersion) &&
       Objects.equals(periodMode, that.periodMode) &&
       Objects.equals(periodParam, that.periodParam) &&
       Objects.equals(periodDate, that.periodDate);
@@ -202,7 +202,7 @@ public final class SnapshotDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, purgeStatus, last, version, periodMode, periodParam, periodDate);
+    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, purgeStatus, last, codePeriodVersion, periodMode, periodParam, periodDate);
   }
 
   @Override
@@ -216,7 +216,7 @@ public final class SnapshotDto {
       ", status='" + status + '\'' +
       ", purgeStatus=" + purgeStatus +
       ", last=" + last +
-      ", version='" + version + '\'' +
+      ", codePeriodVersion='" + codePeriodVersion + '\'' +
       ", periodMode='" + periodMode + '\'' +
       ", periodParam='" + periodParam + '\'' +
       ", periodDate=" + periodDate +

@@ -46,7 +46,7 @@ public final class SnapshotQuery {
   private Long createdAfter;
   private Long createdBefore;
   private String status;
-  private String version;
+  private String codePeriodVersion;
   private Boolean isLast;
   private String sortField;
   private String sortOrder;
@@ -108,12 +108,12 @@ public final class SnapshotQuery {
   }
 
   @CheckForNull
-  public String getVersion() {
-    return version;
+  public String getCodePeriodVersion() {
+    return codePeriodVersion;
   }
 
-  public SnapshotQuery setVersion(@Nullable String version) {
-    this.version = version;
+  public SnapshotQuery setCodePeriodVersion(@Nullable String codePeriodVersion) {
+    this.codePeriodVersion = codePeriodVersion;
     return this;
   }
 

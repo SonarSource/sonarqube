@@ -39,7 +39,7 @@ public class SnapshotDtoTest {
       .setBuildDate(parseDate("2014-07-02").getTime())
       .setComponentUuid("uuid_21")
       .setLast(true)
-      .setVersion("1.0")
+      .setCodePeriodVersion("1.0")
       .setPeriodMode("mode1")
       .setPeriodParam("param1")
       .setPeriodDate(parseDate("2014-06-01").getTime());
@@ -48,7 +48,7 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
     assertThat(snapshotDto.getComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();
-    assertThat(snapshotDto.getVersion()).isEqualTo("1.0");
+    assertThat(snapshotDto.getCodePeriodVersion()).isEqualTo("1.0");
     assertThat(snapshotDto.getPeriodMode()).isEqualTo("mode1");
     assertThat(snapshotDto.getPeriodModeParameter()).isEqualTo("param1");
     assertThat(snapshotDto.getPeriodDate()).isEqualTo(parseDate("2014-06-01").getTime());
@@ -57,14 +57,14 @@ public class SnapshotDtoTest {
   @Test
   public void fail_if_version_name_is_longer_then_100_characters() {
     SnapshotDto snapshotDto = new SnapshotDto();
-    snapshotDto.setVersion(null);
-    snapshotDto.setVersion("1.0");
-    snapshotDto.setVersion(repeat("a", 100));
+    snapshotDto.setCodePeriodVersion(null);
+    snapshotDto.setCodePeriodVersion("1.0");
+    snapshotDto.setCodePeriodVersion(repeat("a", 100));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Event name length (101) is longer than the maximum authorized (100). " +
       "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
 
-    snapshotDto.setVersion(repeat("a", 101));
+    snapshotDto.setCodePeriodVersion(repeat("a", 101));
   }
 }

@@ -149,7 +149,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     SnapshotDto analysis1 = dbTester.components()
       .insertSnapshot(project, snapshot -> snapshot.setStatus(STATUS_UNPROCESSED).setCreatedAt(1226379600000L).setLast(false));// 2008-11-11
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(project,
-      snapshot -> snapshot.setStatus(STATUS_PROCESSED).setVersion("not provided").setCreatedAt(1226379600000L).setLast(false));// 2008-11-29
+      snapshot -> snapshot.setStatus(STATUS_PROCESSED).setCodePeriodVersion("not provided").setCreatedAt(1226379600000L).setLast(false));// 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis1).setName("not provided").setCategory(CATEGORY_VERSION).setDate(analysis1.getCreatedAt()));
     dbTester.events().insertEvent(newEvent(analysis2).setName("not provided").setCategory(CATEGORY_VERSION).setDate(analysis2.getCreatedAt()));
     when(analysisMetadataHolder.getAnalysisDate()).thenReturn(november30th2008.getTime());
@@ -306,11 +306,11 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void fail_with_MessageException_if_string_is_not_an_existing_version_event(String propertyValue) {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(false)); // 2008-11-11
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setVersion("1.0").setLast(false)); // 2008-11-12
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setVersion("1.1").setLast(false)); // 2008-11-20
-    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227358680000L).setVersion("1.1").setLast(false)); // 2008-11-22
-    SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setVersion("1.1").setLast(true)); // 2008-11-29
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("0.9").setLast(false)); // 2008-11-11
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setCodePeriodVersion("1.0").setLast(false)); // 2008-11-12
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-20
+    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227358680000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-22
+    SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setCodePeriodVersion("1.1").setLast(true)); // 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION).setDate(analysis1.getCreatedAt()));
     dbTester.events().insertEvent(newEvent(analysis2).setName("1.0").setCategory(CATEGORY_VERSION).setDate(analysis2.getCreatedAt()));
     dbTester.events().insertEvent(newEvent(analysis5).setName("1.1").setCategory(CATEGORY_VERSION).setDate(analysis4.getCreatedAt()));
@@ -407,11 +407,11 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(false)); // 2008-11-11
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setVersion("1.0").setLast(false)); // 2008-11-12
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setVersion("1.1").setLast(false)); // 2008-11-20
-    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227358680000L).setVersion("1.1").setLast(false)); // 2008-11-22
-    SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setVersion("1.1").setLast(true)); // 2008-11-29
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("0.9").setLast(false)); // 2008-11-11
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setCodePeriodVersion("1.0").setLast(false)); // 2008-11-12
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-20
+    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227358680000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-22
+    SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setCodePeriodVersion("1.1").setLast(true)); // 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION).setDate(analysis1.getCreatedAt()));
     dbTester.events().insertEvent(newEvent(analysis2).setName("1.0").setCategory(CATEGORY_VERSION).setDate(analysis2.getCreatedAt()));
     dbTester.events().insertEvent(newEvent(analysis5).setName("1.1").setCategory(CATEGORY_VERSION).setDate(analysis4.getCreatedAt()));
@@ -432,9 +432,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_with_previous_version_deleted() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(false)); // 2008-11-11
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setVersion("1.0").setLast(false)); // 2008-11-12
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setVersion("1.1").setLast(false)); // 2008-11-20
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("0.9").setLast(false)); // 2008-11-11
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setCodePeriodVersion("1.0").setLast(false)); // 2008-11-12
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-20
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION));
     // The "1.0" version was deleted from the history
     dbTester.events().insertEvent(newEvent(analysis3).setName("1.1").setCategory(CATEGORY_VERSION));
@@ -453,8 +453,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_with_first_analysis_when_no_previous_version_found() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("1.1").setLast(false)); // 2008-11-11
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setVersion("1.1").setLast(true)); // 2008-11-29
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-11
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setCodePeriodVersion("1.1").setLast(true)); // 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis2).setName("1.1").setCategory(CATEGORY_VERSION));
     when(system2Mock.now()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
@@ -472,7 +472,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_with_first_analysis_when_previous_snapshot_is_the_last_one() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(true)); // 2008-11-11
+    SnapshotDto analysis = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("0.9").setLast(true)); // 2008-11-11
     dbTester.events().insertEvent(newEvent(analysis).setName("0.9").setCategory(CATEGORY_VERSION));
     when(system2Mock.now()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);
@@ -489,11 +489,11 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_version() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(false)); // 2008-11-11
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setVersion("1.0").setLast(false)); // 2008-11-12
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setVersion("1.1").setLast(false)); // 2008-11-20
-    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227358680000L).setVersion("1.1").setLast(false)); // 2008-11-22
-    SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setVersion("1.1").setLast(true)); // 2008-11-29
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("0.9").setLast(false)); // 2008-11-11
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226494680000L).setCodePeriodVersion("1.0").setLast(false)); // 2008-11-12
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227157200000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-20
+    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227358680000L).setCodePeriodVersion("1.1").setLast(false)); // 2008-11-22
+    SnapshotDto analysis5 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1227934800000L).setCodePeriodVersion("1.1").setLast(true)); // 2008-11-29
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION));
     dbTester.events().insertEvent(newEvent(analysis2).setName("1.0").setCategory(CATEGORY_VERSION));
     dbTester.events().insertEvent(newEvent(analysis5).setName("1.1").setCategory(CATEGORY_VERSION));
@@ -516,7 +516,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_version_with_only_one_existing_version() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setVersion("0.9").setLast(true)); // 2008-11-11
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project, snapshot -> snapshot.setCreatedAt(1226379600000L).setCodePeriodVersion("0.9").setLast(true)); // 2008-11-11
     dbTester.events().insertEvent(newEvent(analysis1).setName("0.9").setCategory(CATEGORY_VERSION));
     when(system2Mock.now()).thenReturn(november30th2008.getTime());
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(false);

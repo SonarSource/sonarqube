@@ -76,7 +76,7 @@ public class SnapshotDaoTest {
       .setPeriodMode("days")
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
-      .setVersion("2.1-SNAPSHOT")
+      .setCodePeriodVersion("2.1-SNAPSHOT")
       .setBuildDate(1500000000006L)
       .setCreatedAt(1403042400000L));
 
@@ -87,13 +87,13 @@ public class SnapshotDaoTest {
     assertThat(result.getStatus()).isEqualTo("P");
     assertThat(result.getLast()).isTrue();
     assertThat(result.getPurgeStatus()).isEqualTo(1);
-    assertThat(result.getVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(result.getCodePeriodVersion()).isEqualTo("2.1-SNAPSHOT");
     assertThat(result.getPeriodMode()).isEqualTo("days");
     assertThat(result.getPeriodModeParameter()).isEqualTo("30");
     assertThat(result.getPeriodDate()).isEqualTo(1500000000001L);
     assertThat(result.getBuildDate()).isEqualTo(1500000000006L);
     assertThat(result.getCreatedAt()).isEqualTo(1403042400000L);
-    assertThat(result.getVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(result.getCodePeriodVersion()).isEqualTo("2.1-SNAPSHOT");
 
     assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
   }
@@ -288,7 +288,7 @@ public class SnapshotDaoTest {
       .setPeriodMode("days")
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
-      .setVersion("2.1-SNAPSHOT")
+      .setCodePeriodVersion("2.1-SNAPSHOT")
       .setBuildDate(1500000000006L)
       .setCreatedAt(1403042400000L));
 
@@ -303,7 +303,7 @@ public class SnapshotDaoTest {
     assertThat(dto.getPeriodDate()).isEqualTo(1500000000001L);
     assertThat(dto.getBuildDate()).isEqualTo(1500000000006L);
     assertThat(dto.getCreatedAt()).isEqualTo(1403042400000L);
-    assertThat(dto.getVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(dto.getCodePeriodVersion()).isEqualTo("2.1-SNAPSHOT");
 
   }
 
@@ -375,13 +375,13 @@ public class SnapshotDaoTest {
     db.commit();
     analysis
       .setComponentUuid("P42")
-      .setVersion("5.6.3")
+      .setCodePeriodVersion("5.6.3")
       .setStatus(STATUS_UNPROCESSED);
 
     underTest.update(dbSession, analysis);
 
     SnapshotDto result = underTest.selectByUuid(dbSession, "A1").get();
-    assertThat(result.getVersion()).isEqualTo("5.6.3");
+    assertThat(result.getCodePeriodVersion()).isEqualTo("5.6.3");
     assertThat(result.getStatus()).isEqualTo(STATUS_UNPROCESSED);
     assertThat(result.getComponentUuid()).isEqualTo("P1");
   }
@@ -395,7 +395,7 @@ public class SnapshotDaoTest {
     db.commit();
 
     assertThat(underTest.selectByUuid(dbSession, analysis.getUuid())
-      .map(SnapshotDto::getVersion))
+      .map(SnapshotDto::getCodePeriodVersion))
         .contains(tooLongVersion);
 
   }
@@ -422,7 +422,7 @@ public class SnapshotDaoTest {
       .setStatus("P")
       .setLast(true)
       .setPurgeStatus(1)
-      .setVersion("2.1-SNAPSHOT")
+      .setCodePeriodVersion("2.1-SNAPSHOT")
       .setPeriodMode("days1")
       .setPeriodParam("30")
       .setPeriodDate(1_500_000_000_001L)

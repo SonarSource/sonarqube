@@ -71,7 +71,7 @@ class ComponentDtoToWsComponent {
       analysis -> {
         wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt()));
         ofNullable(analysis.getPeriodDate()).ifPresent(leak -> wsComponent.setLeakPeriodDate(formatDateTime(leak)));
-        ofNullable(analysis.getVersion()).ifPresent(wsComponent::setVersion);
+        ofNullable(analysis.getCodePeriodVersion()).ifPresent(wsComponent::setVersion);
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));

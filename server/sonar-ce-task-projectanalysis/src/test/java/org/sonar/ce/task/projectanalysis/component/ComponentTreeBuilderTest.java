@@ -185,7 +185,7 @@ public class ComponentTreeBuilderTest {
 
   @Test
   public void project_version_is_loaded_from_db_if_absent_from_report() {
-    SnapshotDto baseAnalysis = new SnapshotDto().setVersion("6.5");
+    SnapshotDto baseAnalysis = new SnapshotDto().setCodePeriodVersion("6.5");
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build(), baseAnalysis, NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
@@ -195,7 +195,7 @@ public class ComponentTreeBuilderTest {
 
   @Test
   public void project_version_is_loaded_from_db_if_empty_report() {
-    SnapshotDto baseAnalysis = new SnapshotDto().setVersion("6.5");
+    SnapshotDto baseAnalysis = new SnapshotDto().setCodePeriodVersion("6.5");
     Component root = call(newBuilder()
       .setType(PROJECT)
       .build(), baseAnalysis, NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
