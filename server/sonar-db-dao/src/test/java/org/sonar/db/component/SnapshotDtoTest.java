@@ -62,7 +62,8 @@ public class SnapshotDtoTest {
     snapshotDto.setCodePeriodVersion(repeat("a", 100));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event name length (101) is longer than the maximum authorized (100). " +
+    expectedException.expectMessage("codePeriodVersion" +
+      " length (101) is longer than the maximum authorized (100). " +
       "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
 
     snapshotDto.setCodePeriodVersion(repeat("a", 101));

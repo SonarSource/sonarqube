@@ -32,7 +32,7 @@ public final class SnapshotDto {
    */
   public static final String STATUS_UNPROCESSED = "U";
   public static final String STATUS_PROCESSED = "P";
-  private static final int MAX_VERSION_LENGTH = 100;
+  public static final int MAX_VERSION_LENGTH = 100;
 
   private Long id;
   private String uuid;
@@ -122,7 +122,7 @@ public final class SnapshotDto {
   public SnapshotDto setCodePeriodVersion(@Nullable String codePeriodVersion) {
     if (codePeriodVersion != null) {
       checkArgument(codePeriodVersion.length() <= MAX_VERSION_LENGTH,
-        "Event name length (%s) is longer than the maximum authorized (%s). '%s' was provided.", codePeriodVersion.length(), MAX_VERSION_LENGTH, codePeriodVersion);
+        "codePeriodVersion length (%s) is longer than the maximum authorized (%s). '%s' was provided.", codePeriodVersion.length(), MAX_VERSION_LENGTH, codePeriodVersion);
     }
     this.codePeriodVersion = codePeriodVersion;
     return this;

@@ -52,6 +52,7 @@ import static org.sonar.db.event.EventValidator.MAX_NAME_LENGTH;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
+import static org.sonar.server.projectanalysis.ws.EventValidator.checkVersionName;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_NAME;
@@ -150,6 +151,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   private void checkRequest(CreateEventRequest request, ComponentDto component) {
     userSession.checkComponentPermission(UserRole.ADMIN, component);
     checkArgument(EventCategory.VERSION != request.getCategory() || Qualifiers.PROJECT.equals(component.qualifier()), "A version event must be created on a project");
+    checkVersionName(request.getCategory(), request.getName());
   }
 
   private static CreateEventRequest toAddEventRequest(Request request) {

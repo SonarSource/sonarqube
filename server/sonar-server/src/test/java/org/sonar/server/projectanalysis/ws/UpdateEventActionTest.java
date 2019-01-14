@@ -236,7 +236,7 @@ public class UpdateEventActionTest {
     call("E2", repeat("a", 100));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Version length (101) is longer than the maximum authorized (100). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided");
+    expectedException.expectMessage("Event name length (101) is longer than the maximum authorized (100). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided");
 
     call("E2", repeat("a", 101));
   }

@@ -23,6 +23,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -42,5 +44,17 @@ class EventValidator {
     return event -> checkArgument(AUTHORIZED_CATEGORIES.contains(fromLabel(event.getCategory()).name()),
       "Event of category '%s' cannot be modified. Authorized categories: %s",
       EventCategory.fromLabel(event.getCategory()), AUTHORIZED_CATEGORIES_INLINED);
+  }
+
+  static void checkVersionName(EventCategory category, @Nullable String name) {
+    checkVersionName(category.getLabel(), name);
+  }
+
+  static void checkVersionName(@Nullable String category, @Nullable String name) {
+    if (VERSION.getLabel().equals(category) && name != null) {
+      // check against max version length defined on SnapshotDto to enforce consistency between version events and snapshot versions
+      checkArgument(name.length() <= SnapshotDto.MAX_VERSION_LENGTH,
+        "Event name length (%s) is longer than the maximum authorized (%s). '%s' was provided.", name.length(), SnapshotDto.MAX_VERSION_LENGTH, name);
+    }
   }
 }

@@ -46,6 +46,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
+import static org.sonar.server.projectanalysis.ws.EventValidator.checkVersionName;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
@@ -53,7 +54,6 @@ import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PA
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_NAME;
 
 public class UpdateEventAction implements ProjectAnalysesWsAction {
-  private static final int MAX_NAME_LENGTH = 100;
   private final DbClient dbClient;
   private final UserSession userSession;
 
@@ -152,13 +152,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
   }
 
   private static Consumer<EventDto> checkVersionNameLength(UpdateEventRequest request) {
-    String name = request.getName();
-    return candidateEvent -> {
-      if (name != null && VERSION.getLabel().equals(candidateEvent.getCategory())) {
-        checkArgument(name.length() <= MAX_NAME_LENGTH,
-          "Version length (%s) is longer than the maximum authorized (%s). '%s' was provided.", name.length(), MAX_NAME_LENGTH, name);
-      }
-    };
+    return candidateEvent -> checkVersionName(candidateEvent.getCategory(), request.getName());
   }
 
   private SnapshotDto getAnalysis(DbSession dbSession, EventDto event) {
