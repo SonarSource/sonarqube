@@ -32,6 +32,7 @@ Note that measures, events and reviews are not deleted.
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             project_version="[null]"
   />
   <analysis_properties uuid="u1"
                        snapshot_uuid="u1"
@@ -104,6 +105,7 @@ Note that measures, events and reviews are not deleted.
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             project_version="[null]"
   />
 
   <analysis_properties uuid="u2"

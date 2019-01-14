@@ -25,6 +25,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             project_version="[null]"
   />
 
   <!-- not processed -> exclude -->
@@ -52,6 +53,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             project_version="[null]"
   />
 
   <!-- on other resource -> exclude -->
@@ -79,6 +81,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             project_version="[null]"
   />
 
   <!-- without event -> select -->
@@ -106,6 +109,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
+             project_version="[null]"
   />
 
   <!-- with event -> select -->
@@ -133,6 +137,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="V5"
+             project_version="[null]"
   />
 
   <events id="2"
