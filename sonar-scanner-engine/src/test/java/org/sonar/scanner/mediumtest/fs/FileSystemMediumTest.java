@@ -1066,4 +1066,34 @@ public class FileSystemMediumTest {
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in module basedir '" + new File(baseDir, "moduleA") + "'.");
   }
 
+  @Test
+  public void exclusion_based_on_scm_info() {
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-ignored-file");
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(2);
+    assertThat(result.inputFile("xources/hello/ClassTwo.xoo")).isNull();
+    assertThat(result.inputFile("testx/ClassTwoTest.xoo")).isNull();
+
+    assertThat(result.inputFile("xources/hello/ClassOne.xoo")).isNotNull();
+    assertThat(result.inputFile("testx/ClassOneTest.xoo")).isNotNull();
+  }
+
+  @Test
+  public void no_exclusion_when_scm_exclusions_is_disabled() {
+    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-ignored-file");
+    AnalysisResult result = tester
+      .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.scm.exclusions.disabled", "true")
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(4);
+
+    assertThat(result.inputFile("xources/hello/ClassTwo.xoo")).isNotNull();
+    assertThat(result.inputFile("testx/ClassTwoTest.xoo")).isNotNull();
+    assertThat(result.inputFile("xources/hello/ClassOne.xoo")).isNotNull();
+    assertThat(result.inputFile("testx/ClassOneTest.xoo")).isNotNull();
+  }
 }

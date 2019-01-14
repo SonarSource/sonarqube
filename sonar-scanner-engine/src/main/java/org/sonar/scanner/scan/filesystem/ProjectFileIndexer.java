@@ -41,6 +41,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -49,6 +50,7 @@ import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.scan.ModuleConfiguration;
 import org.sonar.scanner.scan.ModuleConfigurationProvider;
 import org.sonar.scanner.scan.ProjectServerSettings;
+import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.util.ProgressReport;
 
 /**
@@ -59,18 +61,21 @@ public class ProjectFileIndexer {
   private static final Logger LOG = Loggers.get(ProjectFileIndexer.class);
   private final ProjectExclusionFilters projectExclusionFilters;
   private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;
+  private ScmConfiguration scmConfiguration;
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
   private final GlobalConfiguration globalConfig;
   private final GlobalServerSettings globalServerSettings;
   private final ProjectServerSettings projectServerSettings;
   private final FileIndexer fileIndexer;
+  private final IgnoreCommand ignoreCommand;
+  private final boolean useScmExclusion;
 
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(InputComponentStore componentStore, ProjectExclusionFilters exclusionFilters,
     InputModuleHierarchy inputModuleHierarchy, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
-    FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions) {
+    FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, ScmConfiguration scmConfiguration) {
     this.componentStore = componentStore;
     this.inputModuleHierarchy = inputModuleHierarchy;
     this.globalConfig = globalConfig;
@@ -79,6 +84,9 @@ public class ProjectFileIndexer {
     this.fileIndexer = fileIndexer;
     this.projectExclusionFilters = exclusionFilters;
     this.projectCoverageAndDuplicationExclusions = projectCoverageAndDuplicationExclusions;
+    this.scmConfiguration = scmConfiguration;
+    this.ignoreCommand = loadIgnoreCommand();
+    this.useScmExclusion = ignoreCommand != null;
   }
 
   public void index() {
@@ -87,26 +95,47 @@ public class ProjectFileIndexer {
     LOG.info("Project configuration:");
     projectExclusionFilters.log("  ");
     projectCoverageAndDuplicationExclusions.log("  ");
+    ExclusionCounter exclusionCounter = new ExclusionCounter();
 
-    AtomicInteger excludedByPatternsCount = new AtomicInteger(0);
-
-    indexModulesRecursively(inputModuleHierarchy.root(), excludedByPatternsCount);
+    if (useScmExclusion) {
+      ignoreCommand.init(inputModuleHierarchy.root().getBaseDir().toAbsolutePath());
+      indexModulesRecursively(inputModuleHierarchy.root(), exclusionCounter);
+      ignoreCommand.clean();
+    } else {
+      indexModulesRecursively(inputModuleHierarchy.root(), exclusionCounter);
+    }
 
     int totalIndexed = componentStore.inputFiles().size();
     progressReport.stop(totalIndexed + " " + pluralizeFiles(totalIndexed) + " indexed");
 
-    int excludedFileCount = excludedByPatternsCount.get();
-    if (projectExclusionFilters.hasPattern() || excludedFileCount > 0) {
-      LOG.info("{} {} ignored because of inclusion/exclusion patterns", excludedFileCount, pluralizeFiles(excludedFileCount));
+    int excludedFileByPatternCount = exclusionCounter.getByPatternsCount();
+    if (projectExclusionFilters.hasPattern() || excludedFileByPatternCount > 0) {
+      LOG.info("{} {} ignored because of inclusion/exclusion patterns", excludedFileByPatternCount, pluralizeFiles(excludedFileByPatternCount));
+    }
+    int excludedFileByScmCount = exclusionCounter.getByScmCount();
+    if (useScmExclusion) {
+      LOG.info("{} {} ignored because of scm ignore settings", excludedFileByScmCount, pluralizeFiles(excludedFileByScmCount));
     }
   }
 
-  private void indexModulesRecursively(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
-    inputModuleHierarchy.children(module).stream().sorted(Comparator.comparing(DefaultInputModule::key)).forEach(m -> indexModulesRecursively(m, excludedByPatternsCount));
-    index(module, excludedByPatternsCount);
+  private IgnoreCommand loadIgnoreCommand() {
+    try {
+      if (!scmConfiguration.isExclusionDisabled() && scmConfiguration.provider() != null) {
+        return scmConfiguration.provider().ignoreCommand();
+      }
+    } catch (UnsupportedOperationException e) {
+      LOG.debug("File exclusion based on SCM ignore information is not available with this plugin.");
+    }
+
+    return null;
   }
 
-  private void index(DefaultInputModule module, AtomicInteger excludedByPatternsCount) {
+  private void indexModulesRecursively(DefaultInputModule module, ExclusionCounter exclusionCounter) {
+    inputModuleHierarchy.children(module).stream().sorted(Comparator.comparing(DefaultInputModule::key)).forEach(m -> indexModulesRecursively(m, exclusionCounter));
+    index(module, exclusionCounter);
+  }
+
+  private void index(DefaultInputModule module, ExclusionCounter exclusionCounter) {
     // Emulate creation of module level settings
     ModuleConfiguration moduleConfig = new ModuleConfigurationProvider().provide(globalConfig, module, globalServerSettings, projectServerSettings);
     ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig);
@@ -119,8 +148,8 @@ public class ProjectFileIndexer {
       moduleExclusionFilters.log("  ");
       moduleCoverageAndDuplicationExclusions.log("  ");
     }
-    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getSourceDirsOrFiles(), Type.MAIN, excludedByPatternsCount);
-    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getTestDirsOrFiles(), Type.TEST, excludedByPatternsCount);
+    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getSourceDirsOrFiles(), Type.MAIN, exclusionCounter);
+    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getTestDirsOrFiles(), Type.TEST, exclusionCounter);
   }
 
   private static void logPaths(String label, Path baseDir, List<Path> paths) {
@@ -153,13 +182,13 @@ public class ProjectFileIndexer {
   }
 
   private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
-    List<Path> sources, Type type, AtomicInteger excludedByPatternsCount) {
+    List<Path> sources, Type type, ExclusionCounter exclusionCounter) {
     try {
       for (Path dirOrFile : sources) {
         if (dirOrFile.toFile().isDirectory()) {
-          indexDirectory(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, excludedByPatternsCount);
+          indexDirectory(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, exclusionCounter);
         } else {
-          fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, progressReport, excludedByPatternsCount);
+          fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, progressReport, exclusionCounter, ignoreCommand);
         }
       }
     } catch (IOException e) {
@@ -168,10 +197,10 @@ public class ProjectFileIndexer {
   }
 
   private void indexDirectory(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters,
-    ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path dirToIndex, Type type, AtomicInteger excludedByPatternsCount)
+    ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path dirToIndex, Type type, ExclusionCounter exclusionCounter)
     throws IOException {
     Files.walkFileTree(dirToIndex.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
-      new IndexFileVisitor(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, type, excludedByPatternsCount));
+      new IndexFileVisitor(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, type, exclusionCounter));
   }
 
   private class IndexFileVisitor implements FileVisitor<Path> {
@@ -179,16 +208,16 @@ public class ProjectFileIndexer {
     private final ModuleExclusionFilters moduleExclusionFilters;
     private final ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions;
     private final Type type;
-    private final AtomicInteger excludedByPatternsCount;
+    private final ExclusionCounter exclusionCounter;
 
     IndexFileVisitor(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
       Type type,
-      AtomicInteger excludedByPatternsCount) {
+      ExclusionCounter exclusionCounter) {
       this.module = module;
       this.moduleExclusionFilters = moduleExclusionFilters;
       this.moduleCoverageAndDuplicationExclusions = moduleCoverageAndDuplicationExclusions;
       this.type = type;
-      this.excludedByPatternsCount = excludedByPatternsCount;
+      this.exclusionCounter = exclusionCounter;
     }
 
     @Override
@@ -202,7 +231,7 @@ public class ProjectFileIndexer {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
       if (!Files.isHidden(file)) {
-        fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, file, type, progressReport, excludedByPatternsCount);
+        fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, file, type, progressReport, exclusionCounter, ignoreCommand);
       }
       return FileVisitResult.CONTINUE;
     }
@@ -233,6 +262,27 @@ public class ProjectFileIndexer {
       } else {
         return Files.isHidden(path);
       }
+    }
+  }
+
+  static class ExclusionCounter {
+    private final AtomicInteger excludedByPatternsCount = new AtomicInteger(0);
+    private final AtomicInteger excludedByScmCount = new AtomicInteger(0);
+
+    public void increaseByPatternsCount() {
+      excludedByPatternsCount.incrementAndGet();
+    }
+
+    public int getByPatternsCount() {
+      return excludedByScmCount.get();
+    }
+
+    public void increaseByScmCount() {
+      excludedByPatternsCount.incrementAndGet();
+    }
+
+    public int getByScmCount() {
+      return excludedByScmCount.get();
     }
   }
 }

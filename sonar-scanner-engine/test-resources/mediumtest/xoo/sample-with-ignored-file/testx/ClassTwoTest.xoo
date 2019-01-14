@@ -1,0 +1,11 @@
+package org.sonar.testx;
+
+import org.junit.Test;
+
+public class ClassTwoTest  {
+
+  @Test
+  public void nothing() {
+
+  }
+}

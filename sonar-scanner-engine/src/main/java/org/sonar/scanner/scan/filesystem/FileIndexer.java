@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,6 +35,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
@@ -89,16 +90,11 @@ public class FileIndexer {
     ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
     this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader, metadataGenerator,
-      sensorStrategy,
-      languageDetection,
-      analysisWarnings,
-      properties, new InputFileFilter[0]);
+      sensorStrategy, languageDetection, analysisWarnings, properties, new InputFileFilter[0]);
   }
 
   void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
-    Path sourceFile,
-    InputFile.Type type, ProgressReport progressReport,
-    AtomicInteger excludedByPatternsCount)
+    Path sourceFile, Type type, ProgressReport progressReport, ProjectFileIndexer.ExclusionCounter exclusionCounter, @Nullable IgnoreCommand ignoreCommand)
     throws IOException {
     // get case of real file without resolving link
     Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
@@ -114,12 +110,12 @@ public class FileIndexer {
     Path moduleRelativePath = module.getBaseDir().relativize(realAbsoluteFile);
     boolean included = evaluateInclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
     if (!included) {
-      excludedByPatternsCount.incrementAndGet();
+      exclusionCounter.increaseByPatternsCount();
       return;
     }
     boolean excluded = evaluateExclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
     if (excluded) {
-      excludedByPatternsCount.incrementAndGet();
+      exclusionCounter.increaseByPatternsCount();
       return;
     }
     String language = langDetection.language(realAbsoluteFile, projectRelativePath);
@@ -127,6 +123,13 @@ public class FileIndexer {
       LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", realAbsoluteFile.toAbsolutePath(), langDetection.getForcedLanguage());
       return;
     }
+
+    if (ignoreCommand != null && ignoreCommand.isIgnored(realAbsoluteFile)) {
+      LOG.debug("File '{}' is excluded by the scm ignore settings.");
+      exclusionCounter.increaseByScmCount();
+      return;
+    }
+
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(realAbsoluteFile, project.key(),
       projectRelativePath.toString(),
       moduleRelativePath.toString(),
