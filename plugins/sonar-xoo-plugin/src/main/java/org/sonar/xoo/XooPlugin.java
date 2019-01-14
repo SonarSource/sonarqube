@@ -74,6 +74,7 @@ import org.sonar.xoo.rule.XooFakeImporterWithMessages;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import org.sonar.xoo.rule.XooSonarWayProfile;
 import org.sonar.xoo.scm.XooBlameCommand;
+import org.sonar.xoo.scm.XooIgnoreCommand;
 import org.sonar.xoo.scm.XooScmProvider;
 import org.sonar.xoo.test.CoveragePerTestSensor;
 import org.sonar.xoo.test.TestExecutionSensor;
@@ -174,7 +175,9 @@ public class XooPlugin implements Plugin {
       context.addExtension(DeprecatedGlobalSensor.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 6))) {
-      context.addExtension(GlobalProjectSensor.class);
+      context.addExtensions(
+        GlobalProjectSensor.class,
+        XooIgnoreCommand.class);
     }
     if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2))) {
       context.addExtensions(

@@ -27,8 +27,11 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
+import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.XooBuiltInQualityProfilesDefinition;
+import org.sonar.xoo.scm.XooBlameCommand;
+import org.sonar.xoo.scm.XooIgnoreCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,6 +75,17 @@ public class XooPluginTest {
     assertThat(getExtensions(context))
       .hasSize(56)
       .contains(OneExternalIssuePerLineSensor.class);
+  }
+
+  @Test
+  public void provide_extensions_for_7_6() {
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.6"), SonarQubeSide.SCANNER);
+    Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
+    new XooPlugin().define(context);
+    assertThat(getExtensions(context))
+      .hasSize(58)
+      .contains(GlobalProjectSensor.class)
+      .contains(XooIgnoreCommand.class);
   }
 
   @SuppressWarnings("unchecked")

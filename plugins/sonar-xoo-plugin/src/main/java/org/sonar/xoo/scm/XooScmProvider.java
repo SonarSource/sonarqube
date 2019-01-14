@@ -20,6 +20,7 @@
 package org.sonar.xoo.scm;
 
 import org.sonar.api.batch.scm.BlameCommand;
+import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.batch.scm.ScmProvider;
 
 import java.io.File;
@@ -27,9 +28,11 @@ import java.io.File;
 public class XooScmProvider extends ScmProvider {
 
   private final XooBlameCommand blame;
+  private XooIgnoreCommand ignore;
 
-  public XooScmProvider(XooBlameCommand blame) {
+  public XooScmProvider(XooBlameCommand blame, XooIgnoreCommand ignore) {
     this.blame = blame;
+    this.ignore = ignore;
   }
 
   @Override
@@ -47,4 +50,8 @@ public class XooScmProvider extends ScmProvider {
     return blame;
   }
 
+  @Override
+  public IgnoreCommand ignoreCommand() {
+    return ignore;
+  }
 }
