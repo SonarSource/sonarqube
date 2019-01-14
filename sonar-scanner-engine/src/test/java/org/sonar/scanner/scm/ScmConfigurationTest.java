@@ -48,6 +48,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_EXLUSIONS_IS_DISABLED_BY_CONFIGURATION;
 import static org.sonar.scanner.scm.ScmConfiguration.MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION;
 
 @RunWith(DataProviderRunner.class)
@@ -101,6 +102,36 @@ public class ScmConfigurationTest {
     underTest.start();
 
     assertThat(logTester.logs()).contains(MESSAGE_SCM_STEP_IS_DISABLED_BY_CONFIGURATION);
+  }
+
+  @Test
+  public void log_when_exclusion_is_disabled() {
+    when(settings.getBoolean(CoreProperties.SCM_EXCLUSIONS_DISABLED_KEY)).thenReturn(Optional.of(true));
+
+    underTest.start();
+
+    assertThat(logTester.logs()).contains(MESSAGE_SCM_EXLUSIONS_IS_DISABLED_BY_CONFIGURATION);
+  }
+
+  @Test
+  @UseDataProvider("scmDisabledProperty")
+  public void exclusion_is_disabled_by_property(boolean scmDisabled, boolean scmExclusionsDisabled, boolean isScmExclusionDisabled) {
+    when(settings.getBoolean(CoreProperties.SCM_DISABLED_KEY)).thenReturn(Optional.of(scmDisabled));
+    when(settings.getBoolean(CoreProperties.SCM_EXCLUSIONS_DISABLED_KEY)).thenReturn(Optional.of(scmExclusionsDisabled));
+
+    underTest.start();
+
+    assertThat(underTest.isExclusionDisabled()).isEqualTo(isScmExclusionDisabled);
+  }
+
+  @DataProvider
+  public static Object[][] scmDisabledProperty() {
+    return new Object[][] {
+      {true, true, true},
+      {true, false, true},
+      {false, true, true},
+      {false, false, false}
+    };
   }
 
   @Test

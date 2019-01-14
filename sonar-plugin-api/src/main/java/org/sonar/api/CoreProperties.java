@@ -516,6 +516,11 @@ public interface CoreProperties {
   String SCM_DISABLED_KEY = "sonar.scm.disabled";
 
   /**
+   * @since 7.6
+   */
+  String SCM_EXCLUSIONS_DISABLED_KEY = "sonar.scm.exclusions.disabled";
+
+  /**
    * @since 5.0
    */
   String SCM_PROVIDER_KEY = "sonar.scm.provider";
