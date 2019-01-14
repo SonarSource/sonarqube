@@ -3,6 +3,13 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 7.6 Upgrade Notes
+**Quality Gates Simplified**  
+Quality Gates have been streamlined to remove a number of confusing optionS. Conditions previously using the "on new code" checkbox will be migrated to On New Code metrics. For example, a condition using the overall Coverage metric with the "on new code" checkbox enabled will be migrated to a condition using the Coverage on New Code metric. Additionally, some metric/operator conditions have been removed, and conditions using those combinations will be dropped in the migration. ([MMF-473](https://jira.sonarsource.com/browse/MMF-473))
+
+**Conflict with FindBugs**  
+This version embeds SonarHTML, which analyzes both `.html` and `.jsp` files. Users previously analyzing JSP files with FindBugs will encounter analysis failure if both are present.
+
 ## Release 7.5 Upgrade Notes  
 **More Issues Backdated**  
 Additional cases of issue backdating have been added, so fewer genuinely old issues will be reported in the New Code period ([MMF-1287](https://jira.sonarsource.com/browse/MMF-1287))
