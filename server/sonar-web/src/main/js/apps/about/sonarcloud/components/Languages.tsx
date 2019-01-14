@@ -18,37 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { LANGUAGES } from '../utils';
 import { getBaseUrl } from '../../../../helpers/urls';
+import ChevronDownIcon from '../../../../components/icons-components/ChevronDownIcon';
 
 interface State {
   height?: number;
   open: boolean;
 }
-
-const LANGUAGES = [
-  { name: 'Java', file: 'java.svg', width: 65 },
-  { name: 'JavaScript', file: 'js.svg', width: 60 },
-  { name: 'TypeScript', file: 'ts.svg', width: 100 },
-  { name: 'C#', file: 'csharp.svg', width: 60 },
-  { name: 'Python', file: 'python.svg', width: 65 },
-  { name: 'C++', file: 'c-c-plus-plus.svg', width: 53 },
-  { name: 'Go', file: 'go.svg', width: 91 },
-  { name: 'Kotlin', file: 'kotlin.svg', width: 42 },
-  { name: 'Ruby', file: 'ruby.svg', width: 43 },
-  { name: 'ABAP', file: 'abap.svg', width: 62 },
-  { name: 'Apex', file: 'apex.svg', width: 62 },
-  { name: 'Flex', file: 'flex.png', width: 85 },
-  { name: 'CSS', file: 'css.svg', width: 40 },
-  { name: 'HTML', file: 'html5.svg', width: 40 },
-  { name: 'Objective-C', file: 'obj-c.svg', width: 63 },
-  { name: 'PHP', file: 'php.svg', width: 57 },
-  { name: 'Scala', file: 'scala.svg', width: 29 },
-  { name: 'Swift', file: 'swift.svg', width: 64 },
-  { name: 'T-SQL', file: 't-sql.svg', width: 53 },
-  { name: 'PL/SQL', file: 'pl-sql.svg', width: 65 },
-  { name: 'VB', file: 'vb.svg', width: 55 },
-  { name: 'XML', file: 'xml.svg', width: 67 }
-];
 
 export class Languages extends React.PureComponent<{}, State> {
   container?: HTMLElement | null;
@@ -68,47 +45,38 @@ export class Languages extends React.PureComponent<{}, State> {
 
   render() {
     const { open } = this.state;
-    const languages = open ? LANGUAGES : LANGUAGES.slice(0, 9);
+    const languages = open ? LANGUAGES : LANGUAGES.slice(0, 10);
 
     return (
       <div className="position-relative">
         <div className="sc-languages-container clearfix">
           <div className="sc-section sc-columns">
-            <div className="sc-column-min">
-              <h3 className="big-spacer-bottom">
-                SonarCloud
-                <br />
-                speaks your
-                <br />
-                language
-              </h3>
+            <div className="sc-column-full">
+              <h3 className="sc-big-spacer-bottom">SonarCloud speaks your language</h3>
+              <ul
+                className="sc-languages-list"
+                ref={node => (this.container = node)}
+                style={{ height: this.state.height }}>
+                {languages.map(language => (
+                  <li key={language.name}>
+                    <img
+                      alt={language.name}
+                      src={`${getBaseUrl()}/images/languages/${language.file}`}
+                      width={language.width}
+                    />
+                  </li>
+                ))}
+              </ul>
               {!open && (
-                <a href="#" onClick={this.handleOpenClick}>
-                  See all supported languages
+                <a
+                  className="bt bt-large bt-nav bt-orange2"
+                  href="#"
+                  onClick={this.handleOpenClick}>
+                  See All Languages
+                  <ChevronDownIcon className="little-spacer-left" size={20} />
                 </a>
               )}
             </div>
-            <ul
-              className="sc-languages-list"
-              ref={node => (this.container = node)}
-              style={{ height: this.state.height }}>
-              {languages.map(language => (
-                <li key={language.name}>
-                  <img
-                    alt={language.name}
-                    src={`${getBaseUrl()}/images/languages/${language.file}`}
-                    style={{ width: language.width + 'px' }}
-                  />
-                </li>
-              ))}
-              {!open && (
-                <li>
-                  <a className="show-more" href="#" onClick={this.handleOpenClick}>
-                    …
-                  </a>
-                </li>
-              )}
-            </ul>
           </div>
         </div>
       </div>

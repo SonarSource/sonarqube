@@ -143,6 +143,7 @@ module.exports = {
 
   // sonarcloud
   sonarcloudOrange500: '#fd6a00',
+  sonarcloudOrange600: '#e26003',
   sonarcloudOrange700: '#db5700',
 
   sonarcloudBlack100: '#ffffff',

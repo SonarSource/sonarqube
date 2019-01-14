@@ -48,3 +48,28 @@ export interface HomepageData {
 export function requestHomepageData(): Promise<HomepageData> {
   return fetch('/json/homepage.json').then(response => response.json());
 }
+
+export const LANGUAGES = [
+  { name: 'Java', file: 'java.svg', width: 65 },
+  { name: 'JavaScript', file: 'js.svg', width: 60 },
+  { name: 'TypeScript', file: 'ts.svg', width: 100 },
+  { name: 'C#', file: 'csharp.svg', width: 60 },
+  { name: 'Python', file: 'python.svg', width: 65 },
+  { name: 'C++', file: 'c-c-plus-plus.svg', width: 53 },
+  { name: 'Go', file: 'go.svg', width: 91 },
+  { name: 'Kotlin', file: 'kotlin.svg', width: 42 },
+  { name: 'Ruby', file: 'ruby.svg', width: 43 },
+  { name: 'ABAP', file: 'abap.svg', width: 62 },
+  { name: 'Apex', file: 'apex.svg', width: 62 },
+  { name: 'Flex', file: 'flex.png', width: 85 },
+  { name: 'CSS', file: 'css.svg', width: 40 },
+  { name: 'HTML', file: 'html5.svg', width: 40 },
+  { name: 'Objective-C', file: 'obj-c.svg', width: 63 },
+  { name: 'PHP', file: 'php.svg', width: 57 },
+  { name: 'Scala', file: 'scala.svg', width: 29 },
+  { name: 'Swift', file: 'swift.svg', width: 64 },
+  { name: 'T-SQL', file: 't-sql.svg', width: 53 },
+  { name: 'PL/SQL', file: 'pl-sql.svg', width: 65 },
+  { name: 'VB', file: 'vb.svg', width: 55 },
+  { name: 'XML', file: 'xml.svg', width: 67 }
+];

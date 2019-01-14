@@ -399,159 +399,124 @@ exports[`should render 6`] = `
       className="sc-section sc-columns"
     >
       <div
-        className="sc-column-min"
+        className="sc-column-full"
       >
         <h3
-          className="big-spacer-bottom"
+          className="sc-big-spacer-bottom"
         >
-          SonarCloud
-          <br />
-          speaks your
-          <br />
-          language
+          SonarCloud speaks your language
         </h3>
+        <ul
+          className="sc-languages-list"
+          style={
+            Object {
+              "height": undefined,
+            }
+          }
+        >
+          <li
+            key="Java"
+          >
+            <img
+              alt="Java"
+              src="/images/languages/java.svg"
+              width={65}
+            />
+          </li>
+          <li
+            key="JavaScript"
+          >
+            <img
+              alt="JavaScript"
+              src="/images/languages/js.svg"
+              width={60}
+            />
+          </li>
+          <li
+            key="TypeScript"
+          >
+            <img
+              alt="TypeScript"
+              src="/images/languages/ts.svg"
+              width={100}
+            />
+          </li>
+          <li
+            key="C#"
+          >
+            <img
+              alt="C#"
+              src="/images/languages/csharp.svg"
+              width={60}
+            />
+          </li>
+          <li
+            key="Python"
+          >
+            <img
+              alt="Python"
+              src="/images/languages/python.svg"
+              width={65}
+            />
+          </li>
+          <li
+            key="C++"
+          >
+            <img
+              alt="C++"
+              src="/images/languages/c-c-plus-plus.svg"
+              width={53}
+            />
+          </li>
+          <li
+            key="Go"
+          >
+            <img
+              alt="Go"
+              src="/images/languages/go.svg"
+              width={91}
+            />
+          </li>
+          <li
+            key="Kotlin"
+          >
+            <img
+              alt="Kotlin"
+              src="/images/languages/kotlin.svg"
+              width={42}
+            />
+          </li>
+          <li
+            key="Ruby"
+          >
+            <img
+              alt="Ruby"
+              src="/images/languages/ruby.svg"
+              width={43}
+            />
+          </li>
+          <li
+            key="ABAP"
+          >
+            <img
+              alt="ABAP"
+              src="/images/languages/abap.svg"
+              width={62}
+            />
+          </li>
+        </ul>
         <a
+          className="bt bt-large bt-nav bt-orange2"
           href="#"
           onClick={[Function]}
         >
-          See all supported languages
+          See All Languages
+          <ChevronDownIcon
+            className="little-spacer-left"
+            size={20}
+          />
         </a>
       </div>
-      <ul
-        className="sc-languages-list"
-        style={
-          Object {
-            "height": undefined,
-          }
-        }
-      >
-        <li
-          key="Java"
-        >
-          <img
-            alt="Java"
-            src="/images/languages/java.svg"
-            style={
-              Object {
-                "width": "65px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="JavaScript"
-        >
-          <img
-            alt="JavaScript"
-            src="/images/languages/js.svg"
-            style={
-              Object {
-                "width": "60px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="TypeScript"
-        >
-          <img
-            alt="TypeScript"
-            src="/images/languages/ts.svg"
-            style={
-              Object {
-                "width": "100px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="C#"
-        >
-          <img
-            alt="C#"
-            src="/images/languages/csharp.svg"
-            style={
-              Object {
-                "width": "60px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="Python"
-        >
-          <img
-            alt="Python"
-            src="/images/languages/python.svg"
-            style={
-              Object {
-                "width": "65px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="C++"
-        >
-          <img
-            alt="C++"
-            src="/images/languages/c-c-plus-plus.svg"
-            style={
-              Object {
-                "width": "53px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="Go"
-        >
-          <img
-            alt="Go"
-            src="/images/languages/go.svg"
-            style={
-              Object {
-                "width": "91px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="Kotlin"
-        >
-          <img
-            alt="Kotlin"
-            src="/images/languages/kotlin.svg"
-            style={
-              Object {
-                "width": "42px",
-              }
-            }
-          />
-        </li>
-        <li
-          key="Ruby"
-        >
-          <img
-            alt="Ruby"
-            src="/images/languages/ruby.svg"
-            style={
-              Object {
-                "width": "43px",
-              }
-            }
-          />
-        </li>
-        <li>
-          <a
-            className="show-more"
-            href="#"
-            onClick={[Function]}
-          >
-            …
-          </a>
-        </li>
-      </ul>
     </div>
   </div>
 </div>

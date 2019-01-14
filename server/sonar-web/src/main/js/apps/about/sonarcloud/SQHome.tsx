@@ -24,9 +24,12 @@ import LoginButtons from './components/LoginButtons';
 import Pricing from './components/Pricing';
 import SQPageContainer from './components/SQPageContainer';
 import StartUsing from './components/StartUsing';
+import { LANGUAGES } from './utils';
 import { isLoggedIn } from '../../../helpers/users';
 import { getBaseUrl } from '../../../helpers/urls';
 import './style.css';
+
+const NB_LANGUAGE_PER_ROW = 8;
 
 export default function SQHome() {
   return (
@@ -143,161 +146,27 @@ function Features() {
 }
 
 function Languages() {
+  const languagesPerRow = [];
+  for (let i = 0; i < LANGUAGES.length / NB_LANGUAGE_PER_ROW; i++) {
+    languagesPerRow[i] = LANGUAGES.slice(i * NB_LANGUAGE_PER_ROW, (i + 1) * NB_LANGUAGE_PER_ROW);
+  }
+
   return (
     <div className="sc-languages">
-      <h3 className="sc-feature-title">On 21 programming languages</h3>
-      <ul className="sc-languages-list">
-        <li>
-          <img
-            alt="Java"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/java.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="JavaScript"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/js.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="TypeScript"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/ts.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="C#"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/c-sharp.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="C++"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/c-plus.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img alt="Go" height="60" src={`${getBaseUrl()}/images/languages/go.svg`} width="60" />
-        </li>
-        <li>
-          <img
-            alt="Python"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/python.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img alt="PHP" height="60" src={`${getBaseUrl()}/images/languages/php.svg`} width="60" />
-        </li>
-      </ul>
-      <ul className="sc-languages-list">
-        <li>
-          <img alt="VB" height="60" src={`${getBaseUrl()}/images/languages/vb.svg`} width="60" />
-        </li>
-        <li>
-          <img
-            alt="Kotlin"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/kotlin.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="Flex"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/flex.png`}
-            width="85"
-          />
-        </li>
-        <li>
-          <img alt="CSS" height="60" src={`${getBaseUrl()}/images/languages/css.svg`} width="60" />
-        </li>
-        <li>
-          <img
-            alt="HTML"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/html5.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="Ruby"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/ruby.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="Scala"
-            height="57"
-            src={`${getBaseUrl()}/images/languages/scala.svg`}
-            width="57"
-          />
-        </li>
-        <li>
-          <img
-            alt="Swift"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/swift.svg`}
-            width="60"
-          />
-        </li>
-      </ul>
-      <ul className="sc-languages-list">
-        <li>
-          <img alt="Apex" src={`${getBaseUrl()}/images/languages/apex.svg`} width="54" />
-        </li>
-        <li>
-          <img
-            alt="Objective-C"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/obj-c.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="T-SQL"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/tsql.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="PL/SQL"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/plsql.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img
-            alt="ABAP"
-            height="60"
-            src={`${getBaseUrl()}/images/languages/abap.svg`}
-            width="60"
-          />
-        </li>
-        <li>
-          <img alt="XML" height="60" src={`${getBaseUrl()}/images/languages/xml.svg`} width="60" />
-        </li>
-      </ul>
+      <h3 className="sc-feature-title">On {LANGUAGES.length} programming languages</h3>
+      {languagesPerRow.map((languagesRow, idx) => (
+        <ul className="sc-languages-list" key={idx}>
+          {languagesRow.map(language => (
+            <li key={language.name}>
+              <img
+                alt={language.name}
+                src={`${getBaseUrl()}/images/languages/${language.file}`}
+                width={language.width}
+              />
+            </li>
+          ))}
+        </ul>
+      ))}
     </div>
   );
 }

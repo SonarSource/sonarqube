@@ -317,7 +317,9 @@
 }
 
 .sc-languages-list > li {
-  margin: 11px 26px;
+  text-align: center;
+  margin: 5px 8px;
+  width: 100px;
 }
 
 .sc-integrations {
