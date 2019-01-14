@@ -34,7 +34,9 @@ build_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   timeout_in: 90m
   gke_container:
-    image: gradle:4.10.1-jdk8
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -53,7 +55,9 @@ deploy_docs_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
   gke_container:
-    image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -69,7 +73,9 @@ validate_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   timeout_in: 90m
   gke_container:
-    image: gcr.io/ci-cd-215716/sonar-enterprise-build:0.0.3
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -97,7 +103,9 @@ qa_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   gke_container:
-    image: gcr.io/ci-cd-215716/sonar-enterprise-qa:0.0.2
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
@@ -142,7 +150,9 @@ promote_task:
     - qa
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   gke_container:
-    image: gcr.io/ci-cd-215716/sonar-enterprise-bash:0.0.1
+    dockerfile: private/docker/Dockerfile-build
+    builder_image_project: ci-cd-215716
+    builder_image_name: docker-builder-v1
     cluster_name: cirrus-euw3a-cluster
     zone: europe-west3-a
     namespace: default
