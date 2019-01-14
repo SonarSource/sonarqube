@@ -37,6 +37,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -72,8 +73,8 @@ public class FileSystemMediumTest {
   private ImmutableMap.Builder<String, String> builder;
 
   @Before
-  public void prepare() {
-    baseDir = temp.getRoot();
+  public void prepare() throws IOException {
+    baseDir = temp.newFolder();
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -86,7 +87,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -116,7 +117,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(builder
@@ -136,7 +137,7 @@ public class FileSystemMediumTest {
     assertThat(srcDir.mkdir()).isTrue();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(builder
@@ -172,7 +173,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     tester.newAnalysis()
       .properties(builder
@@ -191,10 +192,10 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File javaFile = new File(srcDir, "sample.java");
-    FileUtils.write(javaFile, "Sample xoo\ncontent");
+    FileUtils.write(javaFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -218,10 +219,10 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File javaFile = new File(srcDir, "sample.java");
-    FileUtils.write(javaFile, "Sample xoo\ncontent");
+    FileUtils.write(javaFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -284,7 +285,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.unknown");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -313,7 +314,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File unknownFile = new File(srcDir, "myfile.binary");
     byte[] b = new byte[512];
@@ -342,10 +343,10 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\npattern");
+    FileUtils.write(xooFile, "Sample xoo\npattern", StandardCharsets.UTF_8);
 
     File unknownFile = new File(srcDir, "myfile.binary");
-    FileUtils.write(unknownFile, "some text");
+    FileUtils.write(unknownFile, "some text", StandardCharsets.UTF_8);
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -369,7 +370,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -389,7 +390,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -429,7 +430,7 @@ public class FileSystemMediumTest {
     test.mkdir();
 
     File xooFile = new File(test, "sampleTest.xoo");
-    FileUtils.write(xooFile, "Sample test xoo\ncontent");
+    FileUtils.write(xooFile, "Sample test xoo\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -451,19 +452,19 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File xooFile2 = new File(baseDir, "another.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
 
     File testDir = new File(baseDir, "test");
     testDir.mkdir();
 
     File xooTestFile = new File(baseDir, "sampleTest2.xoo");
-    FileUtils.write(xooTestFile, "Sample test xoo\ncontent");
+    FileUtils.write(xooTestFile, "Sample test xoo\ncontent", StandardCharsets.UTF_8);
 
     File xooTestFile2 = new File(testDir, "sampleTest.xoo");
-    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
+    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -481,10 +482,10 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File xooFile2 = new File(baseDir, "another.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
 
     File testDir = new File(baseDir, "test");
     testDir.mkdir();
@@ -532,13 +533,12 @@ public class FileSystemMediumTest {
       .put("sonar.tests", "tests")
       .put("sonar.modules", "moduleA,moduleB");
 
-
     AnalysisResult result = tester.newAnalysis()
       .properties(builder.build())
       .execute();
 
     assertThat(result.inputFiles()).hasSize(2);
-    
+
     InputFile fileA = result.inputFile("moduleA/tests/sampleTestA.xoo");
     assertThat(fileA).isNotNull();
 
@@ -582,7 +582,6 @@ public class FileSystemMediumTest {
       .put("sonar.sources", "src")
       .put("sonar.modules", "moduleA,moduleB")
       .put("sonar.inclusions", "**/*.php");
-
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder.build())
@@ -751,7 +750,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
@@ -769,7 +768,7 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
@@ -888,19 +887,19 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample,1.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File xooFile2 = new File(baseDir, "another,2.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
 
     File testDir = new File(baseDir, "test");
     testDir.mkdir();
 
     File xooTestFile = new File(testDir, "sampleTest,1.xoo");
-    FileUtils.write(xooTestFile, "Sample test xoo\ncontent");
+    FileUtils.write(xooTestFile, "Sample test xoo\ncontent", StandardCharsets.UTF_8);
 
     File xooTestFile2 = new File(baseDir, "sampleTest,2.xoo");
-    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
+    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -918,10 +917,10 @@ public class FileSystemMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
     File xooFile2 = new File(srcDir, "sample.xoo2");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -1021,6 +1020,50 @@ public class FileSystemMediumTest {
         "  Excluded tests: **/global.test.exclusions",
         "  Excluded sources for coverage: **/coverage.exclusions",
         "  Excluded sources for duplication: **/cpd.exclusions");
+  }
+
+  @Test
+  public void ignore_files_outside_project_basedir() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample1.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File outsideBaseDir = temp.newFolder();
+    File xooFile2 = new File(outsideBaseDir, "another.xoo");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src," + PathUtils.canonicalPath(xooFile2))
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
+  }
+
+  @Test
+  public void ignore_files_outside_module_basedir() throws IOException {
+    File moduleA = new File(baseDir, "moduleA");
+    moduleA.mkdir();
+
+    File xooFileA = new File(moduleA, "src/sampleA.xoo");
+    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File xooFile2 = new File(baseDir, "another.xoo");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.modules", "moduleA")
+        .put("moduleA.sonar.sources", "src," + PathUtils.canonicalPath(xooFile2))
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in module basedir '" + new File(baseDir, "moduleA") + "'.");
   }
 
 }

@@ -106,6 +106,10 @@ public class FileIndexer {
       LOG.warn("File '{}' is ignored. It is not located in project basedir '{}'.", realAbsoluteFile.toAbsolutePath(), project.getBaseDir());
       return;
     }
+    if (!realAbsoluteFile.startsWith(module.getBaseDir())) {
+      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", realAbsoluteFile.toAbsolutePath(), module.getBaseDir());
+      return;
+    }
     Path projectRelativePath = project.getBaseDir().relativize(realAbsoluteFile);
     Path moduleRelativePath = module.getBaseDir().relativize(realAbsoluteFile);
     boolean included = evaluateInclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
