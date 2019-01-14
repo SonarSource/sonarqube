@@ -30,7 +30,7 @@ import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -42,8 +42,8 @@ import org.sonar.server.project.Project;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeStart;
 
 public class ComponentTreeBuilder {
 
