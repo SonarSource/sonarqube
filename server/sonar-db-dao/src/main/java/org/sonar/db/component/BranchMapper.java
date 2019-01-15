@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface BranchMapper {
@@ -31,8 +32,7 @@ public interface BranchMapper {
 
   int updateMainBranchName(@Param("projectUuid") String projectUuid, @Param("newBranchName") String newBranchName, @Param("now") long now);
 
-  int updateBaseline(@Param("uuid") String uuid, @Param("baselineAnalysisUuid") String baselineAnalysisUuid,
-    @Param("baselineManual") boolean baselineManual, @Param("now") long now);
+  int updateManualBaseline(@Param("uuid") String uuid, @Nullable @Param("analysisUuid") String analysisUuid, @Param("now") long now);
 
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("keyType") KeyType keyType);
 

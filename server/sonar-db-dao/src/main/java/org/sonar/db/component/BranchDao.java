@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -64,17 +65,16 @@ public class BranchDao implements Dao {
   }
 
   /**
-   * Update the baseline_analysis_uuid and baseline_manual columns, if:
+   * Set or unset the uuid of the manual baseline analysis by updating the manual_baseline_analysis_uuid column, if:
    *
    * - the specified uuid exists
-   * - and the specified uuid  corresponds to a long-living branch (including the main branch)
-   * - and the existing baseline_analysis_uuid and baseline_manual values are different
+   * - and the specified uuid corresponds to a long-living branch (including the main branch)
    *
    * @return the number of rows that were updated
    */
-  public int updateBaseline(DbSession dbSession, String uuid, String baselineAnalysisUuid, boolean baselineManual) {
+  public int updateManualBaseline(DbSession dbSession, String uuid, @Nullable String analysisUuid) {
     long now = system2.now();
-    return mapper(dbSession).updateBaseline(uuid, baselineAnalysisUuid, baselineManual, now);
+    return mapper(dbSession).updateManualBaseline(uuid, analysisUuid, now);
   }
 
   public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {

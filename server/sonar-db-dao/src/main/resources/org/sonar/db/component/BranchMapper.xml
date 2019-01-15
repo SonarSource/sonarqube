@@ -10,8 +10,7 @@
     pb.branch_type as branchType,
     pb.merge_branch_uuid as mergeBranchUuid,
     pb.pull_request_binary as pullRequestBinary,
-    pb.baseline_analysis_uuid as baselineAnalysisUuid,
-    pb.baseline_manual as baselineManual
+    pb.manual_baseline_analysis_uuid as manualBaseline
   </sql>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -23,8 +22,7 @@
       branch_type,
       merge_branch_uuid,
       pull_request_binary,
-      baseline_analysis_uuid,
-      baseline_manual,
+      manual_baseline_analysis_uuid,
       created_at,
       updated_at
     ) values (
@@ -35,8 +33,7 @@
       #{dto.branchType, jdbcType=VARCHAR},
       #{dto.mergeBranchUuid, jdbcType=VARCHAR},
       #{dto.pullRequestBinary, jdbcType=BINARY},
-      #{dto.baselineAnalysisUuid, jdbcType=VARCHAR},
-      #{dto.baselineManual, jdbcType=BOOLEAN},
+      #{dto.manualBaseline, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -51,18 +48,14 @@
       uuid = #{projectUuid, jdbcType=VARCHAR}
   </update>
 
-  <update id="updateBaseline" parameterType="map" useGeneratedKeys="false">
+  <update id="updateManualBaseline" parameterType="map" useGeneratedKeys="false">
     update project_branches
     set
-      baseline_analysis_uuid = #{baselineAnalysisUuid, jdbcType=VARCHAR},
-      baseline_manual = #{baselineManual, jdbcType=BOOLEAN},
+      manual_baseline_analysis_uuid = #{analysisUuid, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=VARCHAR}
       and branch_type = 'LONG'
-      and (baseline_analysis_uuid is null
-        or baseline_analysis_uuid != #{baselineAnalysisUuid, jdbcType=VARCHAR}
-        or baseline_manual != #{baselineManual, jdbcType=BOOLEAN})
   </update>
 
   <update id="update" parameterType="map" useGeneratedKeys="false">
