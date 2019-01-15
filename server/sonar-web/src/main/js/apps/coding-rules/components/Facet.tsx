@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { orderBy, without, sortBy } from 'lodash';
 import * as classNames from 'classnames';
+import { orderBy, without, sortBy } from 'lodash';
 import { FacetKey } from '../query';
-import Tooltip from '../../../components/controls/Tooltip';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -94,7 +94,7 @@ export default class Facet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { renderTextName = defaultRenderName, stats } = this.props;
+    const { disabled, renderTextName = defaultRenderName, stats } = this.props;
     const values = this.props.values.map(renderTextName);
     const items =
       this.props.options ||
@@ -103,17 +103,17 @@ export default class Facet extends React.PureComponent<Props> {
 
     return (
       <FacetBox
-        className={classNames({ 'search-navigator-facet-box-forbidden': this.props.disabled })}
+        className={classNames({ 'search-navigator-facet-box-forbidden': disabled })}
         property={this.props.property}>
         <FacetHeader
           name={
-            <Tooltip overlay={this.props.disabled ? this.props.disabledHelper : undefined}>
+            <Tooltip overlay={disabled ? this.props.disabledHelper : undefined}>
               <span>{translate('coding_rules.facet', this.props.property)}</span>
             </Tooltip>
           }
           onClear={this.handleClear}
-          onClick={this.props.disabled ? undefined : this.handleHeaderClick}
-          open={this.props.open && !this.props.disabled}
+          onClick={disabled ? undefined : this.handleHeaderClick}
+          open={this.props.open && !disabled}
           values={values}>
           {this.props.children}
         </FacetHeader>

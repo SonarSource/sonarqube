@@ -1,11 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display all selected items 1`] = `
+exports[`should be disabled 1`] = `
 <FacetBox
+  className="search-navigator-facet-box-forbidden"
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip
+        overlay="Disabled helper description"
+      >
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
+    onClear={[Function]}
+    open={false}
+    values={Array []}
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+</FacetBox>
+`;
+
+exports[`should display all selected items 1`] = `
+<FacetBox
+  className=""
+  property="foo"
+>
+  <FacetHeader
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -89,10 +122,17 @@ exports[`should display all selected items 1`] = `
 
 exports[`should render 1`] = `
 <FacetBox
+  className=""
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -163,10 +203,17 @@ exports[`should render 1`] = `
 
 exports[`should search 1`] = `
 <FacetBox
+  className=""
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -227,10 +274,17 @@ exports[`should search 1`] = `
 
 exports[`should search 2`] = `
 <FacetBox
+  className=""
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -303,10 +357,17 @@ exports[`should search 2`] = `
 
 exports[`should search 3`] = `
 <FacetBox
+  className=""
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -377,10 +438,17 @@ exports[`should search 3`] = `
 
 exports[`should search 4`] = `
 <FacetBox
+  className=""
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}
@@ -413,10 +481,17 @@ exports[`should search 4`] = `
 
 exports[`should search 5`] = `
 <FacetBox
+  className=""
   property="foo"
 >
   <FacetHeader
-    name="facet header"
+    name={
+      <Tooltip>
+        <span>
+          facet header
+        </span>
+      </Tooltip>
+    }
     onClear={[Function]}
     onClick={[Function]}
     open={true}

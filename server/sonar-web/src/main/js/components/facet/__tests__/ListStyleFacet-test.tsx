@@ -180,6 +180,11 @@ it('should display all selected items', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should be disabled', () => {
+  const wrapper = shallowRender({ disabled: true, disabledHelper: 'Disabled helper description' });
+  expect(wrapper).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<Props<string>> = {}) {
   return shallow(
     <ListStyleFacet

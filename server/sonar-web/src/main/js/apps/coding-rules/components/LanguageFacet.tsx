@@ -31,11 +31,10 @@ interface InstalledLanguage {
   name: string;
 }
 
-interface StateProps {
+interface Props extends BasicProps {
+  disabled?: boolean;
   installedLanguages: InstalledLanguage[];
 }
-
-interface Props extends BasicProps, StateProps {}
 
 class LanguageFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
@@ -71,6 +70,8 @@ class LanguageFacet extends React.PureComponent<Props> {
   render() {
     return (
       <ListStyleFacet<InstalledLanguage>
+        disabled={this.props.disabled}
+        disabledHelper={translate('coding_rules.filters.language.inactive')}
         facetHeader={translate('coding_rules.facet.languages')}
         fetching={false}
         getFacetItemText={this.getLanguageName}

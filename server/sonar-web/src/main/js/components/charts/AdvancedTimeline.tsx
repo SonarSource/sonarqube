@@ -178,7 +178,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     const firstSerie = this.props.series[0];
     if (selectedDate && firstSerie) {
       const idx = firstSerie.data.findIndex(p => p.x.valueOf() === selectedDate.valueOf());
-      const xRange = xScale.range().sort();
+      const xRange = sortBy(xScale.range());
       const xPos = xScale(selectedDate);
       if (idx >= 0 && xPos >= xRange[0] && xPos <= xRange[1]) {
         return {

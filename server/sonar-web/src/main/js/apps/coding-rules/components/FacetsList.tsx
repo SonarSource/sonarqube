@@ -47,6 +47,8 @@ interface Props {
 }
 
 export default function FacetsList(props: Props) {
+  const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
+
   const inheritanceDisabled =
     props.query.compareToProfile !== undefined ||
     props.selectedProfile === undefined ||
@@ -59,6 +61,7 @@ export default function FacetsList(props: Props) {
   return (
     <>
       <LanguageFacet
+        disabled={languageDisabled}
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.languages}
