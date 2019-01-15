@@ -25,11 +25,13 @@ module.exports = {
     title: 'SonarQube Documentation'
   },
   plugins: [
+    `gatsby-plugin-typescript`,
+    `gatsby-plugin-layout`,
+    'gatsby-plugin-react-helmet',
     {
       resolve: `sonarsource-source-filesystem`,
       options: { name: 'src', path: `${__dirname}/src/` }
     },
-    'gatsby-plugin-react-helmet',
     {
       resolve: 'gatsby-plugin-typography',
       options: { pathToConfigModule: `src/utils/typography` }
@@ -52,7 +54,6 @@ module.exports = {
           }
         ]
       }
-    },
-    'gatsby-plugin-glamor'
+    }
   ]
 };

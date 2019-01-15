@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import Icon, { IconProps } from './Icon';
 
-const fontFamily = 'Roboto';
-
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
-
-export { rhythm, scale, typography as default };
+export default function ClearIcon({ className, fill = 'currentColor', size }: IconProps) {
+  return (
+    <Icon className={className} size={size} viewBox="0 0 48 48">
+      <path
+        d="M28.24 24L47.07 5.16A3 3 0 1 0 42.93.83l-.09.1L24 19.76 5.16.93A3 3 0 0 0 .93 5.16L19.76 24 .93 42.84a3 3 0 1 0 4.14 4.33l.09-.1L24 28.24l18.84 18.83a3 3 0 1 0 4.33-4.14l-.1-.09z"
+        style={{ fill }}
+      />
+    </Icon>
+  );
+}

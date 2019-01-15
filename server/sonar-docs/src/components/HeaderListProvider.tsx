@@ -17,22 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import { MarkdownHeading } from '../@types/graphql-types';
 
-const fontFamily = 'Roboto';
+interface Props {
+  children: (props: { headers: MarkdownHeading[] }) => React.ReactNode;
+}
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
+interface State {
+  headers: MarkdownHeading[];
+}
 
-export { rhythm, scale, typography as default };
+export default class HeaderListProvider extends React.Component<Props, State> {
+  state = { headers: [] };
+
+  static childContextTypes = {
+    headers: PropTypes.object
+  };
+
+  getChildContext = () => {
+    return {
+      headers: {
+        setHeaders: this.setHeaders
+      }
+    };
+  };
+
+  setHeaders = (headers: MarkdownHeading[]) => {
+    this.setState({ headers });
+  };
+
+  render() {
+    const { headers } = this.state;
+    return this.props.children({ headers });
+  }
+}

@@ -17,22 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
 
-const fontFamily = 'Roboto';
+export interface DocVersion {
+  current: boolean;
+  value: string;
+}
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
+export type DocNavigationItem = string | DocsNavigationBlock | DocsNavigationExternalLink;
 
-export { rhythm, scale, typography as default };
+export interface DocsNavigationBlock {
+  title: string;
+  children: string[];
+}
+
+export interface DocsNavigationExternalLink {
+  title: string;
+  url: string;
+}
+
+export interface SearchResult {
+  exactMatch?: boolean;
+  highlights: { [field: string]: [number, number][] };
+  longestTerm: string;
+  page: {
+    id: string;
+    text: string;
+    title: string;
+    url: string;
+  };
+  query: string;
+}

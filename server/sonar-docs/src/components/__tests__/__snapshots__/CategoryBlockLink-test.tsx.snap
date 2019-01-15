@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <a
+    className="page-indexes-link active"
+    href="#"
+    onClick={[Function]}
+  >
+    <ChevronUpIcon />
+    My category
+  </a>
+  <div
+    className="sub-menu"
+  >
+    <PageLink
+      className="sub-menu-link"
+      key="1"
+      location={Object {}}
+      node={
+        Object {
+          "id": "1",
+        }
+      }
+    />
+    <PageLink
+      className="sub-menu-link"
+      key="2"
+      location={Object {}}
+      node={
+        Object {
+          "id": "2",
+        }
+      }
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly when closed 1`] = `
+<div>
+  <a
+    className="page-indexes-link"
+    href="#"
+    onClick={[Function]}
+  >
+    <ChevronDownIcon />
+    My category
+  </a>
+</div>
+`;

@@ -17,22 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+declare module 'lunr' {
+  export interface Lunr {
+    add(doc: any): void;
 
-const fontFamily = 'Roboto';
+    field(field: string, options?: { boost?: number }): void;
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
+    ref(field: string): void;
 
-export { rhythm, scale, typography as default };
+    use(fn: Function): void;
+
+    metadataWhitelist?: string[];
+  }
+
+  export interface LunrBuilder {
+    pipeline: any;
+    metadataWhitelist: string[];
+  }
+
+  export interface LunrIndex {
+    search(query: string): LunrMatch[];
+  }
+
+  export interface LunrInit {
+    (this: Lunr): void;
+  }
+
+  export interface LunrMatch {
+    ref: string;
+    score: number;
+    matchData: { metadata: any };
+  }
+
+  export interface LunrToken {
+    str: string;
+    metadata: any;
+  }
+
+  function lunr(initializer: LunrInit): LunrIndex;
+
+  export default lunr;
+}

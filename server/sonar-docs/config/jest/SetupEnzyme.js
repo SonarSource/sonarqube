@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2019 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,22 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+const Enzyme = require('enzyme');
+const Adapter = require('enzyme-adapter-react-16');
 
-const fontFamily = 'Roboto';
-
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
-
-export { rhythm, scale, typography as default };
+Enzyme.configure({ adapter: new Adapter() });

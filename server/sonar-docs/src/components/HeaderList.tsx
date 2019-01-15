@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import { MarkdownHeading } from '../@types/graphql-types';
 
-const fontFamily = 'Roboto';
+interface Props {
+  headers: MarkdownHeading[];
+}
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
+export default class HeaderList extends React.PureComponent<Props> {
+  static contextTypes = {
+    headers: PropTypes.object.isRequired
+  };
+
+  componentDidMount() {
+    this.context.headers.setHeaders(this.props.headers);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.headers.length !== this.props.headers.length) {
+      this.context.headers.setHeaders(prevProps.headers);
     }
-  })
-});
+  }
 
-export { rhythm, scale, typography as default };
+  render() {
+    return null;
+  }
+}

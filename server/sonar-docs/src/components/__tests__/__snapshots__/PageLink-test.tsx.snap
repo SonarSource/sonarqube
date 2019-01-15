@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <ForwardRef
+    className="active"
+    to="/foo"
+  >
+    Foo
+  </ForwardRef>
+</div>
+`;

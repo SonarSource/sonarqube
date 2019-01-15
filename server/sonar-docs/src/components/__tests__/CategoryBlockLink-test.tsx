@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import CategoryBlockLink from '../CategoryBlockLink';
+import { MarkdownRemark } from '../../@types/graphql-types';
 
-const fontFamily = 'Roboto';
-
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
+it('should render correctly', () => {
+  expect(shallowRender({})).toMatchSnapshot();
 });
 
-export { rhythm, scale, typography as default };
+it('should render correctly when closed', () => {
+  expect(shallowRender({ open: false })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<CategoryBlockLink['props']> = {}) {
+  return shallow(
+    <CategoryBlockLink
+      location={{} as Location}
+      onToggle={jest.fn()}
+      open={true}
+      title="My category"
+      {...props}>
+      {[{ id: '1' }, { id: '2' }] as MarkdownRemark[]}
+    </CategoryBlockLink>
+  );
+}

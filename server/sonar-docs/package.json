@@ -5,45 +5,65 @@
   "private": true,
   "dependencies": {
     "@andrew-codes/gatsby-plugin-elasticlunr-search": "1.0.4",
-    "babel-polyfill": "6.26.0",
-    "fs-extra": "^5.0.0",
-    "gatsby": "^1.9.247",
-    "gatsby-link": "^1.6.40",
-    "gatsby-plugin-glamor": "^1.6.13",
-    "gatsby-plugin-react-helmet": "^2.0.10",
-    "gatsby-plugin-typography": "^1.7.18",
-    "gatsby-remark-custom-blocks": "^1.0.5",
-    "gatsby-source-filesystem": "^1.5.34",
-    "gatsby-transformer-remark": "^1.7.40",
-    "lodash": "4.17.10",
-    "lunr": "2.3.2",
-    "react-helmet": "^5.2.0",
-    "remark-include": "^2.0.0",
-    "serve": "^6.5.6",
-    "typography": "^0.16.16"
-  },
-  "scripts": {
-    "build": "yarn jest && gatsby build --prefix-paths",
-    "develop": "gatsby develop",
-    "start": "serve public/",
-    "format": "prettier --write 'src/**/*.{md,js}'",
-    "lint": "eslint --ext js,ts,tsx --quiet src"
+    "classnames": "2.2.6",
+    "gatsby": "2.0.91",
+    "gatsby-plugin-layout": "1.0.11",
+    "gatsby-plugin-react-helmet": "3.0.5",
+    "gatsby-plugin-typescript": "2.0.3",
+    "gatsby-plugin-typography": "2.2.5",
+    "gatsby-remark-custom-blocks": "2.0.3",
+    "gatsby-source-filesystem": "2.0.16",
+    "gatsby-transformer-remark": "2.2.0",
+    "lodash": "4.17.11",
+    "lunr": "2.3.5",
+    "react": "16.7.0",
+    "react-dom": "16.7.0",
+    "react-helmet": "5.2.0",
+    "react-typography": "0.16.18",
+    "typography": "0.16.18"
   },
   "devDependencies": {
+    "@types/classnames": "2.2.7",
+    "@types/enzyme": "3.1.15",
+    "@types/jest": "23.3.13",
+    "@types/lodash": "4.14.119",
+    "@types/lunr": "2.3.0",
+    "@types/react": "16.7.18",
+    "@types/react-dom": "16.0.11",
+    "@types/react-helmet": "5.0.8",
+    "babel-jest": "23.6.0",
+    "enzyme": "3.8.0",
+    "enzyme-adapter-react-16": "1.7.1",
+    "enzyme-to-json": "3.3.5",
     "eslint": "5.7.0",
     "eslint-config-sonarqube": "0.2.0",
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-jsx-a11y": "6.1.2",
     "eslint-plugin-promise": "4.0.1",
-    "eslint-plugin-react": "7.11.1",
+    "eslint-plugin-react": "7.12.3",
     "eslint-plugin-sonarjs": "0.2.0",
+    "fs-extra": "7.0.1",
     "glob-promise": "3.4.0",
+    "graphql-code-generator": "0.5.2",
     "jest": "23.6.0",
-    "prettier": "^1.12.0",
-    "remark": "9.0.0",
-    "typescript": "3.1.3",
-    "typescript-eslint-parser": "20.0.0",
+    "prettier": "1.16.0",
+    "react-test-render": "1.1.1",
+    "remark": "10.0.1",
+    "ts-jest": "23.10.5",
+    "typescript": "3.2.4",
+    "typescript-eslint-parser": "22.0.0",
     "unist-util-visit": "1.4.0"
+  },
+  "scripts": {
+    "build": "yarn jest src/__tests__/  && gatsby build --prefix-paths",
+    "develop": "gatsby develop",
+    "graphql-types": "gql-gen --url http://localhost:8000/___graphql --template typescript --out ./src/@types/graphql-types.d.ts",
+    "test": "jest",
+    "format": "prettier --write --list-different 'src/**/*.{js,ts,tsx,css}'",
+    "format-check": "prettier --list-different 'src/**/*.{js,ts,tsx,css}'",
+    "lint": "eslint --ext js,ts,tsx --quiet src",
+    "ts-check": "tsc --noEmit",
+    "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test"
   },
   "prettier": {
     "jsxBracketSameLine": true,
@@ -51,8 +71,40 @@
     "singleQuote": true
   },
   "jest": {
-    "moduleFileExtensions": ["js"],
-    "testPathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/.cache"],
-    "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$"
+    "globals": {
+      "ts-jest": {
+        "diagnostics": {
+          "ignoreCodes": [
+            151001
+          ]
+        }
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.(hbs|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/FileStub.js",
+      "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
+    },
+    "setupFiles": [
+      "<rootDir>/config/jest/SetupEnzyme.js"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules",
+      "<rootDir>/config",
+      "<rootDir>/.cache"
+    ],
+    "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$",
+    "transform": {
+      "\\.js$": "babel-jest",
+      "\\.(ts|tsx)$": "ts-jest"
+    }
   }
 }

@@ -17,22 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import classNames from 'classnames';
 
-const fontFamily = 'Roboto';
+interface Props {
+  active: boolean;
+  children: React.ReactNode;
+  clickHandler: (index: number) => void;
+  index: number;
+}
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
+export default class HeadingAnchor extends React.PureComponent<Props> {
+  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    this.props.clickHandler(this.props.index);
+  };
 
-export { rhythm, scale, typography as default };
+  render() {
+    const { active, children, index } = this.props;
+    return (
+      <li>
+        <a className={classNames({ active })} href={'#header-' + index} onClick={this.handleClick}>
+          {children}
+        </a>
+      </li>
+    );
+  }
+}

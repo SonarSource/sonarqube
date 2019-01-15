@@ -20,16 +20,16 @@
 const { createFilePath, createRemoteFileNode } = require('gatsby-source-filesystem');
 const fs = require('fs-extra');
 
+function loadNodeContent(fileNode) {
+  return Promise.resolve(loadNodeContentSync(fileNode));
+}
+
 function loadNodeContentSync(fileNode) {
   const content = fs.readFileSync(fileNode.absolutePath, 'utf-8');
   let newContent = cutSonarCloudContent(content);
   newContent = removeRemainingContentTags(newContent);
   newContent = handleIncludes(newContent, fileNode);
   return newContent;
-}
-
-function loadNodeContent(fileNode) {
-  return Promise.resolve(loadNodeContentSync(fileNode));
 }
 
 function removeRemainingContentTags(content) {

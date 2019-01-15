@@ -96,16 +96,18 @@
       "/instance-administration/compute-engine-performance/",
       "/instance-administration/db-copy/"
     ]
-  }, 
+  },
   "/previous-versions/",
   "/faq/",
   {
     "title": "Scanners",
     "url": "https://docs.sonarqube.org/display/SCAN"
-  }, {
+  },
+  {
     "title": "Plugins",
     "url": "https://docs.sonarqube.org/display/PLUG"
-  }, {
+  },
+  {
     "title": "Extension",
     "url": "https://docs.sonarqube.org/display/DEV"
   }

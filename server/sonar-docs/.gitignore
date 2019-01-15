@@ -1,8 +1,13 @@
-# Project dependencies
-.cache
-node_modules
-yarn-error.log
+# Dependency directories
+node_modules/
 
-# Build directory
-/public
+# Logs
+yarn-debug.log*
+yarn-error.log*
+
+# Gatsby files
+.cache/
+public
+
+# Mac files
 .DS_Store

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<a
+  className="page-indexes-link"
+  href="https://external.link"
+  rel="noopener noreferrer"
+  target="_blank"
+>
+  <DetachIcon />
+  My link
+</a>
+`;

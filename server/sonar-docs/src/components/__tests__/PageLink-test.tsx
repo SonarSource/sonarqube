@@ -17,22 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import PageLink from '../PageLink';
+import { MarkdownRemark } from '../../@types/graphql-types';
 
-const fontFamily = 'Roboto';
+const page = { frontmatter: { title: 'Foo', url: '/foo' } } as MarkdownRemark;
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
+it('should render correctly', () => {
+  expect(
+    shallow(<PageLink location={{ pathname: '/foo' } as Location} node={page} />)
+  ).toMatchSnapshot();
 });
-
-export { rhythm, scale, typography as default };

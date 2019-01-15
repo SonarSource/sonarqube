@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import DetachIcon from './icons/DetachIcon';
 
-const fontFamily = 'Roboto';
+interface Props {
+  external: string;
+  title: string;
+}
 
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
-
-export { rhythm, scale, typography as default };
+export default function ExternalLink({ external, title }: Props) {
+  return (
+    <a className="page-indexes-link" href={external} rel="noopener noreferrer" target="_blank">
+      <DetachIcon />
+      {title}
+    </a>
+  );
+}

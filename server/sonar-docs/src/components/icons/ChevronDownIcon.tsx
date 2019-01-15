@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Typography, { rhythm, scale } from 'typography';
+import * as React from 'react';
+import Icon, { IconProps } from './Icon';
 
-const fontFamily = 'Roboto';
-
-const typography = new Typography({
-  bodyFontFamily: [fontFamily, 'serif'],
-  headerFontFamily: [fontFamily, 'serif'],
-  baseFontSize: '15px',
-  bodyWeight: '400',
-  headerWeight: '400',
-  googleFonts: [{ name: fontFamily, styles: ['400,500,700'] }],
-  overrideStyles: () => ({
-    a: {
-      color: '#439ccd'
-    }
-  })
-});
-
-export { rhythm, scale, typography as default };
+export default function ChevronDownIcon({ className, fill = 'currentColor', size }: IconProps) {
+  return (
+    <Icon className={className} size={size}>
+      <path
+        d="M3.2,5.6c0-0.1,0-0.2,0.1-0.3c0.2-0.2,0.5-0.2,0.6,0l4.1,4.1l4.1-4.1c0.2-0.2,0.5-0.2,0.6,0 c0.2,0.2,0.2,0.5,0,0.6c0,0,0,0,0,0l0,0l-4.5,4.5c-0.2,0.2-0.5,0.2-0.6,0l0,0L3.3,5.9C3.2,5.9,3.2,5.7,3.2,5.6z"
+        style={{ fill }}
+      />
+    </Icon>
+  );
+}
