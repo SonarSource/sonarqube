@@ -91,7 +91,7 @@ validate_task:
   gradle_cache:
     folder: ~/.gradle/caches
   script:
-    - ./private/cirrus/cirrus-validate.sh postgres
+    - ./private/cirrus/cirrus-validate.sh postgres106
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
 
@@ -133,7 +133,7 @@ qa_task:
   gradle_cache:
     folder: ~/.gradle/caches
   script:
-    - ./private/cirrus/cirrus-qa.sh postgres
+    - ./private/cirrus/cirrus-qa.sh postgres106
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
 
@@ -183,7 +183,7 @@ db_unit_mysql57_task:
   gradle_cache:
     folder: ~/.gradle/caches
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh mysql
+    - ./private/cirrus/cirrus-db-unit-test.sh mysql57
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
 
@@ -201,7 +201,7 @@ db_mssql2017_task:
     memory: 5Gb
     additional_containers:
       - name: mssql
-        image: microsoft/mssql-server:2017-CU12-ubuntu
+        image: mcr.microsoft.com/mssql/server:2017-CU12-ubuntu
         port: 1433
         cpu: 2
         memory: 5Gb
@@ -212,7 +212,65 @@ db_mssql2017_task:
   gradle_cache:
     folder: ~/.gradle/caches
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh mssql
+    - ./private/cirrus/cirrus-db-unit-test.sh mssql2017
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
+
+db_mssql2019_task:
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "master"
+  gke_container:
+    image: gradle:4.10.1-jdk8
+    cluster_name: cirrus-euw3a-cluster
+    zone: europe-west3-a
+    namespace: default
+    cpu: 1
+    memory: 5Gb
+    additional_containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2019-CTP2.2-ubuntu
+        port: 1433
+        cpu: 2
+        memory: 5Gb
+        env:
+          MSSQL_PID: Developer # this is the default edition
+          ACCEPT_EULA: Y
+          SA_PASSWORD: sonarqube!1
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh mssql2019
+  cleanup_before_cache_script:
+    - ./private/cirrus/cleanup-gradle-cache.sh
+
+# this is the oldest compatible version of PostgreSQL
+db_postgres93_task:
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "master"
+  gke_container:
+    image: gradle:4.10.1-jdk8
+    cluster_name: cirrus-euw3a-cluster
+    zone: europe-west3-a
+    namespace: default
+    cpu: 1
+    memory: 5Gb
+    additional_containers:
+      - name: postgres
+        image: postgres:9.3
+        port: 5432
+        cpu: 1
+        memory: 1Gb
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+  gradle_cache:
+    folder: ~/.gradle/caches
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh postgres93
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
 
@@ -239,6 +297,6 @@ db_oracle12_task:
   gradle_cache:
     folder: ~/.gradle/caches
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh oracle
+    - ./private/cirrus/cirrus-db-unit-test.sh oracle12
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
