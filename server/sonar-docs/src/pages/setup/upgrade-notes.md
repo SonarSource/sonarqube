@@ -5,8 +5,17 @@ url: /setup/upgrade-notes/
 
 ## Release 7.6 Upgrade Notes
 **Quality Gates Simplified**  
-Quality Gates have been streamlined to remove a number of confusing optionS. Conditions previously using the "on new code" checkbox will be migrated to On New Code metrics. For example, a condition using the overall Coverage metric with the "on new code" checkbox enabled will be migrated to a condition using the Coverage on New Code metric. Additionally, some metric/operator conditions have been removed, and conditions using those combinations will be dropped in the migration. ([MMF-473](https://jira.sonarsource.com/browse/MMF-473))
+Quality Gates have been streamlined to remove a number of confusing options. Conditions previously using the "on new code" checkbox will be migrated to On New Code metrics. For example, a condition previously using the overall Coverage metric with the "on new code" checkbox enabled will be migrated to a condition using the Coverage on New Code metric. The ability to set Warning conditions has been dropped, as have some metric/operator conditions have been removed. Conditions using dropped options will be removed in the upgrade. ([MMF-473](https://jira.sonarsource.com/browse/MMF-473))
 
+**Concept of module removed from the UI**  
+This version drops the concept of module from the interface. There is no longer a homepage presentation for any level below the project itself. Additionally, the presentation of the project has been updated in the Measures and Code pages to display the project tree as it is in the file system. For the most part (see below) analysis of multi-module projects will continue to work as it has.
+
+**Multi-Module analysis properties removed**  
+Multi-module analysis configuration may need to be changed ([MMF-365](https://jira.sonarsource.com/browse/MMF-365):
+
+* When the following inclusion / exclusion types are specified in the analysis properties at project level, they must be relative to the project / analysis root: source files, test files, coverage, and duplications. Paths specified at project level will continue to be re-applied at module level but will raise a warning. This backward-compatibile behavior is considered deprecated and will be dropped in a future version. 
+* Specifying source encoding, and issue inclusions / exclusions at module level is no longer supported.
+ 
 **Conflict with FindBugs**  
 This version embeds SonarHTML, which analyzes both `.html` and `.jsp` files. Users previously analyzing JSP files with FindBugs will encounter analysis failure if both are present.
 
