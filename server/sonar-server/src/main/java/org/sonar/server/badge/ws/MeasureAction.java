@@ -38,9 +38,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.badge.ws.SvgGenerator.Color;
-import org.sonar.server.measure.Rating;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.measure.Rating;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -58,9 +58,10 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.measures.Metric.Level;
+import static org.sonar.api.measures.Metric.ValueType;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.api.measures.Metric.ValueType;
+import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.badge.ws.ETagUtils.RFC1123_DATE;
 import static org.sonar.server.badge.ws.ETagUtils.getETag;
 import static org.sonar.server.badge.ws.SvgFormatter.formatDuration;
@@ -94,10 +95,12 @@ public class MeasureAction implements ProjectBadgesWsAction {
 
   private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(ImmutableMap.of(
     OK, "passed",
+    WARN, "warning",
     ERROR, "failed"));
 
   private static final Map<Level, Color> COLOR_BY_QUALITY_GATE_STATUS = new EnumMap<>(ImmutableMap.of(
     OK, Color.QUALITY_GATE_OK,
+    WARN, Color.QUALITY_GATE_WARN,
     ERROR, Color.QUALITY_GATE_ERROR));
 
   private static final Map<Rating, Color> COLOR_BY_RATING = new EnumMap<>(ImmutableMap.of(

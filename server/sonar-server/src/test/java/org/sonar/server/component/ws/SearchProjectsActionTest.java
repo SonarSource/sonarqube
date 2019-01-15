@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -1084,6 +1085,25 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(project.getDbKey());
+  }
+
+  @Test
+  public void use_deprecated_warning_quality_gate_in_filter() {
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()));
+    ComponentDto project1 = insertProject(organization, c -> c.setName("Sonar Java"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("ERROR")));
+    ComponentDto project2 = insertProject(organization, c -> c.setName("Sonar Groovy"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("WARN")));
+    ComponentDto project3 = insertProject(organization, c -> c.setName("Sonar Markdown"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("WARN")));
+    ComponentDto project4 = insertProject(organization, c -> c.setName("Sonar Qube"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("OK")));
+
+    List<Component> projects = call(request
+      .setFilter("alert_status = WARN"))
+      .getComponentsList();
+
+    assertThat(projects)
+      .extracting(Component::getKey)
+      .containsExactly(project2.getKey(), project3.getKey());
   }
 
   @Test

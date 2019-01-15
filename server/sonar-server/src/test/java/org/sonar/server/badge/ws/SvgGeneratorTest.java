@@ -32,6 +32,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.Metric.Level.ERROR;
+import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 
 public class SvgGeneratorTest {
@@ -65,6 +66,16 @@ public class SvgGeneratorTest {
     String result = underTest.generateQualityGate(ERROR);
 
     checkQualityGate(result, ERROR);
+  }
+
+  @Test
+  public void generate_deprecated_warning_quality_gate() {
+    mapSettings.setProperty("sonar.sonarcloud.enabled", false);
+    initSvgGenerator();
+
+    String result = underTest.generateQualityGate(WARN);
+
+    assertThat(result).isEqualTo(readTemplate("quality_gate_warn.svg"));
   }
 
   @Test

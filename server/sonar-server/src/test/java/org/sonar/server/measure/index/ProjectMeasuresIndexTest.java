@@ -62,6 +62,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
+import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -1049,7 +1050,8 @@ public class ProjectMeasuresIndexTest {
 
     assertThat(result).containsOnly(
       entry(ERROR.name(), 4L),
-      entry(OK.name(), 2L));
+      entry(OK.name(), 2L),
+      entry(WARN.name(), 0L));
   }
 
   @Test
@@ -1072,7 +1074,8 @@ public class ProjectMeasuresIndexTest {
     // Sticky facet on quality gate does not take into account quality gate filter
     assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
       entry(OK.name(), 2L),
-      entry(ERROR.name(), 3L));
+      entry(ERROR.name(), 3L),
+      entry(WARN.name(), 0L));
     // But facet on ncloc does well take into into filters
     assertThat(facets.get(NCLOC)).containsExactly(
       entry("*-1000.0", 1L),
@@ -1103,6 +1106,31 @@ public class ProjectMeasuresIndexTest {
 
     assertThat(result).containsOnly(
       entry(ERROR.name(), 0L),
+      entry(OK.name(), 2L),
+      entry(WARN.name(), 0L));
+  }
+
+  @Test
+  public void facet_quality_gate_using_deprecated_warning() {
+    index(
+      // 2 docs with QG OK
+      newDoc().setQualityGateStatus(OK.name()),
+      newDoc().setQualityGateStatus(OK.name()),
+      // 3 docs with QG WARN
+      newDoc().setQualityGateStatus(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()),
+      newDoc().setQualityGateStatus(WARN.name()),
+      // 4 docs with QG ERROR
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()),
+      newDoc().setQualityGateStatus(ERROR.name()));
+
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY);
+
+    assertThat(result).containsOnly(
+      entry(ERROR.name(), 4L),
+      entry(WARN.name(), 3L),
       entry(OK.name(), 2L));
   }
 
@@ -1247,7 +1275,8 @@ public class ProjectMeasuresIndexTest {
       entry("cpp", 1L));
     assertThat(facets.get(ALERT_STATUS_KEY)).containsOnly(
       entry(OK.name(), 0L),
-      entry(ERROR.name(), 1L));
+      entry(ERROR.name(), 1L),
+      entry(WARN.name(), 0L));
   }
 
   @Test
