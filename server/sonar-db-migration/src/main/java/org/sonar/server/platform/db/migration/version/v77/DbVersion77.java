@@ -28,6 +28,6 @@ public class DbVersion77 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(2600, "Drop elasticsearch index 'tests'", DropElasticsearchIndexTests.class)
-    ;
+      .add(2601, "Delete lines with DATA_TYPE='TEST' from table FILES_SOURCE", DeleteTestDataTypeFromFileSources.class);
   }
 }

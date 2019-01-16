@@ -17,26 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v77;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class DeleteTestDataTypeFromFileSources extends DataChange {
 
-public class DbVersion77Test {
-
-  private DbVersion77 underTest = new DbVersion77();
-
-  @Test
-  public void migrationNumber_starts_at_2500() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public DeleteTestDataTypeFromFileSources(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("file sources");
+    massUpdate.select("SELECT DISTINCT project_uuid FROM file_sources WHERE data_type='TEST'");
+    massUpdate.update("DELETE FROM file_sources WHERE project_uuid=? AND data_type='TEST'");
+    massUpdate.execute((row, update) -> {
+      String projectUuid = row.getString(1);
+      update.setString(1, projectUuid);
+      return true;
+    });
   }
 
 }
