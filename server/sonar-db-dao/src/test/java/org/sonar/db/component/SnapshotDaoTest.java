@@ -43,6 +43,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -77,6 +78,7 @@ public class SnapshotDaoTest {
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
       .setCodePeriodVersion("2.1-SNAPSHOT")
+      .setProjectVersion("2.1.0.2336")
       .setBuildDate(1500000000006L)
       .setCreatedAt(1403042400000L));
 
@@ -88,6 +90,7 @@ public class SnapshotDaoTest {
     assertThat(result.getLast()).isTrue();
     assertThat(result.getPurgeStatus()).isEqualTo(1);
     assertThat(result.getCodePeriodVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(result.getProjectVersion()).isEqualTo("2.1.0.2336");
     assertThat(result.getPeriodMode()).isEqualTo("days");
     assertThat(result.getPeriodModeParameter()).isEqualTo("30");
     assertThat(result.getPeriodDate()).isEqualTo(1500000000001L);
@@ -150,8 +153,20 @@ public class SnapshotDaoTest {
 
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery())).hasSize(6);
 
-    assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
-    assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
+    assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, ASC)))
+      .extracting(SnapshotDto::getId, SnapshotDto::getCodePeriodVersion, SnapshotDto::getProjectVersion)
+      .containsOnly(
+        tuple(1L, "2.0-SNAPSHOT", "2.0.0.2363"),
+        tuple(2L, "2.1-SNAPSHOT", "2.1.0.11"),
+        tuple(3L, "2.2-SNAPSHOT", "2.2.0.8869")
+      );
+    assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, DESC)))
+      .extracting(SnapshotDto::getId, SnapshotDto::getCodePeriodVersion, SnapshotDto::getProjectVersion)
+      .containsOnly(
+        tuple(3L, "2.2-SNAPSHOT", "2.2.0.8869"),
+        tuple(2L, "2.1-SNAPSHOT", "2.1.0.11"),
+        tuple(1L, "2.0-SNAPSHOT", "2.0.0.2363")
+      );
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD"))).hasSize(3);
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("UNKOWN"))).isEmpty();
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("GHIJ"))).isEmpty();

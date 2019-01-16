@@ -100,9 +100,11 @@ public class PersistAnalysisStep implements ComputationStep {
 
     private SnapshotDto createAnalysis(String snapshotUuid, Component component) {
       String componentUuid = component.getUuid();
+      String version = component.getType() == Component.Type.PROJECT ? component.getProjectAttributes().getVersion() : null;
       return new SnapshotDto()
         .setUuid(snapshotUuid)
-        .setCodePeriodVersion(component.getType() == Component.Type.PROJECT ? component.getProjectAttributes().getVersion() : null)
+        .setCodePeriodVersion(version)
+        .setProjectVersion(version)
         .setComponentUuid(componentUuid)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)

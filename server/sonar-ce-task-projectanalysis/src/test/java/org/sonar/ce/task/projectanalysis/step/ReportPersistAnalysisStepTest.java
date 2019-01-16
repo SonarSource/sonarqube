@@ -122,6 +122,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);
     assertThat(projectSnapshot.getComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getCodePeriodVersion()).isEqualTo("1.0");
+    assertThat(projectSnapshot.getProjectVersion()).isEqualTo("1.0");
     assertThat(projectSnapshot.getLast()).isFalse();
     assertThat(projectSnapshot.getStatus()).isEqualTo("U");
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);

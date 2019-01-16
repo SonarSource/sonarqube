@@ -12,6 +12,7 @@
     s.purge_status as purgeStatus,
     s.islast as last,
     s.version as rawCodePeriodVersion,
+    s.project_version as rawProjectVersion,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
     s.period1_date as periodDate
@@ -158,29 +159,33 @@
 
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into snapshots (
-    uuid,
-    component_uuid,
-    created_at,
-    build_date,
-    status,
-    purge_status,
-    islast,
-    version,
-    period1_mode,
-    period1_param,
-    period1_date)
+      uuid,
+      component_uuid,
+      created_at,
+      build_date,
+      status,
+      purge_status,
+      islast,
+      version,
+      project_version,
+      period1_mode,
+      period1_param,
+      period1_date
+    )
     values (
-    #{uuid, jdbcType=VARCHAR},
-    #{componentUuid, jdbcType=VARCHAR},
-    #{createdAt, jdbcType=BIGINT},
-    #{buildDate, jdbcType=BIGINT},
-    #{status, jdbcType=VARCHAR},
-    #{purgeStatus, jdbcType=INTEGER},
-    #{last, jdbcType=BOOLEAN},
-    #{codePeriodVersion, jdbcType=VARCHAR},
-    #{periodMode, jdbcType=VARCHAR},
-    #{periodParam, jdbcType=VARCHAR},
-    #{periodDate, jdbcType=BIGINT})
+      #{uuid, jdbcType=VARCHAR},
+      #{componentUuid, jdbcType=VARCHAR},
+      #{createdAt, jdbcType=BIGINT},
+      #{buildDate, jdbcType=BIGINT},
+      #{status, jdbcType=VARCHAR},
+      #{purgeStatus, jdbcType=INTEGER},
+      #{last, jdbcType=BOOLEAN},
+      #{codePeriodVersion, jdbcType=VARCHAR},
+      #{projectVersion, jdbcType=VARCHAR},
+      #{periodMode, jdbcType=VARCHAR},
+      #{periodParam, jdbcType=VARCHAR},
+      #{periodDate, jdbcType=BIGINT}
+    )
   </insert>
 </mapper>
 

@@ -112,6 +112,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     assertThat(viewSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);
     assertThat(viewSnapshot.getComponentUuid()).isEqualTo(view.getUuid());
     assertThat(viewSnapshot.getCodePeriodVersion()).isNull();
+    assertThat(viewSnapshot.getProjectVersion()).isNull();
     assertThat(viewSnapshot.getLast()).isFalse();
     assertThat(viewSnapshot.getStatus()).isEqualTo("U");
     assertThat(viewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
