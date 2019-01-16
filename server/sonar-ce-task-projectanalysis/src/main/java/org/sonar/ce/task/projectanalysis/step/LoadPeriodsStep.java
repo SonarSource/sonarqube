@@ -37,6 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -46,6 +47,8 @@ import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.event.EventDto;
@@ -55,6 +58,7 @@ import static java.lang.String.format;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_MANUAL_BASELINE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
@@ -111,8 +115,36 @@ public class LoadPeriodsStep implements ComputationStep {
     checkPeriodProperty(propertyValue.isPresent(), "", "property is undefined or value is empty");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<Period> manualBaselineOpt = resolveByManualBaseline(dbSession, projectOrView.getUuid());
+      if (manualBaselineOpt.isPresent()) {
+        return manualBaselineOpt;
+      }
       return resolve(dbSession, projectOrView.getUuid(), currentVersion, propertyValue.get());
     }
+  }
+
+  private Optional<Period> resolveByManualBaseline(DbSession dbSession, String projectUuid) {
+    Branch branch = analysisMetadataHolder.getBranch();
+    if (branch.getType() != BranchType.LONG) {
+      return Optional.empty();
+    }
+
+    return dbClient.branchDao().selectByUuid(dbSession, projectUuid)
+      .map(branchDto -> resolveByManualBaseline(dbSession, projectUuid, branchDto));
+  }
+
+  private Period resolveByManualBaseline(DbSession dbSession, String projectUuid, BranchDto branchDto) {
+    String baselineAnalysisUuid = branchDto.getManualBaseline();
+    if (baselineAnalysisUuid == null) {
+      return null;
+    }
+
+    LOG.debug("Resolving new code period by manual baseline");
+    SnapshotDto baseline = dbClient.snapshotDao().selectByUuid(dbSession, baselineAnalysisUuid)
+      .filter(t -> t.getComponentUuid().equals(projectUuid))
+      .orElseThrow(() -> new IllegalStateException("Analysis '" + baselineAnalysisUuid + "' of project '" + projectUuid
+        + "' defined as manual baseline does not exist"));
+    return newPeriod(LEAK_PERIOD_MODE_MANUAL_BASELINE, null, baseline);
   }
 
   private Optional<Period> resolve(DbSession dbSession, String projectUuid, String analysisProjectVersion, String propertyValue) {
