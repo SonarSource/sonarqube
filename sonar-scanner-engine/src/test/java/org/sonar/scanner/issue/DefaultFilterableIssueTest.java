@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
@@ -36,14 +36,14 @@ import static org.mockito.Mockito.when;
 public class DefaultFilterableIssueTest {
   private DefaultFilterableIssue issue;
   private DefaultInputProject mockedProject;
-  private ProjectAnalysisInfo projectAnalysisInfo;
+  private ProjectInfo projectInfo;
   private InputComponent component;
   private Issue rawIssue;
 
   @Before
   public void setUp() {
     mockedProject = mock(DefaultInputProject.class);
-    projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    projectInfo = mock(ProjectInfo.class);
     component = mock(InputComponent.class);
     when(component.key()).thenReturn("foo");
   }
@@ -70,9 +70,9 @@ public class DefaultFilterableIssueTest {
   @Test
   public void testRoundTrip() {
     rawIssue = createIssue();
-    issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, component);
+    issue = new DefaultFilterableIssue(mockedProject, projectInfo, rawIssue, component);
 
-    when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(10_000));
+    when(projectInfo.analysisDate()).thenReturn(new Date(10_000));
     when(mockedProject.key()).thenReturn("projectKey");
 
     assertThat(issue.componentKey()).isEqualTo(component.key());
@@ -90,7 +90,7 @@ public class DefaultFilterableIssueTest {
   @Test
   public void nullValues() {
     rawIssue = createIssueWithoutFields();
-    issue = new DefaultFilterableIssue(mockedProject, projectAnalysisInfo, rawIssue, component);
+    issue = new DefaultFilterableIssue(mockedProject, projectInfo, rawIssue, component);
 
     assertThat(issue.line()).isNull();
     assertThat(issue.gap()).isNull();

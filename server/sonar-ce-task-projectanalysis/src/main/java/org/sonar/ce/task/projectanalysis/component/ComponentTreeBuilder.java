@@ -70,6 +70,8 @@ public class ComponentTreeBuilder {
   private final Branch branch;
   @Nullable
   private final SnapshotDto baseAnalysis;
+  @Nullable
+  private final String projectVersion;
   private final IssueRelocationToRoot issueRelocationToRoot;
 
   private ScannerReport.Component rootComponent;
@@ -81,7 +83,9 @@ public class ComponentTreeBuilder {
     Function<String, String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
-    Branch branch, @Nullable SnapshotDto baseAnalysis, IssueRelocationToRoot issueRelocationToRoot) {
+    Branch branch, @Nullable SnapshotDto baseAnalysis,
+    @Nullable String projectVersion,
+    IssueRelocationToRoot issueRelocationToRoot) {
 
     this.keyGenerator = keyGenerator;
     this.publicKeyGenerator = publicKeyGenerator;
@@ -90,6 +94,7 @@ public class ComponentTreeBuilder {
     this.project = project;
     this.branch = branch;
     this.baseAnalysis = baseAnalysis;
+    this.projectVersion = projectVersion;
     this.issueRelocationToRoot = issueRelocationToRoot;
   }
 
@@ -193,7 +198,7 @@ public class ComponentTreeBuilder {
       .setDbKey(projectKey)
       .setKey(projectPublicKey)
       .setStatus(convertStatus(rootComponent.getStatus()))
-      .setProjectAttributes(new ProjectAttributes(createProjectVersion(rootComponent)))
+      .setProjectAttributes(new ProjectAttributes(createProjectVersion()))
       .setReportAttributes(createAttributesBuilder(rootComponent.getRef(), rootComponent.getProjectRelativePath(), scmBasePath).build())
       .addChildren(children);
     setNameAndDescription(rootComponent, builder);
@@ -334,16 +339,12 @@ public class ComponentTreeBuilder {
     return project.getName();
   }
 
-  private static String nameOfOthers(ScannerReport.Component reportComponent, String defaultName) {
-    String name = trimToNull(reportComponent.getName());
-    return name == null ? defaultName : name;
-  }
-
-  private String createProjectVersion(ScannerReport.Component component) {
-    String version = trimToNull(component.getVersion());
-    if (version != null) {
-      return version;
+  private String createProjectVersion() {
+    String cleanedProjectVersion = trimToNull(this.projectVersion);
+    if (cleanedProjectVersion != null) {
+      return cleanedProjectVersion;
     }
+    // FIXME SONAR-11631 code below applies to the analysisVersion, not the project version, fix it
     if (baseAnalysis != null) {
       return firstNonNull(baseAnalysis.getVersion(), DEFAULT_PROJECT_VERSION);
     }

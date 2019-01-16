@@ -96,11 +96,6 @@ public class ComponentsPublisher implements ReportPublisherStep {
       projectBuilder.setDescription(description);
     }
 
-    String version = project.getOriginalVersion();
-    if (version != null) {
-      projectBuilder.setVersion(version);
-    }
-
     writeLinks(project, projectBuilder);
     return projectBuilder;
   }

@@ -37,7 +37,7 @@ import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
@@ -167,7 +167,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceTypes.class,
       ProjectReactorValidator.class,
       MetricProvider.class,
-      ProjectAnalysisInfo.class,
+      ProjectInfo.class,
       Storages.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),

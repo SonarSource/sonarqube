@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -65,6 +66,8 @@ public class ComponentTreeBuilderTest {
   private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
   private static final String NO_SCM_BASE_PATH = "";
+  // both no project as "" or null should be supported
+  private static final String NO_PROJECT_VERSION = new Random().nextBoolean() ? "" : null;
 
   private IssueRelocationToRoot issueRelocationToRoot = mock(IssueRelocationToRoot.class);
   @Rule
@@ -95,7 +98,7 @@ public class ComponentTreeBuilderTest {
             .setProjectRelativePath("src")
             .setLines(1));
           try {
-            call(project);
+            call(project, NO_SCM_BASE_PATH, null);
             fail("Should have thrown a IllegalArgumentException");
           } catch (IllegalArgumentException e) {
             assertThat(e).hasMessage("Unsupported component type '" + type + "'");
@@ -130,8 +133,7 @@ public class ComponentTreeBuilderTest {
       .setRef(42)
       .setName(nameInReport)
       .setDescription(descriptionInReport)
-      .setVersion("6.5")
-      .build());
+      .build(), NO_SCM_BASE_PATH, "6.5");
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
     assertThat(root.getDbKey()).isEqualTo("generated_K1");
@@ -149,7 +151,7 @@ public class ComponentTreeBuilderTest {
   public void project_name_is_loaded_from_db_if_absent_from_report() {
     Component root = call(newBuilder()
       .setType(PROJECT)
-      .build());
+      .build(), NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getName()).isEqualTo(projectInDb.getName());
   }
@@ -162,7 +164,7 @@ public class ComponentTreeBuilderTest {
       .setName(reportName)
       .build();
 
-    Component root = newUnderTest(null, true).buildProject(reportProject, NO_SCM_BASE_PATH);
+    Component root = newUnderTest(null, true, NO_PROJECT_VERSION).buildProject(reportProject, NO_SCM_BASE_PATH);
 
     assertThat(root.getName()).isEqualTo(reportName);
   }
@@ -175,7 +177,8 @@ public class ComponentTreeBuilderTest {
       .setName(reportName)
       .build();
 
-    Component root = newUnderTest(null, false).buildProject(reportProject, NO_SCM_BASE_PATH);
+    Component root = newUnderTest(null, false, null)
+      .buildProject(reportProject, NO_SCM_BASE_PATH);
 
     assertThat(root.getName()).isEqualTo(projectInDb.getName());
   }
@@ -185,7 +188,7 @@ public class ComponentTreeBuilderTest {
     SnapshotDto baseAnalysis = new SnapshotDto().setVersion("6.5");
     Component root = call(newBuilder()
       .setType(PROJECT)
-      .build(), baseAnalysis);
+      .build(), baseAnalysis, NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getProjectAttributes().getVersion()).isEqualTo("6.5");
   }
@@ -195,8 +198,7 @@ public class ComponentTreeBuilderTest {
     SnapshotDto baseAnalysis = new SnapshotDto().setVersion("6.5");
     Component root = call(newBuilder()
       .setType(PROJECT)
-      .setVersion("")
-      .build(), baseAnalysis);
+      .build(), baseAnalysis, NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getProjectAttributes().getVersion()).isEqualTo("6.5");
   }
@@ -205,7 +207,7 @@ public class ComponentTreeBuilderTest {
   public void project_version_is_hardcoded_if_absent_from_report_and_db() {
     Component root = call(newBuilder()
       .setType(PROJECT)
-      .build());
+      .build(), NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getProjectAttributes().getVersion()).isEqualTo("not provided");
   }
@@ -214,7 +216,7 @@ public class ComponentTreeBuilderTest {
   public void project_description_is_loaded_from_db_if_absent_from_report() {
     Component root = call(newBuilder()
       .setType(PROJECT)
-      .build());
+      .build(), NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getDescription()).isEqualTo(projectInDb.getDescription());
   }
@@ -227,7 +229,7 @@ public class ComponentTreeBuilderTest {
       .setDescription(reportDescription)
       .build();
 
-    Component root = newUnderTest(null, true).buildProject(reportProject, NO_SCM_BASE_PATH);
+    Component root = newUnderTest(null, true, null).buildProject(reportProject, NO_SCM_BASE_PATH);
 
     assertThat(root.getDescription()).isEqualTo(reportDescription);
   }
@@ -240,7 +242,7 @@ public class ComponentTreeBuilderTest {
       .setDescription(reportDescription)
       .build();
 
-    Component root = newUnderTest(null, false).buildProject(reportProject, NO_SCM_BASE_PATH);
+    Component root = newUnderTest(null, false, null).buildProject(reportProject, NO_SCM_BASE_PATH);
 
     assertThat(root.getDescription()).isEqualTo(projectInDb.getDescription());
   }
@@ -249,7 +251,7 @@ public class ComponentTreeBuilderTest {
   public void project_scmPath_is_empty_if_scmBasePath_is_empty() {
     Component root = call(newBuilder()
       .setType(PROJECT)
-      .build(), NO_SCM_BASE_PATH);
+      .build(), NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getReportAttributes().getScmPath()).isEmpty();
   }
@@ -269,7 +271,7 @@ public class ComponentTreeBuilderTest {
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
 
-    Component root = call(project, NO_SCM_BASE_PATH);
+    Component root = call(project, NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
 
     assertThat(root.getReportAttributes().getScmPath())
       .contains("root");
@@ -286,7 +288,7 @@ public class ComponentTreeBuilderTest {
     ScannerReport.Component project = createProject();
     String scmBasePath = randomAlphabetic(10);
 
-    Component root = call(project, scmBasePath);
+    Component root = call(project, scmBasePath, NO_PROJECT_VERSION);
     assertThat(root.getReportAttributes().getScmPath())
       .contains(scmBasePath);
     Component directory = root.getChildren().iterator().next();
@@ -901,25 +903,22 @@ public class ComponentTreeBuilderTest {
   }
 
   private Component call(ScannerReport.Component project) {
-    return call(project, NO_SCM_BASE_PATH);
+    return call(project, NO_SCM_BASE_PATH, NO_PROJECT_VERSION);
   }
 
-  private Component call(ScannerReport.Component project, String scmBasePath) {
-    return newUnderTest(null, true).buildProject(project, scmBasePath);
+  private Component call(ScannerReport.Component project, String scmBasePath, @Nullable String projectVersion) {
+    return call(project, null, scmBasePath, projectVersion);
   }
 
-  private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis) {
-    return call(project, baseAnalysis, NO_SCM_BASE_PATH);
+  private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis, String scmBasePath, @Nullable String projectVersion) {
+    return newUnderTest(baseAnalysis, true, projectVersion).buildProject(project, scmBasePath);
   }
 
-  private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis, String scmBasePath) {
-    return newUnderTest(baseAnalysis, true).buildProject(project, scmBasePath);
-  }
-
-  private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis, boolean mainBranch) {
+  private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis, boolean mainBranch, @Nullable String projectVersion) {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(mainBranch);
-    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider, projectInDb, branch, baseAnalysis,
+    return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider,
+      projectInDb, branch, baseAnalysis, projectVersion,
       issueRelocationToRoot);
   }
 

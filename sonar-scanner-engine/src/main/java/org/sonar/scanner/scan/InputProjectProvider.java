@@ -35,7 +35,7 @@ public class InputProjectProvider extends ProviderAdapter {
   private DefaultInputProject project = null;
 
   public DefaultInputProject provide(ProjectBuildersExecutor projectBuildersExecutor, ProjectReactorValidator validator,
-                                         ProjectReactor projectReactor, ScannerComponentIdGenerator scannerComponentIdGenerator) {
+    ProjectReactor projectReactor, ScannerComponentIdGenerator scannerComponentIdGenerator) {
     if (project == null) {
       // 1 Apply project builders
       projectBuildersExecutor.execute(projectReactor);

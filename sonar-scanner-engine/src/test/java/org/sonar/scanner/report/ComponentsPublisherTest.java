@@ -35,7 +35,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
@@ -73,8 +73,8 @@ public class ComponentsPublisherTest {
 
   @Test
   public void add_components_to_report() throws Exception {
-    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    ProjectInfo projectInfo = mock(ProjectInfo.class);
+    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -128,7 +128,6 @@ public class ComponentsPublisherTest {
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
-    assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
 
     assertThat(reader.readComponent(4).getStatus()).isEqualTo(FileStatus.SAME);
@@ -138,8 +137,8 @@ public class ComponentsPublisherTest {
 
   @Test
   public void should_set_modified_name_with_branch() throws IOException {
-    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    ProjectInfo projectInfo = mock(ProjectInfo.class);
+    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -162,8 +161,8 @@ public class ComponentsPublisherTest {
   @Test
   public void publish_unchanged_components_even_in_short_branches() throws IOException {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
-    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    ProjectInfo projectInfo = mock(ProjectInfo.class);
+    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     Path baseDir = temp.newFolder().toPath();
     ProjectDefinition rootDef = ProjectDefinition.create()
@@ -202,8 +201,8 @@ public class ComponentsPublisherTest {
 
   @Test
   public void publish_project_without_version_and_name() throws IOException {
-    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    ProjectInfo projectInfo = mock(ProjectInfo.class);
+    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -223,14 +222,13 @@ public class ComponentsPublisherTest {
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getName()).isEqualTo("");
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
-    assertThat(rootProtobuf.getVersion()).isEqualTo("");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
   }
 
   @Test
   public void publish_project_with_links_and_branch() throws Exception {
-    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    ProjectInfo projectInfo = mock(ProjectInfo.class);
+    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -250,7 +248,6 @@ public class ComponentsPublisherTest {
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
-    assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(2);
     assertThat(rootProtobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.HOME);
     assertThat(rootProtobuf.getLink(0).getHref()).isEqualTo("http://home");

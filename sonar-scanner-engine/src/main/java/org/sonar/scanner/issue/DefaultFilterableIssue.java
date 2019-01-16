@@ -30,19 +30,19 @@ import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 
 @ThreadSafe
 public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
   private final InputComponent component;
-  private final ProjectAnalysisInfo projectAnalysisInfo;
+  private final ProjectInfo projectInfo;
   private DefaultInputProject project;
 
-  public DefaultFilterableIssue(DefaultInputProject project, ProjectAnalysisInfo projectAnalysisInfo, Issue rawIssue, InputComponent component) {
+  public DefaultFilterableIssue(DefaultInputProject project, ProjectInfo projectInfo, Issue rawIssue, InputComponent component) {
     this.project = project;
-    this.projectAnalysisInfo = projectAnalysisInfo;
+    this.projectInfo = projectInfo;
     this.rawIssue = rawIssue;
     this.component = component;
   }
@@ -91,7 +91,7 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public Date creationDate() {
-    return projectAnalysisInfo.analysisDate();
+    return projectInfo.analysisDate();
   }
 
   @Override

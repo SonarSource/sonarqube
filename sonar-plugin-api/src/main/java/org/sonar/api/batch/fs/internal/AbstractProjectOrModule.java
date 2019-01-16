@@ -43,9 +43,7 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
   private final Path baseDir;
   private final Path workDir;
   private final String name;
-  private final String version;
   private final String originalName;
-  private final String originalVersion;
   private final String description;
   private final String keyWithBranch;
   private final String branch;
@@ -61,8 +59,6 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
     this.workDir = initWorkingDir(definition);
     this.name = definition.getName();
     this.originalName = definition.getOriginalName();
-    this.version = definition.getVersion();
-    this.originalVersion = definition.getOriginalVersion();
     this.description = definition.getDescription();
     this.keyWithBranch = definition.getKeyWithBranch();
     this.branch = definition.getBranch();
@@ -143,15 +139,6 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
 
   public Map<String, String> properties() {
     return properties;
-  }
-
-  @CheckForNull
-  public String getOriginalVersion() {
-    return originalVersion;
-  }
-
-  public String getVersion() {
-    return version;
   }
 
   @CheckForNull

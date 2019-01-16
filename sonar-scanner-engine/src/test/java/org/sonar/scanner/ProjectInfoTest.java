@@ -30,51 +30,64 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.MessageException;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class ProjectAnalysisInfoTest {
+public class ProjectInfoTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private MapSettings settings = new MapSettings();
+  private Clock clock = mock(Clock.class);
+  private ProjectInfo underTest = new ProjectInfo(settings.asConfig(), clock);
+
   @Test
   public void testSimpleDateTime() {
-    MapSettings settings = new MapSettings();
+    OffsetDateTime date = OffsetDateTime.of(2017, 1, 1, 12, 13, 14, 0, ZoneOffset.ofHours(2));
     settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01T12:13:14+0200");
     settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
-    Clock clock = mock(Clock.class);
-    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), clock);
-    info.start();
-    OffsetDateTime date = OffsetDateTime.of(2017, 1, 1, 12, 13, 14, 0, ZoneOffset.ofHours(2));
 
-    assertThat(info.analysisDate()).isEqualTo(Date.from(date.toInstant()));
-    assertThat(info.analysisVersion()).isEqualTo("version");
+    underTest.start();
+
+    assertThat(underTest.analysisDate()).isEqualTo(Date.from(date.toInstant()));
+    assertThat(underTest.projectVersion()).isEqualTo("version");
   }
 
   @Test
   public void testSimpleDate() {
-    MapSettings settings = new MapSettings();
-    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
-    Clock clock = mock(Clock.class);
-    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), clock);
-    info.start();
     LocalDate date = LocalDate.of(2017, 1, 1);
+    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
 
-    assertThat(info.analysisDate()).isEqualTo(Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+    underTest.start();
+
+    assertThat(underTest.analysisDate())
+      .isEqualTo(Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
   }
 
   @Test
   public void emptyDate() {
-    MapSettings settings = new MapSettings();
     settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
     settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
-    Clock clock = mock(Clock.class);
-    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), clock);
 
     thrown.expect(RuntimeException.class);
 
-    info.start();
+    underTest.start();
+  }
+
+  @Test
+  public void fail_with_too_long_version() {
+    String version = randomAlphabetic(101);
+    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("\"" + version +"\" is not a valid project version. " +
+      "The maximum length for version numbers is 100 characters.");
+
+    underTest.start();
   }
 }

@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.IssueTransformer;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -45,17 +45,17 @@ public class IssueTransition {
   @Nullable
   private final LocalIssueTracking localIssueTracking;
 
-  public IssueTransition(InputComponentStore inputComponentCache, ProjectAnalysisInfo projectAnalysisInfo, IssueCache issueCache, ReportPublisher reportPublisher,
-    @Nullable LocalIssueTracking localIssueTracking) {
+  public IssueTransition(InputComponentStore inputComponentCache, ProjectInfo projectInfo, IssueCache issueCache, ReportPublisher reportPublisher,
+                         @Nullable LocalIssueTracking localIssueTracking) {
     this.inputComponentStore = inputComponentCache;
     this.issueCache = issueCache;
     this.reportPublisher = reportPublisher;
     this.localIssueTracking = localIssueTracking;
-    this.analysisDate = projectAnalysisInfo.analysisDate();
+    this.analysisDate = projectInfo.analysisDate();
   }
 
-  public IssueTransition(InputComponentStore inputComponentCache, ProjectAnalysisInfo projectAnalysisInfo, IssueCache issueCache, ReportPublisher reportPublisher) {
-    this(inputComponentCache, projectAnalysisInfo, issueCache, reportPublisher, null);
+  public IssueTransition(InputComponentStore inputComponentCache, ProjectInfo projectInfo, IssueCache issueCache, ReportPublisher reportPublisher) {
+    this(inputComponentCache, projectInfo, issueCache, reportPublisher, null);
   }
 
   public void execute() {

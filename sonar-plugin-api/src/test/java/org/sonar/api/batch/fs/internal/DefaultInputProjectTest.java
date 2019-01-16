@@ -42,7 +42,6 @@ public class DefaultInputProjectTest {
     def.setName("projectName");
     File baseDir = temp.newFolder();
     def.setBaseDir(baseDir);
-    def.setVersion("version");
     def.setDescription("desc");
     File workDir = temp.newFolder();
     def.setWorkDir(workDir);
@@ -57,13 +56,11 @@ public class DefaultInputProjectTest {
     assertThat(project.getBranch()).isNull();
     assertThat(project.getBaseDir()).isEqualTo(baseDir.toPath());
     assertThat(project.getKeyWithBranch()).isEqualTo("projectKey");
-    assertThat(project.getVersion()).isEqualTo("version");
-    assertThat(project.getOriginalVersion()).isEqualTo("version");
     assertThat(project.getDescription()).isEqualTo("desc");
     assertThat(project.getWorkDir()).isEqualTo(workDir.toPath());
     assertThat(project.getEncoding()).isEqualTo(Charset.defaultCharset());
 
-    assertThat(project.properties()).hasSize(6);
+    assertThat(project.properties()).hasSize(5);
 
     assertThat(project.isFile()).isFalse();
   }
@@ -75,7 +72,7 @@ public class DefaultInputProjectTest {
     def.setName("projectName");
     File baseDir = temp.newFolder();
     def.setBaseDir(baseDir);
-    def.setVersion("version");
+    def.setProjectVersion("version");
     def.setDescription("desc");
     File workDir = temp.newFolder();
     def.setWorkDir(workDir);

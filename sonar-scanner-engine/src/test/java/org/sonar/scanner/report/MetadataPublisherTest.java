@@ -20,6 +20,9 @@
 package org.sonar.scanner.report;
 
 import com.google.common.collect.ImmutableMap;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,17 +31,19 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -60,6 +65,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class MetadataPublisherTest {
 
   @Rule
@@ -69,7 +75,7 @@ public class MetadataPublisherTest {
   private MetadataPublisher underTest;
   private ScanProperties properties = mock(ScanProperties.class);
   private QualityProfiles qProfiles = mock(QualityProfiles.class);
-  private ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+  private ProjectInfo projectInfo = mock(ProjectInfo.class);
   private CpdSettings cpdSettings = mock(CpdSettings.class);
   private InputModuleHierarchy inputModuleHierarchy;
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
@@ -79,7 +85,7 @@ public class MetadataPublisherTest {
 
   @Before
   public void prepare() throws IOException {
-    when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
+    when(projectInfo.analysisDate()).thenReturn(new Date(1234567L));
     when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(Paths.get("dummy/path"));
     when(scmProvider.revisionId(any(Path.class))).thenReturn("dummy-sha1");
 
@@ -107,7 +113,7 @@ public class MetadataPublisherTest {
     branches = mock(BranchConfiguration.class);
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, properties, qProfiles, cpdSettings,
+    underTest = new MetadataPublisher(projectInfo, inputModuleHierarchy, properties, qProfiles, cpdSettings,
       pluginRepository, branches, scmConfiguration);
   }
 
@@ -178,6 +184,31 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getOrganizationKey()).isEqualTo("SonarSource");
+  }
+
+  @Test
+  @UseDataProvider("projectVersions")
+  public void write_project_version(@Nullable String projectVersion, String expected) throws Exception {
+    when(projectInfo.projectVersion()).thenReturn(projectVersion);
+    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
+
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    underTest.publish(writer);
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getProjectVersion()).isEqualTo(expected);
+  }
+
+  @DataProvider
+  public static Object[][] projectVersions() {
+    return new Object[][] {
+      {null, ""},
+      {"", ""},
+      {"5.6.3", "5.6.3"}
+    };
   }
 
   @Test

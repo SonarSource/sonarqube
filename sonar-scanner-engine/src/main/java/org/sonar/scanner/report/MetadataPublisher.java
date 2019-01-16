@@ -23,7 +23,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
@@ -32,7 +31,7 @@ import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -45,13 +44,16 @@ import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
 
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 public class MetadataPublisher implements ReportPublisherStep {
 
   private static final Logger LOG = Loggers.get(MetadataPublisher.class);
 
   private final ScanProperties properties;
   private final QualityProfiles qProfiles;
-  private final ProjectAnalysisInfo projectAnalysisInfo;
+  private final ProjectInfo projectInfo;
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
   private final ScannerPluginRepository pluginRepository;
@@ -60,10 +62,10 @@ public class MetadataPublisher implements ReportPublisherStep {
   @Nullable
   private final ScmConfiguration scmConfiguration;
 
-  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
+  public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
     QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
     @Nullable ScmConfiguration scmConfiguration) {
-    this.projectAnalysisInfo = projectAnalysisInfo;
+    this.projectInfo = projectInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.properties = properties;
     this.qProfiles = qProfiles;
@@ -73,20 +75,21 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.scmConfiguration = scmConfiguration;
   }
 
-  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
+  public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
     QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
-    this(projectAnalysisInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
+    this(projectInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
     AbstractProjectOrModule rootProject = moduleHierarchy.root();
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
-      .setAnalysisDate(projectAnalysisInfo.analysisDate().getTime())
+      .setAnalysisDate(projectInfo.analysisDate().getTime())
       // Here we want key without branch
       .setProjectKey(rootProject.key())
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.scannerId());
+    ofNullable(trimToNull(projectInfo.projectVersion())).ifPresent(builder::setProjectVersion);
 
     properties.organizationKey().ifPresent(builder::setOrganizationKey);
 
@@ -94,7 +97,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       addBranchInformation(builder);
     }
 
-    Optional.ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
+    ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
     if (scmConfiguration != null) {
       addScmInformation(builder);

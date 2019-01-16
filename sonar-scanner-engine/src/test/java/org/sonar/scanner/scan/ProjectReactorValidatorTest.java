@@ -19,96 +19,83 @@
  */
 package org.sonar.scanner.scan;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
-import java.util.function.Consumer;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
+import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class ProjectReactorValidatorTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private AnalysisMode mode;
-  private ProjectReactorValidator validator;
-  private GlobalConfiguration settings;
+  private AnalysisMode mode = mock(AnalysisMode.class);
+  private GlobalConfiguration settings = mock(GlobalConfiguration.class);
+  private ProjectInfo projectInfo = mock(ProjectInfo.class);
+  private ProjectReactorValidator underTest = new ProjectReactorValidator(mode, settings);
 
   @Before
   public void prepare() {
-    mode = mock(AnalysisMode.class);
-    settings = mock(GlobalConfiguration.class);
     when(settings.get(anyString())).thenReturn(Optional.empty());
-    validator = new ProjectReactorValidator(mode, settings);
   }
 
   @Test
-  public void not_fail_with_valid_key() {
-    validator.validate(createProjectReactor("foo"));
-    validator.validate(createProjectReactor("123foo"));
-    validator.validate(createProjectReactor("foo123"));
-    validator.validate(createProjectReactor("1Z3"));
-    validator.validate(createProjectReactor("a123"));
-    validator.validate(createProjectReactor("123a"));
-    validator.validate(createProjectReactor("1:2"));
-    validator.validate(createProjectReactor("3-3"));
-    validator.validate(createProjectReactor("-:"));
+  @UseDataProvider("validKeys")
+  public void not_fail_with_valid_key(String validKey) {
+    underTest.validate(createProjectReactor(validKey));
+  }
+
+  @DataProvider
+  public static Object[][] validKeys() {
+    return new Object[][] {
+      {"foo"},
+      {"123foo"},
+      {"foo123"},
+      {"1Z3"},
+      {"a123"},
+      {"123a"},
+      {"1:2"},
+      {"3-3"},
+      {"-:"},
+      {"Foobar2"},
+      {"foo.bar"},
+      {"foo-bar"},
+      {"foo:bar"},
+      {"foo_bar"}
+    };
   }
 
   @Test
   public void allow_slash_issues_mode() {
     when(mode.isIssues()).thenReturn(true);
-    validator.validate(createProjectReactor("project/key"));
+    underTest.validate(createProjectReactor("project/key"));
 
     when(mode.isIssues()).thenReturn(false);
     thrown.expect(MessageException.class);
     thrown.expectMessage("is not a valid project or module key");
-    validator.validate(createProjectReactor("project/key"));
-  }
-
-  @Test
-  public void not_fail_with_alphanumeric_key() {
-    ProjectReactor reactor = createProjectReactor("Foobar2");
-    validator.validate(reactor);
-  }
-
-  @Test
-  public void should_not_fail_with_dot_key() {
-    ProjectReactor reactor = createProjectReactor("foo.bar");
-    validator.validate(reactor);
-  }
-
-  @Test
-  public void not_fail_with_dash_key() {
-    ProjectReactor reactor = createProjectReactor("foo-bar");
-    validator.validate(reactor);
-  }
-
-  @Test
-  public void not_fail_with_colon_key() {
-    ProjectReactor reactor = createProjectReactor("foo:bar");
-    validator.validate(reactor);
-  }
-
-  @Test
-  public void not_fail_with_underscore_key() {
-    ProjectReactor reactor = createProjectReactor("foo_bar");
-    validator.validate(reactor);
+    underTest.validate(createProjectReactor("project/key"));
   }
 
   @Test
@@ -117,7 +104,7 @@ public class ProjectReactorValidatorTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("\"foo$bar\" is not a valid project or module key");
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
@@ -126,33 +113,46 @@ public class ProjectReactorValidatorTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("\"foo\\bar\" is not a valid project or module key");
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
-  public void not_fail_with_valid_branch() {
-    validator.validate(createProjectReactor("foo", "branch"));
-    validator.validate(createProjectReactor("foo", "Branch2"));
-    validator.validate(createProjectReactor("foo", "bra.nch"));
-    validator.validate(createProjectReactor("foo", "bra-nch"));
-    validator.validate(createProjectReactor("foo", "1"));
-    validator.validate(createProjectReactor("foo", "bra_nch"));
+  @UseDataProvider("validBranches")
+  public void not_fail_with_valid_branch(String validBranch) {
+    ProjectReactor reactor = createProjectReactor("foo", validBranch);
+
+    underTest.validate(reactor);
+  }
+
+  @DataProvider
+  public static Object[][] validBranches() {
+    return new Object[][] {
+      {"branch"},
+      {"Branch2"},
+      {"bra.nch"},
+      {"bra-nch"},
+      {"1"},
+      {"bra_nch"}
+    };
   }
 
   @Test
-  public void fail_with_invalid_branch() {
-    ProjectReactor reactor = createProjectReactor("foo", "bran#ch");
+  @UseDataProvider("invalidBranches")
+  public void fail_with_invalid_branch(String invalidBranch) {
+    ProjectReactor reactor = createProjectReactor("foo", invalidBranch);
+
     thrown.expect(MessageException.class);
-    thrown.expectMessage("\"bran#ch\" is not a valid branch name");
-    validator.validate(reactor);
+    thrown.expectMessage("\"" + invalidBranch + "\" is not a valid branch name");
+
+    underTest.validate(reactor);
   }
 
-  @Test
-  public void fail_with_colon_in_branch() {
-    ProjectReactor reactor = createProjectReactor("foo", "bran:ch");
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"bran:ch\" is not a valid branch name");
-    validator.validate(reactor);
+  @DataProvider
+  public static Object[][] invalidBranches() {
+    return new Object[][] {
+      {"bran#ch"},
+      {"bran:ch"}
+    };
   }
 
   @Test
@@ -161,7 +161,8 @@ public class ProjectReactorValidatorTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("\"12345\" is not a valid project or module key");
-    validator.validate(reactor);
+
+    underTest.validate(reactor);
   }
 
   @Test
@@ -174,7 +175,7 @@ public class ProjectReactorValidatorTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("the branch plugin is required but not installed");
 
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
@@ -187,7 +188,7 @@ public class ProjectReactorValidatorTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("the branch plugin is required but not installed");
 
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
@@ -200,7 +201,7 @@ public class ProjectReactorValidatorTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("the branch plugin is required but not installed");
 
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
@@ -213,7 +214,7 @@ public class ProjectReactorValidatorTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("the branch plugin is required but not installed");
 
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
@@ -226,25 +227,24 @@ public class ProjectReactorValidatorTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("the branch plugin is required but not installed");
 
-    validator.validate(reactor);
+    underTest.validate(reactor);
   }
 
   @Test
-  public void not_fail_with_valid_version() {
-    validator.validate(createProjectReactor("foo", def -> def.setVersion("1.0")));
-    validator.validate(createProjectReactor("foo", def -> def.setVersion("2017-10-16")));
-    validator.validate(createProjectReactor("foo", def -> def.setVersion(repeat("a", 100))));
+  @UseDataProvider("validVersions")
+  public void not_fail_with_valid_version(String validVersion) {
+    when(projectInfo.projectVersion()).thenReturn(validVersion);
+
+    underTest.validate(createProjectReactor("foo"));
   }
 
-  @Test
-  public void fail_with_too_long_version() {
-    ProjectReactor reactor = createProjectReactor("foo", def -> def.setVersion(repeat("a", 101)));
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" is not a valid version name for module \"foo\". " +
-      "The maximum length for version numbers is 100 characters.");
-
-    validator.validate(reactor);
+  @DataProvider
+  public static Object[][] validVersions() {
+    return new Object[][] {
+      {"1.0"},
+      {"2017-10-16"},
+      {randomAscii(100)}
+    };
   }
 
   private ProjectReactor createProjectReactor(String projectKey, String branch) {

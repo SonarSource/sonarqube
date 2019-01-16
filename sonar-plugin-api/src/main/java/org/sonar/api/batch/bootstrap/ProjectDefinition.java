@@ -48,8 +48,6 @@ public class ProjectDefinition {
 
   public static final String TESTS_PROPERTY = "sonar.tests";
 
-  public static final String BUILD_DIR_PROPERTY = "sonar.buildDir";
-
   private static final char SEPARATOR = ',';
 
   private File baseDir;
@@ -149,7 +147,7 @@ public class ProjectDefinition {
     return this;
   }
 
-  public ProjectDefinition setVersion(String s) {
+  public ProjectDefinition setProjectVersion(String s) {
     properties.put(CoreProperties.PROJECT_VERSION_PROPERTY, StringUtils.defaultString(s));
     return this;
   }
@@ -191,12 +189,29 @@ public class ProjectDefinition {
     return null;
   }
 
+  /**
+   * @deprecated since 7.7, use {@link #getOriginalProjectVersion()} instead
+   */
+  @Deprecated
   @CheckForNull
   public String getOriginalVersion() {
+    return getOriginalProjectVersion();
+  }
+
+  /**
+   * @deprecated since 7.7, use {@link #getProjectVersion()} instead
+   */
+  @Deprecated
+  public String getVersion() {
+    return getProjectVersion();
+  }
+
+  @CheckForNull
+  public String getOriginalProjectVersion() {
     return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
 
-  public String getVersion() {
+  public String getProjectVersion() {
     String version = properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
     if (StringUtils.isBlank(version)) {
       version = "not provided";

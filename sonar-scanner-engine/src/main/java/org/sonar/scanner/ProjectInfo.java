@@ -22,24 +22,28 @@ package org.sonar.scanner;
 import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.MessageException;
+
+import static java.lang.String.format;
 
 /**
  * @since 6.3
- * 
+ *
  * Immutable after {@link #start()}
  */
-public class ProjectAnalysisInfo implements Startable {
+public class ProjectInfo implements Startable {
   private final Clock clock;
   private Configuration settings;
 
   private Date analysisDate;
-  private String analysisVersion;
+  private String projectVersion;
 
-  public ProjectAnalysisInfo(Configuration settings, Clock clock) {
+  public ProjectInfo(Configuration settings, Clock clock) {
     this.settings = settings;
     this.clock = clock;
   }
@@ -48,8 +52,9 @@ public class ProjectAnalysisInfo implements Startable {
     return analysisDate;
   }
 
-  public String analysisVersion() {
-    return analysisVersion;
+  @CheckForNull
+  public String projectVersion() {
+    return projectVersion;
   }
 
   private Date loadAnalysisDate() {
@@ -71,14 +76,23 @@ public class ProjectAnalysisInfo implements Startable {
     }
   }
 
-  private String loadAnalysisVersion() {
-    return settings.get(CoreProperties.PROJECT_VERSION_PROPERTY).orElse(null);
+  @CheckForNull
+  private String loadProjectVersion() {
+    return settings.get(CoreProperties.PROJECT_VERSION_PROPERTY)
+      .filter(version -> {
+        if (version.length() > 100) {
+          throw MessageException.of(format("\"%s\" is not a valid project version. " +
+            "The maximum length for version numbers is 100 characters.", version));
+        }
+        return true;
+      })
+      .orElse(null);
   }
 
   @Override
   public void start() {
     this.analysisDate = loadAnalysisDate();
-    this.analysisVersion = loadAnalysisVersion();
+    this.projectVersion = loadProjectVersion();
   }
 
   @Override

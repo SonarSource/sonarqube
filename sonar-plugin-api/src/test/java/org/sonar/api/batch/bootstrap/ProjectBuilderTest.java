@@ -66,7 +66,7 @@ public class ProjectBuilderTest {
       subProject.setBaseDir(baseDir);
       subProject.setWorkDir(new File(baseDir, "target/.sonar"));
       subProject.setKey("groupId:parentProjectId");
-      subProject.setVersion(root.getOriginalVersion());
+      subProject.setProjectVersion(root.getOriginalVersion());
       subProject.setName("Sub Project");
       subProject.setSources("src");
       root.addSubProject(subProject);
