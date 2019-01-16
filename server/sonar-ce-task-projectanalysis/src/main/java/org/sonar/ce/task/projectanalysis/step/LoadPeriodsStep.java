@@ -115,16 +115,6 @@ public class LoadPeriodsStep implements ComputationStep {
     }
   }
 
-  public Optional<Period> resolve(String projectUuid, String analysisProjectVersion) {
-    Optional<String> propertyValue = configRepository.getConfiguration().get(LEAK_PERIOD)
-      .filter(t -> !t.isEmpty());
-    checkPeriodProperty(propertyValue.isPresent(), "", "property is undefined or value is empty");
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return resolve(dbSession, projectUuid, analysisProjectVersion, propertyValue.get());
-    }
-  }
-
   private Optional<Period> resolve(DbSession dbSession, String projectUuid, String analysisProjectVersion, String propertyValue) {
     Integer days = parseDaysQuietly(propertyValue);
     if (days != null) {
