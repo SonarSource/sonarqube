@@ -199,7 +199,6 @@ import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataLoader;
-import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ui.DeprecatedViews;
@@ -476,7 +475,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Tests
       TestsWs.class,
-      TestIndexDefinition.class,
 
       // Settings
       PersistentSettings.class,

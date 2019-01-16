@@ -63,7 +63,6 @@ import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
@@ -109,7 +108,6 @@ public class EsTester extends ExternalResource {
         IssueIndexDefinition.createForTest(),
         new ProjectMeasuresIndexDefinition(config),
         RuleIndexDefinition.createForTest(),
-        new TestIndexDefinition(config),
         new UserIndexDefinition(config),
         new ViewIndexDefinition(config));
 

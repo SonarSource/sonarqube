@@ -17,8 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.test.index;
+package org.sonar.server.platform.db.migration.version.v77;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
+@SupportsBlueGreen
+public class DropElasticsearchIndexTests extends DdlChange {
+
+  private final MigrationEsClient migrationEsClient;
+
+  public DropElasticsearchIndexTests(Database db, MigrationEsClient migrationEsClient) {
+    super(db);
+    this.migrationEsClient = migrationEsClient;
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    migrationEsClient.deleteIndexes("tests");
+  }
+
+}
