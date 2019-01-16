@@ -25,8 +25,8 @@ import { translate } from '../../../helpers/l10n';
 import { giveDowngradeFeedback } from '../../../api/billing';
 import { getBaseUrl } from '../../../helpers/urls';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
-import './DowngradeFeedback.css';
 import Radio from '../../../components/controls/Radio';
+import './DowngradeFeedback.css';
 
 enum Reason {
   doesntWork = 'did_not_work',
