@@ -33,7 +33,6 @@ import org.sonar.ce.task.projectanalysis.component.DumbDeveloper;
 import org.sonar.ce.task.projectanalysis.measure.Measure.ValueType;
 import org.sonar.server.util.WrapInSingleElementArray;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
@@ -88,13 +87,14 @@ public class MeasureTest {
 
   @DataProvider
   public static Object[][] all() {
-    return from(MEASURES).transform(WrapInSingleElementArray.INSTANCE).toArray(Object[].class);
+    return MEASURES.stream().map(WrapInSingleElementArray.INSTANCE).toArray(Object[][]::new);
   }
 
   private static Object[][] getMeasuresExcept(final ValueType valueType) {
-    return from(MEASURES)
-      .filter(input -> input.getValueType() != valueType).transform(WrapInSingleElementArray.INSTANCE)
-      .toArray(Object[].class);
+    return MEASURES.stream()
+      .filter(input -> input.getValueType() != valueType)
+      .map(WrapInSingleElementArray.INSTANCE)
+      .toArray(Object[][]::new);
   }
 
   @Test

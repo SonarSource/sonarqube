@@ -61,7 +61,7 @@ public class PurgeDao implements Dao {
   public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
-    String rootUuid = conf.rootProjectIdUuid().getUuid();
+    String rootUuid = conf.rootUuid();
     deleteAbortedAnalyses(rootUuid, commands);
     deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.getScopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
@@ -78,10 +78,12 @@ public class PurgeDao implements Dao {
     }
     LOG.debug("<- Purge stale branches");
 
-    List<String> branchUuids = mapper.selectStaleShortLivingBranchesAndPullRequests(rootUuid, dateToLong(maxDate.get()));
+    List<String> branchUuids = mapper.selectStaleShortLivingBranchesAndPullRequests(conf.projectUuid(), dateToLong(maxDate.get()));
 
     for (String branchUuid : branchUuids) {
-      deleteRootComponent(branchUuid, mapper, commands);
+      if (!rootUuid.equals(branchUuid)) {
+        deleteRootComponent(branchUuid, mapper, commands);
+      }
     }
   }
 
@@ -96,7 +98,7 @@ public class PurgeDao implements Dao {
 
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
-    String rootUuid = conf.rootProjectIdUuid().getUuid();
+    String rootUuid = conf.rootUuid();
     List<String> issueKeys = mapper.selectOldClosedIssueKeys(rootUuid, dateToLong(toDate));
     executeLargeInputs(issueKeys, input -> {
       mapper.deleteIssueChangesFromIssueKeys(input);
@@ -152,7 +154,7 @@ public class PurgeDao implements Dao {
         return emptyList();
       });
 
-    listener.onComponentsDisabling(conf.rootProjectIdUuid().getUuid(), conf.getDisabledComponentUuids());
+    listener.onComponentsDisabling(conf.rootUuid(), conf.getDisabledComponentUuids());
 
     session.commit();
   }
@@ -214,7 +216,7 @@ public class PurgeDao implements Dao {
    * Delete the non root components (ie. sub-view, application or project copy) from the specified collection of {@link ComponentDto}
    * and data from their child tables.
    * <p>
-   *   This method has no effect when passed an empty collection or only root components.
+   * This method has no effect when passed an empty collection or only root components.
    * </p>
    */
   public void deleteNonRootComponentsInView(DbSession dbSession, Collection<ComponentDto> components) {

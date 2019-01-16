@@ -32,9 +32,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.util.WrapInSingleElementArray;
 
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -138,10 +135,10 @@ public class DuplicationRepositoryImplTest {
 
   @DataProvider
   public static Object[][] allComponentTypesButFile() {
-    return from(Arrays.asList(Component.Type.values()))
-      .filter(not(equalTo(Component.Type.FILE)))
-      .transform(WrapInSingleElementArray.INSTANCE)
-      .toArray(Object[].class);
+    return Arrays.stream(Component.Type.values())
+      .filter(t -> t != Component.Type.FILE)
+      .map(WrapInSingleElementArray.INSTANCE)
+      .toArray(Object[][]::new);
   }
 
   private void assertNoDuplication(Component component) {

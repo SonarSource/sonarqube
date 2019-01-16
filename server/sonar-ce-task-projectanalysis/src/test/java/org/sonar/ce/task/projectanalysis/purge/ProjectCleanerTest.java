@@ -27,7 +27,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.PurgeConstants;
 import org.sonar.core.config.PurgeProperties;
 import org.sonar.db.DbSession;
-import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
@@ -58,7 +57,7 @@ public class ProjectCleanerTest {
   public void no_profiling_when_property_is_false() {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, false);
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
+    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptyList());
 
     verify(profiler, never()).dump(anyLong(), any());
   }
@@ -67,7 +66,7 @@ public class ProjectCleanerTest {
   public void profiling_when_property_is_true() {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
+    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptyList());
 
     verify(profiler).dump(anyLong(), any());
   }
@@ -76,7 +75,7 @@ public class ProjectCleanerTest {
   public void call_period_cleaner_index_client_and_purge_dao() {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
 
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings.asConfig(), emptyList());
+    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptyList());
 
     verify(periodCleaner).clean(any(), any(), any());
     verify(dao).purge(any(), any(), any(), any());

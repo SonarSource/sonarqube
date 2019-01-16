@@ -33,16 +33,18 @@ import org.sonar.core.config.PurgeConstants;
 
 public class PurgeConfiguration {
 
-  private final IdUuidPair rootProjectIdUuid;
+  private final String rootUuid;
+  private final String projectUuid;
   private final Collection<String> scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
   private final Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches;
   private final System2 system2;
   private final Collection<String> disabledComponentUuids;
 
-  public PurgeConfiguration(IdUuidPair rootProjectId, Collection<String> scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
+  public PurgeConfiguration(String rootUuid, String projectUuid, Collection<String> scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
     Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Collection<String> disabledComponentUuids) {
-    this.rootProjectIdUuid = rootProjectId;
+    this.rootUuid = rootUuid;
+    this.projectUuid = projectUuid;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
@@ -50,13 +52,25 @@ public class PurgeConfiguration {
     this.maxAgeInDaysOfInactiveShortLivingBranches = maxAgeInDaysOfInactiveShortLivingBranches;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair rootId, Collection<String> disabledComponentUuids) {
-    return new PurgeConfiguration(rootId, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Collection<String> disabledComponentUuids) {
+    return new PurgeConfiguration(rootUuid, projectUuid, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
       config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
 
-  public IdUuidPair rootProjectIdUuid() {
-    return rootProjectIdUuid;
+  /**
+   * UUID of the branch being analyzed (root of the component tree). Will be the same as {@link #projectUuid}
+   * if it's the main branch.
+   * Can also be a view.
+   */
+  public String rootUuid() {
+    return rootUuid;
+  }
+
+  /**
+   * @return UUID of the main branch of the project
+   */
+  public String projectUuid() {
+    return projectUuid;
   }
 
   public Collection<String> getScopesWithoutHistoricalData() {

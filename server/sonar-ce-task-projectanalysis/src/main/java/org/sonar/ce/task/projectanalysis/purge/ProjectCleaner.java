@@ -28,7 +28,6 @@ import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
-import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
@@ -54,13 +53,13 @@ public class ProjectCleaner {
     this.purgeListener = purgeListener;
   }
 
-  public ProjectCleaner purge(DbSession session, IdUuidPair rootId, Configuration projectConfig, Collection<String> disabledComponentUuids) {
+  public ProjectCleaner purge(DbSession session, String rootUuid, String projectUuid, Configuration projectConfig, Collection<String> disabledComponentUuids) {
     long start = System.currentTimeMillis();
     profiler.reset();
 
-    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, rootId, disabledComponentUuids);
+    periodCleaner.clean(session, rootUuid, projectConfig);
 
-    periodCleaner.clean(session, configuration.rootProjectIdUuid().getUuid(), projectConfig);
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, rootUuid, projectUuid, disabledComponentUuids);
     purgeDao.purge(session, configuration, purgeListener, profiler);
 
     session.commit();

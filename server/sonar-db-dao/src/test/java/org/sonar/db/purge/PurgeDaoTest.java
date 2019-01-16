@@ -90,8 +90,7 @@ import static org.sonar.db.webhook.WebhookDeliveryTesting.selectAllDeliveryUuids
 
 public class PurgeDaoTest {
 
-  private static final String THE_PROJECT_UUID = "P1";
-  private static final long THE_PROJECT_ID = 1L;
+  private static final String PROJECT_UUID = "P1";
 
   private System2 system2 = mock(System2.class);
 
@@ -142,7 +141,7 @@ public class PurgeDaoTest {
 
     // back to present
     when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentShortBranch.uuid());
@@ -168,16 +167,43 @@ public class PurgeDaoTest {
 
     // back to present
     when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), recentPullRequest.uuid());
   }
 
   @Test
+  public void purge_inactive_SLB_when_analyzing_non_main_branch() {
+    when(system2.now()).thenReturn(new Date().getTime());
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto longBranch = db.components().insertProjectBranch(project);
+
+    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+
+    // SLB updated 31 days ago
+    ComponentDto slb1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.SHORT));
+
+    // SLB with other components and issues, updated 31 days ago
+    ComponentDto slb2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(slb2));
+    db.issues().insert(rule, slb2, file);
+
+    // back to present
+    when(system2.now()).thenReturn(new Date().getTime());
+    // analysing slb1
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, slb1.uuid(), slb1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
+
+    // slb1 wasn't deleted since it was being analyzed!
+    assertThat(uuidsIn("projects")).containsOnly(project.uuid(), longBranch.uuid(), slb1.uuid());
+  }
+
+  @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     db.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "PROJECT_UUID"), asList(Scopes.DIRECTORY, Scopes.FILE),
+    PurgeConfiguration conf = new PurgeConfiguration("PROJECT_UUID", "PROJECT_UUID", asList(Scopes.DIRECTORY, Scopes.FILE),
       30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
@@ -231,7 +257,7 @@ public class PurgeDaoTest {
 
     // back to present
     when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), module.uuid(), dir.uuid(), srcFile.uuid(), testFile.uuid()), PurgeListener.EMPTY,
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid(), module.uuid(), dir.uuid(), srcFile.uuid(), testFile.uuid()), PurgeListener.EMPTY,
       new PurgeProfiler());
     dbSession.commit();
 
@@ -339,7 +365,7 @@ public class PurgeDaoTest {
   @Test
   public void selectPurgeableAnalyses() {
     db.prepareDbUnit(getClass(), "shouldSelectPurgeableAnalysis.xml");
-    List<PurgeableAnalysisDto> analyses = underTest.selectPurgeableAnalyses(THE_PROJECT_UUID, dbSession);
+    List<PurgeableAnalysisDto> analyses = underTest.selectPurgeableAnalyses(PROJECT_UUID, dbSession);
 
     assertThat(analyses).hasSize(3);
     assertThat(getById(analyses, "u1").isLast()).isTrue();
@@ -869,7 +895,7 @@ public class PurgeDaoTest {
     IssueDto notClosed = db.issues().insert(rule, project, file);
 
     when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     // old closed got deleted
@@ -1251,11 +1277,11 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), emptyList(), 30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
+    return new PurgeConfiguration(PROJECT_UUID, PROJECT_UUID, emptyList(), 30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
   }
 
-  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootProjectUuid, String... disabledComponentUuids) {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, rootProjectUuid), emptyList(), 30, Optional.of(30), system2, asList(disabledComponentUuids));
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid, String... disabledComponentUuids) {
+    return new PurgeConfiguration(rootUuid, projectUuid, emptyList(), 30, Optional.of(30), system2, asList(disabledComponentUuids));
   }
 
 }

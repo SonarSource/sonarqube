@@ -52,7 +52,7 @@
     from
       project_branches pb
     where
-        pb.project_uuid=#{mainBranchProjectUuid,jdbcType=VARCHAR}
+        pb.project_uuid=#{projectUuid,jdbcType=VARCHAR}
         and (pb.branch_type='SHORT' or pb.branch_type='PULL_REQUEST')
         and pb.updated_at &lt; #{toDate}
   </select>

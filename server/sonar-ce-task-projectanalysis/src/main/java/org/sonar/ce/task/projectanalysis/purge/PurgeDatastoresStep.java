@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
-import org.sonar.ce.task.projectanalysis.component.DbIdsRepository;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -29,7 +29,6 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.purge.IdUuidPair;
 
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
@@ -40,19 +39,19 @@ public class PurgeDatastoresStep implements ComputationStep {
 
   private final ProjectCleaner projectCleaner;
   private final DbClient dbClient;
-  private final DbIdsRepository dbIdsRepository;
   private final TreeRootHolder treeRootHolder;
   private final ConfigurationRepository configRepository;
   private final DisabledComponentsHolder disabledComponentsHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder,
-    ConfigurationRepository configRepository, DisabledComponentsHolder disabledComponentsHolder) {
+  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, TreeRootHolder treeRootHolder,
+    ConfigurationRepository configRepository, DisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
-    this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;
     this.configRepository = configRepository;
     this.disabledComponentsHolder = disabledComponentsHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -73,8 +72,8 @@ public class PurgeDatastoresStep implements ComputationStep {
 
   private void execute(Component root) {
     try (DbSession dbSession = dbClient.openSession(true)) {
-      IdUuidPair idUuidPair = new IdUuidPair(dbIdsRepository.getComponentId(root), root.getUuid());
-      projectCleaner.purge(dbSession, idUuidPair, configRepository.getConfiguration(), disabledComponentsHolder.getUuids());
+      String projectUuid = analysisMetadataHolder.getProject().getUuid();
+      projectCleaner.purge(dbSession, root.getUuid(), projectUuid, configRepository.getConfiguration(), disabledComponentsHolder.getUuids());
       dbSession.commit();
     }
   }

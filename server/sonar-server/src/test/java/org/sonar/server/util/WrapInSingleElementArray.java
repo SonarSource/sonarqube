@@ -19,7 +19,7 @@
  */
 package org.sonar.server.util;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 public enum WrapInSingleElementArray implements Function<Object, Object[]> {
@@ -28,6 +28,6 @@ public enum WrapInSingleElementArray implements Function<Object, Object[]> {
   @Override
   @Nonnull
   public Object[] apply(Object input) {
-    return new Object[]{input};
+    return new Object[] {input};
   }
 }
