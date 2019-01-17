@@ -10,6 +10,14 @@ url: /user-guide/keyboard-shortcuts/
 | `s`      | open search bar |
 | `?`      | open help       |
 
+## Code Page
+
+| Shortcut | Action                                        |
+| -------- | --------------------------------------------- |
+| `↑` `↓`  | select files                                  |
+| `→`      | open file                                     |
+| `←`      | return back to the list                       |
+
 ## Issues Page
 
 | Shortcut         | Action                                        |

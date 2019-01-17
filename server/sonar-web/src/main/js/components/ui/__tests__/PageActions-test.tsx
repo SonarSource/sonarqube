@@ -29,12 +29,14 @@ const PAGING = {
 
 it('should display correctly for a project', () => {
   expect(
-    shallow(<PageActions isFile={false} totalLoadedComponents={20} view="list" />)
+    shallow(<PageActions isFile={false} showShortcuts={true} totalLoadedComponents={20} />)
   ).toMatchSnapshot();
 });
 
 it('should display correctly for a file', () => {
-  const wrapper = shallow(<PageActions isFile={true} totalLoadedComponents={10} view="tree" />);
+  const wrapper = shallow(
+    <PageActions isFile={true} showShortcuts={true} totalLoadedComponents={10} />
+  );
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ paging: { total: 100 } });
   expect(wrapper).toMatchSnapshot();
@@ -42,7 +44,7 @@ it('should display correctly for a file', () => {
 
 it('should not display shortcuts for treemap', () => {
   expect(
-    shallow(<PageActions isFile={false} totalLoadedComponents={20} view="treemap" />)
+    shallow(<PageActions isFile={false} showShortcuts={false} totalLoadedComponents={20} />)
   ).toMatchSnapshot();
 });
 
@@ -53,8 +55,8 @@ it('should display the total of files', () => {
         current={12}
         isFile={false}
         paging={PAGING}
+        showShortcuts={false}
         totalLoadedComponents={20}
-        view="treemap"
       />
     )
   ).toMatchSnapshot();
@@ -64,8 +66,8 @@ it('should display the total of files', () => {
         current={12}
         isFile={true}
         paging={PAGING}
+        showShortcuts={true}
         totalLoadedComponents={20}
-        view="list"
       />
     )
   ).toMatchSnapshot();

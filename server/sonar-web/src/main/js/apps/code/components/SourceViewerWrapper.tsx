@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Location } from 'history';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { scrollToElement } from '../../../helpers/scrolling';
 
 interface Props {
@@ -28,10 +29,11 @@ interface Props {
   location: Pick<Location, 'query'>;
 }
 
-export default function SourceViewerWrapper({ branchLike, component, location }: Props) {
-  const { line } = location.query;
+export class SourceViewerWrapper extends React.PureComponent<Props> {
+  scrollToLine = () => {
+    const { location } = this.props;
+    const { line } = location.query;
 
-  const scrollToLine = () => {
     if (line) {
       const row = document.querySelector(`.source-line[data-line-number="${line}"]`);
       if (row) {
@@ -40,15 +42,21 @@ export default function SourceViewerWrapper({ branchLike, component, location }:
     }
   };
 
-  const finalLine = line ? Number(line) : undefined;
+  render() {
+    const { branchLike, component, location } = this.props;
+    const { line } = location.query;
+    const finalLine = line ? Number(line) : undefined;
 
-  return (
-    <SourceViewer
-      aroundLine={finalLine}
-      branchLike={branchLike}
-      component={component}
-      highlightedLine={finalLine}
-      onLoaded={scrollToLine}
-    />
-  );
+    return (
+      <SourceViewer
+        aroundLine={finalLine}
+        branchLike={branchLike}
+        component={component}
+        highlightedLine={finalLine}
+        onLoaded={this.scrollToLine}
+      />
+    );
+  }
 }
+
+export default withKeyboardNavigation(SourceViewerWrapper);

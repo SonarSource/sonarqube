@@ -21,6 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import { areThereCustomOrganizations, Store } from '../../store/rootReducer';
+import { getWrappedDisplayName } from '../../components/hoc/utils';
 
 type ReactComponent<P> = React.ComponentClass<P> | React.StatelessComponent<P>;
 
@@ -30,7 +31,10 @@ export default function forSingleOrganization<P>(ComposedComponent: ReactCompone
   }
 
   class ForSingleOrganization extends React.Component<StateProps & WithRouterProps> {
-    static displayName = `forSingleOrganization(${ComposedComponent.displayName})}`;
+    static displayName = getWrappedDisplayName(
+      ComposedComponent as React.ComponentClass,
+      'forSingleOrganization'
+    );
 
     render() {
       const { customOrganizations, router, ...other } = this.props;

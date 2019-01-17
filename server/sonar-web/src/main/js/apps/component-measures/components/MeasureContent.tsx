@@ -23,7 +23,7 @@ import Breadcrumbs from './Breadcrumbs';
 import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
-import PageActions from './PageActions';
+import PageActions from '../../../components/ui/PageActions';
 import { complementary } from '../config/complementary';
 import CodeView from '../drilldown/CodeView';
 import FilesView from '../drilldown/FilesView';
@@ -364,8 +364,8 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                       }
                       isFile={isFile}
                       paging={this.state.paging}
+                      showShortcuts={['list', 'tree'].includes(view)}
                       totalLoadedComponents={this.state.components.length}
-                      view={view}
                     />
                   </div>
                 }

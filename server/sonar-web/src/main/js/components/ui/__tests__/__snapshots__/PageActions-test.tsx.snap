@@ -2,20 +2,16 @@
 
 exports[`should display correctly for a file 1`] = `
 <div
-  className="display-flex-center"
->
-  <div
-    className="measure-details-page-actions nowrap"
-  />
-</div>
+  className="page-actions display-flex-center"
+/>
 `;
 
 exports[`should display correctly for a file 2`] = `
 <div
-  className="display-flex-center"
+  className="page-actions display-flex-center"
 >
   <span
-    className="note spacer-right nowrap"
+    className="note nowrap"
   >
     <span>
       <span
@@ -35,7 +31,7 @@ exports[`should display correctly for a file 2`] = `
     className="measure-details-page-actions nowrap"
   >
     <FilesCounter
-      className="spacer-left"
+      className="big-spacer-left"
       total={10}
     />
   </div>
@@ -44,10 +40,10 @@ exports[`should display correctly for a file 2`] = `
 
 exports[`should display correctly for a project 1`] = `
 <div
-  className="display-flex-center"
+  className="page-actions display-flex-center"
 >
   <span
-    className="note big-spacer-right nowrap"
+    className="note nowrap"
   >
     <span
       className="big-spacer-right"
@@ -78,21 +74,18 @@ exports[`should display correctly for a project 1`] = `
       component_measures.to_navigate
     </span>
   </span>
-  <div
-    className="measure-details-page-actions nowrap"
-  />
 </div>
 `;
 
 exports[`should display the total of files 1`] = `
 <div
-  className="display-flex-center"
+  className="page-actions display-flex-center"
 >
   <div
     className="measure-details-page-actions nowrap"
   >
     <FilesCounter
-      className="spacer-left"
+      className="big-spacer-left"
       current={12}
       total={120}
     />
@@ -102,10 +95,10 @@ exports[`should display the total of files 1`] = `
 
 exports[`should display the total of files 2`] = `
 <div
-  className="display-flex-center"
+  className="page-actions display-flex-center"
 >
   <span
-    className="note spacer-right nowrap"
+    className="note nowrap"
   >
     <span>
       <span
@@ -125,7 +118,7 @@ exports[`should display the total of files 2`] = `
     className="measure-details-page-actions nowrap"
   >
     <FilesCounter
-      className="spacer-left"
+      className="big-spacer-left"
       current={12}
       total={20}
     />
@@ -135,10 +128,6 @@ exports[`should display the total of files 2`] = `
 
 exports[`should not display shortcuts for treemap 1`] = `
 <div
-  className="display-flex-center"
->
-  <div
-    className="measure-details-page-actions nowrap"
-  />
-</div>
+  className="page-actions display-flex-center"
+/>
 `;

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import Components from '../Components';
+import { Components } from '../Components';
 
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
 const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };

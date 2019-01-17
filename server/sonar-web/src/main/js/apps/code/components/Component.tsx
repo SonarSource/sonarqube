@@ -23,9 +23,7 @@ import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentPin from './ComponentPin';
 import { WorkspaceContext } from '../../../components/workspace/context';
-
-const TOP_OFFSET = 200;
-const BOTTOM_OFFSET = 10;
+import { withScrollTo } from '../../../components/hoc/withScrollTo';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -38,40 +36,7 @@ interface Props {
   selected?: boolean;
 }
 
-export default class Component extends React.PureComponent<Props> {
-  node?: HTMLElement | null;
-
-  componentDidMount() {
-    this.handleUpdate();
-  }
-
-  componentDidUpdate() {
-    this.handleUpdate();
-  }
-
-  handleUpdate() {
-    const { selected } = this.props;
-
-    // scroll viewport so the current selected component is visible
-    if (selected) {
-      setTimeout(() => {
-        this.handleScroll();
-      }, 0);
-    }
-  }
-
-  handleScroll() {
-    if (this.node) {
-      const position = this.node.getBoundingClientRect();
-      const { top, bottom } = position;
-      if (bottom > window.innerHeight - BOTTOM_OFFSET) {
-        window.scrollTo(0, bottom - window.innerHeight + window.pageYOffset + BOTTOM_OFFSET);
-      } else if (top < TOP_OFFSET) {
-        window.scrollTo(0, top + window.pageYOffset - TOP_OFFSET);
-      }
-    }
-  }
-
+export class Component extends React.PureComponent<Props> {
   render() {
     const {
       branchLike,
@@ -87,7 +52,7 @@ export default class Component extends React.PureComponent<Props> {
     const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
 
     return (
-      <tr className={classNames({ selected })} ref={node => (this.node = node)}>
+      <tr className={classNames({ selected })}>
         <td className="blank" />
         <td className="thin nowrap">
           <span className="spacer-right">
@@ -126,3 +91,5 @@ export default class Component extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withScrollTo(Component);

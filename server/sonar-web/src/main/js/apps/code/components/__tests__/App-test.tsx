@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { App } from '../App';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
 import { retrieveComponent } from '../../utils';
 
 jest.mock('../../utils', () => ({
@@ -88,6 +88,7 @@ const getWrapper = () => {
       fetchMetrics={jest.fn()}
       location={{ query: { branch: 'b', id: 'foo', line: '7' } }}
       metrics={METRICS}
+      router={mockRouter()}
     />
   );
 };

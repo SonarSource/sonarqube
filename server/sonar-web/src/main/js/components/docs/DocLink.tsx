@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import DetachIcon from '../icons-components/DetachIcon';
 import { isSonarCloud } from '../../helpers/system';
-import { withAppState } from '../withAppState';
+import { withAppState } from '../hoc/withAppState';
 
 interface OwnProps {
   appState: Pick<T.AppState, 'canAdmin'>;

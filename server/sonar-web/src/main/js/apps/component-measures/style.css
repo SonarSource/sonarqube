@@ -167,6 +167,10 @@
   white-space: nowrap;
 }
 
+.measure-content-header-right .page-actions {
+  margin-bottom: 0;
+}
+
 .measure-content-header-right {
   margin-left: calc(2 * var(--gridSize));
   white-space: nowrap;

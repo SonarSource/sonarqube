@@ -17,6 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+.code-components .page-actions {
+  margin-top: -35px;
+}
+
+.code-components .boxed-group.search-results {
+  padding-top: 16px;
+}
+
+.code-components .boxed-group.search-results .page-actions {
+  margin-top: -50px;
+}
+
 .code-breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -68,10 +80,6 @@
 
 .code-search {
   margin-bottom: 10px;
-}
-
-.code-search-with-results + .code-components {
-  display: none;
 }
 
 .code-components-header {

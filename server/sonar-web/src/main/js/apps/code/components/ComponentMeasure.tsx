@@ -27,21 +27,24 @@ interface Props {
   metric: T.Metric;
 }
 
-export default function ComponentMeasure({ component, metric }: Props) {
-  const isProject = component.qualifier === 'TRK';
-  const isReleasability = metric.key === 'releasability_rating';
+export default class ComponentMeasure extends React.PureComponent<Props> {
+  render() {
+    const { component, metric } = this.props;
+    const isProject = component.qualifier === 'TRK';
+    const isReleasability = metric.key === 'releasability_rating';
 
-  const finalMetricKey = isProject && isReleasability ? 'alert_status' : metric.key;
-  const finalMetricType = isProject && isReleasability ? 'LEVEL' : metric.type;
+    const finalMetricKey = isProject && isReleasability ? 'alert_status' : metric.key;
+    const finalMetricType = isProject && isReleasability ? 'LEVEL' : metric.type;
 
-  const measure =
-    Array.isArray(component.measures) &&
-    component.measures.find(measure => measure.metric === finalMetricKey);
+    const measure =
+      Array.isArray(component.measures) &&
+      component.measures.find(measure => measure.metric === finalMetricKey);
 
-  if (!measure) {
-    return <span />;
+    if (!measure) {
+      return <span />;
+    }
+
+    const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure.value;
+    return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />;
   }
-
-  const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure.value;
-  return <Measure metricKey={finalMetricKey} metricType={finalMetricType} value={value} />;
 }

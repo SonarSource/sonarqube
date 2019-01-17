@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { getWrappedDisplayName } from './utils';
-import { Store, getCurrentUser } from '../../store/rootReducer';
-
-export function withCurrentUser<P>(
-  WrappedComponent: React.ComponentClass<P & { currentUser: T.CurrentUser }>
-) {
-  class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {
-    static displayName = getWrappedDisplayName(WrappedComponent, 'withCurrentUser');
-
-    render() {
-      return <WrappedComponent {...this.props} />;
-    }
-  }
-
-  function mapStateToProps(state: Store) {
-    return { currentUser: getCurrentUser(state) };
-  }
-
-  return connect(mapStateToProps)(Wrapper);
+export function getWrappedDisplayName(WrappedComponent: React.ComponentClass, hocName: string) {
+  const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  return `${hocName}(${wrappedDisplayName})`;
 }

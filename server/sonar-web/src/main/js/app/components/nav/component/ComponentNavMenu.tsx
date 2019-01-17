@@ -30,7 +30,7 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
-import { withAppState } from '../../../../components/withAppState';
+import { withAppState } from '../../../../components/hoc/withAppState';
 import { isSonarCloud } from '../../../../helpers/system';
 
 const SETTINGS_URLS = [

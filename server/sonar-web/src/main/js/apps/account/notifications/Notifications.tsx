@@ -27,7 +27,7 @@ import * as api from '../../../api/notifications';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { Alert } from '../../../components/ui/Alert';
-import { withAppState } from '../../../components/withAppState';
+import { withAppState } from '../../../components/hoc/withAppState';
 
 export interface Props {
   appState: Pick<T.AppState, 'organizationsEnabled'>;

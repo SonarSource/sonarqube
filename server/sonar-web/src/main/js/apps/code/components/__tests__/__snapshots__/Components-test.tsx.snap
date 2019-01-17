@@ -32,7 +32,7 @@ exports[`renders correctly 1`] = `
     }
   />
   <tbody>
-    <Component
+    <withScrollTo(Component)
       component={
         Object {
           "key": "foo",
@@ -79,7 +79,7 @@ exports[`renders correctly 1`] = `
     </tr>
   </tbody>
   <tbody>
-    <Component
+    <withScrollTo(Component)
       canBrowse={true}
       component={
         Object {
@@ -107,7 +107,6 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
-      selected={false}
     />
     <tr
       className="blank"
@@ -129,7 +128,7 @@ exports[`renders correctly for a search 1`] = `
   className="data boxed-padding zebra"
 >
   <tbody>
-    <Component
+    <withScrollTo(Component)
       canBrowse={true}
       component={
         Object {
@@ -157,7 +156,6 @@ exports[`renders correctly for a search 1`] = `
           "qualifier": "TRK",
         }
       }
-      selected={false}
     />
     <tr
       className="blank"
@@ -206,7 +204,7 @@ exports[`renders correctly for leak 1`] = `
     }
   />
   <tbody>
-    <Component
+    <withScrollTo(Component)
       branchLike={
         Object {
           "isMain": false,
@@ -252,7 +250,7 @@ exports[`renders correctly for leak 1`] = `
     </tr>
   </tbody>
   <tbody>
-    <Component
+    <withScrollTo(Component)
       branchLike={
         Object {
           "isMain": false,
@@ -279,7 +277,6 @@ exports[`renders correctly for leak 1`] = `
           "qualifier": "TRK",
         }
       }
-      selected={false}
     />
     <tr
       className="blank"

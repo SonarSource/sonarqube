@@ -19,15 +19,14 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Store, getAppState } from '../store/rootReducer';
+import { getWrappedDisplayName } from './utils';
+import { Store, getAppState } from '../../store/rootReducer';
 
 export function withAppState<P>(
   WrappedComponent: React.ComponentClass<P & { appState: Partial<T.AppState> }>
 ) {
-  const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
-
   class Wrapper extends React.Component<P & { appState: T.AppState }> {
-    static displayName = `withAppState(${wrappedDisplayName})`;
+    static displayName = getWrappedDisplayName(WrappedComponent, 'withAppState');
 
     render() {
       return <WrappedComponent {...this.props} />;

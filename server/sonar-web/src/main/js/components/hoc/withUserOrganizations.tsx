@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { getWrappedDisplayName } from './utils';
 import { Store, getMyOrganizations } from '../../store/rootReducer';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 
@@ -30,10 +31,8 @@ interface OwnProps {
 export function withUserOrganizations<P>(
   WrappedComponent: React.ComponentClass<P & Partial<OwnProps>>
 ) {
-  const wrappedDisplayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
-
   class Wrapper extends React.Component<P & OwnProps> {
-    static displayName = `withUserOrganizations(${wrappedDisplayName})`;
+    static displayName = getWrappedDisplayName(WrappedComponent, 'withUserOrganizations');
 
     componentDidMount() {
       this.props.fetchMyOrganizations();

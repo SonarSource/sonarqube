@@ -21,7 +21,7 @@ import * as React from 'react';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
-import PageActions from './PageActions';
+import PageActions from '../../../components/ui/PageActions';
 import BubbleChart from '../drilldown/BubbleChart';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';

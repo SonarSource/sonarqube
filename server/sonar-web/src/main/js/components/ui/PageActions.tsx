@@ -19,40 +19,43 @@
  */
 import * as React from 'react';
 import FilesCounter from './FilesCounter';
-import { translate } from '../../../helpers/l10n';
-import { View } from '../utils';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   current?: number;
   isFile?: boolean;
   paging?: T.Paging;
+  showPaging?: boolean;
+  showShortcuts?: boolean;
   totalLoadedComponents?: number;
-  view?: View;
 }
 
 export default function PageActions(props: Props) {
-  const { isFile, paging, totalLoadedComponents } = props;
-  const showShortcuts = props.view && ['list', 'tree'].includes(props.view);
+  const { isFile, paging, showPaging, showShortcuts, totalLoadedComponents } = props;
+  let total = 0;
+
+  if (showPaging && totalLoadedComponents) {
+    total = totalLoadedComponents;
+  } else if (paging !== undefined) {
+    total = isFile && totalLoadedComponents ? totalLoadedComponents : paging.total;
+  }
+
   return (
-    <div className="display-flex-center">
+    <div className="page-actions display-flex-center">
       {!isFile && showShortcuts && renderShortcuts()}
-      {isFile && paging && renderFileShortcuts()}
-      <div className="measure-details-page-actions nowrap">
-        {paging != null && (
-          <FilesCounter
-            className="spacer-left"
-            current={props.current}
-            total={isFile && totalLoadedComponents != null ? totalLoadedComponents : paging.total}
-          />
-        )}
-      </div>
+      {isFile && (paging || showPaging) && renderFileShortcuts()}
+      {total > 0 && (
+        <div className="measure-details-page-actions nowrap">
+          <FilesCounter className="big-spacer-left" current={props.current} total={total} />
+        </div>
+      )}
     </div>
   );
 }
 
 function renderShortcuts() {
   return (
-    <span className="note big-spacer-right nowrap">
+    <span className="note nowrap">
       <span className="big-spacer-right">
         <span className="shortcut-button little-spacer-right">↑</span>
         <span className="shortcut-button little-spacer-right">↓</span>
@@ -70,7 +73,7 @@ function renderShortcuts() {
 
 function renderFileShortcuts() {
   return (
-    <span className="note spacer-right nowrap">
+    <span className="note nowrap">
       <span>
         <span className="shortcut-button little-spacer-right">j</span>
         <span className="shortcut-button little-spacer-right">k</span>

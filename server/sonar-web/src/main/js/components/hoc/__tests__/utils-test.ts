@@ -18,29 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getWrappedDisplayName } from './utils';
-import { withCurrentUser } from './withCurrentUser';
-import { isLoggedIn } from '../../helpers/users';
-import handleRequiredAuthentication from '../../app/utils/handleRequiredAuthentication';
+import { getWrappedDisplayName } from '../utils';
 
-export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
-  class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {
-    static displayName = getWrappedDisplayName(WrappedComponent, 'whenLoggedIn');
+it('should compute the name correctly', () => {
+  expect(getWrappedDisplayName({} as any, 'myName')).toBe('myName(Component)');
 
-    componentDidMount() {
-      if (!isLoggedIn(this.props.currentUser)) {
-        handleRequiredAuthentication();
-      }
-    }
+  class DummyWrapper extends React.Component {}
 
-    render() {
-      if (isLoggedIn(this.props.currentUser)) {
-        return <WrappedComponent {...this.props} />;
-      } else {
-        return null;
-      }
-    }
+  expect(getWrappedDisplayName(DummyWrapper, 'myName')).toBe('myName(DummyWrapper)');
+
+  class DummyWrapper2 extends React.Component {
+    static displayName = 'Foo';
   }
 
-  return withCurrentUser(Wrapper);
-}
+  expect(getWrappedDisplayName(DummyWrapper2, 'myName')).toBe('myName(Foo)');
+});

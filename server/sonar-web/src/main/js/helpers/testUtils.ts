@@ -68,8 +68,29 @@ export function change(element: ShallowWrapper | ReactWrapper, value: string, ev
   }
 }
 
-export function keydown(keyCode: number): void {
-  const event = new KeyboardEvent('keydown', { keyCode } as KeyboardEventInit);
+export const KEYCODE_MAP: { [keycode: number]: string } = {
+  13: 'enter',
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down',
+  74: 'j',
+  75: 'k'
+};
+
+export function keydown(key: number | string): void {
+  let keyCode;
+  if (typeof key === 'number') {
+    keyCode = key;
+  } else {
+    const mapped = Object.entries(KEYCODE_MAP).find(([_, value]) => value === key);
+    if (!mapped) {
+      throw new Error(`Cannot map key "${key}" to a keyCode!`);
+    }
+    keyCode = mapped[0];
+  }
+
+  const event = new KeyboardEvent('keydown', { keyCode, which: keyCode } as KeyboardEventInit);
   document.dispatchEvent(event);
 }
 

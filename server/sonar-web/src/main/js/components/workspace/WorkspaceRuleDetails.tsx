@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { keyBy } from 'lodash';
-import { withAppState } from '../withAppState';
+import { withAppState } from '../hoc/withAppState';
 import DeferredSpinner from '../common/DeferredSpinner';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';

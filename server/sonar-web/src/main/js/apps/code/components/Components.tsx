@@ -22,8 +22,9 @@ import * as classNames from 'classnames';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
-import { isDefined } from '../../../helpers/types';
+import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getCodeMetrics, showLeakMeasure } from '../utils';
+import { isDefined } from '../../../helpers/types';
 
 interface Props {
   baseComponent?: T.ComponentMeasure;
@@ -34,64 +35,68 @@ interface Props {
   selected?: T.ComponentMeasure;
 }
 
-export default function Components(props: Props) {
-  const { baseComponent, branchLike, components, rootComponent, selected } = props;
-  const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
-  const metrics = metricKeys.map(metric => props.metrics[metric]).filter(isDefined);
-  const isLeak = Boolean(baseComponent && showLeakMeasure(branchLike));
-  return (
-    <table className="data boxed-padding zebra">
-      {baseComponent && (
-        <ComponentsHeader
-          baseComponent={baseComponent}
-          isLeak={isLeak}
-          metrics={metricKeys}
-          rootComponent={rootComponent}
-        />
-      )}
-      {baseComponent && (
-        <tbody>
-          <Component
-            branchLike={branchLike}
-            component={baseComponent}
+export class Components extends React.PureComponent<Props> {
+  render() {
+    const { baseComponent, branchLike, components, rootComponent, selected } = this.props;
+    const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
+    const metrics = metricKeys.map(metric => this.props.metrics[metric]).filter(isDefined);
+    const isLeak = Boolean(baseComponent && showLeakMeasure(branchLike));
+    return (
+      <table className="data boxed-padding zebra">
+        {baseComponent && (
+          <ComponentsHeader
+            baseComponent={baseComponent}
             isLeak={isLeak}
-            key={baseComponent.key}
-            metrics={metrics}
+            metrics={metricKeys}
             rootComponent={rootComponent}
           />
-          <tr className="blank">
-            <td colSpan={3}>&nbsp;</td>
-            <td className={classNames({ leak: isLeak })} colSpan={10}>
-              {' '}
-              &nbsp;{' '}
-            </td>
-          </tr>
-        </tbody>
-      )}
-      <tbody>
-        {components.length ? (
-          components.map((component, index, list) => (
+        )}
+        {baseComponent && (
+          <tbody>
             <Component
               branchLike={branchLike}
-              canBrowse={true}
-              component={component}
+              component={baseComponent}
               isLeak={isLeak}
-              key={component.key}
+              key={baseComponent.key}
               metrics={metrics}
-              previous={index > 0 ? list[index - 1] : undefined}
               rootComponent={rootComponent}
-              selected={component === selected}
             />
-          ))
-        ) : (
-          <ComponentsEmpty isLeak={isLeak} />
+            <tr className="blank">
+              <td colSpan={3}>&nbsp;</td>
+              <td className={classNames({ leak: isLeak })} colSpan={10}>
+                {' '}
+                &nbsp;{' '}
+              </td>
+            </tr>
+          </tbody>
         )}
+        <tbody>
+          {components.length ? (
+            components.map((component, index, list) => (
+              <Component
+                branchLike={branchLike}
+                canBrowse={true}
+                component={component}
+                isLeak={isLeak}
+                key={component.key}
+                metrics={metrics}
+                previous={index > 0 ? list[index - 1] : undefined}
+                rootComponent={rootComponent}
+                selected={selected && component.key === selected.key}
+              />
+            ))
+          ) : (
+            <ComponentsEmpty isLeak={isLeak} />
+          )}
 
-        <tr className="blank">
-          <td colSpan={3} />
-          <td className={classNames({ leak: isLeak })} colSpan={10} />
-        </tr>
-      </tbody>
-    </table>
-  );
+          <tr className="blank">
+            <td colSpan={3} />
+            <td className={classNames({ leak: isLeak })} colSpan={10} />
+          </tr>
+        </tbody>
+      </table>
+    );
+  }
 }
+
+export default withKeyboardNavigation(Components);

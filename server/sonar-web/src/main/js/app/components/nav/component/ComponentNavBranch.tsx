@@ -37,7 +37,7 @@ import Toggler from '../../../../components/controls/Toggler';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl } from '../../../../helpers/urls';
-import { withAppState } from '../../../../components/withAppState';
+import { withAppState } from '../../../../components/hoc/withAppState';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;

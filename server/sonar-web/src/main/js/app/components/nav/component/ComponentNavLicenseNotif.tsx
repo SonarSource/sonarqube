@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 import { isValidLicense } from '../../../../api/marketplace';
-import { withAppState } from '../../../../components/withAppState';
+import { withAppState } from '../../../../components/hoc/withAppState';
 import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {

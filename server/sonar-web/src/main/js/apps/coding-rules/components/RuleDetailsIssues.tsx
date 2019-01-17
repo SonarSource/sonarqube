@@ -25,7 +25,7 @@ import { getFacet } from '../../../api/issues';
 import { getIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
-import { withAppState } from '../../../components/withAppState';
+import { withAppState } from '../../../components/hoc/withAppState';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;

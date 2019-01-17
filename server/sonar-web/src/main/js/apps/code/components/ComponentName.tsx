@@ -58,66 +58,68 @@ interface Props {
   rootComponent: T.ComponentMeasure;
 }
 
-export default function ComponentName(props: Props) {
-  const { branchLike, component, rootComponent, previous, canBrowse = false } = props;
-  const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
-  const prefix =
-    areBothDirs && previous !== undefined
-      ? mostCommitPrefix([component.name + '/', previous.name + '/'])
-      : '';
-  const name = prefix ? (
-    <span>
-      <span style={{ color: theme.secondFontColor }}>{prefix}</span>
-      <span>{component.name.substr(prefix.length)}</span>
-    </span>
-  ) : (
-    component.name
-  );
-
-  let inner = null;
-
-  if (component.refKey && component.qualifier !== 'SVW') {
-    const branch = rootComponent.qualifier === 'APP' ? { branch: component.branch } : {};
-    inner = (
-      <Link
-        className="link-with-icon"
-        to={{ pathname: '/dashboard', query: { id: component.refKey, ...branch } }}>
-        <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
-      </Link>
-    );
-  } else if (canBrowse) {
-    const query = { id: rootComponent.key, ...getBranchLikeQuery(branchLike) };
-    if (component.key !== rootComponent.key) {
-      Object.assign(query, { selected: component.key });
-    }
-    inner = (
-      <Link className="link-with-icon" to={{ pathname: '/code', query }}>
-        <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
-      </Link>
-    );
-  } else {
-    inner = (
+export default class ComponentName extends React.PureComponent<Props> {
+  render() {
+    const { branchLike, component, rootComponent, previous, canBrowse = false } = this.props;
+    const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
+    const prefix =
+      areBothDirs && previous !== undefined
+        ? mostCommitPrefix([component.name + '/', previous.name + '/'])
+        : '';
+    const name = prefix ? (
       <span>
-        <QualifierIcon qualifier={component.qualifier} /> {name}
+        <span style={{ color: theme.secondFontColor }}>{prefix}</span>
+        <span>{component.name.substr(prefix.length)}</span>
       </span>
+    ) : (
+      component.name
     );
-  }
 
-  if (rootComponent.qualifier === 'APP') {
-    inner = (
-      <>
-        {inner}
-        {component.branch ? (
-          <>
-            <LongLivingBranchIcon className="spacer-left little-spacer-right" />
-            <span className="note">{component.branch}</span>
-          </>
-        ) : (
-          <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
-        )}
-      </>
-    );
-  }
+    let inner = null;
 
-  return <Truncated title={getTooltip(component)}>{inner}</Truncated>;
+    if (component.refKey && component.qualifier !== 'SVW') {
+      const branch = rootComponent.qualifier === 'APP' ? { branch: component.branch } : {};
+      inner = (
+        <Link
+          className="link-with-icon"
+          to={{ pathname: '/dashboard', query: { id: component.refKey, ...branch } }}>
+          <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
+        </Link>
+      );
+    } else if (canBrowse) {
+      const query = { id: rootComponent.key, ...getBranchLikeQuery(branchLike) };
+      if (component.key !== rootComponent.key) {
+        Object.assign(query, { selected: component.key });
+      }
+      inner = (
+        <Link className="link-with-icon" to={{ pathname: '/code', query }}>
+          <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
+        </Link>
+      );
+    } else {
+      inner = (
+        <span>
+          <QualifierIcon qualifier={component.qualifier} /> {name}
+        </span>
+      );
+    }
+
+    if (rootComponent.qualifier === 'APP') {
+      inner = (
+        <>
+          {inner}
+          {component.branch ? (
+            <>
+              <LongLivingBranchIcon className="spacer-left little-spacer-right" />
+              <span className="note">{component.branch}</span>
+            </>
+          ) : (
+            <span className="spacer-left outline-badge">{translate('branches.main_branch')}</span>
+          )}
+        </>
+      );
+    }
+
+    return <Truncated title={getTooltip(component)}>{inner}</Truncated>;
+  }
 }

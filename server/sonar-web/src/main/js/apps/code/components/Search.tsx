@@ -18,27 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import Components from './Components';
 import { getTree } from '../../../api/components';
 import SearchBox from '../../../components/controls/SearchBox';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { getBranchLikeQuery } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
 import { withRouter, Router, Location } from '../../../components/hoc/withRouter';
 
 interface Props {
   branchLike?: T.BranchLike;
   component: T.ComponentMeasure;
   location: Location;
+  onSearchClear: () => void;
+  onSearchResults: (results?: T.ComponentMeasure[]) => void;
   router: Pick<Router, 'push'>;
 }
 
 interface State {
   query: string;
   loading: boolean;
-  results?: T.ComponentMeasure[];
-  selectedIndex?: number;
 }
 
 class Search extends React.PureComponent<Props, State> {
@@ -57,10 +55,9 @@ class Search extends React.PureComponent<Props, State> {
     if (nextProps.location !== this.props.location) {
       this.setState({
         query: '',
-        loading: false,
-        results: undefined,
-        selectedIndex: undefined
+        loading: false
       });
+      this.props.onSearchClear();
     }
   }
 
@@ -68,52 +65,14 @@ class Search extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleSelectNext() {
-    const { selectedIndex, results } = this.state;
-    if (results && selectedIndex !== undefined && selectedIndex < results.length - 1) {
-      this.setState({ selectedIndex: selectedIndex + 1 });
-    }
-  }
-
-  handleSelectPrevious() {
-    const { selectedIndex, results } = this.state;
-    if (results && selectedIndex !== undefined && selectedIndex > 0) {
-      this.setState({ selectedIndex: selectedIndex - 1 });
-    }
-  }
-
-  handleSelectCurrent() {
-    const { branchLike, component } = this.props;
-    const { results, selectedIndex } = this.state;
-    if (results && selectedIndex !== undefined) {
-      const selected = results[selectedIndex];
-
-      if (selected.refKey) {
-        this.props.router.push(getProjectUrl(selected.refKey));
-      } else {
-        this.props.router.push({
-          pathname: '/code',
-          query: { id: component.key, selected: selected.key, ...getBranchLikeQuery(branchLike) }
-        });
-      }
-    }
-  }
-
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     switch (event.keyCode) {
       case 13:
-        event.preventDefault();
-        this.handleSelectCurrent();
-        break;
       case 38:
-        event.preventDefault();
-        this.handleSelectPrevious();
-        break;
       case 40:
         event.preventDefault();
-        this.handleSelectNext();
+        event.currentTarget.blur();
         break;
-      default: // do nothing
     }
   };
 
@@ -135,10 +94,9 @@ class Search extends React.PureComponent<Props, State> {
         .then(r => {
           if (this.mounted) {
             this.setState({
-              results: r.components,
-              selectedIndex: r.components.length > 0 ? 0 : undefined,
               loading: false
             });
+            this.props.onSearchResults(r.components);
           }
         })
         .catch(() => {
@@ -152,7 +110,7 @@ class Search extends React.PureComponent<Props, State> {
   handleQueryChange = (query: string) => {
     this.setState({ query });
     if (query.length === 0) {
-      this.setState({ results: undefined });
+      this.props.onSearchClear();
     } else {
       this.handleSearch(query);
     }
@@ -160,15 +118,11 @@ class Search extends React.PureComponent<Props, State> {
 
   render() {
     const { component } = this.props;
-    const { loading, selectedIndex, results } = this.state;
-    const selected = selectedIndex !== undefined && results ? results[selectedIndex] : undefined;
-    const containerClassName = classNames('code-search', {
-      'code-search-with-results': Boolean(results)
-    });
+    const { loading } = this.state;
     const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
     return (
-      <div className={containerClassName} id="code-search">
+      <div className="code-search" id="code-search">
         <SearchBox
           minLength={3}
           onChange={this.handleQueryChange}
@@ -178,20 +132,7 @@ class Search extends React.PureComponent<Props, State> {
           )}
           value={this.state.query}
         />
-        {loading && <i className="spinner spacer-left" />}
-
-        {results && (
-          <div className="boxed-group spacer-top">
-            <div className="big-spacer-top" />
-            <Components
-              branchLike={this.props.branchLike}
-              components={results}
-              metrics={{}}
-              rootComponent={component}
-              selected={selected}
-            />
-          </div>
-        )}
+        <DeferredSpinner className="spacer-left" loading={loading} />
       </div>
     );
   }
