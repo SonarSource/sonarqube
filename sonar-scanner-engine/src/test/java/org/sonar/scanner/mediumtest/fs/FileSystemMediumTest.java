@@ -74,7 +74,7 @@ public class FileSystemMediumTest {
 
   @Before
   public void prepare() throws IOException {
-    baseDir = temp.newFolder();
+    baseDir = temp.newFolder().getCanonicalFile();
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -1030,7 +1030,7 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample1.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
-    File outsideBaseDir = temp.newFolder();
+    File outsideBaseDir = temp.newFolder().getCanonicalFile();
     File xooFile2 = new File(outsideBaseDir, "another.xoo");
     FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
 
