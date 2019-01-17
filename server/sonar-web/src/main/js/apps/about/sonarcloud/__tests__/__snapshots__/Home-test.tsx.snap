@@ -496,24 +496,23 @@ exports[`should render 6`] = `
             />
           </li>
           <li
-            key="ABAP"
+            key="Swift"
           >
             <img
-              alt="ABAP"
-              src="/images/languages/abap.svg"
-              width={62}
+              alt="Swift"
+              src="/images/languages/swift.svg"
+              width={64}
             />
           </li>
         </ul>
         <a
-          className="bt bt-large bt-nav bt-orange2"
+          className="bt bt-large bt-nav bt-orange2 display-inline-flex-center"
           href="#"
           onClick={[Function]}
         >
           See All Languages
-          <ChevronDownIcon
+          <SCChevronDownIcon
             className="little-spacer-left"
-            size={20}
           />
         </a>
       </div>

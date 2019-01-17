@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import SCChevronDownIcon from './SCChevronDownIcon';
 import { LANGUAGES } from '../utils';
 import { getBaseUrl } from '../../../../helpers/urls';
-import ChevronDownIcon from '../../../../components/icons-components/ChevronDownIcon';
 
 interface State {
   height?: number;
@@ -69,11 +69,11 @@ export class Languages extends React.PureComponent<{}, State> {
               </ul>
               {!open && (
                 <a
-                  className="bt bt-large bt-nav bt-orange2"
+                  className="bt bt-large bt-nav bt-orange2 display-inline-flex-center"
                   href="#"
                   onClick={this.handleOpenClick}>
                   See All Languages
-                  <ChevronDownIcon className="little-spacer-left" size={20} />
+                  <SCChevronDownIcon className="little-spacer-left" />
                 </a>
               )}
             </div>

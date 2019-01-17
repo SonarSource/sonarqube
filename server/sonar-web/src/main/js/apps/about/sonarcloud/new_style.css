@@ -474,6 +474,7 @@ table.loc-price tr td:first-child {
 
 .sc-page .bt-nav.bt-large {
   height: 24px;
+  padding: 8px 8px;
 }
 
 .sc-page .bt-orange2 {
@@ -484,8 +485,8 @@ table.loc-price tr td:first-child {
 
 .sc-page .bt-orange2:hover,
 .sc-page .bt-orange2:focus {
-  border: 1px solid var(--sonarcloudOrange600);
-  background-color: var(--sonarcloudOrange600);
+  border: 1px solid var(--sonarcloudOrange700);
+  background-color: var(--sonarcloudOrange700);
 }
 
 .sc-page .bt-nav.bt-orange2 {
@@ -497,5 +498,5 @@ table.loc-price tr td:first-child {
 .sc-page .bt-nav.bt-orange2:focus {
   border: none;
   background-color: transparent;
-  color: var(--sonarcloudOrange600);
+  color: var(--sonarcloudOrange700);
 }
