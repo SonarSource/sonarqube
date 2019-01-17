@@ -59,6 +59,12 @@ export default function QualityGate({ branchLike, component, measures }: Props) 
           doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
         />
         {level && <Level className="big-spacer-left" level={level} />}
+        {level === 'WARN' && (
+          <HelpTooltip
+            className="little-spacer-left"
+            overlay={translate('quality_gates.conditions.warning.tootlip')}
+          />
+        )}
       </div>
 
       {ignoredConditions && (

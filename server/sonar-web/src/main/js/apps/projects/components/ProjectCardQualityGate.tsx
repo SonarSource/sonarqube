@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import Level from '../../../components/ui/Level';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import { formatMeasure } from '../../../helpers/measures';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 interface Props {
   status?: string;
@@ -42,6 +43,12 @@ export default function ProjectCardQualityGate({ status }: Props) {
       <Tooltip overlay={tooltip}>
         <div className="project-card-measure-inner">
           <Level level={status} small={true} />
+          {status === 'WARN' && (
+            <HelpTooltip
+              className="little-spacer-left"
+              overlay={translate('quality_gates.conditions.warning.tootlip')}
+            />
+          )}
         </div>
       </Tooltip>
     </div>

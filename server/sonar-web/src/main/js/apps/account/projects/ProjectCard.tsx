@@ -20,10 +20,11 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
-import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Level from '../../../components/ui/Level';
+import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
@@ -56,6 +57,12 @@ export default function ProjectCard({ project }: Props) {
 
         {project.qualityGate !== undefined && (
           <div className="account-project-quality-gate">
+            {project.qualityGate === 'WARN' && (
+              <HelpTooltip
+                className="little-spacer-right"
+                overlay={translate('quality_gates.conditions.warning.tootlip')}
+              />
+            )}
             <Level level={project.qualityGate} />
           </div>
         )}

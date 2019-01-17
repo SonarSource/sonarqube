@@ -21,9 +21,10 @@ import * as React from 'react';
 import { keyBy } from 'lodash';
 import ApplicationQualityGateProject from './ApplicationQualityGateProject';
 import Level from '../../../components/ui/Level';
+import DocTooltip from '../../../components/docs/DocTooltip';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getApplicationQualityGate, ApplicationProject } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   branch?: T.LongLivingBranch;
@@ -95,6 +96,12 @@ export default class ApplicationQualityGate extends React.PureComponent<Props, S
             doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
           />
           {status != null && <Level className="big-spacer-left" level={status} />}
+          {status === 'WARN' && (
+            <HelpTooltip
+              className="little-spacer-left"
+              overlay={translate('quality_gates.conditions.warning.tootlip')}
+            />
+          )}
         </h2>
 
         {projects &&

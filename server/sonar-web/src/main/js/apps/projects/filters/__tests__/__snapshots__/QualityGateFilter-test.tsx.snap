@@ -23,9 +23,11 @@ exports[`renders 1`] = `
 `;
 
 exports[`renders 2`] = `
-<Level
-  level={2}
-  muted={true}
-  small={true}
-/>
+<React.Fragment>
+  <Level
+    level={2}
+    muted={true}
+    small={true}
+  />
+</React.Fragment>
 `;
