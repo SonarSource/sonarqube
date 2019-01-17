@@ -214,9 +214,8 @@ public class PurgeDaoTest {
     assertThat(db.countSql("select count(*) from issues where resolution = 'REMOVED'")).isEqualTo(0);
 
     db.fileSources().insertFileSource(srcFile);
-    db.fileSources().insertFileSource(testFile, f -> f.setDataType("TEST"));
     FileSourceDto nonSelectedFileSource = db.fileSources().insertFileSource(nonSelectedFile);
-    assertThat(db.countRowsOfTable("file_sources")).isEqualTo(3);
+    assertThat(db.countRowsOfTable("file_sources")).isEqualTo(2);
 
     MetricDto metric1 = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
@@ -254,11 +253,12 @@ public class PurgeDaoTest {
 
     // delete file sources of selected
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
-    assertThat(db.getDbClient().fileSourceDao().selectSourceByFileUuid(dbSession, nonSelectedFileSource.getFileUuid())).isNotNull();
+    assertThat(db.getDbClient().fileSourceDao().selectByFileUuid(dbSession, nonSelectedFileSource.getFileUuid())).isNotNull();
 
     // deletes live measure of selected
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
-    List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), nonSelectedFile.uuid()), ImmutableSet.of(metric1.getId(), metric2.getId()));
+    List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession,
+      ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), nonSelectedFile.uuid()), ImmutableSet.of(metric1.getId(), metric2.getId()));
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getComponentUuid)
       .containsOnly(nonSelectedFile.uuid(), project.uuid());
@@ -274,7 +274,6 @@ public class PurgeDaoTest {
     underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(new IdUuidPair(3, "u3")));
     db.assertDbUnit(getClass(), "shouldDeleteAnalyses-result.xml", "snapshots");
   }
-
 
   @Test
   public void deleteAnalyses_deletes_rows_in_events_and_event_component_changes() {

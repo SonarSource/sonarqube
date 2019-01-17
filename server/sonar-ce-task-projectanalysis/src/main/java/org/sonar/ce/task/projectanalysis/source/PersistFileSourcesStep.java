@@ -39,7 +39,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -87,7 +86,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     @Override
     public void visitProject(Component project) {
       this.projectUuid = project.getUuid();
-      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
+      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid),
         context -> {
           FileSourceDto dto = (FileSourceDto) context.getResultObject();
           previousFileSourcesByUuid.put(dto.getFileUuid(), dto);
@@ -119,7 +118,6 @@ public class PersistFileSourcesStep implements ComputationStep {
         FileSourceDto dto = new FileSourceDto()
           .setProjectUuid(projectUuid)
           .setFileUuid(file.getUuid())
-          .setDataType(Type.SOURCE)
           .setBinaryData(binaryData)
           .setSrcHash(srcHash)
           .setDataHash(dataHash)

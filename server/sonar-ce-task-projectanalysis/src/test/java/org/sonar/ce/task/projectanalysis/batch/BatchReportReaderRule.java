@@ -54,8 +54,6 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<ScannerReport.SyntaxHighlightingRule>> syntaxHighlightings = new HashMap<>();
   private Map<Integer, List<ScannerReport.LineCoverage>> coverages = new HashMap<>();
   private Map<Integer, List<String>> fileSources = new HashMap<>();
-  private Map<Integer, List<ScannerReport.Test>> tests = new HashMap<>();
-  private Map<Integer, List<ScannerReport.CoverageDetail>> coverageDetails = new HashMap<>();
   private Map<Integer, List<ScannerReport.LineSgnificantCode>> significantCode = new HashMap<>();
   private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
@@ -87,8 +85,6 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     this.syntaxHighlightings.clear();
     this.coverages.clear();
     this.fileSources.clear();
-    this.tests.clear();
-    this.coverageDetails.clear();
     this.significantCode.clear();
   }
 
@@ -305,26 +301,6 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   public BatchReportReaderRule putFileSourceLines(int fileRef, List<String> lines) {
     this.fileSources.put(fileRef, lines);
-    return this;
-  }
-
-  @Override
-  public CloseableIterator<ScannerReport.Test> readTests(int testFileRef) {
-    return closeableIterator(this.tests.get(testFileRef));
-  }
-
-  public BatchReportReaderRule putTests(int testFileRed, List<ScannerReport.Test> tests) {
-    this.tests.put(testFileRed, tests);
-    return this;
-  }
-
-  @Override
-  public CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef) {
-    return closeableIterator(this.coverageDetails.get(testFileRef));
-  }
-
-  public BatchReportReaderRule putCoverageDetails(int testFileRef, List<ScannerReport.CoverageDetail> coverageDetails) {
-    this.coverageDetails.put(testFileRef, coverageDetails);
     return this;
   }
 

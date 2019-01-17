@@ -181,26 +181,6 @@ public class ScannerReportReader {
     return null;
   }
 
-  @CheckForNull
-  public File readTests(int testFileRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.TESTS, testFileRef);
-    if (fileExists(file)) {
-      return file;
-    }
-
-    return null;
-  }
-
-  @CheckForNull
-  public File readCoverageDetails(int testFileRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE_DETAILS, testFileRef);
-    if (fileExists(file)) {
-      return file;
-    }
-
-    return null;
-  }
-
   public CloseableIterator<ScannerReport.ContextProperty> readContextProperties() {
     File file = fileStructure.contextProperties();
     if (!fileExists(file)) {

@@ -20,7 +20,6 @@
 package org.sonar.db.source;
 
 import com.google.common.base.Joiner;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -42,22 +41,6 @@ public class FileSourceDtoTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void encode_and_decode_test_data() {
-    List<DbFileSources.Test> tests = Arrays.asList(
-      DbFileSources.Test.newBuilder()
-        .setName("name#1")
-        .build(),
-      DbFileSources.Test.newBuilder()
-        .setName("name#2")
-        .build());
-
-    FileSourceDto underTest = new FileSourceDto().setTestData(tests);
-
-    assertThat(underTest.getTestData()).hasSize(2);
-    assertThat(underTest.getTestData().get(0).getName()).isEqualTo("name#1");
-  }
 
   @Test
   public void getSourceData_throws_ISE_with_id_fileUuid_and_projectUuid_in_message_when_data_cant_be_read() {
@@ -98,7 +81,7 @@ public class FileSourceDtoTest {
   }
 
   @Test
-  public void new_FileSourceDto_as_lineCount_0_and_rawLineHashes_to_null()  {
+  public void new_FileSourceDto_as_lineCount_0_and_rawLineHashes_to_null() {
     FileSourceDto underTest = new FileSourceDto();
 
     assertThat(underTest.getLineCount()).isZero();

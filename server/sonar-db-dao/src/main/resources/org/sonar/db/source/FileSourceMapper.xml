@@ -4,7 +4,7 @@
 
 <mapper namespace="org.sonar.db.source.FileSourceMapper">
 
-  <select id="select" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
+  <select id="selectByFileUuid" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
     select
       id,
       project_uuid as projectUuid,
@@ -17,14 +17,12 @@
       line_count as lineCount,
       data_hash as dataHash,
       src_hash as srcHash,
-      data_type as
-      dataType,
       revision
     from
       file_sources
     where
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
-      and data_type = #{dataType,jdbcType=VARCHAR}
+      and data_type = 'SOURCE'
   </select>
 
   <select id="selectHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
@@ -35,11 +33,11 @@
       src_hash as srcHash,
       revision,
       updated_at as updatedAt
-    from
+      from
       file_sources
     where
       project_uuid = #{projectUuid,jdbcType=VARCHAR}
-      and data_type = #{dataType,jdbcType=VARCHAR}
+      and data_type = 'SOURCE'
   </select>
 
   <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithUuidDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
@@ -66,7 +64,7 @@
       file_sources
     WHERE
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
-      and data_type=#{dataType,jdbcType=VARCHAR}
+      and data_type = 'SOURCE'
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
@@ -97,7 +95,7 @@
       #{lineCount,jdbcType=INTEGER},
       #{dataHash,jdbcType=VARCHAR},
       #{srcHash,jdbcType=VARCHAR},
-      #{dataType,jdbcType=VARCHAR},
+      'SOURCE',
       #{revision,jdbcType=VARCHAR}
     )
   </insert>

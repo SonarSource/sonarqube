@@ -600,8 +600,7 @@ public class FileMoveDetectionStepTest {
         FileSourceDto fileSourceDto = new FileSourceDto()
           .setFileUuid(file.uuid())
           .setProjectUuid(file.projectUuid())
-          .setLineHashes(linesHashesComputer.getLineHashes())
-          .setDataType(FileSourceDto.Type.SOURCE);
+          .setLineHashes(linesHashesComputer.getLineHashes());
         dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), fileSourceDto);
         dbTester.commit();
         return fileSourceDto;

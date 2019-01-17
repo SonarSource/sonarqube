@@ -19,32 +19,13 @@
  */
 package org.sonar.server.source.index;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Arrays;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.db.source.FileSourceDto;
 
 public class FileSourceTesting {
 
   private FileSourceTesting() {
     // only static stuff
-  }
-
-  public static void updateDataColumn(Connection connection, String fileUuid, DbFileSources.Data data) throws SQLException {
-    updateDataColumn(connection, fileUuid, FileSourceDto.encodeSourceData(data));
-  }
-
-  public static void updateDataColumn(Connection connection, String fileUuid, byte[] data) throws SQLException {
-    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET binary_data = ? WHERE file_uuid=? AND data_type='" + FileSourceDto.Type.SOURCE + "'");
-    stmt.setBytes(1, data);
-    stmt.setString(2, fileUuid);
-    stmt.executeUpdate();
-    stmt.close();
   }
 
   /**
@@ -71,26 +52,4 @@ public class FileSourceTesting {
     return dataBuilder;
   }
 
-  /**
-   * Generate random data. Result is mutable.
-   */
-  public static DbFileSources.Data.Builder newRandomData(int numberOfLines) {
-    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
-    for (int i = 1; i <= numberOfLines; i++) {
-      dataBuilder.addLinesBuilder()
-        .setLine(i)
-        .setScmRevision(RandomStringUtils.randomAlphanumeric(15))
-        .setScmAuthor(RandomStringUtils.randomAlphanumeric(10))
-        .setScmDate(RandomUtils.nextLong())
-        .setSource(RandomStringUtils.randomAlphanumeric(20))
-        .setLineHits(RandomUtils.nextInt(4))
-        .setConditions(RandomUtils.nextInt(4))
-        .setCoveredConditions(RandomUtils.nextInt(4))
-        .setHighlighting(RandomStringUtils.randomAlphanumeric(40))
-        .setSymbols(RandomStringUtils.randomAlphanumeric(30))
-        .addAllDuplication(Arrays.asList(RandomUtils.nextInt(200), RandomUtils.nextInt(200)))
-        .build();
-    }
-    return dataBuilder;
-  }
 }

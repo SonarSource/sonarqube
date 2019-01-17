@@ -21,7 +21,6 @@ package org.sonar.scanner.mediumtest;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
@@ -247,38 +245,6 @@ public class AnalysisResult implements AnalysisObserver {
         if (coverage.getLine() == line) {
           return coverage;
         }
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-    return null;
-  }
-
-  public ScannerReport.Test firstTestExecutionForName(InputFile testFile, String testName) {
-    int ref = ((DefaultInputComponent) testFile).scannerId();
-    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readTests(ref))) {
-      ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
-      while (test != null) {
-        if (test.getName().equals(testName)) {
-          return test;
-        }
-        test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-    return null;
-  }
-
-  public ScannerReport.CoverageDetail coveragePerTestFor(InputFile testFile, String testName) {
-    int ref = ((DefaultInputComponent) testFile).scannerId();
-    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readCoverageDetails(ref))) {
-      ScannerReport.CoverageDetail details = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
-      while (details != null) {
-        if (details.getTestName().equals(testName)) {
-          return details;
-        }
-        details = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
       }
     } catch (Exception e) {
       throw new IllegalStateException(e);

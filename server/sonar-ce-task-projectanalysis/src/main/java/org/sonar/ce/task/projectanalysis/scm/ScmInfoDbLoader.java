@@ -22,13 +22,13 @@ package org.sonar.ce.task.projectanalysis.scm;
 import java.util.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 
 public class ScmInfoDbLoader {
   private static final Logger LOGGER = Loggers.get(ScmInfoDbLoader.class);
@@ -51,7 +51,7 @@ public class ScmInfoDbLoader {
 
     LOGGER.trace("Reading SCM info from DB for file '{}'", uuid.get());
     try (DbSession dbSession = dbClient.openSession(false)) {
-      FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, uuid.get());
+      FileSourceDto dto = dbClient.fileSourceDao().selectByFileUuid(dbSession, uuid.get());
       if (dto == null) {
         return Optional.empty();
       }

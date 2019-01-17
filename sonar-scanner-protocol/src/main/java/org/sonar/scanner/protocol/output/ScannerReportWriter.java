@@ -154,18 +154,6 @@ public class ScannerReportWriter {
     return file;
   }
 
-  public File writeTests(int componentRef, Iterable<ScannerReport.Test> tests) {
-    File file = fileStructure.fileFor(FileStructure.Domain.TESTS, componentRef);
-    Protobuf.writeStream(tests, file, false);
-    return file;
-  }
-
-  public File writeCoverageDetails(int componentRef, Iterable<ScannerReport.CoverageDetail> tests) {
-    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE_DETAILS, componentRef);
-    Protobuf.writeStream(tests, file, false);
-    return file;
-  }
-
   public File writeContextProperties(Iterable<ScannerReport.ContextProperty> properties) {
     File file = fileStructure.contextProperties();
     Protobuf.writeStream(properties, file, false);

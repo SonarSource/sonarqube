@@ -353,24 +353,4 @@ public class ScannerReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();
   }
 
-  @Test
-  public void write_tests() {
-    assertThat(underTest.hasComponentData(FileStructure.Domain.TESTS, 1)).isFalse();
-
-    underTest.writeTests(1, asList(
-      ScannerReport.Test.getDefaultInstance()));
-
-    assertThat(underTest.hasComponentData(FileStructure.Domain.TESTS, 1)).isTrue();
-
-  }
-
-  @Test
-  public void write_coverage_details() {
-    assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isFalse();
-
-    underTest.writeCoverageDetails(1, asList(
-      ScannerReport.CoverageDetail.getDefaultInstance()));
-
-    assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isTrue();
-  }
 }

@@ -35,7 +35,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedPartitions;
 
@@ -44,18 +43,13 @@ public class FileSourceDao implements Dao {
   private static final Splitter END_OF_LINE_SPLITTER = Splitter.on('\n');
 
   @CheckForNull
-  public FileSourceDto selectSourceByFileUuid(DbSession session, String fileUuid) {
-    return mapper(session).select(fileUuid, Type.SOURCE);
-  }
-
-  @CheckForNull
-  public FileSourceDto selectTestByFileUuid(DbSession dbSession, String fileUuid) {
-    return mapper(dbSession).select(fileUuid, Type.TEST);
+  public FileSourceDto selectByFileUuid(DbSession session, String fileUuid) {
+    return mapper(session).selectByFileUuid(fileUuid);
   }
 
   @CheckForNull
   public LineHashVersion selectLineHashesVersion(DbSession dbSession, String fileUuid) {
-    Integer version = mapper(dbSession).selectLineHashesVersion(fileUuid, Type.SOURCE);
+    Integer version = mapper(dbSession).selectLineHashesVersion(fileUuid);
     return version == null ? LineHashVersion.WITHOUT_SIGNIFICANT_CODE : LineHashVersion.valueOf(version);
   }
 
@@ -65,9 +59,8 @@ public class FileSourceDao implements Dao {
     PreparedStatement pstmt = null;
     ResultSet rs = null;
     try {
-      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type=?");
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type='SOURCE'");
       pstmt.setString(1, fileUuid);
-      pstmt.setString(2, Type.SOURCE);
       rs = pstmt.executeQuery();
       if (rs.next()) {
         String string = rs.getString(1);
@@ -100,9 +93,8 @@ public class FileSourceDao implements Dao {
     ResultSet rs = null;
     Reader reader = null;
     try {
-      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type=?");
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type='SOURCE'");
       pstmt.setString(1, fileUuid);
-      pstmt.setString(2, Type.SOURCE);
       rs = pstmt.executeQuery();
       if (rs.next()) {
         reader = rs.getCharacterStream(1);

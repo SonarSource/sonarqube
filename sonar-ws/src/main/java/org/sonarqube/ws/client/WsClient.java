@@ -65,7 +65,6 @@ import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.sources.SourcesService;
 import org.sonarqube.ws.client.support.SupportService;
 import org.sonarqube.ws.client.system.SystemService;
-import org.sonarqube.ws.client.tests.TestsService;
 import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
@@ -184,8 +183,6 @@ public interface WsClient {
   SupportService support();
 
   SystemService system();
-
-  TestsService tests();
 
   TimemachineService timemachine();
 

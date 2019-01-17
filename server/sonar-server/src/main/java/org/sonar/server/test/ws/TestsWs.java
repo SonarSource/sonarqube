@@ -19,25 +19,34 @@
  */
 package org.sonar.server.test.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 public class TestsWs implements WebService {
-
-  private final TestsWsAction[] actions;
-
-  public TestsWs(TestsWsAction... actions) {
-    this.actions = actions;
-  }
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/tests")
       .setSince("4.4")
-      .setDescription("Get details on test files. See also api/sources. Deprecated since 5.6.");
+      .setDescription("Removed in 7.6");
 
-    for (TestsWsAction action : actions) {
-      action.define(controller);
-    }
+    controller.createAction("covered_files")
+      .setDescription("This web API is no longer supported")
+      .setSince("4.4")
+      .setDeprecatedSince("5.6")
+      .setChangelog(new Change("7.6", "This action has been removed"))
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample())
+      .setHandler(RemovedWebServiceHandler.INSTANCE);
+
+    controller
+      .createAction("list")
+      .setDescription("This web API is no longer supported")
+      .setSince("5.2")
+      .setDeprecatedSince("5.6")
+      .setChangelog(new Change("7.6", "This action has been removed"))
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample())
+      .setHandler(RemovedWebServiceHandler.INSTANCE);
 
     controller.done();
   }

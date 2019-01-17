@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -256,7 +255,6 @@ public class ScannerReportViewerApp {
     updateSymbols(component);
     updateSource(component);
     updateCoverage(component);
-    updateTests(component);
     updateDuplications(component);
     updateIssues(component);
     updateExternalIssues(component);
@@ -345,23 +343,6 @@ public class ScannerReportViewerApp {
       }
     } catch (Exception e) {
       throw new IllegalStateException("Can't read code coverage for " + getNodeName(component), e);
-    }
-  }
-
-  private void updateTests(Component component) {
-    testsEditor.setText("");
-    File tests = reader.readTests(component.getRef());
-    if (tests == null) {
-      return;
-    }
-    try (InputStream inputStream = FileUtils.openInputStream(tests)) {
-      ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
-      while (test != null) {
-        testsEditor.getDocument().insertString(testsEditor.getDocument().getEndPosition().getOffset(), test + "\n", null);
-        test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
     }
   }
 

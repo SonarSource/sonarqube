@@ -47,10 +47,6 @@ public class BatchReportReaderImplTest {
   private static final ScannerReport.SyntaxHighlightingRule SYNTAX_HIGHLIGHTING_2 = ScannerReport.SyntaxHighlightingRule.newBuilder().build();
   private static final ScannerReport.LineCoverage COVERAGE_1 = ScannerReport.LineCoverage.newBuilder().build();
   private static final ScannerReport.LineCoverage COVERAGE_2 = ScannerReport.LineCoverage.newBuilder().build();
-  private static final ScannerReport.Test TEST_1 = ScannerReport.Test.newBuilder().setName("1").build();
-  private static final ScannerReport.Test TEST_2 = ScannerReport.Test.newBuilder().setName("2").build();
-  private static final ScannerReport.CoverageDetail COVERAGE_DETAIL_1 = ScannerReport.CoverageDetail.newBuilder().setTestName("1").build();
-  private static final ScannerReport.CoverageDetail COVERAGE_DETAIL_2 = ScannerReport.CoverageDetail.newBuilder().setTestName("2").build();
 
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
@@ -285,34 +281,6 @@ public class BatchReportReaderImplTest {
 
     CloseableIterator<String> res = underTest.readFileSource(COMPONENT_REF).get();
     assertThat(res).containsExactly("1", "2", "3");
-    res.close();
-  }
-
-  @Test
-  public void readTests_returns_empty_CloseableIterator_when_file_does_not_exist() {
-    assertThat(underTest.readTests(COMPONENT_REF)).isEmpty();
-  }
-
-  @Test
-  public void verify_readTests() {
-    writer.writeTests(COMPONENT_REF, of(TEST_1, TEST_2));
-
-    CloseableIterator<ScannerReport.Test> res = underTest.readTests(COMPONENT_REF);
-    assertThat(res).containsExactly(TEST_1, TEST_2);
-    res.close();
-  }
-
-  @Test
-  public void readCoverageDetails_returns_empty_CloseableIterator_when_file_does_not_exist() {
-    assertThat(underTest.readCoverageDetails(COMPONENT_REF)).isEmpty();
-  }
-
-  @Test
-  public void verify_readCoverageDetails() {
-    writer.writeCoverageDetails(COMPONENT_REF, of(COVERAGE_DETAIL_1, COVERAGE_DETAIL_2));
-
-    CloseableIterator<ScannerReport.CoverageDetail> res = underTest.readCoverageDetails(COMPONENT_REF);
-    assertThat(res).containsExactly(COVERAGE_DETAIL_1, COVERAGE_DETAIL_2);
     res.close();
   }
 

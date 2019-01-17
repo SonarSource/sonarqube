@@ -99,7 +99,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PersistProjectLinksStep.class,
     PersistEventsStep.class,
     PersistFileSourcesStep.class,
-    PersistTestsStep.class,
     PersistCrossProjectDuplicationIndexStep.class,
     EnableAnalysisStep.class,
 

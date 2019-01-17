@@ -65,7 +65,6 @@ import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.sources.SourcesService;
 import org.sonarqube.ws.client.support.SupportService;
 import org.sonarqube.ws.client.system.SystemService;
-import org.sonarqube.ws.client.tests.TestsService;
 import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
@@ -130,7 +129,6 @@ class DefaultWsClient implements WsClient {
   private final SourcesService sourcesService;
   private final SupportService supportService;
   private final SystemService systemService;
-  private final TestsService testsService;
   private final TimemachineService timemachineService;
   private final UpdatecenterService updatecenterService;
   private final UserGroupsService userGroupsService;
@@ -189,7 +187,6 @@ class DefaultWsClient implements WsClient {
     this.sourcesService = new SourcesService(wsConnector);
     this.supportService = new SupportService(wsConnector);
     this.systemService = new SystemService(wsConnector);
-    this.testsService = new TestsService(wsConnector);
     this.timemachineService = new TimemachineService(wsConnector);
     this.updatecenterService = new UpdatecenterService(wsConnector);
     this.userGroupsService = new UserGroupsService(wsConnector);
@@ -422,11 +419,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public SystemService system() {
     return systemService;
-  }
-
-  @Override
-  public TestsService tests() {
-    return testsService;
   }
 
   @Override

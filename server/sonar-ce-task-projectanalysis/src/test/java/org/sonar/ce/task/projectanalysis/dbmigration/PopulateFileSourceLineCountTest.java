@@ -19,9 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.dbmigration;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Random;
@@ -31,11 +28,9 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbTester;
-import org.sonar.db.source.FileSourceDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +38,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.source.FileSourceDto.LINE_COUNT_NOT_POPULATED;
 
-@RunWith(DataProviderRunner.class)
 public class PopulateFileSourceLineCountTest {
 
   @Rule
@@ -65,13 +59,12 @@ public class PopulateFileSourceLineCountTest {
   }
 
   @Test
-  @UseDataProvider("anyType")
-  public void execute_populates_line_count_of_any_type(String type) throws SQLException {
+  public void execute_populates_line_count_of_any_type() throws SQLException {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid = randomAlphanumeric(5);
     when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
     int lineCount = 1 + random.nextInt(15);
-    insertUnpopulatedFileSource(projectUuid, fileUuid, type, lineCount);
+    insertUnpopulatedFileSource(projectUuid, fileUuid, lineCount);
     assertThat(getLineCountByFileUuid(fileUuid)).isEqualTo(LINE_COUNT_NOT_POPULATED);
 
     underTest.execute();
@@ -80,8 +73,7 @@ public class PopulateFileSourceLineCountTest {
   }
 
   @Test
-  @UseDataProvider("anyType")
-  public void execute_changes_only_file_source_with_LINE_COUNT_NOT_POPULATED_value(String type) throws SQLException {
+  public void execute_changes_only_file_source_with_LINE_COUNT_NOT_POPULATED_value() throws SQLException {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid1 = randomAlphanumeric(5);
     String fileUuid2 = randomAlphanumeric(6);
@@ -91,9 +83,9 @@ public class PopulateFileSourceLineCountTest {
     int lineCountFile3 = 150 + random.nextInt(15);
 
     when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
-    insertPopulatedFileSource(projectUuid, fileUuid1, type, lineCountFile1);
-    int badLineCountFile2 = insertInconsistentPopulatedFileSource(projectUuid, fileUuid2, type, lineCountFile2);
-    insertUnpopulatedFileSource(projectUuid, fileUuid3, type, lineCountFile3);
+    insertPopulatedFileSource(projectUuid, fileUuid1, lineCountFile1);
+    int badLineCountFile2 = insertInconsistentPopulatedFileSource(projectUuid, fileUuid2, lineCountFile2);
+    insertUnpopulatedFileSource(projectUuid, fileUuid3, lineCountFile3);
     assertThat(getLineCountByFileUuid(fileUuid1)).isEqualTo(lineCountFile1);
     assertThat(getLineCountByFileUuid(fileUuid2)).isEqualTo(badLineCountFile2);
     assertThat(getLineCountByFileUuid(fileUuid3)).isEqualTo(LINE_COUNT_NOT_POPULATED);
@@ -106,8 +98,7 @@ public class PopulateFileSourceLineCountTest {
   }
 
   @Test
-  @UseDataProvider("anyType")
-  public void execute_changes_only_file_source_of_CeTask_component_uuid(String type) throws SQLException {
+  public void execute_changes_only_file_source_of_CeTask_component_uuid() throws SQLException {
     String projectUuid1 = randomAlphanumeric(4);
     String projectUuid2 = randomAlphanumeric(5);
     String fileUuid1 = randomAlphanumeric(6);
@@ -116,8 +107,8 @@ public class PopulateFileSourceLineCountTest {
     int lineCountFile2 = 30 + random.nextInt(15);
 
     when(ceTask.getComponent()).thenReturn(newComponent(projectUuid1));
-    insertUnpopulatedFileSource(projectUuid1, fileUuid1, type, lineCountFile1);
-    insertUnpopulatedFileSource(projectUuid2, fileUuid2, type, lineCountFile2);
+    insertUnpopulatedFileSource(projectUuid1, fileUuid1, lineCountFile1);
+    insertUnpopulatedFileSource(projectUuid2, fileUuid2, lineCountFile2);
 
     underTest.execute();
 
@@ -126,13 +117,12 @@ public class PopulateFileSourceLineCountTest {
   }
 
   @Test
-  @UseDataProvider("anyType")
-  public void execute_set_line_count_to_zero_when_file_source_has_no_line_hashes(String type) throws SQLException {
+  public void execute_set_line_count_to_zero_when_file_source_has_no_line_hashes() throws SQLException {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid1 = randomAlphanumeric(5);
 
     when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
-    insertFileSource(projectUuid, fileUuid1, type, null, LINE_COUNT_NOT_POPULATED);
+    insertFileSource(projectUuid, fileUuid1, null, LINE_COUNT_NOT_POPULATED);
 
     underTest.execute();
 
@@ -140,27 +130,16 @@ public class PopulateFileSourceLineCountTest {
   }
 
   @Test
-  @UseDataProvider("anyType")
-  public void execute_set_line_count_to_1_when_file_source_has_empty_line_hashes(String type) throws SQLException {
+  public void execute_set_line_count_to_1_when_file_source_has_empty_line_hashes() throws SQLException {
     String projectUuid = randomAlphanumeric(4);
     String fileUuid1 = randomAlphanumeric(5);
 
     when(ceTask.getComponent()).thenReturn(newComponent(projectUuid));
-    insertFileSource(projectUuid, fileUuid1, type, "", LINE_COUNT_NOT_POPULATED);
+    insertFileSource(projectUuid, fileUuid1, "", LINE_COUNT_NOT_POPULATED);
 
     underTest.execute();
 
     assertThat(getLineCountByFileUuid(fileUuid1)).isEqualTo(1);
-  }
-
-  @DataProvider
-  public static Object[][] anyType() {
-    return new Object[][] {
-      {FileSourceDto.Type.SOURCE},
-      {FileSourceDto.Type.TEST},
-      {null},
-      {randomAlphanumeric(3)},
-    };
   }
 
   private int getLineCountByFileUuid(String fileUuid) {
@@ -169,23 +148,23 @@ public class PopulateFileSourceLineCountTest {
     return res.intValue();
   }
 
-  private void insertUnpopulatedFileSource(String projectUuid, String fileUuid, @Nullable String dataType, int numberOfHashes) {
+  private void insertUnpopulatedFileSource(String projectUuid, String fileUuid, int numberOfHashes) {
     String lineHashes = generateLineHashes(numberOfHashes);
 
-    insertFileSource(projectUuid, fileUuid, dataType, lineHashes, LINE_COUNT_NOT_POPULATED);
+    insertFileSource(projectUuid, fileUuid, lineHashes, LINE_COUNT_NOT_POPULATED);
   }
 
-  private void insertPopulatedFileSource(String projectUuid, String fileUuid, @Nullable String dataType, int lineCount) {
+  private void insertPopulatedFileSource(String projectUuid, String fileUuid, int lineCount) {
     String lineHashes = generateLineHashes(lineCount);
 
-    insertFileSource(projectUuid, fileUuid, dataType, lineHashes, lineCount);
+    insertFileSource(projectUuid, fileUuid, lineHashes, lineCount);
   }
 
-  private int insertInconsistentPopulatedFileSource(String projectUuid, String fileUuid, @Nullable String dataType, int lineCount) {
+  private int insertInconsistentPopulatedFileSource(String projectUuid, String fileUuid, int lineCount) {
     String lineHashes = generateLineHashes(lineCount);
     int badLineCount = lineCount + random.nextInt(6);
 
-    insertFileSource(projectUuid, fileUuid, dataType, lineHashes, badLineCount);
+    insertFileSource(projectUuid, fileUuid, lineHashes, badLineCount);
 
     return badLineCount;
   }
@@ -196,13 +175,12 @@ public class PopulateFileSourceLineCountTest {
       .collect(Collectors.joining("\n"));
   }
 
-  private void insertFileSource(String projectUuid, String fileUuid, @Nullable String dataType, @Nullable String lineHashes, int lineCount) {
+  private void insertFileSource(String projectUuid, String fileUuid, @Nullable String lineHashes, int lineCount) {
     db.executeInsert(
       "FILE_SOURCES",
       "PROJECT_UUID", projectUuid,
       "FILE_UUID", fileUuid,
       "LINE_HASHES", lineHashes,
-      "DATA_TYPE", dataType,
       "LINE_COUNT", lineCount,
       "CREATED_AT", 1_222_333L,
       "UPDATED_AT", 1_222_333L);

@@ -199,10 +199,7 @@ import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataLoader;
-import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.test.index.TestIndexDefinition;
-import org.sonar.server.test.index.TestIndexer;
-import org.sonar.server.test.ws.CoveredFilesAction;
 import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ui.DeprecatedViews;
@@ -479,11 +476,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Tests
       TestsWs.class,
-      CoveredFilesAction.class,
-      org.sonar.server.test.ws.ListAction.class,
       TestIndexDefinition.class,
-      TestIndex.class,
-      TestIndexer.class,
 
       // Settings
       PersistentSettings.class,

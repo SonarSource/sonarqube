@@ -26,7 +26,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -38,7 +37,6 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -62,20 +60,6 @@ public class HashActionTest {
     loginAsProjectViewer(project);
 
     TestRequest request = tester.newRequest().setParam("key", file.getDbKey());
-
-    assertThat(request.execute().getInput()).isEqualTo("ABC");
-  }
-
-  @Test
-  public void show_hashes_on_test_file() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
-    ComponentDto test = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
-    FileSourceDto fileSource = db.fileSources().insertFileSource(test, f -> f.setLineHashes(singletonList("ABC")));
-    FileSourceDto fileTest = db.fileSources().insertFileSource(test, f -> f.setTestData(singletonList(DbFileSources.Test.newBuilder().build())));
-    loginAsProjectViewer(project);
-
-    TestRequest request = tester.newRequest().setParam("key", test.getKey());
 
     assertThat(request.execute().getInput()).isEqualTo("ABC");
   }

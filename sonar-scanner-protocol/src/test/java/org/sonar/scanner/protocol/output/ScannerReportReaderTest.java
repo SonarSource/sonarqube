@@ -32,7 +32,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
-import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -45,9 +44,9 @@ public class ScannerReportReaderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  File dir;
+  private File dir;
 
-  ScannerReportReader underTest;
+  private ScannerReportReader underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -211,7 +210,7 @@ public class ScannerReportReaderTest {
   }
 
   @Test
-  public void read_syntax_highlighting() throws Exception {
+  public void read_syntax_highlighting() {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -276,7 +275,7 @@ public class ScannerReportReaderTest {
   }
 
   @Test
-  public void read_coverage() throws Exception {
+  public void read_coverage() {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -324,55 +323,6 @@ public class ScannerReportReaderTest {
   }
 
   @Test
-  public void read_tests() throws Exception {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
-    writer.writeTests(1, asList(
-      ScannerReport.Test.newBuilder()
-        .setDurationInMs(60_000)
-        .setStacktrace("stacktrace")
-        .setMsg("message")
-        .setStatus(TestStatus.OK)
-        .build()));
-
-    try (InputStream inputStream = FileUtils.openInputStream(underTest.readTests(1))) {
-      ScannerReport.Test testResult = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
-      assertThat(testResult.getDurationInMs()).isEqualTo(60_000);
-      assertThat(testResult.getStacktrace()).isEqualTo("stacktrace");
-      assertThat(testResult.getMsg()).isEqualTo("message");
-      assertThat(testResult.getStatus()).isEqualTo(TestStatus.OK);
-    }
-  }
-
-  @Test
-  public void null_if_no_test_found() {
-    assertThat(underTest.readTests(UNKNOWN_COMPONENT_REF)).isNull();
-  }
-
-  @Test
-  public void read_coverage_details() throws Exception {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
-    writer.writeCoverageDetails(1, asList(
-      ScannerReport.CoverageDetail.newBuilder()
-        .setTestName("test-name")
-        .addCoveredFile(ScannerReport.CoverageDetail.CoveredFile.newBuilder()
-          .addAllCoveredLine(asList(1, 2, 3, 5, 7))
-          .setFileRef(2))
-        .build()));
-
-    try (InputStream inputStream = FileUtils.openInputStream(underTest.readCoverageDetails(1))) {
-      ScannerReport.CoverageDetail coverageDetail = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
-      assertThat(coverageDetail.getTestName()).isEqualTo("test-name");
-      assertThat(coverageDetail.getCoveredFile(0).getFileRef()).isEqualTo(2);
-      assertThat(coverageDetail.getCoveredFile(0).getCoveredLineList()).containsExactly(1, 2, 3, 5, 7);
-    }
-  }
-
-  @Test
-  public void null_if_no_coverage_detail_found() {
-    assertThat(underTest.readCoverageDetails(UNKNOWN_COMPONENT_REF)).isNull();
-  }
-
-  @Test
   public void read_file_source() throws Exception {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     try (FileOutputStream outputStream = new FileOutputStream(writer.getSourceFile(1))) {
@@ -385,7 +335,7 @@ public class ScannerReportReaderTest {
   }
 
   @Test
-  public void return_null_when_no_file_source() throws Exception {
+  public void return_null_when_no_file_source() {
     assertThat(underTest.readFileSource(UNKNOWN_COMPONENT_REF)).isNull();
   }
 }

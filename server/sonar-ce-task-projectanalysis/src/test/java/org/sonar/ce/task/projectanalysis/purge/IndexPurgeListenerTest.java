@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.test.index.TestIndexer;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -32,11 +31,10 @@ import static org.mockito.Mockito.verify;
 
 public class IndexPurgeListenerTest {
 
-  private TestIndexer testIndexer = mock(TestIndexer.class);
   private IssueIndexer issueIndexer = mock(IssueIndexer.class);
   private ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
 
-  private IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer, componentIndexer);
+  private IndexPurgeListener underTest = new IndexPurgeListener(issueIndexer, componentIndexer);
 
   @Test
   public void test_onComponentDisabling() {
@@ -45,7 +43,6 @@ public class IndexPurgeListenerTest {
     List<String> uuids = singletonList(uuid);
     underTest.onComponentsDisabling(projectUuid, uuids);
 
-    verify(testIndexer).deleteByFile(uuid);
     verify(componentIndexer).delete(projectUuid, uuids);
   }
 

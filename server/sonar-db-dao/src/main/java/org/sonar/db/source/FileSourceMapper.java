@@ -30,12 +30,12 @@ public interface FileSourceMapper {
   List<FileSourceDto> selectHashesForProject(@Param("projectUuid") String projectUuid, @Param("dataType") String dataType);
 
   @CheckForNull
-  FileSourceDto select(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+  FileSourceDto selectByFileUuid(@Param("fileUuid") String fileUuid);
 
   void scrollLineHashes(@Param("fileUuids") Collection<String> fileUuids, ResultHandler<LineHashesWithUuidDto> rowHandler);
 
   @CheckForNull
-  Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid, @Param("dataType") String dataType);
+  Integer selectLineHashesVersion(@Param("fileUuid") String fileUuid);
 
   void insert(FileSourceDto dto);
 

@@ -268,7 +268,6 @@ public class ProjectDataLoaderTest {
       .setLineHashes(of("8d7b3d6b83c0a517eac07e1aac94b773"))
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis())
-      .setDataType(FileSourceDto.Type.SOURCE)
       .setRevision("123456789")
       .setSrcHash("123456");
   }

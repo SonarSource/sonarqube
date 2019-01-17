@@ -80,7 +80,6 @@ import org.sonar.scanner.report.MeasuresPublisher;
 import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
-import org.sonar.scanner.report.TestExecutionAndCoveragePublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
@@ -294,8 +293,7 @@ public class ProjectScanContainer extends ComponentContainer {
       MeasuresPublisher.class,
       CoveragePublisher.class,
       SourcePublisher.class,
-      ChangedLinesPublisher.class,
-      TestExecutionAndCoveragePublisher.class);
+      ChangedLinesPublisher.class);
   }
 
   private void addIssueTrackingComponents() {

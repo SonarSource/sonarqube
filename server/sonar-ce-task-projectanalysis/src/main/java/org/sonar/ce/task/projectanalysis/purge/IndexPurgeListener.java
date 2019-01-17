@@ -25,16 +25,13 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
 public class IndexPurgeListener implements PurgeListener {
-  private final TestIndexer testIndexer;
   private final IssueIndexer issueIndexer;
   private final ComponentIndexer componentIndexer;
 
-  public IndexPurgeListener(TestIndexer testIndexer, IssueIndexer issueIndexer, ComponentIndexer componentIndexer) {
-    this.testIndexer = testIndexer;
+  public IndexPurgeListener(IssueIndexer issueIndexer, ComponentIndexer componentIndexer) {
     this.issueIndexer = issueIndexer;
     this.componentIndexer = componentIndexer;
   }
@@ -42,11 +39,6 @@ public class IndexPurgeListener implements PurgeListener {
   @Override
   public void onComponentsDisabling(String projectUuid, Collection<String> disabledComponentUuids) {
     componentIndexer.delete(projectUuid, disabledComponentUuids);
-    disabledComponentUuids.forEach(this::onComponentDisabling);
-  }
-
-  private void onComponentDisabling(String uuid) {
-    testIndexer.deleteByFile(uuid);
   }
 
   @Override

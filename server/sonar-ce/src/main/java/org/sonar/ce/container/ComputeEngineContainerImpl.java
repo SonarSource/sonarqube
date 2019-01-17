@@ -149,7 +149,6 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
-import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.OkHttpClientProvider;
@@ -424,9 +423,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
       ReportAnalysisFailureNotificationModule.class,
-
-      // Tests
-      TestIndexer.class,
 
       // System
       ServerLogging.class,

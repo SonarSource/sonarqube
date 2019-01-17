@@ -20,7 +20,6 @@
 package org.sonar.scanner.protocol.output;
 
 import java.io.File;
-
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -40,8 +39,6 @@ public class FileStructure {
     CHANGESETS("changesets-", Domain.PB),
     SYMBOLS("symbols-", Domain.PB),
     COVERAGES("coverages-", Domain.PB),
-    TESTS("tests-", Domain.PB),
-    COVERAGE_DETAILS("coverage-details-", Domain.PB),
     SOURCE("source-", ".txt"),
     SGNIFICANT_CODE("sgnificant-code-", Domain.PB),
     CHANGED_LINES("changed-lines-", Domain.PB);

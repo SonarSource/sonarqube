@@ -26,8 +26,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -68,7 +66,6 @@ public class FileSourceDto {
   private int lineCount = LINE_COUNT_NOT_POPULATED;
   private String srcHash;
   private byte[] binaryData = new byte[0];
-  private String dataType;
   private String dataHash;
   private String revision;
   @Nullable
@@ -170,56 +167,6 @@ public class FileSourceDto {
     }
   }
 
-  public static List<DbFileSources.Test> decodeTestData(byte[] binaryData) {
-    // stream is always closed
-    return decodeTestData(new ByteArrayInputStream(binaryData));
-  }
-
-  /**
-   * Decompress and deserialize content of column FILE_SOURCES.BINARY_DATA.
-   * The parameter "input" is always closed by this method.
-   */
-  public static List<DbFileSources.Test> decodeTestData(InputStream binaryInput) {
-    LZ4BlockInputStream lz4Input = null;
-    List<DbFileSources.Test> tests = new ArrayList<>();
-    try {
-      lz4Input = new LZ4BlockInputStream(binaryInput);
-
-      DbFileSources.Test currentTest;
-      do {
-        currentTest = DbFileSources.Test.parseDelimitedFrom(lz4Input);
-        if (currentTest != null) {
-          tests.add(currentTest);
-        }
-      } while (currentTest != null);
-      return tests;
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to decompress and deserialize source data", e);
-    } finally {
-      IOUtils.closeQuietly(lz4Input);
-    }
-  }
-
-  /**
-   * Serialize and compress protobuf message {@link org.sonar.db.protobuf.DbFileSources.Data}
-   * in the column BINARY_DATA.
-   */
-  public static byte[] encodeTestData(List<DbFileSources.Test> tests) {
-    ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-    LZ4BlockOutputStream compressedOutput = new LZ4BlockOutputStream(byteOutput);
-    try {
-      for (DbFileSources.Test test : tests) {
-        test.writeDelimitedTo(compressedOutput);
-      }
-      compressedOutput.close();
-      return byteOutput.toByteArray();
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to serialize and compress source tests", e);
-    } finally {
-      IOUtils.closeQuietly(compressedOutput);
-    }
-  }
-
   /**
    * Compressed value of serialized protobuf message {@link org.sonar.db.protobuf.DbFileSources.Data}
    */
@@ -243,21 +190,7 @@ public class FileSourceDto {
   }
 
   public FileSourceDto setSourceData(DbFileSources.Data data) {
-    this.dataType = Type.SOURCE;
     this.binaryData = encodeSourceData(data);
-    return this;
-  }
-
-  /**
-   * Compressed value of serialized protobuf message {@link org.sonar.db.protobuf.DbFileSources.Data}
-   */
-  public List<DbFileSources.Test> getTestData() {
-    return decodeTestData(binaryData);
-  }
-
-  public FileSourceDto setTestData(List<DbFileSources.Test> data) {
-    this.dataType = Type.TEST;
-    this.binaryData = encodeTestData(data);
     return this;
   }
 
@@ -332,15 +265,6 @@ public class FileSourceDto {
     return this;
   }
 
-  public String getDataType() {
-    return dataType;
-  }
-
-  public FileSourceDto setDataType(String dataType) {
-    this.dataType = dataType;
-    return this;
-  }
-
   public String getRevision() {
     return revision;
   }
@@ -350,12 +274,4 @@ public class FileSourceDto {
     return this;
   }
 
-  public static class Type {
-    public static final String SOURCE = "SOURCE";
-    public static final String TEST = "TEST";
-
-    private Type() {
-      // utility class
-    }
-  }
 }
