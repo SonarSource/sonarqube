@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.component.ComponentTreeBuilder;
 import org.sonar.ce.task.projectanalysis.component.ComponentUuidFactoryWithMigration;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
+import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.ce.task.step.ComputationStep;
@@ -41,10 +42,15 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 /**
  * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
  */
 public class BuildComponentTreeStep implements ComputationStep {
+
+  private static final String DEFAULT_PROJECT_VERSION = "not provided";
 
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
@@ -90,8 +96,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),
-        baseAnalysis,
-        metadata.getProjectVersion(),
+        createProjectAttributes(metadata, baseAnalysis),
         issueRelocationToRoot);
       String relativePathFromScmRoot = metadata.getRelativePathFromScmRoot();
 
@@ -108,6 +113,27 @@ public class BuildComponentTreeStep implements ComputationStep {
 
       context.getStatistics().add("components", treeRootHolder.getSize());
     }
+  }
+
+  private static ProjectAttributes createProjectAttributes(ScannerReport.Metadata metadata, @Nullable SnapshotDto baseAnalysis) {
+    String projectVersion = trimToNull(metadata.getProjectVersion());
+    String codePeriodVersion = computeCodePeriodVersion(metadata.getCodePeriodVersion(), projectVersion, baseAnalysis);
+    return new ProjectAttributes(projectVersion, codePeriodVersion);
+  }
+
+  private static String computeCodePeriodVersion(String rawCodePeriodVersion, @Nullable String projectVersion, @Nullable SnapshotDto baseAnalysis) {
+    String codePeriodVersion = trimToNull(rawCodePeriodVersion);
+    if (codePeriodVersion != null) {
+      return codePeriodVersion;
+    }
+    // support case (legacy but not forbidden) where only projectVersion is set
+    if (projectVersion != null) {
+      return projectVersion;
+    }
+    if (baseAnalysis != null) {
+      return firstNonNull(baseAnalysis.getCodePeriodVersion(), DEFAULT_PROJECT_VERSION);
+    }
+    return DEFAULT_PROJECT_VERSION;
   }
 
   private ComponentKeyGenerator loadKeyGenerator() {

@@ -101,10 +101,10 @@ public class PersistEventsStep implements ComputationStep {
     }
 
     private void saveVersionEvent(DbSession session, Component component, Long analysisDate) {
-      String version = component.getProjectAttributes().getVersion();
-      deletePreviousEventsHavingSameVersion(session, version, component);
+      String codePeriodVersion = component.getProjectAttributes().getCodePeriodVersion();
+      deletePreviousEventsHavingSameVersion(session, codePeriodVersion, component);
       dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
-        .setName(version)
+        .setName(codePeriodVersion)
         .setCategory(EventDto.CATEGORY_VERSION));
     }
 

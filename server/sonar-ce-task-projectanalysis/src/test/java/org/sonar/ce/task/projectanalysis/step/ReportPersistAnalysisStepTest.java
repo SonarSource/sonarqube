@@ -19,10 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -43,12 +47,14 @@ import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
+@RunWith(DataProviderRunner.class)
 public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
@@ -93,7 +99,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_analysis() {
+  @UseDataProvider("projectVersionOrNull")
+  public void persist_analysis(String projectVersion) {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
@@ -107,7 +114,13 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setProjectVersion("1.0").addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1)
+      .setUuid("ABCD")
+      .setKey(PROJECT_KEY)
+      .setCodePeriodVersion("1.0")
+      .setProjectVersion(projectVersion)
+      .addChildren(directory)
+      .build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -122,7 +135,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);
     assertThat(projectSnapshot.getComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getCodePeriodVersion()).isEqualTo("1.0");
-    assertThat(projectSnapshot.getProjectVersion()).isEqualTo("1.0");
+    assertThat(projectSnapshot.getProjectVersion()).isEqualTo(projectVersion);
     assertThat(projectSnapshot.getLast()).isFalse();
     assertThat(projectSnapshot.getStatus()).isEqualTo("U");
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
@@ -130,6 +143,14 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
     assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());
+  }
+
+  @DataProvider
+  public static Object[][] projectVersionOrNull() {
+    return new Object[][] {
+      {null},
+      {randomAlphabetic(17)}
+    };
   }
 
   @Test

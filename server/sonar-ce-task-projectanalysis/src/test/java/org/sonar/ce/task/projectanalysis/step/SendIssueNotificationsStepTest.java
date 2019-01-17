@@ -96,7 +96,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private static final Component FILE = builder(Type.FILE, 11).build();
   private static final Component PROJECT = builder(Type.PROJECT, 1)
-    .setProjectVersion(randomAlphanumeric(10))
+    .setCodePeriodVersion(randomAlphanumeric(10))
     .addChildren(FILE).build();
 
   @Rule

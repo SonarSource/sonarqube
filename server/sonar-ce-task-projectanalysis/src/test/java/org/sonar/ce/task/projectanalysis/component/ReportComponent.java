@@ -43,7 +43,7 @@ public class ReportComponent implements Component {
     .setPublicKey("PUBLIC_PROJECT_KEY")
     .setUuid("PROJECT_UUID")
     .setName("Project Name")
-    .setProjectVersion("1.0-SNAPSHOT")
+    .setCodePeriodVersion("1.0-SNAPSHOT")
     .build();
 
   private final Type type;
@@ -69,7 +69,9 @@ public class ReportComponent implements Component {
     this.shortName = builder.shortName == null ? this.name : builder.shortName;
     this.description = builder.description;
     this.uuid = builder.uuid;
-    this.projectAttributes = Optional.ofNullable(builder.projectVersion).map(ProjectAttributes::new).orElse(null);
+    this.projectAttributes = Optional.ofNullable(builder.codePeriodVersion)
+      .map(t -> new ProjectAttributes(builder.projectVersion, t))
+      .orElse(null);
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
       .build();
     this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
@@ -203,6 +205,7 @@ public class ReportComponent implements Component {
     private String publicKey;
     private String name;
     private String shortName;
+    private String codePeriodVersion;
     private String projectVersion;
     private String description;
     private FileAttributes fileAttributes;
@@ -213,7 +216,7 @@ public class ReportComponent implements Component {
       this.type = type;
       this.ref = ref;
       if (type == Type.PROJECT) {
-        this.projectVersion = "toBeDefined";
+        this.codePeriodVersion = "toBeDefined";
       }
     }
 
@@ -247,9 +250,14 @@ public class ReportComponent implements Component {
       return this;
     }
 
-    public Builder setProjectVersion(String s) {
-      checkProjectVersion(s);
-      this.projectVersion = s;
+    public Builder setCodePeriodVersion(String s) {
+      checkCodePeriodVersion(s);
+      this.codePeriodVersion = s;
+      return this;
+    }
+
+    public Builder setProjectVersion(@Nullable String projectVersion) {
+      this.projectVersion = projectVersion;
       return this;
     }
 
@@ -273,12 +281,12 @@ public class ReportComponent implements Component {
     }
 
     public ReportComponent build() {
-      checkProjectVersion(this.projectVersion);
+      checkCodePeriodVersion(this.codePeriodVersion);
       return new ReportComponent(this);
     }
 
-    private void checkProjectVersion(@Nullable String s) {
-      checkArgument(type != Type.PROJECT ^ s != null, "Project version must and can only be set on Project");
+    private void checkCodePeriodVersion(@Nullable String s) {
+      checkArgument(type != Type.PROJECT ^ s != null, "CodePeriod version must and can only be set on Project");
     }
   }
 

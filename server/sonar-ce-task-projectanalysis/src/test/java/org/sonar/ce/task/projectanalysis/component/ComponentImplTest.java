@@ -246,7 +246,7 @@ public class ComponentImplTest {
       .setUuid("uuid_" + dbKey)
       .setReportAttributes(ReportAttributes.newBuilder(dbKey.hashCode()).build());
     if (type == PROJECT) {
-      builder.setProjectAttributes(new ProjectAttributes("version_1"));
+      builder.setProjectAttributes(new ProjectAttributes(null, "version_1"));
     }
     return builder;
   }

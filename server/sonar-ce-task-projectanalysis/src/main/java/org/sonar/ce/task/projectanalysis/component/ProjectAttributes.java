@@ -19,23 +19,38 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 public class ProjectAttributes {
-  private final String version;
+  private final String projectVersion;
+  private final String codePeriodVersion;
 
-  public ProjectAttributes(String version) {
-    this.version = Objects.requireNonNull(version, "version can't be null");
+  public ProjectAttributes(@Nullable String projectVersion, String codePeriodVersion) {
+    this.projectVersion = projectVersion;
+    this.codePeriodVersion = requireNonNull(codePeriodVersion, "codePeriod version can't be null");
   }
 
-  public String getVersion() {
-    return version;
+  public ProjectAttributes(ProjectAttributes projectAttributes) {
+    this.projectVersion = projectAttributes.projectVersion;
+    this.codePeriodVersion = projectAttributes.codePeriodVersion;
+  }
+
+  public Optional<String> getProjectVersion() {
+    return Optional.ofNullable(projectVersion);
+  }
+
+  public String getCodePeriodVersion() {
+    return codePeriodVersion;
   }
 
   @Override
   public String toString() {
     return "ProjectAttributes{" +
-      "version='" + version + '\'' +
+      "projectVersion='" + projectVersion + '\'' +
+      "codePeriodVersion='" + codePeriodVersion + '\'' +
       '}';
   }
 }

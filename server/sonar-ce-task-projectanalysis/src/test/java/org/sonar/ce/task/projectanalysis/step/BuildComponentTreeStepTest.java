@@ -49,6 +49,8 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.project.Project;
 
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -66,6 +68,8 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.Componen
 
 @RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
+  private static final String NO_SCANNER_PROJECT_VERSION = null;
+  private static final String NO_SCANNER_CODE_PERIOD_VERSION = null;
 
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 2;
@@ -95,11 +99,7 @@ public class BuildComponentTreeStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule()
-    .setMetadata(ScannerReport.Metadata.newBuilder()
-      .setProjectKey(REPORT_PROJECT_KEY)
-      .setRootComponentRef(ROOT_REF)
-      .build());
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule().setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, NO_SCANNER_CODE_PERIOD_VERSION));
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   @Rule
@@ -275,7 +275,7 @@ public class BuildComponentTreeStepTest {
 
     verifyComponentByRef(ROOT_REF, "generated", REPORT_PROJECT_KEY, analysisMetadataHolder.getProject().getName(), null);
     verifyComponentByKey(REPORT_PROJECT_KEY + ":" + REPORT_DIR_PATH_1, "generated", "dir1");
-    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1,null);
+    verifyComponentByRef(FILE_1_REF, "generated", REPORT_PROJECT_KEY + ":" + REPORT_FILE_PATH_1, REPORT_FILE_NAME_1, null);
 
     verifyComponentMissingByRef(LEAFLESS_MODULE_REF);
     verifyComponentMissingByRef(LEAFLESS_DIR_REF);
@@ -469,6 +469,172 @@ public class BuildComponentTreeStepTest {
     assertThat(analysisMetadataHolder.isFirstAnalysis()).isFalse();
   }
 
+  @Test
+  public void set_codePeriodVersion_to_not_provided_when_both_codePeriod_and_project_version_are_not_set_on_first_analysis() {
+    setAnalysisMetadataHolder();
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion()).isEqualTo("not provided");
+  }
+
+  @Test
+  @UseDataProvider("oneParameterNullNonNullCombinations")
+  public void set_codePeriodVersion_to_previous_analysis_codePeriodVersion_when_both_codePeriod_and_project_version_are_not_set(
+    @Nullable String previousAnalysisCodePeriodVersion) {
+    setAnalysisMetadataHolder();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    String codePeriodVersion = treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion();
+    if (previousAnalysisCodePeriodVersion == null) {
+      assertThat(codePeriodVersion).isEqualTo("not provided");
+    } else {
+      assertThat(codePeriodVersion).isEqualTo(previousAnalysisCodePeriodVersion);
+    }
+  }
+
+  @Test
+  public void set_codePeriodVersion_to_projectVersion_when_codePeriodVersion_is_unset_and_projectVersion_is_set_on_first_analysis() {
+    String scannerProjectVersion = randomAlphabetic(12);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_CODE_PERIOD_VERSION));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
+      .isEqualTo(scannerProjectVersion);
+  }
+
+  @Test
+  @UseDataProvider("oneParameterNullNonNullCombinations")
+  public void set_codePeriodVersion_to_projectVersion_when_codePeriodVersion_is_unset_and_projectVersion_is_set_on_later_analysis(
+    @Nullable String previousAnalysisCodePeriodVersion) {
+    String scannerProjectVersion = randomAlphabetic(12);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_CODE_PERIOD_VERSION));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
+      .isEqualTo(scannerProjectVersion);
+  }
+
+  @Test
+  @UseDataProvider("oneParameterNullNonNullCombinations")
+  public void set_codePeriodVersion_to_codePeriodVersion_when_it_is_set_on_first_analysis(@Nullable String projectVersion) {
+    String scannerCodePeriodVersion = randomAlphabetic(12);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(projectVersion, scannerCodePeriodVersion));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
+      .isEqualTo(scannerCodePeriodVersion);
+  }
+
+  @Test
+  @UseDataProvider("twoParametersNullNonNullCombinations")
+  public void set_codePeriodVersion_to_codePeriodVersion_when_it_is_set_on_later_analysis(@Nullable String projectVersion, @Nullable String previousAnalysisCodePeriodVersion) {
+    String scannerCodePeriodVersion = randomAlphabetic(12);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(projectVersion, scannerCodePeriodVersion));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
+      .isEqualTo(scannerCodePeriodVersion);
+  }
+
+  @Test
+  @UseDataProvider("oneParameterNullNonNullCombinations")
+  public void set_projectVersion_to_null_when_projectVersion_is_unset_on_first_analysis(@Nullable String codePeriodVersion) {
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, codePeriodVersion));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("twoParametersNullNonNullCombinations")
+  public void set_projectVersion_to_null_when_projectVersion_is_unset_on_later_analysis(@Nullable String codePeriodVersion, @Nullable String previousAnalysisCodePeriodVersion) {
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, codePeriodVersion));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("oneParameterNullNonNullCombinations")
+  public void set_projectVersion_to_projectVersion_when_projectVersion_is_set_on_first_analysis(@Nullable String codePeriodVersion) {
+    String projectVersion = randomAlphabetic(7);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(projectVersion, codePeriodVersion));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).contains(projectVersion);
+  }
+
+  @Test
+  @UseDataProvider("twoParametersNullNonNullCombinations")
+  public void set_projectVersion_to_projectVersion_when_projectVersion_is_set_on_later_analysis(@Nullable String codePeriodVersion, @Nullable String previousAnalysisCodePeriodVersion) {
+    String projectVersion = randomAlphabetic(7);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(projectVersion, codePeriodVersion));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).contains(projectVersion);
+  }
+
+  @DataProvider
+  public static Object[][] oneParameterNullNonNullCombinations() {
+    return new Object[][] {
+      {null},
+      {randomAlphabetic(7)}
+    };
+  }
+
+  @DataProvider
+  public static Object[][] twoParametersNullNonNullCombinations() {
+    return new Object[][] {
+      {null, null},
+      {randomAlphabetic(7), null},
+      {null, randomAlphabetic(8)},
+      {randomAlphabetic(9), randomAlphabetic(10)}
+    };
+  }
+
   private void verifyComponent(Component component, Component.Type type, @Nullable Integer componentRef, int size) {
     assertThat(component.getType()).isEqualTo(type);
     assertThat(component.getReportAttributes().getRef()).isEqualTo(componentRef);
@@ -597,6 +763,15 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setBranch(new DefaultBranchImpl(null))
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)));
+  }
+
+  public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String scannerCodePeriodVersion) {
+    ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
+      .setProjectKey(REPORT_PROJECT_KEY)
+      .setRootComponentRef(ROOT_REF);
+    ofNullable(scannerCodePeriodVersion).ifPresent(builder::setCodePeriodVersion);
+    ofNullable(projectVersion).ifPresent(builder::setProjectVersion);
+    return builder.build();
   }
 
 }

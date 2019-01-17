@@ -34,20 +34,17 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.project.Project;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class ComponentTreeBuilder {
-
-  private static final String DEFAULT_PROJECT_VERSION = "not provided";
 
   private final ComponentKeyGenerator keyGenerator;
   private final ComponentKeyGenerator publicKeyGenerator;
@@ -69,9 +66,7 @@ public class ComponentTreeBuilder {
   private final Project project;
   private final Branch branch;
   @Nullable
-  private final SnapshotDto baseAnalysis;
-  @Nullable
-  private final String projectVersion;
+  private final ProjectAttributes projectAttributes;
   private final IssueRelocationToRoot issueRelocationToRoot;
 
   private ScannerReport.Component rootComponent;
@@ -83,8 +78,8 @@ public class ComponentTreeBuilder {
     Function<String, String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
-    Branch branch, @Nullable SnapshotDto baseAnalysis,
-    @Nullable String projectVersion,
+    Branch branch,
+    ProjectAttributes projectAttributes,
     IssueRelocationToRoot issueRelocationToRoot) {
 
     this.keyGenerator = keyGenerator;
@@ -93,8 +88,7 @@ public class ComponentTreeBuilder {
     this.scannerComponentSupplier = scannerComponentSupplier;
     this.project = project;
     this.branch = branch;
-    this.baseAnalysis = baseAnalysis;
-    this.projectVersion = projectVersion;
+    this.projectAttributes = requireNonNull(projectAttributes, "projectAttributes can't be null");
     this.issueRelocationToRoot = issueRelocationToRoot;
   }
 
@@ -198,7 +192,7 @@ public class ComponentTreeBuilder {
       .setDbKey(projectKey)
       .setKey(projectPublicKey)
       .setStatus(convertStatus(rootComponent.getStatus()))
-      .setProjectAttributes(new ProjectAttributes(createProjectVersion()))
+      .setProjectAttributes(projectAttributes)
       .setReportAttributes(createAttributesBuilder(rootComponent.getRef(), rootComponent.getProjectRelativePath(), scmBasePath).build())
       .addChildren(children);
     setNameAndDescription(rootComponent, builder);
@@ -269,7 +263,7 @@ public class ComponentTreeBuilder {
 
   private static Component buildChangedProject(Component component) {
     return changedComponentBuilder(component)
-      .setProjectAttributes(new ProjectAttributes(component.getProjectAttributes().getVersion()))
+      .setProjectAttributes(new ProjectAttributes(component.getProjectAttributes()))
       .addChildren(buildChangedComponentChildren(component))
       .build();
   }
@@ -337,18 +331,6 @@ public class ComponentTreeBuilder {
       return name;
     }
     return project.getName();
-  }
-
-  private String createProjectVersion() {
-    String cleanedProjectVersion = trimToNull(this.projectVersion);
-    if (cleanedProjectVersion != null) {
-      return cleanedProjectVersion;
-    }
-    // FIXME SONAR-11631 code below applies to the analysisVersion, not the project version, fix it
-    if (baseAnalysis != null) {
-      return firstNonNull(baseAnalysis.getCodePeriodVersion(), DEFAULT_PROJECT_VERSION);
-    }
-    return DEFAULT_PROJECT_VERSION;
   }
 
   private static ReportAttributes.Builder createAttributesBuilder(@Nullable Integer ref, String path, @Nullable String scmBasePath) {

@@ -33,6 +33,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
+import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
+
 /**
  * Persist analysis
  */
@@ -100,11 +102,12 @@ public class PersistAnalysisStep implements ComputationStep {
 
     private SnapshotDto createAnalysis(String snapshotUuid, Component component) {
       String componentUuid = component.getUuid();
-      String version = component.getType() == Component.Type.PROJECT ? component.getProjectAttributes().getVersion() : null;
+      String codePeriodVersion = component.getType() == PROJECT ? component.getProjectAttributes().getCodePeriodVersion() : null;
+      String projectVersion = component.getType() == PROJECT ? component.getProjectAttributes().getProjectVersion().orElse(null) : null;
       return new SnapshotDto()
         .setUuid(snapshotUuid)
-        .setCodePeriodVersion(version)
-        .setProjectVersion(version)
+        .setCodePeriodVersion(codePeriodVersion)
+        .setProjectVersion(projectVersion)
         .setComponentUuid(componentUuid)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
