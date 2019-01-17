@@ -17,19 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.projectanalysis;
+package org.sonar.test;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Utility class to provide various Matchers to use in ExpectedException.expectMessage.
+ */
+public class Matchers {
 
-public class ProjectAnalysisModuleTest {
+  private Matchers() {
+    // utility class, forbidden constructor
+  }
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ProjectAnalysisModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 7);
+  public static Matcher<String> regexMatcher(String regex) {
+    return new TypeSafeMatcher<String>() {
+      @Override
+      protected boolean matchesSafely(String item) {
+        return item.matches(regex);
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("matching regex ").appendValue(regex);
+      }
+    };
   }
 }
