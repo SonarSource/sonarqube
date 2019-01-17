@@ -74,7 +74,7 @@ public class ComponentsPublisherTest {
   @Test
   public void add_components_to_report() throws Exception {
     ProjectInfo projectInfo = mock(ProjectInfo.class);
-    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -138,7 +138,7 @@ public class ComponentsPublisherTest {
   @Test
   public void should_set_modified_name_with_branch() throws IOException {
     ProjectInfo projectInfo = mock(ProjectInfo.class);
-    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -162,7 +162,7 @@ public class ComponentsPublisherTest {
   public void publish_unchanged_components_even_in_short_branches() throws IOException {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     ProjectInfo projectInfo = mock(ProjectInfo.class);
-    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     Path baseDir = temp.newFolder().toPath();
     ProjectDefinition rootDef = ProjectDefinition.create()
@@ -202,7 +202,7 @@ public class ComponentsPublisherTest {
   @Test
   public void publish_project_without_version_and_name() throws IOException {
     ProjectInfo projectInfo = mock(ProjectInfo.class);
-    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
@@ -228,7 +228,7 @@ public class ComponentsPublisherTest {
   @Test
   public void publish_project_with_links_and_branch() throws Exception {
     ProjectInfo projectInfo = mock(ProjectInfo.class);
-    when(projectInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+    when(projectInfo.getAnalysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")

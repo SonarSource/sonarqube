@@ -19,15 +19,21 @@
  */
 package org.sonar.scanner;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
@@ -36,10 +42,11 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+@RunWith(DataProviderRunner.class)
 public class ProjectInfoTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private Clock clock = mock(Clock.class);
@@ -53,8 +60,8 @@ public class ProjectInfoTest {
 
     underTest.start();
 
-    assertThat(underTest.analysisDate()).isEqualTo(Date.from(date.toInstant()));
-    assertThat(underTest.projectVersion()).isEqualTo("version");
+    assertThat(underTest.getAnalysisDate()).isEqualTo(Date.from(date.toInstant()));
+    assertThat(underTest.getProjectVersion()).contains("version");
   }
 
   @Test
@@ -64,16 +71,16 @@ public class ProjectInfoTest {
 
     underTest.start();
 
-    assertThat(underTest.analysisDate())
+    assertThat(underTest.getAnalysisDate())
       .isEqualTo(Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
   }
 
   @Test
   public void emptyDate() {
-    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
-    settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
+    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
 
-    thrown.expect(RuntimeException.class);
+    expectedException.expect(RuntimeException.class);
 
     underTest.start();
   }
@@ -81,13 +88,65 @@ public class ProjectInfoTest {
   @Test
   public void fail_with_too_long_version() {
     String version = randomAlphabetic(101);
-    settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
-    settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"" + version +"\" is not a valid project version. " +
-      "The maximum length for version numbers is 100 characters.");
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("\"" + version + "\" is not a valid project version. " +
+      "The maximum length is 100 characters.");
 
     underTest.start();
+  }
+
+  @Test
+  @UseDataProvider("projectVersions")
+  public void getCodePeriodVersion_has_value_of_projectVersion_if_property_is_unset(@Nullable String projectVersion) {
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
+
+    underTest.start();
+
+    if (projectVersion == null) {
+      assertThat(underTest.getCodePeriodVersion()).isEmpty();
+    } else {
+      assertThat(underTest.getCodePeriodVersion()).contains(projectVersion);
+    }
+  }
+
+  @Test
+  @UseDataProvider("projectVersions")
+  public void getCodePeriodVersion_is_empty_if_property_is_empty(@Nullable String projectVersion) {
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
+    settings.setProperty(CoreProperties.CODE_PERIOD_VERSION_PROPERTY, "");
+
+    underTest.start();
+
+    if (projectVersion == null) {
+      assertThat(underTest.getCodePeriodVersion()).isEmpty();
+    } else {
+      assertThat(underTest.getCodePeriodVersion()).contains(projectVersion);
+    }
+  }
+
+  @Test
+  @UseDataProvider("projectVersions")
+  public void getCodePeriodVersion_contains_value_of_property(@Nullable String projectVersion) {
+    String version = RandomStringUtils.randomAlphabetic(10);
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
+    settings.setProperty(CoreProperties.CODE_PERIOD_VERSION_PROPERTY, version);
+
+    underTest.start();
+
+    assertThat(underTest.getCodePeriodVersion()).contains(version);
+  }
+
+  @DataProvider
+  public static Object[][] projectVersions() {
+    return new Object[][] {
+      {null},
+      {randomAlphabetic(12)}
+    };
   }
 }

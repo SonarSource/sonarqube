@@ -59,6 +59,7 @@ import org.sonar.scanner.scm.ScmConfiguration;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
@@ -85,7 +86,7 @@ public class MetadataPublisherTest {
 
   @Before
   public void prepare() throws IOException {
-    when(projectInfo.analysisDate()).thenReturn(new Date(1234567L));
+    when(projectInfo.getAnalysisDate()).thenReturn(new Date(1234567L));
     when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(Paths.get("dummy/path"));
     when(scmProvider.revisionId(any(Path.class))).thenReturn("dummy-sha1");
 
@@ -134,6 +135,7 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("root");
     assertThat(metadata.getModulesProjectRelativePathByKeyMap()).containsOnly(entry("module", "modulePath"), entry("root", ""));
+    assertThat(metadata.getProjectVersion()).isEmpty();
     assertThat(metadata.getQprofilesPerLanguageMap()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")
@@ -189,7 +191,7 @@ public class MetadataPublisherTest {
   @Test
   @UseDataProvider("projectVersions")
   public void write_project_version(@Nullable String projectVersion, String expected) throws Exception {
-    when(projectInfo.projectVersion()).thenReturn(projectVersion);
+    when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(projectVersion));
     when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
 
     File outputDir = temp.newFolder();
@@ -204,10 +206,39 @@ public class MetadataPublisherTest {
 
   @DataProvider
   public static Object[][] projectVersions() {
+    String version = randomAlphabetic(15);
     return new Object[][] {
       {null, ""},
       {"", ""},
-      {"5.6.3", "5.6.3"}
+      {"5.6.3", "5.6.3"},
+      {version, version}
+    };
+  }
+
+  @Test
+  @UseDataProvider("codePeriodVersions")
+  public void write_codePeriod_version(@Nullable String codePeriodVersion, String expected) throws Exception {
+    when(projectInfo.getCodePeriodVersion()).thenReturn(Optional.ofNullable(codePeriodVersion));
+    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
+
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    underTest.publish(writer);
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getCodePeriodVersion()).isEqualTo(expected);
+  }
+
+  @DataProvider
+  public static Object[][] codePeriodVersions() {
+    String randomVersion = randomAlphabetic(15);
+    return new Object[][] {
+      {null, ""},
+      {"", ""},
+      {"5.6.3", "5.6.3"},
+      {randomVersion, randomVersion}
     };
   }
 

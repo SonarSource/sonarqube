@@ -233,7 +233,7 @@ public class ProjectReactorValidatorTest {
   @Test
   @UseDataProvider("validVersions")
   public void not_fail_with_valid_version(String validVersion) {
-    when(projectInfo.projectVersion()).thenReturn(validVersion);
+    when(projectInfo.getProjectVersion()).thenReturn(Optional.ofNullable(validVersion));
 
     underTest.validate(createProjectReactor("foo"));
   }
@@ -241,6 +241,7 @@ public class ProjectReactorValidatorTest {
   @DataProvider
   public static Object[][] validVersions() {
     return new Object[][] {
+      {null},
       {"1.0"},
       {"2017-10-16"},
       {randomAscii(100)}

@@ -91,7 +91,7 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public Date creationDate() {
-    return projectInfo.analysisDate();
+    return projectInfo.getAnalysisDate();
   }
 
   @Override

@@ -72,7 +72,7 @@ public class DefaultFilterableIssueTest {
     rawIssue = createIssue();
     issue = new DefaultFilterableIssue(mockedProject, projectInfo, rawIssue, component);
 
-    when(projectInfo.analysisDate()).thenReturn(new Date(10_000));
+    when(projectInfo.getAnalysisDate()).thenReturn(new Date(10_000));
     when(mockedProject.key()).thenReturn("projectKey");
 
     assertThat(issue.componentKey()).isEqualTo(component.key());

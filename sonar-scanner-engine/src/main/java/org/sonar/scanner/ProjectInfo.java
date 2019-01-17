@@ -22,7 +22,8 @@ package org.sonar.scanner;
 import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
+import java.util.function.Predicate;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
@@ -30,6 +31,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
+import static org.sonar.api.CoreProperties.CODE_PERIOD_VERSION_PROPERTY;
+import static org.sonar.api.CoreProperties.PROJECT_VERSION_PROPERTY;
 
 /**
  * @since 6.3
@@ -42,19 +45,23 @@ public class ProjectInfo implements Startable {
 
   private Date analysisDate;
   private String projectVersion;
+  private String codePeriodVersion;
 
   public ProjectInfo(Configuration settings, Clock clock) {
     this.settings = settings;
     this.clock = clock;
   }
 
-  public Date analysisDate() {
+  public Date getAnalysisDate() {
     return analysisDate;
   }
 
-  @CheckForNull
-  public String projectVersion() {
-    return projectVersion;
+  public Optional<String> getProjectVersion() {
+    return Optional.ofNullable(projectVersion);
+  }
+
+  public Optional<String> getCodePeriodVersion() {
+    return Optional.ofNullable(codePeriodVersion);
   }
 
   private Date loadAnalysisDate() {
@@ -76,23 +83,27 @@ public class ProjectInfo implements Startable {
     }
   }
 
-  @CheckForNull
-  private String loadProjectVersion() {
-    return settings.get(CoreProperties.PROJECT_VERSION_PROPERTY)
-      .filter(version -> {
-        if (version.length() > 100) {
-          throw MessageException.of(format("\"%s\" is not a valid project version. " +
-            "The maximum length for version numbers is 100 characters.", version));
-        }
-        return true;
-      })
-      .orElse(null);
-  }
-
   @Override
   public void start() {
     this.analysisDate = loadAnalysisDate();
-    this.projectVersion = loadProjectVersion();
+    this.projectVersion = settings.get(PROJECT_VERSION_PROPERTY)
+      .map(StringUtils::trimToNull)
+      .filter(validateVersion("project"))
+      .orElse(null);
+    this.codePeriodVersion = settings.get(CODE_PERIOD_VERSION_PROPERTY)
+      .map(StringUtils::trimToNull)
+      .filter(validateVersion("codePeriod"))
+      .orElse(projectVersion);
+  }
+
+  private static Predicate<String> validateVersion(String versionLabel) {
+    return version -> {
+      if (version.length() > 100) {
+        throw MessageException.of(format("\"%s\" is not a valid %s version. " +
+          "The maximum length is 100 characters.", version, versionLabel));
+      }
+      return true;
+    };
   }
 
   @Override

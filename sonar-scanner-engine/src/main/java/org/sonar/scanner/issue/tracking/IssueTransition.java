@@ -46,12 +46,12 @@ public class IssueTransition {
   private final LocalIssueTracking localIssueTracking;
 
   public IssueTransition(InputComponentStore inputComponentCache, ProjectInfo projectInfo, IssueCache issueCache, ReportPublisher reportPublisher,
-                         @Nullable LocalIssueTracking localIssueTracking) {
+    @Nullable LocalIssueTracking localIssueTracking) {
     this.inputComponentStore = inputComponentCache;
     this.issueCache = issueCache;
     this.reportPublisher = reportPublisher;
     this.localIssueTracking = localIssueTracking;
-    this.analysisDate = projectInfo.analysisDate();
+    this.analysisDate = projectInfo.getAnalysisDate();
   }
 
   public IssueTransition(InputComponentStore inputComponentCache, ProjectInfo projectInfo, IssueCache issueCache, ReportPublisher reportPublisher) {

@@ -146,6 +146,7 @@ public interface CoreProperties {
   @Deprecated
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
+  String CODE_PERIOD_VERSION_PROPERTY = "sonar.codePeriodVersion";
 
   /**
    * @since 2.6

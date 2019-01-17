@@ -45,7 +45,6 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scm.ScmConfiguration;
 
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
@@ -84,12 +83,13 @@ public class MetadataPublisher implements ReportPublisherStep {
   public void publish(ScannerReportWriter writer) {
     AbstractProjectOrModule rootProject = moduleHierarchy.root();
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
-      .setAnalysisDate(projectInfo.analysisDate().getTime())
+      .setAnalysisDate(projectInfo.getAnalysisDate().getTime())
       // Here we want key without branch
       .setProjectKey(rootProject.key())
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.scannerId());
-    ofNullable(trimToNull(projectInfo.projectVersion())).ifPresent(builder::setProjectVersion);
+    projectInfo.getProjectVersion().ifPresent(builder::setProjectVersion);
+    projectInfo.getCodePeriodVersion().ifPresent(builder::setCodePeriodVersion);
 
     properties.organizationKey().ifPresent(builder::setOrganizationKey);
 
