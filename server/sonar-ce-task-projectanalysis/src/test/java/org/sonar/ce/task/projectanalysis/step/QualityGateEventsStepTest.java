@@ -182,7 +182,7 @@ public class QualityGateEventsStepTest {
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
+    assertThat(notification.getFieldValue("codePeriodVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
     assertThat(notification.getFieldValue("branch")).isNull();
     assertThat(notification.getFieldValue("alertLevel")).isEqualTo(rawAlterStatus.name());
     assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
@@ -233,7 +233,7 @@ public class QualityGateEventsStepTest {
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
+    assertThat(notification.getFieldValue("codePeriodVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
     assertThat(notification.getFieldValue("branch")).isNull();
     assertThat(notification.getFieldValue("alertLevel")).isEqualTo(newQualityGateStatus.getStatus().name());
     assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
@@ -263,7 +263,7 @@ public class QualityGateEventsStepTest {
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
+    assertThat(notification.getFieldValue("codePeriodVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
     assertThat(notification.getFieldValue("branch")).isEqualTo(branchName);
 
     reset(measureRepository, eventRepository, notificationService);
@@ -285,7 +285,7 @@ public class QualityGateEventsStepTest {
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
-    assertThat(notification.getFieldValue("projectVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
+    assertThat(notification.getFieldValue("codePeriodVersion")).isEqualTo(PROJECT_COMPONENT.getProjectAttributes().getCodePeriodVersion());
     assertThat(notification.getFieldValue("branch")).isEqualTo(null);
 
     reset(measureRepository, eventRepository, notificationService);

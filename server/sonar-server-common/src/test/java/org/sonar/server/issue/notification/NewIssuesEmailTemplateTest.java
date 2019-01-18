@@ -88,7 +88,7 @@ public class NewIssuesEmailTemplateTest {
   @Test
   public void format_email_with_all_fields_filled() {
     Notification notification = newNotification(32)
-      .setFieldValue("projectVersion", "42.1.1");
+      .setFieldValue("codePeriodVersion", "42.1.1");
     addAssignees(notification);
     addRules(notification);
     addTags(notification);
@@ -179,7 +179,7 @@ public class NewIssuesEmailTemplateTest {
   public void format_email_with_issue_on_branch_with_version() {
     Notification notification = newNotification(32)
       .setFieldValue("branch", "feature1")
-      .setFieldValue("projectVersion", "42.1.1");
+      .setFieldValue("codePeriodVersion", "42.1.1");
 
     EmailMessage message = template.format(notification);
 

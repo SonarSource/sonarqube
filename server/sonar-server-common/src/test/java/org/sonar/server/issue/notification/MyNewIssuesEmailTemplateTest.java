@@ -120,7 +120,7 @@ public class MyNewIssuesEmailTemplateTest {
   @Test
   public void format_email_with_no_assignees_tags_nor_components() {
     Notification notification = newNotification(32)
-      .setFieldValue("projectVersion", "52.0");
+      .setFieldValue("codePeriodVersion", "52.0");
 
     EmailMessage message = underTest.format(notification);
 
@@ -140,7 +140,7 @@ public class MyNewIssuesEmailTemplateTest {
   @Test
   public void format_email_with_issue_on_branch() {
     Notification notification = newNotification(32)
-      .setFieldValue("projectVersion", "52.0")
+      .setFieldValue("codePeriodVersion", "52.0")
       .setFieldValue("branch", "feature1");
 
     EmailMessage message = underTest.format(notification);

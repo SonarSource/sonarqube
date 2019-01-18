@@ -85,16 +85,16 @@ public class NewIssuesNotificationTest {
   public void set_project_version() {
     String version = randomAlphanumeric(5);
 
-    underTest.setProjectVersion(version);
+    underTest.setCodePeriodVersion(version);
 
-    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_VERSION)).isEqualTo(version);
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_CODE_PERIOD_VERSION)).isEqualTo(version);
   }
 
   @Test
   public void set_project_version_supports_null() {
-    underTest.setProjectVersion(null);
+    underTest.setCodePeriodVersion(null);
 
-    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_VERSION)).isNull();
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_CODE_PERIOD_VERSION)).isNull();
   }
 
   @Test

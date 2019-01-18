@@ -128,7 +128,7 @@ public class AlertsEmailTemplateTest {
   @Test
   public void shouldFormatNewAlertWithoutVersion() {
     Notification notification = createNotification("Red (was Green)", "violations > 4", "ERROR", "true")
-        .setFieldValue("projectVersion", null);
+        .setFieldValue("codePeriodVersion", null);
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
@@ -200,7 +200,7 @@ public class AlertsEmailTemplateTest {
         .setFieldValue("projectName", "Foo")
         .setFieldValue("projectKey", "org.sonar.foo:foo")
         .setFieldValue("projectId", "45")
-        .setFieldValue("projectVersion", "V1-SNAP")
+        .setFieldValue("codePeriodVersion", "V1-SNAP")
         .setFieldValue("alertName", alertName)
         .setFieldValue("alertText", alertText)
         .setFieldValue("alertLevel", alertLevel)

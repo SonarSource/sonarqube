@@ -165,7 +165,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotification()
       .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
-      .setProjectVersion(project.getProjectAttributes().getCodePeriodVersion())
+      .setCodePeriodVersion(project.getProjectAttributes().getCodePeriodVersion())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(Duration.create(globalStatistics.effort().getOnLeak()));
@@ -186,7 +186,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setAssignee(userDtoByUuid.get(assigneeUuid));
         myNewIssuesNotification
           .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
-          .setProjectVersion(project.getProjectAttributes().getCodePeriodVersion())
+          .setCodePeriodVersion(project.getProjectAttributes().getCodePeriodVersion())
           .setAnalysisDate(new Date(analysisDate))
           .setStatistics(project.getName(), assigneeStatistics)
           .setDebt(Duration.create(assigneeStatistics.effort().getOnLeak()));
