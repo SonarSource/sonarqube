@@ -89,8 +89,7 @@ public class PurgeDao implements Dao {
 
   private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {
     List<IdUuidPair> analysisUuids = commands.selectSnapshotIdUuids(
-      new PurgeSnapshotQuery()
-        .setComponentUuid(rootUuid)
+      new PurgeSnapshotQuery(rootUuid)
         .setIslast(false)
         .setNotPurged(true));
     commands.purgeAnalyses(analysisUuids);
@@ -113,10 +112,9 @@ public class PurgeDao implements Dao {
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {
     LOG.debug("<- Delete aborted builds");
-    PurgeSnapshotQuery query = new PurgeSnapshotQuery()
+    PurgeSnapshotQuery query = new PurgeSnapshotQuery(rootUuid)
       .setIslast(false)
-      .setStatus(UNPROCESSED_STATUS)
-      .setComponentUuid(rootUuid);
+      .setStatus(UNPROCESSED_STATUS);
     commands.deleteAnalyses(query);
   }
 
@@ -126,8 +124,7 @@ public class PurgeDao implements Dao {
     }
 
     List<String> analysisUuids = purgeCommands.selectSnapshotUuids(
-      new PurgeSnapshotQuery()
-        .setComponentUuid(rootUuid)
+      new PurgeSnapshotQuery(rootUuid)
         .setIslast(false)
         .setNotPurged(true));
     List<String> componentWithoutHistoricalDataUuids = componentDao

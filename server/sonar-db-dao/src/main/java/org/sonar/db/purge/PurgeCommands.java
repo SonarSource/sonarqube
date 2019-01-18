@@ -66,7 +66,7 @@ class PurgeCommands {
     profiler.stop();
 
     List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(
-      purgeMapper.selectAnalysisIdsAndUuids(new PurgeSnapshotQuery().setComponentUuid(rootComponentUuid))), MAX_SNAPSHOTS_PER_QUERY);
+      purgeMapper.selectAnalysisIdsAndUuids(new PurgeSnapshotQuery(rootComponentUuid))), MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(analysisUuidsPartitions);
 

@@ -19,11 +19,24 @@
  */
 package org.sonar.db.purge;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNull;
+
 public final class PurgeSnapshotQuery {
-  private String componentUuid;
+  private final String componentUuid;
   private String[] status;
   private Boolean islast;
   private Boolean notPurged;
+
+  public PurgeSnapshotQuery(String componentUuid) {
+    this.componentUuid = requireNonNull(componentUuid, "componentUuid can't be null");
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
 
   public String[] getStatus() {
     return status;
@@ -34,30 +47,23 @@ public final class PurgeSnapshotQuery {
     return this;
   }
 
+  @CheckForNull
   public Boolean getIslast() {
     return islast;
   }
 
-  public PurgeSnapshotQuery setIslast(Boolean islast) {
+  public PurgeSnapshotQuery setIslast(@Nullable Boolean islast) {
     this.islast = islast;
     return this;
   }
 
+  @CheckForNull
   public Boolean getNotPurged() {
     return notPurged;
   }
 
-  public PurgeSnapshotQuery setNotPurged(Boolean notPurged) {
+  public PurgeSnapshotQuery setNotPurged(@Nullable Boolean notPurged) {
     this.notPurged = notPurged;
-    return this;
-  }
-
-  public String getComponentUuid() {
-    return componentUuid;
-  }
-
-  public PurgeSnapshotQuery setComponentUuid(String componentUuid) {
-    this.componentUuid = componentUuid;
     return this;
   }
 

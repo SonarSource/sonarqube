@@ -8,21 +8,18 @@
       s.id as id, s.uuid as uuid
     from
       snapshots s
-    <where>
+    where
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       <if test="islast != null">
         and s.islast=#{islast}
       </if>
       <if test="notPurged != null and notPurged">
         and (s.purge_status is null or s.purge_status=0)
       </if>
-      <if test="componentUuid != null">
-        and s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
-      </if>
       <if test="status != null">
         and s.status in
         <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>
       </if>
-    </where>
   </select>
 
   <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
