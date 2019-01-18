@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v76;
 
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
@@ -28,6 +29,7 @@ import java.sql.SQLException;
 /**
  * Remove the "sonar.onboardingTutorial.showToNewUsers" settings from the PROPERTIES table
  */
+@SupportsBlueGreen
 public class DeleteUselessOnboardingSetting extends DataChange {
 
   public DeleteUselessOnboardingSetting(Database db) {
