@@ -20,13 +20,14 @@
 package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -46,8 +47,8 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
   private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
-  private static final ImmutableSet<String> QUALIFIERS_PROJECT_VIEW = ImmutableSet.of("TRK", "VW");
-  private static final ImmutableSet<String> QUALIFIERS_MODULE_SUBVIEW = ImmutableSet.of("BRC", "SVW");
+  private static final Set<String> QUALIFIERS_PROJECT_VIEW = ImmutableSet.of("TRK", "VW");
+  private static final Set<String> QUALIFIERS_MODULE_SUBVIEW = ImmutableSet.of("BRC", "SVW");
   private static final String SCOPE_PROJECT = "PRJ";
 
   private final ComponentDao componentDao;
@@ -157,12 +158,38 @@ public class PurgeDao implements Dao {
   }
 
   public List<PurgeableAnalysisDto> selectPurgeableAnalyses(String componentUuid, DbSession session) {
-    List<PurgeableAnalysisDto> result = Lists.newArrayList();
-    result.addAll(mapper(session).selectPurgeableAnalysesWithEvents(componentUuid));
-    result.addAll(mapper(session).selectPurgeableAnalysesWithoutEvents(componentUuid));
-    // sort by date
-    Collections.sort(result);
-    return result;
+    PurgeMapper mapper = mapper(session);
+    Stream<PurgeableAnalysisDto> allPurgeableAnalyses = Stream.concat(
+      mapper.selectPurgeableAnalysesWithEvents(componentUuid).stream(),
+      mapper.selectPurgeableAnalysesWithoutEvents(componentUuid).stream());
+    return allPurgeableAnalyses
+      .filter(new ManualBaselineAnalysisFilter(mapper, componentUuid))
+      .sorted()
+      .collect(MoreCollectors.toList());
+  }
+
+  private static final class ManualBaselineAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
+    private static final String[] NO_BASELINE = {null};
+
+    private final PurgeMapper mapper;
+    private final String componentUuid;
+    private String[] manualBaselineAnalysisUuid;
+
+    private ManualBaselineAnalysisFilter(PurgeMapper mapper, String componentUuid) {
+      this.mapper = mapper;
+      this.componentUuid = componentUuid;
+    }
+
+    @Override
+    public boolean test(PurgeableAnalysisDto purgeableAnalysisDto) {
+      if (manualBaselineAnalysisUuid == null) {
+        manualBaselineAnalysisUuid = Optional.ofNullable(mapper.selectManualBaseline(componentUuid))
+          .map(t -> new String[] {t})
+          .orElse(NO_BASELINE);
+      }
+
+      return !Objects.equals(manualBaselineAnalysisUuid[0], purgeableAnalysisDto.getAnalysisUuid());
+    }
   }
 
   public void deleteBranch(DbSession session, String uuid) {
@@ -257,4 +284,5 @@ public class PurgeDao implements Dao {
   private static PurgeMapper mapper(DbSession session) {
     return session.getMapper(PurgeMapper.class);
   }
+
 }

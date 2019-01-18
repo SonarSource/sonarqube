@@ -58,6 +58,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
+import org.sonar.db.event.EventTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
@@ -85,6 +86,10 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
+import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
+import static org.sonar.db.component.SnapshotTesting.newSnapshot;
+import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.selectAllDeliveryUuids;
 
@@ -364,19 +369,106 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses() {
-    db.prepareDbUnit(getClass(), "shouldSelectPurgeableAnalysis.xml");
-    List<PurgeableAnalysisDto> analyses = underTest.selectPurgeableAnalyses(PROJECT_UUID, dbSession);
+    SnapshotDto[] analyses = new SnapshotDto[] {
+      newSnapshot()
+        .setUuid("u1")
+        .setComponentUuid(PROJECT_UUID)
+        .setStatus(STATUS_PROCESSED)
+        .setLast(true),
+      // not processed -> exclude
+      newSnapshot()
+        .setUuid("u2")
+        .setComponentUuid(PROJECT_UUID)
+        .setStatus(STATUS_UNPROCESSED)
+        .setLast(false),
+      // on other resource -> exclude
+      newSnapshot()
+        .setUuid("u3")
+        .setComponentUuid("uuid_222")
+        .setStatus(STATUS_PROCESSED)
+        .setLast(true),
+      // without event -> select
+      newSnapshot()
+        .setUuid("u4")
+        .setComponentUuid(PROJECT_UUID)
+        .setStatus(STATUS_PROCESSED)
+        .setLast(false),
+      // with event -> select
+      newSnapshot()
+        .setUuid("u5")
+        .setComponentUuid(PROJECT_UUID)
+        .setStatus(STATUS_PROCESSED)
+        .setLast(false)
+        .setCodePeriodVersion("V5")
+    };
+    db.components().insertSnapshots(analyses);
+    db.events().insertEvent(EventTesting.newEvent(analyses[4])
+      .setName("V5")
+      .setCategory(CATEGORY_VERSION));
 
-    assertThat(analyses).hasSize(3);
-    assertThat(getById(analyses, "u1").isLast()).isTrue();
-    assertThat(getById(analyses, "u1").hasEvents()).isFalse();
-    assertThat(getById(analyses, "u1").getVersion()).isNull();
-    assertThat(getById(analyses, "u4").isLast()).isFalse();
-    assertThat(getById(analyses, "u4").hasEvents()).isFalse();
-    assertThat(getById(analyses, "u4").getVersion()).isNull();
-    assertThat(getById(analyses, "u5").isLast()).isFalse();
-    assertThat(getById(analyses, "u5").hasEvents()).isTrue();
-    assertThat(getById(analyses, "u5").getVersion()).isEqualTo("V5");
+    List<PurgeableAnalysisDto> purgeableAnalyses = underTest.selectPurgeableAnalyses(PROJECT_UUID, dbSession);
+
+    assertThat(purgeableAnalyses).hasSize(3);
+    assertThat(getById(purgeableAnalyses, "u1").isLast()).isTrue();
+    assertThat(getById(purgeableAnalyses, "u1").hasEvents()).isFalse();
+    assertThat(getById(purgeableAnalyses, "u1").getVersion()).isNull();
+    assertThat(getById(purgeableAnalyses, "u4").isLast()).isFalse();
+    assertThat(getById(purgeableAnalyses, "u4").hasEvents()).isFalse();
+    assertThat(getById(purgeableAnalyses, "u4").getVersion()).isNull();
+    assertThat(getById(purgeableAnalyses, "u5").isLast()).isFalse();
+    assertThat(getById(purgeableAnalyses, "u5").hasEvents()).isTrue();
+    assertThat(getById(purgeableAnalyses, "u5").getVersion()).isEqualTo("V5");
+  }
+
+  @Test
+  public void selectPurgeableAnalyses_does_not_return_the_baseline() {
+    ComponentDto project1 = db.components().insertMainBranch(db.getDefaultOrganization(), "master");
+    SnapshotDto analysis1 = db.components().insertSnapshot(newSnapshot()
+      .setComponentUuid(project1.uuid())
+      .setStatus(STATUS_PROCESSED)
+      .setLast(false));
+    dbClient.branchDao().updateManualBaseline(dbSession, project1.uuid(), analysis1.getUuid());
+    ComponentDto project2 = db.components().insertPrivateProject();
+    SnapshotDto analysis2 = db.components().insertSnapshot(newSnapshot()
+      .setComponentUuid(project2.uuid())
+      .setStatus(STATUS_PROCESSED)
+      .setLast(false));
+    db.components().insertProjectBranch(project2);
+
+    assertThat(underTest.selectPurgeableAnalyses(project1.uuid(), dbSession)).isEmpty();
+    assertThat(underTest.selectPurgeableAnalyses(project2.uuid(), dbSession))
+      .extracting(PurgeableAnalysisDto::getAnalysisUuid)
+      .containsOnly(analysis2.getUuid());
+  }
+
+  @Test
+  public void selectPurgeableAnalyses_does_not_return_the_baseline_of_specific_branch() {
+    ComponentDto project = db.components().insertMainBranch(db.getDefaultOrganization(), "master");
+    SnapshotDto analysisProject = db.components().insertSnapshot(newSnapshot()
+      .setComponentUuid(project.uuid())
+      .setStatus(STATUS_PROCESSED)
+      .setLast(false));
+    dbClient.branchDao().updateManualBaseline(dbSession, project.uuid(), analysisProject.getUuid());
+    ComponentDto branch1 = db.components().insertProjectBranch(project);
+    SnapshotDto analysisBranch1 = db.components().insertSnapshot(newSnapshot()
+      .setComponentUuid(branch1.uuid())
+      .setStatus(STATUS_PROCESSED)
+      .setLast(false));
+    ComponentDto branch2 = db.components().insertProjectBranch(project);
+    SnapshotDto analysisBranch2 = db.components().insertSnapshot(newSnapshot()
+      .setComponentUuid(branch2.uuid())
+      .setStatus(STATUS_PROCESSED)
+      .setLast(false));
+    dbClient.branchDao().updateManualBaseline(dbSession, branch2.uuid(), analysisBranch2.getUuid());
+    dbSession.commit();
+
+    assertThat(underTest.selectPurgeableAnalyses(project.uuid(), dbSession))
+      .isEmpty();
+    assertThat(underTest.selectPurgeableAnalyses(branch1.uuid(), dbSession))
+      .extracting(PurgeableAnalysisDto::getAnalysisUuid)
+      .containsOnly(analysisBranch1.getUuid());
+    assertThat(underTest.selectPurgeableAnalyses(branch2.uuid(), dbSession))
+      .isEmpty();
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.db.purge;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
@@ -53,8 +54,8 @@ public interface PurgeMapper {
   void deleteAnalysisWastedMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("metricIds") List<Long> metricIds);
 
   /**
-   * Purge status flag is used to not attempt to remove duplications & historical data of analysis of which we already
-   * removed them.
+   * Purge status flag is used to not attempt to remove duplications & historical data of analyses
+   * for which we already removed them.
    */
   void updatePurgeStatusToOne(@Param("analysisUuids") List<String> analysisUuid);
 
@@ -89,6 +90,9 @@ public interface PurgeMapper {
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
   List<String> selectStaleShortLivingBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
+
+  @CheckForNull
+  String selectManualBaseline(@Param("projectUuid") String projectUuid);
 
   void deleteIssuesFromKeys(@Param("keys") List<String> keys);
 

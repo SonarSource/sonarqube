@@ -43,7 +43,16 @@
       and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
 
-    <select id="selectStaleShortLivingBranchesAndPullRequests" parameterType="map" resultType="String">
+  <select id="selectManualBaseline" parameterType="String" resultType="String">
+    select
+      manual_baseline_analysis_uuid
+    from
+      project_branches pb
+    where
+      pb.uuid=#{projectUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectStaleShortLivingBranchesAndPullRequests" parameterType="map" resultType="String">
     select
       pb.uuid
     from
