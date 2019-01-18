@@ -73,7 +73,6 @@ public class SnapshotDaoTest {
       .setUuid("ABCD")
       .setStatus("P")
       .setLast(true)
-      .setPurgeStatus(1)
       .setPeriodMode("days")
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
@@ -88,7 +87,6 @@ public class SnapshotDaoTest {
     assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(result.getStatus()).isEqualTo("P");
     assertThat(result.getLast()).isTrue();
-    assertThat(result.getPurgeStatus()).isEqualTo(1);
     assertThat(result.getCodePeriodVersion()).isEqualTo("2.1-SNAPSHOT");
     assertThat(result.getProjectVersion()).isEqualTo("2.1.0.2336");
     assertThat(result.getPeriodMode()).isEqualTo("days");
@@ -299,7 +297,6 @@ public class SnapshotDaoTest {
     SnapshotDto dto = underTest.insert(db.getSession(), newAnalysis(project)
       .setStatus("P")
       .setLast(true)
-      .setPurgeStatus(1)
       .setPeriodMode("days")
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
@@ -312,7 +309,6 @@ public class SnapshotDaoTest {
     assertThat(dto.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(dto.getStatus()).isEqualTo("P");
     assertThat(dto.getLast()).isTrue();
-    assertThat(dto.getPurgeStatus()).isEqualTo(1);
     assertThat(dto.getPeriodMode()).isEqualTo("days");
     assertThat(dto.getPeriodModeParameter()).isEqualTo("30");
     assertThat(dto.getPeriodDate()).isEqualTo(1500000000001L);
@@ -436,7 +432,6 @@ public class SnapshotDaoTest {
       .setComponentUuid("uuid_3")
       .setStatus("P")
       .setLast(true)
-      .setPurgeStatus(1)
       .setCodePeriodVersion("2.1-SNAPSHOT")
       .setPeriodMode("days1")
       .setPeriodParam("30")

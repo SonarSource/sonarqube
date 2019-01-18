@@ -52,6 +52,10 @@ public interface PurgeMapper {
 
   void deleteAnalysisWastedMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("metricIds") List<Long> metricIds);
 
+  /**
+   * Purge status flag is used to not attempt to remove duplications & historical data of analysis of which we already
+   * removed them.
+   */
   void updatePurgeStatusToOne(@Param("analysisUuids") List<String> analysisUuid);
 
   void resolveComponentIssuesNotAlreadyResolved(@Param("componentUuids") List<String> componentUuids, @Param("dateAsLong") Long dateAsLong);

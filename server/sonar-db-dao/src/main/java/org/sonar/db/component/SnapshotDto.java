@@ -40,7 +40,6 @@ public final class SnapshotDto {
   private Long createdAt;
   private Long buildDate;
   private String status = STATUS_UNPROCESSED;
-  private Integer purgeStatus;
   private Boolean last;
   private String codePeriodVersion;
   private String projectVersion;
@@ -90,16 +89,6 @@ public final class SnapshotDto {
 
   public SnapshotDto setStatus(String status) {
     this.status = status;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getPurgeStatus() {
-    return purgeStatus;
-  }
-
-  public SnapshotDto setPurgeStatus(@Nullable Integer purgeStatus) {
-    this.purgeStatus = purgeStatus;
     return this;
   }
 
@@ -215,7 +204,6 @@ public final class SnapshotDto {
       Objects.equals(createdAt, that.createdAt) &&
       Objects.equals(buildDate, that.buildDate) &&
       Objects.equals(status, that.status) &&
-      Objects.equals(purgeStatus, that.purgeStatus) &&
       Objects.equals(last, that.last) &&
       Objects.equals(codePeriodVersion, that.codePeriodVersion) &&
       Objects.equals(projectVersion, that.projectVersion) &&
@@ -226,7 +214,7 @@ public final class SnapshotDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, purgeStatus, last, codePeriodVersion, projectVersion, periodMode, periodParam, periodDate);
+    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, last, codePeriodVersion, projectVersion, periodMode, periodParam, periodDate);
   }
 
   @Override
@@ -238,7 +226,6 @@ public final class SnapshotDto {
       ", createdAt=" + createdAt +
       ", buildDate=" + buildDate +
       ", status='" + status + '\'' +
-      ", purgeStatus=" + purgeStatus +
       ", last=" + last +
       ", codePeriodVersion='" + codePeriodVersion + '\'' +
       ", projectVersion='" + projectVersion + '\'' +

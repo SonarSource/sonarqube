@@ -28,6 +28,9 @@ public final class PurgeSnapshotQuery {
   private final String componentUuid;
   private String[] status;
   private Boolean islast;
+  /**
+   * If {@code true}, selects only analysis which have not been purged from historical and duplication data before.
+   */
   private Boolean notPurged;
 
   public PurgeSnapshotQuery(String componentUuid) {
