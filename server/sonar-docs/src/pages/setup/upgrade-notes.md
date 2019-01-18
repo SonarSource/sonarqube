@@ -15,9 +15,9 @@ Multi-module analysis configuration may need to be changed ([MMF-365](https://ji
 
 * When the following inclusion / exclusion types are specified in the analysis properties at project level, they must be relative to the project / analysis root: source files, test files, coverage, and duplications. Paths specified at project level will continue to be re-applied at module level but will raise a warning. This backward-compatibile behavior is considered deprecated and will be dropped in a future version. 
 * Specifying source encoding, and issue inclusions / exclusions at module level is no longer supported.
- 
-**Conflict with FindBugs**  
-This version embeds SonarHTML, which analyzes both `.html` and `.jsp` files. Users previously analyzing JSP files with FindBugs will encounter analysis failure if both are present.
+
+**Incompatibility with Findbugs plugin version 3.9.1 and earlier**  
+This version embeds SonarHTML, which analyzes both `.html` and `.jsp` files. Because of this change, the community plugin Findbugs versions 3.9.1 and earlier are incompatible with SonarQube 7.6+ ([MMF-1567](https://jira.sonarsource.com/browse/MMF-1567)).
 
 ## Release 7.5 Upgrade Notes  
 **More Issues Backdated**  
