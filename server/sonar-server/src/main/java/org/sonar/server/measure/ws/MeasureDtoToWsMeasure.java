@@ -26,6 +26,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
 
+import static java.lang.Double.compare;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
@@ -54,7 +55,7 @@ class MeasureDtoToWsMeasure {
     // a measure value can be null, new_violations metric for example
     if (!Double.isNaN(doubleValue) || stringValue != null) {
       measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
-      ofNullable(bestValue).ifPresent(v -> measureBuilder.setBestValue(doubleValue == v));
+      ofNullable(bestValue).ifPresent(v -> measureBuilder.setBestValue(compare(doubleValue, v) == 0));
     }
 
     Measures.PeriodValue.Builder periodBuilder = Measures.PeriodValue.newBuilder();
@@ -65,7 +66,7 @@ class MeasureDtoToWsMeasure {
       .clear()
       .setIndex(1)
       .setValue(formatNumericalValue(variation, metric));
-    ofNullable(bestValue).ifPresent(v -> builderForValue.setBestValue(variation == v));
+    ofNullable(bestValue).ifPresent(v -> builderForValue.setBestValue(compare(variation, v) == 0));
     measureBuilder.getPeriodsBuilder().addPeriodsValue(builderForValue);
   }
 }
