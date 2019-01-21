@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { updateIssue } from '../actions';
-import SetTransitionPopup from '../popups/SetTransitionPopup';
-import { setIssueTransition } from '../../../api/issues';
-import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
+import SetTransitionPopup from '../popups/SetTransitionPopup';
 import StatusHelper from '../../shared/StatusHelper';
-import { Button } from '../../ui/buttons';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
+import { setIssueTransition } from '../../../api/issues';
+import { updateIssue } from '../actions';
 
 interface Props {
   hasTransitions: boolean;
@@ -63,8 +63,8 @@ export default class IssueTransition extends React.PureComponent<Props> {
             overlay={
               <SetTransitionPopup onSelect={this.setTransition} transitions={issue.transitions} />
             }>
-            <Button
-              className="button-link issue-action issue-action-with-options js-issue-transition"
+            <ButtonLink
+              className="issue-action issue-action-with-options js-issue-transition"
               onClick={this.toggleSetTransition}>
               <StatusHelper
                 className="issue-meta-label"
@@ -72,7 +72,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
                 status={issue.status}
               />
               <DropdownIcon className="little-spacer-left" />
-            </Button>
+            </ButtonLink>
           </Toggler>
         </div>
       );

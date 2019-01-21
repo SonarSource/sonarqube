@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { keyBy, sortBy, groupBy } from 'lodash';
 import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
-import { Button } from '../../ui/buttons';
+import { ResetButtonLink } from '../../ui/buttons';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
@@ -440,9 +440,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         </div>
 
         <footer className="modal-foot">
-          <Button className="button-link" onClick={this.props.onClose}>
-            {translate('close')}
-          </Button>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('close')}</ResetButtonLink>
         </footer>
       </Modal>
     );

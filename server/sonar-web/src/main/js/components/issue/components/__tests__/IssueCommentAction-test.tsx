@@ -23,29 +23,26 @@ import IssueCommentAction from '../IssueCommentAction';
 import { click } from '../../../../helpers/testUtils';
 
 it('should render correctly', () => {
-  const element = shallow(
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should open the popup when the button is clicked', () => {
+  const toggleComment = jest.fn();
+  const element = shallowRender({ toggleComment });
+  click(element.find('ButtonLink'));
+  expect(toggleComment.mock.calls.length).toBe(1);
+  element.setProps({ currentPopup: 'comment' });
+  expect(element).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssueCommentAction['props']> = {}) {
+  return shallow(
     <IssueCommentAction
       commentPlaceholder=""
       issueKey="issue-key"
       onChange={jest.fn()}
       toggleComment={jest.fn()}
+      {...props}
     />
   );
-  expect(element).toMatchSnapshot();
-});
-
-it('should open the popup when the button is clicked', () => {
-  const toggle = jest.fn();
-  const element = shallow(
-    <IssueCommentAction
-      commentPlaceholder=""
-      issueKey="issue-key"
-      onChange={jest.fn()}
-      toggleComment={toggle}
-    />
-  );
-  click(element.find('Button'));
-  expect(toggle.mock.calls.length).toBe(1);
-  element.setProps({ currentPopup: 'comment' });
-  expect(element).toMatchSnapshot();
-});
+}

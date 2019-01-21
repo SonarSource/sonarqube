@@ -30,8 +30,8 @@ exports[`should open the popup when the button is clicked 2`] = `
       />
     }
   >
-    <Button
-      className="button-link issue-action issue-action-with-options js-issue-transition"
+    <ButtonLink
+      className="issue-action issue-action-with-options js-issue-transition"
       onClick={[Function]}
     >
       <StatusHelper
@@ -41,7 +41,7 @@ exports[`should open the popup when the button is clicked 2`] = `
       <DropdownIcon
         className="little-spacer-left"
       />
-    </Button>
+    </ButtonLink>
   </Toggler>
 </div>
 `;
@@ -64,8 +64,8 @@ exports[`should render with a resolution 1`] = `
       />
     }
   >
-    <Button
-      className="button-link issue-action issue-action-with-options js-issue-transition"
+    <ButtonLink
+      className="issue-action issue-action-with-options js-issue-transition"
       onClick={[Function]}
     >
       <StatusHelper
@@ -76,7 +76,7 @@ exports[`should render with a resolution 1`] = `
       <DropdownIcon
         className="little-spacer-left"
       />
-    </Button>
+    </ButtonLink>
   </Toggler>
 </div>
 `;
@@ -102,8 +102,8 @@ exports[`should render with the action 1`] = `
       />
     }
   >
-    <Button
-      className="button-link issue-action issue-action-with-options js-issue-transition"
+    <ButtonLink
+      className="issue-action issue-action-with-options js-issue-transition"
       onClick={[Function]}
     >
       <StatusHelper
@@ -113,7 +113,7 @@ exports[`should render with the action 1`] = `
       <DropdownIcon
         className="little-spacer-left"
       />
-    </Button>
+    </ButtonLink>
   </Toggler>
 </div>
 `;

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SetTypePopup from '../popups/SetTypePopup';
-import { setIssueType, IssueResponse } from '../../../api/issues';
-import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
-import { Button } from '../../ui/buttons';
 import IssueTypeIcon from '../../ui/IssueTypeIcon';
+import SetTypePopup from '../popups/SetTypePopup';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
+import { setIssueType, IssueResponse } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 
@@ -62,13 +62,13 @@ export default class IssueType extends React.PureComponent<Props> {
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.canSetType}
             overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}>
-            <Button
-              className="button-link issue-action issue-action-with-options js-issue-set-type"
+            <ButtonLink
+              className="issue-action issue-action-with-options js-issue-set-type"
               onClick={this.toggleSetType}>
               <IssueTypeIcon className="little-spacer-right" query={issue.type} />
               {translate('issue.type', issue.type)}
               <DropdownIcon className="little-spacer-left" />
-            </Button>
+            </ButtonLink>
           </Toggler>
         </div>
       );

@@ -106,9 +106,9 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
           )}
 
           {hasValueChanged && (
-            <Button className="spacer-right button-link" onClick={this.props.onCancel}>
+            <ResetButtonLink className="spacer-right" onClick={this.props.onCancel}>
               {translate('cancel')}
-            </Button>
+            </ResetButtonLink>
           )}
 
           {showReset && (

@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import DateFormatter from '../../../../components/intl/DateFormatter';
+import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
+import { ButtonLink } from '../../../../components/ui/buttons';
 import { SystemUpgrade } from '../../../../api/system';
 import { translate } from '../../../../helpers/l10n';
 
@@ -35,9 +36,7 @@ interface State {
 export default class SystemUpgradeIntermediate extends React.PureComponent<Props, State> {
   state: State = { showMore: false };
 
-  toggleIntermediatVersions = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+  toggleIntermediatVersions = () => {
     this.setState(state => ({ showMore: !state.showMore }));
   };
 
@@ -50,15 +49,12 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
 
     return (
       <div className={this.props.className}>
-        <a
-          className="button-link little-spacer-bottom"
-          href="#"
-          onClick={this.toggleIntermediatVersions}>
+        <ButtonLink className="little-spacer-bottom" onClick={this.toggleIntermediatVersions}>
           {showMore
             ? translate('system.hide_intermediate_versions')
             : translate('system.show_intermediate_versions')}
           <DropdownIcon className="little-spacer-left" turned={showMore} />
-        </a>
+        </ButtonLink>
         {showMore &&
           upgrades.map(upgrade => (
             <div className="note system-upgrade-intermediate" key={upgrade.version}>
@@ -68,7 +64,11 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
                     <b className="little-spacer-right">SonarQube {upgrade.version}</b>
                     {formattedDate}
                     {upgrade.changeLogUrl && (
-                      <a className="spacer-left" href={upgrade.changeLogUrl} target="_blank">
+                      <a
+                        className="spacer-left"
+                        href={upgrade.changeLogUrl}
+                        rel="noopener noreferrer"
+                        target="_blank">
                         {translate('system.release_notes')}
                       </a>
                     )}

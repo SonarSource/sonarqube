@@ -21,8 +21,7 @@ exports[`should render with tags and admin rights 1`] = `
     }
     overlayPlacement="bottom-left"
   >
-    <Button
-      className="button-link"
+    <ButtonLink
       innerRef={[Function]}
       stopPropagation={true}
     >
@@ -35,7 +34,7 @@ exports[`should render with tags and admin rights 1`] = `
           ]
         }
       />
-    </Button>
+    </ButtonLink>
   </Dropdown>
 </div>
 `;

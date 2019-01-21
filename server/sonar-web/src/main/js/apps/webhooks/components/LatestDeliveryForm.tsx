@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import DeliveryItem from './DeliveryItem';
-import { Button } from '../../../components/ui/buttons';
 import Modal from '../../../components/controls/Modal';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { ResetButtonLink } from '../../../components/ui/buttons';
 import { getDelivery } from '../../../api/webhooks';
+import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 interface Props {
   delivery: T.WebhookDelivery;
@@ -88,9 +88,9 @@ export default class LatestDeliveryForm extends React.PureComponent<Props, State
           payload={payload}
         />
         <footer className="modal-foot">
-          <Button className="button-link js-modal-close" onClick={this.props.onClose}>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('close')}
-          </Button>
+          </ResetButtonLink>
         </footer>
       </Modal>
     );

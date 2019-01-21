@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import DeliveryAccordion from './DeliveryAccordion';
-import { Button } from '../../../components/ui/buttons';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
-import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { ResetButtonLink } from '../../../components/ui/buttons';
 import { searchDeliveries } from '../../../api/webhooks';
+import { translateWithParameters, translate } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;
@@ -113,9 +113,9 @@ export default class DeliveriesForm extends React.PureComponent<Props, State> {
           )}
         </div>
         <footer className="modal-foot">
-          <Button className="button-link js-modal-close" onClick={this.props.onClose}>
+          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('close')}
-          </Button>
+          </ResetButtonLink>
         </footer>
       </Modal>
     );

@@ -575,19 +575,24 @@ exports[`should edit members 2`] = `
                   <ResetButtonLink
                     onClick={[Function]}
                   >
-                    <Button
-                      className="button-link"
+                    <ButtonLink
                       onClick={[Function]}
                       type="reset"
                     >
-                      <button
-                        className="button button-link"
+                      <Button
+                        className="button-link"
                         onClick={[Function]}
                         type="reset"
                       >
-                        Done
-                      </button>
-                    </Button>
+                        <button
+                          className="button button-link"
+                          onClick={[Function]}
+                          type="reset"
+                        >
+                          Done
+                        </button>
+                      </Button>
+                    </ButtonLink>
                   </ResetButtonLink>
                 </footer>
               </div>

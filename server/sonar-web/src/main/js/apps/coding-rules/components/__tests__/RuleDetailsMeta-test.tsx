@@ -63,18 +63,18 @@ const EXTERNAL_RULE_WITH_DATA: T.RuleDetails = {
 };
 
 it('should display right meta info', () => {
-  expect(getWrapper()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
   expect(
-    getWrapper({ hideSimilarRulesFilter: true, ruleDetails: EXTERNAL_RULE })
+    shallowRender({ hideSimilarRulesFilter: true, ruleDetails: EXTERNAL_RULE })
   ).toMatchSnapshot();
   expect(
-    getWrapper({ hideSimilarRulesFilter: true, ruleDetails: EXTERNAL_RULE_WITH_DATA })
+    shallowRender({ hideSimilarRulesFilter: true, ruleDetails: EXTERNAL_RULE_WITH_DATA })
   ).toMatchSnapshot();
 });
 
 it('should edit tags', () => {
   const onTagsChange = jest.fn();
-  const wrapper = getWrapper({ onTagsChange });
+  const wrapper = shallowRender({ onTagsChange });
   expect(wrapper.find('[data-meta="tags"]')).toMatchSnapshot();
   const overlay = wrapper
     .find('[data-meta="tags"]')
@@ -85,7 +85,7 @@ it('should edit tags', () => {
   expect(onTagsChange).toBeCalledWith(['foo', 'bar']);
 });
 
-function getWrapper(props = {}) {
+function shallowRender(props: Partial<RuleDetailsMeta['props']> = {}) {
   return shallow(
     <RuleDetailsMeta
       canWrite={true}

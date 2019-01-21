@@ -12,12 +12,12 @@ exports[`disables save button on error 1`] = `
     >
       save
     </Button>
-    <Button
-      className="spacer-right button-link"
+    <ResetButtonLink
+      className="spacer-right"
       onClick={[Function]}
     >
       cancel
-    </Button>
+    </ResetButtonLink>
   </div>
 </Fragment>
 `;
@@ -34,12 +34,12 @@ exports[`displays cancel button when value changed and has error 1`] = `
     >
       save
     </Button>
-    <Button
-      className="spacer-right button-link"
+    <ResetButtonLink
+      className="spacer-right"
       onClick={[Function]}
     >
       cancel
-    </Button>
+    </ResetButtonLink>
   </div>
 </Fragment>
 `;
@@ -56,12 +56,12 @@ exports[`displays cancel button when value changed and no error 1`] = `
     >
       save
     </Button>
-    <Button
-      className="spacer-right button-link"
+    <ResetButtonLink
+      className="spacer-right"
       onClick={[Function]}
     >
       cancel
-    </Button>
+    </ResetButtonLink>
   </div>
 </Fragment>
 `;
@@ -132,12 +132,12 @@ exports[`displays save button when it can be saved 1`] = `
     >
       save
     </Button>
-    <Button
-      className="spacer-right button-link"
+    <ResetButtonLink
+      className="spacer-right"
       onClick={[Function]}
     >
       cancel
-    </Button>
+    </ResetButtonLink>
   </div>
 </Fragment>
 `;

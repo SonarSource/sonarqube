@@ -27,12 +27,12 @@ exports[`should render correctly 1`] = `
   <footer
     className="modal-foot"
   >
-    <Button
-      className="button-link js-modal-close"
+    <ResetButtonLink
+      className="js-modal-close"
       onClick={[MockFunction]}
     >
       close
-    </Button>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
@@ -95,12 +95,12 @@ exports[`should render correctly 2`] = `
   <footer
     className="modal-foot"
   >
-    <Button
-      className="button-link js-modal-close"
+    <ResetButtonLink
+      className="js-modal-close"
       onClick={[MockFunction]}
     >
       close
-    </Button>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;

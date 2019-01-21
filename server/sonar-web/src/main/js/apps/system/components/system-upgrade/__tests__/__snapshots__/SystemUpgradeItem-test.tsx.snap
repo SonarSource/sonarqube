@@ -35,6 +35,7 @@ exports[`should display correctly 1`] = `
     <a
       className="spacer-left"
       href="changelogurl"
+      rel="noopener noreferrer"
       target="_blank"
     >
       system.release_notes

@@ -22,6 +22,7 @@ import SystemUpgradeItem from './SystemUpgradeItem';
 import { SystemUpgrade } from '../../../../api/system';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
+import { ResetButtonLink } from '../../../../components/ui/buttons';
 
 interface Props {
   systemUpgrades: SystemUpgrade[][];
@@ -34,12 +35,6 @@ interface State {
 
 export default class SystemUpgradeForm extends React.PureComponent<Props, State> {
   state: State = { upgrading: false };
-
-  handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    this.props.onClose();
-  };
 
   render() {
     const { upgrading } = this.state;
@@ -63,12 +58,14 @@ export default class SystemUpgradeForm extends React.PureComponent<Props, State>
         </div>
         <div className="modal-foot">
           {upgrading && <i className="spinner spacer-right" />}
-          <a className="pull-left" href="https://www.sonarqube.org/downloads/" target="_blank">
+          <a
+            className="pull-left"
+            href="https://www.sonarqube.org/downloads/"
+            rel="noopener noreferrer"
+            target="_blank">
             {translate('system.see_sonarqube_downloads')}
           </a>
-          <a href="#" onClick={this.handleCancelClick}>
-            {translate('cancel')}
-          </a>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </Modal>
     );

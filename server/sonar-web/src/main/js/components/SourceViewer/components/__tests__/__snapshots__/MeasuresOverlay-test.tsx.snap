@@ -350,12 +350,11 @@ exports[`should render source file 1`] = `
   <footer
     className="modal-foot"
   >
-    <Button
-      className="button-link"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </Button>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
@@ -1316,12 +1315,11 @@ exports[`should render source file 2`] = `
   <footer
     className="modal-foot"
   >
-    <Button
-      className="button-link"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </Button>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;
@@ -1464,12 +1462,11 @@ exports[`should render test file 1`] = `
   <footer
     className="modal-foot"
   >
-    <Button
-      className="button-link"
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
       close
-    </Button>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;

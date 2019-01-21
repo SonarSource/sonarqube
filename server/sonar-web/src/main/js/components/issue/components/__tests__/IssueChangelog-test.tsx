@@ -29,29 +29,27 @@ const issue = {
 };
 
 it('should render correctly', () => {
-  const element = shallow(
+  const element = shallowRender();
+  expect(element).toMatchSnapshot();
+});
+
+it('should open the popup when the button is clicked', () => {
+  const togglePopup = jest.fn();
+  const element = shallowRender({ togglePopup });
+  click(element.find('ButtonLink'));
+  expect(togglePopup.mock.calls).toMatchSnapshot();
+  element.setProps({ isOpen: true });
+  expect(element).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssueChangelog['props']> = {}) {
+  return shallow(
     <IssueChangelog
       creationDate="2017-03-01T09:36:01+0100"
       isOpen={false}
       issue={issue}
       togglePopup={jest.fn()}
+      {...props}
     />
   );
-  expect(element).toMatchSnapshot();
-});
-
-it('should open the popup when the button is clicked', () => {
-  const toggle = jest.fn();
-  const element = shallow(
-    <IssueChangelog
-      creationDate="2017-03-01T09:36:01+0100"
-      isOpen={false}
-      issue={issue}
-      togglePopup={toggle}
-    />
-  );
-  click(element.find('Button'));
-  expect(toggle.mock.calls).toMatchSnapshot();
-  element.setProps({ isOpen: true });
-  expect(element).toMatchSnapshot();
-});
+}

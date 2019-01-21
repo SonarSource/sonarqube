@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SimilarIssuesPopup from '../popups/SimilarIssuesPopup';
-import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
 import FilterIcon from '../../icons-components/FilterIcon';
-import { Button } from '../../ui/buttons';
+import SimilarIssuesPopup from '../popups/SimilarIssuesPopup';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -55,14 +55,14 @@ export default class SimilarIssuesFilter extends React.PureComponent<Props> {
           onRequestClose={this.handleClose}
           open={this.props.isOpen}
           overlay={<SimilarIssuesPopup issue={this.props.issue} onFilter={this.handleFilter} />}>
-          <Button
+          <ButtonLink
             aria-label={translate('issue.filter_similar_issues')}
-            className="js-issue-filter button-link issue-action issue-action-with-options"
+            className="issue-action issue-action-with-options js-issue-filter"
             onClick={this.togglePopup}
             title={translate('issue.filter_similar_issues')}>
             <FilterIcon className="icon-half-transparent" />
             <DropdownIcon className="icon-half-transparent" />
-          </Button>
+          </ButtonLink>
         </Toggler>
       </div>
     );

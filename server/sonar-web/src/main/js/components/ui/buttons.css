@@ -117,7 +117,7 @@
 
 /* #region .button-link */
 .button-link {
-  display: inline;
+  display: inline-flex;
   height: auto; /* Keep this to not inherit the height from .button */
   line-height: 1;
   margin: 0;

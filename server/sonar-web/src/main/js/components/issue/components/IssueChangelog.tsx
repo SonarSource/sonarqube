@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import ChangelogPopup from '../popups/ChangelogPopup';
-import DropdownIcon from '../../icons-components/DropdownIcon';
 import DateFromNow from '../../intl/DateFromNow';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
+import DropdownIcon from '../../icons-components/DropdownIcon';
 import Toggler from '../../controls/Toggler';
 import Tooltip from '../../controls/Tooltip';
-import { Button } from '../../ui/buttons';
+import { ButtonLink } from '../../ui/buttons';
 
 interface Props {
   isOpen: boolean;
@@ -56,14 +56,14 @@ export default class IssueChangelog extends React.PureComponent<Props> {
           <Tooltip
             mouseEnterDelay={0.5}
             overlay={<DateTimeFormatter date={this.props.creationDate} />}>
-            <Button
-              className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+            <ButtonLink
+              className="issue-action issue-action-with-options js-issue-show-changelog"
               onClick={this.handleClick}>
               <span className="issue-meta-label">
                 <DateFromNow date={this.props.creationDate} />
               </span>
               <DropdownIcon className="little-spacer-left" />
-            </Button>
+            </ButtonLink>
           </Tooltip>
         </Toggler>
       </div>

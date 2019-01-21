@@ -51,8 +51,8 @@ it('should display correctly', () => {
 it('should allow to show and hide intermediates', () => {
   const wrapper = shallow(<SystemUpgradeIntermediate upgrades={UPGRADES} />);
   expect(wrapper.find('.system-upgrade-intermediate').exists()).toBeFalsy();
-  click(wrapper.find('a'));
+  click(wrapper.find('ButtonLink'));
   expect(wrapper.find('.system-upgrade-intermediate').exists()).toBeTruthy();
-  click(wrapper.find('a'));
+  click(wrapper.find('ButtonLink'));
   expect(wrapper.find('.system-upgrade-intermediate').exists()).toBeFalsy();
 });

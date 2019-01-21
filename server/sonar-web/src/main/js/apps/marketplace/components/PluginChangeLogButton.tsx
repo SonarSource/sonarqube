@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import PluginChangeLog from './PluginChangeLog';
-import { Release, Update } from '../../../api/plugins';
-import EllipsisIcon from '../../../components/icons-components/EllipsisIcon';
 import Dropdown from '../../../components/controls/Dropdown';
-import { Button } from '../../../components/ui/buttons';
+import EllipsisIcon from '../../../components/icons-components/EllipsisIcon';
+import { ButtonLink } from '../../../components/ui/buttons';
+import { Release, Update } from '../../../api/plugins';
 
 interface Props {
   release: Release;
@@ -34,9 +34,9 @@ export default function PluginChangeLogButton({ release, update }: Props) {
     <Dropdown
       className="display-inline-block little-spacer-left"
       overlay={<PluginChangeLog release={release} update={update} />}>
-      <Button className="button-link js-changelog issue-rule">
+      <ButtonLink className="js-changelog issue-rule">
         <EllipsisIcon />
-      </Button>
+      </ButtonLink>
     </Dropdown>
   );
 }

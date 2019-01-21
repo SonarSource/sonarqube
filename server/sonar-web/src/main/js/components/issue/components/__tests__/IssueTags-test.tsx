@@ -22,51 +22,34 @@ import { shallow } from 'enzyme';
 import IssueTags from '../IssueTags';
 import { click } from '../../../../helpers/testUtils';
 
-const issue = {
-  key: 'issuekey',
-  projectOrganization: 'foo',
-  tags: ['mytag', 'test']
-};
+const issue = { key: 'issuekey', projectOrganization: 'foo', tags: ['mytag', 'test'] };
 
 it('should render without the action when the correct rights are missing', () => {
-  const element = shallow(
-    <IssueTags
-      canSetTags={false}
-      isOpen={false}
-      issue={{ ...issue, tags: [] }}
-      onChange={jest.fn()}
-      togglePopup={jest.fn()}
-    />
-  );
-  expect(element).toMatchSnapshot();
+  expect(shallowRender({ canSetTags: false, issue: { ...issue, tags: [] } })).toMatchSnapshot();
 });
 
 it('should render with the action', () => {
-  const element = shallow(
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should open the popup when the button is clicked', () => {
+  const togglePopup = jest.fn();
+  const element = shallowRender({ togglePopup });
+  click(element.find('ButtonLink'));
+  expect(togglePopup.mock.calls).toMatchSnapshot();
+  element.setProps({ isOpen: true });
+  expect(element).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssueTags['props']> = {}) {
+  return shallow(
     <IssueTags
       canSetTags={true}
       isOpen={false}
       issue={issue}
       onChange={jest.fn()}
       togglePopup={jest.fn()}
+      {...props}
     />
   );
-  expect(element).toMatchSnapshot();
-});
-
-it('should open the popup when the button is clicked', () => {
-  const toggle = jest.fn();
-  const element = shallow(
-    <IssueTags
-      canSetTags={true}
-      isOpen={false}
-      issue={issue}
-      onChange={jest.fn()}
-      togglePopup={toggle}
-    />
-  );
-  click(element.find('Button'));
-  expect(toggle.mock.calls).toMatchSnapshot();
-  element.setProps({ isOpen: true });
-  expect(element).toMatchSnapshot();
-});
+}

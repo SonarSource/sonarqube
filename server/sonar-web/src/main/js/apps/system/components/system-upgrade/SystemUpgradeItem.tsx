@@ -53,7 +53,11 @@ export default function SystemUpgradeItem({ type, systemUpgrades }: Props) {
           )}
         </DateFormatter>
         {lastUpgrade.changeLogUrl && (
-          <a className="spacer-left" href={lastUpgrade.changeLogUrl} target="_blank">
+          <a
+            className="spacer-left"
+            href={lastUpgrade.changeLogUrl}
+            rel="noopener noreferrer"
+            target="_blank">
             {translate('system.release_notes')}
           </a>
         )}

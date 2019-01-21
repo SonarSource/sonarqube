@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SetSeverityPopup from '../popups/SetSeverityPopup';
-import { setIssueSeverity, IssueResponse } from '../../../api/issues';
-import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
+import SetSeverityPopup from '../popups/SetSeverityPopup';
 import SeverityHelper from '../../shared/SeverityHelper';
-import { Button } from '../../ui/buttons';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
+import { setIssueSeverity, IssueResponse } from '../../../api/issues';
 import { RawQuery } from '../../../helpers/query';
 
 interface Props {
@@ -61,12 +61,12 @@ export default class IssueSeverity extends React.PureComponent<Props> {
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.canSetSeverity}
             overlay={<SetSeverityPopup issue={issue} onSelect={this.setSeverity} />}>
-            <Button
-              className="button-link issue-action issue-action-with-options js-issue-set-severity"
+            <ButtonLink
+              className="issue-action issue-action-with-options js-issue-set-severity"
               onClick={this.toggleSetSeverity}>
               <SeverityHelper className="issue-meta-label" severity={issue.severity} />
               <DropdownIcon className="little-spacer-left" />
-            </Button>
+            </ButtonLink>
           </Toggler>
         </div>
       );

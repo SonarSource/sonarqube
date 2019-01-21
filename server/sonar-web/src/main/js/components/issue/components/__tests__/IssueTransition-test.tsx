@@ -29,66 +29,49 @@ const issue = {
 };
 
 it('should render without the action when there is no transitions', () => {
-  const element = shallow(
-    <IssueTransition
-      hasTransitions={false}
-      isOpen={false}
-      issue={{
-        key: 'foo1234',
-        transitions: [],
-        status: 'CLOSED'
-      }}
-      onChange={jest.fn()}
-      togglePopup={jest.fn()}
-    />
-  );
-  expect(element).toMatchSnapshot();
+  expect(
+    shallowRender({
+      hasTransitions: false,
+      issue: { key: 'foo1234', transitions: [], status: 'CLOSED' }
+    })
+  ).toMatchSnapshot();
 });
 
 it('should render with the action', () => {
-  const element = shallow(
-    <IssueTransition
-      hasTransitions={true}
-      isOpen={false}
-      issue={issue}
-      onChange={jest.fn()}
-      togglePopup={jest.fn()}
-    />
-  );
-  expect(element).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render with a resolution', () => {
-  const element = shallow(
-    <IssueTransition
-      hasTransitions={true}
-      isOpen={false}
-      issue={{
+  expect(
+    shallowRender({
+      issue: {
         key: 'foo1234',
         transitions: ['reopen'],
         status: 'RESOLVED',
         resolution: 'FIXED'
-      }}
-      onChange={jest.fn()}
-      togglePopup={jest.fn()}
-    />
-  );
-  expect(element).toMatchSnapshot();
+      }
+    })
+  ).toMatchSnapshot();
 });
 
 it('should open the popup when the button is clicked', () => {
-  const toggle = jest.fn();
-  const element = shallow(
+  const togglePopup = jest.fn();
+  const element = shallowRender({ togglePopup });
+  click(element.find('ButtonLink'));
+  expect(togglePopup.mock.calls).toMatchSnapshot();
+  element.setProps({ isOpen: true });
+  expect(element).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssueTransition['props']> = {}) {
+  return shallow(
     <IssueTransition
       hasTransitions={true}
       isOpen={false}
       issue={issue}
       onChange={jest.fn()}
-      togglePopup={toggle}
+      togglePopup={jest.fn()}
+      {...props}
     />
   );
-  click(element.find('Button'));
-  expect(toggle.mock.calls).toMatchSnapshot();
-  element.setProps({ isOpen: true });
-  expect(element).toMatchSnapshot();
-});
+}

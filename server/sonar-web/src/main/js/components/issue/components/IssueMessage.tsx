@@ -20,9 +20,9 @@
 import * as React from 'react';
 import EllipsisIcon from '../../icons-components/EllipsisIcon';
 import Tooltip from '../../controls/Tooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Button } from '../../ui/buttons';
+import { ButtonLink } from '../../ui/buttons';
 import { WorkspaceContextShape } from '../../workspace/context';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   engine?: string;
@@ -45,12 +45,12 @@ export default class IssueMessage extends React.PureComponent<Props> {
     return (
       <div className="issue-message">
         {this.props.message}
-        <Button
+        <ButtonLink
           aria-label={translate('issue.rule_details')}
-          className="button-link issue-rule little-spacer-left"
+          className="issue-rule little-spacer-left"
           onClick={this.handleClick}>
           <EllipsisIcon />
-        </Button>
+        </ButtonLink>
         {this.props.engine && (
           <Tooltip
             overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>

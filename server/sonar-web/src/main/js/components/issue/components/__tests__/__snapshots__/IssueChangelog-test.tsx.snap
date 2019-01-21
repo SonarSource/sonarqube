@@ -36,8 +36,8 @@ exports[`should open the popup when the button is clicked 2`] = `
         />
       }
     >
-      <Button
-        className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+      <ButtonLink
+        className="issue-action issue-action-with-options js-issue-show-changelog"
         onClick={[Function]}
       >
         <span
@@ -50,7 +50,7 @@ exports[`should open the popup when the button is clicked 2`] = `
         <DropdownIcon
           className="little-spacer-left"
         />
-      </Button>
+      </ButtonLink>
     </Tooltip>
   </Toggler>
 </div>
@@ -83,8 +83,8 @@ exports[`should render correctly 1`] = `
         />
       }
     >
-      <Button
-        className="button-link issue-action issue-action-with-options js-issue-show-changelog"
+      <ButtonLink
+        className="issue-action issue-action-with-options js-issue-show-changelog"
         onClick={[Function]}
       >
         <span
@@ -97,7 +97,7 @@ exports[`should render correctly 1`] = `
         <DropdownIcon
           className="little-spacer-left"
         />
-      </Button>
+      </ButtonLink>
     </Tooltip>
   </Toggler>
 </div>

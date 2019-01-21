@@ -116,9 +116,7 @@ exports[`should display right meta info 1`] = `
         }
         overlayPlacement="bottom-left"
       >
-        <Button
-          className="button-link"
-        >
+        <ButtonLink>
           <TagsList
             allowUpdate={true}
             tags={
@@ -127,7 +125,7 @@ exports[`should display right meta info 1`] = `
               ]
             }
           />
-        </Button>
+        </ButtonLink>
       </Dropdown>
     </li>
     <li
@@ -248,9 +246,7 @@ exports[`should display right meta info 3`] = `
         }
         overlayPlacement="bottom-left"
       >
-        <Button
-          className="button-link"
-        >
+        <ButtonLink>
           <TagsList
             allowUpdate={true}
             tags={
@@ -259,7 +255,7 @@ exports[`should display right meta info 3`] = `
               ]
             }
           />
-        </Button>
+        </ButtonLink>
       </Dropdown>
     </li>
     <Tooltip
@@ -296,9 +292,7 @@ exports[`should edit tags 1`] = `
     }
     overlayPlacement="bottom-left"
   >
-    <Button
-      className="button-link"
-    >
+    <ButtonLink>
       <TagsList
         allowUpdate={true}
         tags={
@@ -307,7 +301,7 @@ exports[`should edit tags 1`] = `
           ]
         }
       />
-    </Button>
+    </ButtonLink>
   </Dropdown>
 </li>
 `;

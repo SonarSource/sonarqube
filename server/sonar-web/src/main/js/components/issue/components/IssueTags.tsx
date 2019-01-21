@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { updateIssue } from '../actions';
 import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';
-import { setIssueTags } from '../../../api/issues';
-import Toggler from '../../controls/Toggler';
 import TagsList from '../../tags/TagsList';
-import { Button } from '../../ui/buttons';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
+import { setIssueTags } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
+import { updateIssue } from '../actions';
 
 interface Props {
   canSetTags: boolean;
@@ -71,8 +71,8 @@ export default class IssueTags extends React.PureComponent<Props> {
                 setTags={this.setTags}
               />
             }>
-            <Button
-              className={'js-issue-edit-tags button-link issue-action issue-action-with-options'}
+            <ButtonLink
+              className="issue-action issue-action-with-options js-issue-edit-tags"
               onClick={this.toggleSetTags}>
               <TagsList
                 allowUpdate={this.props.canSetTags}
@@ -80,7 +80,7 @@ export default class IssueTags extends React.PureComponent<Props> {
                   issue.tags && issue.tags.length > 0 ? issue.tags : [translate('issue.no_tag')]
                 }
               />
-            </Button>
+            </ButtonLink>
           </Toggler>
         </div>
       );

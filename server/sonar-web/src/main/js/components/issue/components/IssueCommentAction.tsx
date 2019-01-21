@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { updateIssue } from '../actions';
-import Toggler from '../../controls/Toggler';
-import { Button } from '../../ui/buttons';
 import CommentPopup from '../popups/CommentPopup';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
 import { addIssueComment } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
+import { updateIssue } from '../actions';
 
 interface Props {
   commentPlaceholder: string;
@@ -61,11 +61,9 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
               toggleComment={this.props.toggleComment}
             />
           }>
-          <Button
-            className="button-link issue-action js-issue-comment"
-            onClick={this.handleCommentClick}>
+          <ButtonLink className="issue-action js-issue-comment" onClick={this.handleCommentClick}>
             <span className="issue-meta-label">{translate('issue.comment.formlink')}</span>
-          </Button>
+          </ButtonLink>
         </Toggler>
       </li>
     );

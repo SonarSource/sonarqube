@@ -22,49 +22,34 @@ import { shallow } from 'enzyme';
 import IssueSeverity from '../IssueSeverity';
 import { click } from '../../../../helpers/testUtils';
 
-const issue = {
-  severity: 'BLOCKER'
-};
+const issue = { severity: 'BLOCKER' };
 
 it('should render without the action when the correct rights are missing', () => {
-  const element = shallow(
-    <IssueSeverity
-      canSetSeverity={false}
-      isOpen={false}
-      issue={issue}
-      setIssueProperty={jest.fn()}
-      togglePopup={jest.fn()}
-    />
-  );
-  expect(element).toMatchSnapshot();
+  expect(shallowRender({ canSetSeverity: false })).toMatchSnapshot();
 });
 
 it('should render with the action', () => {
-  const element = shallow(
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should open the popup when the button is clicked', () => {
+  const togglePopup = jest.fn();
+  const element = shallowRender({ togglePopup });
+  click(element.find('ButtonLink'));
+  expect(togglePopup.mock.calls).toMatchSnapshot();
+  element.setProps({ isOpen: true });
+  expect(element).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssueSeverity['props']> = {}) {
+  return shallow(
     <IssueSeverity
       canSetSeverity={true}
       isOpen={false}
       issue={issue}
       setIssueProperty={jest.fn()}
       togglePopup={jest.fn()}
+      {...props}
     />
   );
-  expect(element).toMatchSnapshot();
-});
-
-it('should open the popup when the button is clicked', () => {
-  const toggle = jest.fn();
-  const element = shallow(
-    <IssueSeverity
-      canSetSeverity={true}
-      isOpen={false}
-      issue={issue}
-      setIssueProperty={jest.fn()}
-      togglePopup={toggle}
-    />
-  );
-  click(element.find('Button'));
-  expect(toggle.mock.calls).toMatchSnapshot();
-  element.setProps({ isOpen: true });
-  expect(element).toMatchSnapshot();
-});
+}

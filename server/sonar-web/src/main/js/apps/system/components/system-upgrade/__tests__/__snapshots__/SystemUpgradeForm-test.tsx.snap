@@ -78,16 +78,16 @@ exports[`should display correctly 1`] = `
     <a
       className="pull-left"
       href="https://www.sonarqube.org/downloads/"
+      rel="noopener noreferrer"
       target="_blank"
     >
       system.see_sonarqube_downloads
     </a>
-    <a
-      href="#"
-      onClick={[Function]}
+    <ResetButtonLink
+      onClick={[MockFunction]}
     >
       cancel
-    </a>
+    </ResetButtonLink>
   </div>
 </Modal>
 `;

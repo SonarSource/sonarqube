@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SetAssigneePopup from '../popups/SetAssigneePopup';
 import Avatar from '../../ui/Avatar';
-import Toggler from '../../controls/Toggler';
 import DropdownIcon from '../../icons-components/DropdownIcon';
-import { Button } from '../../ui/buttons';
+import SetAssigneePopup from '../popups/SetAssigneePopup';
+import Toggler from '../../controls/Toggler';
+import { ButtonLink } from '../../ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -72,12 +72,12 @@ export default class IssueAssign extends React.PureComponent<Props> {
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.canAssign}
             overlay={<SetAssigneePopup issue={this.props.issue} onSelect={this.props.onAssign} />}>
-            <Button
-              className="button-link issue-action issue-action-with-options js-issue-assign"
+            <ButtonLink
+              className="issue-action issue-action-with-options js-issue-assign"
               onClick={this.toggleAssign}>
               {this.renderAssignee()}
               <DropdownIcon className="little-spacer-left" />
-            </Button>
+            </ButtonLink>
           </Toggler>
         </div>
       );

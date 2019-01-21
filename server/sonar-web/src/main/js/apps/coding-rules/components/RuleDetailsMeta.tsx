@@ -21,20 +21,20 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 import SimilarRulesFilter from './SimilarRulesFilter';
-import { Query } from '../query';
-import { getRuleUrl } from '../../../helpers/urls';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import DocTooltip from '../../../components/docs/DocTooltip';
+import Dropdown from '../../../components/controls/Dropdown';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import LinkIcon from '../../../components/icons-components/LinkIcon';
 import RuleScopeIcon from '../../../components/icons-components/RuleScopeIcon';
-import Tooltip from '../../../components/controls/Tooltip';
-import DocTooltip from '../../../components/docs/DocTooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import Dropdown from '../../../components/controls/Dropdown';
 import TagsList from '../../../components/tags/TagsList';
-import DateFormatter from '../../../components/intl/DateFormatter';
-import { Button } from '../../../components/ui/buttons';
+import Tooltip from '../../../components/controls/Tooltip';
+import { ButtonLink } from '../../../components/ui/buttons';
 import { PopupPlacement } from '../../../components/ui/popups';
+import { Query } from '../query';
+import { getRuleUrl } from '../../../helpers/urls';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   canWrite: boolean | undefined;
@@ -108,12 +108,12 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               />
             }
             overlayPlacement={PopupPlacement.BottomLeft}>
-            <Button className="button-link">
+            <ButtonLink>
               <TagsList
                 allowUpdate={canWrite}
                 tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
               />
-            </Button>
+            </ButtonLink>
           </Dropdown>
         ) : (
           <TagsList
