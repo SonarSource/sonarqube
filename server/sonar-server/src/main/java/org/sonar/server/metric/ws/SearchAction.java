@@ -22,6 +22,7 @@ package org.sonar.server.metric.ws;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -61,10 +62,15 @@ public class SearchAction implements MetricsWsAction {
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
       .addPagingParams(100, MAX_LIMIT)
-      .addFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
+
+      .setChangelog(new Change("7.7", "The response field 'custom' is deprecated"))
       .setHandler(this);
 
+    action.createFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
+      .setDeprecatedSince("7.7");
+
     action.createParam(PARAM_IS_CUSTOM)
+      .setDeprecatedSince("7.7")
       .setExampleValue("true")
       .setDescription("Choose custom metrics following 3 cases:" +
         "<ul>" +

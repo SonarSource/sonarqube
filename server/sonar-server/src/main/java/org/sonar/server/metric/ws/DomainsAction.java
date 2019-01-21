@@ -40,6 +40,7 @@ public class DomainsAction implements MetricsWsAction {
     context.createAction("domains")
       .setDescription("List all custom metric domains.")
       .setSince("5.2")
+      .setDeprecatedSince("7.7")
       .setResponseExample(getClass().getResource("example-domains.json"))
       .setHandler(this);
   }

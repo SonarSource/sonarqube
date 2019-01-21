@@ -68,8 +68,10 @@ public class UpdateAction implements MetricsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
-      .setDescription("Update a custom metric.<br /> Requires 'Administer System' permission.")
+      .setDescription("Update a custom metric.<br/>" +
+        "Requires 'Administer System' permission.")
       .setSince("5.2")
+      .setDeprecatedSince("7.7")
       .setHandler(this);
 
     action.createParam(PARAM_ID)
