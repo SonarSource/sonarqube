@@ -71,7 +71,6 @@ export default class Page extends React.PureComponent<Props> {
     htmlPageContent = createAnchorForHeadings(htmlPageContent, realHeadingsList);
     htmlPageContent = replaceDynamicLinks(htmlPageContent);
     htmlPageContent = replaceImageLinks(htmlPageContent);
-    htmlPageContent = replaceInstanceTag(htmlPageContent);
 
     return (
       <>
@@ -125,10 +124,6 @@ export const query = graphql`
     }
   }
 `;
-
-function replaceInstanceTag(content: string) {
-  return content.replace(/{instance}/gi, 'SonarQube');
-}
 
 function replaceImageLinks(content: string) {
   const version = process.env.GATSBY_DOCS_VERSION || '';

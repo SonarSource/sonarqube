@@ -29,6 +29,7 @@ function loadNodeContentSync(fileNode) {
   let newContent = cutSonarCloudContent(content);
   newContent = removeRemainingContentTags(newContent);
   newContent = handleIncludes(newContent, fileNode);
+  newContent = replaceInstanceTag(newContent);
   return newContent;
 }
 
@@ -74,6 +75,10 @@ function handleIncludes(content, fileNode) {
         .trim();
     }
   });
+}
+
+function replaceInstanceTag(content) {
+  return content.replace(/{instance}/gi, 'SonarQube');
 }
 
 exports.createFilePath = createFilePath;
