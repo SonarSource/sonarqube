@@ -130,7 +130,7 @@ it('should support not cycling through elements, and triggering a callback on re
   expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
 });
 
-it('should correctly bind key events for sibling navigation', () => {
+it('should correctly bind key events for codeview navigation', () => {
   const onGoToParent = jest.fn();
   const onHighlight = jest.fn();
   const onSelect = jest.fn();
@@ -149,25 +149,15 @@ it('should correctly bind key events for sibling navigation', () => {
 
   keydown('down');
   expect(onHighlight).not.toBeCalled();
-  expect(onSelect).not.toBeCalled();
 
   keydown('up');
   expect(onHighlight).not.toBeCalled();
-  expect(onSelect).not.toBeCalled();
 
   keydown('right');
-  expect(onHighlight).not.toBeCalled();
   expect(onSelect).not.toBeCalled();
 
   keydown('enter');
-  expect(onHighlight).not.toBeCalled();
   expect(onSelect).not.toBeCalled();
-
-  keydown('j');
-  expect(onSelect).toBeCalledWith(COMPONENTS[2]);
-
-  keydown('k');
-  expect(onSelect).toBeCalledWith(COMPONENTS[0]);
 
   keydown('left');
   expect(onGoToParent).toBeCalled();

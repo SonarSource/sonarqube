@@ -134,7 +134,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, component, leakPeriod, rootComponent } = this.props;
-    const isFile = isFileType(component);
+    const { paging } = this.state;
     return (
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header">
@@ -154,8 +154,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
                 right={
                   <PageActions
                     current={this.state.components.length}
-                    isFile={isFile}
-                    paging={this.state.paging}
+                    total={paging && paging.total}
                   />
                 }
               />

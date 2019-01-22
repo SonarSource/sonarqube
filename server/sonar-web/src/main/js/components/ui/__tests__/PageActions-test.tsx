@@ -19,56 +19,14 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import PageActions from '../PageActions';
+import PageActions, { Props } from '../PageActions';
 
-const PAGING = {
-  pageIndex: 1,
-  pageSize: 100,
-  total: 120
-};
-
-it('should display correctly for a project', () => {
-  expect(
-    shallow(<PageActions isFile={false} showShortcuts={true} totalLoadedComponents={20} />)
-  ).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ total: 10 })).toMatchSnapshot();
+  expect(shallowRender({ current: 12, showShortcuts: false, total: 120 })).toMatchSnapshot();
 });
 
-it('should display correctly for a file', () => {
-  const wrapper = shallow(
-    <PageActions isFile={true} showShortcuts={true} totalLoadedComponents={10} />
-  );
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ paging: { total: 100 } });
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should not display shortcuts for treemap', () => {
-  expect(
-    shallow(<PageActions isFile={false} showShortcuts={false} totalLoadedComponents={20} />)
-  ).toMatchSnapshot();
-});
-
-it('should display the total of files', () => {
-  expect(
-    shallow(
-      <PageActions
-        current={12}
-        isFile={false}
-        paging={PAGING}
-        showShortcuts={false}
-        totalLoadedComponents={20}
-      />
-    )
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <PageActions
-        current={12}
-        isFile={true}
-        paging={PAGING}
-        showShortcuts={true}
-        totalLoadedComponents={20}
-      />
-    )
-  ).toMatchSnapshot();
-});
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(<PageActions showShortcuts={true} {...props} />);
+}

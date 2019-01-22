@@ -25,7 +25,7 @@ import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import PageActions from '../../../components/ui/PageActions';
 import { complementary } from '../config/complementary';
-import CodeView from '../drilldown/CodeView';
+import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
 import { Query, View, isFileType, enhanceComponent, isViewType } from '../utils';
@@ -263,21 +263,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   };
 
-  renderCode() {
-    return (
-      <div className="measure-details-viewer">
-        <CodeView
-          branchLike={this.props.branchLike}
-          component={this.state.baseComponent!}
-          components={this.state.components}
-          leakPeriod={this.props.leakPeriod}
-          selectedIdx={this.getSelectedIndex()}
-          updateSelected={this.updateSelected}
-        />
-      </div>
-    );
-  }
-
   renderMeasure() {
     const { view } = this.props;
     const { metric } = this.state;
@@ -318,7 +303,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, rootComponent, view } = this.props;
-    const { baseComponent, measure, metric, secondaryMeasure } = this.state;
+    const { baseComponent, measure, metric, paging, secondaryMeasure } = this.state;
 
     if (!baseComponent || !metric) {
       return null;
@@ -349,24 +334,25 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                   <div className="display-flex-center">
                     {!isFile &&
                       metric && (
-                        <MeasureViewSelect
-                          className="measure-view-select big-spacer-right"
-                          handleViewChange={this.updateView}
-                          metric={metric}
-                          view={view}
-                        />
+                        <>
+                          <MeasureViewSelect
+                            className="measure-view-select big-spacer-right"
+                            handleViewChange={this.updateView}
+                            metric={metric}
+                            view={view}
+                          />
+
+                          <PageActions
+                            current={
+                              selectedIdx !== undefined && view !== 'treemap'
+                                ? selectedIdx + 1
+                                : undefined
+                            }
+                            showShortcuts={['list', 'tree'].includes(view)}
+                            total={paging && paging.total}
+                          />
+                        </>
                       )}
-                    <PageActions
-                      current={
-                        selectedIdx !== undefined && view !== 'treemap'
-                          ? selectedIdx + 1
-                          : undefined
-                      }
-                      isFile={isFile}
-                      paging={this.state.paging}
-                      showShortcuts={['list', 'tree'].includes(view)}
-                      totalLoadedComponents={this.state.components.length}
-                    />
                   </div>
                 }
               />
@@ -383,7 +369,13 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             metric={metric}
             secondaryMeasure={secondaryMeasure}
           />
-          {isFile ? this.renderCode() : this.renderMeasure()}
+          {isFile ? (
+            <div className="measure-details-viewer">
+              <SourceViewer branchLike={branchLike} component={baseComponent.key} />
+            </div>
+          ) : (
+            this.renderMeasure()
+          )}
         </div>
       </div>
     );

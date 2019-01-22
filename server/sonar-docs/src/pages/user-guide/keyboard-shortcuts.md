@@ -42,7 +42,6 @@ url: /user-guide/keyboard-shortcuts/
 | `↑` `↓`  | select files                                  |
 | `→`      | open file                                     |
 | `←`      | return back to the list                       |
-| `j` `k`  | switch between files                          |
 
 ## Rules Page
 

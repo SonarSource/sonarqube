@@ -1,44 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly for a file 1`] = `
-<div
-  className="page-actions display-flex-center"
-/>
-`;
-
-exports[`should display correctly for a file 2`] = `
-<div
-  className="page-actions display-flex-center"
->
-  <span
-    className="note nowrap"
-  >
-    <span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        j
-      </span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        k
-      </span>
-      component_measures.to_navigate_files
-    </span>
-  </span>
-  <div
-    className="measure-details-page-actions nowrap"
-  >
-    <FilesCounter
-      className="big-spacer-left"
-      total={10}
-    />
-  </div>
-</div>
-`;
-
-exports[`should display correctly for a project 1`] = `
+exports[`should render correctly 1`] = `
 <div
   className="page-actions display-flex-center"
 >
@@ -77,12 +39,59 @@ exports[`should display correctly for a project 1`] = `
 </div>
 `;
 
-exports[`should display the total of files 1`] = `
+exports[`should render correctly 2`] = `
+<div
+  className="page-actions display-flex-center"
+>
+  <span
+    className="note nowrap"
+  >
+    <span
+      className="big-spacer-right"
+    >
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ↑
+      </span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ↓
+      </span>
+      component_measures.to_select_files
+    </span>
+    <span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        ←
+      </span>
+      <span
+        className="shortcut-button little-spacer-right"
+      >
+        →
+      </span>
+      component_measures.to_navigate
+    </span>
+  </span>
+  <div
+    className="nowrap"
+  >
+    <FilesCounter
+      className="big-spacer-left"
+      total={10}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly 3`] = `
 <div
   className="page-actions display-flex-center"
 >
   <div
-    className="measure-details-page-actions nowrap"
+    className="nowrap"
   >
     <FilesCounter
       className="big-spacer-left"
@@ -91,43 +100,4 @@ exports[`should display the total of files 1`] = `
     />
   </div>
 </div>
-`;
-
-exports[`should display the total of files 2`] = `
-<div
-  className="page-actions display-flex-center"
->
-  <span
-    className="note nowrap"
-  >
-    <span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        j
-      </span>
-      <span
-        className="shortcut-button little-spacer-right"
-      >
-        k
-      </span>
-      component_measures.to_navigate_files
-    </span>
-  </span>
-  <div
-    className="measure-details-page-actions nowrap"
-  >
-    <FilesCounter
-      className="big-spacer-left"
-      current={12}
-      total={20}
-    />
-  </div>
-</div>
-`;
-
-exports[`should not display shortcuts for treemap 1`] = `
-<div
-  className="page-actions display-flex-center"
-/>
 `;

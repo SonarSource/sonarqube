@@ -73,9 +73,7 @@ export const KEYCODE_MAP: { [keycode: number]: string } = {
   37: 'left',
   38: 'up',
   39: 'right',
-  40: 'down',
-  74: 'j',
-  75: 'k'
+  40: 'down'
 };
 
 export function keydown(key: number | string): void {

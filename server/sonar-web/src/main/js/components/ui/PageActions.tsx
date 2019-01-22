@@ -21,64 +21,37 @@ import * as React from 'react';
 import FilesCounter from './FilesCounter';
 import { translate } from '../../helpers/l10n';
 
-interface Props {
+export interface Props {
   current?: number;
-  isFile?: boolean;
-  paging?: T.Paging;
-  showPaging?: boolean;
   showShortcuts?: boolean;
-  totalLoadedComponents?: number;
+  total?: number;
 }
 
 export default function PageActions(props: Props) {
-  const { isFile, paging, showPaging, showShortcuts, totalLoadedComponents } = props;
-  let total = 0;
-
-  if (showPaging && totalLoadedComponents) {
-    total = totalLoadedComponents;
-  } else if (paging !== undefined) {
-    total = isFile && totalLoadedComponents ? totalLoadedComponents : paging.total;
-  }
+  const { current, showShortcuts, total = 0 } = props;
 
   return (
     <div className="page-actions display-flex-center">
-      {!isFile && showShortcuts && renderShortcuts()}
-      {isFile && (paging || showPaging) && renderFileShortcuts()}
+      {showShortcuts && (
+        <span className="note nowrap">
+          <span className="big-spacer-right">
+            <span className="shortcut-button little-spacer-right">↑</span>
+            <span className="shortcut-button little-spacer-right">↓</span>
+            {translate('component_measures.to_select_files')}
+          </span>
+
+          <span>
+            <span className="shortcut-button little-spacer-right">←</span>
+            <span className="shortcut-button little-spacer-right">→</span>
+            {translate('component_measures.to_navigate')}
+          </span>
+        </span>
+      )}
       {total > 0 && (
-        <div className="measure-details-page-actions nowrap">
-          <FilesCounter className="big-spacer-left" current={props.current} total={total} />
+        <div className="nowrap">
+          <FilesCounter className="big-spacer-left" current={current} total={total} />
         </div>
       )}
     </div>
-  );
-}
-
-function renderShortcuts() {
-  return (
-    <span className="note nowrap">
-      <span className="big-spacer-right">
-        <span className="shortcut-button little-spacer-right">↑</span>
-        <span className="shortcut-button little-spacer-right">↓</span>
-        {translate('component_measures.to_select_files')}
-      </span>
-
-      <span>
-        <span className="shortcut-button little-spacer-right">←</span>
-        <span className="shortcut-button little-spacer-right">→</span>
-        {translate('component_measures.to_navigate')}
-      </span>
-    </span>
-  );
-}
-
-function renderFileShortcuts() {
-  return (
-    <span className="note nowrap">
-      <span>
-        <span className="shortcut-button little-spacer-right">j</span>
-        <span className="shortcut-button little-spacer-right">k</span>
-        {translate('component_measures.to_navigate_files')}
-      </span>
-    </span>
   );
 }

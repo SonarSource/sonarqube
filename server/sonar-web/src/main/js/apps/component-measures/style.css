@@ -64,15 +64,6 @@
   white-space: nowrap;
 }
 
-.measure-details-page-actions {
-  display: inline-block;
-  text-align: right;
-}
-
-.measure-details-page-actions .spinner {
-  vertical-align: text-bottom;
-}
-
 .measure-details-metric {
   display: flex;
   align-items: center;

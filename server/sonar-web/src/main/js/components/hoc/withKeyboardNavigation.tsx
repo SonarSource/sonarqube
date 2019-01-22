@@ -64,12 +64,6 @@ export default function withKeyboardNavigation<P>(
         this.handleSelectParent();
         return false; // always hijack left
       });
-      key('k', KEY_SCOPE, () => {
-        return this.skipIfNotFile(this.handleSelectPrevious);
-      });
-      key('j', KEY_SCOPE, () => {
-        return this.skipIfNotFile(this.handleSelectNext);
-      });
     };
 
     detachShortcuts = () => {
@@ -87,15 +81,6 @@ export default function withKeyboardNavigation<P>(
       } else {
         handler();
         return false;
-      }
-    };
-
-    skipIfNotFile = (handler: () => void) => {
-      if (this.props.isFile) {
-        handler();
-        return false;
-      } else {
-        return true;
       }
     };
 
@@ -172,18 +157,9 @@ export default function withKeyboardNavigation<P>(
     };
 
     render() {
-      const { components = [], isFile } = this.props;
-      const index = this.getCurrentIndex();
-
       return (
         <>
-          <PageActions
-            current={index > -1 ? index + 1 : undefined}
-            isFile={isFile}
-            showPaging={isFile && index > -1}
-            showShortcuts={true}
-            totalLoadedComponents={components.length}
-          />
+          <PageActions showShortcuts={!this.props.isFile} />
 
           <WrappedComponent {...this.props} />
         </>
