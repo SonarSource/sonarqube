@@ -98,6 +98,7 @@ import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNEES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHOR;
 import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHORS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
@@ -147,9 +148,10 @@ import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_IN
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.issue.index.SecurityStandardHelper.UNKNOWN_STANDARD;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
@@ -186,7 +188,8 @@ public class IssueIndex {
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, MAX_FACET_SIZE),
     RULES(PARAM_RULES, FIELD_ISSUE_RULE_ID, MAX_FACET_SIZE),
     TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, MAX_FACET_SIZE),
-    AUTHORS(PARAM_AUTHORS, FIELD_ISSUE_AUTHOR_LOGIN, MAX_FACET_SIZE),
+    AUTHORS(DEPRECATED_PARAM_AUTHORS, FIELD_ISSUE_AUTHOR_LOGIN, MAX_FACET_SIZE),
+    AUTHOR(PARAM_AUTHOR, FIELD_ISSUE_AUTHOR_LOGIN, MAX_FACET_SIZE),
     PROJECT_UUIDS(FACET_PROJECTS, FIELD_ISSUE_PROJECT_UUID, MAX_FACET_SIZE),
     MODULE_UUIDS(PARAM_MODULE_UUIDS, FIELD_ISSUE_MODULE_UUID, MAX_FACET_SIZE),
     FILE_UUIDS(PARAM_FILE_UUIDS, FIELD_ISSUE_COMPONENT_UUID, MAX_FACET_SIZE),
@@ -570,6 +573,7 @@ public class IssueIndex {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, LANGUAGES, query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, RULES, query.rules().stream().map(RuleDefinitionDto::getId).toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, AUTHORS, query.authors().toArray());
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, AUTHOR, query.authors().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, TAGS, query.tags().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, TYPES, query.types().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, OWASP_TOP_10, query.owaspTop10().toArray());
@@ -647,7 +651,7 @@ public class IssueIndex {
     if (Double.isInfinite(actualValue)) {
       return OptionalLong.empty();
     }
-    return OptionalLong.of((long)actualValue);
+    return OptionalLong.of((long) actualValue);
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {

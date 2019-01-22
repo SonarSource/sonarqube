@@ -19,13 +19,15 @@
  */
 package org.sonar.xoo.scm;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -35,10 +37,7 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.xoo.Xoo;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,12 +73,33 @@ public class XooBlameCommandTest {
       .setModuleBaseDir(baseDir.toPath())
       .build();
     fs.add(inputFile);
-
     BlameOutput result = mock(BlameOutput.class);
     when(input.filesToBlame()).thenReturn(Arrays.asList(inputFile));
+
     new XooBlameCommand().blame(input, result);
+
     verify(result).blameResult(inputFile, Arrays.asList(
       new BlameLine().revision("123").author("julien").date(DateUtils.parseDate("2014-12-12")),
       new BlameLine().revision("234").author("julien").date(DateUtils.parseDate("2014-12-24"))));
+  }
+
+  @Test
+  public void blame_containing_author_with_comma() throws IOException {
+    File source = new File(baseDir, "src/foo.xoo");
+    FileUtils.write(source, "sample content");
+    File scm = new File(baseDir, "src/foo.xoo.scm");
+    FileUtils.write(scm, "\"123\",\"john,doe\",\"2019-01-22\"");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
+      .setLanguage(Xoo.KEY)
+      .setModuleBaseDir(baseDir.toPath())
+      .build();
+    fs.add(inputFile);
+    BlameOutput result = mock(BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Arrays.asList(inputFile));
+
+    new XooBlameCommand().blame(input, result);
+
+    verify(result).blameResult(inputFile, singletonList(
+      new BlameLine().revision("123").author("john,doe").date(DateUtils.parseDate("2019-01-22"))));
   }
 }

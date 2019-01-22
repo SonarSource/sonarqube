@@ -35,6 +35,7 @@ public class SearchRequest {
   private String asc;
   private String assigned;
   private List<String> assignees;
+  private List<String> author;
   private List<String> authors;
   private String branch;
   private List<String> componentKeys;
@@ -143,8 +144,22 @@ public class SearchRequest {
   }
 
   /**
-   * Example value: "torvalds@linux-foundation.org"
+   * Example value: "author=torvalds@linux-foundation.org&author=linux@fondation.org"
    */
+  public SearchRequest setAuthor(List<String> author) {
+    this.author = author;
+    return this;
+  }
+
+  public List<String> getAuthor() {
+    return author;
+  }
+
+  /**
+   * Example value: "torvalds@linux-foundation.org"
+   * @deprecated since 7.7
+   */
+  @Deprecated
   public SearchRequest setAuthors(List<String> authors) {
     this.authors = authors;
     return this;
@@ -310,7 +325,6 @@ public class SearchRequest {
    * <ul>
    *   <li>"count"</li>
    *   <li>"effort"</li>
-   *   <li>"debt"</li>
    * </ul>
    */
   public SearchRequest setFacetMode(String facetMode) {
@@ -325,18 +339,19 @@ public class SearchRequest {
   /**
    * Possible values:
    * <ul>
+   *   <li>"projects"</li>
+   *   <li>"moduleUuids"</li>
+   *   <li>"fileUuids"</li>
+   *   <li>"assigned_to_me"</li>
    *   <li>"severities"</li>
    *   <li>"statuses"</li>
    *   <li>"resolutions"</li>
    *   <li>"actionPlans"</li>
-   *   <li>"projectUuids"</li>
    *   <li>"rules"</li>
    *   <li>"assignees"</li>
-   *   <li>"assigned_to_me"</li>
    *   <li>"reporters"</li>
    *   <li>"authors"</li>
-   *   <li>"moduleUuids"</li>
-   *   <li>"fileUuids"</li>
+   *   <li>"author"</li>
    *   <li>"directories"</li>
    *   <li>"languages"</li>
    *   <li>"tags"</li>
@@ -396,7 +411,9 @@ public class SearchRequest {
   /**
    * This is part of the internal API.
    * Example value: "7d8749e8-3070-4903-9188-bdd82933bb92"
+   * @deprecated since 7.6
    */
+  @Deprecated
   public SearchRequest setModuleUuids(List<String> moduleUuids) {
     this.moduleUuids = moduleUuids;
     return this;

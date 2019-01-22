@@ -323,7 +323,21 @@ public class IssueIndexFacetsTest {
   }
 
   @Test
-  public void facets_on_authors() {
+  public void facets_on_author() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setAuthorLogin("steph"),
+      newDoc("I2", file).setAuthorLogin("marcel"),
+      newDoc("I3", file).setAuthorLogin("marcel"),
+      newDoc("I4", file).setAuthorLogin(null));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "author", entry("steph", 1L), entry("marcel", 2L));
+  }
+
+  @Test
+  public void facets_on_deprecated_authors() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 

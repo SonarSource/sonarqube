@@ -29,7 +29,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -38,7 +37,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
@@ -77,7 +75,6 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
@@ -430,32 +427,6 @@ public class SearchActionComponentsTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, subView.getKey())
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json");
-  }
-
-  @Test
-  public void search_by_author() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
-    RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
-    db.issues().insert(rule, project, file, i -> i.setAuthorLogin("leia").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2"));
-    db.issues().insert(rule, project, file, i -> i.setAuthorLogin("luke@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4"));
-    allowAnyoneOnProjects(project);
-    indexIssues();
-
-    UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    userSession.logIn(user).addMembership(db.getDefaultOrganization());
-
-    ws.newRequest()
-      .setParam(PARAM_AUTHORS, "leia")
-      .setParam(WebService.Param.FACETS, "authors")
-      .execute()
-      .assertJson(this.getClass(), "search_by_authors.json");
-
-    ws.newRequest()
-      .setParam(PARAM_AUTHORS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }

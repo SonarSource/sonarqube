@@ -76,6 +76,7 @@ import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.rules.ExpectedException.none;
@@ -163,7 +164,8 @@ public class SearchActionTest {
         Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate)
       .containsExactlyInAnyOrder(
         tuple(organization.getKey(), issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message", "10min",
-          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()), formatDateTime(issue.getIssueUpdateDate())));
+          simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
+          formatDateTime(issue.getIssueUpdateDate())));
   }
 
   @Test
@@ -578,6 +580,72 @@ public class SearchActionTest {
   }
 
   @Test
+  public void search_by_author() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue1 = db.issues().insert(rule, project, file, i -> i.setAuthorLogin("leia"));
+    IssueDto issue2 = db.issues().insert(rule, project, file, i -> i.setAuthorLogin("luke"));
+    IssueDto issue3 = db.issues().insert(rule, project, file, i -> i.setAuthorLogin("han, solo"));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setMultiParam("author", asList("leia", "han, solo"))
+      .setParam(FACETS, "author")
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue1.getKey(), issue3.getKey());
+    Common.Facet facet = response.getFacets().getFacetsList().get(0);
+    assertThat(facet.getProperty()).isEqualTo("author");
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("leia", 1L),
+        tuple("luke", 1L),
+        tuple("han, solo", 1L));
+
+    assertThat(ws.newRequest()
+      .setMultiParam("author", singletonList("unknown"))
+      .executeProtobuf(SearchWsResponse.class).getIssuesList())
+        .isEmpty();
+  }
+
+  @Test
+  public void search_by_deprecated_authors_parameter() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue1 = db.issues().insert(rule, project, file, i -> i.setAuthorLogin("leia"));
+    IssueDto issue2 = db.issues().insert(rule, project, file, i -> i.setAuthorLogin("luke"));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("authors", "leia")
+      .setParam(FACETS, "authors")
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(response.getIssuesList()).extracting(Issue::getKey).containsExactlyInAnyOrder(issue1.getKey());
+    Common.Facet facet = response.getFacets().getFacetsList().get(0);
+    assertThat(facet.getProperty()).isEqualTo("authors");
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("leia", 1L),
+        tuple("luke", 1L));
+
+    // Deprecated parameter 'authors' will be ignored if new parameter 'author' is set
+    assertThat(ws.newRequest()
+      .setMultiParam("author", singletonList("luke"))
+      // This parameter will be ignored
+      .setParam("authors", "leia")
+      .executeProtobuf(SearchWsResponse.class).getIssuesList())
+        .extracting(Issue::getKey)
+        .containsExactlyInAnyOrder(issue2.getKey());
+  }
+
+  @Test
   public void sort_by_updated_at() {
     RuleDto rule = newRule();
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-2"));
@@ -782,7 +850,7 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components", "branch",
+      "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components", "branch",
       "pullRequest", "organization",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",

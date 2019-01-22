@@ -147,7 +147,8 @@ public class IssuesService extends BaseService {
         .setParam("componentUuid", request.getComponentUuid())
         .setParam("createdAfter", request.getCreatedAfter())
         .setParam("ps", request.getPs())
-        .setMediaType(MediaTypes.JSON)).content();
+        .setMediaType(MediaTypes.JSON)
+      ).content();
   }
 
   /**
@@ -191,7 +192,8 @@ public class IssuesService extends BaseService {
       new PostRequest(path("edit_comment"))
         .setParam("comment", request.getComment())
         .setParam("text", request.getText())
-        .setMediaType(MediaTypes.JSON)).content();
+        .setMediaType(MediaTypes.JSON)
+      ).content();
   }
 
   /**
@@ -208,6 +210,7 @@ public class IssuesService extends BaseService {
         .setParam("asc", request.getAsc())
         .setParam("assigned", request.getAssigned())
         .setParam("assignees", request.getAssignees() == null ? null : request.getAssignees().stream().collect(Collectors.joining(",")))
+        .setParam("author", request.getAuthor())
         .setParam("authors", request.getAuthors() == null ? null : request.getAuthors().stream().collect(Collectors.joining(",")))
         .setParam("branch", request.getBranch())
         .setParam("componentKeys", request.getComponentKeys() == null ? null : request.getComponentKeys().stream().collect(Collectors.joining(",")))
@@ -219,6 +222,7 @@ public class IssuesService extends BaseService {
         .setParam("createdAt", request.getCreatedAt())
         .setParam("createdBefore", request.getCreatedBefore())
         .setParam("createdInLast", request.getCreatedInLast())
+        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(",")))
         .setParam("directories", request.getDirectories() == null ? null : request.getDirectories().stream().collect(Collectors.joining(",")))
         .setParam("facetMode", request.getFacetMode())
         .setParam("facets", request.getFacets() == null ? null : request.getFacets().stream().collect(Collectors.joining(",")))
@@ -228,6 +232,7 @@ public class IssuesService extends BaseService {
         .setParam("moduleUuids", request.getModuleUuids() == null ? null : request.getModuleUuids().stream().collect(Collectors.joining(",")))
         .setParam("onComponentOnly", request.getOnComponentOnly())
         .setParam("organization", request.getOrganization())
+        .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("p", request.getP())
         .setParam("projects", request.getProjects() == null ? null : request.getProjects().stream().collect(Collectors.joining(",")))
         .setParam("ps", request.getPs())
@@ -236,14 +241,12 @@ public class IssuesService extends BaseService {
         .setParam("resolved", request.getResolved())
         .setParam("rules", request.getRules() == null ? null : request.getRules().stream().collect(Collectors.joining(",")))
         .setParam("s", request.getS())
+        .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
         .setParam("severities", request.getSeverities() == null ? null : request.getSeverities().stream().collect(Collectors.joining(",")))
         .setParam("sinceLeakPeriod", request.getSinceLeakPeriod())
         .setParam("statuses", request.getStatuses() == null ? null : request.getStatuses().stream().collect(Collectors.joining(",")))
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
-        .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(",")))
-        .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
-        .setParam("sansTop25", request.getSansTop25() == null ? null : request.getSansTop25().stream().collect(Collectors.joining(",")))
-        .setParam("cwe", request.getCwe() == null ? null : request.getCwe().stream().collect(Collectors.joining(","))),
+        .setParam("types", request.getTypes() == null ? null : request.getTypes().stream().collect(Collectors.joining(","))),
       SearchWsResponse.parser());
   }
 

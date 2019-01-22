@@ -88,7 +88,14 @@ public class IssuesWsParameters {
   @Deprecated
   public static final String PARAM_REPORTERS = "reporters";
   public static final String PARAM_ASSIGNEES = "assignees";
-  public static final String PARAM_AUTHORS = "authors";
+
+  /**
+   * @deprecated since 7.7, please use 'author' instead
+   */
+  @Deprecated
+  public static final String DEPRECATED_PARAM_AUTHORS = "authors";
+
+  public static final String PARAM_AUTHOR = "author";
   public static final String PARAM_LANGUAGES = "languages";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_TYPES = "types";

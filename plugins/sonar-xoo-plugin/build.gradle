@@ -6,6 +6,7 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
+  compile 'org.apache.commons:commons-csv'
   compileOnly 'com.google.code.findbugs:jsr305'
   runtime project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly project(path: ':sonar-plugin-api')

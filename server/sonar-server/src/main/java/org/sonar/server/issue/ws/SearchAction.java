@@ -67,6 +67,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
@@ -85,6 +86,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_COUNT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -92,7 +94,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASC;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -142,7 +144,8 @@ public class SearchAction implements IssuesWsAction, Startable {
     PARAM_RULES,
     PARAM_ASSIGNEES,
     PARAM_REPORTERS,
-    PARAM_AUTHORS,
+    DEPRECATED_PARAM_AUTHORS,
+    PARAM_AUTHOR,
     PARAM_DIRECTORIES,
     PARAM_LANGUAGES,
     PARAM_TAGS,
@@ -190,7 +193,8 @@ public class SearchAction implements IssuesWsAction, Startable {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
       .setChangelog(
-        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT_KEYS)),
+        new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
+        new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT_KEYS)),
         new Change("7.4", "The facet 'projectUuids' is dropped in favour of the new facet 'projects'. " +
           "Note that they are not strictly identical, the latter returns the project keys."),
         new Change("7.4", format("Parameter '%s' does not accept anymore deprecated value 'debt'", FACET_MODE)),
@@ -206,7 +210,7 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
-    action.createParam(Param.FACETS)
+    action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(SUPPORTED_FACETS);
     action.createParam(FACET_MODE)
@@ -260,9 +264,13 @@ public class SearchAction implements IssuesWsAction, Startable {
     action.createParam(PARAM_CWE)
       .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
       .setExampleValue("12,125," + UNKNOWN_STANDARD);
-    action.createParam(PARAM_AUTHORS)
-      .setDescription("Comma-separated list of SCM accounts")
+    action.createParam(DEPRECATED_PARAM_AUTHORS)
+      .setDeprecatedSince("7.7")
+      .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_AUTHOR)
       .setExampleValue("torvalds@linux-foundation.org");
+    action.createParam(PARAM_AUTHOR)
+      .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
+      .setExampleValue("author=torvalds@linux-foundation.org&author=linux@fondation.org");
     action.createParam(PARAM_ASSIGNEES)
       .setDescription("Comma-separated list of assignee logins. The value '__me__' can be used as a placeholder for user who performs the request")
       .setExampleValue("admin,usera,__me__");
@@ -448,7 +456,8 @@ public class SearchAction implements IssuesWsAction, Startable {
       if (!organizationDto.isPresent() || !userSession.hasMembership(organizationDto.get())) {
         // In order to display the authors facet, the organization parameter must be set and the user
         // must be member of this organization
-        requestedFacets.remove(PARAM_AUTHORS);
+        requestedFacets.remove(PARAM_AUTHOR);
+        requestedFacets.remove(DEPRECATED_PARAM_AUTHORS);
       }
     }
 
@@ -521,7 +530,7 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setAsc(request.mandatoryParamAsBoolean(PARAM_ASC))
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
       .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
-      .setAuthors(request.paramAsStrings(PARAM_AUTHORS))
+      .setAuthors(request.hasParam(PARAM_AUTHOR) ? request.multiParam(PARAM_AUTHOR) : request.paramAsStrings(DEPRECATED_PARAM_AUTHORS))
       .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
       .setComponentRootUuids(request.paramAsStrings(PARAM_COMPONENT_ROOT_UUIDS))
       .setComponentRoots(request.paramAsStrings(PARAM_COMPONENT_ROOTS))
@@ -533,7 +542,7 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setCreatedInLast(request.param(PARAM_CREATED_IN_LAST))
       .setDirectories(request.paramAsStrings(PARAM_DIRECTORIES))
       .setFacetMode(request.mandatoryParam(FACET_MODE))
-      .setFacets(request.paramAsStrings(Param.FACETS))
+      .setFacets(request.paramAsStrings(FACETS))
       .setFileUuids(request.paramAsStrings(PARAM_FILE_UUIDS))
       .setIssues(request.paramAsStrings(PARAM_ISSUES))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
