@@ -87,6 +87,7 @@ All these MBeans are read-only. It's not possible to modify or reset their value
 [[collapse]]
 | ## SonarQube MBean
 | Attribute Name | Description
+| ---|---
 | LogLevel | Log Level: INFO, DEBUG, TRACE
 | ServerId | SonarQube Server ID
 | Version | SonarQube Version

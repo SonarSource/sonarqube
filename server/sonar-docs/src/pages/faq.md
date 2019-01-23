@@ -6,10 +6,10 @@ url: /faq/
 ## Table of Contents
 
 ## How do I get rid of issues that are False-Positives?
-**False-Positive and Won't Fix**
+**False-Positive and Won't Fix**  
 You can mark individual issues False Positive or Won't Fix through the issues interface. If you're using Short-lived branch and PR analysis provided by the Developer Edition, issues marked False Positive or Won't Fix will retain that status after merge. This is the preferred approach.
 
-**//NOSONAR**
+**//NOSONAR**  
 Most language analyzers support the use of the generic mechanism: `//NOSONAR` at the end of the line of the issue. This will suppress the all issues - now and in the future - that might be raised on the line.
 
 ## How do I find and remove projects that haven't been analyzed in a while?

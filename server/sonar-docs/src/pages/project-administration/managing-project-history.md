@@ -13,7 +13,7 @@ Occasionally, you may need to manually delete a project snapshot, whether becaus
 [[warning]]
 |**About deleting snapshots**<br/><br/>
 |Deleting a snapshot is a 2-step process:<br/><br/>
-|* The snapshot must first be removed from the project history by clicking on Delete snapshot. It |won't be displayed anymore on this History page but will still be present in the database.
+|* The snapshot must first be removed from the project history by clicking on Delete snapshot. It won't be displayed anymore on this History page but will still be present in the database.
 |* The snapshot is actually deleted during the next project analysis.
 
 At project level, from the front page **Activity** list, choose **Show More** to see the full activity list.

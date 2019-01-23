@@ -5,7 +5,7 @@ url: /previous-versions/
 
 **Not using the latest and greatest version of SonarQube?**
 
-Here are the links to the documentation of previous versions:
+Links to recently archived versions are available from the navigation of this site. For older versions, see below:
 
 * [Documentation for 7.3](https://docs.sonarqube.org/display/SONARQUBE73)
 * [Documentation for 7.2](https://docs.sonarqube.org/display/SONARQUBE72)
