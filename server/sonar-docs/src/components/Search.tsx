@@ -192,17 +192,22 @@ export default class Search extends React.PureComponent<Props, State> {
 // end, the best would be for Lunr to support multi-term matching, as extending
 // the search algorithm for this would be way too complicated.
 function tokenContextPlugin(builder: LunrBuilder) {
+  const label = 'tokenContext';
   const pipelineFunction = (token: LunrToken, index: number, tokens: LunrToken[]) => {
     const prevToken = tokens[index - 1] || '';
     const nextToken = tokens[index + 1] || '';
-    token.metadata['tokenContext'] = [prevToken.toString(), token.toString(), nextToken.toString()]
+    token.metadata[label] = [prevToken.toString(), token.toString(), nextToken.toString()]
       .filter(s => s.length)
       .join(' ')
       .toLowerCase();
     return token;
   };
 
-  (lunr as any).Pipeline.registerFunction(pipelineFunction, 'tokenContext');
+  if (label in (lunr as any).Pipeline.registeredFunctions) {
+    return;
+  }
+
+  (lunr as any).Pipeline.registerFunction(pipelineFunction, label);
   builder.pipeline.before((lunr as any).stemmer, pipelineFunction);
-  builder.metadataWhitelist.push('tokenContext');
+  builder.metadataWhitelist.push(label);
 }
