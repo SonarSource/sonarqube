@@ -109,9 +109,9 @@ public class SearchActionTest {
   @DataProvider
   public static Object[][] changedBranches() {
     return new Object[][] {
-      { null, "newbranch" },
-      { "newbranch", "anotherbranch" },
-      { "newbranch", null },
+      {null, "newbranch"},
+      {"newbranch", "anotherbranch"},
+      {"newbranch", null},
     };
   }
 
@@ -120,9 +120,17 @@ public class SearchActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(KEY_PROJECT_EXAMPLE_001));
     userSession.addProjectPermission(UserRole.USER, project);
-    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime()));
-    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime()));
-    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("P1").setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime()));
+    SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
+      .setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
+      .setCodePeriodVersion("1.2").setProjectVersion("1.2.0.322")
+    );
+    SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project)
+      .setUuid("A2").setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
+      .setCodePeriodVersion("1.2.1").setProjectVersion("1.2.1.423")
+    );
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project)
+      .setUuid("P1").setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
+      .setCodePeriodVersion("1.2").setProjectVersion("1.2.0.321"));
     db.events().insertEvent(newEvent(a1).setUuid("E11")
       .setName("Quality Gate is Red (was Orange)")
       .setCategory(EventCategory.QUALITY_GATE.getLabel())
@@ -250,7 +258,7 @@ public class SearchActionTest {
 
   @Test
   @UseDataProvider("changedBranches")
-  public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable  String newBranch) {
+  public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable String newBranch) {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto application = db.components().insertApplication(organization);
     userSession.registerComponents(application);
@@ -604,6 +612,29 @@ public class SearchActionTest {
     assertThat(result.hasPaging()).isTrue();
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 0);
     assertThat(result.getAnalysesCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void populates_projectVersion_and_codePeriodVersion() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    SnapshotDto[] analyses = new SnapshotDto[] {
+      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion(null).setProjectVersion(null)),
+      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion("a").setProjectVersion(null)),
+      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion(null).setProjectVersion("b")),
+      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion("c").setProjectVersion("d"))
+    };
+
+    SearchResponse result = call(project.getDbKey());
+
+    assertThat(result.getAnalysesList())
+      .extracting(Analysis::getKey, Analysis::getCodePeriodVersion, Analysis::getProjectVersion)
+      .containsOnly(
+        tuple(analyses[0].getUuid(), "", ""),
+        tuple(analyses[1].getUuid(), "a", ""),
+        tuple(analyses[2].getUuid(), "", "b"),
+        tuple(analyses[3].getUuid(), "c", "d")
+      );
   }
 
   @Test

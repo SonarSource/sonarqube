@@ -8,6 +8,8 @@
     {
       "key": "A2",
       "date": "2016-12-12T17:12:45+0100",
+      "codePeriodVersion": "1.2.1",
+      "projectVersion": "1.2.1.423",
       "events": [
         {
           "key": "E21",
@@ -24,6 +26,8 @@
     {
       "key": "A1",
       "date": "2016-12-11T17:12:45+0100",
+      "codePeriodVersion": "1.2",
+      "projectVersion": "1.2.0.322",
       "events": [
         {
           "key": "E11",
@@ -41,6 +45,8 @@
     {
       "key": "P1",
       "date": "2015-11-11T10:00:00+0100",
+      "codePeriodVersion": "1.2",
+      "projectVersion": "1.2.0.321",
       "events": [
         {
           "key": "E31",
