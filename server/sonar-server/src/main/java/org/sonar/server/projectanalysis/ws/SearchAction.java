@@ -149,10 +149,16 @@ public class SearchAction implements ProjectAnalysesWsAction {
       SearchData.Builder searchResults = SearchData.builder(dbSession, request);
       addProject(searchResults);
       checkPermission(searchResults.getProject());
+      addManualBaseline(searchResults);
       addAnalyses(searchResults);
       addEvents(searchResults);
       return searchResults.build();
     }
+  }
+
+  private void addManualBaseline(SearchData.Builder data) {
+    dbClient.branchDao().selectByUuid(data.getDbSession(), data.getProject().uuid())
+      .ifPresent(branchDto -> data.setManualBaseline(branchDto.getManualBaseline()));
   }
 
   private void addAnalyses(SearchData.Builder data) {

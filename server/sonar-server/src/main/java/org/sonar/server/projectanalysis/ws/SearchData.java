@@ -21,8 +21,11 @@ package org.sonar.server.projectanalysis.ws;
 
 import com.google.common.collect.ListMultimap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
@@ -38,6 +41,8 @@ class SearchData {
   final ListMultimap<String, EventDto> eventsByAnalysis;
   final ListMultimap<String, EventComponentChangeDto> componentChangesByEventUuid;
   final Paging paging;
+  @CheckForNull
+  private final String manualBaseline;
 
   private SearchData(Builder builder) {
     this.analyses = builder.analyses;
@@ -47,6 +52,7 @@ class SearchData {
       .forPageIndex(builder.getRequest().getPage())
       .withPageSize(builder.getRequest().getPageSize())
       .andTotal(builder.countAnalyses);
+    this.manualBaseline = builder.manualBaseline;
   }
 
   private static ListMultimap<String, EventDto> buildEvents(List<EventDto> events) {
@@ -61,12 +67,17 @@ class SearchData {
     return new Builder(dbSession, request);
   }
 
+  public Optional<String> getManualBaseline() {
+    return Optional.ofNullable(manualBaseline);
+  }
+
   static class Builder {
     private final DbSession dbSession;
     private final SearchRequest request;
     private ComponentDto project;
     private List<SnapshotDto> analyses;
     private int countAnalyses;
+    private String manualBaseline;
     private List<EventDto> events;
     private List<EventComponentChangeDto> componentChanges;
 
@@ -122,6 +133,11 @@ class SearchData {
 
     List<SnapshotDto> getAnalyses() {
       return analyses;
+    }
+
+    public Builder setManualBaseline(@Nullable String manualBaseline) {
+      this.manualBaseline = manualBaseline;
+      return this;
     }
 
     private void filterByCategory() {

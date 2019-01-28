@@ -67,7 +67,9 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.ADDED;
@@ -119,6 +121,7 @@ public class SearchActionTest {
   public void json_example() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey(KEY_PROJECT_EXAMPLE_001));
+
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
@@ -131,6 +134,9 @@ public class SearchActionTest {
     SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("P1").setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
       .setCodePeriodVersion("1.2").setProjectVersion("1.2.0.321"));
+    db.getDbClient().branchDao().insert(db.getSession(), newBranchDto(project, LONG)
+      .setManualBaseline(a1.getUuid()));
+    db.commit();
     db.events().insertEvent(newEvent(a1).setUuid("E11")
       .setName("Quality Gate is Red (was Orange)")
       .setCategory(EventCategory.QUALITY_GATE.getLabel())

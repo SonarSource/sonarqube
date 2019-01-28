@@ -58,6 +58,7 @@ message Analysis {
   repeated Event events = 3;
   optional string codePeriodVersion = 4;
   optional string projectVersion = 5;
+  optional bool manualNewCodePeriodBaseline = 6;
 }
 
 message QualityGate {
