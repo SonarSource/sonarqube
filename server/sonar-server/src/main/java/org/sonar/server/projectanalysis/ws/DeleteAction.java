@@ -65,21 +65,35 @@ public class DeleteAction implements ProjectAnalysesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String analysisParam = request.mandatoryParam(PARAM_ANALYSIS);
+    String analysisUuid = request.mandatoryParam(PARAM_ANALYSIS);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SnapshotDto analysis = dbClient.snapshotDao().selectByUuid(dbSession, analysisParam)
-        .orElseThrow(() -> analysisNotFoundException(analysisParam));
+      SnapshotDto analysis = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuid)
+        .orElseThrow(() -> analysisNotFoundException(analysisUuid));
       if (STATUS_UNPROCESSED.equals(analysis.getStatus())) {
-        throw analysisNotFoundException(analysisParam);
+        throw analysisNotFoundException(analysisUuid);
       }
       userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
-      checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisParam);
+
+      checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisUuid);
+      checkNotBaseline(dbSession, analysis);
+
       analysis.setStatus(STATUS_UNPROCESSED);
       dbClient.snapshotDao().update(dbSession, analysis);
       dbSession.commit();
     }
     response.noContent();
+  }
+
+  private void checkNotBaseline(DbSession dbSession, SnapshotDto analysis) {
+    dbClient.branchDao().selectByUuid(dbSession, analysis.getComponentUuid())
+      .ifPresent(branchDto -> {
+        String manualBaselineAnalysisUuid = branchDto.getManualBaseline();
+        if (manualBaselineAnalysisUuid != null) {
+          checkArgument(!manualBaselineAnalysisUuid.equals(analysis.getUuid()),
+            "The analysis '%s' can not be deleted because it is set as a manual new code period baseline", analysis.getUuid());
+        }
+      });
   }
 
   private static NotFoundException analysisNotFoundException(String analysis) {
