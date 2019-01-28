@@ -35,12 +35,12 @@ A zip file containing all project data ex is generated in _$SONAR_SOURCE_HOME/da
 ## How To Import
 On the target instance:
 
-* With a user having the "Administer System" and "Create Projects" permissions, go to **[Administration > Projects > Management](/#sonarqube-admin#/admin/projects_management/)** and [provision the project](/project-administration/project-existence/) using the same key the project had in the source instance.
+* With a user having the "Administer System" and "Create Projects" permissions, go to [**Administration > Projects > Management**](/#sonarqube-admin#/admin/projects_management/) and [provision the project](/project-administration/project-existence/) using the same key the project had in the source instance.
 * Configure the Project's permissions, and the Quality Profiles and Quality Gate associated to the Project
-* Put the generated zip file into the directory _$SONAR_TARGET_HOME/data/governance/project_dumps/import_
+* Put the generated zip file into the directory *$SONAR\_TARGET\_HOME/data/governance/project_dumps/import*
 * Go to the Project's Home Page and choose **Administration > Import / Export**
 * Click on the Import button to start importing your data
-** Source code is not included in the zip file. Once the import is finished, trigger an analysis to import source files into the new instance.
+* Source code is not included in the zip file. Once the import is finished, trigger an analysis to import source files into the new instance.
 
 Notes:
 

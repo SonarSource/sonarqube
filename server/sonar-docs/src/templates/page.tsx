@@ -128,7 +128,7 @@ export const query = graphql`
 function replaceImageLinks(content: string) {
   const version = process.env.GATSBY_DOCS_VERSION || '';
   if (version !== '') {
-    content = content.replace(/<img src="\/images\/(.*)"/gim, `<img src="/${version}/images/$1"`);
+    content = content.replace(/<img src="\/images\/(.*?)"/gim, `<img src="/${version}/images/$1"`);
   }
   return content;
 }
@@ -136,12 +136,13 @@ function replaceImageLinks(content: string) {
 function replaceDynamicLinks(content: string) {
   // Make outside link open in a new tab
   content = content.replace(
-    /<a href="http(.*)">(.*)<\/a>/gim,
+    /<a href="http(.*?)">(.*?)<\/a>/gim,
     '<a href="http$1" target="_blank">$2</a>'
   );
 
+  // Render only the text part of links going inside the app
   return content.replace(
-    /<a href="(.*)\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*">(.*)<\/a>/gim,
+    /<a href="(.*)\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*?">(.*?)<\/a>/gim,
     '$2'
   );
 }
