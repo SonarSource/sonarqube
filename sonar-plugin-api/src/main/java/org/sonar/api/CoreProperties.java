@@ -344,6 +344,16 @@ public interface CoreProperties {
   String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
 
   /**
+   * @since 7.6
+   */
+  String ADMIN_DEFAULT_USERNAME = "sonar.admin.password";
+
+  /**
+   * @since 7.6
+   */
+  String ADMIN_DEFAULT_PASSWORD = "sonar.admin.password";
+
+  /**
    * @since 3.4
    */
   String LOGIN = "sonar.login";

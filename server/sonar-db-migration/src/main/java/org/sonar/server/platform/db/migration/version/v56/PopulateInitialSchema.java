@@ -21,6 +21,9 @@ package org.sonar.server.platform.db.migration.version.v56;
 
 import java.sql.SQLException;
 import java.util.Date;
+
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
@@ -32,10 +35,12 @@ public class PopulateInitialSchema extends DataChange {
   private static final String USERS_GROUP = "sonar-users";
   private static final String ADMIN_USER = "admin";
 
+  private final Configuration configuration;
   private final System2 system2;
 
-  public PopulateInitialSchema(Database db, System2 system2) {
+  public PopulateInitialSchema(Database db, Configuration configuration, System2 system2) {
     super(db);
+    this.configuration = configuration;
     this.system2 = system2;
   }
 
@@ -45,7 +50,6 @@ public class PopulateInitialSchema extends DataChange {
     insertGroupRoles(context);
     insertAdminUser(context);
     insertGroupMemberships(context);
-
   }
 
   private void insertGroups(Context context) throws SQLException {
@@ -98,11 +102,13 @@ public class PopulateInitialSchema extends DataChange {
     context.prepareUpsert("insert into users " +
       "(login, name, email, external_identity, external_identity_provider, user_local, crypted_password, salt, " +
       "created_at, updated_at, remember_token, remember_token_expires_at) " +
-      "values ('" + ADMIN_USER + "', 'Administrator', '', 'admin', 'sonarqube', ?, " +
+      "values (?, 'Administrator', '', ?, 'sonarqube', ?, " +
       "'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', ?, ?, null, null)")
-      .setBoolean(1, true)
-      .setLong(2, now)
-      .setLong(3, now)
+      .setString(1, configuration.get(CoreProperties.ADMIN_DEFAULT_USERNAME).orElse(ADMIN_USER))
+      .setString(2, configuration.get(CoreProperties.ADMIN_DEFAULT_PASSWORD).orElse("admin"))
+      .setBoolean(3, true)
+      .setLong(4, now)
+      .setLong(5, now)
       .execute()
       .commit();
   }

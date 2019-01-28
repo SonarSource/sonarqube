@@ -21,6 +21,7 @@ package org.sonar.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.EmailSettings;
@@ -28,7 +29,9 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Arrays.asList;
-import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.CoreProperties.ADMIN_DEFAULT_PASSWORD;
+import static org.sonar.api.CoreProperties.ADMIN_DEFAULT_USERNAME;
+import static org.sonar.api.PropertyType.*;
 
 public class CorePropertyDefinitions {
 
@@ -211,6 +214,20 @@ public class CorePropertyDefinitions {
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
         .hidden()
+        .build(),
+
+      // ADMIN SETTINGS
+      PropertyDefinition.builder(ADMIN_DEFAULT_USERNAME)
+        .name("Default username for the admin user")
+        .defaultValue("admin")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .type(STRING)
+        .build(),
+      PropertyDefinition.builder(ADMIN_DEFAULT_PASSWORD)
+        .name("Default password for the admin user")
+        .defaultValue("admin")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .type(PASSWORD)
         .build()));
     return defs;
   }

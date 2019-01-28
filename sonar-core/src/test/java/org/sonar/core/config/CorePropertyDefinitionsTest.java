@@ -20,6 +20,7 @@
 package org.sonar.core.config;
 
 import java.util.List;
+
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinition;
 
@@ -30,7 +31,7 @@ public class CorePropertyDefinitionsTest {
   @Test
   public void all() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(53);
+    assertThat(defs).hasSize(55);
   }
 
   @Test
