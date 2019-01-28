@@ -26,6 +26,7 @@ import org.sonar.server.projectanalysis.ws.DeleteEventAction;
 import org.sonar.server.projectanalysis.ws.ProjectAnalysesWs;
 import org.sonar.server.projectanalysis.ws.SearchAction;
 import org.sonar.server.projectanalysis.ws.SetBaselineAction;
+import org.sonar.server.projectanalysis.ws.UnsetBaselineAction;
 import org.sonar.server.projectanalysis.ws.UpdateEventAction;
 
 public class ProjectAnalysisModule extends Module {
@@ -40,7 +41,8 @@ public class ProjectAnalysisModule extends Module {
       DeleteEventAction.class,
       DeleteAction.class,
       SearchAction.class,
-      SetBaselineAction.class);
+      SetBaselineAction.class,
+      UnsetBaselineAction.class);
   }
 
 }

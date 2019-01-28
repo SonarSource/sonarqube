@@ -306,6 +306,26 @@ public class ComponentDbTester {
     return branch;
   }
 
+  public final void setManualBaseline(ComponentDto longOrMainBranchOfProject, SnapshotDto analysis) {
+    checkArgument(longOrMainBranchOfProject.isRoot());
+
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, longOrMainBranchOfProject.uuid())
+      .orElseThrow(() -> new IllegalArgumentException("BranchDto not found for component " + longOrMainBranchOfProject));
+    checkArgument(branchDto.getBranchType() == LONG, "must be a main or a Long Living branch");
+    db.getDbClient().branchDao().updateManualBaseline(dbSession, longOrMainBranchOfProject.uuid(), analysis.getUuid());
+    db.commit();
+  }
+
+  public final void unsetManualBaseline(ComponentDto longOrMainBranchOfProject) {
+    checkArgument(longOrMainBranchOfProject.isRoot());
+
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(dbSession, longOrMainBranchOfProject.uuid())
+      .orElseThrow(() -> new IllegalArgumentException("BranchDto not found for component " + longOrMainBranchOfProject));
+    checkArgument(branchDto.getBranchType() == LONG, "must be a main or a Long Living branch");
+    db.getDbClient().branchDao().updateManualBaseline(dbSession, longOrMainBranchOfProject.uuid(), null);
+    db.commit();
+  }
+
   private static <T> T firstNonNull(@Nullable T first, T second) {
     return (first != null) ? first : second;
   }
