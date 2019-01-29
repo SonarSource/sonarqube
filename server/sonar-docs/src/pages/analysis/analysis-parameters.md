@@ -17,6 +17,8 @@ For example, if you override the sonar.exclusions parameter via command line for
 
 Note that the list of parameters below is not exhaustive. Most of the property keys shown in the interface, at both global and project levels, can also be set as analysis parameters. However, exclusions/inclusions are far easier to manage in the UI. 
 
+For language-specific parameters related to test coverage and execution, see [Test Coverage & Execution](/analysis/coverage/). 
+
 ## Mandatory Parameters
 
 ### Server

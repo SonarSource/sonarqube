@@ -28,6 +28,7 @@
     "children": [
       "/analysis/overview/",
       "/analysis/analysis-parameters/",
+      "/analysis/coverage/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
