@@ -19,12 +19,6 @@
  */
 package org.sonar.ce.container;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -45,17 +39,19 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.server.property.InternalProperties;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
-import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
-import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
-import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
-import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
-import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.Property.*;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -123,7 +119,7 @@ public class ComputeEngineContainerImplTest {
           + 26 // level 1
           + 60 // content of DaoModule
           + 3 // content of EsModule
-          + 53 // content of CorePropertyDefinitions
+                + 55 // content of CorePropertyDefinitions
           + 1 // StopFlagContainer
       );
       assertThat(
