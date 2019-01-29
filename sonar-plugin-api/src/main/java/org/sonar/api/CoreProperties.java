@@ -346,7 +346,7 @@ public interface CoreProperties {
   /**
    * @since 7.6
    */
-  String ADMIN_DEFAULT_USERNAME = "sonar.admin.password";
+  String ADMIN_DEFAULT_USERNAME = "sonar.admin.username";
 
   /**
    * @since 7.6
