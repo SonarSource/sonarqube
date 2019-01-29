@@ -29,7 +29,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -78,8 +77,6 @@ public class CopyAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     Long id = parseId(request, PARAM_ID);
     String destinationName = request.mandatoryParam(PARAM_NAME);
-
-    checkArgument(!destinationName.isEmpty(), "The 'name' parameter is empty");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 

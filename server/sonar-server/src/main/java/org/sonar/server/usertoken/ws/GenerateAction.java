@@ -86,7 +86,7 @@ public class GenerateAction implements UserTokensWsAction {
 
   private UserTokens.GenerateWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String name = getName(request);
+      String name = request.mandatoryParam(PARAM_NAME).trim();
       UserDto user = userTokenSupport.getUser(dbSession, request);
       checkTokenDoesNotAlreadyExists(dbSession, user, name);
 
@@ -109,12 +109,6 @@ public class GenerateAction implements UserTokensWsAction {
   private void checkTokenDoesNotAlreadyExists(DbSession dbSession, UserDto user, String name) {
     UserTokenDto userTokenDto = dbClient.userTokenDao().selectByUserAndName(dbSession, user, name);
     checkRequest(userTokenDto == null, "A user token for login '%s' and name '%s' already exists", user.getLogin(), name);
-  }
-
-  private static String getName(Request request) {
-    String name = request.mandatoryParam(PARAM_NAME).trim();
-    checkRequest(!name.isEmpty(), "The '%s' parameter must not be blank", PARAM_NAME);
-    return name;
   }
 
   private UserTokenDto insertTokenInDb(DbSession dbSession, UserDto user, String name, String tokenHash) {

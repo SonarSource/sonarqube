@@ -73,7 +73,8 @@ public class SetBaselineActionTest {
   private WsActionTester ws = new WsActionTester(new SetBaselineAction(dbClient, userSession, TestComponentFinder.from(db)));
 
   @Test
-  public void set_baseline_on_main_branch() {
+  @UseDataProvider("nullOrEmpty")
+  public void set_baseline_on_main_branch(@Nullable String branchName) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.LONG)
@@ -85,10 +86,19 @@ public class SetBaselineActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
-    call(ImmutableMap.of(PARAM_PROJECT, project.getKey(), PARAM_ANALYSIS, analysis.getUuid()));
+    call(project.getKey(), branchName, analysis.getUuid());
 
     BranchDto loaded = dbClient.branchDao().selectByUuid(dbSession, branch.getUuid()).get();
     assertThat(loaded.getManualBaseline()).isEqualTo(analysis.getUuid());
+  }
+
+  @DataProvider
+  public static Object[][] nullOrEmpty() {
+    return new Object[][] {
+      {null},
+      {""},
+      {"     "},
+    };
   }
 
   @Test
@@ -138,10 +148,9 @@ public class SetBaselineActionTest {
 
     return new Object[][] {
       {builder.put(PARAM_PROJECT, null).map, "The 'project' parameter is missing"},
-      {builder.put(PARAM_PROJECT, "").map, "The 'project' parameter must not be empty"},
-      {builder.put(PARAM_BRANCH, "").map, "The 'branch' parameter must not be empty"},
+      {builder.put(PARAM_PROJECT, "").map, "The 'project' parameter is missing"},
       {builder.put(PARAM_ANALYSIS, null).map, "The 'analysis' parameter is missing"},
-      {builder.put(PARAM_ANALYSIS, "").map, "The 'analysis' parameter must not be empty"},
+      {builder.put(PARAM_ANALYSIS, "").map, "The 'analysis' parameter is missing"},
     };
   }
 
@@ -276,11 +285,17 @@ public class SetBaselineActionTest {
     httpRequest.execute();
   }
 
-  private void call(String projectKey, String branchKey, String analysisUuid) {
-    call(ImmutableMap.of(
-      PARAM_PROJECT, projectKey,
-      PARAM_BRANCH, branchKey,
-      PARAM_ANALYSIS, analysisUuid));
+  private void call(String projectKey, @Nullable String branchKey, String analysisUuid) {
+    if (branchKey == null) {
+      call(ImmutableMap.of(
+        PARAM_PROJECT, projectKey,
+        PARAM_ANALYSIS, analysisUuid));
+    } else {
+      call(ImmutableMap.of(
+        PARAM_PROJECT, projectKey,
+        PARAM_BRANCH, branchKey,
+        PARAM_ANALYSIS, analysisUuid));
+    }
   }
 
   private static class MapBuilder {

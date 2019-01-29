@@ -219,8 +219,8 @@ public class RenameActionTest {
   public void fail_if_blank_renaming() {
     String qualityProfileKey = createNewValidQualityProfileKey();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Name must be set");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is missing");
 
     call(qualityProfileKey, " ");
   }

@@ -47,7 +47,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.db.event.EventValidator.MAX_NAME_LENGTH;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
@@ -163,7 +162,6 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private EventDto toDbEvent(CreateEventRequest request, SnapshotDto analysis) {
-    checkArgument(isNotBlank(request.getName()), "A non empty name is required");
     return new EventDto()
       .setUuid(uuidFactory.create())
       .setAnalysisUuid(analysis.getUuid())

@@ -20,6 +20,7 @@
 package org.sonar.server.user.ws;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,6 +48,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -284,10 +286,20 @@ public class DeactivateActionTest {
   public void fail_if_login_is_blank() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User '' doesn't exist");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'login' parameter is missing");
 
     deactivate("");
+  }
+
+  @Test
+  public void fail_if_login_is_missing() {
+    logInAsSystemAdministrator();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'login' parameter is missing");
+
+    deactivate(null);
   }
 
   @Test
@@ -364,11 +376,11 @@ public class DeactivateActionTest {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private TestResponse deactivate(String login) {
-    return ws.newRequest()
-      .setMethod("POST")
-      .setParam("login", login)
-      .execute();
+  private TestResponse deactivate(@Nullable String login) {
+    TestRequest request = ws.newRequest()
+      .setMethod("POST");
+    Optional.ofNullable(login).ifPresent(t -> request.setParam("login", login));
+    return request.execute();
   }
 
   private void verifyThatUserExists(String login) {

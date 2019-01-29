@@ -34,12 +34,14 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.RequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
@@ -141,7 +143,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplateNameForUpdate(DbSession dbSession, String organizationUuid, String name, long id) {
-    RequestValidator.validateTemplateNameFormat(name);
+    WsUtils.checkRequest(!isBlank(name), "The template name must not be blank");
 
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, organizationUuid, name);
     checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == id,

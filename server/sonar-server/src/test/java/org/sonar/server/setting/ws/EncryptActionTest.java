@@ -116,8 +116,8 @@ public class EncryptActionTest {
   public void fail_if_value_is_empty() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Parameter 'value' must not be empty");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'value' parameter is missing");
 
     call("  ");
   }

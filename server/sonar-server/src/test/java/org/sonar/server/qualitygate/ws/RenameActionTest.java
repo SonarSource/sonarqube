@@ -154,7 +154,7 @@ public class RenameActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name can't be empty");
+    expectedException.expectMessage("The 'name' parameter is missing");
 
     ws.newRequest()
       .setParam("id", qualityGate.getId().toString())

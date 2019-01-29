@@ -110,8 +110,8 @@ public class GenerateActionTest {
     UserDto user = db.users().insertUser();
     logInAsSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'name' parameter must not be blank");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is missing");
 
     newRequest(user.getLogin(), "   ");
   }

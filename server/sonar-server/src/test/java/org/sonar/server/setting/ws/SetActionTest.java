@@ -434,7 +434,7 @@ public class SetActionTest {
   @Test
   public void fail_when_empty_key_value() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Setting key is mandatory and must not be empty");
+    expectedException.expectMessage("The 'key' parameter is missing");
 
     callForGlobalSetting("  ", "my value");
   }

@@ -30,11 +30,9 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
-import static org.sonar.server.util.Validation.CANT_BE_EMPTY_MESSAGE;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class RenameAction implements QualityGatesWsAction {
@@ -86,7 +84,6 @@ public class RenameAction implements QualityGatesWsAction {
   private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, long id, String name) {
     QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
     wsSupport.checkCanEdit(qualityGate);
-    checkArgument(!isNullOrEmpty(name), CANT_BE_EMPTY_MESSAGE, "Name");
     checkNotAlreadyExists(dbSession, organization, qualityGate, name);
     qualityGate.setName(name);
     dbClient.qualityGateDao().update(qualityGate, dbSession);

@@ -212,7 +212,7 @@ public class CreateEventActionTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A non empty name is required");
+    expectedException.expectMessage("The 'name' parameter is missing");
 
     call(OTHER.name(), "    ", analysis.getUuid());
   }

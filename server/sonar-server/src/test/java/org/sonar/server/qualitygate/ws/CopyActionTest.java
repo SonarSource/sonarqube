@@ -19,9 +19,14 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
@@ -38,10 +43,12 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -50,6 +57,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 
+@RunWith(DataProviderRunner.class)
 public class CopyActionTest {
 
   @Rule
@@ -248,34 +256,31 @@ public class CopyActionTest {
   }
 
   @Test
-  public void fail_when_name_parameter_is_missing() {
+  @UseDataProvider("nullOrEmpty")
+  public void fail_when_name_parameter_is_missing(@Nullable String nameParameter) {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey());
+    ofNullable(nameParameter).ifPresent(t -> request.setParam(PARAM_NAME, t));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
-    ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getId().toString())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
+    request.execute();
   }
 
-  @Test
-  public void fail_when_name_parameter_is_empty() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is empty");
-
-    ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getId().toString())
-      .setParam(PARAM_NAME, "")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
+  @DataProvider
+  public static Object[][] nullOrEmpty() {
+    return new Object[][] {
+      {null},
+      {""},
+      {"  "}
+    };
   }
 
   @Test

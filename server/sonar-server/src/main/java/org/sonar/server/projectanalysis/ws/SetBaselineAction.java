@@ -38,6 +38,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
@@ -90,10 +91,9 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
   }
 
   private void doHandle(Request request) {
-    String projectKey = mandatoryNonEmptyParam(request, PARAM_PROJECT);
-    String branchKey = request.param(PARAM_BRANCH);
-    checkArgument(branchKey == null || !branchKey.isEmpty(), "The '%s' parameter must not be empty", PARAM_BRANCH);
-    String analysisUuid = mandatoryNonEmptyParam(request, PARAM_ANALYSIS);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+    String branchKey = trimToNull(request.param(PARAM_BRANCH));
+    String analysisUuid = request.mandatoryParam(PARAM_ANALYSIS);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto projectBranch = getProjectBranch(dbSession, projectKey, branchKey);
@@ -102,12 +102,6 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
       dbClient.branchDao().updateManualBaseline(dbSession, projectBranch.uuid(), analysis.getUuid());
       dbSession.commit();
     }
-  }
-
-  private static String mandatoryNonEmptyParam(Request request, String param) {
-    String value = request.mandatoryParam(param);
-    checkArgument(!value.isEmpty(), "The '%s' parameter must not be empty", param);
-    return value;
   }
 
   private ComponentDto getProjectBranch(DbSession dbSession, String projectKey, @Nullable String branchKey) {

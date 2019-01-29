@@ -67,7 +67,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void update_all_permission_template_fields() throws Exception {
+  public void update_all_permission_template_fields() {
     loginAsAdmin(db.getDefaultOrganization());
 
     String result = call(template.getUuid(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
@@ -85,7 +85,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void update_with_the_same_values() throws Exception {
+  public void update_with_the_same_values() {
     loginAsAdmin(db.getDefaultOrganization());
 
     call(template.getUuid(), template.getName(), template.getDescription(), template.getKeyPattern());
@@ -97,7 +97,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void update_name_only() throws Exception {
+  public void update_name_only() {
     loginAsAdmin(db.getDefaultOrganization());
 
     call(template.getUuid(), "Finance", null, null);
@@ -109,7 +109,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_key_is_not_found() throws Exception {
+  public void fail_if_key_is_not_found() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
@@ -119,7 +119,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_name_already_exists_in_another_template() throws Exception {
+  public void fail_if_name_already_exists_in_another_template() {
     loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
 
@@ -130,7 +130,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_key_is_not_provided() throws Exception {
+  public void fail_if_key_is_not_provided() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -139,7 +139,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_name_empty() throws Exception {
+  public void fail_if_name_empty() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -149,7 +149,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_name_has_just_whitespaces() throws Exception {
+  public void fail_if_name_has_just_whitespaces() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -159,7 +159,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_regexp_if_not_valid() throws Exception {
+  public void fail_if_regexp_if_not_valid() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -169,7 +169,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
+  public void fail_if_name_already_exists_in_database_case_insensitive() {
     loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
 
@@ -181,7 +181,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
@@ -189,7 +189,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   }
 
   @Test
-  public void fail_if_not_admin() throws Exception {
+  public void fail_if_not_admin() {
     userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);

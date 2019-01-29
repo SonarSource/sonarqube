@@ -118,8 +118,6 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplateNameForCreation(DbSession dbSession, OrganizationDto org, String name) {
-    RequestValidator.validateTemplateNameFormat(name);
-
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao()
       .selectByName(dbSession, org.getUuid(), name);
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));

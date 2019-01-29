@@ -48,7 +48,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void create_full_permission_template() throws Exception {
+  public void create_full_permission_template() {
     loginAsAdmin(db.getDefaultOrganization());
 
     TestResponse result = newRequest("Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
@@ -66,7 +66,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void create_minimalist_permission_template() throws Exception {
+  public void create_minimalist_permission_template() {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest("Finance", null, null);
@@ -81,7 +81,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void fail_if_name_not_provided() throws Exception {
+  public void fail_if_name_not_provided() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -90,17 +90,17 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void fail_if_name_empty() throws Exception {
+  public void fail_if_name_empty() {
     loginAsAdmin(db.getDefaultOrganization());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The template name must not be blank");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is missing");
 
     newRequest("", null, null);
   }
 
   @Test
-  public void fail_if_regexp_if_not_valid() throws Exception {
+  public void fail_if_regexp_if_not_valid() {
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
@@ -110,7 +110,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
+  public void fail_if_name_already_exists_in_database_case_insensitive() {
     loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
 
@@ -121,7 +121,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
   }
 
   @Test
-  public void fail_if_not_admin() throws Exception {
+  public void fail_if_not_admin() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);

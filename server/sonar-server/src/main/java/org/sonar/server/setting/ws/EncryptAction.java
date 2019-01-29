@@ -61,7 +61,6 @@ public class EncryptAction implements SettingsWsAction {
     userSession.checkIsSystemAdministrator();
 
     String value = request.mandatoryParam(PARAM_VALUE);
-    checkRequest(!value.isEmpty(), "Parameter '%s' must not be empty", PARAM_VALUE);
 
     Encryption encryption = settings.getEncryption();
     checkRequest(encryption.hasSecretKey(), "No secret key available");

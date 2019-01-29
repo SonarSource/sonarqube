@@ -35,7 +35,6 @@ import org.sonar.server.ws.WsUtils;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
@@ -43,7 +42,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 
 public class RequestValidator {
   public static final String MSG_TEMPLATE_WITH_SAME_NAME = "A template with the name '%s' already exists (case insensitive).";
-  private static final String MSG_TEMPLATE_NAME_NOT_BLANK = "The template name must not be blank";
   private final PermissionService permissionService;
   private final String allProjectsPermissionsOnOneLine;
 
@@ -67,10 +65,6 @@ public class RequestValidator {
   public static void validateNotAnyoneAndAdminPermission(String permission, GroupIdOrAnyone group) {
     checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !group.isAnyone(),
       format("It is not possible to add the '%s' permission to group 'Anyone'.", permission));
-  }
-
-  public static void validateTemplateNameFormat(String name) {
-    checkRequest(!isBlank(name), MSG_TEMPLATE_NAME_NOT_BLANK);
   }
 
   public static void validateQualifier(@Nullable String qualifier, ResourceTypes resourceTypes) {

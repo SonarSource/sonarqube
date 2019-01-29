@@ -77,7 +77,7 @@ public abstract class Request {
    */
   public String mandatoryParam(String key) {
     String value = param(key);
-    checkArgument(value != null, format(MSG_PARAMETER_MISSING, key));
+    checkArgument(value != null && !value.isEmpty(), format(MSG_PARAMETER_MISSING, key));
     return value;
   }
 
