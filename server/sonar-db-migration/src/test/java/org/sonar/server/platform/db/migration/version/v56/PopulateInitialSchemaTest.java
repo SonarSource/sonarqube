@@ -22,9 +22,13 @@ package org.sonar.server.platform.db.migration.version.v56;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
@@ -41,15 +45,18 @@ public class PopulateInitialSchemaTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system2 = mock(System2.class);
+  private Configuration configuration = mock(Configuration.class);
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v56.sql");
 
-  private PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2);
+  private PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), configuration, system2);
 
   @Test
   public void migration_inserts_users_and_groups() throws SQLException {
     when(system2.now()).thenReturn(NOW);
+    when(configuration.get(CoreProperties.ADMIN_DEFAULT_USERNAME)).thenReturn(Optional.of("admin"));
+    when(configuration.get(CoreProperties.ADMIN_DEFAULT_PASSWORD)).thenReturn(Optional.of("admin"));
 
     underTest.execute();
 
