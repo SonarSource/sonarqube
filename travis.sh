@@ -35,13 +35,15 @@ cancel_branch_build_with_pr || if [[ $? -eq 1 ]]; then exit 0; fi
 case "$TARGET" in
 
 BUILD)
-  git fetch --unshallow
-  ./gradlew build sonarqube --no-daemon --console plain \
-  -PjacocoEnabled=true \
-  -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
-  -Dsonar.organization=sonarsource \
-  -Dsonar.host.url=https://sonarcloud.io \
-  -Dsonar.login=$SONAR_TOKEN
+  if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+    git fetch --unshallow
+    ./gradlew build sonarqube --no-daemon --console plain \
+      -PjacocoEnabled=true \
+      -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+      -Dsonar.organization=sonarsource \
+      -Dsonar.host.url=https://sonarcloud.io \
+      -Dsonar.login=$SONAR_TOKEN
+  fi
   ;;
 
 WEB_TESTS)
