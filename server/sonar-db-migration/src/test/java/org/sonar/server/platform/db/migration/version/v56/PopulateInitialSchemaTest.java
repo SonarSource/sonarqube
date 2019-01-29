@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -127,8 +128,11 @@ public class PopulateInitialSchemaTest {
     assertThat(cols.get("name")).isEqualTo("Administrator");
     assertThat(cols.get("email")).isEqualTo("");
     assertThat(cols.get("user_local")).isEqualTo(true);
-    assertThat(cols.get("crypted_password")).isEqualTo("a373a0e667abb2604c1fd571eb4ad47fe8cc0878");
-    assertThat(cols.get("salt")).isEqualTo("48bc4b0d93179b5103fd3885ea9119498e9d161b");
+    String salt = "48bc4b0d93179b5103fd3885ea9119498e9d161b";
+    String password = configuration.get(CoreProperties.ADMIN_DEFAULT_PASSWORD).orElse("admin");
+    password = DigestUtils.sha1Hex(String.format("--%s--%s--", salt, password));
+    assertThat(cols.get("crypted_password")).isEqualTo(password);
+    assertThat(cols.get("salt")).isEqualTo(salt);
     assertThat(cols.get("created_at")).isEqualTo(NOW);
     assertThat(cols.get("updated_at")).isEqualTo(NOW);
     assertThat(cols.get("remember_token")).isNull();

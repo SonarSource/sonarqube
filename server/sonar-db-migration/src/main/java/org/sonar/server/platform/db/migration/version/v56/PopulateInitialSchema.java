@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.version.v56;
 import java.sql.SQLException;
 import java.util.Date;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
@@ -34,6 +35,7 @@ public class PopulateInitialSchema extends DataChange {
   private static final String ADMINS_GROUP = "sonar-administrators";
   private static final String USERS_GROUP = "sonar-users";
   private static final String ADMIN_USER = "admin";
+  private static final String SALT = "48bc4b0d93179b5103fd3885ea9119498e9d161b";
 
   private final Configuration configuration;
   private final System2 system2;
@@ -49,7 +51,7 @@ public class PopulateInitialSchema extends DataChange {
     insertGroups(context);
     insertGroupRoles(context);
     insertAdminUser(context);
-    insertGroupMemberships(context);
+    insertGroupMemberships(context, configuration);
   }
 
   private void insertGroups(Context context) throws SQLException {
@@ -99,25 +101,32 @@ public class PopulateInitialSchema extends DataChange {
     truncateTable(context, "users");
 
     long now = system2.now();
-    context.prepareUpsert("insert into users " +
+    Upsert upsert = context.prepareUpsert("insert into users " +
       "(login, name, email, external_identity, external_identity_provider, user_local, crypted_password, salt, " +
       "created_at, updated_at, remember_token, remember_token_expires_at) " +
-      "values (?, 'Administrator', '', ?, 'sonarqube', ?, " +
-      "'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', ?, ?, null, null)")
-      .setString(1, configuration.get(CoreProperties.ADMIN_DEFAULT_USERNAME).orElse(ADMIN_USER))
-      .setString(2, configuration.get(CoreProperties.ADMIN_DEFAULT_PASSWORD).orElse("admin"))
-      .setBoolean(3, true)
-      .setLong(4, now)
+      "values (?, 'Administrator', '', 'admin', 'sonarqube', ?, " +
+      "?, ?, ?, ?, null, null)");
+    String username = configuration.get(CoreProperties.ADMIN_DEFAULT_USERNAME).orElse(ADMIN_USER);
+    String password = configuration.get(CoreProperties.ADMIN_DEFAULT_PASSWORD).orElse("admin");
+    password = DigestUtils.sha1Hex(String.format("--%s--%s--", SALT, password));
+    upsert
+      .setString(1, username)
+      .setBoolean(2, true)
+      .setString(3, password)
+      .setString(4, SALT)
       .setLong(5, now)
+      .setLong(6, now)
       .execute()
       .commit();
   }
 
-  private static void insertGroupMemberships(Context context) throws SQLException {
+  private static void insertGroupMemberships(Context context, Configuration configuration) throws SQLException {
     truncateTable(context, "groups_users");
 
+    String username = configuration.get(CoreProperties.ADMIN_DEFAULT_USERNAME).orElse(ADMIN_USER);
+
     Upsert upsert = context.prepareUpsert("insert into groups_users (user_id, group_id) values " +
-      "((select id from users where login='" + ADMIN_USER + "'), (select id from groups where name=?))");
+      "((select id from users where login='" + username + "'), (select id from groups where name=?))");
     upsert.setString(1, ADMINS_GROUP).addBatch();
     upsert.setString(1, USERS_GROUP).addBatch();
     upsert
