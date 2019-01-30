@@ -71,10 +71,10 @@ Note: if you were relying on the GitHub Plugin, its properties are no longer req
 
 <!-- sonarcloud -->
 #### Bitbucket Cloud Parameters
-| Parameter Name        | Description |
-| --------------------- | ------------------ |
-| `sonar.pullrequest.bitbucketcloud.repository` | SLUG or UUID of the Bitbucket Cloud Repo |
-| `sonar.pullrequest.bitbucketcloud.owner` | SLUG or UUID of the Bitbucket Cloud Owner |
+| Parameter Name        | Description | Example value |
+| --------------------- | ------------------ |------------------ |
+| `sonar.pullrequest.bitbucketcloud.repository` | UUID of the Bitbucket Cloud Repo | `{d2615dd4-550d-43e5-80c4-665f951e5d6e}` |
+| `sonar.pullrequest.bitbucketcloud.owner` | UUID of the Bitbucket Cloud Owner | `{4f9fd128-1b08-49ec-bf2c-f094163cff4d}` |
 <!-- /sonarcloud -->
 
 <!-- sonarqube -->
