@@ -125,7 +125,7 @@ public class FileIndexer {
     }
 
     if (ignoreCommand != null && ignoreCommand.isIgnored(realAbsoluteFile)) {
-      LOG.debug("File '{}' is excluded by the scm ignore settings.");
+      LOG.debug("File '{}' is excluded by the scm ignore settings.", realAbsoluteFile);
       exclusionCounter.increaseByScmCount();
       return;
     }
