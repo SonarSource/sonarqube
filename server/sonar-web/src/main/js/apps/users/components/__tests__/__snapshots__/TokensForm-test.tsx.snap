@@ -1,0 +1,168 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <h3
+    className="spacer-bottom"
+  >
+    users.generate_tokens
+  </h3>
+  <form
+    autoComplete="off"
+    className="display-flex-center"
+    id="generate-token-form"
+    onSubmit={[Function]}
+  >
+    <input
+      className="spacer-right"
+      maxLength={100}
+      onChange={[Function]}
+      placeholder="users.enter_token_name"
+      required={true}
+      type="text"
+      value=""
+    />
+    <SubmitButton
+      className="js-generate-token"
+      disabled={true}
+    >
+      users.generate
+    </SubmitButton>
+  </form>
+  <table
+    className="data zebra big-spacer-top "
+  >
+    <thead>
+      <tr>
+        <th>
+          name
+        </th>
+        <th>
+          my_account.tokens_last_usage
+        </th>
+        <th
+          className="text-right"
+        >
+          created
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <DeferredSpinner
+        customSpinner={
+          <tr>
+            <td>
+              <i
+                className="spinner"
+              />
+            </td>
+          </tr>
+        }
+        loading={true}
+        timeout={100}
+      >
+        <tr>
+          <td
+            className="note"
+            colSpan={3}
+          >
+            users.no_tokens
+          </td>
+        </tr>
+      </DeferredSpinner>
+    </tbody>
+  </table>
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <h3
+    className="spacer-bottom"
+  >
+    users.generate_tokens
+  </h3>
+  <form
+    autoComplete="off"
+    className="display-flex-center"
+    id="generate-token-form"
+    onSubmit={[Function]}
+  >
+    <input
+      className="spacer-right"
+      maxLength={100}
+      onChange={[Function]}
+      placeholder="users.enter_token_name"
+      required={true}
+      type="text"
+      value=""
+    />
+    <SubmitButton
+      className="js-generate-token"
+      disabled={true}
+    >
+      users.generate
+    </SubmitButton>
+  </form>
+  <table
+    className="data zebra big-spacer-top "
+  >
+    <thead>
+      <tr>
+        <th>
+          name
+        </th>
+        <th>
+          my_account.tokens_last_usage
+        </th>
+        <th
+          className="text-right"
+        >
+          created
+        </th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <DeferredSpinner
+        customSpinner={
+          <tr>
+            <td>
+              <i
+                className="spinner"
+              />
+            </td>
+          </tr>
+        }
+        loading={false}
+        timeout={100}
+      >
+        <TokensFormItem
+          key="foo"
+          login="luke"
+          onRevokeToken={[Function]}
+          token={
+            Object {
+              "createdAt": "2019-01-15T15:06:33+0100",
+              "lastConnectionDate": "2019-01-18T15:06:33+0100",
+              "name": "foo",
+            }
+          }
+        />
+        <TokensFormItem
+          key="bar"
+          login="luke"
+          onRevokeToken={[Function]}
+          token={
+            Object {
+              "createdAt": "2019-01-18T15:06:33+0100",
+              "name": "bar",
+            }
+          }
+        />
+      </DeferredSpinner>
+    </tbody>
+  </table>
+</Fragment>
+`;

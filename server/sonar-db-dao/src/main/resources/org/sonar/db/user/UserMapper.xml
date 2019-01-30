@@ -23,6 +23,7 @@
         u.homepage_type as "homepageType",
         u.homepage_parameter as "homepageParameter",
         u.organization_uuid as organizationUuid,
+        u.last_connection_date as "lastConnectionDate",
         u.created_at as "createdAt",
         u.updated_at as "updatedAt"
     </sql>
@@ -150,13 +151,6 @@
         WHERE u.external_login=#{externalLogin} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectByExternalIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
-        WHERE u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
-    </select>
-
     <select id="countRootUsersButLogin" parameterType="String" resultType="long">
         select
         count(1)
@@ -175,6 +169,7 @@
         scm_accounts = null,
         salt = null,
         crypted_password = null,
+        last_connection_date = null,
         updated_at = #{now, jdbcType=BIGINT}
         where
         login = #{login, jdbcType=VARCHAR}
@@ -272,6 +267,7 @@
         homepage_type = #{user.homepageType, jdbcType=VARCHAR},
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
         organization_uuid = #{user.organizationUuid, jdbcType=VARCHAR},
+        last_connection_date = #{user.lastConnectionDate,jdbcType=BIGINT},
         updated_at = #{user.updatedAt,jdbcType=BIGINT}
         where
         uuid = #{user.uuid, jdbcType=VARCHAR}

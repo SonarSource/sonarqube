@@ -19,12 +19,23 @@
  */
 package org.sonar.db.user;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import static org.sonar.db.user.UserTokenValidator.checkTokenHash;
 
 public class UserTokenDto {
+
   private String userUuid;
   private String name;
   private String tokenHash;
+
+  /**
+   * Date of the last time this token has been used.
+   * Can be null when user has never been used it.
+   */
+  private Long lastConnectionDate;
+
   private Long createdAt;
 
   public String getUserUuid() {
@@ -51,6 +62,16 @@ public class UserTokenDto {
 
   public UserTokenDto setTokenHash(String tokenHash) {
     this.tokenHash = checkTokenHash(tokenHash);
+    return this;
+  }
+
+  @CheckForNull
+  public Long getLastConnectionDate() {
+    return lastConnectionDate;
+  }
+
+  public UserTokenDto setLastConnectionDate(@Nullable Long lastConnectionDate) {
+    this.lastConnectionDate = lastConnectionDate;
     return this;
   }
 

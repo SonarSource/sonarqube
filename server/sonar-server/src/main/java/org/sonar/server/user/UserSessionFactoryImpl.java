@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 
@@ -33,17 +34,20 @@ public class UserSessionFactoryImpl implements UserSessionFactory {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationFlags organizationFlags;
+  private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater;
 
   public UserSessionFactoryImpl(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    OrganizationFlags organizationFlags) {
+    OrganizationFlags organizationFlags, UserLastConnectionDatesUpdater userLastConnectionDatesUpdater) {
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
+    this.userLastConnectionDatesUpdater = userLastConnectionDatesUpdater;
   }
 
   @Override
   public ServerUserSession create(UserDto user) {
     requireNonNull(user, "UserDto must not be null");
+    userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(user);
     return new ServerUserSession(dbClient, organizationFlags, defaultOrganizationProvider, user);
   }
 

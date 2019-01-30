@@ -22,33 +22,41 @@ import { shallow } from 'enzyme';
 import { click } from '../../../../helpers/testUtils';
 import UserListItem from '../UserListItem';
 
-const user = {
+jest.mock('../../../../components/intl/DateFromNow');
+jest.mock('../../../../components/intl/DateTimeFormatter');
+
+const user: T.User = {
+  active: true,
+  lastConnectionDate: '2019-01-18T15:06:33+0100',
+  local: false,
   login: 'obi',
   name: 'One',
-  active: true,
-  scmAccounts: [],
-  local: false
+  scmAccounts: []
 };
 
 it('should render correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should render correctly without last connection date', () => {
+  expect(shallowRender({})).toMatchSnapshot();
 });
 
 it('should display a change password button', () => {
   expect(
-    getWrapper({ organizationsEnabled: true })
+    shallowRender({ organizationsEnabled: true })
       .find('UserGroups')
       .exists()
   ).toBeFalsy();
 });
 
 it('should open the correct forms', () => {
-  const wrapper = getWrapper();
+  const wrapper = shallowRender();
   click(wrapper.find('.js-user-tokens'));
   expect(wrapper.find('TokensFormModal').exists()).toBeTruthy();
 });
 
-function getWrapper(props = {}) {
+function shallowRender(props: Partial<UserListItem['props']> = {}) {
   return shallow(
     <UserListItem
       isCurrentUser={false}

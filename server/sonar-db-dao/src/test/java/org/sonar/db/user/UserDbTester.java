@@ -107,6 +107,12 @@ public class UserDbTester {
     return user;
   }
 
+  public UserDto updateLastConnectionDate(UserDto user, long lastConnectionDate) {
+    db.getDbClient().userDao().update(db.getSession(), user.setLastConnectionDate(lastConnectionDate));
+    db.getSession().commit();
+    return user;
+  }
+
   public Optional<UserDto> selectUserByLogin(String login) {
     return Optional.ofNullable(dbClient.userDao().selectByLogin(db.getSession(), login));
   }

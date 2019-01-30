@@ -40,5 +40,6 @@ message SearchWsResponse {
   message UserToken {
     optional string name = 1;
     optional string createdAt = 2;
+    optional string lastConnectionDate = 3;
   }
 }

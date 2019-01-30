@@ -26,9 +26,14 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UserTokenAuthenticationTest {
@@ -40,8 +45,9 @@ public class UserTokenAuthenticationTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private TokenGenerator tokenGenerator = mock(TokenGenerator.class);
+  private UserLastConnectionDatesUpdater userLastConnectionDatesUpdater = mock(UserLastConnectionDatesUpdater.class);
 
-  private UserTokenAuthentication underTest = new UserTokenAuthentication(tokenGenerator, db.getDbClient());
+  private UserTokenAuthentication underTest = new UserTokenAuthentication(tokenGenerator, db.getDbClient(), userLastConnectionDatesUpdater);
 
   @Test
   public void return_login_when_token_hash_found_in_db() {
@@ -57,11 +63,14 @@ public class UserTokenAuthenticationTest {
 
     assertThat(login.isPresent()).isTrue();
     assertThat(login.get()).isEqualTo(user1.getUuid());
+    verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
   }
 
   @Test
   public void return_absent_if_token_hash_is_not_found() {
     Optional<String> login = underTest.authenticate("unknown-token");
+
     assertThat(login.isPresent()).isFalse();
+    verify(userLastConnectionDatesUpdater, never()).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
   }
 }

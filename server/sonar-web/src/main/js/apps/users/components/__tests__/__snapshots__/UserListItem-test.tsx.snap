@@ -14,6 +14,7 @@ exports[`should render correctly 1`] = `
     user={
       Object {
         "active": true,
+        "lastConnectionDate": "2019-01-18T15:06:33+0100",
         "local": false,
         "login": "obi",
         "name": "One",
@@ -27,12 +28,18 @@ exports[`should render correctly 1`] = `
     />
   </td>
   <td>
+    <DateFromNowHourPrecision
+      date="2019-01-18T15:06:33+0100"
+    />
+  </td>
+  <td>
     <UserGroups
       groups={Array []}
       onUpdateUsers={[MockFunction]}
       user={
         Object {
           "active": true,
+          "lastConnectionDate": "2019-01-18T15:06:33+0100",
           "local": false,
           "login": "obi",
           "name": "One",
@@ -59,6 +66,85 @@ exports[`should render correctly 1`] = `
       user={
         Object {
           "active": true,
+          "lastConnectionDate": "2019-01-18T15:06:33+0100",
+          "local": false,
+          "login": "obi",
+          "name": "One",
+          "scmAccounts": Array [],
+        }
+      }
+    />
+  </td>
+</tr>
+`;
+
+exports[`should render correctly without last connection date 1`] = `
+<tr>
+  <td
+    className="thin nowrap"
+  >
+    <Connect(Avatar)
+      name="One"
+      size={36}
+    />
+  </td>
+  <UserListItemIdentity
+    user={
+      Object {
+        "active": true,
+        "lastConnectionDate": "2019-01-18T15:06:33+0100",
+        "local": false,
+        "login": "obi",
+        "name": "One",
+        "scmAccounts": Array [],
+      }
+    }
+  />
+  <td>
+    <UserScmAccounts
+      scmAccounts={Array []}
+    />
+  </td>
+  <td>
+    <DateFromNowHourPrecision
+      date="2019-01-18T15:06:33+0100"
+    />
+  </td>
+  <td>
+    <UserGroups
+      groups={Array []}
+      onUpdateUsers={[MockFunction]}
+      user={
+        Object {
+          "active": true,
+          "lastConnectionDate": "2019-01-18T15:06:33+0100",
+          "local": false,
+          "login": "obi",
+          "name": "One",
+          "scmAccounts": Array [],
+        }
+      }
+    />
+  </td>
+  <td>
+    <ButtonIcon
+      className="js-user-tokens spacer-left button-small"
+      onClick={[Function]}
+      tooltip="users.update_tokens"
+    >
+      <BulletListIcon />
+    </ButtonIcon>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <UserActions
+      isCurrentUser={false}
+      onUpdateUsers={[MockFunction]}
+      user={
+        Object {
+          "active": true,
+          "lastConnectionDate": "2019-01-18T15:06:33+0100",
           "local": false,
           "login": "obi",
           "name": "One",

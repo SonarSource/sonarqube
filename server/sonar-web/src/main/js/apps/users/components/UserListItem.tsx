@@ -23,8 +23,9 @@ import UserActions from './UserActions';
 import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
-import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import Avatar from '../../../components/ui/Avatar';
+import BulletListIcon from '../../../components/icons-components/BulletListIcon';
+import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
 import { ButtonIcon } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
@@ -58,6 +59,9 @@ export default class UserListItem extends React.PureComponent<Props, State> {
         <UserListItemIdentity identityProvider={identityProvider} user={user} />
         <td>
           <UserScmAccounts scmAccounts={user.scmAccounts || []} />
+        </td>
+        <td>
+          <DateFromNowHourPrecision date={user.lastConnectionDate} />
         </td>
         {!organizationsEnabled && (
           <td>

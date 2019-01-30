@@ -859,11 +859,23 @@ declare namespace T {
     externalIdentity?: string;
     externalProvider?: string;
     groups?: string[];
+    lastConnectionDate?: string;
     local: boolean;
     login: string;
     name: string;
     scmAccounts?: string[];
     tokensCount?: number;
+  }
+
+  export interface UserToken {
+    name: string;
+    createdAt: string;
+    lastConnectionDate?: string;
+  }
+
+  export interface NewUserToken extends UserToken {
+    login: string;
+    token: string;
   }
 
   export type Visibility = 'public' | 'private';

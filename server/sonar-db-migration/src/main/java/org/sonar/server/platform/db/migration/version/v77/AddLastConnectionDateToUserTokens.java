@@ -19,17 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v77;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion77 implements DbVersion {
+@SupportsBlueGreen
+public class AddLastConnectionDateToUserTokens extends DdlChange {
+
+  public AddLastConnectionDateToUserTokens(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2600, "Drop elasticsearch index 'tests'", DropElasticsearchIndexTests.class)
-      .add(2601, "Delete lines with DATA_TYPE='TEST' from table FILES_SOURCE", DeleteTestDataTypeFromFileSources.class)
-      .add(2602, "Add column LAST_CONNECTION_DATE to USERS table", AddLastConnectionDateToUsers.class)
-      .add(2603, "Add column LAST_USED_DATE to USER_TOKENS table", AddLastConnectionDateToUserTokens.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "user_tokens")
+      .addColumn(BigIntegerColumnDef.newBigIntegerColumnDefBuilder()
+        .setColumnName("last_connection_date")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
+
 }

@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -34,8 +35,11 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
+import org.sonarqube.ws.UserTokens.SearchWsResponse.UserToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -77,6 +81,24 @@ public class SearchActionTest {
     SearchWsResponse response = newRequest(null);
 
     assertThat(response.getUserTokensCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void return_last_connection_date() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto token1 = db.users().insertToken(user);
+    UserTokenDto token2 = db.users().insertToken(user);
+    db.getDbClient().userTokenDao().update(db.getSession(), token1.setLastConnectionDate(10_000_000_000L));
+    db.commit();
+    logInAsSystemAdministrator();
+
+    SearchWsResponse response = newRequest(user.getLogin());
+
+    assertThat(response.getUserTokensList())
+      .extracting(UserToken::getName, UserToken::hasLastConnectionDate, UserToken::getLastConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(token1.getName(), true, formatDateTime(10_000_000_000L)),
+        tuple(token2.getName(), false, ""));
   }
 
   @Test

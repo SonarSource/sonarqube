@@ -43,6 +43,7 @@ message SearchWsResponse {
     optional string externalIdentity = 9;
     optional string externalProvider = 10;
     optional string avatar = 11;
+    optional string lastConnectionDate = 12;
   }
 
   message Groups {

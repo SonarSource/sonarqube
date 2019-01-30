@@ -22,10 +22,10 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import Step from './Step';
-import { getTokens, generateToken, revokeToken, UserToken } from '../../../api/user-tokens';
 import AlertErrorIcon from '../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessIcon';
 import { DeleteButton, SubmitButton, Button } from '../../../components/ui/buttons';
+import { getTokens, generateToken, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -44,7 +44,7 @@ interface State {
   selection: string;
   tokenName?: string;
   token?: string;
-  tokens?: UserToken[];
+  tokens?: T.UserToken[];
 }
 
 export default class TokenStep extends React.PureComponent<Props, State> {
@@ -85,7 +85,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
   getToken = () =>
     this.state.selection === 'generate' ? this.state.token : this.state.existingToken;
 
-  getUniqueTokenName = (tokens: UserToken[]) => {
+  getUniqueTokenName = (tokens: T.UserToken[]) => {
     const { initialTokenName = '' } = this.props;
     const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
 

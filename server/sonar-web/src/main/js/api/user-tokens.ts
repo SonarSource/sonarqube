@@ -20,29 +20,15 @@
 import { getJSON, postJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export interface UserToken {
-  name: string;
-  createdAt: string;
-}
-
 /** List tokens for given user login */
-export function getTokens(login: string): Promise<UserToken[]> {
+export function getTokens(login: string): Promise<T.UserToken[]> {
   return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens, throwGlobalError);
 }
 
-export interface NewToken {
-  createdAt: string;
-  login: string;
-  name: string;
-  token: string;
-}
-
-/** Generate a user token */
-export function generateToken(data: { name: string; login?: string }): Promise<NewToken> {
+export function generateToken(data: { name: string; login?: string }): Promise<T.NewUserToken> {
   return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
 }
 
-/** Revoke a user token */
-export function revokeToken(data: { name: string; login?: string }): Promise<void | Response> {
+export function revokeToken(data: { name: string; login?: string }) {
   return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
 }

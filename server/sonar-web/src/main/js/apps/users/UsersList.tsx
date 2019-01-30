@@ -46,6 +46,7 @@ export default function UsersList({
             <th />
             <th className="nowrap" />
             <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
+            <th className="nowrap">{translate('users.last_connection')}</th>
             {!organizationsEnabled && <th className="nowrap">{translate('my_profile.groups')}</th>}
             <th className="nowrap">{translate('users.tokens')}</th>
             <th className="nowrap">&nbsp;</th>

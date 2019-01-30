@@ -31,8 +31,13 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
+
   public void insert(DbSession dbSession, UserTokenDto userTokenDto) {
     mapper(dbSession).insert(userTokenDto);
+  }
+
+  public void update(DbSession dbSession, UserTokenDto userTokenDto) {
+    mapper(dbSession).update(userTokenDto);
   }
 
   @CheckForNull

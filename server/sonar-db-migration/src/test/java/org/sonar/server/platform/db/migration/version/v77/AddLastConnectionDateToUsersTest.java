@@ -20,23 +20,38 @@
 
 package org.sonar.server.platform.db.migration.version.v77;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddLastConnectionDateToUsersTest {
 
-public class DbVersion77Test {
+  private static final String TABLE = "users";
 
-  private DbVersion77 underTest = new DbVersion77();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddLastConnectionDateToUsersTest.class, "users.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddLastConnectionDateToUsers underTest = new AddLastConnectionDateToUsers(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2500() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public void add_column() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition(TABLE, "last_connection_date", Types.BIGINT, null);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 4);
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }

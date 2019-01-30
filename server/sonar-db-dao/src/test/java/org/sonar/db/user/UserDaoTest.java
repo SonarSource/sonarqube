@@ -364,6 +364,17 @@ public class UserDaoTest {
   }
 
   @Test
+  public void insert_user_does_not_set_last_connection_date() {
+    UserDto user = newUserDto().setLastConnectionDate(10_000_000_000L);
+    underTest.insert(db.getSession(), user);
+    db.getSession().commit();
+
+    UserDto reloaded = underTest.selectByUuid(db.getSession(), user.getUuid());
+
+    assertThat(reloaded.getLastConnectionDate()).isNull();
+  }
+
+  @Test
   public void update_user() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("john")
@@ -391,7 +402,8 @@ public class UserDaoTest {
       .setLocal(false)
       .setHomepageType("project")
       .setHomepageParameter("OB1")
-      .setOrganizationUuid("ORG_UUID"));
+      .setOrganizationUuid("ORG_UUID")
+      .setLastConnectionDate(10_000_000_000L));
 
     UserDto reloaded = underTest.selectByUuid(db.getSession(), user.getUuid());
     assertThat(reloaded).isNotNull();
@@ -413,6 +425,7 @@ public class UserDaoTest {
     assertThat(reloaded.getHomepageType()).isEqualTo("project");
     assertThat(reloaded.getHomepageParameter()).isEqualTo("OB1");
     assertThat(reloaded.getOrganizationUuid()).isEqualTo("ORG_UUID");
+    assertThat(reloaded.getLastConnectionDate()).isEqualTo(10_000_000_000L);
   }
 
   @Test
@@ -420,6 +433,7 @@ public class UserDaoTest {
     UserDto user = insertActiveUser();
     insertUserGroup(user);
     UserDto otherUser = insertActiveUser();
+    underTest.update(db.getSession(), user.setLastConnectionDate(10_000_000_000L));
     session.commit();
 
     underTest.deactivateUser(session, user);
@@ -438,6 +452,7 @@ public class UserDaoTest {
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
+    assertThat(userReloaded.getLastConnectionDate()).isNull();
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
   }
 

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as _differenceInDays from 'date-fns/difference_in_days';
+import * as _differenceInHours from 'date-fns/difference_in_hours';
 import * as _differenceInSeconds from 'date-fns/difference_in_seconds';
 import * as _differenceInYears from 'date-fns/difference_in_years';
 import * as _isSameDay from 'date-fns/is_same_day';
@@ -65,6 +66,10 @@ export function differenceInYears(dateLeft: ParsableDate, dateRight: ParsableDat
 
 export function differenceInDays(dateLeft: ParsableDate, dateRight: ParsableDate): number {
   return _differenceInDays(dateLeft, dateRight);
+}
+
+export function differenceInHours(dateLeft: ParsableDate, dateRight: ParsableDate): number {
+  return _differenceInHours(dateLeft, dateRight);
 }
 
 export function differenceInSeconds(dateLeft: ParsableDate, dateRight: ParsableDate): number {

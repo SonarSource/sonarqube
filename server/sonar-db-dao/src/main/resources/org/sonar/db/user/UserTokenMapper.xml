@@ -7,6 +7,7 @@
     t.user_uuid as "userUuid",
     t.name as "name",
     t.token_hash as "tokenHash",
+    t.last_connection_date as "lastConnectionDate",
     t.created_at as "createdAt"
   </sql>
 
@@ -17,32 +18,40 @@
     token_hash,
     created_at
     ) values (
-    #{userUuid,jdbcType=VARCHAR},
-    #{name,jdbcType=VARCHAR},
-    #{tokenHash,jdbcType=VARCHAR},
-    #{createdAt,jdbcType=BIGINT}
+    #{userUuid, jdbcType=VARCHAR},
+    #{name, jdbcType=VARCHAR},
+    #{tokenHash, jdbcType=VARCHAR},
+    #{createdAt, jdbcType=BIGINT}
     )
+  </insert>
+
+  <insert id="update" parameterType="UserToken">
+    UPDATE user_tokens SET
+      last_connection_date = #{lastConnectionDate, jdbcType=BIGINT}
+    WHERE
+      user_uuid = #{userUuid, jdbcType=VARCHAR}
+      AND name = #{name, jdbcType=VARCHAR}
   </insert>
 
   <select id="selectByTokenHash" parameterType="String" resultType="UserToken">
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    WHERE t.token_hash=#{tokenHash}
+    WHERE t.token_hash=#{tokenHash, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByUserUuidAndName" parameterType="map" resultType="UserToken">
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    WHERE t.user_uuid=#{userUuid} and t.name=#{name}
+    WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR} and t.name=#{name, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByUserUuid" parameterType="map" resultType="UserToken">
     SELECT
     <include refid="userTokensColumns"/>
     FROM user_tokens t
-    WHERE t.user_uuid=#{userUuid}
+    WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR}
   </select>
   
   <select id="countTokensByUserUuids" parameterType="map" resultType="UserTokenCount">
@@ -50,17 +59,17 @@
     FROM user_tokens t
     WHERE t.user_uuid in
     <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
-      #{userUuid}
+      #{userUuid, jdbcType=VARCHAR}
     </foreach>
     GROUP BY t.user_uuid
   </select>
 
   <delete id="deleteByUserUuid">
-    DELETE FROM user_tokens WHERE user_uuid=#{userUuid}
+    DELETE FROM user_tokens WHERE user_uuid=#{userUuid, jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteByUserUuidAndName">
-    DELETE FROM user_tokens WHERE user_uuid=#{userUuid} and name=#{name}
+    DELETE FROM user_tokens WHERE user_uuid=#{userUuid, jdbcType=VARCHAR} and name=#{name, jdbcType=VARCHAR}
   </delete>
 
 </mapper>

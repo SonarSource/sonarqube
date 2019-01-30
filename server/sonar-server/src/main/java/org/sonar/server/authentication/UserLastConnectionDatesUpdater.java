@@ -17,19 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v77;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+package org.sonar.server.authentication;
 
-public class DbVersion77 implements DbVersion {
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2600, "Drop elasticsearch index 'tests'", DropElasticsearchIndexTests.class)
-      .add(2601, "Delete lines with DATA_TYPE='TEST' from table FILES_SOURCE", DeleteTestDataTypeFromFileSources.class)
-      .add(2602, "Add column LAST_CONNECTION_DATE to USERS table", AddLastConnectionDateToUsers.class)
-      .add(2603, "Add column LAST_USED_DATE to USER_TOKENS table", AddLastConnectionDateToUserTokens.class);
-  }
+public interface UserLastConnectionDatesUpdater {
+
+  void updateLastConnectionDateIfNeeded(UserDto user);
+
+  void updateLastConnectionDateIfNeeded(UserTokenDto userToken);
 }

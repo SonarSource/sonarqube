@@ -18,18 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { revokeToken, UserToken } from '../../../api/user-tokens';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tooltip from '../../../components/controls/Tooltip';
-import DateFormatter from '../../../components/intl/DateFormatter';
 import { Button } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 import { limitComponentName } from '../../../helpers/path';
+import { revokeToken } from '../../../api/user-tokens';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   login: string;
-  onRevokeToken: (token: UserToken) => void;
-  token: UserToken;
+  onRevokeToken: (token: T.UserToken) => void;
+  token: T.UserToken;
 }
 
 interface State {
@@ -75,12 +76,15 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
             <span>{limitComponentName(token.name)}</span>
           </Tooltip>
         </td>
+        <td className="nowrap">
+          <DateFromNowHourPrecision date={token.lastConnectionDate} />
+        </td>
         <td className="thin nowrap text-right">
           <DateFormatter date={token.createdAt} long={true} />
         </td>
         <td className="thin nowrap text-right">
           <DeferredSpinner loading={loading}>
-            <i className="spinner-placeholder " />
+            <i className="spinner-placeholder" />
           </DeferredSpinner>
           <Button
             className="button-red input-small spacer-left"

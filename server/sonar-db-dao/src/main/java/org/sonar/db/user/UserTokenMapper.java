@@ -23,7 +23,10 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserTokenMapper {
+
   void insert(UserTokenDto userToken);
+
+  void update(UserTokenDto userToken);
 
   UserTokenDto selectByTokenHash(String tokenHash);
 

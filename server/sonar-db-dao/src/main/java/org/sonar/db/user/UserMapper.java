@@ -64,8 +64,6 @@ public interface UserMapper {
 
   UserDto selectByExternalLoginAndIdentityProvider(@Param("externalLogin") String externalLogin, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
-  List<UserDto> selectByExternalIdentityProvider(@Param("externalIdentityProvider") String externalExternalIdentityProvider);
-
   void scrollAll(ResultHandler<UserDto> handler);
 
   /**

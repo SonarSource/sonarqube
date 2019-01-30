@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.authentication.UserLastConnectionDatesUpdater;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -30,10 +31,12 @@ import static java.util.Optional.of;
 public class UserTokenAuthentication {
   private final TokenGenerator tokenGenerator;
   private final DbClient dbClient;
+  private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater;
 
-  public UserTokenAuthentication(TokenGenerator tokenGenerator, DbClient dbClient) {
+  public UserTokenAuthentication(TokenGenerator tokenGenerator, DbClient dbClient, UserLastConnectionDatesUpdater userLastConnectionDatesUpdater) {
     this.tokenGenerator = tokenGenerator;
     this.dbClient = dbClient;
+    this.userLastConnectionDatesUpdater = userLastConnectionDatesUpdater;
   }
 
   /**
@@ -48,6 +51,7 @@ public class UserTokenAuthentication {
       if (userToken == null) {
         return empty();
       }
+      userLastConnectionDatesUpdater.updateLastConnectionDateIfNeeded(userToken);
       return of(userToken.getUserUuid());
     }
   }

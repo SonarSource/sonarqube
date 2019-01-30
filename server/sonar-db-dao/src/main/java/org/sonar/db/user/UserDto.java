@@ -56,6 +56,14 @@ public class UserDto {
   private boolean root = false;
   private boolean onboarded = false;
   private String organizationUuid;
+
+  /**
+   * Date of the last time the user has accessed to the server.
+   * Can be null when user has never been authenticated, or has not been authenticated since the creation of the column in SonarQube 7.7.
+   */
+  @Nullable
+  private Long lastConnectionDate;
+
   private Long createdAt;
   private Long updatedAt;
 
@@ -271,6 +279,16 @@ public class UserDto {
 
   public UserDto setOrganizationUuid(@Nullable String organizationUuid) {
     this.organizationUuid = organizationUuid;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getLastConnectionDate() {
+    return lastConnectionDate;
+  }
+
+  public UserDto setLastConnectionDate(@Nullable Long lastConnectionDate) {
+    this.lastConnectionDate = lastConnectionDate;
     return this;
   }
 

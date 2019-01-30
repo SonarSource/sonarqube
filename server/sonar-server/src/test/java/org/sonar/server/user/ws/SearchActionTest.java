@@ -42,6 +42,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -133,26 +134,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_tokens_count_for_logged_user() {
-    UserDto user = db.users().insertUser();
-    db.users().insertToken(user);
-    db.users().insertToken(user);
-    userIndexer.indexOnStartup(null);
-
-    userSession.logIn();
-    assertThat(ws.newRequest()
-        .executeProtobuf(SearchWsResponse.class).getUsersList())
-        .extracting(User::getLogin, User::hasTokensCount)
-        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
-
-    userSession.logIn(user);
-    assertThat(ws.newRequest()
-        .executeProtobuf(SearchWsResponse.class).getUsersList())
-        .extracting(User::getLogin, User::getTokensCount)
-        .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
-  }
-
-  @Test
   public void return_tokens_count_when_system_administer() {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user);
@@ -167,7 +148,7 @@ public class SearchActionTest {
 
     userSession.logIn();
     assertThat(ws.newRequest()
-        .executeProtobuf(SearchWsResponse.class).getUsersList())
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
         .extracting(User::getLogin, User::hasTokensCount)
         .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
@@ -249,14 +230,14 @@ public class SearchActionTest {
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::getExternalIdentity)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin()));
+        .extracting(User::getLogin, User::getExternalIdentity)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin()));
 
     userSession.logIn();
     assertThat(ws.newRequest()
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-      .extracting(User::getLogin, User::hasExternalIdentity)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+        .extracting(User::getLogin, User::hasExternalIdentity)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
   }
 
   @Test
@@ -274,6 +255,52 @@ public class SearchActionTest {
     assertThat(response.getUsersList())
       .extracting(User::getLogin, User::getName, User::hasTokensCount, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
       .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getName(), false, false, false, false));
+  }
+
+  @Test
+  public void return_last_connection_date_when_system_administer() {
+    UserDto userWithLastConnectionDate = db.users().insertUser();
+    db.users().updateLastConnectionDate(userWithLastConnectionDate, 10_000_000_000L);
+    UserDto userWithoutLastConnectionDate = db.users().insertUser();
+    userIndexer.indexOnStartup(null);
+    userSession.logIn().setSystemAdministrator();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::hasLastConnectionDate, User::getLastConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(userWithLastConnectionDate.getLogin(), true, formatDateTime(10_000_000_000L)),
+        tuple(userWithoutLastConnectionDate.getLogin(), false, ""));
+  }
+
+  @Test
+  public void return_all_fields_for_logged_user() {
+    UserDto user = db.users().insertUser();
+    db.users().updateLastConnectionDate(user, 10_000_000_000L);
+    db.users().insertToken(user);
+    db.users().insertToken(user);
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, user);
+    UserDto otherUser = db.users().insertUser();
+    userIndexer.indexOnStartup(null);
+
+    userSession.logIn(user);
+    assertThat(ws.newRequest().setParam("q", user.getLogin())
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalIdentity, User::getExternalProvider,
+        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true));
+
+    userSession.logIn(otherUser);
+    assertThat(ws.newRequest().setParam("q", user.getLogin())
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getLogin, User::getName, User::hasEmail, User::hasExternalIdentity, User::hasExternalProvider,
+        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasTokensCount, User::hasLastConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(user.getLogin(), user.getName(), false, false, true, true, true, false, false, false));
   }
 
   @Test

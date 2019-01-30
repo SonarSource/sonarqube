@@ -20,6 +20,7 @@
 package org.sonar.server.usertoken.ws;
 
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,6 +30,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.ACTION_SEARCH;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
@@ -49,7 +51,9 @@ public class SearchAction implements UserTokensWsAction {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setDescription("List the access tokens of a user.<br>" +
         "The login must exist and active.<br>" +
+        "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user is using a token many times in less than one hour.<br/" +
         "It requires administration permissions to specify a 'login' and list the tokens of another user. Otherwise, tokens for the current user are listed.")
+      .setChangelog(new Change("7.7", "New field 'lastConnectionDate' is added to response"))
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.3")
       .setHandler(this);
@@ -82,6 +86,7 @@ public class SearchAction implements UserTokensWsAction {
         .clear()
         .setName(userTokenDto.getName())
         .setCreatedAt(formatDateTime(userTokenDto.getCreatedAt()));
+      ofNullable(userTokenDto.getLastConnectionDate()).ifPresent(date -> userTokenBuilder.setLastConnectionDate(formatDateTime(date)));
       searchWsResponse.addUserTokens(userTokenBuilder);
     }
 

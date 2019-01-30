@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -48,10 +49,12 @@ import org.sonarqube.ws.Users.SearchWsResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
@@ -91,11 +94,19 @@ public class SearchAction implements UsersWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
       .setDescription("Get a list of active users. <br/>" +
-        "Administer System permission is required to show the 'groups' field.<br/>" +
-        "Field 'tokensCount' is only accessible to System Administrator and logged in user.<br/>" +
-        "When accessed anonymously, only logins and names are returned.")
+        "The following fields are only returned when user has Administer System permission or for logged-in in user :" +
+        "<ul>" +
+        "   <li>'email'</li>" +
+        "   <li>'externalIdentity'</li>" +
+        "   <li>'externalProvider'</li>" +
+        "   <li>'groups'</li>" +
+        "   <li>'lastConnectionDate'</li>" +
+        "   <li>'tokensCount'</li>" +
+        "</ul>" +
+        "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("7.7", "New field 'lastConnectionDate' is added to response"),
         new Change("7.4", "External identity is only returned to system administrators"),
         new Change("6.4", "Paging response fields moved to a Paging object"),
         new Change("6.4", "Avatar has been added to the response"),
@@ -153,16 +164,16 @@ public class SearchAction implements UsersWsAction {
       setIfNeeded(FIELD_ACTIVE, fields, user.isActive(), userBuilder::setActive);
       setIfNeeded(FIELD_LOCAL, fields, user.isLocal(), userBuilder::setLocal);
       setIfNeeded(FIELD_EXTERNAL_PROVIDER, fields, user.getExternalIdentityProvider(), userBuilder::setExternalProvider);
-      setIfNeeded(isNeeded(FIELD_TOKENS_COUNT, fields) && user.getLogin().equals(userSession.getLogin()), tokensCount, userBuilder::setTokensCount);
       setIfNeeded(isNeeded(FIELD_SCM_ACCOUNTS, fields) && !user.getScmAccountsAsList().isEmpty(), user.getScmAccountsAsList(),
         scm -> userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(scm)));
     }
-    if (userSession.isSystemAdministrator()) {
+    if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), user.getUuid())) {
       setIfNeeded(FIELD_EMAIL, fields, user.getEmail(), userBuilder::setEmail);
       setIfNeeded(isNeeded(FIELD_GROUPS, fields) && !groups.isEmpty(), groups,
         g -> userBuilder.setGroups(Groups.newBuilder().addAllGroups(g)));
       setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalLogin(), userBuilder::setExternalIdentity);
       setIfNeeded(FIELD_TOKENS_COUNT, fields, tokensCount, userBuilder::setTokensCount);
+      ofNullable(user.getLastConnectionDate()).ifPresent(date -> userBuilder.setLastConnectionDate(formatDateTime(date)));
     }
     return userBuilder.build();
   }

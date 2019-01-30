@@ -22,6 +22,11 @@ exports[`should render correctly 1`] = `
         <th
           className="nowrap"
         >
+          users.last_connection
+        </th>
+        <th
+          className="nowrap"
+        >
           users.tokens
         </th>
         <th

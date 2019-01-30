@@ -20,9 +20,9 @@
 import * as React from 'react';
 import TokensFormItem from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
-import { getTokens, generateToken, UserToken } from '../../../api/user-tokens';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
+import { getTokens, generateToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -35,7 +35,7 @@ interface State {
   loading: boolean;
   newToken?: { name: string; token: string };
   newTokenName: string;
-  tokens: UserToken[];
+  tokens: T.UserToken[];
 }
 
 export default class TokensForm extends React.PureComponent<Props, State> {
@@ -103,7 +103,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRevokeToken = (revokedToken: UserToken) => {
+  handleRevokeToken = (revokedToken: T.UserToken) => {
     this.setState(
       state => ({
         tokens: state.tokens.filter(token => token.name !== revokedToken.name)
@@ -175,6 +175,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
           <thead>
             <tr>
               <th>{translate('name')}</th>
+              <th>{translate('my_account.tokens_last_usage')}</th>
               <th className="text-right">{translate('created')}</th>
               <th />
             </tr>
