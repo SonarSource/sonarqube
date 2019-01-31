@@ -3,7 +3,8 @@ title: Compute Engine Performance
 url: /instance-administration/compute-engine-performance/
 ---
 
-_The ability to manage Compute Engine performance is available as part of the Enterprise Edition._
+_The ability to manage Compute Engine performance is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
+
 
 ### How can I get analyses through the Compute Engine Queue faster?
 If analyses are taking too long to process, it may be that you need to increase the number of Compute Engine (CE) workers (**[Administration > Projects > Background Tasks > Number of Workers](/#sonarqube-admin#/admin/background_tasks)**). 

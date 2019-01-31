@@ -3,16 +3,16 @@ title: SonarQube DB Copy Tool
 url: /instance-administration/db-copy/
 ---
 
-_The SonarQube DB Copy Tool is available to [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) customers._
+_The SonarQube DB Copy Tool is available to [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) customers and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
 This tool is provided to help you migrate your SonarQube database from one DB vendor to another. If, for instance, you've been using your SonarQube instance with Oracle and you want to migrate to PostgreSQL without loosing your analysis history, the SonarQube DB Copy Tool is what you need. 
 
-In the following lines we will talk about "source" and "target" SonarQube database instances. The source instance is the database you want to discard and the target the one running you want to move to.
+In the following lines we will talk about "source" and "target" SonarQube database instances. The source instance is the database you want to discard and the target is the one you want to move to.
 
 The procedure is basically as follows:
 
-* connect to the source and target database
-* read the data of the source database table by table
+* connect to both the source and target databases
+* read the data from the source database table by table
 * save the data into the target database table by table
 * recreate the sequences, index, ... on the target database
 

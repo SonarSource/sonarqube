@@ -3,7 +3,7 @@ title: Project Move
 url: /instance-administration/project-move/
 ---
 
-_Project Move is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)_
+_Project Move is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
 ## Table of Contents
 

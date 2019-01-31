@@ -3,7 +3,7 @@ title: SonarLint Smart Notifications
 url: /user-guide/sonarlint-notifications/
 ---
 <!-- sonarqube -->
-_SonarLint Smart Notifications is available as part of the [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
+_SonarLint Smart Notifications is available as part of the [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 <!-- /sonarqube -->
 
 Smart notifications allow developers using Connected Mode in SonarLint to receive in-IDE notifications from {instance} when:

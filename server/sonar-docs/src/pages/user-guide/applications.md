@@ -3,7 +3,7 @@ title: Applications
 url: /user-guide/applications/
 ---
 
-*Applications are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
+*Applications are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
 
 ## Using Applications
 

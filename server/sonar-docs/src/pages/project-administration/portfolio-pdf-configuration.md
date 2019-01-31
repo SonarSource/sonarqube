@@ -3,7 +3,7 @@ title: Portfolio PDF Configuration
 url: /project-administration/portfolio-pdf-configuration/
 ---
 
-*Portfolio PDFs are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
+*Portfolio PDFs are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
 
 A user with administrative rights on a portfolio can configure email distribution of the PDF. From a Portfolio Home Page go to **Administration > Executive Report**.
 

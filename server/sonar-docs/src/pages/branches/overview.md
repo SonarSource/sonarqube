@@ -4,7 +4,7 @@ url: /branches/overview/
 ---
 
 <!-- sonarqube -->
-_Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)_
+_Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 <!-- /sonarqube -->
 
 ## Table of Contents

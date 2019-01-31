@@ -3,7 +3,7 @@ title: Portfolios
 url: /user-guide/portfolios/
 ---
 
-*Portfolios are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
+*Portfolios are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
 
 ### Portfolios Home Page
 
