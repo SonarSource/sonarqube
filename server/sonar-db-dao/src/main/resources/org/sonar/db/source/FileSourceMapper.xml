@@ -22,7 +22,6 @@
       file_sources
     where
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
-      and data_type = 'SOURCE'
   </select>
 
   <select id="selectHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
@@ -33,11 +32,10 @@
       src_hash as srcHash,
       revision,
       updated_at as updatedAt
-      from
+    from
       file_sources
     where
       project_uuid = #{projectUuid,jdbcType=VARCHAR}
-      and data_type = 'SOURCE'
   </select>
 
   <select id="scrollLineHashes" parameterType="map" resultType="org.sonar.db.source.LineHashesWithUuidDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
@@ -48,7 +46,6 @@
     from projects p
     inner join file_sources fs on
       fs.file_uuid = p.uuid
-      and fs.data_type = 'SOURCE'
     where
       p.uuid in
       <foreach collection="fileUuids" item="fileUuid" open="(" close=")" separator=",">
@@ -64,7 +61,6 @@
       file_sources
     WHERE
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
-      and data_type = 'SOURCE'
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
@@ -80,7 +76,6 @@
       line_count,
       data_hash,
       src_hash,
-      data_type,
       revision
     )
     values
@@ -95,7 +90,6 @@
       #{lineCount,jdbcType=INTEGER},
       #{dataHash,jdbcType=VARCHAR},
       #{srcHash,jdbcType=VARCHAR},
-      'SOURCE',
       #{revision,jdbcType=VARCHAR}
     )
   </insert>

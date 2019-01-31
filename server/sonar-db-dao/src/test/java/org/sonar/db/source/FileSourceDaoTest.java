@@ -97,16 +97,6 @@ public class FileSourceDaoTest {
   }
 
   @Test
-  public void no_line_hashes_when_only_test_data() {
-    dbTester.prepareDbUnit(getClass(), "no_line_hashes_when_only_test_data.xml");
-
-    ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbSession, "FILE1_UUID", fn);
-
-    assertThat(fn.result).isNull();
-  }
-
-  @Test
   public void insert() {
     FileSourceDto expected = new FileSourceDto()
       .setProjectUuid("PRJ_UUID")

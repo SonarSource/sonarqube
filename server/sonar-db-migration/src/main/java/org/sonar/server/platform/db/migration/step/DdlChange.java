@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 
@@ -53,6 +54,10 @@ public abstract class DdlChange implements MigrationStep {
   }
 
   public abstract void execute(Context context) throws SQLException;
+
+  protected static boolean isSonarCloud(Configuration configuration) {
+    return configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false);
+  }
 
   protected Database getDatabase() {
     return db;
