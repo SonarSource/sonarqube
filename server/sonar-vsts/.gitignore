@@ -23,6 +23,7 @@ build/
 # tests
 src/test/json/**/*.png
 lcov.info
+coverage/
 .nyc_output
 
 # eslint

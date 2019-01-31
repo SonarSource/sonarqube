@@ -138,7 +138,7 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test",
+    "validate-ci": "yarn lint-report && yarn ts-check && yarn format-check && yarn test --coverage",
     "precommit": "yarn ts-check && lint-staged"
   },
   "engines": {
@@ -152,10 +152,12 @@
     "IE 11"
   ],
   "jest": {
-    "coverageDirectory": "<rootDir>/target/coverage",
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/tests"
+    "coverageDirectory": "<rootDir>/coverage",
+    "collectCoverageFrom": [
+      "src/main/js/**/*.{ts,tsx,js}"
+    ],
+    "coverageReporters": [
+      "lcovonly"
     ],
     "globals": {
       "ts-jest": {
@@ -185,8 +187,8 @@
       "enzyme-to-json/serializer"
     ],
     "testPathIgnorePatterns": [
+      "<rootDir>/config",
       "<rootDir>/node_modules",
-      "<rootDir>/src/main/webapp",
       "<rootDir>/scripts"
     ],
     "testRegex": "(/__tests__/.*|\\-test)\\.(ts|tsx|js)$",

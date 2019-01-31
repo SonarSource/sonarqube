@@ -11,3 +11,7 @@ public
 
 # Mac files
 .DS_Store
+
+# tests
+lcov.info
+coverage/
