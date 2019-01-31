@@ -21,7 +21,10 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { injectIntl, InjectedIntlProps } from 'react-intl';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
+import DateFormatter, {
+  formatterOption,
+  longFormatterOption
+} from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
@@ -39,6 +42,14 @@ export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlPr
     return this.props.intl.formatDate(date, longFormatterOption);
   };
 
+  formatDateTime = (date: string) => {
+    return this.props.intl.formatTime(date, {
+      hour: 'numeric',
+      minute: 'numeric',
+      ...formatterOption
+    });
+  };
+
   render() {
     const { className, component, period } = this.props;
     const leakClass = classNames('domain-measures-header leak-box', className);
@@ -46,7 +57,10 @@ export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlPr
       return <div className={leakClass}>{translate('issues.new_code_period')}</div>;
     }
 
-    const leakPeriodLabel = getPeriodLabel(period, this.formatDate);
+    const leakPeriodLabel = getPeriodLabel(
+      period,
+      period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate
+    );
     if (!leakPeriodLabel) {
       return null;
     }

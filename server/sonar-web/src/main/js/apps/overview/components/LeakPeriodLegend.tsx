@@ -20,7 +20,10 @@
 import * as React from 'react';
 import { injectIntl, InjectedIntlProps } from 'react-intl';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
+import DateFormatter, {
+  formatterOption,
+  longFormatterOption
+} from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
@@ -36,9 +39,20 @@ export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlPr
     return this.props.intl.formatDate(date, longFormatterOption);
   };
 
+  formatDateTime = (date: string) => {
+    return this.props.intl.formatTime(date, {
+      hour: 'numeric',
+      minute: 'numeric',
+      ...formatterOption
+    });
+  };
+
   render() {
     const { period } = this.props;
-    const leakPeriodLabel = getPeriodLabel(period, this.formatDate);
+    const leakPeriodLabel = getPeriodLabel(
+      period,
+      period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate
+    );
     if (!leakPeriodLabel) {
       return null;
     }

@@ -46,6 +46,12 @@ export function getPeriodLabel(
 
   if (period.mode === 'date' && parameter) {
     parameter = dateFormatter(parameter);
+  } else if (period.mode === 'manual_baseline') {
+    if (!parameter) {
+      parameter = dateFormatter(period.date);
+    } else {
+      return translateWithParameters('overview.period.previous_version', parameter);
+    }
   }
 
   return translateWithParameters(`overview.period.${period.mode}`, parameter || '');
