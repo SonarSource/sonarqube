@@ -124,7 +124,8 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
 
     const canAddVersion = canAdmin && !hasVersion && this.props.canCreateVersion;
     const canAddEvent = canAdmin;
-    const canDeleteAnalyses = this.props.canDeleteAnalyses && !isFirst;
+    const canDeleteAnalyses =
+      this.props.canDeleteAnalyses && !isFirst && !analysis.manualNewCodePeriodBaseline;
 
     let tooltipContent = <TimeFormatter date={parsedDate} long={true} />;
     // If projectVersion AND codePeriodVersion are set, add the projectVersion

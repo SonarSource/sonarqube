@@ -52,6 +52,7 @@ declare namespace T {
     date: string;
     events: AnalysisEvent[];
     key: string;
+    manualNewCodePeriodBaseline?: boolean;
     projectVersion?: string;
   }
 
