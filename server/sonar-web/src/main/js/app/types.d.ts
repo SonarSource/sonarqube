@@ -48,9 +48,11 @@ declare namespace T {
   }
 
   export interface Analysis {
+    codePeriodVersion?: string;
     date: string;
     events: AnalysisEvent[];
     key: string;
+    projectVersion?: string;
   }
 
   export interface AnalysisEvent {
@@ -544,7 +546,13 @@ declare namespace T {
     value: string;
   }
 
-  export type PeriodMode = 'days' | 'date' | 'version' | 'previous_analysis' | 'previous_version';
+  export type PeriodMode =
+    | 'days'
+    | 'date'
+    | 'version'
+    | 'previous_analysis'
+    | 'previous_version'
+    | 'manual_baseline';
 
   export interface Permission {
     description: string;

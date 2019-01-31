@@ -33,6 +33,34 @@ exports[`date 1`] = `
 </Tooltip>
 `;
 
+exports[`manual_baseline 1`] = `
+<div
+  className="overview-legend"
+>
+  overview.new_code_period_x.overview.period.manual_baseline.formattedTime.2013-09-22T00:00:00+0200
+  <br />
+  <DateFromNow
+    date={2013-09-21T22:00:00.000Z}
+  >
+    <Component />
+  </DateFromNow>
+</div>
+`;
+
+exports[`manual_baseline 2`] = `
+<div
+  className="overview-legend"
+>
+  overview.new_code_period_x.overview.period.previous_version.1.1.2
+  <br />
+  <DateFromNow
+    date={2013-09-21T22:00:00.000Z}
+  >
+    <Component />
+  </DateFromNow>
+</div>
+`;
+
 exports[`previous_analysis 1`] = `
 <div
   className="overview-legend"

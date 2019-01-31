@@ -32,8 +32,6 @@ jest.mock('../../../../helpers/dates', () => {
 it('10 days', () => {
   expect(
     getWrapper({
-      date: '2013-09-22T00:00:00+0200',
-      index: 0,
       mode: 'days',
       parameter: '10'
     })
@@ -43,8 +41,6 @@ it('10 days', () => {
 it('date', () => {
   expect(
     getWrapper({
-      date: '2013-09-22T00:00:00+0200',
-      index: 0,
       mode: 'date',
       parameter: '2013-01-01'
     })
@@ -53,32 +49,50 @@ it('date', () => {
 
 it('version', () => {
   expect(
-    getWrapper({
-      date: '2013-09-22T00:00:00+0200',
-      index: 0,
-      mode: 'version',
-      parameter: '0.1'
-    }).find('.overview-legend')
+    findLegend(
+      getWrapper({
+        mode: 'version',
+        parameter: '0.1'
+      })
+    )
   ).toMatchSnapshot();
 });
 
 it('previous_version', () => {
   expect(
-    getWrapper({
-      date: '2013-09-22T00:00:00+0200',
-      index: 0,
-      mode: 'previous_version'
-    }).find('.overview-legend')
+    findLegend(
+      getWrapper({
+        mode: 'previous_version'
+      })
+    )
   ).toMatchSnapshot();
 });
 
 it('previous_analysis', () => {
   expect(
-    getWrapper({
-      date: '2013-09-22T00:00:00+0200',
-      index: 0,
-      mode: 'previous_analysis'
-    }).find('.overview-legend')
+    findLegend(
+      getWrapper({
+        mode: 'previous_analysis'
+      })
+    )
+  ).toMatchSnapshot();
+});
+
+it('manual_baseline', () => {
+  expect(
+    findLegend(
+      getWrapper({
+        mode: 'manual_baseline'
+      })
+    )
+  ).toMatchSnapshot();
+  expect(
+    findLegend(
+      getWrapper({
+        mode: 'manual_baseline',
+        parameter: '1.1.2'
+      })
+    )
   ).toMatchSnapshot();
 });
 
@@ -87,17 +101,30 @@ it('should render a more precise date', () => {
   expect(
     getWrapper({
       date: '2018-08-17T00:00:00+0200',
-      index: 0,
       mode: 'previous_version'
     })
   ).toMatchSnapshot();
 });
 
-function getWrapper(period: T.Period) {
+function getWrapper(period: Partial<T.Period> = {}) {
   return shallow(
     <LeakPeriodLegend
-      intl={{ formatDate: (date: string) => 'formatted.' + date } as InjectedIntlProps['intl']}
-      period={period}
+      intl={
+        {
+          formatDate: (date: string) => 'formatted.' + date,
+          formatTime: (date: string) => 'formattedTime.' + date
+        } as InjectedIntlProps['intl']
+      }
+      period={{
+        date: '2013-09-22T00:00:00+0200',
+        index: 0,
+        mode: 'version',
+        ...period
+      }}
     />
   );
+}
+
+function findLegend(wrapper: any) {
+  return wrapper.find('.overview-legend');
 }

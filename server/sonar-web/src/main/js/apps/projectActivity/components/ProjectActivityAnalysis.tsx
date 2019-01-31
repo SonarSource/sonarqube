@@ -22,12 +22,14 @@ import * as classNames from 'classnames';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
-import TimeTooltipFormatter from '../../../components/intl/TimeTooltipFormatter';
+import TimeFormatter from '../../../components/intl/TimeFormatter';
+import Tooltip from '../../../components/controls/Tooltip';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
 } from '../../../components/controls/ActionsDropdown';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { parseDate } from '../../../helpers/dates';
 import { ParsedAnalysis } from '../utils';
 
 interface Props {
@@ -49,6 +51,7 @@ interface State {
   addEventForm: boolean;
   addVersionForm: boolean;
   removeAnalysisForm: boolean;
+  suppressVersionTooltip?: boolean;
 }
 
 export default class ProjectActivityAnalysis extends React.PureComponent<Props, State> {
@@ -99,6 +102,14 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
     this.setState({ addVersionForm: true });
   };
 
+  handleTimeTooltipHide = () => {
+    this.setState({ suppressVersionTooltip: false });
+  };
+
+  handleTimeTooltipShow = () => {
+    this.setState({ suppressVersionTooltip: true });
+  };
+
   closeAddVersionForm = () => {
     if (this.mounted) {
       this.setState({ addVersionForm: false });
@@ -108,85 +119,112 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
   render() {
     const { analysis, isFirst, canAdmin } = this.props;
     const { date, events } = analysis;
+    const parsedDate = parseDate(date);
     const hasVersion = events.find(event => event.category === 'VERSION') != null;
 
     const canAddVersion = canAdmin && !hasVersion && this.props.canCreateVersion;
     const canAddEvent = canAdmin;
     const canDeleteAnalyses = this.props.canDeleteAnalyses && !isFirst;
 
+    let tooltipContent = <TimeFormatter date={parsedDate} long={true} />;
+    // If projectVersion AND codePeriodVersion are set, add the projectVersion
+    // to the tooltip content.
+    if (analysis.projectVersion && analysis.codePeriodVersion) {
+      tooltipContent = (
+        <>
+          {tooltipContent}
+          <br />
+          {translateWithParameters(
+            'project_activity.analysis_project_version_X',
+            analysis.projectVersion
+          )}
+        </>
+      );
+    }
+
     return (
-      <li
-        className={classNames('project-activity-analysis', { selected: this.props.selected })}
-        data-date={date.valueOf()}
-        onClick={this.handleClick}
-        tabIndex={0}>
-        <div className="project-activity-time spacer-right">
-          <TimeTooltipFormatter className="text-middle" date={date} />
-        </div>
-
-        {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
-          <div className="project-activity-analysis-actions big-spacer-right">
-            <ActionsDropdown small={true} toggleClassName="js-analysis-actions">
-              {canAddVersion && (
-                <ActionsDropdownItem className="js-add-event" onClick={this.handleAddVersionClick}>
-                  {translate('project_activity.add_version')}
-                </ActionsDropdownItem>
+      <Tooltip mouseEnterDelay={0.5} overlay={tooltipContent} placement="left">
+        <li
+          className={classNames('project-activity-analysis', { selected: this.props.selected })}
+          data-date={date.valueOf()}
+          onClick={this.handleClick}
+          tabIndex={0}>
+          <div className="project-activity-time spacer-right">
+            <TimeFormatter date={parsedDate} long={false}>
+              {formattedTime => (
+                <time className="text-middle" dateTime={parsedDate.toISOString()}>
+                  {formattedTime}
+                </time>
               )}
-              {canAddEvent && (
-                <ActionsDropdownItem className="js-add-event" onClick={this.handleAddEventClick}>
-                  {translate('project_activity.add_custom_event')}
-                </ActionsDropdownItem>
-              )}
-              {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ActionsDropdownDivider />}
-              {canDeleteAnalyses && (
-                <ActionsDropdownItem
-                  className="js-delete-analysis"
-                  destructive={true}
-                  onClick={this.handleRemoveAnalysisClick}>
-                  {translate('project_activity.delete_analysis')}
-                </ActionsDropdownItem>
-              )}
-            </ActionsDropdown>
-
-            {this.state.addVersionForm && (
-              <AddEventForm
-                addEvent={this.props.addVersion}
-                addEventButtonText="project_activity.add_version"
-                analysis={analysis}
-                onClose={this.closeAddVersionForm}
-              />
-            )}
-
-            {this.state.addEventForm && (
-              <AddEventForm
-                addEvent={this.props.addCustomEvent}
-                addEventButtonText="project_activity.add_custom_event"
-                analysis={analysis}
-                onClose={this.closeAddEventForm}
-              />
-            )}
-
-            {this.state.removeAnalysisForm && (
-              <RemoveAnalysisForm
-                analysis={analysis}
-                deleteAnalysis={this.props.deleteAnalysis}
-                onClose={this.closeRemoveAnalysisForm}
-              />
-            )}
+            </TimeFormatter>
           </div>
-        )}
 
-        {events.length > 0 && (
-          <Events
-            analysis={analysis.key}
-            canAdmin={canAdmin}
-            changeEvent={this.props.changeEvent}
-            deleteEvent={this.props.deleteEvent}
-            events={events}
-            isFirst={this.props.isFirst}
-          />
-        )}
-      </li>
+          {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
+            <div className="project-activity-analysis-actions big-spacer-right">
+              <ActionsDropdown small={true} toggleClassName="js-analysis-actions">
+                {canAddVersion && (
+                  <ActionsDropdownItem
+                    className="js-add-event"
+                    onClick={this.handleAddVersionClick}>
+                    {translate('project_activity.add_version')}
+                  </ActionsDropdownItem>
+                )}
+                {canAddEvent && (
+                  <ActionsDropdownItem className="js-add-event" onClick={this.handleAddEventClick}>
+                    {translate('project_activity.add_custom_event')}
+                  </ActionsDropdownItem>
+                )}
+                {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ActionsDropdownDivider />}
+                {canDeleteAnalyses && (
+                  <ActionsDropdownItem
+                    className="js-delete-analysis"
+                    destructive={true}
+                    onClick={this.handleRemoveAnalysisClick}>
+                    {translate('project_activity.delete_analysis')}
+                  </ActionsDropdownItem>
+                )}
+              </ActionsDropdown>
+
+              {this.state.addVersionForm && (
+                <AddEventForm
+                  addEvent={this.props.addVersion}
+                  addEventButtonText="project_activity.add_version"
+                  analysis={analysis}
+                  onClose={this.closeAddVersionForm}
+                />
+              )}
+
+              {this.state.addEventForm && (
+                <AddEventForm
+                  addEvent={this.props.addCustomEvent}
+                  addEventButtonText="project_activity.add_custom_event"
+                  analysis={analysis}
+                  onClose={this.closeAddEventForm}
+                />
+              )}
+
+              {this.state.removeAnalysisForm && (
+                <RemoveAnalysisForm
+                  analysis={analysis}
+                  deleteAnalysis={this.props.deleteAnalysis}
+                  onClose={this.closeRemoveAnalysisForm}
+                />
+              )}
+            </div>
+          )}
+
+          {events.length > 0 && (
+            <Events
+              analysis={analysis.key}
+              canAdmin={canAdmin}
+              changeEvent={this.props.changeEvent}
+              deleteEvent={this.props.deleteEvent}
+              events={events}
+              isFirst={this.props.isFirst}
+            />
+          )}
+        </li>
+      </Tooltip>
     );
   }
 }
