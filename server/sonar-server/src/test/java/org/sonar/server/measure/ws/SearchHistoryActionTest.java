@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;
 import org.junit.Before;
@@ -43,7 +42,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.measure.ws.SearchHistoryAction.Builder;
 import org.sonar.server.measure.ws.SearchHistoryAction.SearchHistoryRequest;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -53,9 +51,9 @@ import org.sonarqube.ws.Measures.SearchHistoryResponse;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,13 +67,13 @@ import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_FROM;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchHistoryActionTest {
 
@@ -93,11 +91,10 @@ public class SearchHistoryActionTest {
 
   private ComponentDto project;
   private SnapshotDto analysis;
-  private List<String> metrics;
   private MetricDto complexityMetric;
   private MetricDto nclocMetric;
   private MetricDto newViolationMetric;
-  private Builder wsRequest;
+  private MetricDto stringMetric;
 
   @Before
   public void setUp() {
@@ -107,19 +104,19 @@ public class SearchHistoryActionTest {
     nclocMetric = insertNclocMetric();
     complexityMetric = insertComplexityMetric();
     newViolationMetric = insertNewViolationMetric();
-    metrics = newArrayList(nclocMetric.getKey(), complexityMetric.getKey(), newViolationMetric.getKey());
-    wsRequest = SearchHistoryRequest.builder().setComponent(project.getDbKey()).setMetrics(metrics);
+    stringMetric = insertStringMetric();
   }
 
   @Test
   public void empty_response() {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    wsRequest
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.getDbKey())
-      .setMetrics(singletonList(complexityMetric.getKey()));
+      .setMetrics(singletonList(complexityMetric.getKey()))
+      .build();
 
-    SearchHistoryResponse result = call();
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getMeasuresList()).hasSize(1);
     assertThat(result.getMeasures(0).getHistoryCount()).isEqualTo(0);
@@ -134,11 +131,13 @@ public class SearchHistoryActionTest {
     project = db.components().insertPrivateProject();
     analysis = db.components().insertSnapshot(project);
     userSession.addProjectPermission(UserRole.USER, project);
-    wsRequest
-      .setComponent(project.getDbKey())
-      .setMetrics(singletonList(complexityMetric.getKey()));
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(singletonList(complexityMetric.getKey()))
+      .build();
+
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 1);
     assertThat(result.getMeasuresList()).hasSize(1);
@@ -150,7 +149,12 @@ public class SearchHistoryActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, analysis).setValue(42.0d));
     db.commit();
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .build();
+
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getMeasuresList()).hasSize(3)
       .extracting(HistoryMeasure::getMetric)
@@ -170,7 +174,11 @@ public class SearchHistoryActionTest {
       newMeasureDto(newViolationMetric, project, laterAnalysis).setVariation(10d));
     db.commit();
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .build();
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
       .containsExactly(1, 100, 2);
@@ -205,9 +213,14 @@ public class SearchHistoryActionTest {
       .map(a -> formatDateTime(a.getCreatedAt()))
       .collect(MoreCollectors.toList());
     db.commit();
-    wsRequest.setComponent(project.getDbKey()).setPage(2).setPageSize(3);
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .setPage(2)
+      .setPageSize(3)
+      .build();
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(2, 3, 9);
     assertThat(result.getMeasures(0).getHistoryList()).extracting(HistoryValue::getDate).containsExactly(
@@ -224,9 +237,14 @@ public class SearchHistoryActionTest {
       .map(a -> formatDateTime(a.getCreatedAt()))
       .collect(MoreCollectors.toList());
     db.commit();
-    wsRequest.setComponent(project.getDbKey()).setFrom(analysisDates.get(1)).setTo(analysisDates.get(3));
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .setFrom(analysisDates.get(1))
+      .setTo(analysisDates.get(3))
+      .build();
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsExactly(1, 100, 3);
     assertThat(result.getMeasures(0).getHistoryList()).extracting(HistoryValue::getDate).containsExactly(
@@ -239,17 +257,23 @@ public class SearchHistoryActionTest {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("new_optimized").setValueType(ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(789d));
     db.commit();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    wsRequest.setComponent(file.getDbKey()).setMetrics(Arrays.asList("optimized", "new_optimized"));
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(file.getDbKey())
+      .setMetrics(asList("optimized", "new_optimized"))
+      .build();
+    SearchHistoryResponse result = call(request);
 
     assertThat(result.getMeasuresCount()).isEqualTo(2);
     assertThat(result.getMeasuresList().get(0).getHistoryList()).extracting(HistoryValue::getValue).containsExactly("789");
     assertThat(result.getMeasuresList().get(1).getHistoryList()).extracting(HistoryValue::getValue).containsExactly("456");
 
     // Best value is not applied to project
-    wsRequest.setComponent(project.getDbKey());
-    result = call();
+    request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList("optimized", "new_optimized"))
+      .build();
+    result = call(request);
     assertThat(result.getMeasuresList().get(0).getHistoryCount()).isEqualTo(1);
     assertThat(result.getMeasuresList().get(0).getHistory(0).hasDate()).isTrue();
     assertThat(result.getMeasuresList().get(0).getHistory(0).hasValue()).isFalse();
@@ -260,7 +284,11 @@ public class SearchHistoryActionTest {
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setStatus(STATUS_UNPROCESSED));
     db.commit();
 
-    SearchHistoryResponse result = call();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .build();
+    SearchHistoryResponse result = call(request);
 
     // one analysis in setUp method
     assertThat(result.getPaging().getTotal()).isEqualTo(1);
@@ -330,30 +358,40 @@ public class SearchHistoryActionTest {
 
   @Test
   public void fail_if_unknown_metric() {
-    wsRequest.setMetrics(newArrayList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"));
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"))
+      .build();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Metrics 42_METRIC, METRIC_42 are not found");
 
-    call();
+    call(request);
   }
 
   @Test
   public void fail_if_not_enough_permissions() {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(singletonList(complexityMetric.getKey()))
+      .build();
 
     expectedException.expect(ForbiddenException.class);
 
-    call();
+    call(request);
   }
 
   @Test
   public void fail_if_unknown_component() {
-    wsRequest.setComponent("PROJECT_42");
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent("__UNKNOWN__")
+      .setMetrics(singletonList(complexityMetric.getKey()))
+      .build();
 
     expectedException.expect(NotFoundException.class);
 
-    call();
+    call(request);
   }
 
   @Test
@@ -420,25 +458,42 @@ public class SearchHistoryActionTest {
 
     String result = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getDbKey())
-      .setParam(PARAM_METRICS, String.join(",", metrics))
+      .setParam(PARAM_METRICS, String.join(",", asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey())))
       .execute().getInput();
 
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
-  private SearchHistoryResponse call() {
-    SearchHistoryRequest wsRequest = this.wsRequest.build();
+  @Test
+  public void measure_without_values() {
+    dbClient.measureDao().insert(dbSession, newMeasureDto(stringMetric, project, analysis).setValue(null).setData(null));
+    db.commit();
 
-    TestRequest request = ws.newRequest();
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.getDbKey())
+      .setMetrics(singletonList(stringMetric.getKey()))
+      .build();
+    SearchHistoryResponse result = call(request);
 
-    request.setParam(PARAM_COMPONENT, wsRequest.getComponent());
-    request.setParam(PARAM_METRICS, String.join(",", wsRequest.getMetrics()));
-    ofNullable(wsRequest.getFrom()).ifPresent(from -> request.setParam(PARAM_FROM, from));
-    ofNullable(wsRequest.getTo()).ifPresent(to -> request.setParam(PARAM_TO, to));
-    ofNullable(wsRequest.getPage()).ifPresent(p -> request.setParam(Param.PAGE, String.valueOf(p)));
-    ofNullable(wsRequest.getPageSize()).ifPresent(ps -> request.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
+    HistoryMeasure measure = result.getMeasuresList().stream()
+      .filter(m -> m.getMetric().equals(stringMetric.getKey()))
+      .findFirst()
+      .get();
+    assertThat(measure.getHistoryList()).hasSize(1);
+    assertThat(measure.getHistory(0).hasValue()).isFalse();
+  }
 
-    return request.executeProtobuf(SearchHistoryResponse.class);
+  private SearchHistoryResponse call(SearchHistoryRequest request) {
+    TestRequest testRequest = ws.newRequest();
+
+    testRequest.setParam(PARAM_COMPONENT, request.getComponent());
+    testRequest.setParam(PARAM_METRICS, String.join(",", request.getMetrics()));
+    ofNullable(request.getFrom()).ifPresent(from -> testRequest.setParam(PARAM_FROM, from));
+    ofNullable(request.getTo()).ifPresent(to -> testRequest.setParam(PARAM_TO, to));
+    ofNullable(request.getPage()).ifPresent(p -> testRequest.setParam(Param.PAGE, String.valueOf(p)));
+    ofNullable(request.getPageSize()).ifPresent(ps -> testRequest.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
+
+    return testRequest.executeProtobuf(SearchHistoryResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {
@@ -490,6 +545,15 @@ public class SearchHistoryActionTest {
       .setQualitative(true)
       .setHidden(false)
       .setUserManaged(false));
+    db.commit();
+    return metric;
+  }
+
+  private MetricDto insertStringMetric() {
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+      .setKey("a_string")
+      .setShortName("A String")
+      .setValueType("STRING"));
     db.commit();
     return metric;
   }

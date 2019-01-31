@@ -108,7 +108,9 @@ class SearchHistoryResponseFactory {
       String measureValue = dbMetric.getKey().startsWith("new_")
         ? formatNumericalValue(dbMeasure.getVariation(), dbMetric)
         : formatMeasureValue(dbMeasure, dbMetric);
-      value.setValue(measureValue);
+      if (measureValue != null) {
+        value.setValue(measureValue);
+      }
     }
 
     return analysis;
