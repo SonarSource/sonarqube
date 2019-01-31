@@ -25,13 +25,13 @@
     )
   </insert>
 
-  <insert id="update" parameterType="UserToken">
+  <update id="update" parameterType="UserToken">
     UPDATE user_tokens SET
       last_connection_date = #{lastConnectionDate, jdbcType=BIGINT}
     WHERE
       user_uuid = #{userUuid, jdbcType=VARCHAR}
       AND name = #{name, jdbcType=VARCHAR}
-  </insert>
+  </update>
 
   <select id="selectByTokenHash" parameterType="String" resultType="UserToken">
     SELECT
