@@ -59,7 +59,7 @@ import static org.sonarqube.ws.Webhooks.CreateWsResponse.newBuilder;
 
 public class CreateAction implements WebhooksWsAction {
 
-  private static final int MAX_NUMBER_OF_WEBHOOKS = 10;
+  private static final int MAX_NUMBER_OF_WEBHOOKS = 100;
 
   private final DbClient dbClient;
   private final UserSession userSession;
