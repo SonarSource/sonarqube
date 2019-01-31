@@ -38,7 +38,8 @@ Key | Description | Default
 Key | Description | Default
 ---|----|---
 `sonar.projectName`|Name of the project that will be displayed on the web interface.|`<name>` for Maven projects, otherwise project key. If there is already a name in the DB, it won't be overwritten
-`sonar.projectVersion` | The project version. | `<version>` for Maven projects, otherwise "not provided"
+`sonar.projectVersion` | The project version. If the project's New Code Period setting is `previous_version`, changing this value resets the project's New Code Period | `<version>` for Maven projects, otherwise "not provided"
+`sonar.codePeriodVersion` | When present, this _optional_, additional parameter acts as the project version for the purposes of resetting the New Code Period (see above), allowing a full semantic version (i.e. ending with build number, and so changing with each analysis) to be passed in to `sonar.projectVersion` _without_ resetting the new code period. Under these circumstances, the semantic version is stored with the analysis and available via Web Services and in the UI. | &nbsp;
 
 
 ### Authentication
