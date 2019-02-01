@@ -226,7 +226,6 @@
       and p.scope='FIL'
     INNER JOIN file_sources fs ON
       fs.file_uuid=p.uuid
-      and fs.data_type='SOURCE'
     where
       root.uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
@@ -241,7 +240,6 @@
     FROM projects p
     INNER JOIN file_sources fs ON
       fs.file_uuid=p.uuid
-      and fs.data_type='SOURCE'
     <include refid="modulesTreeQuery"/>
   </select>
 
@@ -590,7 +588,6 @@
     from projects p
     inner join file_sources fs on
       fs.file_uuid = p.uuid
-      and fs.data_type = 'SOURCE'
     where
       p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
       and p.enabled = ${_true}

@@ -27,7 +27,7 @@ import org.apache.ibatis.session.ResultHandler;
 
 public interface FileSourceMapper {
 
-  List<FileSourceDto> selectHashesForProject(@Param("projectUuid") String projectUuid, @Param("dataType") String dataType);
+  List<FileSourceDto> selectHashesForProject(@Param("projectUuid") String projectUuid);
 
   @CheckForNull
   FileSourceDto selectByFileUuid(@Param("fileUuid") String fileUuid);

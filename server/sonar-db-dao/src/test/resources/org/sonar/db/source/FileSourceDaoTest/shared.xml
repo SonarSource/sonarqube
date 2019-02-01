@@ -5,7 +5,7 @@
                   line_hashes="ABC\nDEF\nGHI"
                   line_count="3"
                   src_hash="FILE_HASH" revision="123456789"
-                  created_at="1500000000000" updated_at="1500000000000"  data_type="SOURCE"
+                  created_at="1500000000000" updated_at="1500000000000"
                   line_hashes_version="[null]"/>
 
 </dataset>

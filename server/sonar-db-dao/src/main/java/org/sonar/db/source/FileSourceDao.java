@@ -59,7 +59,7 @@ public class FileSourceDao implements Dao {
     PreparedStatement pstmt = null;
     ResultSet rs = null;
     try {
-      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type='SOURCE'");
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=?");
       pstmt.setString(1, fileUuid);
       rs = pstmt.executeQuery();
       if (rs.next()) {
@@ -93,7 +93,7 @@ public class FileSourceDao implements Dao {
     ResultSet rs = null;
     Reader reader = null;
     try {
-      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type='SOURCE'");
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=?");
       pstmt.setString(1, fileUuid);
       rs = pstmt.executeQuery();
       if (rs.next()) {
