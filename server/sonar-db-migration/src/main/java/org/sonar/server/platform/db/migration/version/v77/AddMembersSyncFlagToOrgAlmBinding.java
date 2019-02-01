@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v77;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddMembersSyncFlagToOrgAlmBinding extends DdlChange {
 
-public class DbVersion77Test {
-
-  private DbVersion77 underTest = new DbVersion77();
-
-  @Test
-  public void migrationNumber_starts_at_2600() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public AddMembersSyncFlagToOrgAlmBinding(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
+  @Override
+  public void execute(DdlChange.Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "organization_alm_bindings")
+      .addColumn(BooleanColumnDef.newBooleanColumnDefBuilder()
+        .setColumnName("members_sync_enabled")
+        .setIsNullable(true)
+        .build())
+      .build());
   }
 
 }

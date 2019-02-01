@@ -39,4 +39,6 @@ public interface OrganizationAlmBindingMapper {
   void deleteByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
   void deleteByAlmAppInstallUuid(@Param("almAppInstallUuid") String almAppInstallUuid);
+
+  void updateMembersSync(@Param("uuid") String uuid, @Param("membersSyncEnabled") boolean membersSyncEnabled);
 }

@@ -59,7 +59,7 @@ public class OrganizationAlmBindingDao implements Dao {
     return ofNullable(getMapper(dbSession).selectByInstallationUuid(almAppInstall.getUuid()));
   }
 
-  public void insert(DbSession dbSession, OrganizationDto organization, AlmAppInstallDto almAppInstall, String url, String userUuid) {
+  public void insert(DbSession dbSession, OrganizationDto organization, AlmAppInstallDto almAppInstall, String url, String userUuid, boolean membersSync) {
     long now = system2.now();
     getMapper(dbSession).insert(new OrganizationAlmBindingDto()
       .setUuid(uuidFactory.create())
@@ -68,6 +68,7 @@ public class OrganizationAlmBindingDao implements Dao {
       .setAlmId(almAppInstall.getAlm())
       .setUrl(url)
       .setUserUuid(userUuid)
+      .setMembersSyncEnabled(membersSync)
       .setCreatedAt(now));
   }
 
@@ -77,6 +78,10 @@ public class OrganizationAlmBindingDao implements Dao {
 
   public void deleteByAlmAppInstall(DbSession dbSession, AlmAppInstallDto almAppInstall) {
     getMapper(dbSession).deleteByAlmAppInstallUuid(almAppInstall.getUuid());
+  }
+
+  public void updateMembersSync(DbSession dbSession, OrganizationAlmBindingDto orgAlmBinding, boolean enabled) {
+    getMapper(dbSession).updateMembersSync(orgAlmBinding.getUuid(), enabled);
   }
 
   private static OrganizationAlmBindingMapper getMapper(DbSession dbSession) {

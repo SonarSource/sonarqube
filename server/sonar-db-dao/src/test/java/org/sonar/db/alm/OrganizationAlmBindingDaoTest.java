@@ -152,12 +152,12 @@ public class OrganizationAlmBindingDaoTest {
     UserDto user = db.users().insertUser();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
 
-    underTest.insert(db.getSession(), organization, almAppInstall, "http://myorg.com", user.getUuid());
+    underTest.insert(db.getSession(), organization, almAppInstall, "http://myorg.com", user.getUuid(), true);
 
     assertThat(db.selectFirst(db.getSession(),
       "select" +
         "   uuid as \"uuid\", organization_uuid as \"organizationUuid\", alm_app_install_uuid as \"almAppInstallUuid\", url as \"url\", alm_id as \"almId\"," +
-        " user_uuid as \"userUuid\", created_at as \"createdAt\"" +
+        " user_uuid as \"userUuid\", members_sync_enabled as \"membersSync\", created_at as \"createdAt\"" +
         " from organization_alm_bindings" +
         "   where organization_uuid='" + organization.getUuid() + "'"))
           .contains(
@@ -167,7 +167,8 @@ public class OrganizationAlmBindingDaoTest {
             entry("almId", "github"),
             entry("url", "http://myorg.com"),
             entry("userUuid", user.getUuid()),
-            entry("createdAt", NOW));
+            entry("createdAt", NOW),
+            entry("membersSync", true));
   }
 
   @Test
@@ -200,4 +201,14 @@ public class OrganizationAlmBindingDaoTest {
     assertThat(underTest.selectByOrganization(db.getSession(), otherOrganization)).isPresent();
   }
 
+  @Test
+  public void updateMembersSync() {
+    OrganizationDto organization = db.organizations().insert();
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
+    OrganizationAlmBindingDto orgAlmBindingDto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+
+    underTest.updateMembersSync(db.getSession(), orgAlmBindingDto, false);
+
+    assertThat(db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization).get().isMembersSyncEnable()).isFalse();
+  }
 }

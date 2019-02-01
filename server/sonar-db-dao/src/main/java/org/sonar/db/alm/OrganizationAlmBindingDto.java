@@ -53,6 +53,10 @@ public class OrganizationAlmBindingDto {
    */
   private String userUuid;
   /**
+   * If the members of the org are automatically sync with the ALM org
+   */
+  private boolean membersSyncEnabled;
+  /**
    * Technical creation date
    */
   private long createdAt;
@@ -111,6 +115,15 @@ public class OrganizationAlmBindingDto {
 
   public OrganizationAlmBindingDto setUserUuid(String userUuid) {
     this.userUuid = userUuid;
+    return this;
+  }
+
+  public boolean isMembersSyncEnable() {
+    return membersSyncEnabled;
+  }
+
+  public OrganizationAlmBindingDto setMembersSyncEnabled(boolean membersSyncEnabled) {
+    this.membersSyncEnabled = membersSyncEnabled;
     return this;
   }
 

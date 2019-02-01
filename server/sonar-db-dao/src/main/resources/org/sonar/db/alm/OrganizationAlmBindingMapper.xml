@@ -10,6 +10,7 @@
     alm_id as rawAlmId,
     url,
     user_uuid as userUuid,
+    members_sync_enabled as membersSyncEnabled,
     created_at as createdAt
   </sql>
 
@@ -52,6 +53,7 @@
       alm_id,
       url,
       user_uuid,
+      members_sync_enabled,
       created_at
     )
     VALUES (
@@ -61,6 +63,7 @@
       #{dto.rawAlmId, jdbcType=VARCHAR},
       #{dto.url, jdbcType=VARCHAR},
       #{dto.userUuid, jdbcType=VARCHAR},
+      #{dto.membersSyncEnabled, jdbcType=BOOLEAN},
       #{dto.createdAt, jdbcType=BIGINT}
     )
   </insert>
@@ -73,4 +76,10 @@
     DELETE FROM organization_alm_bindings WHERE alm_app_install_uuid = #{almAppInstallUuid, jdbcType=VARCHAR}
   </delete>
 
+  <update id="updateMembersSync" parameterType="map">
+    update organization_alm_bindings set
+    members_sync_enabled = #{membersSyncEnabled, jdbcType=BOOLEAN}
+    where
+    uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
 </mapper>

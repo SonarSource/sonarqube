@@ -33,6 +33,7 @@ public class DbVersion77 implements DbVersion {
       .add(2603, "Add column LAST_USED_DATE to USER_TOKENS table", AddLastConnectionDateToUserTokens.class)
       .add(2604, "Add baseline columns in PROJECT_BRANCHES", AddManualBaselineToProjectBranches.class)
       .add(2605, "Add SNAPSHOTS.PROJECT_VERSION", AddProjectVersionToSnapshot.class)
-      .add(2606, "Drop DATA_TYPE column from FILE_SOURCES table", DropDataTypeFromFileSources.class);
+      .add(2606, "Drop DATA_TYPE column from FILE_SOURCES table", DropDataTypeFromFileSources.class)
+      .add(2607, "Add MEMBERS_SYNC_ENABLED column to ORGANIZATIONS_ALM_BINDING table", AddMembersSyncFlagToOrgAlmBinding.class);
   }
 }
