@@ -88,6 +88,23 @@ public class BranchDto {
   @Nullable
   private byte[] pullRequestBinary;
 
+  /**
+   * The baseline analysis that marks the start of New Code Period.
+   * Either manually set by user, or else automatically set to the value computed during analysis.
+   *
+   * It may be null for projects which have never been analyzed since the column was introduced.
+   */
+  @Nullable
+  private String baselineAnalysisUuid;
+
+  /**
+   * Set to true if the user has manually specified a baseline analysis for the branch.
+   *
+   * It may be null for projects which have never been analyzed since the column was introduced.
+   */
+  @Nullable
+  private Boolean baselineManual;
+
   public String getUuid() {
     return uuid;
   }
@@ -189,6 +206,31 @@ public class BranchDto {
     }
   }
 
+  @CheckForNull
+  public String getBaselineAnalysisUuid() {
+    return baselineAnalysisUuid;
+  }
+
+  private BranchDto setBaselineAnalysisUuid(@Nullable String baselineAnalysisUuid) {
+    this.baselineAnalysisUuid = baselineAnalysisUuid;
+    return this;
+  }
+
+  public boolean isBaselineManual() {
+    return this.baselineManual != null && this.baselineManual;
+  }
+
+  private BranchDto setBaselineManual(@Nullable Boolean baselineManual) {
+    this.baselineManual = baselineManual != null && baselineManual;
+    return this;
+  }
+
+  public BranchDto setBaseline(@Nullable String baselineAnalysisUuid, @Nullable Boolean baselineManual) {
+    this.baselineAnalysisUuid = baselineAnalysisUuid;
+    this.baselineManual = baselineManual;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -202,7 +244,9 @@ public class BranchDto {
         Objects.equals(projectUuid, branchDto.projectUuid) &&
         Objects.equals(kee, branchDto.kee) &&
         branchType == branchDto.branchType &&
-        Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid);
+        Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid) &&
+        Objects.equals(baselineAnalysisUuid, branchDto.baselineAnalysisUuid) &&
+        baselineManual == branchDto.baselineManual;
   }
 
   @Override
@@ -219,6 +263,8 @@ public class BranchDto {
     sb.append(", keyType=").append(keyType);
     sb.append(", branchType=").append(branchType);
     sb.append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'');
+    sb.append(", baselineAnalysisUuid='").append(baselineAnalysisUuid).append('\'');
+    sb.append(", baselineManual=").append(baselineManual);
     sb.append('}');
     return sb.toString();
   }

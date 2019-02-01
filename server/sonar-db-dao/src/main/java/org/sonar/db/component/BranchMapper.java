@@ -31,6 +31,9 @@ public interface BranchMapper {
 
   int updateMainBranchName(@Param("projectUuid") String projectUuid, @Param("newBranchName") String newBranchName, @Param("now") long now);
 
+  int updateBaseline(@Param("uuid") String uuid, @Param("baselineAnalysisUuid") String baselineAnalysisUuid,
+    @Param("baselineManual") boolean baselineManual, @Param("now") long now);
+
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("keyType") KeyType keyType);
 
   BranchDto selectByUuid(@Param("uuid") String uuid);

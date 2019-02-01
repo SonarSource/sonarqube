@@ -9,7 +9,9 @@
     pb.key_type as keyType,
     pb.branch_type as branchType,
     pb.merge_branch_uuid as mergeBranchUuid,
-    pb.pull_request_binary as pullRequestBinary
+    pb.pull_request_binary as pullRequestBinary,
+    pb.baseline_analysis_uuid as baselineAnalysisUuid,
+    pb.baseline_manual as baselineManual
   </sql>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -21,6 +23,8 @@
       branch_type,
       merge_branch_uuid,
       pull_request_binary,
+      baseline_analysis_uuid,
+      baseline_manual,
       created_at,
       updated_at
     ) values (
@@ -31,6 +35,8 @@
       #{dto.branchType, jdbcType=VARCHAR},
       #{dto.mergeBranchUuid, jdbcType=VARCHAR},
       #{dto.pullRequestBinary, jdbcType=BINARY},
+      #{dto.baselineAnalysisUuid, jdbcType=VARCHAR},
+      #{dto.baselineManual, jdbcType=BOOLEAN},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -45,23 +51,37 @@
       uuid = #{projectUuid, jdbcType=VARCHAR}
   </update>
 
+  <update id="updateBaseline" parameterType="map" useGeneratedKeys="false">
+    update project_branches
+    set
+      baseline_analysis_uuid = #{baselineAnalysisUuid, jdbcType=VARCHAR},
+      baseline_manual = #{baselineManual, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+      and branch_type = 'LONG'
+      and (baseline_analysis_uuid is null
+        or baseline_analysis_uuid != #{baselineAnalysisUuid, jdbcType=VARCHAR}
+        or baseline_manual != #{baselineManual, jdbcType=BOOLEAN})
+  </update>
+
   <update id="update" parameterType="map" useGeneratedKeys="false">
     update project_branches
     set
-    merge_branch_uuid = #{dto.mergeBranchUuid, jdbcType=VARCHAR},
-    pull_request_binary = #{dto.pullRequestBinary, jdbcType=BINARY},
-    updated_at = #{now, jdbcType=BIGINT}
+      merge_branch_uuid = #{dto.mergeBranchUuid, jdbcType=VARCHAR},
+      pull_request_binary = #{dto.pullRequestBinary, jdbcType=BINARY},
+      updated_at = #{now, jdbcType=BIGINT}
     where
-    uuid = #{dto.uuid, jdbcType=VARCHAR}
+      uuid = #{dto.uuid, jdbcType=VARCHAR}
   </update>
 
   <select id="selectByKey" resultType="org.sonar.db.component.BranchDto">
     select <include refid="columns" />
     from project_branches pb
     where
-    pb.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
-    pb.kee = #{key, jdbcType=VARCHAR} and
-    pb.key_type = #{keyType, jdbcType=VARCHAR}
+      pb.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
+      pb.kee = #{key, jdbcType=VARCHAR} and
+      pb.key_type = #{keyType, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">

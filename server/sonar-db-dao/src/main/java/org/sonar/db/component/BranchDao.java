@@ -63,6 +63,20 @@ public class BranchDao implements Dao {
     return mapper(dbSession).updateMainBranchName(projectUuid, newBranchKey, now);
   }
 
+  /**
+   * Update the baseline_analysis_uuid and baseline_manual columns, if:
+   *
+   * - the specified uuid exists
+   * - and the specified uuid  corresponds to a long-living branch (including the main branch)
+   * - and the existing baseline_analysis_uuid and baseline_manual values are different
+   *
+   * @return the number of rows that were updated
+   */
+  public int updateBaseline(DbSession dbSession, String uuid, String baselineAnalysisUuid, boolean baselineManual) {
+    long now = system2.now();
+    return mapper(dbSession).updateBaseline(uuid, baselineAnalysisUuid, baselineManual, now);
+  }
+
   public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {
     return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH);
   }
