@@ -30,7 +30,6 @@ public class DbVersion77 implements DbVersion {
       .add(2600, "Drop elasticsearch index 'tests'", DropElasticsearchIndexTests.class)
       .add(2601, "Delete lines with DATA_TYPE='TEST' from table FILES_SOURCE", DeleteTestDataTypeFromFileSources.class)
       .add(2602, "Add column LAST_CONNECTION_DATE to USERS table", AddLastConnectionDateToUsers.class)
-      .add(2603, "Add column LAST_USED_DATE to USER_TOKENS table", AddLastConnectionDateToUserTokens.class)
-      .add(2604, "Drop DATA_TYPE column from FILE_SOURCES table", DropDataTypeFromFileSources.class);
+      .add(2603, "Add column LAST_USED_DATE to USER_TOKENS table", AddLastConnectionDateToUserTokens.class);
   }
 }

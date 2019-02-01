@@ -224,5 +224,6 @@
                 line_count="0"
                 data_hash="321654987"
                 created_at="123456789"
-                updated_at="123456789"/>
+                updated_at="123456789"
+                data_type="SOURCE"/>
 </dataset>
