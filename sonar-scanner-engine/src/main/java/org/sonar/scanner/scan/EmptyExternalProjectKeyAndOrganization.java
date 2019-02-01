@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.scanner.scan;
 
-import java.util.List;
-import org.junit.Test;
-import org.sonar.api.config.PropertyDefinition;
+import java.util.Optional;
+import javax.annotation.concurrent.Immutable;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Optional.empty;
 
-public class CorePropertyDefinitionsTest {
-
-  @Test
-  public void all() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(54);
+@Immutable
+public class EmptyExternalProjectKeyAndOrganization implements ExternalProjectKeyAndOrganization {
+  @Override
+  public Optional<String> getProjectKey() {
+    return empty();
   }
 
-  @Test
-  public void all_includes_scanner_properties() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-
-    assertThat(defs.stream()
-      .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
-      .findFirst()).isPresent();
+  @Override
+  public Optional<String> getOrganization() {
+    return empty();
   }
 }

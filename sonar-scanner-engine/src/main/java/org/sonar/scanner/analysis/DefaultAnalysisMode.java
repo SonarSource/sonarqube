@@ -25,7 +25,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 
 @Immutable
 public class DefaultAnalysisMode implements AnalysisMode {
@@ -37,7 +37,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
 
   private boolean scanAllFiles;
 
-  public DefaultAnalysisMode(ScannerProperties props, GlobalAnalysisMode analysisMode) {
+  public DefaultAnalysisMode(ProcessedScannerProperties props, GlobalAnalysisMode analysisMode) {
     this.analysisMode = analysisMode;
     this.analysisProps = props.properties();
     load();

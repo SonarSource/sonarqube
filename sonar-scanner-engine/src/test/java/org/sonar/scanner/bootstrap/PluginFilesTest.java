@@ -73,7 +73,7 @@ public class PluginFilesTest {
   @Before
   public void setUp() throws Exception {
     HttpConnector connector = HttpConnector.newBuilder().url(server.url("/").toString()).build();
-    GlobalAnalysisMode analysisMode = new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()));
+    GlobalAnalysisMode analysisMode = new GlobalAnalysisMode(new RawScannerProperties(Collections.emptyMap()));
     ScannerWsClient wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connector), false, analysisMode);
 
     userHome = temp.newFolder();
@@ -311,13 +311,13 @@ public class PluginFilesTest {
   private File packAndUnpackJar(File source) throws IOException {
     File packed = temp.newFile();
     try (JarInputStream in = new JarInputStream(new BufferedInputStream(Files.newInputStream(source.toPath())));
-         OutputStream out = new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(packed.toPath())))) {
+      OutputStream out = new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(packed.toPath())))) {
       Pack200.newPacker().pack(in, out);
     }
 
     File to = temp.newFile();
     try (InputStream input = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(packed.toPath())));
-         JarOutputStream output = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(to.toPath())))) {
+      JarOutputStream output = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(to.toPath())))) {
       Pack200.newUnpacker().unpack(input, output);
     } catch (IOException e) {
       throw new IllegalStateException(e);

@@ -38,8 +38,8 @@ public class ScannerWsClientProvider extends ProviderAdapter {
 
   private ScannerWsClient wsClient;
 
-  public synchronized ScannerWsClient provide(final ScannerProperties scannerProps, final EnvironmentInformation env,
-    GlobalAnalysisMode globalMode, System2 system) {
+  public synchronized ScannerWsClient provide(final RawScannerProperties scannerProps,
+    final EnvironmentInformation env, GlobalAnalysisMode globalMode, System2 system) {
     if (wsClient == null) {
       String url = defaultIfBlank(scannerProps.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();

@@ -31,18 +31,18 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 
 public class ExceptionHandlingMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private Batch batch;
-  private static ErrorSettingsLoader loader;
+  private static ErrorGlobalSettingsLoader loader;
 
   @BeforeClass
   public static void beforeClass() {
-    loader = new ErrorSettingsLoader();
+    loader = new ErrorGlobalSettingsLoader();
   }
 
   public void setUp(boolean verbose) {
@@ -98,7 +98,7 @@ public class ExceptionHandlingMediumTest {
     batch.execute();
   }
 
-  private static class ErrorSettingsLoader implements SettingsLoader {
+  private static class ErrorGlobalSettingsLoader implements GlobalSettingsLoader {
     boolean withCause = false;
 
     @Override
@@ -109,11 +109,6 @@ public class ExceptionHandlingMediumTest {
       } else {
         throw MessageException.of("Error loading settings");
       }
-    }
-
-    @Override
-    public Map<String, String> loadProjectSettings() {
-      return null;
     }
   }
 }

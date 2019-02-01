@@ -45,6 +45,9 @@ public interface ComponentMapper {
   @CheckForNull
   ComponentDto selectByUuid(String uuid);
 
+  @CheckForNull
+  ComponentDto selectByAlmIdAndAlmRepositoryId(@Param("almId") String almId, @Param("almRepositoryId") String almRepositoryId);
+
   /**
    * Return sub project of component keys
    */

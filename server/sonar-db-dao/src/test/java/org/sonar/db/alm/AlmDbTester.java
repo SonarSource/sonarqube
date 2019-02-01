@@ -22,6 +22,7 @@ package org.sonar.db.alm;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
@@ -42,6 +43,13 @@ public class AlmDbTester {
     db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), user.getUuid());
     db.commit();
     return db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization).get();
+  }
+
+  public ProjectAlmBindingDto insertProjectAlmBinding(ALM alm, ComponentDto componentDto, String repositoryUuid) {
+    db.getDbClient().projectAlmBindingsDao().insertOrUpdate(db.getSession(), alm, repositoryUuid, componentDto.uuid(),
+      "some_org/some_repo", "http://alm/some_org_some_repo");
+    db.commit();
+    return db.getDbClient().projectAlmBindingsDao().selectByProjectUuid(db.getSession(), componentDto.uuid()).get();
   }
 
   @SafeVarargs

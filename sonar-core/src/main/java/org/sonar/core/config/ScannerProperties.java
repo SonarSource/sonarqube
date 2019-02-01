@@ -41,6 +41,7 @@ public class ScannerProperties {
   public static final String PULL_REQUEST_BASE = "sonar.pullrequest.base";
 
   public static final String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
+  public static final String DISABLE_PROJECT_AND_ORG_AUTODETECTION = "sonar.keys_autodetection.disabled";
 
   private ScannerProperties() {
     // only static stuff
@@ -89,6 +90,12 @@ public class ScannerProperties {
         .description(
           "Defines the target branch of the pull request being analyzed. "
             + "If no target is defined, the main branch is used as the target.")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(DISABLE_PROJECT_AND_ORG_AUTODETECTION)
+        .name("Disables project and organization auto-detection")
+        .description("Disables auto-detection of project and organization keys from scanner execution environment.")
+        .type(BOOLEAN)
         .hidden()
         .build());
   }

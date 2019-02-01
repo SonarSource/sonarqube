@@ -34,47 +34,32 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.ScannerUtils;
-import org.sonarqube.ws.Settings.FieldValues.Value;
-import org.sonarqube.ws.Settings.Setting;
-import org.sonarqube.ws.Settings.ValuesWsResponse;
+import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 
-public class DefaultSettingsLoader implements SettingsLoader {
+public abstract class AbstractSettingsLoader {
 
-  private ScannerWsClient wsClient;
-  private final ScannerProperties scannerProperties;
-  private static final Logger LOG = Loggers.get(DefaultSettingsLoader.class);
+  private static final Logger LOG = Loggers.get(AbstractSettingsLoader.class);
+  private final ScannerWsClient wsClient;
 
-  public DefaultSettingsLoader(ScannerWsClient wsClient, ScannerProperties scannerProperties) {
+  public AbstractSettingsLoader(final ScannerWsClient wsClient) {
     this.wsClient = wsClient;
-    this.scannerProperties = scannerProperties;
   }
 
-  @Override
-  public Map<String, String> loadGlobalSettings() {
-    return load(null);
-  }
-
-  @Override
-  public Map<String, String> loadProjectSettings() {
-    return load(scannerProperties.getKeyWithBranch());
-  }
-
-  private Map<String, String> load(@Nullable String componentKey) {
+  Map<String, String> load(@Nullable String componentKey) {
     String url = "api/settings/values.protobuf";
     Profiler profiler = Profiler.create(LOG);
     if (componentKey != null) {
       url += "?component=" + ScannerUtils.encodeForUrl(componentKey);
-      profiler.startInfo("Load project settings");
+      profiler.startInfo(String.format("Load project settings for component key: '%s'", componentKey));
     } else {
       profiler.startInfo("Load global settings");
     }
     try (InputStream is = wsClient.call(new GetRequest(url)).contentStream()) {
-      ValuesWsResponse values = ValuesWsResponse.parseFrom(is);
+      Settings.ValuesWsResponse values = Settings.ValuesWsResponse.parseFrom(is);
       profiler.stopInfo();
       return toMap(values.getSettingsList());
     } catch (HttpException e) {
@@ -88,9 +73,9 @@ public class DefaultSettingsLoader implements SettingsLoader {
   }
 
   @VisibleForTesting
-  static Map<String, String> toMap(List<Setting> settingsList) {
+  static Map<String, String> toMap(List<Settings.Setting> settingsList) {
     Map<String, String> result = new LinkedHashMap<>();
-    for (Setting s : settingsList) {
+    for (Settings.Setting s : settingsList) {
       if (!s.getInherited()) {
         switch (s.getValueOneOfCase()) {
           case VALUE:
@@ -103,23 +88,24 @@ public class DefaultSettingsLoader implements SettingsLoader {
             convertPropertySetToProps(result, s);
             break;
           default:
-            throw new IllegalStateException("Unknow property value for " + s.getKey());
+            throw new IllegalStateException("Unknown property value for " + s.getKey());
         }
       }
     }
     return result;
   }
 
-  private static void convertPropertySetToProps(Map<String, String> result, Setting s) {
+  private static void convertPropertySetToProps(Map<String, String> result, Settings.Setting s) {
     List<String> ids = new ArrayList<>();
     int id = 1;
-    for (Value v : s.getFieldValues().getFieldValuesList()) {
-      for (Map.Entry<String, String> entry : v.getValue().entrySet()) {
+    for (Settings.FieldValues.Value v : s.getFieldValues().getFieldValuesList()) {
+      for (Map.Entry<String, String> entry : v.getValueMap().entrySet()) {
         result.put(s.getKey() + "." + id + "." + entry.getKey(), entry.getValue());
       }
       ids.add(String.valueOf(id));
       id++;
     }
-    result.put(s.getKey(), ids.stream().collect(Collectors.joining(",")));
+    result.put(s.getKey(), String.join(",", ids));
   }
+
 }

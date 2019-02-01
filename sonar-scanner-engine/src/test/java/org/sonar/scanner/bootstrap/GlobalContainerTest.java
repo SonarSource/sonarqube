@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.util.UuidFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ public class GlobalContainerTest {
 
   @Test
   public void should_add_components() {
-    GlobalContainer container = createContainer(Collections.emptyList());
+    GlobalContainer container = createContainer(Collections.singletonList(new EnvironmentInformation("maven", "3.1.0")));
 
     assertThat(container.getComponentByType(UuidFactory.class)).isNotNull();
     assertThat(container.getComponentByType(TempFolder.class)).isNotNull();

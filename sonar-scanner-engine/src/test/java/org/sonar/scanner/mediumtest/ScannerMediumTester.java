@@ -62,7 +62,8 @@ import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.repository.SingleProjectRepository;
-import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
+import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
@@ -89,7 +90,8 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
-  private final FakeSettingsLoader settingsLoader = new FakeSettingsLoader();
+  private final FakeGlobalSettingsLoader globalSettingsLoader = new FakeGlobalSettingsLoader();
+  private final FakeProjectSettingsLoader projectSettingsLoader = new FakeProjectSettingsLoader();
   private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
   private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
@@ -230,12 +232,12 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   public ScannerMediumTester addGlobalServerSettings(String key, String value) {
-    settingsLoader.getGlobalSettings().put(key, value);
+    globalSettingsLoader.getGlobalSettings().put(key, value);
     return this;
   }
 
   public ScannerMediumTester addProjectServerSettings(String key, String value) {
-    settingsLoader.getProjectSettings().put(key, value);
+    projectSettingsLoader.getProjectSettings().put(key, value);
     return this;
   }
 
@@ -311,7 +313,8 @@ public class ScannerMediumTester extends ExternalResource {
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
-          tester.settingsLoader,
+          tester.globalSettingsLoader,
+          tester.projectSettingsLoader,
           result)
         .setLogOutput(tester.logOutput)
         .build().execute();
@@ -502,22 +505,26 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
-  private static class FakeSettingsLoader implements SettingsLoader {
+  private static class FakeGlobalSettingsLoader implements GlobalSettingsLoader {
 
     private Map<String, String> globalSettings = new HashMap<>();
-    private Map<String, String> projectSettings = new HashMap<>();
 
     public Map<String, String> getGlobalSettings() {
       return globalSettings;
     }
 
-    public Map<String, String> getProjectSettings() {
-      return projectSettings;
-    }
-
     @Override
     public Map<String, String> loadGlobalSettings() {
       return Collections.unmodifiableMap(globalSettings);
+    }
+  }
+
+  private static class FakeProjectSettingsLoader implements ProjectSettingsLoader {
+
+    private Map<String, String> projectSettings = new HashMap<>();
+
+    public Map<String, String> getProjectSettings() {
+      return projectSettings;
     }
 
     @Override

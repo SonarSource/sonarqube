@@ -17,28 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.scanner.repository.settings;
 
-import java.util.List;
-import org.junit.Test;
-import org.sonar.api.config.PropertyDefinition;
+import java.util.Map;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DefaultGlobalSettingsLoader extends AbstractSettingsLoader implements GlobalSettingsLoader {
 
-public class CorePropertyDefinitionsTest {
-
-  @Test
-  public void all() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(54);
+  public DefaultGlobalSettingsLoader(final ScannerWsClient wsClient) {
+    super(wsClient);
   }
 
-  @Test
-  public void all_includes_scanner_properties() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-
-    assertThat(defs.stream()
-      .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
-      .findFirst()).isPresent();
+  @Override
+  public Map<String, String> loadGlobalSettings() {
+    return load(null);
   }
 }

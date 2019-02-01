@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.scanner.repository.settings;
 
-import com.google.common.collect.Maps;
 import java.util.Map;
-import org.junit.Test;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+public class DefaultProjectSettingsLoader extends AbstractSettingsLoader implements ProjectSettingsLoader {
+  private final ProcessedScannerProperties scannerProperties;
 
-public class ScannerPropertiesTest {
-  @Test
-  public void test_copy_of_properties() {
-    Map<String, String> map = Maps.newHashMap();
-    map.put("foo", "bar");
+  public DefaultProjectSettingsLoader(final ScannerWsClient wsClient, final ProcessedScannerProperties scannerProperties) {
+    super(wsClient);
+    this.scannerProperties = scannerProperties;
+  }
 
-    ScannerProperties underTest = new ScannerProperties(map);
-    assertThat(underTest.properties()).containsOnly(entry("foo", "bar"));
-    assertThat(underTest.properties()).isNotSameAs(map);
-
-    map.put("put", "after_copy");
-    assertThat(underTest.properties()).hasSize(1);
+  @Override
+  public Map<String, String> loadProjectSettings() {
+    return load(scannerProperties.getKeyWithBranch());
   }
 }

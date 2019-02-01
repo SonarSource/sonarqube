@@ -26,7 +26,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectKey;
-import org.sonar.api.config.Encryption;
+import org.sonar.scanner.scan.ExternalProjectKeyAndOrganization;
 
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
@@ -34,30 +34,19 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  * Properties that are coming from scanner.
  */
 @Immutable
-public class ScannerProperties implements ProjectKey {
+public class ProcessedScannerProperties implements ProjectKey {
 
   private final Map<String, String> properties;
-  private final Encryption encryption;
 
-  public ScannerProperties(Map<String, String> properties) {
-    encryption = new Encryption(properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-    Map<String, String> decryptedProps = new HashMap<>(properties.size());
-    for (Map.Entry<String, String> entry : properties.entrySet()) {
-      String value = entry.getValue();
-      if (value != null && encryption.isEncrypted(value)) {
-        try {
-          value = encryption.decrypt(value);
-        } catch (Exception e) {
-          throw new IllegalStateException("Fail to decrypt the property " + entry.getKey() + ". Please check your secret key.", e);
-        }
-      }
-      decryptedProps.put(entry.getKey(), value);
-    }
-    this.properties = decryptedProps;
-  }
+  public ProcessedScannerProperties(RawScannerProperties rawScannerProperties,
+    ExternalProjectKeyAndOrganization externalProjectKeyAndOrganization) {
+    this.properties = new HashMap<>();
+    this.properties.putAll(rawScannerProperties.properties());
 
-  public Encryption getEncryption() {
-    return encryption;
+    externalProjectKeyAndOrganization.getProjectKey()
+      .ifPresent(projectKey -> properties.put(CoreProperties.PROJECT_KEY_PROPERTY, projectKey));
+    externalProjectKeyAndOrganization.getOrganization()
+      .ifPresent(organization -> properties.put(org.sonar.core.config.ScannerProperties.ORGANIZATION, organization));
   }
 
   public Map<String, String> properties() {

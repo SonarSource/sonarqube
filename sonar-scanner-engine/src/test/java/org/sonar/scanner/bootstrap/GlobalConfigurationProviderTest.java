@@ -41,13 +41,12 @@ public class GlobalConfigurationProviderTest {
   public LogTester logTester = new LogTester();
 
   GlobalServerSettings globalServerSettings;
-  ScannerProperties scannerProps;
-
+  RawScannerProperties scannerProps;
 
   @Before
   public void prepare() {
     globalServerSettings = mock(GlobalServerSettings.class);
-    scannerProps = new ScannerProperties(Collections.<String, String>emptyMap());
+    scannerProps = new RawScannerProperties(Collections.emptyMap());
   }
 
   @Test

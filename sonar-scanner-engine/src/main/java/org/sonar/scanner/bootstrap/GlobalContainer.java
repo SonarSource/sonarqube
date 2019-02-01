@@ -49,8 +49,8 @@ import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
 import org.sonar.scanner.repository.MetricsRepositoryProvider;
-import org.sonar.scanner.repository.settings.DefaultSettingsLoader;
-import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.repository.settings.DefaultGlobalSettingsLoader;
+import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 import org.sonar.scanner.scan.ProjectScanContainer;
 import org.sonar.scanner.storage.StoragesManager;
 
@@ -71,9 +71,9 @@ public class GlobalContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    ScannerProperties scannerProps = new ScannerProperties(scannerProperties);
-    GlobalAnalysisMode globalMode = new GlobalAnalysisMode(scannerProps);
-    add(scannerProps);
+    RawScannerProperties rawScannerProperties = new RawScannerProperties(scannerProperties);
+    GlobalAnalysisMode globalMode = new GlobalAnalysisMode(rawScannerProperties);
+    add(rawScannerProperties);
     add(globalMode);
     addBootstrapComponents();
   }
@@ -106,7 +106,7 @@ public class GlobalContainer extends ComponentContainer {
       UuidFactoryImpl.INSTANCE);
     addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
     add(CoreExtensionRepositoryImpl.class, CoreExtensionsLoader.class, ScannerCoreExtensionsInstaller.class);
-    addIfMissing(DefaultSettingsLoader.class, SettingsLoader.class);
+    addIfMissing(DefaultGlobalSettingsLoader.class, GlobalSettingsLoader.class);
     addIfMissing(DefaultMetricsRepositoryLoader.class, MetricsRepositoryLoader.class);
   }
 

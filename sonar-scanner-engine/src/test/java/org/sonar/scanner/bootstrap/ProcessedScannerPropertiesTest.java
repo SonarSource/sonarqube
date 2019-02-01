@@ -19,26 +19,27 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.Optional;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
+import org.junit.Test;
+import org.sonar.scanner.scan.EmptyExternalProjectKeyAndOrganization;
 
-public class GlobalServerSettingsProvider extends ProviderAdapter {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
-  private static final Logger LOG = Loggers.get(GlobalServerSettingsProvider.class);
+public class ProcessedScannerPropertiesTest {
+  @Test
+  public void test_copy_of_properties() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put("foo", "bar");
 
-  private GlobalServerSettings singleton;
+    ProcessedScannerProperties underTest = new ProcessedScannerProperties(
+      new RawScannerProperties(map),
+      new EmptyExternalProjectKeyAndOrganization());
+    assertThat(underTest.properties()).containsOnly(entry("foo", "bar"));
+    assertThat(underTest.properties()).isNotSameAs(map);
 
-  public GlobalServerSettings provide(GlobalSettingsLoader loader) {
-    if (singleton == null) {
-      Map<String, String> serverSideSettings = loader.loadGlobalSettings();
-      singleton = new GlobalServerSettings(serverSideSettings);
-      Optional.ofNullable(serverSideSettings.get(CoreProperties.SERVER_ID)).ifPresent(v -> LOG.info("Server id: {}", v));
-    }
-    return singleton;
+    map.put("put", "after_copy");
+    assertThat(underTest.properties()).hasSize(1);
   }
 }

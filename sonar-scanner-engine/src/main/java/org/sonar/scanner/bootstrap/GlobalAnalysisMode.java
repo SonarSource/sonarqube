@@ -36,7 +36,7 @@ public class GlobalAnalysisMode {
   protected boolean issues;
   protected boolean mediumTestMode;
 
-  public GlobalAnalysisMode(ScannerProperties props) {
+  public GlobalAnalysisMode(RawScannerProperties props) {
     String mode = props.property(CoreProperties.ANALYSIS_MODE);
     validate(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);

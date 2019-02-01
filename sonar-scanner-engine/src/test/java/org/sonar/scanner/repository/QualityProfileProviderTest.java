@@ -31,7 +31,7 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
@@ -52,7 +52,7 @@ public class QualityProfileProviderTest {
   @Mock
   private QualityProfileLoader loader;
   @Mock
-  private ScannerProperties props;
+  private ProcessedScannerProperties props;
   @Mock
   private ProjectRepositories projectRepo;
 

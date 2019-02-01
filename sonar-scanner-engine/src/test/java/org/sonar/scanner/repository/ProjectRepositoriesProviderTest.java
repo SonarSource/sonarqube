@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,7 @@ public class ProjectRepositoriesProviderTest {
   @Mock
   private ProjectRepositoriesLoader loader;
   @Mock
-  private ScannerProperties props;
+  private ProcessedScannerProperties props;
   @Mock
   private GlobalAnalysisMode mode;
   @Mock

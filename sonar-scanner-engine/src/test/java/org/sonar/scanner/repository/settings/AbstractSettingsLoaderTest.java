@@ -26,15 +26,15 @@ import org.sonarqube.ws.Settings.FieldValues.Value.Builder;
 import org.sonarqube.ws.Settings.Setting;
 import org.sonarqube.ws.Settings.Values;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-public class DefaultSettingsLoaderTest {
+public class AbstractSettingsLoaderTest {
 
   @Test
   public void should_load_global_multivalue_settings() {
-    assertThat(DefaultSettingsLoader.toMap(asList(Setting.newBuilder()
+    assertThat(AbstractSettingsLoader.toMap(singletonList(Setting.newBuilder()
       .setKey("sonar.preview.supportedPlugins")
       .setValues(Values.newBuilder().addValues("java").addValues("php")).build())))
         .containsExactly(entry("sonar.preview.supportedPlugins", "java,php"));
@@ -42,7 +42,7 @@ public class DefaultSettingsLoaderTest {
 
   @Test
   public void should_escape_global_multivalue_settings() {
-    assertThat(DefaultSettingsLoader.toMap(asList(Setting.newBuilder()
+    assertThat(AbstractSettingsLoader.toMap(singletonList(Setting.newBuilder()
       .setKey("sonar.preview.supportedPlugins")
       .setValues(Values.newBuilder().addValues("ja,va").addValues("p\"hp")).build())))
         .containsExactly(entry("sonar.preview.supportedPlugins", "\"ja,va\",\"p\"\"hp\""));
@@ -51,15 +51,15 @@ public class DefaultSettingsLoaderTest {
   @Test
   public void should_load_global_propertyset_settings() {
     Builder valuesBuilder = Value.newBuilder();
-    valuesBuilder.getMutableValue().put("filepattern", "**/*.xml");
-    valuesBuilder.getMutableValue().put("rulepattern", "*:S12345");
+    valuesBuilder.putValue("filepattern", "**/*.xml");
+    valuesBuilder.putValue("rulepattern", "*:S12345");
     Value value1 = valuesBuilder.build();
     valuesBuilder.clear();
-    valuesBuilder.getMutableValue().put("filepattern", "**/*.java");
-    valuesBuilder.getMutableValue().put("rulepattern", "*:S456");
+    valuesBuilder.putValue("filepattern", "**/*.java");
+    valuesBuilder.putValue("rulepattern", "*:S456");
     Value value2 = valuesBuilder.build();
 
-    assertThat(DefaultSettingsLoader.toMap(asList(Setting.newBuilder()
+    assertThat(AbstractSettingsLoader.toMap(singletonList(Setting.newBuilder()
       .setKey("sonar.issue.exclusions.multicriteria")
       .setFieldValues(FieldValues.newBuilder().addFieldValues(value1).addFieldValues(value2)).build())))
         .containsOnly(entry("sonar.issue.exclusions.multicriteria", "1,2"),

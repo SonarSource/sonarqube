@@ -45,6 +45,7 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
@@ -91,6 +92,8 @@ import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
+import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
+import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.ActiveRulesProvider;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
@@ -142,8 +145,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    addScannerComponents();
     addScannerExtensions();
+    addScannerComponents();
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoriesInitializer.class).execute();
@@ -158,8 +161,10 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addScannerComponents() {
     add(
-      ProjectReactorBuilder.class,
+      new ExternalProjectKeyAndOrganizationProvider(),
+      ProcessedScannerProperties.class,
       ScanProperties.class,
+      ProjectReactorBuilder.class,
       WorkDirectoriesInitializer.class,
       new MutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
@@ -281,6 +286,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       AnalysisObservers.class);
 
+    addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);

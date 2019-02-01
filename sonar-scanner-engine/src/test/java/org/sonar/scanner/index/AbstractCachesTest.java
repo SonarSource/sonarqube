@@ -29,7 +29,7 @@ import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.scanner.bootstrap.GlobalTempFolderProvider;
-import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.RawScannerProperties;
 import org.sonar.scanner.storage.Storages;
 import org.sonar.scanner.storage.StoragesManager;
 
@@ -44,7 +44,7 @@ public abstract class AbstractCachesTest {
     Map<String, String> props = ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.getRoot().getAbsolutePath(),
       CoreProperties.GLOBAL_WORKING_DIRECTORY, temp.getRoot().getAbsolutePath());
 
-    return new StoragesManager(new GlobalTempFolderProvider().provide(new ScannerProperties(props)));
+    return new StoragesManager(new GlobalTempFolderProvider().provide(new RawScannerProperties(props)));
   }
 
   @BeforeClass

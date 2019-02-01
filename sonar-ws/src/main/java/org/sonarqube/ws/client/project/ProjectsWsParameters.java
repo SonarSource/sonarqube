@@ -46,6 +46,8 @@ public class ProjectsWsParameters {
   public static final String PARAM_ON_PROVISIONED_ONLY = "onProvisionedOnly";
   public static final String PARAM_PROJECT_IDS = "projectIds";
   public static final String PARAM_PROJECTS = "projects";
+  public static final String PARAM_ALM_ID = "almId";
+  public static final String PARAM_ALM_REPOSITORY_ID = "almRepoId";
 
   public static final String FILTER_LANGUAGES = "languages";
   public static final String FILTER_TAGS = "tags";

@@ -21,8 +21,6 @@ package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
 
-public interface SettingsLoader {
+public interface GlobalSettingsLoader {
   Map<String, String> loadGlobalSettings();
-
-  Map<String, String> loadProjectSettings();
 }

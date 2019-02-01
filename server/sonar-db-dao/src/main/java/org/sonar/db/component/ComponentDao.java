@@ -430,4 +430,8 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectPrivateProjectsWithNcloc(organizationUuid);
   }
 
+  public Optional<ComponentDto> selectByAlmIdAndAlmRepositoryId(DbSession dbSession, String almId, String almRepositoryId) {
+    return Optional.ofNullable(mapper(dbSession).selectByAlmIdAndAlmRepositoryId(almId, almRepositoryId));
+  }
+
 }

@@ -25,7 +25,7 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
@@ -34,7 +34,7 @@ public class QualityProfilesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load quality profiles";
   private QualityProfiles profiles = null;
 
-  public QualityProfiles provide(QualityProfileLoader loader, ProjectRepositories projectRepositories, ScannerProperties props) {
+  public QualityProfiles provide(QualityProfileLoader loader, ProjectRepositories projectRepositories, ProcessedScannerProperties props) {
     if (this.profiles == null) {
       List<QualityProfile> profileList;
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
@@ -51,7 +51,7 @@ public class QualityProfilesProvider extends ProviderAdapter {
   }
 
   @CheckForNull
-  private static String getSonarProfile(ScannerProperties props) {
+  private static String getSonarProfile(ProcessedScannerProperties props) {
     String profile = props.property(QualityProfiles.SONAR_PROFILE_PROP);
     if (profile != null) {
       LOG.warn("Ability to set quality profile from command line using '" + QualityProfiles.SONAR_PROFILE_PROP

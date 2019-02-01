@@ -38,7 +38,8 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.RawScannerProperties;
+import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -401,19 +402,24 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(Maps.<String, String>newHashMap()), mock(AnalysisWarnings.class));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
+      new RawScannerProperties(Maps.newHashMap()), new EmptyExternalProjectKeyAndOrganization()),
+      mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
-    File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
+    File workDir = builder.initRootProjectWorkDir(baseDir, Maps.newHashMap());
 
     assertThat(workDir).isEqualTo(new File(baseDir, ".sonar"));
   }
 
   @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
-    Map<String, String> props = Maps.<String, String>newHashMap();
+    Map<String, String> props = Maps.newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props), mock(AnalysisWarnings.class));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
+      new RawScannerProperties(props),
+      new EmptyExternalProjectKeyAndOrganization()),
+      mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -423,9 +429,11 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
-    Map<String, String> props = Maps.<String, String>newHashMap();
+    Map<String, String> props = Maps.newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ScannerProperties(props), mock(AnalysisWarnings.class));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new ProcessedScannerProperties(
+      new RawScannerProperties(props), new EmptyExternalProjectKeyAndOrganization()),
+      mock(AnalysisWarnings.class));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -483,7 +491,9 @@ public class ProjectReactorBuilderTest {
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
-    ScannerProperties bootstrapProps = new ScannerProperties(props);
+    ProcessedScannerProperties bootstrapProps = new ProcessedScannerProperties(
+      new RawScannerProperties(props),
+      new EmptyExternalProjectKeyAndOrganization());
     ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mock(AnalysisWarnings.class)).execute();
     return projectReactor.getRoot();
   }
@@ -503,7 +513,7 @@ public class ProjectReactorBuilderTest {
   }
 
   private Map<String, String> loadProps(String projectFolder) {
-    Map<String, String> props = Maps.<String, String>newHashMap();
+    Map<String, String> props = Maps.newHashMap();
     Properties runnerProps = toProperties(getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));

@@ -82,7 +82,7 @@ public class GlobalAnalysisModeTest {
     if (key != null) {
       map.put(key, value);
     }
-    ScannerProperties props = new ScannerProperties(map);
+    RawScannerProperties props = new RawScannerProperties(map);
     return new GlobalAnalysisMode(props);
   }
 }
