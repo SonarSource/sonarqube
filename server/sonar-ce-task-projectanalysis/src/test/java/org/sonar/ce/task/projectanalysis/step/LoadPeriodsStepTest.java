@@ -112,6 +112,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Before
   public void setUp() throws Exception {
     november30th2008 = DATE_FORMAT.parse("2008-11-30");
+    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
   }
 
   @Test
@@ -843,6 +844,17 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     // Analysis form 2008-11-11
     assertPeriod(LEAK_PERIOD_MODE_VERSION, "0.9", analysis1.getCreatedAt(), analysis1.getUuid());
     verifyDebugLogs("Resolving new code period by version: 0.9");
+  }
+
+  @Test
+  @UseDataProvider("anyValidLeakPeriodSettingValue")
+  public void leak_period_setting_is_ignored_for_SLB_or_PR(String leakPeriodSettingValue) {
+    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(false);
+
+    settings.setProperty("sonar.leak.period", leakPeriodSettingValue);
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(periodsHolder.hasPeriod()).isFalse();
   }
 
   private void assertPeriod(String mode, @Nullable String modeParameter, long snapshotDate, String analysisUuid) {
