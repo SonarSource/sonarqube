@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -57,9 +58,12 @@ public class UpdateActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester db = DbTester.create();
+  private DbClient dbClient = db.getDbClient();
 
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
-  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(new OrganizationValidationImpl()), dbTester.getDbClient(), organizationFlags);
+  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(new OrganizationValidationImpl(), dbClient), dbTester.getDbClient(), organizationFlags);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test

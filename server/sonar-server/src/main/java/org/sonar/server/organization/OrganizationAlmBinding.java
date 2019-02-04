@@ -26,5 +26,5 @@ import org.sonar.db.organization.OrganizationDto;
 @ServerSide
 public interface OrganizationAlmBinding {
 
-  void bindOrganization(DbSession dbSession, OrganizationDto organization, String installationId);
+  void bindOrganization(DbSession dbSession, OrganizationDto organization, String installationId, boolean enableMembersSync);
 }

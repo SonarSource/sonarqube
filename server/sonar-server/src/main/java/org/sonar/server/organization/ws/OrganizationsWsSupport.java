@@ -22,10 +22,13 @@ package org.sonar.server.organization.ws;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonarqube.ws.Organizations.Organization;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.organization.OrganizationValidation.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.organization.OrganizationValidation.NAME_MAX_LENGTH;
@@ -45,9 +48,11 @@ public class OrganizationsWsSupport {
   static final String PARAM_LOGIN = "login";
 
   private final OrganizationValidation organizationValidation;
+  private final DbClient dbClient;
 
-  public OrganizationsWsSupport(OrganizationValidation organizationValidation) {
+  public OrganizationsWsSupport(OrganizationValidation organizationValidation, DbClient dbClient) {
     this.organizationValidation = organizationValidation;
+    this.dbClient = dbClient;
   }
 
   String getAndCheckMandatoryName(Request request) {
@@ -117,5 +122,11 @@ public class OrganizationsWsSupport {
     ofNullable(dto.getUrl()).ifPresent(builder::setUrl);
     ofNullable(dto.getAvatarUrl()).ifPresent(builder::setAvatar);
     return builder;
+  }
+
+
+  void checkMemberSyncIsDisabled(DbSession dbSession, OrganizationDto organization) {
+    dbClient.organizationAlmBindingDao().selectByOrganization(dbSession, organization).ifPresent(orgAlmBindingDto ->
+      checkArgument(!orgAlmBindingDto.isMembersSyncEnable(), "You can't add or remove members when synchronization of organization with alm is enabled."));
   }
 }

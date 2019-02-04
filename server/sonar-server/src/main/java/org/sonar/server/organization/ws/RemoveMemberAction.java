@@ -44,11 +44,13 @@ public class RemoveMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserIndexer userIndexer;
+  private final OrganizationsWsSupport wsSupport;
 
-  public RemoveMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer) {
+  public RemoveMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer, OrganizationsWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userIndexer = userIndexer;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -84,7 +86,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
         "Organization '%s' is not found", organizationKey);
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);
       userSession.checkPermission(ADMINISTER, organization);
-
+      wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
       dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
         .ifPresent(om -> removeMember(dbSession, organization, user));
     }

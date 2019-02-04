@@ -54,13 +54,16 @@ public class AddMemberAction implements OrganizationsWsAction {
   private final UserIndexer userIndexer;
   private final DefaultGroupFinder defaultGroupFinder;
   private final AvatarResolver avatarResolver;
+  private final OrganizationsWsSupport wsSupport;
 
-  public AddMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, AvatarResolver avatarResolver) {
+  public AddMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder,
+    AvatarResolver avatarResolver, OrganizationsWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userIndexer = userIndexer;
     this.defaultGroupFinder = defaultGroupFinder;
     this.avatarResolver = avatarResolver;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -96,6 +99,8 @@ public class AddMemberAction implements OrganizationsWsAction {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
         organizationKey);
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
+      wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
+
       addMember(dbSession, organization, user);
 
       int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder()

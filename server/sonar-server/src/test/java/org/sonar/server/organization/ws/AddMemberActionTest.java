@@ -40,6 +40,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -71,9 +72,9 @@ public class AddMemberActionTest {
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-
+  private OrganizationsWsSupport wsSupport = new OrganizationsWsSupport(new OrganizationValidationImpl(), dbClient);
   private WsActionTester ws = new WsActionTester(
-    new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client()), new DefaultGroupFinder(dbClient), new AvatarResolverImpl()));
+    new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client()), new DefaultGroupFinder(dbClient), new AvatarResolverImpl(), wsSupport));
 
   @Test
   public void add_member_in_db_and_user_index() {
@@ -221,6 +222,17 @@ public class AddMemberActionTest {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(ForbiddenException.class);
+
+    call(organization.getKey(), user.getLogin());
+  }
+
+  @Test
+  public void fail_if_org_is_bind_to_alm_and_members_sync_is_enabled() {
+    OrganizationDto organization = db.organizations().insert();
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    UserDto user = db.users().insertUser();
+
+    expectedException.expect(IllegalArgumentException.class);
 
     call(organization.getKey(), user.getLogin());
   }

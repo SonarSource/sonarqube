@@ -40,7 +40,7 @@ public class AlmDbTester {
 
   public OrganizationAlmBindingDto insertOrganizationAlmBinding(OrganizationDto organization, AlmAppInstallDto almAppInstall) {
     UserDto user = db.users().insertUser();
-    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), user.getUuid());
+    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), user.getUuid(), true);
     db.commit();
     return db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization).get();
   }
@@ -65,5 +65,4 @@ public class AlmDbTester {
     db.commit();
     return db.getDbClient().almAppInstallDao().selectByOwnerId(db.getSession(), dto.getAlm(), dto.getOwnerId()).get();
   }
-
 }

@@ -115,7 +115,7 @@ public class CreateActionTest {
   private OrganizationAlmBinding organizationAlmBinding = mock(OrganizationAlmBinding.class);
 
   private WsActionTester wsTester = new WsActionTester(
-    new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation),
+    new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation, dbClient),
       organizationValidation,
       organizationUpdater, organizationFlags, organizationAlmBinding));
 
@@ -267,13 +267,13 @@ public class CreateActionTest {
       .setParam("installationId", "ABCD")
       .execute();
 
-    verify(organizationAlmBinding).bindOrganization(any(DbSession.class), any(OrganizationDto.class), eq("ABCD"));
+    verify(organizationAlmBinding).bindOrganization(any(DbSession.class), any(OrganizationDto.class), eq("ABCD"), eq(true));
   }
 
   @Test
   public void does_not_bind_organization_when_organizationAlmBinding_is_null() {
     wsTester = new WsActionTester(
-      new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation),
+      new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation, dbClient),
         organizationValidation, organizationUpdater, organizationFlags, null));
     createUserAndLogInAsSystemAdministrator();
     db.qualityGates().insertBuiltInQualityGate();

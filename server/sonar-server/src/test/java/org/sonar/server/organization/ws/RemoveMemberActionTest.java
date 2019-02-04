@@ -46,6 +46,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -86,8 +87,9 @@ public class RemoveMemberActionTest {
 
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private OrganizationsWsSupport wsSupport = new OrganizationsWsSupport(new OrganizationValidationImpl(), dbClient);
 
-  private WsActionTester ws = new WsActionTester(new RemoveMemberAction(dbClient, userSession, userIndexer));
+  private WsActionTester ws = new WsActionTester(new RemoveMemberAction(dbClient, userSession, userIndexer, wsSupport));
 
   private OrganizationDto organization;
   private ComponentDto project;
@@ -330,6 +332,17 @@ public class RemoveMemberActionTest {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(ForbiddenException.class);
+
+    call(organization.getKey(), user.getLogin());
+  }
+
+  @Test
+  public void fail_if_org_is_bind_to_alm_and_members_sync_is_enabled() {
+    OrganizationDto organization = db.organizations().insert();
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    UserDto user = db.users().insertUser();
+
+    expectedException.expect(IllegalArgumentException.class);
 
     call(organization.getKey(), user.getLogin());
   }

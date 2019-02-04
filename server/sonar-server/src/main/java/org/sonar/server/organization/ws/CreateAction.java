@@ -156,7 +156,7 @@ public class CreateAction implements OrganizationsWsAction {
     if (installationId == null) {
       return;
     }
-    organizationAlmBinding.bindOrganization(dbSession, organization, installationId);
+    organizationAlmBinding.bindOrganization(dbSession, organization, installationId, true);
   }
 
   @CheckForNull

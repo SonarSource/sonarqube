@@ -155,7 +155,7 @@ public class AlmAppInstallDaoTest {
     db.getDbClient().almAppInstallDao().insertOrUpdate(db.getSession(), ALM.GITHUB, "the-owner", false, "123456", null);
     // could be improved, insertOrUpdate should return the DTO with its uuid
     Optional<AlmAppInstallDto> install = db.getDbClient().almAppInstallDao().selectByOwnerId(db.getSession(), ALM.GITHUB, "the-owner");
-    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, install.get(), "xxx", "xxx");
+    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, install.get(), "xxx", "xxx", true);
     db.commit();
 
     assertThat(underTest.selectByOrganization(db.getSession(), GITHUB, organization).get().getUuid()).isEqualTo(install.get().getUuid());
