@@ -55,7 +55,7 @@ public interface BranchConfiguration {
    * For short living branches, we look at sonar.branch.target (default to default branch). If it exists but is a short living branch or PR, we will
    * transitively use its own target.
    * For PR, we look at sonar.pullrequest.base (default to default branch). If it exists but is a short living branch or PR, we will
-   * transitively use its own target.
+   * transitively use its own target. If base is not analyzed, we will use default branch.
    * Only @null if the branch feature is not available.
    */
   @CheckForNull
