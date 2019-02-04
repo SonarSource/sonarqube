@@ -37,7 +37,7 @@ Go|`sonar.go.coverage.reportPaths`|Comma-delimited list of paths to coverage rep
 Java|`sonar.jacoco.reportPaths`|Path to JaCoCo reports in binary format. **Supported only for Java**. 
 JavaScript|`sonar.javascript.lcov.reportPaths`|Comma-delimited list of paths to LCOV coverage report files. Paths may be absolute or relative to project root.
 PHP|`sonar.php.coverage.reportPaths`|Comma-delimited list of paths to Clover XML-format coverage report files. Paths may be absolute or relative to project root.
-Python|`sonar.python.coverage.reportPath`|Path to coverage reports in the Cobertura XML format. Path wildcards are supported (see above). Leave unset to use the default (`coverage-reports/*coverage-*.xml`).
+Python|`sonar.python.coverage.reportPaths`|Comma-delimited list of paths to coverage reports in the Cobertura XML format. Path wildcards are supported (see above). Leave unset to use the default (`coverage-reports/*coverage-*.xml`).
 Ruby|`sonar.ruby.coverage.reportPaths`|Comma-delimited list of paths to SimpleCov `.resultset.json` report files. Paths may be absolute or relative to project-root.
 Scala|`sonar.scala.coverage.reportPaths`|Comma-separated list of paths to `scoverage.xml` report files generaged by Scoverage.
 Swift, Xcode 9.3+|&nbsp;|You can use the [xccov-to-sonarqube-generic.sh](https://github.com/SonarSource/sonar-scanning-examples/blob/master/swift-coverage/swift-coverage-example/xccov-to-sonarqube-generic.sh) script from the [sonar-scanning-examples/swift-coverage](https://github.com/SonarSource/sonar-scanning-examples/tree/master/swift-coverage) project convert output from Xcode 9.3's xccov tool to the [Generic Test Data](/analysis/generic-test/) format.
