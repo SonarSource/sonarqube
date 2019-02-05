@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ProfileActions } from '../ProfileActions';
-import { click, waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
-import { mockQualityProfile } from '../../testUtils';
+import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 
 const PROFILE = mockQualityProfile({
   activeRuleCount: 68,

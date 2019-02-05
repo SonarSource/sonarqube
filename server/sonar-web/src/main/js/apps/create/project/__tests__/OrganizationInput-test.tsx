@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationInput } from '../OrganizationInput';
-import { mockRouter } from '../../../../helpers/testUtils';
+import { mockRouter } from '../../../../helpers/testMocks';
 
 const organizations = [
   { key: 'foo', name: 'Foo' },

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import EvolutionDeprecated from '../EvolutionDeprecated';
-import { mockQualityProfile } from '../../testUtils';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   const wrapper = shallow(

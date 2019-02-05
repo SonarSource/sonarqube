@@ -22,8 +22,8 @@ import { shallow } from 'enzyme';
 import ProfileRules from '../ProfileRules';
 import * as apiRules from '../../../../api/rules';
 import * as apiQP from '../../../../api/quality-profiles';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { mockQualityProfile } from '../../testUtils';
 
 const PROFILE = mockQualityProfile({
   activeRuleCount: 68,

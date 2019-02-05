@@ -18,16 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ShallowWrapper, ReactWrapper } from 'enzyme';
-import { InjectedRouter } from 'react-router';
-import { Location } from 'history';
-import { EditionKey } from '../apps/marketplace/utils';
-
-export const mockEvent = {
-  target: { blur() {} },
-  currentTarget: { blur() {} },
-  preventDefault() {},
-  stopPropagation() {}
-};
+import { mockEvent } from './testMocks';
 
 export function click(element: ShallowWrapper | ReactWrapper, event = {}): void {
   // `type()` returns a component constructor for a composite element and string for DOM nodes
@@ -37,7 +28,7 @@ export function click(element: ShallowWrapper | ReactWrapper, event = {}): void 
     // https://github.com/airbnb/enzyme/blob/master/packages/enzyme/src/ReactWrapper.js#L109
     (element as any).root().update();
   } else {
-    element.simulate('click', { ...mockEvent, ...event });
+    element.simulate('click', mockEvent(event));
   }
 }
 
@@ -151,79 +142,4 @@ export function doAsync(fn?: Function): Promise<void> {
 export async function waitAndUpdate(wrapper: ShallowWrapper<any, any> | ReactWrapper<any, any>) {
   await new Promise(setImmediate);
   wrapper.update();
-}
-
-export function mockLocation(overrides = {}): Location {
-  return {
-    action: 'PUSH',
-    key: 'key',
-    pathname: '/path',
-    query: {},
-    search: '',
-    state: {},
-    ...overrides
-  };
-}
-
-export function mockRouter(overrides: { push?: Function; replace?: Function } = {}) {
-  return {
-    createHref: jest.fn(),
-    createPath: jest.fn(),
-    go: jest.fn(),
-    goBack: jest.fn(),
-    goForward: jest.fn(),
-    isActive: jest.fn(),
-    push: jest.fn(),
-    replace: jest.fn(),
-    setRouteLeaveHook: jest.fn(),
-    ...overrides
-  } as InjectedRouter;
-}
-
-export function mockAppState(overrides = {}): T.AppState {
-  return {
-    defaultOrganization: 'foo',
-    edition: EditionKey.community,
-    productionDatabase: true,
-    qualifiers: ['TRK'],
-    settings: {},
-    version: '1.0',
-    ...overrides
-  };
-}
-
-export function mockComponent(overrides = {}): T.Component {
-  return {
-    breadcrumbs: [],
-    key: 'my-project',
-    name: 'MyProject',
-    organization: 'foo',
-    qualifier: 'TRK',
-    qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
-    qualityProfiles: [
-      {
-        deleted: false,
-        key: 'my-qp',
-        language: 'ts',
-        name: 'Sonar way'
-      }
-    ],
-    tags: [],
-    ...overrides
-  };
-}
-
-export function mockCurrentUser(overrides = {}): T.CurrentUser {
-  return {
-    isLoggedIn: true,
-    ...overrides
-  };
-}
-
-export function mockOrganization(overrides = {}): T.Organization {
-  return {
-    key: 'foo',
-    name: 'Foo',
-    ...overrides
-  };
 }

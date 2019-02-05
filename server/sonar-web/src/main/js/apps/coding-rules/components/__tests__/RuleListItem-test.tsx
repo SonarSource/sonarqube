@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import RuleListItem from '../RuleListItem';
-import { mockEvent } from '../../../../helpers/testUtils';
+import { mockEvent } from '../../../../helpers/testMocks';
 
 const rule: T.Rule = {
   key: 'foo',
@@ -41,7 +41,7 @@ it('should render', () => {
 it('should open rule', () => {
   const onOpen = jest.fn();
   const wrapper = shallowRender({ onOpen });
-  wrapper.find('Link').prop<Function>('onClick')({ ...mockEvent, button: 0 });
+  wrapper.find('Link').prop<Function>('onClick')(mockEvent({ button: 0 }));
   expect(onOpen).toBeCalledWith('foo');
 });
 

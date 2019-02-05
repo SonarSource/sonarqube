@@ -25,7 +25,7 @@ import {
   mockCurrentUser,
   mockOrganization,
   mockComponent
-} from '../../../../helpers/testUtils';
+} from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();

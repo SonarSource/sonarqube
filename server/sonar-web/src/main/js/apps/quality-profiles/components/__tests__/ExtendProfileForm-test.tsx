@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ExtendProfileForm from '../ExtendProfileForm';
 import { createQualityProfile, changeProfileParent } from '../../../../api/quality-profiles';
-import { mockQualityProfile } from '../../testUtils';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/quality-profiles', () => ({

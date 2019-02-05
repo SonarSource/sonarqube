@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { mockEvent } from '../../../helpers/testUtils';
 import ManageMemberGroupsForm from '../ManageMemberGroupsForm';
+import { mockEvent } from '../../../helpers/testMocks';
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { name: 'MyOrg', key: 'myorg' };
@@ -95,7 +95,7 @@ it('should correctly handle the submit event and close the modal', () => {
   const instance = form.instance as ManageMemberGroupsForm;
   instance.onCheck('11', false);
   instance.onCheck('7', true);
-  instance.handleSubmit(mockEvent as any);
+  instance.handleSubmit(mockEvent());
   expect(updateMemberGroups.mock.calls).toMatchSnapshot();
   expect(form.wrapper.state()).toMatchSnapshot();
 });

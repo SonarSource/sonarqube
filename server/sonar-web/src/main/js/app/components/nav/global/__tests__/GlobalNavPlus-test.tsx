@@ -21,7 +21,8 @@ import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import { GlobalNavPlus } from '../GlobalNavPlus';
 import { isSonarCloud } from '../../../../../helpers/system';
-import { click, mockRouter } from '../../../../../helpers/testUtils';
+import { mockRouter } from '../../../../../helpers/testMocks';
+import { click } from '../../../../../helpers/testUtils';
 
 jest.mock('../../../../../helpers/system', () => ({
   isSonarCloud: jest.fn()

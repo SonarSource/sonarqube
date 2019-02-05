@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { App } from '../App';
-import { waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
 import { retrieveComponent } from '../../utils';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../utils', () => ({
   retrieveComponent: jest.fn().mockResolvedValue({

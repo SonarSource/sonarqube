@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { mockEvent } from '../../../helpers/testUtils';
 import RemoveMemberForm from '../RemoveMemberForm';
+import { mockEvent } from '../../../helpers/testMocks';
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { key: 'myorg', name: 'MyOrg' };
@@ -39,7 +39,7 @@ it('should render ', () => {
 
 it('should correctly handle user interactions', () => {
   const removeMember = jest.fn();
-  const wrapper = shallow(
+  const wrapper = shallow<RemoveMemberForm>(
     <RemoveMemberForm
       member={member}
       onClose={jest.fn()}
@@ -47,7 +47,7 @@ it('should correctly handle user interactions', () => {
       removeMember={removeMember}
     />
   );
-  (wrapper.instance() as RemoveMemberForm).handleSubmit(mockEvent as any);
+  wrapper.instance().handleSubmit(mockEvent());
   expect(removeMember).toBeCalledWith({
     avatar: '',
     groupCount: 3,

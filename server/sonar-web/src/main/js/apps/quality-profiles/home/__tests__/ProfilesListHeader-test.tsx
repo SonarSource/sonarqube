@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ProfilesListHeader } from '../ProfilesListHeader';
-import { mockRouter } from '../../../../helpers/testUtils';
+import { mockRouter } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();

@@ -24,7 +24,7 @@ import { WithRouterProps } from 'react-router';
 import ProfileContainer from '../ProfileContainer';
 import ProfileNotFound from '../ProfileNotFound';
 import ProfileHeader from '../../details/ProfileHeader';
-import { mockQualityProfile } from '../../testUtils';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 
 const routerProps = { router: {} } as WithRouterProps;
 

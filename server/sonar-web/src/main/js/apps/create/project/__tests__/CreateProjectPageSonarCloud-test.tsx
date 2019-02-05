@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { CreateProjectPageSonarCloud } from '../CreateProjectPageSonarCloud';
-import { waitAndUpdate, mockRouter } from '../../../../helpers/testUtils';
 import { getAlmAppInfo } from '../../../../api/alm-integration';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/alm-integration', () => ({
   getAlmAppInfo: jest.fn().mockResolvedValue({

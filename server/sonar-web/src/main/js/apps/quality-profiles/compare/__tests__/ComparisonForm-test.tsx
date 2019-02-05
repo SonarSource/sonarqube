@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ComparisonForm from '../ComparisonForm';
-import { mockQualityProfile } from '../../testUtils';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 
 it('should render Select with right options', () => {
   const profile = mockQualityProfile();

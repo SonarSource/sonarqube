@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import DowngradeFeedback, { LocationState } from '../DowngradeFeedback';
 import { giveDowngradeFeedback } from '../../../../api/billing';
-import { mockRouter, mockLocation } from '../../../../helpers/testUtils';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 
 jest.mock('../../../../api/billing', () => ({
   giveDowngradeFeedback: jest.fn()

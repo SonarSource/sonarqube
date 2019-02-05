@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { RemoteOrganizationChoose } from '../RemoteOrganizationChoose';
-import { mockRouter, submit } from '../../../../helpers/testUtils';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { submit } from '../../../../helpers/testUtils';
 
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();

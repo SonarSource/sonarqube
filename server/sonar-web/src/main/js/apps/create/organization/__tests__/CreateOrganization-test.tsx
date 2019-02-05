@@ -22,7 +22,6 @@ import { times } from 'lodash';
 import { Location } from 'history';
 import { shallow } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
-import { mockRouter, waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   getAlmAppInfo,
   getAlmOrganization,
@@ -31,6 +30,8 @@ import {
 import { getSubscriptionPlans } from '../../../../api/billing';
 import { getOrganizations } from '../../../../api/organizations';
 import { get, remove } from '../../../../helpers/storage';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/billing', () => ({
   getSubscriptionPlans: jest
