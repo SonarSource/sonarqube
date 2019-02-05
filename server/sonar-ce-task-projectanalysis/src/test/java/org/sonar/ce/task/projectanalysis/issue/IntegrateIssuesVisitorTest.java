@@ -47,6 +47,7 @@ import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderImpl;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
@@ -120,13 +121,14 @@ public class IntegrateIssuesVisitorTest {
   private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private IssueRelocationToRoot issueRelocationToRoot = mock(IssueRelocationToRoot.class);
+  private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
 
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
   private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(), System2.INSTANCE);
   private IssueTrackingDelegator trackingDelegator;
   private TrackerExecution tracker;
-  private ShortBranchTrackerExecution shortBranchTracker;
+  private ShortBranchOrPullRequestTrackerExecution shortBranchTracker;
   private MergeBranchTrackerExecution mergeBranchTracker;
   private ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
   private IssueCache issueCache;
@@ -147,7 +149,7 @@ public class IntegrateIssuesVisitorTest {
     TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
-    shortBranchTracker = new ShortBranchTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>());
+    shortBranchTracker = new ShortBranchOrPullRequestTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>(), newLinesRepository);
     mergeBranchTracker = new MergeBranchTrackerExecution(rawInputFactory, mergeInputFactory, new Tracker<>());
 
     trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);

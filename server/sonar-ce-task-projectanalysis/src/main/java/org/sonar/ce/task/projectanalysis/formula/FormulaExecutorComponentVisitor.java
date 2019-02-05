@@ -141,13 +141,13 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     }
   }
 
-  private void processLeaf(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    CounterInitializationContext counterContext = new CounterInitializationContextImpl(file);
+  private void processLeaf(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {
+    CounterInitializationContext counterContext = new CounterInitializationContextImpl(component);
     for (Formula formula : formulas) {
       Counter counter = formula.createNewCounter();
       counter.initialize(counterContext);
       for (String metricKey : formula.getOutputMetricKeys()) {
-        addNewMeasure(file, metricKey, formula, counter);
+        addNewMeasure(component, metricKey, formula, counter);
       }
       aggregateToParent(path, formula, counter);
     }
@@ -172,20 +172,20 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   }
 
   private class CounterInitializationContextImpl implements CounterInitializationContext {
-    private final Component file;
+    private final Component component;
 
-    public CounterInitializationContextImpl(Component file) {
-      this.file = file;
+    public CounterInitializationContextImpl(Component component) {
+      this.component = component;
     }
 
     @Override
     public Component getLeaf() {
-      return file;
+      return component;
     }
 
     @Override
     public Optional<Measure> getMeasure(String metricKey) {
-      return measureRepository.getRawMeasure(file, metricRepository.getByKey(metricKey));
+      return measureRepository.getRawMeasure(component, metricRepository.getByKey(metricKey));
     }
 
   }

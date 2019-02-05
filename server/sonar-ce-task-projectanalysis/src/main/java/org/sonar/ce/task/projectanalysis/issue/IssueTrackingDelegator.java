@@ -30,14 +30,14 @@ import org.sonar.db.component.BranchType;
 import static java.util.Collections.emptyMap;
 
 public class IssueTrackingDelegator {
-  private final ShortBranchTrackerExecution shortBranchTracker;
+  private final ShortBranchOrPullRequestTrackerExecution shortBranchOrPullRequestTracker;
   private final TrackerExecution tracker;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MergeBranchTrackerExecution mergeBranchTracker;
 
-  public IssueTrackingDelegator(ShortBranchTrackerExecution shortBranchTracker, MergeBranchTrackerExecution longBranchTracker,
-    TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
-    this.shortBranchTracker = shortBranchTracker;
+  public IssueTrackingDelegator(ShortBranchOrPullRequestTrackerExecution shortBranchOrPullRequestTracker, MergeBranchTrackerExecution longBranchTracker,
+                                TrackerExecution tracker, AnalysisMetadataHolder analysisMetadataHolder) {
+    this.shortBranchOrPullRequestTracker = shortBranchOrPullRequestTracker;
     this.mergeBranchTracker = longBranchTracker;
     this.tracker = tracker;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -45,7 +45,7 @@ public class IssueTrackingDelegator {
 
   public TrackingResult track(Component component) {
     if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
-      return standardResult(shortBranchTracker.track(component));
+      return standardResult(shortBranchOrPullRequestTracker.track(component));
     } else if (isFirstAnalysisSecondaryLongLivingBranch()) {
       Tracking<DefaultIssue, DefaultIssue> tracking = mergeBranchTracker.track(component);
       return new TrackingResult(tracking.getMatchedRaws(), emptyMap(), Stream.empty(), tracking.getUnmatchedRaws());

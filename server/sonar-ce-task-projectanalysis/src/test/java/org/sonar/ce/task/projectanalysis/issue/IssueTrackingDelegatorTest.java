@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 public class IssueTrackingDelegatorTest {
   @Mock
-  private ShortBranchTrackerExecution shortBranchTracker;
+  private ShortBranchOrPullRequestTrackerExecution shortBranchTracker;
   @Mock
   private MergeBranchTrackerExecution mergeBranchTracker;
   @Mock

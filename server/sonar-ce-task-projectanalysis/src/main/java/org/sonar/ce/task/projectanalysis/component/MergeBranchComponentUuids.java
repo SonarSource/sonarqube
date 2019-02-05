@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
@@ -41,6 +41,7 @@ public class MergeBranchComponentUuids {
   private final DbClient dbClient;
   private Map<String, String> uuidsByKey;
   private String mergeBranchName;
+  private boolean hasMergeBranchAnalysis;
 
   public MergeBranchComponentUuids(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -62,8 +63,15 @@ public class MergeBranchComponentUuids {
         Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(dbSession, mergeBranchUuid);
         checkState(opt.isPresent(), "Merge branch '%s' does not exist", mergeBranchUuid);
         mergeBranchName = opt.get().getKey();
+
+        hasMergeBranchAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, mergeBranchUuid).isPresent();
       }
     }
+  }
+
+  public boolean hasMergeBranchAnalysis() {
+    lazyInit();
+    return hasMergeBranchAnalysis;
   }
 
   public String getMergeBranchName() {

@@ -45,6 +45,10 @@ public class TrackerMergeBranchInputFactory {
     // TODO detect file moves?
   }
 
+  public boolean hasMergeBranchAnalysis() {
+    return mergeBranchComponentUuids.hasMergeBranchAnalysis();
+  }
+
   public Input<DefaultIssue> create(Component component) {
     String mergeBranchComponentUuid = mergeBranchComponentUuids.getUuid(component.getDbKey());
     return new MergeLazyInput(component.getType(), mergeBranchComponentUuid);

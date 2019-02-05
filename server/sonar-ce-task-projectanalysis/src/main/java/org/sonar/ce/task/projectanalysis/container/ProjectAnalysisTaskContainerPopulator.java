@@ -80,7 +80,7 @@ import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
 import org.sonar.ce.task.projectanalysis.issue.ShortBranchIssueMerger;
 import org.sonar.ce.task.projectanalysis.issue.ShortBranchIssuesLoader;
-import org.sonar.ce.task.projectanalysis.issue.ShortBranchTrackerExecution;
+import org.sonar.ce.task.projectanalysis.issue.ShortBranchOrPullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerMergeBranchInputFactory;
@@ -276,7 +276,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ClosedIssuesInputFactory.class,
       Tracker.class,
       TrackerExecution.class,
-      ShortBranchTrackerExecution.class,
+      ShortBranchOrPullRequestTrackerExecution.class,
       MergeBranchTrackerExecution.class,
       ComponentIssuesLoader.class,
       BaseIssuesLoader.class,

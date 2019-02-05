@@ -23,26 +23,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.BlockHashSequence;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
-public class ShortBranchTrackerExecutionTest {
+public class ShortBranchOrPullRequestTrackerExecutionTest {
   static final String FILE_UUID = "FILE_UUID";
   static final String FILE_KEY = "FILE_KEY";
   static final int FILE_REF = 2;
@@ -58,8 +63,10 @@ public class ShortBranchTrackerExecutionTest {
   private TrackerBaseInputFactory baseFactory;
   @Mock
   private TrackerMergeBranchInputFactory mergeFactory;
+  @Mock
+  private NewLinesRepository newLinesRepository;
 
-  private ShortBranchTrackerExecution underTest;
+  private ShortBranchOrPullRequestTrackerExecution underTest;
 
   private List<DefaultIssue> rawIssues = new ArrayList<>();
   private List<DefaultIssue> baseIssues = new ArrayList<>();
@@ -74,16 +81,64 @@ public class ShortBranchTrackerExecutionTest {
     when(mergeFactory.create(FILE)).thenReturn(createInput(mergeBranchIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new ShortBranchTrackerExecution(baseFactory, rawFactory, mergeFactory, tracker);
+    underTest = new ShortBranchOrPullRequestTrackerExecution(baseFactory, rawFactory, mergeFactory, tracker, newLinesRepository);
   }
 
   @Test
-  public void simple_tracking() {
-    rawIssues.add(createIssue(1, RuleTesting.XOO_X1));
+  public void simple_tracking_keep_only_issues_having_location_on_changed_lines() {
+    final DefaultIssue issue1 = createIssue(2, RuleTesting.XOO_X1);
+    issue1.setLocations(DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(3)).build());
+    rawIssues.add(issue1);
+    final DefaultIssue issue2 = createIssue(2, RuleTesting.XOO_X1);
+    issue2.setLocations(DbIssues.Locations.newBuilder().setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2)).build());
+    rawIssues.add(issue2);
+
+    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(false);
+    when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 3))));
+
     Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
+
     assertThat(tracking.getUnmatchedBases()).isEmpty();
     assertThat(tracking.getMatchedRaws()).isEmpty();
-    assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(0));
+    assertThat(tracking.getUnmatchedRaws()).containsOnly(issue1);
+  }
+
+  @Test
+  public void simple_tracking_keep_also_issues_having_secondary_locations_on_changed_lines() {
+    final DefaultIssue issueWithSecondaryLocationOnAChangedLine = createIssue(2, RuleTesting.XOO_X1);
+    issueWithSecondaryLocationOnAChangedLine.setLocations(DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(3))
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(DbIssues.Location.newBuilder()
+        .setComponentId(FILE.getUuid())
+        .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(6).setEndLine(8)).build()).build())
+      .build());
+    rawIssues.add(issueWithSecondaryLocationOnAChangedLine);
+    final DefaultIssue issueWithNoLocationsOnChangedLines = createIssue(2, RuleTesting.XOO_X1);
+    issueWithNoLocationsOnChangedLines.setLocations(DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2))
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(DbIssues.Location.newBuilder()
+        .setComponentId(FILE.getUuid())
+        .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(11).setEndLine(12)).build()).build())
+      .build());
+    rawIssues.add(issueWithNoLocationsOnChangedLines);
+    final DefaultIssue issueWithALocationOnADifferentFile = createIssue(2, RuleTesting.XOO_X1);
+    issueWithALocationOnADifferentFile.setLocations(DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(3))
+      .addFlow(DbIssues.Flow.newBuilder().addLocation(DbIssues.Location.newBuilder()
+        .setComponentId("anotherUuid")
+        .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(6).setEndLine(8)).build()).build())
+      .build());
+    rawIssues.add(issueWithALocationOnADifferentFile);
+
+    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(false);
+    when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(7, 10))));
+
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE);
+
+    assertThat(tracking.getUnmatchedBases()).isEmpty();
+    assertThat(tracking.getMatchedRaws()).isEmpty();
+    assertThat(tracking.getUnmatchedRaws()).containsOnly(issueWithSecondaryLocationOnAChangedLine);
   }
 
   @Test
@@ -92,6 +147,7 @@ public class ShortBranchTrackerExecutionTest {
     rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
     rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
 
+    when(mergeFactory.hasMergeBranchAnalysis()).thenReturn(true);
     mergeBranchIssues.add(rawIssues.get(0));
 
     baseIssues.add(rawIssues.get(0));

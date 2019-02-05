@@ -241,8 +241,11 @@ public class NewCoverageMeasuresStep implements ComputationStep {
 
     @Override
     public void initialize(CounterInitializationContext context) {
-      Component fileComponent = context.getLeaf();
-      Optional<Set<Integer>> newLinesSet = newLinesRepository.getNewLines(fileComponent);
+      Component component = context.getLeaf();
+      if (component.getType() != Component.Type.FILE) {
+        return;
+      }
+      Optional<Set<Integer>> newLinesSet = newLinesRepository.getNewLines(component);
       if (!newLinesSet.isPresent()) {
         return;
       }

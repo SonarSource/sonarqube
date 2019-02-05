@@ -102,6 +102,9 @@ public class NewSizeMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
+      if (leaf.getType() != Component.Type.FILE) {
+        return;
+      }
       Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(leaf);
       if (!changedLines.isPresent()) {
         return;

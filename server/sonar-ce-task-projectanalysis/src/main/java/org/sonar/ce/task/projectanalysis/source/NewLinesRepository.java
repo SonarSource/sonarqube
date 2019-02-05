@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
+import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,12 +52,13 @@ public class NewLinesRepository {
     return isPullRequestOrShortLivedBranch() || periodHolder.hasPeriod();
   }
 
-  public Optional<Set<Integer>> getNewLines(Component component) {
-    Optional<Set<Integer>> reportChangedLines = getChangedLinesFromReport(component);
+  public Optional<Set<Integer>> getNewLines(Component file) {
+    Preconditions.checkArgument(file.getType() == Component.Type.FILE, "Changed lines are only available on files, but was: " + file.getType().name());
+    Optional<Set<Integer>> reportChangedLines = getChangedLinesFromReport(file);
     if (reportChangedLines.isPresent()) {
       return reportChangedLines;
     }
-    return computeNewLinesFromScm(component);
+    return computeNewLinesFromScm(file);
   }
 
   /**
@@ -93,9 +95,9 @@ public class NewLinesRepository {
     return lineDate > period.getSnapshotDate();
   }
 
-  private Optional<Set<Integer>> getChangedLinesFromReport(Component component) {
+  private Optional<Set<Integer>> getChangedLinesFromReport(Component file) {
     if (isPullRequestOrShortLivedBranch()) {
-      return reportChangedLinesCache.computeIfAbsent(component, this::readFromReport);
+      return reportChangedLinesCache.computeIfAbsent(file, this::readFromReport);
     }
 
     return Optional.empty();
@@ -105,8 +107,8 @@ public class NewLinesRepository {
     return analysisMetadataHolder.isPullRequest() || analysisMetadataHolder.isShortLivingBranch();
   }
 
-  private Optional<Set<Integer>> readFromReport(Component component) {
-    return reportReader.readComponentChangedLines(component.getReportAttributes().getRef())
+  private Optional<Set<Integer>> readFromReport(Component file) {
+    return reportReader.readComponentChangedLines(file.getReportAttributes().getRef())
       .map(c -> new HashSet<>(c.getLineList()));
   }
 }

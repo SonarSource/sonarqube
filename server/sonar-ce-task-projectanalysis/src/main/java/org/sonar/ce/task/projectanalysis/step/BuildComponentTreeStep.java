@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Optional;
 import java.util.function.Function;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -39,7 +39,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.component.SnapshotQuery;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -89,14 +88,14 @@ public class BuildComponentTreeStep implements ComputationStep {
       ComponentUuidFactoryWithMigration componentUuidFactoryWithMigration = new ComponentUuidFactoryWithMigration(dbClient, dbSession, rootKey, pathToKey, reportModulesPath.get());
 
       String rootUuid = componentUuidFactoryWithMigration.getOrCreateForKey(rootKey);
-      SnapshotDto baseAnalysis = loadBaseAnalysis(dbSession, rootUuid);
+      Optional<SnapshotDto> baseAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, rootUuid);
 
       ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator, publicKeyGenerator,
         componentUuidFactoryWithMigration::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),
-        createProjectAttributes(metadata, baseAnalysis),
+        createProjectAttributes(metadata, baseAnalysis.orElse(null)),
         issueRelocationToRoot);
       String relativePathFromScmRoot = metadata.getRelativePathFromScmRoot();
 
@@ -109,7 +108,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         treeRootHolder.setRoots(reportTreeRoot, reportTreeRoot);
       }
 
-      analysisMetadataHolder.setBaseAnalysis(toAnalysis(baseAnalysis));
+      analysisMetadataHolder.setBaseAnalysis(baseAnalysis.map(BuildComponentTreeStep::toAnalysis).orElse(null));
 
       context.getStatistics().add("components", treeRootHolder.getSize());
     }
@@ -150,25 +149,12 @@ public class BuildComponentTreeStep implements ComputationStep {
     return branch;
   }
 
-  @CheckForNull
-  private SnapshotDto loadBaseAnalysis(DbSession dbSession, String rootUuid) {
-    return dbClient.snapshotDao().selectAnalysisByQuery(
-      dbSession,
-      new SnapshotQuery()
-        .setComponentUuid(rootUuid)
-        .setIsLast(true));
-  }
-
-  @CheckForNull
-  private static Analysis toAnalysis(@Nullable SnapshotDto dto) {
-    if (dto != null) {
-      return new Analysis.Builder()
-        .setId(dto.getId())
-        .setUuid(dto.getUuid())
-        .setCreatedAt(dto.getCreatedAt())
-        .build();
-    }
-    return null;
+  private static Analysis toAnalysis(SnapshotDto dto) {
+    return new Analysis.Builder()
+      .setId(dto.getId())
+      .setUuid(dto.getUuid())
+      .setCreatedAt(dto.getCreatedAt())
+      .build();
   }
 
 }
