@@ -19,16 +19,19 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
-import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import javax.annotation.Nullable;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
+import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
+import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
-import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
-import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses">Further information about this web service online</a>
@@ -67,8 +70,7 @@ public class ProjectAnalysesService extends BaseService {
     call(
       new PostRequest(path("delete"))
         .setParam("analysis", request.getAnalysis())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -82,8 +84,7 @@ public class ProjectAnalysesService extends BaseService {
     call(
       new PostRequest(path("delete_event"))
         .setParam("event", request.getEvent())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -120,5 +121,23 @@ public class ProjectAnalysesService extends BaseService {
         .setParam("event", request.getEvent())
         .setParam("name", request.getName()),
       UpdateEventResponse.parser());
+  }
+
+  public void set_baseline(String projectKey, @Nullable String branchName, String analysisUuid) {
+    requireNonNull(projectKey, "projectKey can't be null");
+    requireNonNull(analysisUuid, "analysisUuid can't be null");
+    PostRequest request = new PostRequest(path("set_baseline"))
+      .setParam("project", projectKey)
+      .setParam("analysis", analysisUuid);
+    ofNullable(branchName).ifPresent(t -> request.setParam("branch", t));
+    call(request);
+  }
+
+  public void unset_baseline(String projectKey, @Nullable String branchName) {
+    requireNonNull(projectKey, "projectKey can't be null");
+    PostRequest request = new PostRequest(path("unset_baseline"))
+      .setParam("project", projectKey);
+    ofNullable(branchName).ifPresent(t -> request.setParam("branch", t));
+    call(request);
   }
 }
