@@ -144,6 +144,7 @@ public class OrganizationAction implements NavigationWsAction {
         .beginObject()
         .prop("key", organizationAlmBinding.getAlm().getId())
         .prop("url", organizationAlmBinding.getUrl())
+        .prop("membersSync", organizationAlmBinding.isMembersSyncEnable())
         .endObject());
   }
 }

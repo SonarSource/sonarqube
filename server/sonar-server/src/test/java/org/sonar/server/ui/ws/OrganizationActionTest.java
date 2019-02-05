@@ -193,7 +193,8 @@ public class OrganizationActionTest {
       "  {" +
       "    \"alm\": {" +
       "      \"key\": \"" + organizationAlmBinding.getAlm().getId() + "\"," +
-      "      \"url\": \"" + organizationAlmBinding.getUrl() + "\"" +
+      "      \"url\": \"" + organizationAlmBinding.getUrl() + "\"," +
+      "      \"membersSync\": " + organizationAlmBinding.isMembersSyncEnable() +
       "    }" +
       "  }" +
       "}");
