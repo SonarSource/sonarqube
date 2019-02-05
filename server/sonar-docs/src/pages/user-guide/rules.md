@@ -82,7 +82,7 @@ Note that when deleting a custom rule, it is not physically removed from the {in
 ## Extending Coding Rules
 
 Custom coding rules can be added. See [Adding Coding Rules](https://docs.sonarqube.org/display/DEV/Adding+Coding+Rules) for detailed information and tutorials.
-<!-- sonarqube -->
+<!-- /sonarqube -->
 
 ## Rule Types and Severities
 
