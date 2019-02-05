@@ -18,40 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import ConfirmModal, { ConfirmModalProps } from './ConfirmModal';
 import ModalButton, { ChildrenProps, ModalProps } from './ModalButton';
-import ConfirmModal from './ConfirmModal';
 
-export { ChildrenProps } from './ModalButton';
-
-interface Props {
+interface Props<T> extends ConfirmModalProps<T> {
   children: (props: ChildrenProps) => React.ReactNode;
-  cancelButtonText?: string;
-  confirmButtonText: string;
-  confirmData?: string;
-  confirmDisable?: boolean;
-  isDestructive?: boolean;
   modalBody: React.ReactNode;
   modalHeader: string;
-  onConfirm: (data?: string) => void | Promise<void>;
 }
 
 interface State {
   modal: boolean;
 }
 
-export default class ConfirmButton extends React.PureComponent<Props, State> {
+export default class ConfirmButton<T> extends React.PureComponent<Props<T>, State> {
   renderConfirmModal = ({ onClose }: ModalProps) => {
+    const { children, modalBody, modalHeader, ...confirmModalProps } = this.props;
     return (
-      <ConfirmModal
-        cancelButtonText={this.props.cancelButtonText}
-        confirmButtonText={this.props.confirmButtonText}
-        confirmData={this.props.confirmData}
-        confirmDisable={this.props.confirmDisable}
-        header={this.props.modalHeader}
-        isDestructive={this.props.isDestructive}
-        onClose={onClose}
-        onConfirm={this.props.onConfirm}>
-        {this.props.modalBody}
+      <ConfirmModal header={modalHeader} onClose={onClose} {...confirmModalProps}>
+        {modalBody}
       </ConfirmModal>
     );
   };

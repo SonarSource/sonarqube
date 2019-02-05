@@ -71,7 +71,7 @@ export default class NavLatestNotification extends React.PureComponent<Props> {
           <>
             <li className="navbar-latest-notification" onClick={this.props.onClick}>
               <div className="navbar-latest-notification-wrapper">
-                <span className="badge">{translate('new')}</span>
+                <span className="badge badge-new">{translate('new')}</span>
                 <span className="label">{lastNews.notification}</span>
               </div>
             </li>

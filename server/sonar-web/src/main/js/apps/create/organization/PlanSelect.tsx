@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FreeCardPlan, PaidCardPlan } from '../components/CardPlan';
+import FreeCardPlan from '../components/FreeCardPlan';
+import PaidCardPlan from '../components/PaidCardPlan';
 import { translate } from '../../../helpers/l10n';
 
 export enum Plan {

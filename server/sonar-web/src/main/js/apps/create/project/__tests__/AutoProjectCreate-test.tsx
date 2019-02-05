@@ -20,6 +20,10 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoProjectCreate from '../AutoProjectCreate';
+import {
+  mockOrganizationWithAdminActions,
+  mockOrganizationWithAlm
+} from '../../../../helpers/testMocks';
 
 const almApplication = {
   backgroundColor: 'blue',
@@ -30,19 +34,8 @@ const almApplication = {
 };
 
 const boundOrganizations: T.Organization[] = [
-  {
-    actions: { admin: true },
-    alm: { key: 'github', url: '' },
-    key: 'foo',
-    name: 'Foo',
-    subscription: 'FREE'
-  },
-  {
-    alm: { key: 'github', url: '' },
-    key: 'bar',
-    name: 'Bar',
-    subscription: 'FREE'
-  }
+  mockOrganizationWithAdminActions(mockOrganizationWithAlm({ subscription: 'FREE' })),
+  mockOrganizationWithAlm({ key: 'bar', name: 'Bar', subscription: 'FREE' })
 ];
 
 it('should display the provider app install button', () => {

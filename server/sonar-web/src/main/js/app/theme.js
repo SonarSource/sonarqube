@@ -24,6 +24,7 @@ const grid = 8;
 module.exports = {
   // colors
   blue: '#4b9fd5',
+  veryLightBlue: '#f2faff',
   lightBlue: '#cae3f2',
   darkBlue: '#236a97',
   green: '#00aa00',

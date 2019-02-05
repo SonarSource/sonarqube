@@ -23,6 +23,10 @@ import { shallow } from 'enzyme';
 import RemoteRepositories from '../RemoteRepositories';
 import { getRepositories } from '../../../../api/alm-integration';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import {
+  mockOrganizationWithAlm,
+  mockOrganizationWithAdminActions
+} from '../../../../helpers/testMocks';
 
 jest.mock('../../../../api/alm-integration', () => ({
   getRepositories: jest.fn().mockResolvedValue({
@@ -46,12 +50,7 @@ const almApplication = {
   name: 'GitHub'
 };
 
-const organization: T.Organization = {
-  alm: { key: 'github', url: '' },
-  key: 'sonarsource',
-  name: 'SonarSource',
-  subscription: 'FREE'
-};
+const organization: T.Organization = mockOrganizationWithAlm({ subscription: 'FREE' });
 
 beforeEach(() => {
   (getRepositories as jest.Mock<any>).mockClear();
@@ -62,7 +61,7 @@ it('should display the list of repositories', async () => {
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(getRepositories).toHaveBeenCalledWith({ organization: 'sonarsource' });
+  expect(getRepositories).toHaveBeenCalledWith({ organization: 'foo' });
 });
 
 it('should display the organization upgrade box', async () => {
@@ -81,13 +80,9 @@ it('should not display the organization upgrade box', () => {
     repositories: [{ label: 'Bar Project', installationKey: 'github/bar', private: true }]
   });
   const wrapper = shallowRender({
-    organization: {
-      actions: { admin: true },
-      alm: { key: 'github', url: '' },
-      key: 'foobar',
-      name: 'FooBar',
-      subscription: 'PAID'
-    }
+    organization: mockOrganizationWithAdminActions(
+      mockOrganizationWithAlm({ subscription: 'PAID' })
+    )
   });
 
   expect(wrapper.find('UpgradeOrganizationBox').exists()).toBe(false);

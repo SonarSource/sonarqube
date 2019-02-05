@@ -80,6 +80,14 @@ a.badge {
   line-height: calc(var(--tinyControlHeight) - 1px) !important;
 }
 
+.badge-new {
+  height: 18px;
+  font-size: var(--verySmallFontSize);
+  text-transform: uppercase;
+  background-color: var(--lightBlue);
+  color: var(--darkBlue);
+}
+
 .badge-muted {
   background-color: transparent;
   color: var(--secondFontColor);

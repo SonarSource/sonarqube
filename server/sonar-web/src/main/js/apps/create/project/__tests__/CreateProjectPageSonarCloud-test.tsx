@@ -21,7 +21,11 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { CreateProjectPageSonarCloud } from '../CreateProjectPageSonarCloud';
 import { getAlmAppInfo } from '../../../../api/alm-integration';
-import { mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockRouter,
+  mockOrganizationWithAdminActions,
+  mockOrganizationWithAlm
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/alm-integration', () => ({
@@ -86,9 +90,15 @@ function getWrapper(props = {}) {
       router={mockRouter()}
       skipOnboarding={jest.fn()}
       userOrganizations={[
-        { actions: { provision: true }, key: 'foo', name: 'Foo' },
-        { actions: { provision: true }, alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' },
-        { actions: { provision: false }, key: 'baz', name: 'Baz' }
+        mockOrganizationWithAdminActions({}, { admin: false, provision: true }),
+        mockOrganizationWithAdminActions(mockOrganizationWithAlm({ key: 'bar', name: 'Bar' }), {
+          admin: false,
+          provision: true
+        }),
+        mockOrganizationWithAdminActions(
+          { key: 'baz', name: 'Baz' },
+          { admin: false, provision: false }
+        )
       ]}
       {...props}
     />

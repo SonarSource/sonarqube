@@ -19,13 +19,52 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import MembersPageHeader from '../MembersPageHeader';
+import { MembersPageHeader } from '../MembersPageHeader';
+import {
+  mockOrganization,
+  mockOrganizationWithAlm,
+  mockOrganizationWithAdminActions
+} from '../../../helpers/testMocks';
 
-it('should render', () => {
-  const wrapper = shallow(
-    <MembersPageHeader loading={true}>
-      <span>children test</span>
-    </MembersPageHeader>
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender({ loading: true })).toMatchSnapshot();
 });
+
+it('should render for admin', () => {
+  expect(
+    shallowRender({ organization: mockOrganization({ actions: { admin: true } }) })
+  ).toMatchSnapshot();
+});
+
+it('should render for bound organization without sync', () => {
+  const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions());
+  expect(shallowRender({ organization })).toMatchSnapshot();
+
+  const wrapper = shallowRender({ organization, dismissSyncNotifOrg: [organization.key] });
+  expect(wrapper.find('Connect(SyncMemberForm)').exists()).toBe(true);
+  expect(wrapper.find('NewInfoBox').exists()).toBe(false);
+});
+
+it('should render for bound organization with sync', () => {
+  const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions(), {
+    membersSync: true
+  });
+  const wrapper = shallowRender({ organization });
+  expect(wrapper.find('Connect(SyncMemberForm)').exists()).toBe(true);
+  expect(wrapper.find('AddMemberForm').exists()).toBe(false);
+  expect(wrapper.find('NewInfoBox').exists()).toBe(false);
+});
+
+function shallowRender(props: Partial<MembersPageHeader['props']> = {}) {
+  return shallow(
+    <MembersPageHeader
+      dismissSyncNotifOrg={[]}
+      handleAddMember={jest.fn()}
+      loading={false}
+      members={[]}
+      organization={mockOrganization()}
+      setCurrentUserSetting={jest.fn()}
+      {...props}
+    />
+  );
+}

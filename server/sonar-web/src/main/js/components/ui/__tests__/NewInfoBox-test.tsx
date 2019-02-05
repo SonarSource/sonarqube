@@ -18,26 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import { shallow } from 'enzyme';
+import NewInfoBox from '../NewInfoBox';
+import { click } from '../../../helpers/testUtils';
 
-export default function AlmApplicationInstalling({ almKey }: { almKey?: string }) {
-  return (
-    <DeferredSpinner
-      customSpinner={
-        <div className="sonarcloud page page-limited">
-          <div className="huge-spacer-top text-center">
-            <i className="spinner" />
-            <p className="big-spacer-top">
-              {translate(
-                'onboarding.import_organization.installing',
-                sanitizeAlmId(almKey) || 'ALM'
-              )}
-            </p>
-          </div>
-        </div>
-      }
-    />
+it('should render correctly', () => {
+  expect(
+    shallow(
+      <NewInfoBox description="My description" onClose={jest.fn()} title="My title">
+        <div />
+      </NewInfoBox>
+    )
+  ).toMatchSnapshot();
+});
+
+it('should allow to opt out', () => {
+  const onClose = jest.fn();
+  const wrapper = shallow(
+    <NewInfoBox description="" onClose={onClose} title="">
+      <div />
+    </NewInfoBox>
   );
-}
+  click(wrapper.find('ButtonIcon'));
+  expect(onClose).toHaveBeenCalled();
+});

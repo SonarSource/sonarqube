@@ -215,7 +215,10 @@ declare namespace T {
     value: string;
   }
 
-  type CurrentUserSettingNames = 'notifications.optOut' | 'notifications.readDate';
+  type CurrentUserSettingNames =
+    | 'notifications.optOut'
+    | 'notifications.readDate'
+    | 'organizations.members.dismissSyncNotif';
 
   export interface CustomMeasure {
     createdAt?: string;
@@ -499,7 +502,7 @@ declare namespace T {
 
   export interface Organization extends OrganizationBase {
     actions?: OrganizationActions;
-    alm?: { key: string; url: string };
+    alm?: OrganizationAlm;
     adminPages?: Extension[];
     canUpdateProjectsVisibilityToPrivate?: boolean;
     guarded?: boolean;
@@ -508,6 +511,12 @@ declare namespace T {
     pages?: Extension[];
     projectVisibility?: Visibility;
     subscription?: OrganizationSubscription;
+  }
+
+  export interface OrganizationAlm {
+    key: string;
+    membersSync: boolean;
+    url: string;
   }
 
   export interface OrganizationBase {

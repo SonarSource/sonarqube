@@ -20,6 +20,7 @@
 import { connect } from 'react-redux';
 import OrganizationMembers from './OrganizationMembers';
 import { getOrganizationByKey, Store } from '../../store/rootReducer';
+import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 
 interface OwnProps {
   params: { organizationKey: string };
@@ -33,4 +34,4 @@ const mapStateToProps = (state: Store, ownProps: OwnProps): StateProps => {
   return { organization: getOrganizationByKey(state, ownProps.params.organizationKey) };
 };
 
-export default connect(mapStateToProps)(OrganizationMembers);
+export default withCurrentUser(connect(mapStateToProps)(OrganizationMembers));

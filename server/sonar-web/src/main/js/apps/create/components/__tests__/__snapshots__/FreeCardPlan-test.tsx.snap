@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<RadioCard
+  title="billing.free_plan.title"
+  titleInfo="billing.price_format.0"
+>
+  <div
+    className="spacer-left"
+  >
+    <ul
+      className="big-spacer-left note"
+    >
+      <li
+        className="little-spacer-bottom"
+      >
+        billing.free_plan.all_projects_analyzed_public
+      </li>
+      <li>
+        billing.free_plan.anyone_can_browse_source_code
+      </li>
+    </ul>
+  </div>
+</RadioCard>
+`;
+
+exports[`should render disabled with info 1`] = `
+<RadioCard
+  disabled={true}
+  title="billing.free_plan.title"
+  titleInfo="billing.price_format.0"
+>
+  <div
+    className="spacer-left"
+  >
+    <ul
+      className="big-spacer-left note"
+    >
+      <li
+        className="little-spacer-bottom"
+      >
+        billing.free_plan.all_projects_analyzed_public
+      </li>
+      <li>
+        billing.free_plan.anyone_can_browse_source_code
+      </li>
+    </ul>
+  </div>
+  <Alert
+    variant="info"
+  >
+    <FormattedMessage
+      defaultMessage="billing.free_plan.not_available_info"
+      id="billing.free_plan.not_available_info"
+      values={
+        Object {
+          "alm": "GitHub",
+        }
+      }
+    />
+  </Alert>
+</RadioCard>
+`;
+
+exports[`should render with warning 1`] = `
+<RadioCard
+  selected={true}
+  title="billing.free_plan.title"
+  titleInfo="billing.price_format.0"
+>
+  <div
+    className="spacer-left"
+  >
+    <ul
+      className="big-spacer-left note"
+    >
+      <li
+        className="little-spacer-bottom"
+      >
+        billing.free_plan.all_projects_analyzed_public
+      </li>
+      <li>
+        billing.free_plan.anyone_can_browse_source_code
+      </li>
+    </ul>
+  </div>
+  <Alert
+    variant="warning"
+  >
+    <FormattedMessage
+      defaultMessage="billing.free_plan.private_repo_warning"
+      id="billing.free_plan.private_repo_warning"
+      values={
+        Object {
+          "alm": "GitHub",
+        }
+      }
+    />
+  </Alert>
+</RadioCard>
+`;

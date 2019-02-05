@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<DeferredSpinner
+  customSpinner={
+    <div
+      className="sonarcloud page page-limited"
+    >
+      <div
+        className="huge-spacer-top text-center"
+      >
+        <i
+          className="spinner"
+        />
+        <p
+          className="big-spacer-top"
+        >
+          onboarding.import_organization.installing.ALM
+        </p>
+      </div>
+    </div>
+  }
+  timeout={100}
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<DeferredSpinner
+  customSpinner={
+    <div
+      className="sonarcloud page page-limited"
+    >
+      <div
+        className="huge-spacer-top text-center"
+      >
+        <i
+          className="spinner"
+        />
+        <p
+          className="big-spacer-top"
+        >
+          onboarding.import_organization.installing.github
+        </p>
+      </div>
+    </div>
+  }
+  timeout={100}
+/>
+`;

@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationInput } from '../OrganizationInput';
-import { mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockRouter,
+  mockOrganization,
+  mockOrganizationWithAlm
+} from '../../../../helpers/testMocks';
 
-const organizations = [
-  { key: 'foo', name: 'Foo' },
-  { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
-];
+const organizations = [mockOrganization(), mockOrganizationWithAlm({ key: 'bar', name: 'Bar' })];
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

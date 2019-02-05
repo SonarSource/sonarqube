@@ -54,9 +54,13 @@ export function mockComponent(overrides: Partial<T.Component> = {}): T.Component
   };
 }
 
-export function mockCurrentUser(overrides: Partial<T.CurrentUser> = {}): T.CurrentUser {
+export function mockCurrentUser(overrides: Partial<T.LoggedInUser> = {}): T.LoggedInUser {
   return {
+    groups: [],
     isLoggedIn: true,
+    login: 'luke',
+    name: 'Skywalker',
+    scmAccounts: [],
     ...overrides
   };
 }
@@ -84,11 +88,24 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
 }
 
 export function mockOrganization(overrides: Partial<T.Organization> = {}): T.Organization {
-  return {
-    key: 'foo',
-    name: 'Foo',
+  return { key: 'foo', name: 'Foo', ...overrides };
+}
+
+export function mockOrganizationWithAdminActions(
+  overrides: Partial<T.Organization> = {},
+  actionsOverrides: Partial<T.Organization['actions']> = {}
+) {
+  return mockOrganization({ actions: { admin: true, ...actionsOverrides }, ...overrides });
+}
+
+export function mockOrganizationWithAlm(
+  overrides: Partial<T.Organization> = {},
+  almOverrides: Partial<T.Organization['alm']> = {}
+): T.Organization {
+  return mockOrganization({
+    alm: { key: 'github', membersSync: false, url: 'https://github.com/foo', ...almOverrides },
     ...overrides
-  };
+  });
 }
 
 export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {

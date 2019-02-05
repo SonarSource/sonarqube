@@ -33,10 +33,11 @@ exports[`should display the list of repositories 1`] = `
           Object {
             "alm": Object {
               "key": "github",
-              "url": "",
+              "membersSync": false,
+              "url": "https://github.com/foo",
             },
-            "key": "sonarsource",
-            "name": "SonarSource",
+            "key": "foo",
+            "name": "Foo",
             "subscription": "FREE",
           }
         }
@@ -121,10 +122,11 @@ exports[`should display the list of repositories 2`] = `
           Object {
             "alm": Object {
               "key": "github",
-              "url": "",
+              "membersSync": false,
+              "url": "https://github.com/foo",
             },
-            "key": "sonarsource",
-            "name": "SonarSource",
+            "key": "foo",
+            "name": "Foo",
             "subscription": "FREE",
           }
         }
@@ -146,10 +148,11 @@ exports[`should display the organization upgrade box 1`] = `
       },
       "alm": Object {
         "key": "github",
-        "url": "",
+        "membersSync": false,
+        "url": "https://github.com/foo",
       },
-      "key": "sonarsource",
-      "name": "SonarSource",
+      "key": "foo",
+      "name": "Foo",
       "subscription": "FREE",
     }
   }

@@ -22,24 +22,13 @@ import { shallow } from 'enzyme';
 import SetupProjectBox from '../SetupProjectBox';
 import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 import { provisionProject } from '../../../../api/alm-integration';
+import { mockOrganizationWithAlm } from '../../../../helpers/testMocks';
 
 jest.mock('../../../../api/alm-integration', () => ({
   provisionProject: jest
     .fn()
     .mockResolvedValue({ projects: [{ projectKey: 'awesome' }, { projectKey: 'foo' }] })
 }));
-
-const organization: T.Organization = {
-  alm: { key: 'github', url: '' },
-  key: 'sonarsource',
-  name: 'SonarSource',
-  subscription: 'FREE'
-};
-
-const selectedRepositories = [
-  { label: 'Awesome Project', installationKey: 'github/awesome' },
-  { label: 'Foo', installationKey: 'github/foo', private: true }
-];
 
 it('should correctly create projects', async () => {
   const onProjectCreate = jest.fn();
@@ -49,11 +38,11 @@ it('should correctly create projects', async () => {
   submit(wrapper.find('form'));
   expect(provisionProject).toBeCalledWith({
     installationKeys: ['github/awesome', 'github/foo'],
-    organization: 'sonarsource'
+    organization: 'foo'
   });
 
   await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith(['awesome', 'foo'], 'sonarsource');
+  expect(onProjectCreate).toBeCalledWith(['awesome', 'foo'], 'foo');
 });
 
 function shallowRender(props: Partial<SetupProjectBox['props']> = {}) {
@@ -61,8 +50,11 @@ function shallowRender(props: Partial<SetupProjectBox['props']> = {}) {
     <SetupProjectBox
       onProjectCreate={jest.fn()}
       onProvisionFail={jest.fn()}
-      organization={organization}
-      selectedRepositories={selectedRepositories}
+      organization={mockOrganizationWithAlm({ subscription: 'FREE' })}
+      selectedRepositories={[
+        { label: 'Awesome Project', installationKey: 'github/awesome' },
+        { label: 'Foo', installationKey: 'github/foo', private: true }
+      ]}
       {...props}
     />
   );

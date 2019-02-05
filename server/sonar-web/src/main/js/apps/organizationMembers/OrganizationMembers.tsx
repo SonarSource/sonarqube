@@ -22,15 +22,14 @@ import Helmet from 'react-helmet';
 import MembersPageHeader from './MembersPageHeader';
 import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
-import AddMemberForm from './AddMemberForm';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../components/controls/ListFooter';
-import DocTooltip from '../../components/docs/DocTooltip';
 import { translate } from '../../helpers/l10n';
 import { searchMembers, addMember, removeMember } from '../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../api/user_groups';
 
 interface Props {
+  currentUser: T.LoggedInUser;
   organization: T.Organization;
 }
 
@@ -187,31 +186,25 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
   render() {
     const { organization } = this.props;
     const { groups, loading, members, paging } = this.state;
-    const memberLogins = members ? members.map(member => member.login) : [];
     return (
       <div className="page page-limited">
         <Helmet title={translate('organization.members.page')} />
         <Suggestions suggestions="organization_members" />
-        <MembersPageHeader loading={loading}>
-          {organization.actions &&
-            organization.actions.admin && (
-              <div className="page-actions">
-                <AddMemberForm
-                  addMember={this.handleAddMember}
-                  memberLogins={memberLogins}
-                  organization={organization}
-                />
-                <DocTooltip
-                  className="spacer-left"
-                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
-                />
-              </div>
-            )}
-        </MembersPageHeader>
+        <MembersPageHeader
+          handleAddMember={this.handleAddMember}
+          loading={loading}
+          members={members}
+          organization={organization}
+        />
         {members !== undefined &&
           paging !== undefined && (
             <>
-              <MembersListHeader handleSearch={this.handleSearchMembers} total={paging.total} />
+              <MembersListHeader
+                currentUser={this.props.currentUser}
+                handleSearch={this.handleSearchMembers}
+                organization={organization}
+                total={paging.total}
+              />
               <MembersList
                 members={members}
                 organization={organization}

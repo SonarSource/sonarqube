@@ -76,6 +76,7 @@ exports[`renders with alm integration 1`] = `
       Object {
         "alm": Object {
           "key": "github",
+          "membersSync": false,
           "url": "https://github.com/foo",
         },
         "key": "foo",

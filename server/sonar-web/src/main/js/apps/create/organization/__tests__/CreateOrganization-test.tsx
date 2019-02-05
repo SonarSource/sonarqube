@@ -30,7 +30,11 @@ import {
 import { getSubscriptionPlans } from '../../../../api/billing';
 import { getOrganizations } from '../../../../api/organizations';
 import { get, remove } from '../../../../helpers/storage';
-import { mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockRouter,
+  mockOrganizationWithAdminActions,
+  mockOrganizationWithAlm
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/billing', () => ({
@@ -320,9 +324,9 @@ function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
       skipOnboarding={jest.fn()}
       updateOrganization={jest.fn()}
       userOrganizations={[
-        { actions: { admin: true }, key: 'foo', name: 'Foo' },
-        { actions: { admin: true }, alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' },
-        { actions: { admin: false }, key: 'baz', name: 'Baz' }
+        mockOrganizationWithAdminActions(),
+        mockOrganizationWithAdminActions(mockOrganizationWithAlm({ key: 'bar', name: 'Bar' })),
+        mockOrganizationWithAdminActions({ key: 'baz', name: 'Baz' }, { admin: false })
       ]}
       {...props}
     />

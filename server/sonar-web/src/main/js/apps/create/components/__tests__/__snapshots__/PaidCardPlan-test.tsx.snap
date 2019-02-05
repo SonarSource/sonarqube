@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<RadioCard
+  recommended="billing.paid_plan.recommended"
+  title="billing.paid_plan.title"
+  titleInfo={
+    <FormattedMessage
+      defaultMessage="billing.price_from_x"
+      id="billing.price_from_x"
+      values={
+        Object {
+          "price": <span
+            className="big"
+          >
+            billing.price_format.10
+          </span>,
+        }
+      }
+    />
+  }
+>
+  <UpgradeOrganizationAdvantages />
+  <div
+    className="big-spacer-left"
+  >
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to="/about/pricing"
+    >
+      billing.pricing.learn_more
+    </Link>
+  </div>
+</RadioCard>
+`;

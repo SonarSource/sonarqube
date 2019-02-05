@@ -23,7 +23,8 @@ import * as classNames from 'classnames';
 
 ReactModal.setAppElement('#content');
 
-interface OwnProps {
+export interface ModalProps {
+  children: React.ReactNode;
   medium?: boolean;
   noBackdrop?: boolean;
   large?: boolean;
@@ -32,7 +33,7 @@ interface OwnProps {
 
 type MandatoryProps = Pick<ReactModal.Props, 'contentLabel'>;
 
-type Props = Partial<ReactModal.Props> & MandatoryProps & OwnProps;
+type Props = Partial<ReactModal.Props> & MandatoryProps & ModalProps;
 
 export default function Modal(props: Props) {
   return (

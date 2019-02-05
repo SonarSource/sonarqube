@@ -81,11 +81,13 @@ exports[`should render correctly 2`] = `
         Array [
           Object {
             "actions": Object {
+              "admin": false,
               "provision": true,
             },
             "alm": Object {
               "key": "github",
-              "url": "",
+              "membersSync": false,
+              "url": "https://github.com/foo",
             },
             "key": "bar",
             "name": "Bar",
@@ -136,6 +138,7 @@ exports[`should render with Manual creation only 1`] = `
         Array [
           Object {
             "actions": Object {
+              "admin": false,
               "provision": true,
             },
             "key": "foo",
@@ -143,11 +146,13 @@ exports[`should render with Manual creation only 1`] = `
           },
           Object {
             "actions": Object {
+              "admin": false,
               "provision": true,
             },
             "alm": Object {
               "key": "github",
-              "url": "",
+              "membersSync": false,
+              "url": "https://github.com/foo",
             },
             "key": "bar",
             "name": "Bar",
@@ -211,11 +216,13 @@ exports[`should switch tabs 1`] = `
         Array [
           Object {
             "actions": Object {
+              "admin": false,
               "provision": true,
             },
             "alm": Object {
               "key": "github",
-              "url": "",
+              "membersSync": false,
+              "url": "https://github.com/foo",
             },
             "key": "bar",
             "name": "Bar",

@@ -20,11 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationSelect, { getOptionRenderer } from '../OrganizationSelect';
+import { mockOrganization, mockOrganizationWithAlm } from '../../../../helpers/testMocks';
 
-const organizations = [
-  { key: 'foo', name: 'Foo' },
-  { alm: { key: 'github', url: '' }, key: 'bar', name: 'Bar' }
-];
+const organizations = [mockOrganization(), mockOrganizationWithAlm({ key: 'bar', name: 'Bar' })];
 
 it('should render correctly', () => {
   expect(

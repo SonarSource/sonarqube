@@ -14,7 +14,8 @@ exports[`should display the bound organizations dropdown with the remote reposit
           },
           "alm": Object {
             "key": "github",
-            "url": "",
+            "membersSync": false,
+            "url": "https://github.com/foo",
           },
           "key": "foo",
           "name": "Foo",
@@ -23,7 +24,8 @@ exports[`should display the bound organizations dropdown with the remote reposit
         Object {
           "alm": Object {
             "key": "github",
-            "url": "",
+            "membersSync": false,
+            "url": "https://github.com/foo",
           },
           "key": "bar",
           "name": "Bar",
@@ -51,7 +53,8 @@ exports[`should display the bound organizations dropdown with the remote reposit
         },
         "alm": Object {
           "key": "github",
-          "url": "",
+          "membersSync": false,
+          "url": "https://github.com/foo",
         },
         "key": "foo",
         "name": "Foo",

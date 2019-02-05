@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.card-plan {
+.radio-card {
   display: flex;
   flex-direction: column;
   width: 450px;
-  height: 210px;
+  min-height: 210px;
   background-color: #fff;
   border: solid 1px var(--barBorderColor);
   border-radius: 3px;
@@ -30,70 +30,66 @@
   transition: all 0.2s ease;
 }
 
-.card-plan.animated {
+.radio-card.animated {
   height: 0;
   border-width: 0;
   overflow: hidden;
 }
 
-.card-plan.animated.open {
+.radio-card.animated.open {
   height: 210px;
   border-width: 1px;
 }
 
-.card-plan.highlight {
+.radio-card.highlight {
   box-shadow: var(--defaultShadow);
 }
 
-.card-plan:last-child {
+.radio-card:last-child {
   margin-right: 0;
 }
 
-.card-plan:focus {
+.radio-card:focus {
   outline: none;
 }
 
-.card-plan-actionable {
+.radio-card-actionable {
   cursor: pointer;
 }
 
-.card-plan-actionable:not(.disabled):hover {
+.radio-card-actionable:not(.disabled):hover {
   box-shadow: var(--defaultShadow);
   transform: translateY(-2px);
 }
 
-.card-plan-actionable.selected {
+.radio-card-actionable.selected {
   border-color: var(--darkBlue);
 }
 
-.card-plan-actionable.selected .card-plan-recommended {
+.radio-card-actionable.selected .radio-card-recommended {
   border: solid 1px var(--darkBlue);
   border-top: none;
 }
 
-.card-plan-actionable.disabled {
+.radio-card-actionable.disabled {
   cursor: not-allowed;
   background-color: var(--disableGrayBg);
   border-color: var(--disableGrayBorder);
 }
 
-.card-plan-actionable.disabled h2,
-.card-plan-actionable.disabled ul {
+.radio-card-actionable.disabled h2,
+.radio-card-actionable.disabled ul {
   color: var(--disableGrayText);
 }
 
-.card-plan-header {
+.radio-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: calc(2 * var(--gridSize)) calc(2 * var(--gridSize)) 0;
 }
 
-.card-plan-price {
-  font-size: var(--bigFontSize);
-}
-
-.card-plan-body {
+.radio-card-body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -101,11 +97,11 @@
   padding: 0 calc(2 * var(--gridSize)) calc(2 * var(--gridSize));
 }
 
-.card-plan-body .alert {
+.radio-card-body .alert {
   margin-bottom: 0;
 }
 
-.card-plan-recommended {
+.radio-card-recommended {
   position: relative;
   padding: 6px calc(var(--gridSize) * 2);
   left: -1px;

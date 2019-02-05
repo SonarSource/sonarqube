@@ -18,26 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import { shallow } from 'enzyme';
+import PaidCardPlan from '../PaidCardPlan';
 
-export default function AlmApplicationInstalling({ almKey }: { almKey?: string }) {
-  return (
-    <DeferredSpinner
-      customSpinner={
-        <div className="sonarcloud page page-limited">
-          <div className="huge-spacer-top text-center">
-            <i className="spinner" />
-            <p className="big-spacer-top">
-              {translate(
-                'onboarding.import_organization.installing',
-                sanitizeAlmId(almKey) || 'ALM'
-              )}
-            </p>
-          </div>
-        </div>
-      }
-    />
-  );
-}
+it('should render correctly', () => {
+  expect(shallow(<PaidCardPlan isRecommended={true} startingPrice={10} />)).toMatchSnapshot();
+});

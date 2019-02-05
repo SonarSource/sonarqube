@@ -46,16 +46,11 @@
   color: var(--sonarcloudBlack300);
 }
 
-.navbar-latest-notification-wrapper .badge {
+.navbar-latest-notification-wrapper .badge-new {
   position: absolute;
-  height: 18px;
   margin-right: var(--gridSize);
   left: calc(var(--gridSize) / 2);
   top: 5px;
-  font-size: var(--verySmallFontSize);
-  text-transform: uppercase;
-  background-color: var(--lightBlue);
-  color: var(--darkBlue);
 }
 
 .navbar-latest-notification-wrapper .label {

@@ -17,7 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isBitbucket, isGithub, isPersonal, isVSTS, sanitizeAlmId } from '../almIntegrations';
+import {
+  isBitbucket,
+  isGithub,
+  isPersonal,
+  isVSTS,
+  sanitizeAlmId,
+  getAlmMembersUrl
+} from '../almIntegrations';
+
+it('#getAlmMembersUrl', () => {
+  expect(
+    getAlmMembersUrl({ key: 'github', membersSync: true, url: 'https://github.com/Foo' })
+  ).toBe('https://github.com/orgs/Foo/people');
+  expect(
+    getAlmMembersUrl({ key: 'bitbucket', membersSync: true, url: 'https://bitbucket.com/Foo/' })
+  ).toBe('https://bitbucket.com/Foo/profile/members');
+});
 
 it('#isBitbucket', () => {
   expect(isBitbucket('bitbucket')).toBeTruthy();

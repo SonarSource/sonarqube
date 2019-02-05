@@ -2,9 +2,23 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <CardPlan
-    startingPrice={10}
+  <RadioCard
     title="billing.upgrade_box.header"
+    titleInfo={
+      <FormattedMessage
+        defaultMessage="billing.price_from_x"
+        id="billing.price_from_x"
+        values={
+          Object {
+            "price": <span
+              className="big"
+            >
+              billing.price_format.10
+            </span>,
+          }
+        }
+      />
+    }
   >
     <UpgradeOrganizationAdvantages />
     <div
@@ -26,6 +40,6 @@ exports[`should render correctly 1`] = `
         billing.pricing.learn_more
       </Link>
     </div>
-  </CardPlan>
+  </RadioCard>
 </Fragment>
 `;

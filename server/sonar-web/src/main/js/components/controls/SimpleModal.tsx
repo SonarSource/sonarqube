@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from './Modal';
+import Modal, { ModalProps } from './Modal';
 
 export interface ChildrenProps {
   onCloseClick: (event?: React.SyntheticEvent<HTMLElement>) => void;
@@ -27,7 +27,7 @@ export interface ChildrenProps {
   submitting: boolean;
 }
 
-interface Props {
+interface Props extends ModalProps {
   children: (props: ChildrenProps) => React.ReactNode;
   header: string;
   onClose: () => void;
@@ -86,9 +86,10 @@ export default class SimpleModal extends React.Component<Props, State> {
   };
 
   render() {
+    const { children, header, onClose, onSubmit, ...modalProps } = this.props;
     return (
-      <Modal contentLabel={this.props.header} onRequestClose={this.props.onClose}>
-        {this.props.children({
+      <Modal contentLabel={header} onRequestClose={onClose} {...modalProps}>
+        {children({
           onCloseClick: this.handleCloseClick,
           onFormSubmit: this.handleFormSubmit,
           onSubmitClick: this.handleSubmitClick,

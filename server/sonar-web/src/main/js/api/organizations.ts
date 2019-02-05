@@ -39,6 +39,7 @@ export function getOrganization(key: string): Promise<T.Organization | undefined
 
 interface GetOrganizationNavigation {
   adminPages: T.Extension[];
+  alm?: { key: string; membersSync: boolean; url: string };
   canUpdateProjectsVisibilityToPrivate: boolean;
   isDefault: boolean;
   pages: T.Extension[];
@@ -101,4 +102,12 @@ export interface OrganizationBilling {
 
 export function getOrganizationBilling(organization: string): Promise<OrganizationBilling> {
   return getJSON('/api/billing/show', { organization, p: 1, ps: 1 });
+}
+
+export function setOrganizationMemberSync(data: { enabled: boolean; organization: string }) {
+  return post('/api/organizations/set_members_sync', data).catch(throwGlobalError);
+}
+
+export function syncMembers(organization: string) {
+  return post('/api/organizations/sync_members', { organization }).catch(throwGlobalError);
 }

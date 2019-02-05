@@ -19,14 +19,54 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import MembersListHeader from '../MembersListHeader';
+import MembersListHeader, { Props } from '../MembersListHeader';
+import {
+  mockOrganization,
+  mockCurrentUser,
+  mockOrganizationWithAlm
+} from '../../../helpers/testMocks';
 
 it('should render without the total', () => {
-  const wrapper = shallow(<MembersListHeader handleSearch={jest.fn()} />);
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender({ total: undefined })).toMatchSnapshot();
 });
 
 it('should render with the total', () => {
-  const wrapper = shallow(<MembersListHeader handleSearch={jest.fn()} total={8} />);
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should render a help tooltip', () => {
+  expect(
+    shallowRender({ organization: mockOrganizationWithAlm({}, { membersSync: true }) }).find(
+      'HelpTooltip'
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallowRender({
+      organization: mockOrganizationWithAlm(
+        {},
+        { key: 'bitbucket', membersSync: true, url: 'https://bitbucket.com/foo' }
+      )
+    }).find('HelpTooltip')
+  ).toMatchSnapshot();
+});
+
+it('should not render link in help tooltip', () => {
+  expect(
+    shallowRender({
+      currentUser: mockCurrentUser({ personalOrganization: 'foo' }),
+      organization: mockOrganizationWithAlm({}, { membersSync: true })
+    }).find('HelpTooltip')
+  ).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
+    <MembersListHeader
+      currentUser={mockCurrentUser()}
+      handleSearch={jest.fn()}
+      organization={mockOrganization()}
+      total={8}
+      {...props}
+    />
+  );
+}

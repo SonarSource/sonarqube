@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import UpgradeOrganizationAdvantages from './UpgradeOrganizationAdvantages';
 import UpgradeOrganizationModal from './UpgradeOrganizationModal';
-import CardPlan from './CardPlan';
+import RadioCard from '../../../components/controls/RadioCard';
 import { Button } from '../../../components/ui/buttons';
-import { translate, hasMessage } from '../../../helpers/l10n';
+import { formatPrice } from '../organization/utils';
 import { getSubscriptionPlans } from '../../../api/billing';
+import { translate, hasMessage } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
@@ -84,10 +86,20 @@ export default class UpgradeOrganizationBox extends React.PureComponent<Props, S
 
     return (
       <>
-        <CardPlan
+        <RadioCard
           className={this.props.className}
-          startingPrice={startingPrice}
-          title={translate('billing.upgrade_box.header')}>
+          title={translate('billing.upgrade_box.header')}
+          titleInfo={
+            startingPrice !== undefined && (
+              <FormattedMessage
+                defaultMessage={translate('billing.price_from_x')}
+                id="billing.price_from_x"
+                values={{
+                  price: <span className="big">{formatPrice(startingPrice)}</span>
+                }}
+              />
+            )
+          }>
           <>
             <UpgradeOrganizationAdvantages />
             <div className="big-spacer-left">
@@ -99,7 +111,7 @@ export default class UpgradeOrganizationBox extends React.PureComponent<Props, S
               </Link>
             </div>
           </>
-        </CardPlan>
+        </RadioCard>
         {upgradeOrganizationModal && (
           <UpgradeOrganizationModal
             insideModal={this.props.insideModal}

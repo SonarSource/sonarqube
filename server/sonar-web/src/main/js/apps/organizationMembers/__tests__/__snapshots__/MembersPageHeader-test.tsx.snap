@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render 1`] = `
+exports[`should render correctly 1`] = `
 <header
   className="page-header"
 >
@@ -13,10 +13,7 @@ exports[`should render 1`] = `
     loading={true}
     timeout={100}
   />
-  <span>
-    children test
-  </span>
-  <p
+  <div
     className="page-description"
   >
     <FormattedMessage
@@ -34,6 +31,153 @@ exports[`should render 1`] = `
         }
       }
     />
-  </p>
+  </div>
+</header>
+`;
+
+exports[`should render for admin 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    organization.members.page
+  </h1>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <div
+    className="page-actions text-right"
+  >
+    <div
+      className="display-inline-block spacer-left spacer-bottom"
+    >
+      <AddMemberForm
+        addMember={[MockFunction]}
+        memberLogins={Array []}
+        organization={
+          Object {
+            "actions": Object {
+              "admin": true,
+            },
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+      <DocTooltip
+        className="spacer-left"
+        doc={Promise {}}
+      />
+    </div>
+  </div>
+  <div
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="organization.members.page.description"
+      id="organization.members.page.description"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/organizations/manage-team/"
+          >
+            organization.members.manage_a_team
+          </Link>,
+        }
+      }
+    />
+  </div>
+</header>
+`;
+
+exports[`should render for bound organization without sync 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    organization.members.page
+  </h1>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <div
+    className="page-actions text-right"
+  >
+    <div
+      className="display-inline-block spacer-left spacer-bottom"
+    >
+      <AddMemberForm
+        addMember={[MockFunction]}
+        memberLogins={Array []}
+        organization={
+          Object {
+            "actions": Object {
+              "admin": true,
+            },
+            "alm": Object {
+              "key": "github",
+              "membersSync": false,
+              "url": "https://github.com/foo",
+            },
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+      <DocTooltip
+        className="spacer-left"
+        doc={Promise {}}
+      />
+    </div>
+    <NewInfoBox
+      description="organization.members.auto_sync_members_from_org.github"
+      onClose={[Function]}
+      title="organization.members.auto_sync_with_x.github"
+    >
+      <Connect(SyncMemberForm)
+        organization={
+          Object {
+            "actions": Object {
+              "admin": true,
+            },
+            "alm": Object {
+              "key": "github",
+              "membersSync": false,
+              "url": "https://github.com/foo",
+            },
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+    </NewInfoBox>
+  </div>
+  <div
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="organization.members.page.description"
+      id="organization.members.page.description"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/organizations/manage-team/"
+          >
+            organization.members.manage_a_team
+          </Link>,
+        }
+      }
+    />
+  </div>
 </header>
 `;

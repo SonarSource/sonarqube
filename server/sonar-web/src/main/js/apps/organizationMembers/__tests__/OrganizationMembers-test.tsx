@@ -20,9 +20,14 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationMembers from '../OrganizationMembers';
-import { waitAndUpdate } from '../../../helpers/testUtils';
 import { searchMembers, addMember, removeMember } from '../../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+import {
+  mockOrganization,
+  mockCurrentUser,
+  mockOrganizationWithAdminActions
+} from '../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 
 jest.mock('../../../api/organizations', () => ({
   addMember: jest.fn().mockResolvedValue({ login: 'bar', name: 'Bar', groupCount: 1 }),
@@ -48,15 +53,13 @@ jest.mock('../../../api/user_groups', () => ({
   })
 }));
 
-const organization = { key: 'foo', name: 'Foo' };
-
 beforeEach(() => {
   (searchMembers as jest.Mock).mockClear();
   (searchUsersGroups as jest.Mock).mockClear();
 });
 
 it('should fetch members and render for non-admin', async () => {
-  const wrapper = shallow(<OrganizationMembers organization={organization} />);
+  const wrapper = shallowRender({ organization: mockOrganization() });
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
@@ -64,40 +67,31 @@ it('should fetch members and render for non-admin', async () => {
   expect(searchMembers).toBeCalledWith({ organization: 'foo', ps: 50, q: undefined });
 });
 
-it('should fetch members and groups and render for admin', async () => {
-  const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
-  );
+it('should fetch members and groups for admin', async () => {
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
   expect(searchMembers).toBeCalledWith({ organization: 'foo', ps: 50, q: undefined });
   expect(searchUsersGroups).toBeCalledWith({ organization: 'foo' });
 });
 
 it('should search users', async () => {
-  const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   wrapper.find('MembersListHeader').prop<Function>('handleSearch')('user');
   expect(searchMembers).lastCalledWith({ organization: 'foo', ps: 50, q: 'user' });
 });
 
 it('should load more members', async () => {
-  const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   expect(searchMembers).lastCalledWith({ organization: 'foo', p: 2, ps: 50, q: undefined });
 });
 
 it('should add new member', async () => {
-  const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  wrapper.find('AddMemberForm').prop<Function>('addMember')({ login: 'bar' });
+  wrapper.find('Connect(MembersPageHeader)').prop<Function>('handleAddMember')({ login: 'bar' });
   await waitAndUpdate(wrapper);
   expect(
     wrapper
@@ -110,9 +104,7 @@ it('should add new member', async () => {
 });
 
 it('should remove member', async () => {
-  const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   wrapper.find('MembersList').prop<Function>('removeMember')({ login: 'john' });
   await waitAndUpdate(wrapper);
@@ -127,9 +119,7 @@ it('should remove member', async () => {
 });
 
 it('should update groups', async () => {
-  const wrapper = shallow(
-    <OrganizationMembers organization={{ ...organization, actions: { admin: true } }} />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   wrapper.find('MembersList').prop<Function>('updateMemberGroups')(
     { login: 'john' },
@@ -148,3 +138,13 @@ it('should update groups', async () => {
   expect(removeUserFromGroup).toHaveBeenCalledTimes(1);
   expect(removeUserFromGroup).toBeCalledWith({ login: 'john', name: 'birds', organization: 'foo' });
 });
+
+function shallowRender(props: Partial<OrganizationMembers['props']> = {}) {
+  return shallow(
+    <OrganizationMembers
+      currentUser={mockCurrentUser()}
+      organization={mockOrganizationWithAdminActions()}
+      {...props}
+    />
+  );
+}

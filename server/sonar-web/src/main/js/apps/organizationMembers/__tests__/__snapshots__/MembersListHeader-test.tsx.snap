@@ -1,5 +1,74 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render link in help tooltip 1`] = `
+<HelpTooltip
+  className="spacer-left"
+  overlay={
+    <div
+      className="abs-width-300  markdown cut-margins"
+    >
+      <p>
+        organization.members.auto_sync_total_help.github
+      </p>
+    </div>
+  }
+/>
+`;
+
+exports[`should render a help tooltip 1`] = `
+<HelpTooltip
+  className="spacer-left"
+  overlay={
+    <div
+      className="abs-width-300  markdown cut-margins"
+    >
+      <p>
+        organization.members.auto_sync_total_help.github
+      </p>
+      <React.Fragment>
+        <hr />
+        <p>
+          <a
+            href="https://github.com/orgs/foo/people"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            organization.members.see_all_members_on_x.github
+          </a>
+        </p>
+      </React.Fragment>
+    </div>
+  }
+/>
+`;
+
+exports[`should render a help tooltip 2`] = `
+<HelpTooltip
+  className="spacer-left"
+  overlay={
+    <div
+      className="abs-width-300  markdown cut-margins"
+    >
+      <p>
+        organization.members.auto_sync_total_help.bitbucket
+      </p>
+      <React.Fragment>
+        <hr />
+        <p>
+          <a
+            href="https://bitbucket.com/foo/profile/members"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            organization.members.see_all_members_on_x.bitbucket
+          </a>
+        </p>
+      </React.Fragment>
+    </div>
+  }
+/>
+`;
+
 exports[`should render with the total 1`] = `
 <div
   className="panel panel-vertical bordered-bottom spacer-bottom"

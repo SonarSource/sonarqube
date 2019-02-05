@@ -18,16 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from '../../components/controls/HelpTooltip';
 import SearchBox from '../../components/controls/SearchBox';
+import { getAlmMembersUrl, sanitizeAlmId } from '../../helpers/almIntegrations';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
-import { translate } from '../../helpers/l10n';
 
-interface Props {
+export interface Props {
+  currentUser: T.LoggedInUser;
   handleSearch: (query?: string) => void;
+  organization: T.Organization;
   total?: number;
 }
 
-export default function MembersListHeader({ handleSearch, total }: Props) {
+export default function MembersListHeader({
+  currentUser,
+  handleSearch,
+  organization,
+  total
+}: Props) {
   return (
     <div className="panel panel-vertical bordered-bottom spacer-bottom">
       <SearchBox
@@ -38,6 +47,38 @@ export default function MembersListHeader({ handleSearch, total }: Props) {
       {total !== undefined && (
         <span className="pull-right little-spacer-top">
           <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
+          {organization.alm &&
+            organization.alm.membersSync && (
+              <HelpTooltip
+                className="spacer-left"
+                overlay={
+                  <div className="abs-width-300  markdown cut-margins">
+                    <p>
+                      {translate(
+                        'organization.members.auto_sync_total_help',
+                        sanitizeAlmId(organization.alm.key) || ''
+                      )}
+                    </p>
+                    {currentUser.personalOrganization !== organization.key && (
+                      <>
+                        <hr />
+                        <p>
+                          <a
+                            href={getAlmMembersUrl(organization.alm)}
+                            rel="noopener noreferrer"
+                            target="_blank">
+                            {translateWithParameters(
+                              'organization.members.see_all_members_on_x',
+                              translate(sanitizeAlmId(organization.alm.key) || '')
+                            )}
+                          </a>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                }
+              />
+            )}
         </span>
       )}
     </div>

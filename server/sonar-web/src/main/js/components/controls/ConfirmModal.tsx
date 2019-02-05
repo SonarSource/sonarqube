@@ -18,21 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ModalProps } from './Modal';
 import SimpleModal, { ChildrenProps } from './SimpleModal';
 import DeferredSpinner from '../common/DeferredSpinner';
-import { translate } from '../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../ui/buttons';
+import { translate } from '../../helpers/l10n';
 
-interface Props<T> {
-  children: React.ReactNode;
+export interface ConfirmModalProps<T> extends ModalProps {
   cancelButtonText?: string;
   confirmButtonText: string;
   confirmData?: T;
   confirmDisable?: boolean;
-  header: string;
   isDestructive?: boolean;
+  onConfirm: (data?: T) => void | Promise<void | Response>;
+}
+
+interface Props<T> extends ConfirmModalProps<T> {
+  header: string;
   onClose: () => void;
-  onConfirm: (data?: T) => void | Promise<void>;
 }
 
 export default class ConfirmModal<T = string> extends React.PureComponent<Props<T>> {
@@ -82,9 +85,10 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
   };
 
   render() {
-    const { header } = this.props;
+    const { header, onClose, medium, noBackdrop, large, simple } = this.props;
+    const modalProps = { header, onClose, medium, noBackdrop, large, simple };
     return (
-      <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.handleSubmit}>
+      <SimpleModal onSubmit={this.handleSubmit} {...modalProps}>
         {this.renderModalContent}
       </SimpleModal>
     );

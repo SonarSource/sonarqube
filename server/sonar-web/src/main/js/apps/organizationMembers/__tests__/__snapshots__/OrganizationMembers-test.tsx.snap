@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should fetch members and groups and render for admin 1`] = `
+exports[`should fetch members and render for non-admin 1`] = `
 <div
   className="page page-limited"
 >
@@ -12,41 +12,34 @@ exports[`should fetch members and groups and render for admin 1`] = `
   <Suggestions
     suggestions="organization_members"
   />
-  <MembersPageHeader
-    loading={false}
-  >
-    <div
-      className="page-actions"
-    >
-      <AddMemberForm
-        addMember={[Function]}
-        memberLogins={
-          Array [
-            "admin",
-            "john",
-          ]
-        }
-        organization={
-          Object {
-            "actions": Object {
-              "admin": true,
-            },
-            "key": "foo",
-            "name": "Foo",
-          }
-        }
-      />
-      <DocTooltip
-        className="spacer-left"
-        doc={Promise {}}
-      />
-    </div>
-  </MembersPageHeader>
-  <MembersListHeader
-    handleSearch={[Function]}
-    total={3}
+  <Connect(MembersPageHeader)
+    handleAddMember={[Function]}
+    loading={true}
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
   />
-  <MembersList
+</div>
+`;
+
+exports[`should fetch members and render for non-admin 2`] = `
+<div
+  className="page page-limited"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="organization.members.page"
+  />
+  <Suggestions
+    suggestions="organization_members"
+  />
+  <Connect(MembersPageHeader)
+    handleAddMember={[Function]}
+    loading={false}
     members={
       Array [
         Object {
@@ -65,78 +58,28 @@ exports[`should fetch members and groups and render for admin 1`] = `
     }
     organization={
       Object {
-        "actions": Object {
-          "admin": true,
-        },
         "key": "foo",
         "name": "Foo",
       }
     }
-    organizationGroups={
-      Array [
-        Object {
-          "default": true,
-          "description": "",
-          "id": 1,
-          "membersCount": 2,
-          "name": "Members",
-        },
-        Object {
-          "default": false,
-          "description": "",
-          "id": 2,
-          "membersCount": 0,
-          "name": "Watchers",
-        },
-      ]
-    }
-    removeMember={[Function]}
-    updateMemberGroups={[Function]}
-  />
-  <ListFooter
-    count={2}
-    loadMore={[Function]}
-    ready={true}
-    total={3}
-  />
-</div>
-`;
-
-exports[`should fetch members and render for non-admin 1`] = `
-<div
-  className="page page-limited"
->
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="organization.members.page"
-  />
-  <Suggestions
-    suggestions="organization_members"
-  />
-  <MembersPageHeader
-    loading={true}
-  />
-</div>
-`;
-
-exports[`should fetch members and render for non-admin 2`] = `
-<div
-  className="page page-limited"
->
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="organization.members.page"
-  />
-  <Suggestions
-    suggestions="organization_members"
-  />
-  <MembersPageHeader
-    loading={false}
   />
   <MembersListHeader
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
     handleSearch={[Function]}
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
     total={3}
   />
   <MembersList

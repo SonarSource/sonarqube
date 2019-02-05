@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationHeader from '../OrganizationNavigationHeader';
+import { mockOrganizationWithAlm } from '../../../../helpers/testMocks';
 
 it('renders', () => {
   expect(
@@ -36,12 +37,7 @@ it('renders with alm integration', () => {
   expect(
     shallow(
       <OrganizationNavigationHeader
-        organization={{
-          alm: { key: 'github', url: 'https://github.com/foo' },
-          key: 'foo',
-          name: 'Foo',
-          projectVisibility: 'public'
-        }}
+        organization={mockOrganizationWithAlm({ projectVisibility: 'public' })}
         organizations={[]}
       />
     )

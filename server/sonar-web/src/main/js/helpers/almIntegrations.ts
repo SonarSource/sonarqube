@@ -19,6 +19,16 @@
  */
 import { isLoggedIn } from './users';
 
+export function getAlmMembersUrl({ key, url }: T.OrganizationAlm): string {
+  if (!url.endsWith('/')) {
+    url += '/';
+  }
+  if (isGithub(key)) {
+    return url.replace('github.com/', 'github.com/orgs/') + 'people';
+  }
+  return url + 'profile/members';
+}
+
 export function hasAdvancedALMIntegration(user: T.CurrentUser) {
   return (
     isLoggedIn(user) && (isBitbucket(user.externalProvider) || isGithub(user.externalProvider))

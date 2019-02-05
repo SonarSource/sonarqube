@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import CardPlan, { FreeCardPlan, PaidCardPlan } from '../CardPlan';
-import { click } from '../../../../helpers/testUtils';
+import RadioCard from '../RadioCard';
+import { click } from '../../../helpers/testUtils';
 
 it('should render correctly', () => {
   expect(
     shallow(
-      <CardPlan recommended="Recommended for you" startingPrice={10} title="Paid Plan">
+      <RadioCard recommended="Recommended for you" title="Radio Card" titleInfo="info">
         <div>content</div>
-      </CardPlan>
+      </RadioCard>
     )
   ).toMatchSnapshot();
 });
@@ -35,37 +35,13 @@ it('should render correctly', () => {
 it('should be actionable', () => {
   const onClick = jest.fn();
   const wrapper = shallow(
-    <CardPlan onClick={onClick} title="Free Plan">
+    <RadioCard onClick={onClick} title="Radio Card">
       <div>content</div>
-    </CardPlan>
+    </RadioCard>
   );
 
   expect(wrapper).toMatchSnapshot();
   click(wrapper);
-  wrapper.setProps({ selected: true, startingPrice: 0 });
+  wrapper.setProps({ selected: true, titleInfo: 'info' });
   expect(wrapper).toMatchSnapshot();
-});
-
-describe('#FreeCardPlan', () => {
-  it('should render', () => {
-    expect(shallow(<FreeCardPlan hasWarning={false} />)).toMatchSnapshot();
-  });
-
-  it('should render with warning', () => {
-    expect(
-      shallow(<FreeCardPlan almName="GitHub" hasWarning={true} selected={true} />)
-    ).toMatchSnapshot();
-  });
-
-  it('should render disabled with info', () => {
-    expect(
-      shallow(<FreeCardPlan almName="GitHub" disabled={true} hasWarning={false} />)
-    ).toMatchSnapshot();
-  });
-});
-
-describe('#PaidCardPlan', () => {
-  it('should render', () => {
-    expect(shallow(<PaidCardPlan isRecommended={true} startingPrice={10} />)).toMatchSnapshot();
-  });
 });

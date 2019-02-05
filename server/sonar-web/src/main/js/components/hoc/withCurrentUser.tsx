@@ -23,7 +23,7 @@ import { getWrappedDisplayName } from './utils';
 import { Store, getCurrentUser } from '../../store/rootReducer';
 
 export function withCurrentUser<P>(
-  WrappedComponent: React.ComponentClass<P & { currentUser: T.CurrentUser }>
+  WrappedComponent: React.ComponentType<P & { currentUser: T.CurrentUser }>
 ) {
   class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withCurrentUser');
