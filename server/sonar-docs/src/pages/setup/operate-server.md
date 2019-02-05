@@ -166,4 +166,6 @@ Note that you may need to increase the max URL length since SonarQube requests c
 
 Please see: [http://blog.jessehouwing.nl/2016/02/configure-ssl-for-sonarqube-on-windows.html](http://blog.jessehouwing.nl/2016/02/configure-ssl-for-sonarqube-on-windows.html)
 
+Note that the setup described in this blog post is not approprite for SAML through IIS.
+
 <!-- /sonarqube -->
