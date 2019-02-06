@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for bugs 1`] = `
+<Fragment>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "types": "BUG",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <BugIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  overview.metric.new_bugs
+</Fragment>
+`;
+
+exports[`should render correctly for code smells 1`] = `
+<Fragment>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "types": "CODE_SMELL",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <CodeSmellIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  overview.metric.new_code_smells
+</Fragment>
+`;
+
+exports[`should render correctly for vulnerabilities 1`] = `
+<Fragment>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "types": "VULNERABILITY",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <VulnerabilityIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  overview.metric.new_vulnerabilities
+</Fragment>
+`;
+
+exports[`should render correctly if no values are present 1`] = `
+<Fragment>
+  <span
+    className="measure-empty"
+  >
+    —
+  </span>
+  <BugIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  overview.metric.new_bugs
+</Fragment>
+`;

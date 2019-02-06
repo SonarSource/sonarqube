@@ -70,7 +70,6 @@ exports[`renders short-living branch 1`] = `
         "query": Object {
           "branch": "foo",
           "id": "component",
-          "resolved": "false",
         },
       }
     }
@@ -86,10 +85,7 @@ exports[`renders short-living branch 1`] = `
             "mergeBranch": "master",
             "name": "foo",
             "status": Object {
-              "bugs": 1,
-              "codeSmells": 2,
               "qualityGateStatus": "ERROR",
-              "vulnerabilities": 3,
             },
             "type": "SHORT",
           }
@@ -108,10 +104,7 @@ exports[`renders short-living branch 1`] = `
             "mergeBranch": "master",
             "name": "foo",
             "status": Object {
-              "bugs": 1,
-              "codeSmells": 2,
               "qualityGateStatus": "ERROR",
-              "vulnerabilities": 3,
             },
             "type": "SHORT",
           }
@@ -137,7 +130,6 @@ exports[`renders short-living orhpan branch 1`] = `
         "query": Object {
           "branch": "foo",
           "id": "component",
-          "resolved": "false",
         },
       }
     }
@@ -154,10 +146,7 @@ exports[`renders short-living orhpan branch 1`] = `
             "mergeBranch": "master",
             "name": "foo",
             "status": Object {
-              "bugs": 1,
-              "codeSmells": 2,
               "qualityGateStatus": "ERROR",
-              "vulnerabilities": 3,
             },
             "type": "SHORT",
           }
@@ -177,10 +166,7 @@ exports[`renders short-living orhpan branch 1`] = `
             "mergeBranch": "master",
             "name": "foo",
             "status": Object {
-              "bugs": 1,
-              "codeSmells": 2,
               "qualityGateStatus": "ERROR",
-              "vulnerabilities": 3,
             },
             "type": "SHORT",
           }

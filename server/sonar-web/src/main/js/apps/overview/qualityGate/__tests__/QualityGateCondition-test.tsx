@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import QualityGateCondition from '../QualityGateCondition';
-import { QualityGateStatusConditionEnhanced } from '../../utils';
 
-const mockRatingCondition = (metric: string): QualityGateStatusConditionEnhanced => ({
+const mockRatingCondition = (metric: string): T.QualityGateStatusConditionEnhanced => ({
   error: '1',
   level: 'ERROR',
   measure: {
@@ -41,7 +40,7 @@ const mockRatingCondition = (metric: string): QualityGateStatusConditionEnhanced
 const periods = [{ value: '3', index: 1 }];
 
 it('open_issues', () => {
-  const condition: QualityGateStatusConditionEnhanced = {
+  const condition: T.QualityGateStatusConditionEnhanced = {
     error: '0',
     level: 'ERROR',
     measure: {
@@ -62,7 +61,7 @@ it('open_issues', () => {
 });
 
 it('new_open_issues', () => {
-  const condition: QualityGateStatusConditionEnhanced = {
+  const condition: T.QualityGateStatusConditionEnhanced = {
     error: '0',
     level: 'ERROR',
     measure: {

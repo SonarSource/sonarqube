@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import Level from '../ui/Level';
-
-interface Props {
-  branchLike: T.BranchLike;
-}
-
-export default function BranchStatus({ branchLike }: Props) {
-  if (!branchLike.status) {
-    return null;
-  }
-
-  return <Level level={branchLike.status.qualityGateStatus} small={true} />;
+export function extractStatusConditionsFromProjectStatus(
+  status: T.QualityGateProjectStatus
+): T.QualityGateStatusCondition[] {
+  const { conditions } = status.projectStatus;
+  return conditions
+    ? conditions.map(c => ({
+        actual: c.actualValue,
+        error: c.errorThreshold,
+        level: c.status,
+        metric: c.metricKey,
+        op: c.comparator,
+        period: c.periodIndex
+      }))
+    : [];
 }

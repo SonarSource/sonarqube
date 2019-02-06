@@ -979,6 +979,24 @@ exports[`should work for short-living branches 1`] = `
   <li>
     <Link
       activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": "feature",
+            "id": "foo",
+          },
+        }
+      }
+    >
+      overview.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
       className=""
       onlyActiveOnIndex={false}
       style={Object {}}

@@ -19,40 +19,36 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ComponentNavMeta } from '../ComponentNavMeta';
-import {
-  mockShortLivingBranch,
-  mockComponent,
-  mockCurrentUser,
-  mockLongLivingBranch,
-  mockPullRequest
-} from '../../../../../helpers/testMocks';
+import IssueRating from '../IssueRating';
+import { mockPullRequest, mockComponent, mockMeasure } from '../../../../helpers/testMocks';
 
-it('renders status of short-living branch', () => {
+it('should render correctly for bugs', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('renders meta for long-living branch', () => {
-  expect(shallowRender({ branchLike: mockLongLivingBranch() })).toMatchSnapshot();
+it('should render correctly for code smells', () => {
+  expect(shallowRender({ type: 'CODE_SMELL' })).toMatchSnapshot();
 });
 
-it('renders meta for pull request', () => {
-  expect(
-    shallowRender({
-      branchLike: mockPullRequest({
-        url: 'https://example.com/pull/1234'
-      })
-    })
-  ).toMatchSnapshot();
+it('should render correctly for vulnerabilities', () => {
+  expect(shallowRender({ type: 'VULNERABILITY' })).toMatchSnapshot();
+});
+
+it('should render correctly if no values are present', () => {
+  expect(shallowRender({ measures: [mockMeasure({ metric: 'NONE' })] })).toMatchSnapshot();
 });
 
 function shallowRender(props = {}) {
   return shallow(
-    <ComponentNavMeta
-      branchLike={mockShortLivingBranch()}
-      component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={mockCurrentUser({ isLoggedIn: false })}
-      warnings={[]}
+    <IssueRating
+      branchLike={mockPullRequest()}
+      component={mockComponent()}
+      measures={[
+        mockMeasure({ metric: 'new_reliability_rating' }),
+        mockMeasure({ metric: 'new_maintainability_rating' }),
+        mockMeasure({ metric: 'new_security_rating' })
+      ]}
+      type="BUG"
       {...props}
     />
   );

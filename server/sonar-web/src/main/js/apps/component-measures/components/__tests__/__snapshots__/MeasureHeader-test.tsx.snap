@@ -169,7 +169,6 @@ exports[`should render with short living branch 1`] = `
       >
         <strong>
           <Measure
-            className="leak-box"
             metricKey="new_reliability_rating"
             metricType="RATING"
             value="3.0"

@@ -83,12 +83,6 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   };
 
   renderDashboardLink() {
-    const { branchLike } = this.props;
-
-    if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
-      return null;
-    }
-
     const pathname = this.isPortfolio() ? '/portfolio' : '/dashboard';
     return (
       <li>

@@ -1,0 +1,135 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for coverage 1`] = `
+<Fragment>
+  <span
+    className="big-spacer-right"
+  >
+    <CoverageRating
+      size="big"
+      value={1}
+    />
+  </span>
+  <DrilldownLink
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "release-1.0",
+        "type": "SHORT",
+      }
+    }
+    component="my-project"
+    metric="new_coverage"
+  >
+    1.0%
+  </DrilldownLink>
+  <span
+    className="big-spacer-left"
+  >
+    overview.metric.coverage
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly for coverage 2`] = `
+<Fragment>
+  <span
+    className="big-spacer-right"
+  >
+    <CoverageRating
+      size="big"
+      value={1}
+    />
+  </span>
+  <DrilldownLink
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "release-1.0",
+        "type": "SHORT",
+      }
+    }
+    component="my-project"
+    metric="new_coverage"
+  >
+    1.0%
+  </DrilldownLink>
+  <span
+    className="big-spacer-left"
+  >
+    <FormattedMessage
+      defaultMessage="overview.coverage_on_X_lines"
+      id="overview.coverage_on_X_lines"
+      values={
+        Object {
+          "count": <DrilldownLink
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "isMain": false,
+                "mergeBranch": "master",
+                "name": "release-1.0",
+                "type": "SHORT",
+              }
+            }
+            component="my-project"
+            metric="new_lines_to_cover"
+          >
+            1
+          </DrilldownLink>,
+        }
+      }
+    />
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly for duplications 1`] = `
+<Fragment>
+  <span
+    className="big-spacer-right"
+  >
+    <DuplicationsRating
+      size="big"
+      value={1}
+    />
+  </span>
+  <DrilldownLink
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "release-1.0",
+        "type": "SHORT",
+      }
+    }
+    component="my-project"
+    metric="new_duplicated_lines_density"
+  >
+    1.0%
+  </DrilldownLink>
+  <span
+    className="big-spacer-left"
+  >
+    overview.metric.duplications
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly with no value 1`] = `
+<Fragment>
+  <span>
+    —
+  </span>
+  <span
+    className="big-spacer-left"
+  >
+    overview.metric.coverage
+  </span>
+</Fragment>
+`;

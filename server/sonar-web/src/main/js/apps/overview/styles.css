@@ -62,6 +62,10 @@
   align-items: flex-start;
 }
 
+.overview-quality-gate-conditions-list-collapse {
+  margin: calc(2 * var(--gridSize)) 0;
+}
+
 .overview-quality-gate-condition {
   display: block;
   margin-top: 15px;
@@ -508,4 +512,100 @@
   to {
     opacity: 1;
   }
+}
+
+/*
+ * PRs and SLBs
+ */
+.pr-overview {
+  display: flex;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.pr-overview.has-conditions {
+  max-width: 1180px;
+}
+
+.pr-overview h3 {
+  text-transform: uppercase;
+}
+
+.pr-overview-failed-conditions {
+  flex: 0 0 240px;
+}
+
+.pr-overview .overview-quality-gate-condition:first-of-type {
+  margin-top: 0;
+}
+
+.pr-overview .overview-quality-gate-condition {
+  margin-right: 0;
+  margin-top: 12px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pr-overview-measurements-row {
+  min-height: 85px;
+  box-sizing: border-box;
+  background: white;
+  border: 1px solid var(--barBorderColor);
+}
+
+.pr-overview-measurements-row + .pr-overview-measurements-row {
+  border-top: 0;
+}
+
+.pr-overview-measurements-value,
+.pr-overview-measurements-rating,
+.pr-overview-measurements-estimate {
+  padding: calc(3 * var(--gridSize));
+}
+
+.pr-overview-measurements-value .measure-empty {
+  margin-top: -4px;
+}
+
+.pr-overview-measurements-rating,
+.pr-overview-measurements-estimate {
+  flex-basis: 270px;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+  .pr-overview-measurements-rating,
+  .pr-overview-measurements-estimate {
+    flex-basis: 220px;
+  }
+}
+
+.pr-overview-measurements-estimate {
+  background: var(--veryLightGreen);
+}
+
+.pr-overview-measurements-estimate .label {
+  margin-left: var(--gridSize);
+  text-align: right;
+}
+
+.quality-gate-badge-large {
+  width: 240px;
+  min-height: 160px;
+  padding: calc(2 * var(--gridSize));
+  color: var(--transparentWhite);
+  box-sizing: border-box;
+}
+
+.quality-gate-badge-large.failed {
+  background: var(--red);
+}
+
+.quality-gate-badge-large.success {
+  background: var(--green);
+}
+
+.quality-gate-badge-large h4 {
+  color: white;
 }

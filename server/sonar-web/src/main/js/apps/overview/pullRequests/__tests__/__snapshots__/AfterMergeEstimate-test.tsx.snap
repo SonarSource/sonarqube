@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for coverage 1`] = `
+<Fragment>
+  <span
+    className="huge"
+  >
+    1.0%
+  </span>
+  <span
+    className="label flex-1"
+  >
+    component_measures.facet_category.overall_category.estimated
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly for duplications 1`] = `
+<Fragment>
+  <span
+    className="huge"
+  >
+    1.0%
+  </span>
+  <span
+    className="label flex-1"
+  >
+    component_measures.facet_category.overall_category.estimated
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly with no value 1`] = `""`;

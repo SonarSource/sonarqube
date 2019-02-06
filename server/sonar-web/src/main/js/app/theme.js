@@ -30,6 +30,7 @@ module.exports = {
   green: '#00aa00',
   lineCoverageGreen: '#b4dd78',
   lightGreen: '#b0d513',
+  veryLightGreen: '#f5f9fc',
   yellow: '#eabe06',
   orange: '#ed7d20',
   red: '#d4333f',
@@ -42,6 +43,8 @@ module.exports = {
   gray67: '#aaa',
   gray60: '#999',
   gray40: '#404040',
+
+  transparentWhite: 'rgba(255,255,255,0.62)',
 
   disableGrayText: '#bbb',
   disableGrayBorder: '#ddd',

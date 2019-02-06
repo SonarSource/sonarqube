@@ -18,16 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Level from '../ui/Level';
+import { formatMeasure, findMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
+import { MEASUREMENTS_MAP, MeasurementType } from '../utils';
 
 interface Props {
-  branchLike: T.BranchLike;
+  measures: T.Measure[];
+  type: MeasurementType;
 }
 
-export default function BranchStatus({ branchLike }: Props) {
-  if (!branchLike.status) {
+export default function AfterMergeEstimate({ measures, type }: Props) {
+  const { afterMergeMetric } = MEASUREMENTS_MAP[type];
+
+  const measure = findMeasure(measures, afterMergeMetric);
+
+  if (!measure || measure.value === undefined) {
     return null;
   }
 
-  return <Level level={branchLike.status.qualityGateStatus} small={true} />;
+  return (
+    <>
+      <span className="huge">{formatMeasure(measure.value, 'PERCENT')}</span>
+      <span className="label flex-1">
+        {translate('component_measures.facet_category.overall_category.estimated')}
+      </span>
+    </>
+  );
 }

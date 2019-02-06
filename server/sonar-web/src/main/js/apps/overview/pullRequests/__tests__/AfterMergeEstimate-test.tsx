@@ -19,41 +19,26 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ComponentNavMeta } from '../ComponentNavMeta';
-import {
-  mockShortLivingBranch,
-  mockComponent,
-  mockCurrentUser,
-  mockLongLivingBranch,
-  mockPullRequest
-} from '../../../../../helpers/testMocks';
+import AfterMergeEstimate from '../AfterMergeEstimate';
+import { mockMeasure } from '../../../../helpers/testMocks';
 
-it('renders status of short-living branch', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should render correctly for coverage', () => {
+  expect(shallowRender({ measures: [mockMeasure({ metric: 'coverage' })] })).toMatchSnapshot();
 });
 
-it('renders meta for long-living branch', () => {
-  expect(shallowRender({ branchLike: mockLongLivingBranch() })).toMatchSnapshot();
-});
-
-it('renders meta for pull request', () => {
+it('should render correctly for duplications', () => {
   expect(
     shallowRender({
-      branchLike: mockPullRequest({
-        url: 'https://example.com/pull/1234'
-      })
+      measures: [mockMeasure({ metric: 'duplicated_lines_density' })],
+      type: 'DUPLICATION'
     })
   ).toMatchSnapshot();
 });
 
+it('should render correctly with no value', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
 function shallowRender(props = {}) {
-  return shallow(
-    <ComponentNavMeta
-      branchLike={mockShortLivingBranch()}
-      component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={mockCurrentUser({ isLoggedIn: false })}
-      warnings={[]}
-      {...props}
-    />
-  );
+  return shallow(<AfterMergeEstimate measures={[mockMeasure()]} type="COVERAGE" {...props} />);
 }

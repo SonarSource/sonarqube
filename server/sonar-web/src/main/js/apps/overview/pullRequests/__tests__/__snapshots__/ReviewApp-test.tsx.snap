@@ -1,0 +1,1687 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for a failed QG 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="pr-overview has-conditions"
+  >
+    <div
+      className="pr-overview-quality-gate big-spacer-right"
+    >
+      <h3
+        className="spacer-bottom small"
+      >
+        overview.quality_gate
+        <DocTooltip
+          className="spacer-left"
+          doc={Promise {}}
+        />
+      </h3>
+      <LargeQualityGateBadge
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        level="ERROR"
+      />
+    </div>
+    <div
+      className="pr-overview-failed-conditions big-spacer-right"
+    >
+      <h3
+        className="spacer-bottom small"
+      >
+        overview.failed_conditions
+      </h3>
+      <QualityGateConditions
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "1001",
+            "title": "Foo Bar feature",
+          }
+        }
+        collapsible={true}
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        conditions={
+          Array [
+            Object {
+              "actual": "10",
+              "error": "1.0",
+              "level": "ERROR",
+              "metric": "new_code_smells",
+              "op": "GT",
+              "period": 1,
+            },
+          ]
+        }
+      />
+    </div>
+    <div
+      className="pr-overview-measurements flex-1"
+    >
+      <h3
+        className="spacer-bottom small"
+      >
+        overview.metrics
+      </h3>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="BUG"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="BUG"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-rating display-flex-center"
+        >
+          <IssueRating
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="BUG"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="VULNERABILITY"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="VULNERABILITY"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-rating display-flex-center"
+        >
+          <IssueRating
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="VULNERABILITY"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="CODE_SMELL"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="CODE_SMELL"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-rating display-flex-center"
+        >
+          <IssueRating
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="CODE_SMELL"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="COVERAGE"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <MeasurementLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="COVERAGE"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-estimate display-flex-center"
+        >
+          <AfterMergeEstimate
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="COVERAGE"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="DUPLICATION"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <MeasurementLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="DUPLICATION"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-estimate display-flex-center"
+        >
+          <AfterMergeEstimate
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="DUPLICATION"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for a passed QG 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="pr-overview"
+  >
+    <div
+      className="pr-overview-quality-gate big-spacer-right"
+    >
+      <h3
+        className="spacer-bottom small"
+      >
+        overview.quality_gate
+        <DocTooltip
+          className="spacer-left"
+          doc={Promise {}}
+        />
+      </h3>
+      <LargeQualityGateBadge
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        level="OK"
+      />
+    </div>
+    <div
+      className="pr-overview-measurements flex-1"
+    >
+      <h3
+        className="spacer-bottom small"
+      >
+        overview.metrics
+      </h3>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="BUG"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="BUG"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-rating display-flex-center"
+        >
+          <IssueRating
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="BUG"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="VULNERABILITY"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="VULNERABILITY"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-rating display-flex-center"
+        >
+          <IssueRating
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="VULNERABILITY"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="CODE_SMELL"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="CODE_SMELL"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-rating display-flex-center"
+        >
+          <IssueRating
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="CODE_SMELL"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="COVERAGE"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <MeasurementLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="COVERAGE"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-estimate display-flex-center"
+        >
+          <AfterMergeEstimate
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="COVERAGE"
+          />
+        </div>
+      </div>
+      <div
+        className="pr-overview-measurements-row display-flex-row"
+        key="DUPLICATION"
+      >
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <MeasurementLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="overview-domain-measure-value"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="DUPLICATION"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-estimate display-flex-center"
+        >
+          <AfterMergeEstimate
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="DUPLICATION"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

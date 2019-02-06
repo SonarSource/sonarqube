@@ -358,3 +358,7 @@ export function getRatingTooltip(metricKey: string, value: number | string): str
 export function getDisplayMetrics(metrics: T.Metric[]) {
   return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
 }
+
+export function findMeasure(measures: T.Measure[], metric: string) {
+  return measures.find(measure => measure.metric === metric);
+}

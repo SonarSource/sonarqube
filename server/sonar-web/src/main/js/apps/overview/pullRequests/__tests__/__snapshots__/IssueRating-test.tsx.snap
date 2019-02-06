@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for bugs 1`] = `
+<Fragment>
+  <span
+    className="big-spacer-right flex-1"
+  >
+    metric_domain.Reliability
+  </span>
+  <Tooltip
+    overlay="metric.reliability_rating.tooltip.A"
+  >
+    <span>
+      <DrilldownLink
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "1001",
+            "title": "Foo Bar feature",
+          }
+        }
+        className="link-no-underline"
+        component="my-project"
+        metric="new_reliability_rating"
+      >
+        <Rating
+          value="1.0"
+        />
+      </DrilldownLink>
+    </span>
+  </Tooltip>
+</Fragment>
+`;
+
+exports[`should render correctly for code smells 1`] = `
+<Fragment>
+  <span
+    className="big-spacer-right flex-1"
+  >
+    metric_domain.Maintainability
+  </span>
+  <Tooltip
+    overlay="metric.sqale_rating.tooltip.A.0.0%"
+  >
+    <span>
+      <DrilldownLink
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "1001",
+            "title": "Foo Bar feature",
+          }
+        }
+        className="link-no-underline"
+        component="my-project"
+        metric="new_maintainability_rating"
+      >
+        <Rating
+          value="1.0"
+        />
+      </DrilldownLink>
+    </span>
+  </Tooltip>
+</Fragment>
+`;
+
+exports[`should render correctly for vulnerabilities 1`] = `
+<Fragment>
+  <span
+    className="big-spacer-right flex-1"
+  >
+    metric_domain.Security
+  </span>
+  <Tooltip
+    overlay="metric.security_rating.tooltip.A"
+  >
+    <span>
+      <DrilldownLink
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "base": "master",
+            "branch": "feature/foo/bar",
+            "key": "1001",
+            "title": "Foo Bar feature",
+          }
+        }
+        className="link-no-underline"
+        component="my-project"
+        metric="new_security_rating"
+      >
+        <Rating
+          value="1.0"
+        />
+      </DrilldownLink>
+    </span>
+  </Tooltip>
+</Fragment>
+`;
+
+exports[`should render correctly if no values are present 1`] = `""`;

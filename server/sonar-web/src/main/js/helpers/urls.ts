@@ -83,11 +83,11 @@ export function getLongLivingBranchUrl(project: string, branch: string): Locatio
 }
 
 export function getShortLivingBranchUrl(project: string, branch: string): Location {
-  return { pathname: '/dashboard', query: { branch, id: project, resolved: 'false' } };
+  return { pathname: '/dashboard', query: { branch, id: project } };
 }
 
 export function getPullRequestUrl(project: string, pullRequest: string): Location {
-  return { pathname: '/dashboard', query: { id: project, pullRequest, resolved: 'false' } };
+  return { pathname: '/dashboard', query: { id: project, pullRequest } };
 }
 
 /**

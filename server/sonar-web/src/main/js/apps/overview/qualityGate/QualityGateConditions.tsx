@@ -20,29 +20,41 @@
 import * as React from 'react';
 import { sortBy } from 'lodash';
 import QualityGateCondition from './QualityGateCondition';
-import { QualityGateStatusCondition, QualityGateStatusConditionEnhanced } from '../utils';
+import ChevronDownIcon from '../../../components/icons-components/ChevronDownIcon';
+import { ButtonLink } from '../../../components/ui/buttons';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isSameBranchLike, getBranchLikeQuery } from '../../../helpers/branches';
+import { translateWithParameters } from '../../../helpers/l10n';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
 interface Props {
   branchLike?: T.BranchLike;
   component: Pick<T.Component, 'key'>;
-  conditions: QualityGateStatusCondition[];
+  collapsible?: boolean;
+  conditions: T.QualityGateStatusCondition[];
 }
 
 interface State {
-  conditions?: QualityGateStatusConditionEnhanced[];
+  collapsed: boolean;
+  conditions?: T.QualityGateStatusConditionEnhanced[];
   loading: boolean;
 }
 
+const MAX_CONDITIONS = 5;
+
 export default class QualityGateConditions extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = {
-    loading: true
-  };
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      collapsed: Boolean(props.collapsible),
+      loading: true
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -63,6 +75,16 @@ export default class QualityGateConditions extends React.PureComponent<Props, St
     this.mounted = false;
   }
 
+  enhanceConditions = (
+    conditions: T.QualityGateStatusCondition[],
+    measures: T.MeasureEnhanced[]
+  ): T.QualityGateStatusConditionEnhanced[] => {
+    return conditions.map(condition => {
+      const measure = measures.find(measure => measure.metric.key === condition.metric)!;
+      return { ...condition, measure };
+    });
+  };
+
   loadFailedMeasures() {
     const { branchLike, component, conditions } = this.props;
     const failedConditions = conditions.filter(c => c.level !== 'OK');
@@ -76,7 +98,7 @@ export default class QualityGateConditions extends React.PureComponent<Props, St
           if (this.mounted) {
             const measures = enhanceMeasuresWithMetrics(component.measures || [], metrics || []);
             this.setState({
-              conditions: enhanceConditions(failedConditions, measures),
+              conditions: this.enhanceConditions(failedConditions, measures),
               loading: false
             });
           }
@@ -92,25 +114,37 @@ export default class QualityGateConditions extends React.PureComponent<Props, St
     }
   }
 
+  handleToggleCollapse = () => {
+    this.setState(state => ({
+      collapsed: !state.collapsed
+    }));
+  };
+
   render() {
     const { branchLike, component } = this.props;
-    const { loading, conditions } = this.state;
+    const { loading, collapsed, conditions } = this.state;
 
     if (loading || !conditions) {
       return null;
     }
 
-    const sortedConditions = sortBy(
-      conditions,
-      condition => LEVEL_ORDER.indexOf(condition.level),
-      condition => condition.measure.metric.name
-    );
+    const sortedConditions = sortBy(conditions, condition => LEVEL_ORDER.indexOf(condition.level));
+
+    let renderConditions;
+    let renderCollapsed;
+    if (collapsed && sortedConditions.length > MAX_CONDITIONS) {
+      renderConditions = sortedConditions.slice(0, MAX_CONDITIONS);
+      renderCollapsed = true;
+    } else {
+      renderConditions = sortedConditions;
+      renderCollapsed = false;
+    }
 
     return (
       <div
         className="overview-quality-gate-conditions-list clearfix"
         id="overview-quality-gate-conditions-list">
-        {sortedConditions.map(condition => (
+        {renderConditions.map(condition => (
           <QualityGateCondition
             branchLike={branchLike}
             component={component}
@@ -118,17 +152,18 @@ export default class QualityGateConditions extends React.PureComponent<Props, St
             key={condition.measure.metric.key}
           />
         ))}
+        {renderCollapsed && (
+          <ButtonLink
+            className="overview-quality-gate-conditions-list-collapse"
+            onClick={this.handleToggleCollapse}>
+            {translateWithParameters(
+              'overview.X_more_failed_conditions',
+              sortedConditions.length - MAX_CONDITIONS
+            )}
+            <ChevronDownIcon className="little-spacer-left" />
+          </ButtonLink>
+        )}
       </div>
     );
   }
-}
-
-function enhanceConditions(
-  conditions: QualityGateStatusCondition[],
-  measures: T.MeasureEnhanced[]
-): QualityGateStatusConditionEnhanced[] {
-  return conditions.map(condition => {
-    const measure = measures.find(measure => measure.metric.key === condition.metric)!;
-    return { ...condition, measure };
-  });
 }

@@ -18,21 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate } from '../../helpers/l10n';
-
-export interface QualityGateStatusCondition {
-  actual?: string;
-  error?: string;
-  level: string;
-  metric: string;
-  op: string;
-  period?: number;
-  warning?: string;
-}
-
-// long name to not mix with Condition from /app/types.ts
-export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCondition {
-  measure: T.MeasureEnhanced;
-}
+import CodeSmellIcon from '../../components/icons-components/CodeSmellIcon';
+import VulnerabilityIcon from '../../components/icons-components/VulnerabilityIcon';
+import BugIcon from '../../components/icons-components/BugIcon';
+import CoverageRating from '../../components/ui/CoverageRating';
+import DuplicationsRating from '../../components/ui/DuplicationsRating';
 
 export const METRICS = [
   // quality gate
@@ -77,6 +67,22 @@ export const METRICS = [
   'new_lines'
 ];
 
+export const PR_METRICS = [
+  'coverage',
+  'new_coverage',
+  'new_lines_to_cover',
+
+  'duplicated_lines_density',
+  'new_duplicated_lines_density',
+  'new_lines',
+  'new_code_smells',
+  'new_maintainability_rating',
+  'new_bugs',
+  'new_reliability_rating',
+  'new_vulnerabilities',
+  'new_security_rating'
+];
+
 export const HISTORY_METRICS_LIST = [
   'sqale_index',
   'duplicated_lines_density',
@@ -84,6 +90,54 @@ export const HISTORY_METRICS_LIST = [
   'coverage'
 ];
 
+export type MeasurementType = 'COVERAGE' | 'DUPLICATION';
+
+export const MEASUREMENTS_MAP = {
+  COVERAGE: {
+    metric: 'new_coverage',
+    linesMetric: 'new_lines_to_cover',
+    afterMergeMetric: 'coverage',
+    labelKey: 'overview.metric.coverage',
+    expandedLabelKey: 'overview.coverage_on_X_lines',
+    iconClass: CoverageRating
+  },
+  DUPLICATION: {
+    metric: 'new_duplicated_lines_density',
+    linesMetric: 'new_lines',
+    afterMergeMetric: 'duplicated_lines_density',
+    labelKey: 'overview.metric.duplications',
+    expandedLabelKey: 'overview.duplications_on_X',
+    iconClass: DuplicationsRating
+  }
+};
+
+export type IssueType = 'CODE_SMELL' | 'VULNERABILITY' | 'BUG';
+
+export const ISSUETYPE_MAP = {
+  CODE_SMELL: {
+    metric: 'new_code_smells',
+    rating: 'new_maintainability_rating',
+    ratingName: 'Maintainability',
+    iconClass: CodeSmellIcon
+  },
+  VULNERABILITY: {
+    metric: 'new_vulnerabilities',
+    rating: 'new_security_rating',
+    ratingName: 'Security',
+    iconClass: VulnerabilityIcon
+  },
+  BUG: {
+    metric: 'new_bugs',
+    rating: 'new_reliability_rating',
+    ratingName: 'Reliability',
+    iconClass: BugIcon
+  }
+};
+
 export function getMetricName(metricKey: string) {
   return translate('overview.metric', metricKey);
+}
+
+export function getRatingName(type: IssueType) {
+  return translate('metric_domain', ISSUETYPE_MAP[type].ratingName);
 }

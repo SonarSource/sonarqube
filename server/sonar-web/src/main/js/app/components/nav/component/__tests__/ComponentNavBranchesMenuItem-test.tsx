@@ -27,7 +27,7 @@ const shortBranch: T.ShortLivingBranch = {
   isMain: false,
   mergeBranch: 'master',
   name: 'foo',
-  status: { bugs: 1, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
+  status: { qualityGateStatus: 'ERROR' },
   type: 'SHORT'
 };
 

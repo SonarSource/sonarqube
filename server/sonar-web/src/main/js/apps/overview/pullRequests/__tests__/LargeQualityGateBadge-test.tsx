@@ -17,15 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.branch-status {
-  display: inline-flex;
-  justify-content: flex-end;
-  align-items: center;
-  min-width: 64px;
-  line-height: calc(2 * var(--gridSize));
-  text-align: right;
-}
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import LargeQualityGateBadge from '../LargeQualityGateBadge';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { isSonarCloud } from '../../../../helpers/system';
 
-.branch-status .status-indicator {
-  margin: 0;
+jest.mock('../../../../helpers/system', () => ({
+  isSonarCloud: jest.fn()
+}));
+
+it('should render correctly for SQ', () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(false);
+
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ level: 'OK' })).toMatchSnapshot();
+});
+
+it('should render the link correctly for SC', () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+function shallowRender(props = {}) {
+  return shallow(<LargeQualityGateBadge component={mockComponent()} level="ERROR" {...props} />);
 }

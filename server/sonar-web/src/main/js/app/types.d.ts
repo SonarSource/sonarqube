@@ -618,12 +618,7 @@ declare namespace T {
     branch: string;
     key: string;
     isOrphan?: true;
-    status?: {
-      bugs: number;
-      codeSmells: number;
-      qualityGateStatus: string;
-      vulnerabilities: number;
-    };
+    status?: { qualityGateStatus: string };
     title: string;
     url?: string;
   }
@@ -642,6 +637,35 @@ declare namespace T {
     isBuiltIn?: boolean;
     isDefault?: boolean;
     name: string;
+  }
+
+  export interface QualityGateProjectStatus {
+    projectStatus: {
+      conditions?: Array<{
+        status: 'ERROR' | 'OK';
+        metricKey: string;
+        comparator: string;
+        periodIndex: number;
+        errorThreshold: string;
+        actualValue: string;
+      }>;
+      ignoredConditions: boolean;
+      status: string;
+    };
+  }
+
+  export interface QualityGateStatusCondition {
+    actual?: string;
+    error?: string;
+    level: string;
+    metric: string;
+    op: string;
+    period?: number;
+    warning?: string;
+  }
+
+  export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCondition {
+    measure: T.MeasureEnhanced;
   }
 
   export interface Rule {
@@ -755,12 +779,6 @@ declare namespace T {
     isMain: false;
     isOrphan?: true;
     mergeBranch: string;
-    status?: {
-      bugs: number;
-      codeSmells: number;
-      qualityGateStatus: string;
-      vulnerabilities: number;
-    };
     type: 'SHORT';
   }
 

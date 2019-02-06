@@ -20,19 +20,18 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { QualityGateStatusConditionEnhanced } from '../utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import Measure from '../../../components/measure/Measure';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { getBranchLikeQuery } from '../../../helpers/branches';
+import { getBranchLikeQuery, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
 
 interface Props {
   branchLike?: T.BranchLike;
   component: Pick<T.Component, 'key'>;
-  condition: QualityGateStatusConditionEnhanced;
+  condition: T.QualityGateStatusConditionEnhanced;
 }
 
 export default class QualityGateCondition extends React.PureComponent<Props> {
@@ -91,7 +90,10 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const className = classNames(
       'overview-quality-gate-condition',
       'overview-quality-gate-condition-' + condition.level.toLowerCase(),
-      { 'overview-quality-gate-condition-leak': condition.period != null }
+      {
+        'overview-quality-gate-condition-leak':
+          condition.period != null && !isPullRequest(branchLike) && !isShortLivingBranch(branchLike)
+      }
     );
 
     const metricKey = condition.measure.metric.key;

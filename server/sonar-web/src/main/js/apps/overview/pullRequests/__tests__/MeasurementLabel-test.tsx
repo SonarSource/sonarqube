@@ -19,40 +19,41 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ComponentNavMeta } from '../ComponentNavMeta';
-import {
-  mockShortLivingBranch,
-  mockComponent,
-  mockCurrentUser,
-  mockLongLivingBranch,
-  mockPullRequest
-} from '../../../../../helpers/testMocks';
+import MeasurementLabel from '../MeasurementLabel';
+import { mockShortLivingBranch, mockComponent, mockMeasure } from '../../../../helpers/testMocks';
 
-it('renders status of short-living branch', () => {
+it('should render correctly for coverage', () => {
   expect(shallowRender()).toMatchSnapshot();
-});
-
-it('renders meta for long-living branch', () => {
-  expect(shallowRender({ branchLike: mockLongLivingBranch() })).toMatchSnapshot();
-});
-
-it('renders meta for pull request', () => {
   expect(
     shallowRender({
-      branchLike: mockPullRequest({
-        url: 'https://example.com/pull/1234'
-      })
+      measures: [
+        mockMeasure({ metric: 'new_coverage' }),
+        mockMeasure({ metric: 'new_lines_to_cover' })
+      ]
     })
   ).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
+it('should render correctly for duplications', () => {
+  expect(
+    shallowRender({
+      measures: [mockMeasure({ metric: 'new_duplicated_lines_density' })],
+      type: 'DUPLICATION'
+    })
+  ).toMatchSnapshot();
+});
+
+it('should render correctly with no value', () => {
+  expect(shallowRender({ measures: [mockMeasure({ metric: 'NONE' })] })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<MeasurementLabel['props']> = {}) {
   return shallow(
-    <ComponentNavMeta
+    <MeasurementLabel
       branchLike={mockShortLivingBranch()}
-      component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={mockCurrentUser({ isLoggedIn: false })}
-      warnings={[]}
+      component={mockComponent()}
+      measures={[mockMeasure({ metric: 'new_coverage' })]}
+      type="COVERAGE"
       {...props}
     />
   );

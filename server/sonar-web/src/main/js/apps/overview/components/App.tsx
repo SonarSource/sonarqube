@@ -21,16 +21,12 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
+import ReviewApp from '../pullRequests/ReviewApp';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { isShortLivingBranch } from '../../../helpers/branches';
-import {
-  getShortLivingBranchUrl,
-  getProjectUrl,
-  getBaseUrl,
-  getPathUrlAsString
-} from '../../../helpers/urls';
-import { isSonarCloud } from '../../../helpers/system';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
+import { getProjectUrl, getBaseUrl, getPathUrlAsString } from '../../../helpers/urls';
+import { isSonarCloud } from '../../../helpers/system';
+import { isShortLivingBranch, isPullRequest } from '../../../helpers/branches';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -44,24 +40,24 @@ interface Props {
 
 export class App extends React.PureComponent<Props> {
   componentDidMount() {
-    const { branchLike, component } = this.props;
+    const { component } = this.props;
 
     if (this.isPortfolio()) {
       this.props.router.replace({
         pathname: '/portfolio',
         query: { id: component.key }
       });
-    } else if (isShortLivingBranch(branchLike)) {
-      this.props.router.replace(getShortLivingBranchUrl(component.key, branchLike.name));
     }
   }
 
-  isPortfolio = () => ['VW', 'SVW'].includes(this.props.component.qualifier);
+  isPortfolio = () => {
+    return ['VW', 'SVW'].includes(this.props.component.qualifier);
+  };
 
   render() {
     const { branchLike, branchLikes, component } = this.props;
 
-    if (this.isPortfolio() || isShortLivingBranch(branchLike)) {
+    if (this.isPortfolio()) {
       return null;
     }
 
@@ -75,23 +71,29 @@ export class App extends React.PureComponent<Props> {
             />
           </Helmet>
         )}
-        <Suggestions suggestions="overview" />
 
-        {!component.analysisDate && (
-          <EmptyOverview
-            branchLike={branchLike}
-            branchLikes={branchLikes}
-            component={component}
-            hasAnalyses={this.props.isPending || this.props.isInProgress}
-            onComponentChange={this.props.onComponentChange}
-          />
-        )}
-        {component.analysisDate && (
-          <OverviewApp
-            branchLike={branchLike}
-            component={component}
-            onComponentChange={this.props.onComponentChange}
-          />
+        {isShortLivingBranch(branchLike) || isPullRequest(branchLike) ? (
+          <ReviewApp branchLike={branchLike} component={component} />
+        ) : (
+          <>
+            <Suggestions suggestions="overview" />
+
+            {!component.analysisDate ? (
+              <EmptyOverview
+                branchLike={branchLike}
+                branchLikes={branchLikes}
+                component={component}
+                hasAnalyses={this.props.isPending || this.props.isInProgress}
+                onComponentChange={this.props.onComponentChange}
+              />
+            ) : (
+              <OverviewApp
+                branchLike={branchLike}
+                component={component}
+                onComponentChange={this.props.onComponentChange}
+              />
+            )}
+          </>
         )}
       </>
     );

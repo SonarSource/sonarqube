@@ -80,6 +80,19 @@ export function mockComponent(overrides: Partial<T.Component> = {}): T.Component
   };
 }
 
+export function mockQualityGateStatusCondition(
+  overrides: Partial<T.QualityGateStatusCondition> = {}
+): T.QualityGateStatusCondition {
+  return {
+    actual: '10',
+    error: '0',
+    level: 'ERROR',
+    metric: 'foo',
+    op: 'GT',
+    ...overrides
+  };
+}
+
 export function mockCurrentUser(overrides: Partial<T.LoggedInUser> = {}): T.LoggedInUser {
   return {
     groups: [],
@@ -159,6 +172,22 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
   };
 }
 
+export function mockMeasure(overrides: Partial<T.Measure> = {}): T.Measure {
+  return {
+    bestValue: true,
+    metric: 'bugs',
+    periods: [
+      {
+        bestValue: true,
+        index: 1,
+        value: '1.0'
+      }
+    ],
+    value: '1.0',
+    ...overrides
+  };
+}
+
 export function mockOrganization(overrides: Partial<T.Organization> = {}): T.Organization {
   return { key: 'foo', name: 'Foo', ...overrides };
 }
@@ -193,12 +222,6 @@ export function mockPullRequest(overrides: Partial<T.PullRequest> = {}): T.PullR
     analysisDate: '2018-01-01',
     base: 'master',
     branch: 'feature/foo/bar',
-    status: {
-      bugs: 0,
-      codeSmells: 0,
-      qualityGateStatus: 'OK',
-      vulnerabilities: 0
-    },
     key: '1001',
     title: 'Foo Bar feature',
     ...overrides
@@ -221,6 +244,28 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
     projectCount: 3,
     organization: 'foo',
     ...overrides
+  };
+}
+
+export function mockQualityGateProjectStatus(
+  overrides: Partial<T.QualityGateProjectStatus['projectStatus']> = {}
+): T.QualityGateProjectStatus {
+  return {
+    projectStatus: {
+      conditions: [
+        {
+          actualValue: '0',
+          comparator: 'GT',
+          errorThreshold: '1.0',
+          metricKey: 'new_bugs',
+          periodIndex: 1,
+          status: 'OK'
+        }
+      ],
+      ignoredConditions: false,
+      status: 'OK',
+      ...overrides
+    }
   };
 }
 
@@ -262,12 +307,6 @@ export function mockShortLivingBranch(
     isMain: false,
     name: 'release-1.0',
     mergeBranch: 'master',
-    status: {
-      bugs: 0,
-      codeSmells: 0,
-      qualityGateStatus: 'OK',
-      vulnerabilities: 0
-    },
     type: 'SHORT',
     ...overrides
   };
@@ -280,9 +319,6 @@ export function mockLongLivingBranch(
     analysisDate: '2018-01-01',
     isMain: false,
     name: 'master',
-    status: {
-      qualityGateStatus: 'OK'
-    },
     type: 'LONG',
     ...overrides
   };

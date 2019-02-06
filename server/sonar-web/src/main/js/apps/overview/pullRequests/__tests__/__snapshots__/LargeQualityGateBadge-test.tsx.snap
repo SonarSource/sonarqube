@@ -1,0 +1,145 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for SQ 1`] = `
+<div
+  className="quality-gate-badge-large small failed"
+>
+  <div
+    className="display-flex-center"
+  >
+    <span>
+      overview.on_new_code_long
+    </span>
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay={
+        <FormattedMessage
+          defaultMessage="overview.quality_gate.conditions_on_new_code"
+          id="overview.quality_gate.conditions_on_new_code"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/quality_gates/show/30",
+                  }
+                }
+              >
+                overview.quality_gate
+              </Link>,
+            }
+          }
+        />
+      }
+    >
+      <HelpIcon
+        fill="rgba(255,255,255,0.62)"
+        size={12}
+      />
+    </HelpTooltip>
+  </div>
+  <h4
+    className="huge-spacer-top huge"
+  >
+    metric.level.ERROR
+  </h4>
+</div>
+`;
+
+exports[`should render correctly for SQ 2`] = `
+<div
+  className="quality-gate-badge-large small success"
+>
+  <div
+    className="display-flex-center"
+  >
+    <span>
+      overview.on_new_code_long
+    </span>
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay={
+        <FormattedMessage
+          defaultMessage="overview.quality_gate.conditions_on_new_code"
+          id="overview.quality_gate.conditions_on_new_code"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/quality_gates/show/30",
+                  }
+                }
+              >
+                overview.quality_gate
+              </Link>,
+            }
+          }
+        />
+      }
+    >
+      <HelpIcon
+        fill="rgba(255,255,255,0.62)"
+        size={12}
+      />
+    </HelpTooltip>
+  </div>
+  <h4
+    className="huge-spacer-top huge"
+  >
+    metric.level.OK
+  </h4>
+</div>
+`;
+
+exports[`should render the link correctly for SC 1`] = `
+<div
+  className="quality-gate-badge-large small failed"
+>
+  <div
+    className="display-flex-center"
+  >
+    <span>
+      overview.on_new_code_long
+    </span>
+    <HelpTooltip
+      className="little-spacer-left"
+      overlay={
+        <FormattedMessage
+          defaultMessage="overview.quality_gate.conditions_on_new_code"
+          id="overview.quality_gate.conditions_on_new_code"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/organizations/foo/quality_gates/show/30",
+                  }
+                }
+              >
+                overview.quality_gate
+              </Link>,
+            }
+          }
+        />
+      }
+    >
+      <HelpIcon
+        fill="rgba(255,255,255,0.62)"
+        size={12}
+      />
+    </HelpTooltip>
+  </div>
+  <h4
+    className="huge-spacer-top huge"
+  >
+    metric.level.ERROR
+  </h4>
+</div>
+`;

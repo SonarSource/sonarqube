@@ -95,7 +95,7 @@ function shortBranch(name: string, isOrphan?: true): T.ShortLivingBranch {
     isOrphan,
     mergeBranch: 'master',
     name,
-    status: { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 },
+    status: { qualityGateStatus: 'OK' },
     type: 'SHORT'
   };
 }
@@ -109,7 +109,7 @@ function pullRequest(title: string): T.PullRequest {
     base: 'master',
     branch: 'feature',
     key: '1234',
-    status: { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 },
+    status: { qualityGateStatus: 'OK' },
     title
   };
 }

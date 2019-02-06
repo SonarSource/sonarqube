@@ -166,3 +166,12 @@ export function getApplicationQualityGate(data: {
 }): Promise<ApplicationQualityGate> {
   return getJSON('/api/qualitygates/application_status', data).catch(throwGlobalError);
 }
+
+export function getQualityGateProjectStatus(
+  data: {
+    projectKey?: string;
+    projectId?: string;
+  } & T.BranchParameters
+): Promise<T.QualityGateProjectStatus> {
+  return getJSON('/api/qualitygates/project_status', data).catch(throwGlobalError);
+}

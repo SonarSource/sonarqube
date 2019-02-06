@@ -20,7 +20,12 @@
 import { getRatingTooltip as nextGetRatingTooltip, isDiffMetric } from '../../helpers/measures';
 import { getLeakPeriod } from '../../helpers/periods';
 
-const KNOWN_RATINGS = ['sqale_rating', 'reliability_rating', 'security_rating'];
+const KNOWN_RATINGS = [
+  'sqale_rating',
+  'maintainability_rating', // Needed to provide the label for "new_maintainability_rating"
+  'reliability_rating',
+  'security_rating'
+];
 
 export function enhanceMeasure(
   measure: T.Measure,

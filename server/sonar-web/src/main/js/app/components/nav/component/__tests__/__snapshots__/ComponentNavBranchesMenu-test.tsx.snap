@@ -47,10 +47,7 @@ exports[`renders list 1`] = `
           "branch": "feature",
           "key": "1234",
           "status": Object {
-            "bugs": 0,
-            "codeSmells": 0,
             "qualityGateStatus": "OK",
-            "vulnerabilities": 0,
           },
           "title": "qux",
         }
@@ -89,10 +86,7 @@ exports[`renders list 1`] = `
           "mergeBranch": "master",
           "name": "baz",
           "status": Object {
-            "bugs": 0,
-            "codeSmells": 0,
             "qualityGateStatus": "OK",
-            "vulnerabilities": 0,
           },
           "type": "SHORT",
         }
@@ -115,10 +109,7 @@ exports[`renders list 1`] = `
           "mergeBranch": "master",
           "name": "foo",
           "status": Object {
-            "bugs": 0,
-            "codeSmells": 0,
             "qualityGateStatus": "OK",
-            "vulnerabilities": 0,
           },
           "type": "SHORT",
         }
@@ -178,10 +169,7 @@ exports[`renders list 1`] = `
           "mergeBranch": "master",
           "name": "baz",
           "status": Object {
-            "bugs": 0,
-            "codeSmells": 0,
             "qualityGateStatus": "OK",
-            "vulnerabilities": 0,
           },
           "type": "SHORT",
         }
@@ -231,10 +219,7 @@ exports[`searches 1`] = `
           "mergeBranch": "master",
           "name": "foobar",
           "status": Object {
-            "bugs": 0,
-            "codeSmells": 0,
             "qualityGateStatus": "OK",
-            "vulnerabilities": 0,
           },
           "type": "SHORT",
         }

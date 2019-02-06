@@ -28,7 +28,6 @@ exports[`should render source file 1`] = `
               "query": Object {
                 "branch": "feature",
                 "id": "project-key",
-                "resolved": "false",
               },
             }
           }
@@ -387,7 +386,6 @@ exports[`should render source file 2`] = `
               "query": Object {
                 "branch": "feature",
                 "id": "project-key",
-                "resolved": "false",
               },
             }
           }
@@ -1352,7 +1350,6 @@ exports[`should render test file 1`] = `
               "query": Object {
                 "branch": "feature",
                 "id": "project-key",
-                "resolved": "false",
               },
             }
           }
