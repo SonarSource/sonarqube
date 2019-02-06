@@ -21,12 +21,8 @@ package org.sonar.ce.task.projectanalysis.webhook;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.measures.Metric;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.qualitygate.Condition;
-import org.sonar.server.qualitygate.EvaluatedCondition;
+import org.sonar.ce.task.projectanalysis.api.posttask.QGToEvaluatedQG;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
@@ -36,7 +32,6 @@ import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
 public class WebhookPostTask implements PostProjectAnalysisTask {
-
   private final WebhookPayloadFactory payloadFactory;
   private final WebHooks webHooks;
 
@@ -60,21 +55,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
     Analysis analysis = projectAnalysis.getAnalysis().map(a -> new Analysis(a.getAnalysisUuid(), a.getDate().getTime())).orElse(null);
     Branch branch = projectAnalysis.getBranch().map(b -> new Branch(b.isMain(), b.getName().orElse(null), Branch.Type.valueOf(b.getType().name()))).orElse(null);
     EvaluatedQualityGate qualityGate = Optional.ofNullable(projectAnalysis.getQualityGate())
-      .map(qg -> {
-        EvaluatedQualityGate.Builder builder = EvaluatedQualityGate.newBuilder();
-        Set<Condition> conditions = qg.getConditions().stream()
-          .map(q -> {
-            Condition condition = new Condition(q.getMetricKey(), Condition.Operator.valueOf(q.getOperator().name()), q.getErrorThreshold());
-            builder.addCondition(condition,
-              EvaluatedCondition.EvaluationStatus.valueOf(q.getStatus().name()),
-              q.getStatus() == org.sonar.api.ce.posttask.QualityGate.EvaluationStatus.NO_VALUE ? null : q.getValue());
-            return condition;
-          })
-          .collect(MoreCollectors.toSet());
-        return builder.setQualityGate(new org.sonar.server.qualitygate.QualityGate(qg.getId(), qg.getName(), conditions))
-          .setStatus(Metric.Level.valueOf(qg.getStatus().name()))
-          .build();
-      })
+      .map(QGToEvaluatedQG.INSTANCE)
       .orElse(null);
     Long date = projectAnalysis.getAnalysis().map(a -> a.getDate().getTime()).orElse(null);
     Map<String, String> properties = projectAnalysis.getScannerContext().getProperties();

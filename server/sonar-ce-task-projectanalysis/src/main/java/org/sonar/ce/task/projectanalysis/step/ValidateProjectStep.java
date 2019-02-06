@@ -88,7 +88,7 @@ public class ValidateProjectStep implements ComputationStep {
   }
 
   private void validateTargetBranch(DbSession session) {
-    if (!analysisMetadataHolder.isShortLivingBranch() && !analysisMetadataHolder.isPullRequest()) {
+    if (!analysisMetadataHolder.isSLBorPR()) {
       return;
     }
     String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid().get();

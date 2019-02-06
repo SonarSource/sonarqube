@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
@@ -43,7 +44,6 @@ import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.QualityGateConverter;
 import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
-import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static java.lang.String.format;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
@@ -63,10 +63,6 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
 
   @Override
   public QualityGate loadQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto project, BranchDto branch) {
-    if (branch.getBranchType() == BranchType.SHORT || branch.getBranchType() == BranchType.PULL_REQUEST) {
-      return ShortLivingBranchQualityGate.GATE;
-    }
-
     ComponentDto mainProject = project.getMainBranchProjectUuid() == null ? project : dbClient.componentDao().selectOrFailByKey(dbSession, project.getKey());
     QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, organization, mainProject)
       .orElseThrow(() -> new IllegalStateException(format("Quality Gate not found for project %s", mainProject.getKey())))
@@ -77,13 +73,17 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     Map<Integer, MetricDto> metricsById = dbClient.metricDao().selectByIds(dbSession, metricIds).stream()
       .collect(uniqueIndex(MetricDto::getId));
 
-    Set<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
+    Stream<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
       String metricKey = metricsById.get((int) conditionDto.getMetricId()).getKey();
       Condition.Operator operator = Condition.Operator.fromDbValue(conditionDto.getOperator());
       return new Condition(metricKey, operator, conditionDto.getErrorThreshold());
-    }).collect(toHashSet(conditionDtos.size()));
+    });
 
-    return new QualityGate(String.valueOf(gateDto.getId()), gateDto.getName(), conditions);
+    if (branch.getBranchType() == BranchType.PULL_REQUEST || branch.getBranchType() == BranchType.SHORT) {
+      conditions = conditions.filter(Condition::isOnLeakPeriod);
+    }
+
+    return new QualityGate(String.valueOf(gateDto.getId()), gateDto.getName(), conditions.collect(toHashSet(conditionDtos.size())));
   }
 
   @Override

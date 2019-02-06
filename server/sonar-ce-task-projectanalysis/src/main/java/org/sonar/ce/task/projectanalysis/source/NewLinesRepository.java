@@ -49,7 +49,7 @@ public class NewLinesRepository {
   }
 
   public boolean newLinesAvailable() {
-    return isPullRequestOrShortLivedBranch() || periodHolder.hasPeriod();
+    return analysisMetadataHolder.isSLBorPR() || periodHolder.hasPeriod();
   }
 
   public Optional<Set<Integer>> getNewLines(Component file) {
@@ -96,15 +96,11 @@ public class NewLinesRepository {
   }
 
   private Optional<Set<Integer>> getChangedLinesFromReport(Component file) {
-    if (isPullRequestOrShortLivedBranch()) {
+    if (analysisMetadataHolder.isSLBorPR()) {
       return reportChangedLinesCache.computeIfAbsent(file, this::readFromReport);
     }
 
     return Optional.empty();
-  }
-
-  private boolean isPullRequestOrShortLivedBranch() {
-    return analysisMetadataHolder.isPullRequest() || analysisMetadataHolder.isShortLivingBranch();
   }
 
   private Optional<Set<Integer>> readFromReport(Component file) {

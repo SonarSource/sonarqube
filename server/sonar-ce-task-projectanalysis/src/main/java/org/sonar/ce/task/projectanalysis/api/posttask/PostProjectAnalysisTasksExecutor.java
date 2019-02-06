@@ -167,7 +167,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   @CheckForNull
-  private QualityGateImpl createQualityGate() {
+  private QualityGate createQualityGate() {
     Optional<org.sonar.ce.task.projectanalysis.qualitygate.QualityGate> qualityGateOptional = this.qualityGateHolder.getQualityGate();
     if (qualityGateOptional.isPresent()) {
       org.sonar.ce.task.projectanalysis.qualitygate.QualityGate qualityGate = qualityGateOptional.get();

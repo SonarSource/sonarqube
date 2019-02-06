@@ -44,7 +44,7 @@ public class IssueTrackingDelegator {
   }
 
   public TrackingResult track(Component component) {
-    if (analysisMetadataHolder.isShortLivingBranch() || analysisMetadataHolder.isPullRequest()) {
+    if (analysisMetadataHolder.isSLBorPR()) {
       return standardResult(shortBranchOrPullRequestTracker.track(component));
     } else if (isFirstAnalysisSecondaryLongLivingBranch()) {
       Tracking<DefaultIssue, DefaultIssue> tracking = mergeBranchTracker.track(component);

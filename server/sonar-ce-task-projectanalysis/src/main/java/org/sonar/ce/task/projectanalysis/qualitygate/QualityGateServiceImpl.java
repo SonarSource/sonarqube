@@ -22,13 +22,12 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
-import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
@@ -44,9 +43,6 @@ public class QualityGateServiceImpl implements QualityGateService {
 
   @Override
   public Optional<QualityGate> findById(long id) {
-    if (id == ShortLivingBranchQualityGate.ID) {
-      return Optional.of(buildShortLivingBranchHardcodedQualityGate());
-    }
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, id);
       if (qualityGateDto == null) {
@@ -79,14 +75,4 @@ public class QualityGateServiceImpl implements QualityGateService {
 
     return new QualityGate(qualityGateDto.getId(), qualityGateDto.getName(), conditions);
   }
-
-  private QualityGate buildShortLivingBranchHardcodedQualityGate() {
-    return new QualityGate(
-      ShortLivingBranchQualityGate.ID,
-      ShortLivingBranchQualityGate.NAME,
-      ShortLivingBranchQualityGate.CONDITIONS.stream()
-        .map(c -> new Condition(metricRepository.getByKey(c.getMetricKey()), c.getOperator(), c.getErrorThreshold()))
-        .collect(toList(ShortLivingBranchQualityGate.CONDITIONS.size())));
-  }
-
 }

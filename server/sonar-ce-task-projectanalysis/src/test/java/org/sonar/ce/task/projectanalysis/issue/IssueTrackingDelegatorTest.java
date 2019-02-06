@@ -93,7 +93,7 @@ public class IssueTrackingDelegatorTest {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.SHORT);
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
-    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
+    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
 
     underTest.track(component);
 
@@ -107,7 +107,7 @@ public class IssueTrackingDelegatorTest {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
-    when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
+    when(analysisMetadataHolder.isSLBorPR()).thenReturn(true);
 
     underTest.track(component);
 

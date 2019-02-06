@@ -44,7 +44,6 @@ import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
-import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
@@ -71,24 +70,40 @@ public class LiveQualityGateComputerImplTest {
   public void loadQualityGate_returns_hardcoded_gate_for_short_living_branches() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
+
     BranchDto branch = newBranchDto(project).setBranchType(BranchType.SHORT);
     db.components().insertProjectBranch(project, branch);
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setKey("new_metric"));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setKey("metric"));
+
+    QGateWithOrgDto gate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, gate);
+
+    db.qualityGates().addCondition(gate, metric1);
+    db.qualityGates().addCondition(gate, metric2);
 
     QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, branch);
-
-    assertThat(result).isSameAs(ShortLivingBranchQualityGate.GATE);
+    assertThat(result.getConditions()).extracting(Condition::getMetricKey).containsExactly("new_metric");
   }
 
   @Test
   public void loadQualityGate_returns_hardcoded_gate_for_pull_requests() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
-    BranchDto pullRequest = newBranchDto(project).setBranchType(BranchType.PULL_REQUEST);
-    db.components().insertProjectBranch(project, pullRequest);
 
-    QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, pullRequest);
+    BranchDto branch = newBranchDto(project).setBranchType(BranchType.SHORT);
+    db.components().insertProjectBranch(project, branch);
+    MetricDto metric1 = db.measures().insertMetric(m -> m.setKey("new_metric"));
+    MetricDto metric2 = db.measures().insertMetric(m -> m.setKey("metric"));
 
-    assertThat(result).isSameAs(ShortLivingBranchQualityGate.GATE);
+    QGateWithOrgDto gate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, gate);
+
+    db.qualityGates().addCondition(gate, metric1);
+    db.qualityGates().addCondition(gate, metric2);
+
+    QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, branch);
+    assertThat(result.getConditions()).extracting(Condition::getMetricKey).containsExactly("new_metric");
   }
 
   @Test
@@ -164,7 +179,8 @@ public class LiveQualityGateComputerImplTest {
     LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricId(numericMetric.getId()).setValue(1.23).setVariation(4.56).setComponentUuid(project.uuid());
     LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricId(numericNewMetric.getId()).setValue(7.8).setVariation(8.9).setComponentUuid(project.uuid());
     LiveMeasureDto stringMeasure = new LiveMeasureDto().setMetricId(stringMetric.getId()).setData("bar").setComponentUuid(project.uuid());
-    MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric), asList(numericMeasure, numericNewMeasure, stringMeasure));
+    MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric),
+      asList(numericMeasure, numericNewMeasure, stringMeasure));
 
     underTest.refreshGateStatus(project, gate, matrix);
 
