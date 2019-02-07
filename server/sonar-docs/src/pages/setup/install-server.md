@@ -70,7 +70,7 @@ Once all SonarQube tables are using the InnoDB engine, the first thing to do is 
 
 ## Installing the Web Server
 
-First, check the [requirements](/requirements/requirements/).
+First, check the [requirements](/requirements/requirements/).  Note that you cannot run the SonarQube server as `root` on Unix-based systems.
 
 Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
 
