@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import javax.servlet.ServletException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
@@ -109,7 +108,7 @@ public class TomcatContexts {
       // disable JSP and WebSocket support
       context.setContainerSciFilter("org.apache.tomcat.websocket.server.WsSci|org.apache.jasper.servlet.JasperInitializer");
       return context;
-    } catch (ServletException e) {
+    } catch (Exception e) {
       throw new IllegalStateException("Fail to configure webapp from " + dir, e);
     }
   }
