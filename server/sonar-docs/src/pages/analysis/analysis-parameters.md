@@ -8,16 +8,16 @@ url: /analysis/analysis-parameters/
 Parameters to configure project analysis can be set in multiple places. Here is the hierarchy of parameters:
 
 * Global analysis parameters, defined in the UI, apply to all the projects (From the top bar, go to **[Administration > Configuration > General Settings](/#sonarqube-admin#/admin/settings)**)
-* Project analysis parameters, defined in the UI, override global parameters (At a project level, go to Administration > General Settings)
+* Project analysis parameters, defined in the UI, override global parameters (At a project level, go to **Administration > General Settings**)
 * Project analysis parameters, defined in a project analysis configuration file or an analyzer configuration file, override the ones defined in the UI
 * Analysis / Command line parameters, defined when launching an analysis, override project analysis parameters
 
 Note that only parameters set through the UI are stored in the database.
-For example, if you override the sonar.exclusions parameter via command line for a specific project, it will not be stored in the database. Local analyses in Eclipse, for example, would still be executed with the exclusions defined in the UI and therefore stored in the DB.
+For example, if you override the `sonar.exclusions` parameter via command line for a specific project, it will not be stored in the database. Local analyses in Eclipse, for example, would still be executed with the exclusions defined in the UI and therefore stored in the DB.
 
-Note that the list of parameters below is not exhaustive. Most of the property keys shown in the interface, at both global and project levels, can also be set as analysis parameters. However, exclusions/inclusions are far easier to manage in the UI. 
+Note also that the list of parameters below is not exhaustive. Most of the property keys shown in the interface, at both global and project levels, can also be set as analysis parameters. However, exclusions/inclusions are far easier to manage in the UI. 
 
-For language-specific parameters related to test coverage and execution, see [Test Coverage & Execution](/analysis/coverage/). 
+For language-specific parameters related to test coverage and execution, see [Test Coverage & Execution](/analysis/coverage/). For language-specific parameters related to external issue reports, see [External Issues)(/analysis/external-issues).
 
 ## Mandatory Parameters
 

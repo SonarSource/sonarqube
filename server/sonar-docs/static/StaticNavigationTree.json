@@ -29,6 +29,7 @@
       "/analysis/overview/",
       "/analysis/analysis-parameters/",
       "/analysis/coverage/",
+      "/analysis/external-issues/",
       "/analysis/background-tasks/",
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
