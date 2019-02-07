@@ -10,13 +10,13 @@ set -euo pipefail
 # at each build.
 #
 function installJDK8 {
-  JDK_RELEASE=191
+  JDK_RELEASE=201
   echo "Setup JDK 1.8u$JDK_RELEASE"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
   if [ ! -d "jdk1.8.0_$JDK_RELEASE" ]; then
     {
-      wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.tar.gz 
+      wget --quiet --continue --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.tar.gz
     } || {
       echo "failed to download JDK 1.8u$JDK_RELEASE"
       exit 1
@@ -37,19 +37,21 @@ function installMaven {
   echo "Setup Maven"
   mkdir -p ~/maven
   pushd ~/maven > /dev/null
-  if [ ! -d "apache-maven-3.5" ]; then
-    echo "Download Maven 3.5"
-    curl -sSL https://archive.apache.org/dist/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz | tar zx -C ~/maven
+  if [ ! -d "apache-maven-3.5.4" ]; then
+    echo "Download Maven 3.5.4"
+    curl -sSL https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | tar zx -C ~/maven
   fi
   popd > /dev/null
-  export M2_HOME=~/maven/apache-maven-3.5.0
+  export M2_HOME=~/maven/apache-maven-3.5.4
   export PATH=$M2_HOME/bin:$PATH
+  echo 'Maven installed'
 }
 
 function installNode {
   set +u
   source ~/.nvm/nvm.sh && nvm install 8
   set -u
+  echo 'Node installed'
 }
 
 #
@@ -112,7 +114,7 @@ function fixBuildVersion {
 #
 function configureTravis {
   mkdir -p ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v51 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v55 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
