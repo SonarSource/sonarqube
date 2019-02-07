@@ -55,6 +55,8 @@ class TomcatConnectors {
     connector.setURIEncoding("UTF-8");
     connector.setProperty("address", props.value("sonar.web.host", "0.0.0.0"));
     connector.setProperty("socket.soReuseAddress", "true");
+    // see https://tomcat.apache.org/tomcat-8.5-doc/config/http.html
+    connector.setProperty("relaxedQueryChars", "\"<>[\\]^`{|}");
     configurePool(props, connector);
     configureCompression(connector);
     configureMaxHttpHeaderSize(connector);
