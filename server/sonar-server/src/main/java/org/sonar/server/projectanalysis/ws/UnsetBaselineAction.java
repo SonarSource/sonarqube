@@ -64,6 +64,7 @@ public class UnsetBaselineAction implements ProjectAnalysesWsAction {
         "</ul>")
       .setSince("7.7")
       .setPost(true)
+      .setInternal(true)
       .setHandler(this);
 
     action.createParam(PARAM_PROJECT)

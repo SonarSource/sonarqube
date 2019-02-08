@@ -165,7 +165,6 @@ public class CorePropertyDefinitions {
           "<li>'previous_version' to compare to the previous version in the project history</li>" +
           "<li>A version, for example '1.2' or 'BASELINE'</li></ul>" +
           "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
-          "<p>This property has no effect when a baseline is manually set on a long-living branch, such as the main branch.<p/>" +
           "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
         .defaultValue(DEFAULT_LEAK_PERIOD)
         .category(CoreProperties.CATEGORY_GENERAL)
