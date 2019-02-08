@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function JavaGradle(props: Props) {
-  const config = 'plugins {\n  id "org.sonarqube" version "2.6"\n}';
+  const config = 'plugins {\n  id "org.sonarqube" version "2.7"\n}';
 
   const command = [
     './gradlew sonarqube',

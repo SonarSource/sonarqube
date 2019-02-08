@@ -14,7 +14,7 @@ exports[`renders correctly 1`] = `
   </InstanceMessage>
   <CodeSnippet
     snippet="plugins {
-  id \\"org.sonarqube\\" version \\"2.6\\"
+  id \\"org.sonarqube\\" version \\"2.7\\"
 }"
   />
   <p
@@ -66,7 +66,7 @@ exports[`renders correctly 2`] = `
   </InstanceMessage>
   <CodeSnippet
     snippet="plugins {
-  id \\"org.sonarqube\\" version \\"2.6\\"
+  id \\"org.sonarqube\\" version \\"2.7\\"
 }"
   />
   <p
@@ -118,7 +118,7 @@ exports[`renders with projectKey 1`] = `
   </InstanceMessage>
   <CodeSnippet
     snippet="plugins {
-  id \\"org.sonarqube\\" version \\"2.6\\"
+  id \\"org.sonarqube\\" version \\"2.7\\"
 }"
   />
   <p
