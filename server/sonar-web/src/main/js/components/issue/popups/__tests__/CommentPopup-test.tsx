@@ -52,3 +52,20 @@ it('should render not allow to send comment with only spaces', () => {
   click(element.find('.js-issue-comment-submit'));
   expect(onComment.mock.calls.length).toBe(1);
 });
+
+it('should render the alternative cancel button label', () => {
+  const element = shallow(
+    <CommentPopup
+      autoTriggered={true}
+      onComment={jest.fn()}
+      placeholder=""
+      toggleComment={jest.fn()}
+    />
+  );
+  expect(
+    element
+      .find('.js-issue-comment-cancel')
+      .childAt(0)
+      .text()
+  ).toBe('skip');
+});

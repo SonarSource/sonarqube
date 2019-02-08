@@ -38,11 +38,13 @@ interface Props {
 }
 
 interface State {
+  commentAutoTriggered: boolean;
   commentPlaceholder: string;
 }
 
 export default class IssueActionsBar extends React.PureComponent<Props, State> {
   state: State = {
+    commentAutoTriggered: false,
     commentPlaceholder: ''
   };
 
@@ -65,8 +67,11 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     this.props.togglePopup(popup, false);
   };
 
-  toggleComment = (open: boolean | undefined, placeholder: string | undefined) => {
-    this.setState({ commentPlaceholder: placeholder || '' });
+  toggleComment = (open: boolean | undefined, placeholder = '', autoTriggered = false) => {
+    this.setState({
+      commentPlaceholder: placeholder,
+      commentAutoTriggered: autoTriggered
+    });
     this.props.togglePopup('comment', open);
   };
 
@@ -76,7 +81,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
       issue.resolution === 'FALSE-POSITIVE' ||
       (issue.resolution === 'WONTFIX' && issue.type !== 'SECURITY_HOTSPOT')
     ) {
-      this.toggleComment(true, translate('issue.comment.explain_why'));
+      this.toggleComment(true, translate('issue.comment.explain_why'), true);
     }
   };
 
@@ -143,6 +148,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
             )}
           {canComment && (
             <IssueCommentAction
+              commentAutoTriggered={this.state.commentAutoTriggered}
               commentPlaceholder={this.state.commentPlaceholder}
               currentPopup={this.props.currentPopup}
               issueKey={issue.key}

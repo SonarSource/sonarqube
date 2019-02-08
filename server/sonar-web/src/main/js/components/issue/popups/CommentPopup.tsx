@@ -30,6 +30,7 @@ interface Props {
   toggleComment: (visible: boolean) => void;
   placeholder: string;
   placement?: PopupPlacement;
+  autoTriggered?: boolean;
 }
 
 interface State {
@@ -69,7 +70,7 @@ export default class CommentPopup extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { comment } = this.props;
+    const { comment, autoTriggered } = this.props;
     return (
       <DropdownOverlay placement={this.props.placement}>
         <div className="issue-comment-bubble-popup">
@@ -93,7 +94,7 @@ export default class CommentPopup extends React.PureComponent<Props, State> {
                 {!comment && translate('issue.comment.submit')}
               </Button>
               <ResetButtonLink className="js-issue-comment-cancel" onClick={this.handleCancelClick}>
-                {translate('cancel')}
+                {autoTriggered ? translate('skip') : translate('cancel')}
               </ResetButtonLink>
             </div>
             <div className="issue-comment-form-tips">

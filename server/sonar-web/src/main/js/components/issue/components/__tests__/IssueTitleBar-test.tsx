@@ -20,46 +20,10 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import IssueTitleBar from '../IssueTitleBar';
+import { mockIssue } from '../../../../helpers/testMocks';
 
-const issue: T.Issue = {
-  actions: [],
-  component: 'main.js',
-  componentLongName: 'main.js',
-  componentQualifier: 'FIL',
-  componentUuid: 'foo1234',
-  creationDate: '2017-03-01T09:36:01+0100',
-  flows: [],
-  fromHotspot: false,
-  key: 'AVsae-CQS-9G3txfbFN2',
-  line: 25,
-  message: 'Reduce the number of conditional operators (4) used in the expression',
-  organization: 'myorg',
-  project: 'myproject',
-  projectKey: 'foo',
-  projectName: 'Foo',
-  projectOrganization: 'org',
-  rule: 'javascript:S1067',
-  ruleName: 'foo',
-  secondaryLocations: [],
-  severity: 'MAJOR',
-  status: 'OPEN',
-  textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
-  transitions: [],
-  type: 'BUG'
-};
-
-const issueWithLocations: T.Issue = {
-  ...issue,
-  flows: [[loc(), loc(), loc()], [loc(), loc()]],
-  secondaryLocations: [loc(), loc()]
-};
-
-function loc(): T.FlowLocation {
-  return {
-    component: 'main.js',
-    textRange: { startLine: 1, startOffset: 1, endLine: 2, endOffset: 2 }
-  };
-}
+const issue: T.Issue = mockIssue();
+const issueWithLocations: T.Issue = mockIssue(true);
 
 it('should render the titlebar correctly', () => {
   const branch: T.ShortLivingBranch = {

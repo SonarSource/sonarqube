@@ -124,3 +124,49 @@ export function mockRouter(overrides: { push?: Function; replace?: Function } = 
     ...overrides
   } as InjectedRouter;
 }
+
+export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {}) {
+  const issue: T.Issue = {
+    actions: [],
+    component: 'main.js',
+    componentLongName: 'main.js',
+    componentQualifier: 'FIL',
+    componentUuid: 'foo1234',
+    creationDate: '2017-03-01T09:36:01+0100',
+    flows: [],
+    fromHotspot: false,
+    key: 'AVsae-CQS-9G3txfbFN2',
+    line: 25,
+    message: 'Reduce the number of conditional operators (4) used in the expression',
+    organization: 'myorg',
+    project: 'myproject',
+    projectKey: 'foo',
+    projectName: 'Foo',
+    projectOrganization: 'org',
+    rule: 'javascript:S1067',
+    ruleName: 'foo',
+    secondaryLocations: [],
+    severity: 'MAJOR',
+    status: 'OPEN',
+    textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
+    transitions: [],
+    type: 'BUG'
+  };
+
+  function loc(): T.FlowLocation {
+    return {
+      component: 'main.js',
+      textRange: { startLine: 1, startOffset: 1, endLine: 2, endOffset: 2 }
+    };
+  }
+
+  if (withLocations) {
+    issue.flows = [[loc(), loc(), loc()], [loc(), loc()]];
+    issue.secondaryLocations = [loc(), loc()];
+  }
+
+  return {
+    ...issue,
+    ...overrides
+  };
+}

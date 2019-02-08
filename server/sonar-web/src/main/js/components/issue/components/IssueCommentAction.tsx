@@ -26,11 +26,12 @@ import { translate } from '../../../helpers/l10n';
 import { updateIssue } from '../actions';
 
 interface Props {
+  commentAutoTriggered?: boolean;
   commentPlaceholder: string;
   currentPopup?: string;
   issueKey: string;
   onChange: (issue: T.Issue) => void;
-  toggleComment: (open?: boolean, placeholder?: string) => void;
+  toggleComment: (open?: boolean, placeholder?: string, autoTriggered?: boolean) => void;
 }
 
 export default class IssueCommentAction extends React.PureComponent<Props> {
@@ -56,6 +57,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
           open={this.props.currentPopup === 'comment'}
           overlay={
             <CommentPopup
+              autoTriggered={this.props.commentAutoTriggered}
               onComment={this.addComment}
               placeholder={this.props.commentPlaceholder}
               toggleComment={this.props.toggleComment}
