@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import * as isSameMinute from 'date-fns/is_same_minute';
-import * as startOfMinute from 'date-fns/start_of_minute';
 import ChangesList from './ChangesList';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
@@ -39,7 +38,7 @@ export default function Changelog(props: Props) {
   const sortedRows = sortBy(
     props.events,
     // sort events by date, rounded to a minute, recent events first
-    e => -Number(startOfMinute(parseDate(e.date))),
+    e => -Number(parseDate(e.date)),
     e => e.action
   );
 
