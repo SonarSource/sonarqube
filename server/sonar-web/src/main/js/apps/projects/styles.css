@@ -36,10 +36,6 @@
   padding-left: 32px;
 }
 
-.projects-topbar-item.is-loading {
-  padding-left: 0;
-}
-
 .projects-topbar-item.disabled {
   cursor: not-allowed;
   opacity: 0.4;
