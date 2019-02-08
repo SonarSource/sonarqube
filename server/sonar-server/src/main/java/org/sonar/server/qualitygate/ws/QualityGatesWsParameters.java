@@ -32,6 +32,8 @@ public class QualityGatesWsParameters {
 
   static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_ANALYSIS_ID = "analysisId";
+  public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_PULL_REQUEST = "pullRequest";
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PAGE_SIZE = "pageSize";

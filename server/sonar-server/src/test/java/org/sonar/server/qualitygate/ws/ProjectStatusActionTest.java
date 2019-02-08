@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -52,9 +53,11 @@ import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ProjectStatusActionTest {
@@ -80,7 +83,9 @@ public class ProjectStatusActionTest {
       .containsExactlyInAnyOrder(
         tuple("analysisId", false),
         tuple("projectKey", false),
-        tuple("projectId", false));
+        tuple("projectId", false),
+        tuple("branch", false),
+        tuple("pullRequest", false));
   }
 
   @Test
@@ -160,6 +165,38 @@ public class ProjectStatusActionTest {
   }
 
   @Test
+  public void return_past_status_when_branch_is_referenced_by_past_analysis_id() throws IOException {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
+      .setLast(false)
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(956789123987L));
+    SnapshotDto lastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
+      .setLast(true)
+      .setPeriodMode("last_version")
+      .setPeriodParam("2016-12-07")
+      .setPeriodDate(1_500L));
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(gateDetailsMetric, branch, pastAnalysis)
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(gateDetailsMetric, branch, lastAnalysis)
+        .setData("not_used"));
+    dbSession.commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, pastAnalysis.getUuid())
+      .execute().getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
+  }
+
+  @Test
   public void return_live_status_when_project_is_referenced_by_its_key() throws IOException {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
@@ -176,6 +213,56 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .execute().getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
+  }
+
+  @Test
+  public void return_live_status_when_branch_is_referenced_by_its_key() throws IOException {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(branch)
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(956789123987L));
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
+    dbClient.liveMeasureDao().insert(dbSession,
+      newLiveMeasure(branch, gateDetailsMetric)
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
+    dbSession.commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_BRANCH, branch.getBranch())
+      .execute().getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
+  }
+
+  @Test
+  public void return_live_status_when_pull_request_is_referenced_by_its_key() throws IOException {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto pr = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.PULL_REQUEST));
+
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(pr)
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(956789123987L));
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
+    dbClient.liveMeasureDao().insert(dbSession,
+      newLiveMeasure(pr, gateDetailsMetric)
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
+    dbSession.commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PULL_REQUEST, pr.getPullRequest())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -295,6 +382,23 @@ public class ProjectStatusActionTest {
   }
 
   @Test
+  public void fail_if_branch_key_and_pull_request_id_provided() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    logInAsSystemAdministrator();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Either 'branch' or 'pullRequest' can be provided, not both");
+
+    ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, "key")
+      .setParam(PARAM_BRANCH, "branch")
+      .setParam(PARAM_PULL_REQUEST, "pr")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute().getInput();
+  }
+
+  @Test
   public void fail_if_no_parameter_provided() {
     logInAsSystemAdministrator();
 
@@ -332,7 +436,7 @@ public class ProjectStatusActionTest {
     SnapshotDto snapshot = db.components().insertSnapshot(branch);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
+    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
 
     ws.newRequest()
       .setParam("projectId", branch.uuid())

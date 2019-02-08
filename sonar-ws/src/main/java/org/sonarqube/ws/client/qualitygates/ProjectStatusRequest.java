@@ -34,6 +34,8 @@ public class ProjectStatusRequest {
   private String analysisId;
   private String projectId;
   private String projectKey;
+  private String branch;
+  private String pullRequest;
 
   /**
    * Example value: "AU-TpxcA-iU5OvuD2FL1"
@@ -69,5 +71,23 @@ public class ProjectStatusRequest {
 
   public String getProjectKey() {
     return projectKey;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  public ProjectStatusRequest setBranch(String branch) {
+    this.branch = branch;
+    return this;
+  }
+
+  public String getPullRequest() {
+    return pullRequest;
+  }
+
+  public ProjectStatusRequest setPullRequest(String pullRequest) {
+    this.pullRequest = pullRequest;
+    return this;
   }
 }
