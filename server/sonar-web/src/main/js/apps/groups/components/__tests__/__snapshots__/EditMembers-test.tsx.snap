@@ -247,6 +247,7 @@ exports[`should edit members 2`] = `
                         </ul>
                         <div
                           class="search-box"
+                          title=""
                         >
                           <input
                             aria-label="search_verb"
@@ -493,6 +494,7 @@ exports[`should edit members 2`] = `
                           >
                             <div
                               className="search-box"
+                              title=""
                             >
                               <input
                                 aria-label="search_verb"

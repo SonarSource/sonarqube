@@ -131,7 +131,10 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     const tooShort = minLength !== undefined && value.length > 0 && value.length < minLength;
 
     return (
-      <div className={classNames('search-box', this.props.className)} id={this.props.id}>
+      <div
+        className={classNames('search-box', this.props.className)}
+        id={this.props.id}
+        title={tooShort ? translateWithParameters('select2.tooShort', minLength!) : ''}>
         <input
           aria-label={translate('search_verb')}
           autoComplete="off"
@@ -162,9 +165,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
         )}
 
         {tooShort && (
-          <span
-            className="search-box-note"
-            title={translateWithParameters('select2.tooShort', minLength!)}>
+          <span className="search-box-note">
             {translateWithParameters('select2.tooShort', minLength!)}
           </span>
         )}

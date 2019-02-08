@@ -66,6 +66,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .search-box-input:focus ~ .search-box-magnifier {
