@@ -88,7 +88,7 @@ public class ProjectReactorBuilder {
    * Array of all mandatory properties required for a project without child.
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT = {
-    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, PROPERTY_SOURCES
+    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY
   };
 
   /**

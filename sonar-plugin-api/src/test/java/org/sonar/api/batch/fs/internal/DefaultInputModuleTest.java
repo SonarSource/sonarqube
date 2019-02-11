@@ -61,8 +61,36 @@ public class DefaultInputModuleTest {
     assertThat(module.getKeyWithBranch()).isEqualTo("moduleKey");
     assertThat(module.getWorkDir()).isEqualTo(workDir.toPath());
     assertThat(module.getEncoding()).isEqualTo(Charset.defaultCharset());
-    assertThat(module.getSourceDirsOrFiles()).containsExactlyInAnyOrder(src);
-    assertThat(module.getTestDirsOrFiles()).containsExactlyInAnyOrder(test);
+    assertThat(module.getSourceDirsOrFiles().get()).containsExactlyInAnyOrder(src);
+    assertThat(module.getTestDirsOrFiles().get()).containsExactlyInAnyOrder(test);
+    assertThat(module.getEncoding()).isEqualTo(Charset.defaultCharset());
+
+    assertThat(module.isFile()).isFalse();
+  }
+
+  @Test
+  public void no_sources() throws IOException {
+    ProjectDefinition def = ProjectDefinition.create();
+    def.setKey("moduleKey");
+    File baseDir = temp.newFolder();
+    Path src = baseDir.toPath().resolve(FILE_1);
+    Files.createFile(src);
+    Path test = baseDir.toPath().resolve(TEST_1);
+    Files.createFile(test);
+    def.setBaseDir(baseDir);
+    File workDir = temp.newFolder();
+    def.setWorkDir(workDir);
+    DefaultInputModule module = new DefaultInputModule(def);
+
+    assertThat(module.key()).isEqualTo("moduleKey");
+    assertThat(module.definition()).isEqualTo(def);
+    assertThat(module.getBranch()).isNull();
+    assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath());
+    assertThat(module.getKeyWithBranch()).isEqualTo("moduleKey");
+    assertThat(module.getWorkDir()).isEqualTo(workDir.toPath());
+    assertThat(module.getEncoding()).isEqualTo(Charset.defaultCharset());
+    assertThat(module.getSourceDirsOrFiles()).isNotPresent();
+    assertThat(module.getTestDirsOrFiles()).isNotPresent();
     assertThat(module.getEncoding()).isEqualTo(Charset.defaultCharset());
 
     assertThat(module.isFile()).isFalse();

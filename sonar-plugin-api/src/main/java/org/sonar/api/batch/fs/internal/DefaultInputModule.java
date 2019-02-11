@@ -23,6 +23,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
@@ -50,7 +52,11 @@ public class DefaultInputModule extends AbstractProjectOrModule implements Input
     this.testDirsOrFiles = initSources(definition, ProjectDefinition.TESTS_PROPERTY);
   }
 
+  @CheckForNull
   private List<Path> initSources(ProjectDefinition module, String propertyKey) {
+    if (!module.properties().containsKey(propertyKey)) {
+      return null;
+    }
     List<Path> result = new ArrayList<>();
     PathResolver pathResolver = new PathResolver();
     String srcPropValue = module.properties().get(propertyKey);
@@ -65,11 +71,11 @@ public class DefaultInputModule extends AbstractProjectOrModule implements Input
     return result;
   }
 
-  public List<Path> getSourceDirsOrFiles() {
-    return sourceDirsOrFiles;
+  public Optional<List<Path>> getSourceDirsOrFiles() {
+    return Optional.ofNullable(sourceDirsOrFiles);
   }
 
-  public List<Path> getTestDirsOrFiles() {
-    return testDirsOrFiles;
+  public Optional<List<Path>> getTestDirsOrFiles() {
+    return Optional.ofNullable(testDirsOrFiles);
   }
 }

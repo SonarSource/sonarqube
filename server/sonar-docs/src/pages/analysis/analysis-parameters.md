@@ -13,7 +13,7 @@ Parameters to configure project analysis can be set in multiple places. Here is 
 * Analysis / Command line parameters, defined when launching an analysis, override project analysis parameters
 
 Note that only parameters set through the UI are stored in the database.
-For example, if you override the `sonar.exclusions` parameter via command line for a specific project, it will not be stored in the database. Local analyses in Eclipse, for example, would still be executed with the exclusions defined in the UI and therefore stored in the DB.
+For example, if you override the `sonar.exclusions` parameter via command line for a specific project, it will not be stored in the database. Analyses in SonarLint with connected mode, for example, would still be executed with the exclusions defined in the UI and therefore stored in the DB.
 
 Note also that the list of parameters below is not exhaustive. Most of the property keys shown in the interface, at both global and project levels, can also be set as analysis parameters. However, exclusions/inclusions are far easier to manage in the UI. 
 
@@ -29,15 +29,14 @@ Key | Description | Default
 ### Project Configuration
 Key | Description | Default
 ---|----|---
-`sonar.projectKey`|The project's unique key. Allowed characters are: letters, numbers, `-`, `_`, `.` and `:`, with at least one non-digit. | For Maven projects, this is automatically set to `<groupId>:<artifactId>`
-`sonar.sources` | Comma-separated paths to directories containing source files. | Read from build system for Maven, Gradle, MSBuild projects 
+`sonar.projectKey`|The project's unique key. Allowed characters are: letters, numbers, `-`, `_`, `.` and `:`, with at least one non-digit. | For Maven projects, this defaults to `<groupId>:<artifactId>`
 
 ## Optional Parameters
 
 ### Project Identity
 Key | Description | Default
 ---|----|---
-`sonar.projectName`|Name of the project that will be displayed on the web interface.|`<name>` for Maven projects, otherwise project key. If there is already a name in the DB, it won't be overwritten
+`sonar.projectName`|Name of the project that will be displayed on the web interface.|`<name>` for Maven projects, otherwise project key. If not provided and there is already a name in the DB, it won't be overwritten
 `sonar.projectVersion` | The project version. | `<version>` for Maven projects, otherwise "not provided"
 
 ### Authentication
@@ -57,13 +56,14 @@ Key | Description | Default
 ### Project Configuration
 Key | Description | Default
 ---|----|---
-`sonar.projectDescription` | The project description. Not compatible with Maven. | `<description>` for Maven projects
-`sonar.links.homepage` | Project home page. Not compatible with Maven. | `<url>` for Maven projects
-`sonar.links.ci` | Continuous integration. Not compatible with Maven. | `<ciManagement><url>` for Maven projects  
-`sonar.links.issue` | Issue tracker. Not compatible with Maven. | `<issueManagement><url>` for Maven projects  
-`sonar.links.scm` | Project source repository. Not compatible with Maven. | `<scm><url>` for Maven projects
-`sonar.links.scm_dev` | Developer connection. Not compatible with Maven. | `<scm><developerConnection>` for Maven projects
-`sonar.tests` | Comma-separated paths to directories containing tests. Not compatible with Maven. | Default tests location for Java Maven projects.
+`sonar.projectDescription` | The project description. | `<description>` for Maven projects
+`sonar.links.homepage` | Project home page. | `<url>` for Maven projects
+`sonar.links.ci` | Continuous integration. | `<ciManagement><url>` for Maven projects
+`sonar.links.issue` | Issue tracker. | `<issueManagement><url>` for Maven projects
+`sonar.links.scm` | Project source repository. | `<scm><url>` for Maven projects
+`sonar.links.scm_dev` | Developer connection. | `<scm><developerConnection>` for Maven projects
+`sonar.sources` | Comma-separated paths to directories containing main source files. | Read from build system for Maven, Gradle, MSBuild projects. Defaults to project base directory when neither `sonar.sources` nor `sonar.tests` is provided.
+`sonar.tests` | Comma-separated paths to directories containing test source files. | Read from build system for Maven, Gradle, MSBuild projects. Else default to empty.
 `sonar.sourceEncoding` | Encoding of the source files. Ex: `UTF-8`, `MacRoman`, `Shift_JIS`. This property can be replaced by the standard property `project.build.sourceEncoding` in Maven projects. The list of available encodings depends on your JVM. | System encoding
 `sonar.externalIssuesReportPaths` | Comma-delimited list of paths to Generic Issue reports. | 
 `sonar.projectDate` | Assign a date to the analysis. This parameter is only useful when you need to retroactively create the history of a not-analyzed-before project. The format is `yyyy-MM-dd`, for example: 2010-12-01. Since you cannot perform an analysis dated prior to the most recent one in the database, you must analyze recreate your project history in chronological order, oldest first. ![](/images/exclamation.svg) Note: You may need to adjust your housekeeping settings if you wish to create a long-running history. | Current date

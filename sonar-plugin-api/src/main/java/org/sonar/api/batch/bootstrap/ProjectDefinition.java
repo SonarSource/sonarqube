@@ -21,7 +21,7 @@ package org.sonar.api.batch.bootstrap;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,7 +53,7 @@ public class ProjectDefinition {
   private File baseDir;
   private File workDir;
   private File buildDir;
-  private Map<String, String> properties = new HashMap<>();
+  private Map<String, String> properties = new LinkedHashMap<>();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = new ArrayList<>();
 

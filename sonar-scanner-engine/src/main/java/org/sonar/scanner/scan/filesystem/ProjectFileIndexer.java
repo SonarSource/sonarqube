@@ -53,6 +53,9 @@ import org.sonar.scanner.scan.ProjectServerSettings;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.util.ProgressReport;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
 /**
  * Index project input files into {@link InputComponentStore}.
  */
@@ -143,13 +146,18 @@ public class ProjectFileIndexer {
     if (componentStore.allModules().size() > 1) {
       LOG.info("Indexing files of module '{}'", module.getName());
       LOG.info("  Base dir: {}", module.getBaseDir().toAbsolutePath());
-      logPaths("  Source paths: ", module.getBaseDir(), module.getSourceDirsOrFiles());
-      logPaths("  Test paths: ", module.getBaseDir(), module.getTestDirsOrFiles());
+      module.getSourceDirsOrFiles().ifPresent(srcs -> logPaths("  Source paths: ", module.getBaseDir(), srcs));
+      module.getTestDirsOrFiles().ifPresent(tests -> logPaths("  Test paths: ", module.getBaseDir(), tests));
       moduleExclusionFilters.log("  ");
       moduleCoverageAndDuplicationExclusions.log("  ");
     }
-    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getSourceDirsOrFiles(), Type.MAIN, exclusionCounter);
-    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, module.getTestDirsOrFiles(), Type.TEST, exclusionCounter);
+    boolean hasChildModules = !module.definition().getSubProjects().isEmpty();
+    boolean hasTests = module.getTestDirsOrFiles().isPresent();
+    // Default to index basedir when no sources provided
+    List<Path> mainSourceDirsOrFiles = module.getSourceDirsOrFiles()
+      .orElseGet(() -> hasChildModules || hasTests ? emptyList() : singletonList(module.getBaseDir().toAbsolutePath()));
+    indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, mainSourceDirsOrFiles, Type.MAIN, exclusionCounter);
+    module.getTestDirsOrFiles().ifPresent(tests -> indexFiles(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, tests, Type.TEST, exclusionCounter));
   }
 
   private static void logPaths(String label, Path baseDir, List<Path> paths) {

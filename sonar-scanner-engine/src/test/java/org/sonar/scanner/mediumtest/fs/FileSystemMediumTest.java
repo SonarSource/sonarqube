@@ -1096,4 +1096,18 @@ public class FileSystemMediumTest {
     assertThat(result.inputFile("xources/hello/ClassOne.xoo")).isNotNull();
     assertThat(result.inputFile("testx/ClassOneTest.xoo")).isNotNull();
   }
+
+  @Test
+  public void index_basedir_by_default() throws IOException {
+    File xooFile = new File(baseDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .build())
+      .execute();
+
+    assertThat(logTester.logs()).contains("1 file indexed");
+    assertThat(result.inputFile("sample.xoo")).isNotNull();
+  }
 }

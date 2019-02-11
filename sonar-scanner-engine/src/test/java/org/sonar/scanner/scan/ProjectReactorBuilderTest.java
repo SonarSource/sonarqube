@@ -78,13 +78,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void fail_if_sources_not_set() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("You must define the following mandatory properties for 'com.foo.project': sonar.sources");
-    loadProjectDefinition("simple-project-with-missing-source-dir");
-  }
-
-  @Test
   public void shouldNotFailIfBlankSourceDirectory() {
     loadProjectDefinition("simple-project-with-blank-source-dir");
   }
