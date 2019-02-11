@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.xoo.scm.XooIgnoreCommand.IGNORE_FILE_EXTENSION;
 
 public class XooIgnoreCommandTest {
