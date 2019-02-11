@@ -100,6 +100,7 @@ declare namespace T {
     analysisDate?: string;
     isMain: boolean;
     name: string;
+    status?: { qualityGateStatus: string };
   }
 
   export type BranchLike = Branch | PullRequest;
@@ -429,13 +430,11 @@ declare namespace T {
 
   export interface LongLivingBranch extends Branch {
     isMain: false;
-    status?: { qualityGateStatus: string };
     type: 'LONG';
   }
 
   export interface MainBranch extends Branch {
     isMain: true;
-    status?: { qualityGateStatus: string };
   }
 
   export interface Measure extends MeasureIntern {

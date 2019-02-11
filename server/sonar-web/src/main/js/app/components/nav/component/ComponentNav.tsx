@@ -30,7 +30,6 @@ import './ComponentNav.css';
 
 interface Props {
   branchLikes: T.BranchLike[];
-  branchMeasures?: T.Measure[];
   currentBranchLike: T.BranchLike | undefined;
   component: T.Component;
   currentTask?: T.Task;
@@ -96,7 +95,6 @@ export default class ComponentNav extends React.PureComponent<Props> {
           />
           <ComponentNavMeta
             branchLike={currentBranchLike}
-            branchMeasures={this.props.branchMeasures}
             component={component}
             warnings={this.props.warnings}
           />

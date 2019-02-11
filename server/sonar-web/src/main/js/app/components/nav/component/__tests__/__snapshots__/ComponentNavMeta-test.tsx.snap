@@ -55,16 +55,17 @@ exports[`renders meta for pull request 1`] = `
     <BranchStatus
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "base": "master",
-          "branch": "feature",
-          "key": "1234",
+          "branch": "feature/foo/bar",
+          "key": "1001",
           "status": Object {
             "bugs": 0,
             "codeSmells": 2,
             "qualityGateStatus": "ERROR",
             "vulnerabilities": 3,
           },
-          "title": "Feature PR",
+          "title": "Foo Bar feature",
           "url": "https://example.com/pull/1234",
         }
       }
@@ -90,9 +91,10 @@ exports[`renders status of short-living branch 1`] = `
     <BranchStatus
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "mergeBranch": "master",
-          "name": "feature",
+          "name": "release-1.0",
           "status": Object {
             "bugs": 0,
             "codeSmells": 2,
@@ -101,49 +103,6 @@ exports[`renders status of short-living branch 1`] = `
           },
           "type": "SHORT",
         }
-      }
-    />
-    <span
-      className="vertical-separator big-spacer-left big-spacer-right"
-    />
-    <BranchMeasures
-      branchLike={
-        Object {
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature",
-          "status": Object {
-            "bugs": 0,
-            "codeSmells": 2,
-            "qualityGateStatus": "ERROR",
-            "vulnerabilities": 3,
-          },
-          "type": "SHORT",
-        }
-      }
-      componentKey="foo"
-      measures={
-        Array [
-          Object {
-            "metric": "new_coverage",
-            "periods": Array [
-              Object {
-                "index": 1,
-                "value": "95.9943",
-              },
-            ],
-            "value": "0",
-          },
-          Object {
-            "metric": "new_duplicated_lines_density",
-            "periods": Array [
-              Object {
-                "index": 1,
-                "value": "3.5",
-              },
-            ],
-          },
-        ]
       }
     />
   </div>

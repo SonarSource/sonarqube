@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ComponentNavWarnings from './ComponentNavWarnings';
-import BranchMeasures from '../../../../components/common/BranchMeasures';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
@@ -43,18 +42,11 @@ interface StateProps {
 
 interface Props extends StateProps {
   branchLike?: T.BranchLike;
-  branchMeasures?: T.Measure[];
   component: T.Component;
   warnings: string[];
 }
 
-export function ComponentNavMeta({
-  branchLike,
-  branchMeasures,
-  component,
-  currentUser,
-  warnings
-}: Props) {
+export function ComponentNavMeta({ branchLike, component, currentUser, warnings }: Props) {
   const mainBranch = !branchLike || isMainBranch(branchLike);
   const longBranch = isLongLivingBranch(branchLike);
   const currentPage = getCurrentPage(component, branchLike);
@@ -104,17 +96,6 @@ export function ComponentNavMeta({
               </a>
             )}
           <BranchStatus branchLike={branchLike} />
-          {branchMeasures &&
-            branchMeasures.length > 0 && (
-              <>
-                <span className="vertical-separator big-spacer-left big-spacer-right" />
-                <BranchMeasures
-                  branchLike={branchLike}
-                  componentKey={component.key}
-                  measures={branchMeasures}
-                />
-              </>
-            )}
         </div>
       )}
     </div>

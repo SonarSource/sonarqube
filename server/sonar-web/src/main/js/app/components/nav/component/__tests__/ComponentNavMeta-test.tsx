@@ -20,79 +20,43 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ComponentNavMeta } from '../ComponentNavMeta';
-
-const COMPONENT = {
-  analysisDate: '2017-01-02T00:00:00.000Z',
-  breadcrumbs: [],
-  key: 'foo',
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-const MEASURES = [
-  { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
-  { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
-];
+import {
+  mockShortLivingBranch,
+  mockComponent,
+  mockCurrentUser,
+  mockLongLivingBranch,
+  mockPullRequest
+} from '../../../../../helpers/testMocks';
 
 it('renders status of short-living branch', () => {
-  const branch: T.ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: 'master',
-    name: 'feature',
-    status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
-    type: 'SHORT'
-  };
-  expect(
-    shallow(
-      <ComponentNavMeta
-        branchLike={branch}
-        branchMeasures={MEASURES}
-        component={COMPONENT}
-        currentUser={{ isLoggedIn: false }}
-        warnings={[]}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders meta for long-living branch', () => {
-  const branch: T.LongLivingBranch = {
-    isMain: false,
-    name: 'release',
-    status: { qualityGateStatus: 'OK' },
-    type: 'LONG'
-  };
-  expect(
-    shallow(
-      <ComponentNavMeta
-        branchLike={branch}
-        component={COMPONENT}
-        currentUser={{ isLoggedIn: false }}
-        warnings={[]}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ branchLike: mockLongLivingBranch() })).toMatchSnapshot();
 });
 
 it('renders meta for pull request', () => {
-  const pullRequest: T.PullRequest = {
-    base: 'master',
-    branch: 'feature',
-    key: '1234',
-    status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
-    title: 'Feature PR',
-    url: 'https://example.com/pull/1234'
-  };
   expect(
-    shallow(
-      <ComponentNavMeta
-        branchLike={pullRequest}
-        component={COMPONENT}
-        currentUser={{ isLoggedIn: false }}
-        warnings={[]}
-      />
-    )
+    shallowRender({
+      branchLike: mockPullRequest({
+        status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 },
+        url: 'https://example.com/pull/1234'
+      })
+    })
   ).toMatchSnapshot();
 });
+
+function shallowRender(props = {}) {
+  return shallow(
+    <ComponentNavMeta
+      branchLike={mockShortLivingBranch({
+        status: { bugs: 0, codeSmells: 2, qualityGateStatus: 'ERROR', vulnerabilities: 3 }
+      })}
+      component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
+      currentUser={mockCurrentUser({ isLoggedIn: false })}
+      warnings={[]}
+      {...props}
+    />
+  );
+}

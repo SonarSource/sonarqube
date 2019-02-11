@@ -26,7 +26,6 @@ import ComponentNav from './nav/component/ComponentNav';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getTasksForComponent, getAnalysisStatus } from '../../api/ce';
 import { getComponentData } from '../../api/components';
-import { getMeasures } from '../../api/measures';
 import { getComponentNavigation } from '../../api/nav';
 import { fetchOrganization, requireAuthorization } from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
@@ -52,7 +51,6 @@ interface Props {
 interface State {
   branchLike?: T.BranchLike;
   branchLikes: T.BranchLike[];
-  branchMeasures?: T.Measure[];
   component?: T.Component;
   currentTask?: T.Task;
   isPending: boolean;
@@ -120,13 +118,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         return component;
       })
       .then(this.fetchBranches)
-      .then(this.fetchBranchMeasures)
-      .then(({ branchLike, branchLikes, component, branchMeasures }) => {
+      .then(({ branchLike, branchLikes, component }) => {
         if (this.mounted) {
           this.setState({
             branchLike,
             branchLikes,
-            branchMeasures,
             component,
             loading: false
           });
@@ -166,33 +162,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
 
     return Promise.resolve({ branchLikes: [], component });
-  };
-
-  fetchBranchMeasures = ({
-    branchLike,
-    branchLikes,
-    component
-  }: {
-    branchLike: T.BranchLike;
-    branchLikes: T.BranchLike[];
-    component: T.Component;
-  }): Promise<{
-    branchLike?: T.BranchLike;
-    branchLikes: T.BranchLike[];
-    branchMeasures?: T.Measure[];
-    component: T.Component;
-  }> => {
-    const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
-    if (project && (isShortLivingBranch(branchLike) || isPullRequest(branchLike))) {
-      return getMeasures({
-        component: project.key,
-        metricKeys: 'new_coverage,new_duplicated_lines_density',
-        ...getBranchLikeQuery(branchLike)
-      }).then(measures => {
-        return { branchLike, branchLikes, branchMeasures: measures, component };
-      });
-    }
-    return Promise.resolve({ branchLike, branchLikes, component });
   };
 
   fetchStatus = (component: T.Component) => {
@@ -312,16 +281,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   handleBranchesChange = () => {
     if (this.mounted && this.state.component) {
-      this.fetchBranches(this.state.component)
-        .then(this.fetchBranchMeasures)
-        .then(
-          ({ branchLike, branchLikes, branchMeasures }) => {
-            if (this.mounted) {
-              this.setState({ branchLike, branchLikes, branchMeasures });
-            }
-          },
-          () => {}
-        );
+      this.fetchBranches(this.state.component).then(
+        ({ branchLike, branchLikes }) => {
+          if (this.mounted) {
+            this.setState({ branchLike, branchLikes });
+          }
+        },
+        () => {}
+      );
     }
   };
 
@@ -341,7 +308,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           !['FIL', 'UTS'].includes(component.qualifier) && (
             <ComponentNav
               branchLikes={branchLikes}
-              branchMeasures={this.state.branchMeasures}
               component={component}
               currentBranchLike={branchLike}
               currentTask={currentTask}

@@ -120,35 +120,6 @@ it('updates branches on change', () => {
   expect(getPullRequests).toBeCalledWith('projectKey');
 });
 
-it('updates the branch measures', async () => {
-  (getComponentNavigation as jest.Mock<any>).mockResolvedValueOnce({
-    breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: 'TRK' }],
-    key: 'foo'
-  });
-  (getBranches as jest.Mock<any>).mockResolvedValueOnce([
-    { isMain: false, mergeBranch: 'master', name: 'feature', type: 'SHORT' }
-  ]);
-  (getPullRequests as jest.Mock<any>).mockResolvedValueOnce([]);
-  const wrapper = shallowRender({
-    location: { query: { id: 'foo', branch: 'feature' } } as Location
-  });
-  wrapper.setState({
-    branchLikes: [mainBranch],
-    component: { breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: 'TRK' }] } as T.Component,
-    loading: false
-  });
-
-  await new Promise(setImmediate);
-  expect(getBranches).toBeCalledWith('foo');
-
-  await new Promise(setImmediate);
-  expect(getMeasures).toBeCalledWith({
-    component: 'foo',
-    metricKeys: 'new_coverage,new_duplicated_lines_density',
-    branch: 'feature'
-  });
-});
-
 it('loads organization', async () => {
   (isSonarCloud as jest.Mock).mockReturnValue(true);
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });

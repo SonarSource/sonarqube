@@ -24,7 +24,7 @@ exports[`should render source file 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/project/issues",
+              "pathname": "/dashboard",
               "query": Object {
                 "branch": "feature",
                 "id": "project-key",
@@ -383,7 +383,7 @@ exports[`should render source file 2`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/project/issues",
+              "pathname": "/dashboard",
               "query": Object {
                 "branch": "feature",
                 "id": "project-key",
@@ -1348,7 +1348,7 @@ exports[`should render test file 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/project/issues",
+              "pathname": "/dashboard",
               "query": Object {
                 "branch": "feature",
                 "id": "project-key",

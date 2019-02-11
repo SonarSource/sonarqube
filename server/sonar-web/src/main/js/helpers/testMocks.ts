@@ -188,6 +188,23 @@ export function mockQualityGate(overrides: Partial<T.QualityGate> = {}): T.Quali
   };
 }
 
+export function mockPullRequest(overrides: Partial<T.PullRequest> = {}): T.PullRequest {
+  return {
+    analysisDate: '2018-01-01',
+    base: 'master',
+    branch: 'feature/foo/bar',
+    status: {
+      bugs: 0,
+      codeSmells: 0,
+      qualityGateStatus: 'OK',
+      vulnerabilities: 0
+    },
+    key: '1001',
+    title: 'Foo Bar feature',
+    ...overrides
+  };
+}
+
 export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
   return {
     activeDeprecatedRuleCount: 2,
@@ -235,4 +252,38 @@ export function mockRule(overrides: Partial<T.Rule> = {}): T.Rule {
     type: 'CODE_SMELL',
     ...overrides
   } as T.Rule;
+}
+
+export function mockShortLivingBranch(
+  overrides: Partial<T.ShortLivingBranch> = {}
+): T.ShortLivingBranch {
+  return {
+    analysisDate: '2018-01-01',
+    isMain: false,
+    name: 'release-1.0',
+    mergeBranch: 'master',
+    status: {
+      bugs: 0,
+      codeSmells: 0,
+      qualityGateStatus: 'OK',
+      vulnerabilities: 0
+    },
+    type: 'SHORT',
+    ...overrides
+  };
+}
+
+export function mockLongLivingBranch(
+  overrides: Partial<T.LongLivingBranch> = {}
+): T.LongLivingBranch {
+  return {
+    analysisDate: '2018-01-01',
+    isMain: false,
+    name: 'master',
+    status: {
+      qualityGateStatus: 'OK'
+    },
+    type: 'LONG',
+    ...overrides
+  };
 }

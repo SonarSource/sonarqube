@@ -69,7 +69,7 @@ export default function ComponentNavBranchesMenuItem({ branchLike, ...props }: P
           )}
         </div>
         <div className="big-spacer-left note">
-          <BranchStatus branchLike={branchLike} concise={true} />
+          <BranchStatus branchLike={branchLike} />
         </div>
       </Link>
     </li>

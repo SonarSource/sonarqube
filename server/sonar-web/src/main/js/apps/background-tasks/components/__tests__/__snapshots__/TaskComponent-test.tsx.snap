@@ -61,7 +61,7 @@ exports[`renders correctly for branches and pullrequest 1`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/project/issues",
+        "pathname": "/dashboard",
         "query": Object {
           "branch": "feature",
           "id": "foo",
@@ -154,7 +154,7 @@ exports[`renders correctly for branches and pullrequest 3`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/project/issues",
+        "pathname": "/dashboard",
         "query": Object {
           "id": "foo",
           "pullRequest": "pr-89",
