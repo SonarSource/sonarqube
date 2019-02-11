@@ -356,6 +356,26 @@ public class UsersActionTest {
         "}\n");
   }
 
+  @Test
+  public void test_example() {
+    GroupDto group = db.users().insertGroup();
+    UserDto admin = db.users().insertUser(newUserDto().setLogin("admin").setName("Administrator"));
+    db.users().insertMember(group, admin);
+    db.organizations().addMember(db.getDefaultOrganization(), admin);
+    UserDto george = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell"));
+    db.users().insertMember(group, george);
+    db.organizations().addMember(db.getDefaultOrganization(), george);
+    loginAsAdminOnDefaultOrganization();
+
+    String result = newUsersRequest()
+      .setParam("id", group.getId().toString())
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
   private TestRequest newUsersRequest() {
     return ws.newRequest();
   }
