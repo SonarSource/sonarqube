@@ -21,12 +21,14 @@ package org.sonar.server.platform.db.migration.version.v77;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
+@SupportsBlueGreen
 public class AddProjectVersionToSnapshot extends DdlChange {
   private static final String TABLE_NAME = "snapshots";
   private static final VarcharColumnDef COLUMN_PROJECT_VERSION = newVarcharColumnDefBuilder()
