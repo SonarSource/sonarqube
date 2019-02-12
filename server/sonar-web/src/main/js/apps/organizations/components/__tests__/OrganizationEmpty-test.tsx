@@ -21,43 +21,46 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationEmpty } from '../OrganizationEmpty';
 import { click } from '../../../../helpers/testUtils';
+import {
+  mockRouter,
+  mockOrganization,
+  mockOrganizationWithAlm
+} from '../../../../helpers/testMocks';
 
-const organization: T.Organization = { key: 'foo', name: 'Foo' };
+const organization: T.Organization = mockOrganization();
 
 it('should render', () => {
-  expect(
-    shallow(
-      <OrganizationEmpty
-        openProjectOnboarding={jest.fn()}
-        organization={organization}
-        router={{ push: jest.fn() }}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should create new project', () => {
   const openProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    <OrganizationEmpty
-      openProjectOnboarding={openProjectOnboarding}
-      organization={organization}
-      router={{ push: jest.fn() }}
-    />
-  );
+  const wrapper = shallowRender({ openProjectOnboarding });
+
   click(wrapper.find('Button').first());
   expect(openProjectOnboarding).toBeCalledWith({ key: 'foo', name: 'Foo' });
 });
 
 it('should add members', () => {
-  const router = { push: jest.fn() };
-  const wrapper = shallow(
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+  click(wrapper.find('Button').last());
+  expect(push).toBeCalledWith('/organizations/foo/members');
+});
+
+it('should hide add members button when member sync activated', () => {
+  expect(
+    shallowRender({ organization: mockOrganizationWithAlm({}, { membersSync: true }) })
+  ).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<OrganizationEmpty['props']> = {}) {
+  return shallow(
     <OrganizationEmpty
       openProjectOnboarding={jest.fn()}
       organization={organization}
-      router={router}
+      router={mockRouter()}
+      {...props}
     />
   );
-  click(wrapper.find('Button').last());
-  expect(router.push).toBeCalledWith('/organizations/foo/members');
-});
+}

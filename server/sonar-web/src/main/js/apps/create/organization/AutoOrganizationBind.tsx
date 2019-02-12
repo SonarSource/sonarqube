@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { Link } from 'react-router';
 import OrganizationSelect from '../components/OrganizationSelect';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { Alert } from '../../../components/ui/Alert';
 import { SubmitButton } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
+  almKey: string;
   onBindOrganization: (organization: string) => Promise<void>;
   unboundOrganizations: T.Organization[];
 }
@@ -84,6 +87,18 @@ export default class AutoOrganizationBind extends React.PureComponent<Props, Sta
           organization={organization}
           organizations={this.props.unboundOrganizations}
         />
+        <Alert className="abs-width-400 big-spacer-top" display="block" variant="info">
+          {translateWithParameters(
+            'onboarding.import_organization.bind_members_not_sync_info_x',
+            translate('organization', this.props.almKey)
+          )}
+          <Link
+            className="spacer-left"
+            target="_blank"
+            to={{ pathname: '/documentation/organizations/manage-team/' }}>
+            {translate('learn_more')}
+          </Link>
+        </Alert>
         <div className="display-flex-center big-spacer-top">
           <SubmitButton disabled={submitting || !organization}>
             {translate('onboarding.import_organization.bind')}

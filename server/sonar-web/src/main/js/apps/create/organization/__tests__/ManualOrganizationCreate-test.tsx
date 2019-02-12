@@ -22,14 +22,7 @@ import { shallow } from 'enzyme';
 import ManualOrganizationCreate from '../ManualOrganizationCreate';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Step } from '../utils';
-
-const organization = {
-  avatar: 'http://example.com/avatar',
-  description: 'description-foo',
-  key: 'key-foo',
-  name: 'name-foo',
-  url: 'http://example.com/foo'
-};
+import { mockOrganization } from '../../../../helpers/testMocks';
 
 it('should render and create organization', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
@@ -40,7 +33,7 @@ it('should render and create organization', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(organization);
+  wrapper.find('OrganizationDetailsForm').prop<Function>('onContinue')(mockOrganization());
   await waitAndUpdate(wrapper);
   expect(handleOrgDetailsFinish).toHaveBeenCalled();
   wrapper.setProps({ step: Step.Plan });

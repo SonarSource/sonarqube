@@ -24,11 +24,12 @@ import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { Step } from './utils';
+import { Alert } from '../../../components/ui/Alert';
 import { DeleteButton } from '../../../components/ui/buttons';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { bindAlmOrganization } from '../../../api/alm-integration';
-import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
+import { sanitizeAlmId, getAlmMembersUrl } from '../../../helpers/almIntegrations';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
 enum Filters {
@@ -102,6 +103,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
     } = this.props;
     const { filter } = this.state;
     const hasUnboundOrgs = unboundOrganizations.length > 0;
+    const almKey = sanitizeAlmId(almApplication.key);
     return (
       <div className={className}>
         <OrganizationDetailsStep
@@ -156,6 +158,24 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
 
           {filter === Filters.Create && (
             <OrganizationDetailsForm
+              infoBlock={
+                <Alert className="abs-width-600 big-spacer-top" display="block" variant="info">
+                  <p>
+                    {translateWithParameters(
+                      'onboarding.import_organization.members_sync_info_x',
+                      translate('organization', almKey),
+                      almOrganization.name,
+                      translate(almKey)
+                    )}
+                  </p>
+                  <a
+                    href={getAlmMembersUrl(almOrganization.key, almOrganization.almUrl)}
+                    rel="noopener noreferrer"
+                    target="_blank">
+                    {translate('onboarding.import_organization.see_who_has_access')}
+                  </a>
+                </Alert>
+              }
               onContinue={this.props.handleOrgDetailsFinish}
               organization={almOrganization}
               submitText={translate('continue')}
@@ -163,6 +183,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
           )}
           {filter === Filters.Bind && (
             <AutoOrganizationBind
+              almKey={almKey}
               onBindOrganization={this.handleBindOrganization}
               unboundOrganizations={unboundOrganizations}
             />

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { RemoteOrganizationChoose } from '../RemoteOrganizationChoose';
-import { mockRouter } from '../../../../helpers/testMocks';
+import { mockRouter, mockAlmOrganization } from '../../../../helpers/testMocks';
 import { submit } from '../../../../helpers/testUtils';
 
 it('should render', () => {
@@ -52,14 +52,7 @@ it('should display already bound alert message', () => {
   expect(
     shallowRender({
       almInstallId: 'foo',
-      almOrganization: {
-        avatar: 'foo-avatar',
-        key: 'foo',
-        name: 'Foo',
-        personal: false,
-        privateRepos: 0,
-        publicRepos: 3
-      },
+      almOrganization: mockAlmOrganization(),
       boundOrganization: { avatar: 'bound-avatar', key: 'bound', name: 'Bound' }
     }).find('Alert')
   ).toMatchSnapshot();

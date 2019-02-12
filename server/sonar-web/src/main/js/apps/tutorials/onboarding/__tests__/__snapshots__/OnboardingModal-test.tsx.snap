@@ -6,14 +6,13 @@ exports[`renders correctly 1`] = `
   medium={true}
   onRequestClose={[MockFunction]}
   shouldCloseOnOverlayClick={false}
-  simple={true}
 >
   <div
-    className="modal-simple-head text-center"
+    className="modal-head"
   >
-    <h1>
+    <h2>
       onboarding.header
-    </h1>
+    </h2>
     <p
       className="spacer-top"
     >
@@ -21,49 +20,30 @@ exports[`renders correctly 1`] = `
     </p>
   </div>
   <div
-    className="modal-simple-body text-center onboarding-choices"
+    className="modal-body text-center huge-spacer-top huge-spacer-bottom"
   >
+    <OnboardingProjectIcon
+      className="big-spacer-bottom"
+    />
+    <h6
+      className="onboarding-choice-name big-spacer-bottom"
+    >
+      onboarding.analyze_your_code
+    </h6>
     <Button
-      className="onboarding-choice"
       onClick={[MockFunction]}
     >
-      <OnboardingProjectIcon
-        className="big-spacer-bottom"
-      />
-      <h6
-        className="onboarding-choice-name"
-      >
-        onboarding.analyze_your_code
-      </h6>
-    </Button>
-    <Button
-      className="onboarding-choice"
-      onClick={[MockFunction]}
-    >
-      <OnboardingTeamIcon
-        className="big-spacer-bottom"
-      />
-      <h6
-        className="onboarding-choice-name"
-      >
-        onboarding.contribute_existing_project
-      </h6>
+      onboarding.project.create
     </Button>
   </div>
   <div
-    className="modal-simple-foot text-center"
+    className="modal-foot text-right"
   >
     <ResetButtonLink
-      className="spacer-bottom"
       onClick={[MockFunction]}
     >
       not_now
     </ResetButtonLink>
-    <p
-      className="note"
-    >
-      onboarding.footer
-    </p>
   </div>
 </Modal>
 `;

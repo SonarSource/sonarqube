@@ -23,7 +23,7 @@ exports[`should render correctly 1`] = `
               width={16}
             />,
             "name": <strong>
-              name-foo
+              foo
             </strong>,
             "personalAvatar": <OrganizationAvatar
               organization={
@@ -69,10 +69,11 @@ exports[`should render correctly 1`] = `
     }
     almOrganization={
       Object {
+        "almUrl": "https://github.com/foo",
         "avatar": "http://example.com/avatar",
         "description": "description-foo",
-        "key": "key-foo",
-        "name": "name-foo",
+        "key": "foo",
+        "name": "foo",
         "personal": true,
         "privateRepos": 0,
         "publicRepos": 3,

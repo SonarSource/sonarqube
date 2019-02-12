@@ -23,7 +23,7 @@ interface ChildrenProps {
   onSubmit: React.FormEventHandler;
   processingUpgrade: boolean;
   renderFormFields: () => React.ReactNode;
-  renderNextCharge: () => React.ReactNode;
+  renderNextCharge: (className?: string) => React.ReactNode;
   renderRecap: () => React.ReactNode;
   renderSubmitButton: (submitText?: string) => React.ReactNode;
   renderSubmitGroup: (submitText?: string) => React.ReactNode;

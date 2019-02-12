@@ -22,18 +22,10 @@ import { shallow } from 'enzyme';
 import AutoPersonalOrganizationBind from '../AutoPersonalOrganizationBind';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 import { Step } from '../utils';
+import { mockAlmOrganization } from '../../../../helpers/testMocks';
 
 const personalOrg = { key: 'personalorg', name: 'Personal Org' };
-const almOrganization = {
-  avatar: 'http://example.com/avatar',
-  description: 'description-foo',
-  key: 'key-foo',
-  name: 'name-foo',
-  personal: true,
-  privateRepos: 0,
-  publicRepos: 3,
-  url: 'http://example.com/foo'
-};
+const almOrganization = mockAlmOrganization({ personal: true });
 
 it('should render correctly', async () => {
   const updateOrganization = jest.fn().mockResolvedValue({ key: personalOrg.key });

@@ -7,19 +7,36 @@ exports[`should render correctly 1`] = `
 >
   <OrganizationSelect
     onChange={[Function]}
-    organization="key-foo"
+    organization="foo"
     organizations={
       Array [
         Object {
-          "avatar": "http://example.com/avatar",
-          "description": "description-foo",
-          "key": "key-foo",
-          "name": "name-foo",
-          "url": "http://example.com/foo",
+          "key": "foo",
+          "name": "Foo",
         },
       ]
     }
   />
+  <Alert
+    className="abs-width-400 big-spacer-top"
+    display="block"
+    variant="info"
+  >
+    onboarding.import_organization.bind_members_not_sync_info_x.organization.github
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to={
+        Object {
+          "pathname": "/documentation/organizations/manage-team/",
+        }
+      }
+    >
+      learn_more
+    </Link>
+  </Alert>
   <div
     className="display-flex-center big-spacer-top"
   >

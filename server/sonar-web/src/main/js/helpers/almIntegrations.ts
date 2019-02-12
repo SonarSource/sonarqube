@@ -19,7 +19,7 @@
  */
 import { isLoggedIn } from './users';
 
-export function getAlmMembersUrl({ key, url }: T.OrganizationAlm): string {
+export function getAlmMembersUrl(key: string, url: string): string {
   if (!url.endsWith('/')) {
     url += '/';
   }
@@ -51,7 +51,7 @@ export function isPersonal(organization?: T.AlmOrganization) {
   return Boolean(organization && organization.personal);
 }
 
-export function sanitizeAlmId(almKey?: string) {
+export function sanitizeAlmId(almKey: string) {
   if (isBitbucket(almKey)) {
     return 'bitbucket';
   }

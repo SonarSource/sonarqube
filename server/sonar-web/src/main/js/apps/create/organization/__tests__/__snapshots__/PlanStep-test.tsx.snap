@@ -25,12 +25,15 @@ exports[`should preselect paid plan 1`] = `
       <PlanSelect
         almOrganization={
           Object {
-            "avatar": "my-avatar",
+            "almUrl": "https://github.com/foo",
+            "avatar": "http://example.com/avatar",
+            "description": "description-foo",
             "key": "foo",
-            "name": "Foo",
+            "name": "foo",
             "personal": true,
             "privateRepos": 5,
             "publicRepos": 0,
+            "url": "http://example.com/foo",
           }
         }
         onChange={[Function]}

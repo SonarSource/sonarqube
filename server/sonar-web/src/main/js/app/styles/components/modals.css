@@ -30,6 +30,10 @@
   transition: all 0.2s ease;
 }
 
+.modal.sonarcloud {
+  border-radius: 3px;
+}
+
 .modal:focus,
 .ReactModal__Content:focus {
   outline: none;
@@ -83,16 +87,31 @@
 }
 
 .modal-container {
-  max-height: 70vh;
+  max-height: 60vh;
   padding: 10px;
   box-sizing: border-box;
   overflow: auto;
 }
 
+.modal.sonarcloud .modal-container {
+  border-top: 1px solid var(--barBorderColor);
+  margin-top: var(--pagePadding);
+}
+
+.modal.sonarcloud .modal-container > :last-child {
+  margin-bottom: var(--pagePadding);
+}
+
 .modal-head {
   padding: 0 10px;
   background-color: var(--gray94);
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--disableGrayBorder);
+}
+
+.modal.sonarcloud .modal-head {
+  background-color: transparent;
+  border-bottom: none;
+  padding: var(--pagePadding) calc(2 * var(--pagePadding)) 0;
 }
 
 .modal-head h1,
@@ -101,49 +120,20 @@
   min-height: 30px;
 }
 
-.modal-body {
-  padding: 10px;
-}
-
-.modal-simple {
-  border-radius: 3px;
-}
-
-.modal-simple-head {
-  padding: var(--pagePadding) calc(2 * var(--pagePadding));
-}
-
-.modal-simple-head h1 {
-  margin-top: var(--pagePadding);
-  font-size: var(--hugeFontSize);
+.modal.sonarcloud .modal-head h1,
+.modal.sonarcloud .modal-head h2 {
+  margin-top: var(--gridSize);
+  font-size: var(--bigFontSize);
   font-weight: bold;
   line-height: 30px;
 }
 
-.modal-simple-head h2 {
-  font-size: var(--bigFontSize);
-  font-weight: bold;
-  line-height: 24px;
+.modal-body {
+  padding: 10px;
 }
 
-.modal-simple-body {
-  padding: 0 calc(2 * var(--pagePadding)) var(--pagePadding);
-}
-
-.modal-simple-foot {
-  padding: calc(2 * var(--pagePadding)) calc(2 * var(--pagePadding));
-  border-radius: 3px;
-}
-
-.modal-simple-foot-action {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.modal.sonarcloud .modal-body {
   padding: var(--pagePadding) calc(2 * var(--pagePadding));
-  border-top: 1px solid var(--barBorderColor);
-  background-color: var(--barBackgroundColor);
-  text-align: right;
-  border-radius: 3px;
 }
 
 .modal-field,
@@ -293,16 +283,23 @@
 
 .modal-foot {
   padding: 10px;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--disableGrayBorder);
   background-color: var(--gray94);
   text-align: right;
+}
+
+.modal.sonarcloud .modal-foot {
+  padding: var(--pagePadding);
+  border-top: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
+  border-radius: 3px;
 }
 
 .modal-foot button,
 .modal-foot .button,
 .modal-foot input[type='submit'],
 .modal-foot input[type='button'] {
-  margin-right: 10px;
+  margin-left: var(--gridSize);
 }
 
 .modal-error,

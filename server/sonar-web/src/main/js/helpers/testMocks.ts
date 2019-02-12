@@ -21,6 +21,21 @@ import { InjectedRouter } from 'react-router';
 import { Location } from 'history';
 import { Profile } from '../apps/quality-profiles/types';
 
+export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}): T.AlmOrganization {
+  return {
+    avatar: 'http://example.com/avatar',
+    almUrl: 'https://github.com/foo',
+    description: 'description-foo',
+    key: 'foo',
+    name: 'foo',
+    personal: false,
+    privateRepos: 0,
+    publicRepos: 3,
+    url: 'http://example.com/foo',
+    ...overrides
+  };
+}
+
 export function mockAppState(overrides: Partial<T.AppState> = {}): T.AppState {
   return {
     defaultOrganization: 'foo',

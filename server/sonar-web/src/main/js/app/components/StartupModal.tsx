@@ -36,9 +36,6 @@ const LicensePromptModal = lazyLoad(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
   'LicensePromptModal'
 );
-const TeamOnboardingModal = lazyLoad(() =>
-  import('../../apps/tutorials/teamOnboarding/TeamOnboardingModal')
-);
 
 interface StateProps {
   canAdmin?: boolean;
@@ -63,8 +60,7 @@ type Props = StateProps & DispatchProps & OwnProps & WithRouterProps;
 
 enum ModalKey {
   license,
-  onboarding,
-  teamOnboarding
+  onboarding
 }
 
 interface State {
@@ -113,10 +109,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
     this.props.router.push({ pathname: `/projects/create`, state });
   };
 
-  openTeamOnboarding = () => {
-    this.setState({ modal: ModalKey.teamOnboarding });
-  };
-
   tryAutoOpenLicense = () => {
     const { canAdmin, currentEdition, currentUser } = this.props;
     const hasLicenseManager = hasMessage('license.prompt.title');
@@ -161,11 +153,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
           <OnboardingModal
             onClose={this.closeOnboarding}
             onOpenProjectOnboarding={this.openProjectOnboarding}
-            onOpenTeamOnboarding={this.openTeamOnboarding}
           />
-        )}
-        {modal === ModalKey.teamOnboarding && (
-          <TeamOnboardingModal onFinish={this.closeOnboarding} />
         )}
       </OnboardingContext.Provider>
     );

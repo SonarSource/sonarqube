@@ -21,14 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoOrganizationBind from '../AutoOrganizationBind';
 import { submit } from '../../../../helpers/testUtils';
-
-const organization = {
-  avatar: 'http://example.com/avatar',
-  description: 'description-foo',
-  key: 'key-foo',
-  name: 'name-foo',
-  url: 'http://example.com/foo'
-};
+import { mockOrganization } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   const onBindOrganization = jest.fn().mockResolvedValue({});
@@ -42,8 +35,9 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<AutoOrganizationBind['props']> = {}) {
   return shallow(
     <AutoOrganizationBind
+      almKey="github"
       onBindOrganization={jest.fn()}
-      unboundOrganizations={[organization]}
+      unboundOrganizations={[mockOrganization()]}
       {...props}
     />
   );

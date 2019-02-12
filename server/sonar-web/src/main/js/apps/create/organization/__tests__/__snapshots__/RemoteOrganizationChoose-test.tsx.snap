@@ -31,7 +31,7 @@ exports[`should display already bound alert message 1`] = `
           Bound
         </strong>,
         "name": <strong>
-          Foo
+          foo
         </strong>,
       }
     }
@@ -126,7 +126,7 @@ exports[`should display unbound installations 1`] = `
             <label
               htmlFor="select-unbound-installation"
             >
-              onboarding.import_organization.choose_unbound_installation.github
+              onboarding.import_organization.choose_unbound_installation_x.github
             </label>
             <Select
               className="input-super-large"

@@ -31,6 +31,7 @@ import { translate } from '../../../helpers/l10n';
 type RequiredOrganization = Required<T.OrganizationBase>;
 
 interface Props {
+  infoBlock?: React.ReactNode;
   keyReadOnly?: boolean;
   onContinue: (organization: T.Organization) => Promise<void>;
   organization?: T.Organization;
@@ -133,7 +134,7 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
 
   render() {
     const { submitting } = this.state;
-    const { keyReadOnly } = this.props;
+    const { infoBlock, keyReadOnly } = this.props;
     return (
       <form id="organization-form" onSubmit={this.handleSubmit}>
         {!keyReadOnly && (
@@ -173,6 +174,8 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
             <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
           </div>
         </div>
+
+        {infoBlock}
 
         <div className="display-flex-center big-spacer-top">
           <SubmitButton disabled={submitting || !this.canSubmit(this.state)}>

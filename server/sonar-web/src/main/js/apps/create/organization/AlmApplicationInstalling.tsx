@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default function AlmApplicationInstalling({ almKey }: { almKey?: string }) {
   return (
@@ -30,9 +30,9 @@ export default function AlmApplicationInstalling({ almKey }: { almKey?: string }
           <div className="huge-spacer-top text-center">
             <i className="spinner" />
             <p className="big-spacer-top">
-              {translate(
+              {translateWithParameters(
                 'onboarding.import_organization.installing',
-                sanitizeAlmId(almKey) || 'ALM'
+                almKey ? translate(sanitizeAlmId(almKey)) : 'ALM'
               )}
             </p>
           </div>

@@ -138,7 +138,7 @@ exports[`should render for bound organization without sync 1`] = `
       />
     </div>
     <NewInfoBox
-      description="organization.members.auto_sync_members_from_org.github"
+      description="organization.members.auto_sync_members_from_org_x.github"
       onClose={[Function]}
       title="organization.members.auto_sync_with_x.github"
     >

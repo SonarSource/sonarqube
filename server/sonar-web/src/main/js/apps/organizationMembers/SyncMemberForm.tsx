@@ -69,12 +69,9 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
     this.setState({ membersSync: true });
   };
 
-  renderModalBody = () => {
-    const { membersSync } = this.state;
-    const { organization } = this.props;
-    const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
+  renderModalDescription = () => {
     return (
-      <>
+      <p className="spacer-top">
         {translate('organization.members.management.description')}
         <Link
           className="spacer-left"
@@ -82,6 +79,16 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
           to={{ pathname: '/documentation/organizations/manage-team/' }}>
           {translate('learn_more')}
         </Link>
+      </p>
+    );
+  };
+
+  renderModalBody = () => {
+    const { membersSync } = this.state;
+    const { organization } = this.props;
+    const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
+    return (
+      <>
         <div className="display-flex-stretch big-spacer-top">
           <RadioCard
             onClick={this.handleManualClick}
@@ -110,9 +117,9 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
                 {almKey && (
                   <>
                     <li className="spacer-bottom">
-                      {translate(
-                        'organization.members.management.automatic.synchronized_from',
-                        almKey
+                      {translateWithParameters(
+                        'organization.members.management.automatic.synchronized_from_x',
+                        translate(almKey)
                       )}
                     </li>
                     <li className="spacer-bottom">
@@ -152,6 +159,7 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
         medium={true}
         modalBody={this.renderModalBody()}
         modalHeader={translate('organization.members.management.title')}
+        modalHeaderDescription={this.renderModalDescription()}
         onConfirm={this.handleConfirm}>
         {({ onClick }) => (
           <Button onClick={onClick}>{translate('organization.members.config_synchro')}</Button>

@@ -29,7 +29,7 @@ import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -169,9 +169,9 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
                 <form className="big-spacer-top big-spacer-bottom" onSubmit={this.handleSubmit}>
                   <div className="form-field abs-width-400">
                     <label htmlFor="select-unbound-installation">
-                      {translate(
-                        'onboarding.import_organization.choose_unbound_installation',
-                        almApplication.key
+                      {translateWithParameters(
+                        'onboarding.import_organization.choose_unbound_installation_x',
+                        translate(sanitizeAlmId(almApplication.key))
                       )}
                     </label>
                     <Select

@@ -21,31 +21,21 @@ import { Dispatch } from 'redux';
 import * as api from '../../api/organizations';
 import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { translate } from '../../helpers/l10n';
 
-export const createOrganization = (organization: T.OrganizationBase) => (
-  dispatch: Dispatch<any>
-) => {
-  return api.createOrganization(organization).then((organization: T.Organization) => {
-    dispatch(actions.createOrganization(organization));
-    dispatch(
-      addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name))
-    );
-    return organization;
-  });
-};
+export function updateOrganization(key: string, changes: T.OrganizationBase) {
+  return (dispatch: Dispatch<any>) => {
+    return api.updateOrganization(key, changes).then(() => {
+      dispatch(actions.updateOrganization(key, changes));
+      dispatch(addGlobalSuccessMessage(translate('organization.updated')));
+    });
+  };
+}
 
-export const updateOrganization = (key: string, changes: T.OrganizationBase) => (
-  dispatch: Dispatch<any>
-) => {
-  return api.updateOrganization(key, changes).then(() => {
-    dispatch(actions.updateOrganization(key, changes));
-    dispatch(addGlobalSuccessMessage(translate('organization.updated')));
-  });
-};
-
-export const deleteOrganization = (key: string) => (dispatch: Dispatch<any>) => {
-  return api.deleteOrganization(key).then(() => {
-    dispatch(actions.deleteOrganization(key));
-  });
-};
+export function deleteOrganization(key: string) {
+  return (dispatch: Dispatch<any>) => {
+    return api.deleteOrganization(key).then(() => {
+      dispatch(actions.deleteOrganization(key));
+    });
+  };
+}

@@ -75,9 +75,8 @@ export default class UpgradeOrganizationModal extends React.PureComponent<Props,
         medium={true}
         noBackdrop={this.props.insideModal}
         onRequestClose={this.props.onClose}
-        shouldCloseOnOverlayClick={false}
-        simple={true}>
-        <div className="modal-simple-head">
+        shouldCloseOnOverlayClick={false}>
+        <div className="modal-head">
           <h2>{header}</h2>
         </div>
         <BillingForm
@@ -93,7 +92,7 @@ export default class UpgradeOrganizationModal extends React.PureComponent<Props,
             renderSubmitButton
           }) => (
             <form id="organization-paid-plan-form" onSubmit={onSubmit}>
-              <div className="modal-simple-body modal-container">
+              <div className="modal-body modal-container">
                 <div className="huge-spacer-bottom">
                   <p className="spacer-bottom">
                     <FormattedMessage
@@ -109,10 +108,10 @@ export default class UpgradeOrganizationModal extends React.PureComponent<Props,
                 {renderFormFields()}
                 <div className="big-spacer-top">{renderRecap()}</div>
               </div>
-              <footer className="modal-simple-foot-action">
-                <span className="note">{renderNextCharge()}</span>
+              <footer className="modal-foot display-flex-center display-flex-space-between">
+                {renderNextCharge() || <span />}
                 <div>
-                  <DeferredSpinner className="spacer-right" loading={processingUpgrade} />
+                  <DeferredSpinner loading={processingUpgrade} />
                   {renderSubmitButton()}
                   <ResetButtonLink onClick={this.props.onClose}>
                     {translate('cancel')}

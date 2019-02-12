@@ -6,10 +6,9 @@ exports[`should render correctly 1`] = `
   medium={true}
   onRequestClose={[MockFunction]}
   shouldCloseOnOverlayClick={false}
-  simple={true}
 >
   <div
-    className="modal-simple-head"
+    className="modal-head"
   >
     <h2>
       billing.upgrade_box.upgrade_to_paid_plan

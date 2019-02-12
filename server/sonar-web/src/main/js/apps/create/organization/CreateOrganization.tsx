@@ -22,9 +22,9 @@ import * as classNames from 'classnames';
 import { differenceInMinutes } from 'date-fns';
 import { times } from 'lodash';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import { Helmet } from 'react-helmet';
 import { withRouter, WithRouterProps } from 'react-router';
+import { createOrganization, updateOrganization } from './actions';
 import {
   ORGANIZATION_IMPORT_REDIRECT_TO_PROJECT_TIMESTAMP,
   parseQuery,
@@ -42,8 +42,8 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
+import { deleteOrganization } from '../../organizations/actions';
 import {
-  bindAlmOrganization,
   getAlmAppInfo,
   getAlmOrganization,
   GetAlmOrganizationResponse,
@@ -51,14 +51,17 @@ import {
 } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
 import * as api from '../../../api/organizations';
-import { hasAdvancedALMIntegration, isPersonal } from '../../../helpers/almIntegrations';
-import { translate } from '../../../helpers/l10n';
+import {
+  hasAdvancedALMIntegration,
+  isPersonal,
+  sanitizeAlmId
+} from '../../../helpers/almIntegrations';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { get, remove } from '../../../helpers/storage';
 import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
-import * as actions from '../../../store/organizations';
 import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
@@ -337,7 +340,10 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
           tabs={[
             {
               key: 'auto',
-              node: translate('onboarding.import_organization', almApplication.key)
+              node: translateWithParameters(
+                'onboarding.import_organization.import_from_x',
+                translate(sanitizeAlmId(almApplication.key))
+              )
             },
             {
               key: 'manual',
@@ -424,39 +430,6 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       </>
     );
   }
-}
-
-function createOrganization(organization: T.Organization & { installationId?: string }) {
-  return (dispatch: Dispatch) => {
-    return api
-      .createOrganization({ ...organization, name: organization.name || organization.key })
-      .then((organization: T.Organization) => {
-        dispatch(actions.createOrganization(organization));
-        return organization.key;
-      });
-  };
-}
-
-function updateOrganization(organization: T.Organization & { installationId?: string }) {
-  return (dispatch: Dispatch) => {
-    const { key, installationId, ...changes } = organization;
-    const promises = [api.updateOrganization(key, changes)];
-    if (installationId) {
-      promises.push(bindAlmOrganization({ organization: key, installationId }));
-    }
-    return Promise.all(promises).then(() => {
-      dispatch(actions.updateOrganization(key, changes));
-      return organization.key;
-    });
-  };
-}
-
-function deleteOrganization(key: string) {
-  return (dispatch: Dispatch) => {
-    return api.deleteOrganization(key).then(() => {
-      dispatch(actions.deleteOrganization(key));
-    });
-  };
 }
 
 const mapDispatchToProps = {

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import PlanSelect, { Plan } from '../PlanSelect';
 import { click } from '../../../../helpers/testUtils';
+import { mockAlmOrganization } from '../../../../helpers/testMocks';
 
 it('should render and select', () => {
   const onChange = jest.fn();
@@ -35,7 +36,7 @@ it('should render and select', () => {
 
 it('should recommend paid plan', () => {
   const wrapper = shallowRender({
-    almOrganization: { key: 'foo', name: 'Foo', personal: false, privateRepos: 1, publicRepos: 5 },
+    almOrganization: mockAlmOrganization({ privateRepos: 1, publicRepos: 5 }),
     plan: Plan.Paid
   });
   expect(wrapper.find('PaidCardPlan').prop('isRecommended')).toBe(true);
@@ -48,7 +49,7 @@ it('should recommend paid plan', () => {
 
 it('should recommend paid plan and disable free plan', () => {
   const wrapper = shallowRender({
-    almOrganization: { key: 'foo', name: 'Foo', personal: false, privateRepos: 1, publicRepos: 0 }
+    almOrganization: mockAlmOrganization({ privateRepos: 1, publicRepos: 0 })
   });
   expect(wrapper.find('PaidCardPlan').prop('isRecommended')).toBe(true);
   expect(wrapper.find('FreeCardPlan').prop('disabled')).toBe(true);

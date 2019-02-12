@@ -35,6 +35,7 @@ export interface ConfirmModalProps<T> extends ModalProps {
 
 interface Props<T> extends ConfirmModalProps<T> {
   header: string;
+  headerDescription?: React.ReactNode;
   onClose: () => void;
 }
 
@@ -60,12 +61,20 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
   };
 
   renderModalContent = ({ onCloseClick, onFormSubmit, submitting }: ChildrenProps) => {
-    const { children, confirmButtonText, confirmDisable, header, isDestructive } = this.props;
-    const { cancelButtonText = translate('cancel') } = this.props;
+    const {
+      children,
+      confirmButtonText,
+      confirmDisable,
+      header,
+      headerDescription,
+      isDestructive,
+      cancelButtonText = translate('cancel')
+    } = this.props;
     return (
       <form onSubmit={onFormSubmit}>
         <header className="modal-head">
           <h2>{header}</h2>
+          {headerDescription}
         </header>
         <div className="modal-body">{children}</div>
         <footer className="modal-foot">
@@ -85,8 +94,8 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
   };
 
   render() {
-    const { header, onClose, medium, noBackdrop, large, simple } = this.props;
-    const modalProps = { header, onClose, medium, noBackdrop, large, simple };
+    const { header, onClose, medium, noBackdrop, large } = this.props;
+    const modalProps = { header, onClose, medium, noBackdrop, large };
     return (
       <SimpleModal onSubmit={this.handleSubmit} {...modalProps}>
         {this.renderModalContent}

@@ -27,6 +27,7 @@ declare namespace T {
   }
 
   export interface AlmOrganization extends OrganizationBase {
+    almUrl: string;
     key: string;
     personal: boolean;
     privateRepos: number;
@@ -502,7 +503,7 @@ declare namespace T {
 
   export interface Organization extends OrganizationBase {
     actions?: OrganizationActions;
-    alm?: OrganizationAlm;
+    alm?: { key: string; membersSync: boolean; url: string };
     adminPages?: Extension[];
     canUpdateProjectsVisibilityToPrivate?: boolean;
     guarded?: boolean;
@@ -511,12 +512,6 @@ declare namespace T {
     pages?: Extension[];
     projectVisibility?: Visibility;
     subscription?: OrganizationSubscription;
-  }
-
-  export interface OrganizationAlm {
-    key: string;
-    membersSync: boolean;
-    url: string;
   }
 
   export interface OrganizationBase {

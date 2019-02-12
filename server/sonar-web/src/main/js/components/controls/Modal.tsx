@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import * as classNames from 'classnames';
+import { isSonarCloud } from '../../helpers/system';
 
 ReactModal.setAppElement('#content');
 
@@ -28,7 +29,6 @@ export interface ModalProps {
   medium?: boolean;
   noBackdrop?: boolean;
   large?: boolean;
-  simple?: true;
 }
 
 type MandatoryProps = Pick<ReactModal.Props, 'contentLabel'>;
@@ -38,11 +38,16 @@ type Props = Partial<ReactModal.Props> & MandatoryProps & ModalProps;
 export default function Modal(props: Props) {
   return (
     <ReactModal
-      className={classNames('modal', {
-        'modal-medium': props.medium,
-        'modal-large': props.large,
-        'modal-simple': props.simple
-      })}
+      className={classNames(
+        'modal',
+        {
+          sonarcloud: isSonarCloud()
+        },
+        {
+          'modal-medium': props.medium,
+          'modal-large': props.large
+        }
+      )}
       isOpen={true}
       overlayClassName={classNames('modal-overlay', { 'modal-no-backdrop': props.noBackdrop })}
       {...props}

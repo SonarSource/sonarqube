@@ -85,7 +85,6 @@
 }
 
 .onboarding-choice-name {
-  padding-top: var(--gridSize);
   color: inherit;
   font-size: var(--mediumFontSize);
 }

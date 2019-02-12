@@ -33,7 +33,9 @@ import { get, remove } from '../../../../helpers/storage';
 import {
   mockRouter,
   mockOrganizationWithAdminActions,
-  mockOrganizationWithAlm
+  mockOrganizationWithAlm,
+  mockAlmOrganization,
+  mockCurrentUser
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
@@ -77,31 +79,14 @@ jest.mock('../../../../helpers/storage', () => ({
   remove: jest.fn()
 }));
 
-const user: T.LoggedInUser = {
-  groups: [],
-  isLoggedIn: true,
-  login: 'luke',
-  name: 'Skywalker',
-  scmAccounts: []
-};
-
-const fooAlmOrganization = {
-  avatar: 'my-avatar',
-  key: 'foo',
-  name: 'Foo',
-  personal: true,
-  privateRepos: 0,
-  publicRepos: 3
-};
-
-const fooBarAlmOrganization = {
+const user = mockCurrentUser();
+const fooAlmOrganization = mockAlmOrganization({ personal: true });
+const fooBarAlmOrganization = mockAlmOrganization({
   avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
   key: 'Foo&Bar',
   name: 'Foo & Bar',
-  personal: true,
-  privateRepos: 0,
-  publicRepos: 3
-};
+  personal: true
+});
 
 const boundOrganization = { key: 'foobar', name: 'Foo & Bar' };
 

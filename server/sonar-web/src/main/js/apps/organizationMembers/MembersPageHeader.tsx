@@ -84,7 +84,10 @@ export class MembersPageHeader extends React.PureComponent<Props> {
             {almKey &&
               showSyncNotif && (
                 <NewInfoBox
-                  description={translate('organization.members.auto_sync_members_from_org', almKey)}
+                  description={translateWithParameters(
+                    'organization.members.auto_sync_members_from_org_x',
+                    translate(almKey)
+                  )}
                   onClose={this.handleDismissSyncNotif}
                   title={translateWithParameters(
                     'organization.members.auto_sync_with_x',

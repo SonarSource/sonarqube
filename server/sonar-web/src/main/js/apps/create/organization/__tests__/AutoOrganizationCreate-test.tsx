@@ -20,23 +20,16 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
-import { waitAndUpdate, click } from '../../../../helpers/testUtils';
-import { bindAlmOrganization } from '../../../../api/alm-integration';
 import { Step } from '../utils';
+import { bindAlmOrganization } from '../../../../api/alm-integration';
+import { mockAlmOrganization } from '../../../../helpers/testMocks';
+import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/alm-integration', () => ({
   bindAlmOrganization: jest.fn().mockResolvedValue({})
 }));
 
-const organization = {
-  avatar: 'http://example.com/avatar',
-  description: 'description-foo',
-  key: 'key-foo',
-  name: 'name-foo',
-  privateRepos: 0,
-  publicRepos: 3,
-  url: 'http://example.com/foo'
-};
+const organization = mockAlmOrganization();
 
 it('should render prefilled and create org', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });

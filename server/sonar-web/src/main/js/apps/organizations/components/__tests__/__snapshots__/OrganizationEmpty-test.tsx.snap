@@ -1,5 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should hide add members button when member sync activated 1`] = `
+<div
+  className="organization-empty"
+>
+  <h3
+    className="text-center"
+  >
+    onboarding.create_organization.ready
+  </h3>
+  <div
+    className="onboarding-choices"
+  >
+    <Button
+      className="onboarding-choice"
+      onClick={[Function]}
+    >
+      <OnboardingProjectIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name"
+      >
+        provisioning.analyze_new_project
+      </h6>
+    </Button>
+  </div>
+</div>
+`;
+
 exports[`should render 1`] = `
 <div
   className="organization-empty"

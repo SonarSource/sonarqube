@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import PlanStep from '../PlanStep';
-import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 import { Plan } from '../PlanSelect';
+import { mockAlmOrganization } from '../../../../helpers/testMocks';
+import { waitAndUpdate, submit } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../app/components/extensions/utils', () => ({
   getExtensionStart: jest.fn().mockResolvedValue(undefined)
@@ -80,14 +81,7 @@ it('should upgrade', async () => {
 it('should preselect paid plan', async () => {
   const wrapper = shallow(
     <PlanStep
-      almOrganization={{
-        avatar: 'my-avatar',
-        key: 'foo',
-        name: 'Foo',
-        personal: true,
-        privateRepos: 5,
-        publicRepos: 0
-      }}
+      almOrganization={mockAlmOrganization({ personal: true, privateRepos: 5, publicRepos: 0 })}
       createOrganization={jest.fn()}
       onDone={jest.fn()}
       onUpgradeFail={jest.fn()}

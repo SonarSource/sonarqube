@@ -41,12 +41,15 @@ exports[`should render with auto personal organization bind page 2`] = `
       almInstallId="foo"
       almOrganization={
         Object {
-          "avatar": "my-avatar",
+          "almUrl": "https://github.com/foo",
+          "avatar": "http://example.com/avatar",
+          "description": "description-foo",
           "key": "foo",
-          "name": "Foo",
+          "name": "foo",
           "personal": true,
           "privateRepos": 0,
           "publicRepos": 3,
+          "url": "http://example.com/foo",
         }
       }
       handleCancelImport={[Function]}
@@ -115,7 +118,7 @@ exports[`should render with auto tab displayed 1`] = `
         Array [
           Object {
             "key": "auto",
-            "node": "onboarding.import_organization.github",
+            "node": "onboarding.import_organization.import_from_x.github",
           },
           Object {
             "key": "manual",
@@ -202,7 +205,7 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
         Array [
           Object {
             "key": "auto",
-            "node": "onboarding.import_organization.github",
+            "node": "onboarding.import_organization.import_from_x.github",
           },
           Object {
             "key": "manual",
@@ -383,7 +386,7 @@ exports[`should render with organization bind page 2`] = `
         Array [
           Object {
             "key": "auto",
-            "node": "onboarding.import_organization.github",
+            "node": "onboarding.import_organization.import_from_x.github",
           },
           Object {
             "key": "manual",
@@ -426,12 +429,15 @@ exports[`should render with organization bind page 2`] = `
       almInstallId="foo"
       almOrganization={
         Object {
-          "avatar": "my-avatar",
+          "almUrl": "https://github.com/foo",
+          "avatar": "http://example.com/avatar",
+          "description": "description-foo",
           "key": "foo",
-          "name": "Foo",
+          "name": "foo",
           "personal": false,
           "privateRepos": 0,
           "publicRepos": 3,
+          "url": "http://example.com/foo",
         }
       }
       className=""
@@ -505,7 +511,7 @@ exports[`should switch tabs 1`] = `
         Array [
           Object {
             "key": "auto",
-            "node": "onboarding.import_organization.github",
+            "node": "onboarding.import_organization.import_from_x.github",
           },
           Object {
             "key": "manual",

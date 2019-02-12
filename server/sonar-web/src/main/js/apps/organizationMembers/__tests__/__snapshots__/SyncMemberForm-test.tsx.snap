@@ -8,20 +8,6 @@ exports[`should allow to switch to automatic mode with bitbucket 1`] = `
   medium={true}
   modalBody={
     <React.Fragment>
-      organization.members.management.description
-      <Link
-        className="spacer-left"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        target="_blank"
-        to={
-          Object {
-            "pathname": "/documentation/organizations/manage-team/",
-          }
-        }
-      >
-        learn_more
-      </Link>
       <div
         className="display-flex-stretch big-spacer-top"
       >
@@ -62,7 +48,7 @@ exports[`should allow to switch to automatic mode with bitbucket 1`] = `
                 <li
                   className="spacer-bottom"
                 >
-                  organization.members.management.automatic.synchronized_from.bitbucket
+                  organization.members.management.automatic.synchronized_from_x.bitbucket
                 </li>
                 <li
                   className="spacer-bottom"
@@ -86,20 +72,10 @@ exports[`should allow to switch to automatic mode with bitbucket 1`] = `
     </React.Fragment>
   }
   modalHeader="organization.members.management.title"
-  onConfirm={[Function]}
->
-  <Component />
-</ConfirmButton>
-`;
-
-exports[`should allow to switch to automatic mode with github 1`] = `
-<ConfirmButton
-  cancelButtonText="close"
-  confirmButtonText="save"
-  confirmDisable={true}
-  medium={true}
-  modalBody={
-    <React.Fragment>
+  modalHeaderDescription={
+    <p
+      className="spacer-top"
+    >
       organization.members.management.description
       <Link
         className="spacer-left"
@@ -114,6 +90,22 @@ exports[`should allow to switch to automatic mode with github 1`] = `
       >
         learn_more
       </Link>
+    </p>
+  }
+  onConfirm={[Function]}
+>
+  <Component />
+</ConfirmButton>
+`;
+
+exports[`should allow to switch to automatic mode with github 1`] = `
+<ConfirmButton
+  cancelButtonText="close"
+  confirmButtonText="save"
+  confirmDisable={true}
+  medium={true}
+  modalBody={
+    <React.Fragment>
       <div
         className="display-flex-stretch big-spacer-top"
       >
@@ -154,7 +146,7 @@ exports[`should allow to switch to automatic mode with github 1`] = `
                 <li
                   className="spacer-bottom"
                 >
-                  organization.members.management.automatic.synchronized_from.github
+                  organization.members.management.automatic.synchronized_from_x.github
                 </li>
                 <li
                   className="spacer-bottom"
@@ -178,20 +170,10 @@ exports[`should allow to switch to automatic mode with github 1`] = `
     </React.Fragment>
   }
   modalHeader="organization.members.management.title"
-  onConfirm={[Function]}
->
-  <Component />
-</ConfirmButton>
-`;
-
-exports[`should allow to switch to manual mode 1`] = `
-<ConfirmButton
-  cancelButtonText="close"
-  confirmButtonText="save"
-  confirmDisable={true}
-  medium={true}
-  modalBody={
-    <React.Fragment>
+  modalHeaderDescription={
+    <p
+      className="spacer-top"
+    >
       organization.members.management.description
       <Link
         className="spacer-left"
@@ -206,6 +188,22 @@ exports[`should allow to switch to manual mode 1`] = `
       >
         learn_more
       </Link>
+    </p>
+  }
+  onConfirm={[Function]}
+>
+  <Component />
+</ConfirmButton>
+`;
+
+exports[`should allow to switch to manual mode 1`] = `
+<ConfirmButton
+  cancelButtonText="close"
+  confirmButtonText="save"
+  confirmDisable={true}
+  medium={true}
+  modalBody={
+    <React.Fragment>
       <div
         className="display-flex-stretch big-spacer-top"
       >
@@ -246,7 +244,7 @@ exports[`should allow to switch to manual mode 1`] = `
                 <li
                   className="spacer-bottom"
                 >
-                  organization.members.management.automatic.synchronized_from.github
+                  organization.members.management.automatic.synchronized_from_x.github
                 </li>
                 <li
                   className="spacer-bottom"
@@ -264,6 +262,26 @@ exports[`should allow to switch to manual mode 1`] = `
     </React.Fragment>
   }
   modalHeader="organization.members.management.title"
+  modalHeaderDescription={
+    <p
+      className="spacer-top"
+    >
+      organization.members.management.description
+      <Link
+        className="spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/organizations/manage-team/",
+          }
+        }
+      >
+        learn_more
+      </Link>
+    </p>
+  }
   onConfirm={[Function]}
 >
   <Component />

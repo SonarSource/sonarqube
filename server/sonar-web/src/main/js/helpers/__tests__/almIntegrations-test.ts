@@ -27,12 +27,12 @@ import {
 } from '../almIntegrations';
 
 it('#getAlmMembersUrl', () => {
-  expect(
-    getAlmMembersUrl({ key: 'github', membersSync: true, url: 'https://github.com/Foo' })
-  ).toBe('https://github.com/orgs/Foo/people');
-  expect(
-    getAlmMembersUrl({ key: 'bitbucket', membersSync: true, url: 'https://bitbucket.com/Foo/' })
-  ).toBe('https://bitbucket.com/Foo/profile/members');
+  expect(getAlmMembersUrl('github', 'https://github.com/Foo')).toBe(
+    'https://github.com/orgs/Foo/people'
+  );
+  expect(getAlmMembersUrl('bitbucket', 'https://bitbucket.com/Foo/')).toBe(
+    'https://bitbucket.com/Foo/profile/members'
+  );
 });
 
 it('#isBitbucket', () => {
@@ -52,12 +52,16 @@ it('#isVSTS', () => {
 });
 
 it('#isPersonal', () => {
-  expect(
-    isPersonal({ key: 'foo', name: 'Foo', personal: true, privateRepos: 0, publicRepos: 3 })
-  ).toBeTruthy();
-  expect(
-    isPersonal({ key: 'foo', name: 'Foo', personal: false, privateRepos: 0, publicRepos: 3 })
-  ).toBeFalsy();
+  const almOrg = {
+    almUrl: '',
+    key: 'foo',
+    name: 'Foo',
+    personal: true,
+    privateRepos: 0,
+    publicRepos: 3
+  };
+  expect(isPersonal(almOrg)).toBeTruthy();
+  expect(isPersonal({ ...almOrg, personal: false })).toBeFalsy();
 });
 
 it('#sanitizeAlmId', () => {

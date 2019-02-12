@@ -44,6 +44,9 @@ export class OrganizationEmpty extends React.PureComponent<Props> {
   };
 
   render() {
+    const { organization } = this.props;
+    const memberSyncActivated = organization.alm && organization.alm.membersSync;
+
     return (
       <div className="organization-empty">
         <h3 className="text-center">{translate('onboarding.create_organization.ready')}</h3>
@@ -54,12 +57,14 @@ export class OrganizationEmpty extends React.PureComponent<Props> {
               {translate('provisioning.analyze_new_project')}
             </h6>
           </Button>
-          <Button className="onboarding-choice" onClick={this.handleAddMembersClick}>
-            <OnboardingAddMembersIcon />
-            <h6 className="onboarding-choice-name">
-              {translate('organization.members.add.multiple')}
-            </h6>
-          </Button>
+          {!memberSyncActivated && (
+            <Button className="onboarding-choice" onClick={this.handleAddMembersClick}>
+              <OnboardingAddMembersIcon />
+              <h6 className="onboarding-choice-name">
+                {translate('organization.members.add.multiple')}
+              </h6>
+            </Button>
+          )}
         </div>
       </div>
     );

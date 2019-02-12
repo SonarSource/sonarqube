@@ -257,6 +257,10 @@ td.big-spacer-top {
   width: 400px !important;
 }
 
+.abs-width-600 {
+  width: 600px !important;
+}
+
 .justify {
   margin-bottom: -1em;
   text-align: justify;

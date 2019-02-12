@@ -22,7 +22,6 @@ import { connect } from 'react-redux';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import Modal from '../../../components/controls/Modal';
 import OnboardingProjectIcon from '../../../components/icons-components/OnboardingProjectIcon';
-import OnboardingTeamIcon from '../../../components/icons-components/OnboardingTeamIcon';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
@@ -32,7 +31,6 @@ import '../styles.css';
 interface OwnProps {
   onClose: () => void;
   onOpenProjectOnboarding: () => void;
-  onOpenTeamOnboarding: () => void;
 }
 
 interface StateProps {
@@ -59,29 +57,22 @@ export class OnboardingModal extends React.PureComponent<Props> {
         contentLabel={header}
         medium={true}
         onRequestClose={this.props.onClose}
-        shouldCloseOnOverlayClick={false}
-        simple={true}>
-        <div className="modal-simple-head text-center">
-          <h1>{translate('onboarding.header')}</h1>
+        shouldCloseOnOverlayClick={false}>
+        <div className="modal-head">
+          <h2>{translate('onboarding.header')}</h2>
           <p className="spacer-top">{translate('onboarding.header.description')}</p>
         </div>
-        <div className="modal-simple-body text-center onboarding-choices">
-          <Button className="onboarding-choice" onClick={this.props.onOpenProjectOnboarding}>
-            <OnboardingProjectIcon className="big-spacer-bottom" />
-            <h6 className="onboarding-choice-name">{translate('onboarding.analyze_your_code')}</h6>
-          </Button>
-          <Button className="onboarding-choice" onClick={this.props.onOpenTeamOnboarding}>
-            <OnboardingTeamIcon className="big-spacer-bottom" />
-            <h6 className="onboarding-choice-name">
-              {translate('onboarding.contribute_existing_project')}
-            </h6>
+        <div className="modal-body text-center huge-spacer-top huge-spacer-bottom">
+          <OnboardingProjectIcon className="big-spacer-bottom" />
+          <h6 className="onboarding-choice-name big-spacer-bottom">
+            {translate('onboarding.analyze_your_code')}
+          </h6>
+          <Button onClick={this.props.onOpenProjectOnboarding}>
+            {translate('onboarding.project.create')}
           </Button>
         </div>
-        <div className="modal-simple-foot text-center">
-          <ResetButtonLink className="spacer-bottom" onClick={this.props.onClose}>
-            {translate('not_now')}
-          </ResetButtonLink>
-          <p className="note">{translate('onboarding.footer')}</p>
+        <div className="modal-foot text-right">
+          <ResetButtonLink onClick={this.props.onClose}>{translate('not_now')}</ResetButtonLink>
         </div>
       </Modal>
     );

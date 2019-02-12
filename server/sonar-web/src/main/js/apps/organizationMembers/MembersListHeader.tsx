@@ -56,7 +56,7 @@ export default function MembersListHeader({
                     <p>
                       {translate(
                         'organization.members.auto_sync_total_help',
-                        sanitizeAlmId(organization.alm.key) || ''
+                        sanitizeAlmId(organization.alm.key)
                       )}
                     </p>
                     {currentUser.personalOrganization !== organization.key && (
@@ -64,12 +64,12 @@ export default function MembersListHeader({
                         <hr />
                         <p>
                           <a
-                            href={getAlmMembersUrl(organization.alm)}
+                            href={getAlmMembersUrl(organization.alm.key, organization.alm.url)}
                             rel="noopener noreferrer"
                             target="_blank">
                             {translateWithParameters(
                               'organization.members.see_all_members_on_x',
-                              translate(sanitizeAlmId(organization.alm.key) || '')
+                              translate(sanitizeAlmId(organization.alm.key))
                             )}
                           </a>
                         </p>

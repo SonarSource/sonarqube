@@ -29,7 +29,6 @@ it('renders correctly', () => {
         currentUser={{ isLoggedIn: true }}
         onClose={jest.fn()}
         onOpenProjectOnboarding={jest.fn()}
-        onOpenTeamOnboarding={jest.fn()}
       />
     )
   ).toMatchSnapshot();
@@ -38,13 +37,11 @@ it('renders correctly', () => {
 it('should correctly open the different tutorials', () => {
   const onClose = jest.fn();
   const onOpenProjectOnboarding = jest.fn();
-  const onOpenTeamOnboarding = jest.fn();
   const wrapper = shallow(
     <OnboardingModal
       currentUser={{ isLoggedIn: true }}
       onClose={onClose}
       onOpenProjectOnboarding={onOpenProjectOnboarding}
-      onOpenTeamOnboarding={onOpenTeamOnboarding}
     />
   );
 
@@ -53,5 +50,4 @@ it('should correctly open the different tutorials', () => {
 
   wrapper.find('Button').forEach(button => click(button));
   expect(onOpenProjectOnboarding).toHaveBeenCalled();
-  expect(onOpenTeamOnboarding).toHaveBeenCalled();
 });

@@ -25,6 +25,7 @@ interface Props<T> extends ConfirmModalProps<T> {
   children: (props: ChildrenProps) => React.ReactNode;
   modalBody: React.ReactNode;
   modalHeader: string;
+  modalHeaderDescription?: React.ReactNode;
 }
 
 interface State {
@@ -33,9 +34,19 @@ interface State {
 
 export default class ConfirmButton<T> extends React.PureComponent<Props<T>, State> {
   renderConfirmModal = ({ onClose }: ModalProps) => {
-    const { children, modalBody, modalHeader, ...confirmModalProps } = this.props;
+    const {
+      children,
+      modalBody,
+      modalHeader,
+      modalHeaderDescription,
+      ...confirmModalProps
+    } = this.props;
     return (
-      <ConfirmModal header={modalHeader} onClose={onClose} {...confirmModalProps}>
+      <ConfirmModal
+        header={modalHeader}
+        headerDescription={modalHeaderDescription}
+        onClose={onClose}
+        {...confirmModalProps}>
         {modalBody}
       </ConfirmModal>
     );

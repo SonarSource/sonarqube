@@ -26,7 +26,7 @@ exports[`should display choice between import or creation 1`] = `
                 width={16}
               />,
               "name": <strong>
-                name-foo
+                foo
               </strong>,
             }
           }
@@ -68,10 +68,11 @@ exports[`should display choice between import or creation 1`] = `
     }
     almOrganization={
       Object {
+        "almUrl": "https://github.com/foo",
         "avatar": "http://example.com/avatar",
         "description": "description-foo",
-        "key": "key-foo",
-        "name": "name-foo",
+        "key": "foo",
+        "name": "foo",
         "personal": false,
         "privateRepos": 0,
         "publicRepos": 3,
@@ -124,7 +125,7 @@ exports[`should render prefilled and create org 1`] = `
                 width={16}
               />,
               "name": <strong>
-                name-foo
+                foo
               </strong>,
             }
           }
@@ -136,13 +137,32 @@ exports[`should render prefilled and create org 1`] = `
       </p>
     </div>
     <OrganizationDetailsForm
+      infoBlock={
+        <Alert
+          className="abs-width-600 big-spacer-top"
+          display="block"
+          variant="info"
+        >
+          <p>
+            onboarding.import_organization.members_sync_info_x.organization.bitbucket.foo.bitbucket
+          </p>
+          <a
+            href="https://github.com/foo/profile/members"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.import_organization.see_who_has_access
+          </a>
+        </Alert>
+      }
       onContinue={[MockFunction]}
       organization={
         Object {
+          "almUrl": "https://github.com/foo",
           "avatar": "http://example.com/avatar",
           "description": "description-foo",
-          "key": "key-foo",
-          "name": "name-foo",
+          "key": "foo",
+          "name": "foo",
           "personal": false,
           "privateRepos": 0,
           "publicRepos": 3,
@@ -164,10 +184,11 @@ exports[`should render prefilled and create org 1`] = `
     }
     almOrganization={
       Object {
+        "almUrl": "https://github.com/foo",
         "avatar": "http://example.com/avatar",
         "description": "description-foo",
-        "key": "key-foo",
-        "name": "name-foo",
+        "key": "foo",
+        "name": "foo",
         "personal": false,
         "privateRepos": 0,
         "publicRepos": 3,

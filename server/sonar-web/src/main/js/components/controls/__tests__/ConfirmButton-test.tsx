@@ -19,8 +19,28 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import TeamOnboardingModal from '../TeamOnboardingModal';
+import ConfirmButton from '../ConfirmButton';
 
-it('renders correctly', () => {
-  expect(shallow(<TeamOnboardingModal onFinish={jest.fn()} />)).toMatchSnapshot();
+it('should display a modal button', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+it('should display a confirm modal', () => {
+  expect(
+    shallowRender()
+      .find('ModalButton')
+      .prop<Function>('modal')({ onClose: jest.fn() })
+  ).toMatchSnapshot();
+});
+
+function shallowRender() {
+  return shallow(
+    <ConfirmButton
+      confirmButtonText="submit"
+      modalBody={<div />}
+      modalHeader="title"
+      onConfirm={jest.fn()}>
+      {() => 'Confirm button'}
+    </ConfirmButton>
+  );
+}
