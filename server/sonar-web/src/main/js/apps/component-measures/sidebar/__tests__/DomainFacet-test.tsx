@@ -21,70 +21,27 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import DomainFacet from '../DomainFacet';
 
-const DOMAIN = {
-  name: 'Reliability',
-  measures: [
-    {
-      metric: {
-        id: '1',
-        key: 'bugs',
-        type: 'INT',
-        name: 'Bugs',
-        domain: 'Reliability'
-      },
-      value: '5',
-      periods: [{ index: 1, value: '5' }],
-      leak: '5'
-    },
-    {
-      metric: {
-        id: '2',
-        key: 'new_bugs',
-        type: 'INT',
-        name: 'New Bugs',
-        domain: 'Reliability'
-      },
-      periods: [{ index: 1, value: '5' }],
-      leak: '5'
-    }
-  ]
-};
-
-const PROPS = {
-  domain: DOMAIN,
-  hasOverview: true,
-  onChange: () => {},
-  onToggle: () => {},
-  open: true,
-  selected: 'foo'
-};
-
 it('should display facet item list', () => {
-  expect(shallow(<DomainFacet {...PROPS} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should display facet item list with bugs selected', () => {
-  expect(shallow(<DomainFacet {...PROPS} selected="bugs" />)).toMatchSnapshot();
+  expect(shallowRender({ selected: 'bugs' })).toMatchSnapshot();
 });
 
 it('should render closed', () => {
-  const wrapper = shallow(<DomainFacet {...PROPS} open={false} />);
+  const wrapper = shallowRender({ open: false });
   expect(wrapper.find('FacetItemsList')).toHaveLength(0);
 });
 
 it('should render without overview', () => {
-  const wrapper = shallow(<DomainFacet {...PROPS} hasOverview={false} />);
+  const wrapper = shallowRender({ showFullMeasures: false });
   expect(
     wrapper
       .find('FacetItem')
       .filterWhere(node => node.getElement().key === 'Reliability')
       .exists()
   ).toBe(false);
-});
-
-it('should use "estimated" label for overall measures ', () => {
-  const wrapper = shallow(<DomainFacet {...PROPS} hasOverview={false} />);
-  expect(wrapper.find('.facet-name').map(w => w.text())).toMatchSnapshot();
 });
 
 it('should not display subtitles of new measures if there is none', () => {
@@ -98,7 +55,7 @@ it('should not display subtitles of new measures if there is none', () => {
     ]
   };
 
-  expect(shallow(<DomainFacet {...PROPS} domain={domain} />)).toMatchSnapshot();
+  expect(shallowRender({ domain })).toMatchSnapshot();
 });
 
 it('should not display subtitles of new measures if there is none, even on last line', () => {
@@ -112,5 +69,46 @@ it('should not display subtitles of new measures if there is none, even on last 
     ]
   };
 
-  expect(shallow(<DomainFacet {...PROPS} domain={domain} />)).toMatchSnapshot();
+  expect(shallowRender({ domain })).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<DomainFacet['props']> = {}) {
+  return shallow(
+    <DomainFacet
+      domain={{
+        name: 'Reliability',
+        measures: [
+          {
+            metric: {
+              id: '1',
+              key: 'bugs',
+              type: 'INT',
+              name: 'Bugs',
+              domain: 'Reliability'
+            },
+            value: '5',
+            periods: [{ index: 1, value: '5' }],
+            leak: '5'
+          },
+          {
+            metric: {
+              id: '2',
+              key: 'new_bugs',
+              type: 'INT',
+              name: 'New Bugs',
+              domain: 'Reliability'
+            },
+            periods: [{ index: 1, value: '5' }],
+            leak: '5'
+          }
+        ]
+      }}
+      onChange={() => {}}
+      onToggle={() => {}}
+      open={true}
+      selected={'foo'}
+      showFullMeasures={true}
+      {...props}
+    />
+  );
+}

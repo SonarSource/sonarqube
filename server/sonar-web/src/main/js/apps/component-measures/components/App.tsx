@@ -285,8 +285,8 @@ export class App extends React.PureComponent<Props, State> {
     const { branchLike } = this.props;
     const { measures } = this.state;
     const query = parseQuery(this.props.location.query);
-    const hasOverview = hasFullMeasures(branchLike);
-    const displayOverview = hasOverview && hasBubbleChart(query.metric);
+    const showFullMeasures = hasFullMeasures(branchLike);
+    const displayOverview = hasBubbleChart(query.metric);
     const metric = this.getSelectedMetric(query, displayOverview);
 
     return (
@@ -302,9 +302,9 @@ export class App extends React.PureComponent<Props, State> {
                   <div className="layout-page-side-inner">
                     <div className="layout-page-filters">
                       <Sidebar
-                        hasOverview={hasOverview}
                         measures={measures}
                         selectedMetric={metric ? metric.key : query.metric}
+                        showFullMeasures={showFullMeasures}
                         updateQuery={this.updateQuery}
                       />
                     </div>

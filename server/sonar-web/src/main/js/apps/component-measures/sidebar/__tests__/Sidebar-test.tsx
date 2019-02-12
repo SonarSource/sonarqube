@@ -21,61 +21,64 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Sidebar from '../Sidebar';
 
-const MEASURES = [
-  {
-    metric: {
-      id: '1',
-      key: 'lines_to_cover',
-      type: 'INT',
-      name: 'Lines to Cover',
-      domain: 'Coverage'
-    },
-    value: '431',
-    periods: [{ index: 1, value: '70' }],
-    leak: '70'
-  },
-  {
-    metric: {
-      id: '2',
-      key: 'coverage',
-      type: 'PERCENT',
-      name: 'Coverage',
-      domain: 'Coverage'
-    },
-    value: '99.3',
-    periods: [{ index: 1, value: '0.0999999999999943' }],
-    leak: '0.0999999999999943'
-  },
-  {
-    metric: {
-      id: '3',
-      key: 'duplicated_lines_density',
-      type: 'PERCENT',
-      name: 'Duplicated Lines (%)',
-      domain: 'Duplications'
-    },
-    value: '3.2',
-    periods: [{ index: 1, value: '0.0' }],
-    leak: '0.0'
-  }
-];
-
-const PROPS = {
-  hasOverview: true,
-  measures: MEASURES,
-  selectedMetric: 'duplicated_lines_density',
-  updateQuery: () => {}
-};
-
 it('should display two facets', () => {
-  expect(shallow(<Sidebar {...PROPS} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should correctly toggle facets', () => {
-  const wrapper = shallow<Sidebar>(<Sidebar {...PROPS} />);
+  const wrapper = shallowRender();
   expect(wrapper.state('openFacets').bugs).toBeUndefined();
   (wrapper.instance() as Sidebar).toggleFacet('bugs');
   expect(wrapper.state('openFacets').bugs).toBeTruthy();
   (wrapper.instance() as Sidebar).toggleFacet('bugs');
   expect(wrapper.state('openFacets').bugs).toBeFalsy();
 });
+
+function shallowRender(props = {}) {
+  return shallow<Sidebar>(
+    <Sidebar
+      measures={[
+        {
+          metric: {
+            id: '1',
+            key: 'lines_to_cover',
+            type: 'INT',
+            name: 'Lines to Cover',
+            domain: 'Coverage'
+          },
+          value: '431',
+          periods: [{ index: 1, value: '70' }],
+          leak: '70'
+        },
+        {
+          metric: {
+            id: '2',
+            key: 'coverage',
+            type: 'PERCENT',
+            name: 'Coverage',
+            domain: 'Coverage'
+          },
+          value: '99.3',
+          periods: [{ index: 1, value: '0.0999999999999943' }],
+          leak: '0.0999999999999943'
+        },
+        {
+          metric: {
+            id: '3',
+            key: 'duplicated_lines_density',
+            type: 'PERCENT',
+            name: 'Duplicated Lines (%)',
+            domain: 'Duplications'
+          },
+          value: '3.2',
+          periods: [{ index: 1, value: '0.0' }],
+          leak: '0.0'
+        }
+      ]}
+      selectedMetric={'duplicated_lines_density'}
+      showFullMeasures={true}
+      updateQuery={() => {}}
+      {...props}
+    />
+  );
+}

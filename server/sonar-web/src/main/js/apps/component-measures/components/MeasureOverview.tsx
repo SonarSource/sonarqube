@@ -23,11 +23,11 @@ import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
 import PageActions from '../../../components/ui/PageActions';
 import BubbleChart from '../drilldown/BubbleChart';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getComponentLeaves } from '../../../api/components';
-import { enhanceComponent, getBubbleMetrics, isFileType } from '../utils';
+import { enhanceComponent, getBubbleMetrics, isFileType, hasFullMeasures } from '../utils';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -135,6 +135,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
   render() {
     const { branchLike, component, leakPeriod, rootComponent } = this.props;
     const { paging } = this.state;
+    const displayLeak = hasFullMeasures(branchLike);
     return (
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header">
@@ -163,9 +164,14 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
         </div>
         <div className="layout-page-main-inner measure-details-content">
           <div className="clearfix big-spacer-bottom">
-            {leakPeriod && (
-              <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
-            )}
+            {leakPeriod &&
+              displayLeak && (
+                <LeakPeriodLegend
+                  className="pull-right"
+                  component={component}
+                  period={leakPeriod}
+                />
+              )}
           </div>
           <DeferredSpinner loading={this.props.loading} />
           {!this.props.loading && this.renderContent()}

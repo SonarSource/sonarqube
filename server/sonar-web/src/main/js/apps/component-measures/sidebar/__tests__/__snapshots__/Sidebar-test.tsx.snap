@@ -49,12 +49,12 @@ exports[`should display two facets 1`] = `
         "name": "Coverage",
       }
     }
-    hasOverview={true}
     key="Coverage"
     onChange={[Function]}
     onToggle={[Function]}
     open={false}
     selected="duplicated_lines_density"
+    showFullMeasures={true}
   />
   <DomainFacet
     domain={
@@ -81,12 +81,12 @@ exports[`should display two facets 1`] = `
         "name": "Duplications",
       }
     }
-    hasOverview={true}
     key="Duplications"
     onChange={[Function]}
     onToggle={[Function]}
     open={true}
     selected="duplicated_lines_density"
+    showFullMeasures={true}
   />
 </div>
 `;

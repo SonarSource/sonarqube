@@ -54,7 +54,7 @@ export default function MeasureHeader(props: Props) {
           <span className="measure-details-value spacer-left">
             <strong>
               <Measure
-                className={isDiff ? 'leak-box' : undefined}
+                className={isDiff && displayLeak ? 'leak-box' : undefined}
                 metricKey={metric.key}
                 metricType={metric.type}
                 value={measureValue}

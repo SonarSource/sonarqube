@@ -23,8 +23,13 @@ import { bubbles } from './config/bubbles';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
-import { isLongLivingBranch, isMainBranch } from '../../helpers/branches';
-import { getDisplayMetrics } from '../../helpers/measures';
+import {
+  isLongLivingBranch,
+  isMainBranch,
+  isPullRequest,
+  isShortLivingBranch
+} from '../../helpers/branches';
+import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
 
 export type View = 'list' | 'tree' | 'treemap';
 
@@ -152,25 +157,13 @@ export function getMeasuresPageMetricKeys(
   metrics: { [key: string]: T.Metric },
   branch?: T.BranchLike
 ) {
-  if (!hasFullMeasures(branch)) {
-    return [
-      'coverage',
-      'new_coverage',
-      'new_lines_to_cover',
-      'new_uncovered_lines',
-      'new_line_coverage',
-      'new_conditions_to_cover',
-      'new_uncovered_conditions',
-      'new_branch_coverage',
+  const metricKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
 
-      'duplicated_lines_density',
-      'new_duplicated_lines_density',
-      'new_duplicated_lines',
-      'new_duplicated_blocks'
-    ];
+  if (isPullRequest(branch) || isShortLivingBranch(branch)) {
+    return metricKeys.filter(key => isDiffMetric(key));
+  } else {
+    return metricKeys;
   }
-
-  return getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
 }
 
 export function getBubbleMetrics(domain: string, metrics: { [key: string]: T.Metric }) {

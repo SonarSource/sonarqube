@@ -41,11 +41,11 @@ import {
 
 interface Props {
   domain: { name: string; measures: T.MeasureEnhanced[] };
-  hasOverview: boolean;
   onChange: (metric: string) => void;
   onToggle: (property: string) => void;
   open: boolean;
   selected: string;
+  showFullMeasures: boolean;
 }
 
 export default class DomainFacet extends React.PureComponent<Props> {
@@ -74,11 +74,21 @@ export default class DomainFacet extends React.PureComponent<Props> {
   };
 
   hasOverview = (domain: string) => {
-    return this.props.hasOverview && hasBubbleChart(domain);
+    return this.props.showFullMeasures && hasBubbleChart(domain);
   };
 
   renderItemFacetStat = (item: T.MeasureEnhanced) => {
-    return hasFacetStat(item.metric.key) ? <FacetMeasureValue measure={item} /> : null;
+    return hasFacetStat(item.metric.key) ? (
+      <FacetMeasureValue displayLeak={this.props.showFullMeasures} measure={item} />
+    ) : null;
+  };
+
+  renderCategoryItem = (item: string) => {
+    return this.props.showFullMeasures || item === 'new_code_category' ? (
+      <span className="facet search-navigator-facet facet-category" key={item}>
+        <span className="facet-name">{translate('component_measures.facet_category', item)}</span>
+      </span>
+    ) : null;
   };
 
   renderItemsFacet = () => {
@@ -98,13 +108,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
     return sortedItems.map(
       item =>
         typeof item === 'string' ? (
-          <span className="facet search-navigator-facet facet-category" key={item}>
-            <span className="facet-name">
-              {!this.props.hasOverview && item === 'overall_category'
-                ? translate('component_measures.facet_category', item, 'estimated')
-                : translate('component_measures.facet_category', item)}
-            </span>
-          </span>
+          this.renderCategoryItem(item)
         ) : (
           <FacetItem
             active={item.metric.key === selected}

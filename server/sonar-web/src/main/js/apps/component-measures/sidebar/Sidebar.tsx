@@ -23,9 +23,9 @@ import DomainFacet from './DomainFacet';
 import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
 
 interface Props {
-  hasOverview: boolean;
   measures: T.MeasureEnhanced[];
   selectedMetric: string;
+  showFullMeasures: boolean;
   updateQuery: (query: Partial<Query>) => void;
 }
 
@@ -53,25 +53,23 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { hasOverview } = this.props;
+    const { showFullMeasures } = this.props;
     return (
       <div>
-        {hasOverview && (
-          <ProjectOverviewFacet
-            onChange={this.changeMetric}
-            selected={this.props.selectedMetric}
-            value={PROJECT_OVERVEW}
-          />
-        )}
+        <ProjectOverviewFacet
+          onChange={this.changeMetric}
+          selected={this.props.selectedMetric}
+          value={PROJECT_OVERVEW}
+        />
         {groupByDomains(this.props.measures).map(domain => (
           <DomainFacet
             domain={domain}
-            hasOverview={hasOverview}
             key={domain.name}
             onChange={this.changeMetric}
             onToggle={this.toggleFacet}
             open={this.state.openFacets[domain.name] === true}
             selected={this.props.selectedMetric}
+            showFullMeasures={showFullMeasures}
           />
         ))}
       </div>

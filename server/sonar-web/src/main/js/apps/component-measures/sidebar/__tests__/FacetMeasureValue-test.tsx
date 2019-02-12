@@ -46,9 +46,14 @@ const LEAK_MEASURE = {
 };
 
 it('should display measure value', () => {
-  expect(shallow(<FacetMeasureValue measure={MEASURE} />)).toMatchSnapshot();
+  expect(shallow(<FacetMeasureValue displayLeak={true} measure={MEASURE} />)).toMatchSnapshot();
 });
 
 it('should display leak measure value', () => {
-  expect(shallow(<FacetMeasureValue measure={LEAK_MEASURE} />)).toMatchSnapshot();
+  expect(
+    shallow(<FacetMeasureValue displayLeak={true} measure={LEAK_MEASURE} />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<FacetMeasureValue displayLeak={false} measure={LEAK_MEASURE} />)
+  ).toMatchSnapshot();
 });

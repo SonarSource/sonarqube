@@ -18,17 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
 
 interface Props {
+  displayLeak?: boolean;
   measure: T.MeasureEnhanced;
 }
 
-export default function FacetMeasureValue({ measure }: Props) {
+export default function FacetMeasureValue({ measure, displayLeak }: Props) {
   if (isDiffMetric(measure.metric.key)) {
     return (
-      <div className="domain-measures-value leak-box" id={`measure-${measure.metric.key}-leak`}>
+      <div
+        className={classNames('domain-measures-value', { 'leak-box': displayLeak })}
+        id={`measure-${measure.metric.key}-leak`}>
         <Measure
           metricKey={measure.metric.key}
           metricType={measure.metric.type}
