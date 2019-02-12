@@ -37,6 +37,8 @@ import org.mockito.InOrder;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -80,6 +82,8 @@ public class PostProjectAnalysisTasksExecutorTest {
   public MutableQualityGateStatusHolderRule qualityGateStatusHolder = new MutableQualityGateStatusHolderRule();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private String organizationUuid = "org1";
   private String organizationKey = organizationUuid + "_key";
@@ -94,7 +98,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     .setComponent(component)
     .setMainComponent(component)
     .build();
-  private PostProjectAnalysisTask postProjectAnalysisTask = mock(PostProjectAnalysisTask.class);
+  private PostProjectAnalysisTask postProjectAnalysisTask = newPostProjectAnalysisTask("PT1");
   private PostProjectAnalysisTasksExecutor underTest = new PostProjectAnalysisTasksExecutor(
     ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder,
     reportReader, system2,
@@ -127,8 +131,8 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void finished_calls_all_PostProjectAnalysisTask_in_order_of_the_array_and_passes_the_same_object_to_all(boolean allStepsExecuted) {
-    PostProjectAnalysisTask postProjectAnalysisTask1 = mock(PostProjectAnalysisTask.class);
-    PostProjectAnalysisTask postProjectAnalysisTask2 = mock(PostProjectAnalysisTask.class);
+    PostProjectAnalysisTask postProjectAnalysisTask1 = newPostProjectAnalysisTask("PT1");
+    PostProjectAnalysisTask postProjectAnalysisTask2 = newPostProjectAnalysisTask("PT2");
     InOrder inOrder = inOrder(postProjectAnalysisTask1, postProjectAnalysisTask2);
 
     new PostProjectAnalysisTasksExecutor(
@@ -137,12 +141,20 @@ public class PostProjectAnalysisTasksExecutorTest {
       .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask1).getDescription();
     inOrder.verify(postProjectAnalysisTask2).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask2).getDescription();
     inOrder.verifyNoMoreInteractions();
 
     List<PostProjectAnalysisTask.ProjectAnalysis> allValues = projectAnalysisArgumentCaptor.getAllValues();
     assertThat(allValues).hasSize(2);
     assertThat(allValues.get(0)).isSameAs(allValues.get(1));
+
+    assertThat(logTester.logs()).hasSize(2);
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(0)).matches("^PT1 \\| status=SUCCESS \\| time=\\d+ms$");
+    assertThat(logs.get(1)).matches("^PT2 \\| status=SUCCESS \\| time=\\d+ms$");
   }
 
   @Test
@@ -364,9 +376,9 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void finished_does_not_fail_if_listener_throws_exception_and_execute_subsequent_listeners(boolean allStepsExecuted) {
-    PostProjectAnalysisTask postProjectAnalysisTask1 = mock(PostProjectAnalysisTask.class);
-    PostProjectAnalysisTask postProjectAnalysisTask2 = mock(PostProjectAnalysisTask.class);
-    PostProjectAnalysisTask postProjectAnalysisTask3 = mock(PostProjectAnalysisTask.class);
+    PostProjectAnalysisTask postProjectAnalysisTask1 = newPostProjectAnalysisTask("PT1");
+    PostProjectAnalysisTask postProjectAnalysisTask2 = newPostProjectAnalysisTask("PT2");
+    PostProjectAnalysisTask postProjectAnalysisTask3 = newPostProjectAnalysisTask("PT3");
     InOrder inOrder = inOrder(postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3);
 
     doThrow(new RuntimeException("Faking a listener throws an exception"))
@@ -379,9 +391,19 @@ public class PostProjectAnalysisTasksExecutorTest {
       .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask1).getDescription();
     inOrder.verify(postProjectAnalysisTask2).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask2).getDescription();
     inOrder.verify(postProjectAnalysisTask3).finished(projectAnalysisArgumentCaptor.capture());
+    inOrder.verify(postProjectAnalysisTask3).getDescription();
     inOrder.verifyNoMoreInteractions();
+
+    assertThat(logTester.logs()).hasSize(4);
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(3);
+    assertThat(logs.get(0)).matches("^PT1 \\| status=SUCCESS \\| time=\\d+ms$");
+    assertThat(logs.get(1)).matches("^PT2 \\| status=FAILED \\| time=\\d+ms$");
+    assertThat(logs.get(2)).matches("^PT3 \\| status=SUCCESS \\| time=\\d+ms$");
   }
 
   @DataProvider
@@ -396,6 +418,12 @@ public class PostProjectAnalysisTasksExecutorTest {
     Metric metric = mock(Metric.class);
     when(metric.getKey()).thenReturn(metricKey);
     return new Condition(metric, Condition.Operator.LESS_THAN.getDbValue(), "error threshold");
+  }
+
+  private static PostProjectAnalysisTask newPostProjectAnalysisTask(String description) {
+    PostProjectAnalysisTask res = mock(PostProjectAnalysisTask.class);
+    when(res.getDescription()).thenReturn(description);
+    return res;
   }
 
 }

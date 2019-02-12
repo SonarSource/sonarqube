@@ -45,6 +45,7 @@ import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolder;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatusHolder;
 import org.sonar.ce.task.step.ComputationStepExecutor;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.String.format;
@@ -109,10 +110,17 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   private static void executeTask(ProjectAnalysisImpl projectAnalysis, PostProjectAnalysisTask postProjectAnalysisTask) {
+    String status = "FAILED";
+    Profiler stepProfiler = Profiler.create(LOG).logTimeLast(true);
     try {
+      stepProfiler.start();
       postProjectAnalysisTask.finished(projectAnalysis);
+      status = "SUCCESS";
     } catch (Exception e) {
       LOG.error("Execution of task " + postProjectAnalysisTask.getClass() + " failed", e);
+    } finally {
+      stepProfiler.addContext("status", status);
+      stepProfiler.stopInfo("{}", postProjectAnalysisTask.getDescription());
     }
   }
 

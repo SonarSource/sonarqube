@@ -41,6 +41,11 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
   }
 
   @Override
+  public String getDescription() {
+    return "Webhooks";
+  }
+
+  @Override
   public void finished(ProjectAnalysis analysis) {
     webHooks.sendProjectAnalysisUpdate(
       new WebHooks.Analysis(

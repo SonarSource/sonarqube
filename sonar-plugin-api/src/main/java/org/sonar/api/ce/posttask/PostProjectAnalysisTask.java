@@ -41,6 +41,14 @@ import org.sonar.api.ce.ComputeEngineSide;
 @ExtensionPoint
 @ComputeEngineSide
 public interface PostProjectAnalysisTask {
+
+  /**
+   * A short description or name for the task.
+   * <p>
+   * This will be used (but not limited to) in logs reporting the execution of the task.
+   */
+  String getDescription();
+
   /**
    * This method is called whenever the processing of a Project analysis has finished, whether successfully or not.
    */

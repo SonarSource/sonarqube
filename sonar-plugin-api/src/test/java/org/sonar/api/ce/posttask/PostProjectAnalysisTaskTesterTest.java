@@ -145,6 +145,11 @@ public class PostProjectAnalysisTaskTesterTest {
     private ProjectAnalysis projectAnalysis;
 
     @Override
+    public String getDescription() {
+      return "captor";
+    }
+
+    @Override
     public void finished(ProjectAnalysis analysis) {
       this.projectAnalysis = analysis;
     }

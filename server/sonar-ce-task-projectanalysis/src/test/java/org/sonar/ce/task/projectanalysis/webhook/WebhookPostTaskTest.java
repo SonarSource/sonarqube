@@ -77,6 +77,11 @@ public class WebhookPostTaskTest {
   }
 
   @Test
+  public void has_description() {
+    assertThat(underTest.getDescription()).isNotEmpty();
+  }
+
+  @Test
   public void call_webhooks_when_no_analysis_not_qualitygate() {
     callWebHooks(null, null);
   }
