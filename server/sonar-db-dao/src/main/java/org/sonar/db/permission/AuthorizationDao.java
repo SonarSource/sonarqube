@@ -41,7 +41,7 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 public class AuthorizationDao implements Dao {
 
   /**
-  * Loads all the permissions granted to logged-in user for the specified organization
+  * Loads all the permissions granted to user for the specified organization
   */
   public Set<String> selectOrganizationPermissions(DbSession dbSession, String organizationUuid, int userId) {
     return mapper(dbSession).selectOrganizationPermissions(organizationUuid, userId);
@@ -92,6 +92,14 @@ public class AuthorizationDao implements Dao {
   public int countUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String organizationUuid,
     String permission, int excludedUserId) {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUserId);
+  }
+
+  /**
+   * The list of users who have the global permission.
+   * The anyone virtual group is not taken into account.
+   */
+  public List<Integer> selectUserIdsWithGlobalPermission(DbSession dbSession, String organizationUuid, String permission) {
+    return mapper(dbSession).selectUserIdsWithGlobalPermission(organizationUuid, permission);
   }
 
   /**

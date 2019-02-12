@@ -32,14 +32,14 @@
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.uuid=#{uuid}
+        WHERE u.uuid=#{uuid, jdbcType=VARCHAR}
     </select>
 
     <select id="selectByLogin" parameterType="String" resultType="User">
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.login=#{login}
+        WHERE u.login=#{login, jdbcType=VARCHAR}
     </select>
 
     <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultType="User">
@@ -47,23 +47,23 @@
         <include refid="userColumns"/>
         FROM users u
         WHERE
-        u.login=#{scmAccount}
-        OR u.email=#{scmAccount}
-        OR u.scm_accounts like #{likeScmAccount}
+        u.login=#{scmAccount, jdbcType=VARCHAR}
+        OR u.email=#{scmAccount, jdbcType=VARCHAR}
+        OR u.scm_accounts like #{likeScmAccount, jdbcType=VARCHAR}
     </select>
 
     <select id="selectUser" parameterType="int" resultType="User">
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.id=#{id}
+        WHERE u.id=#{id, jdbcType=INTEGER}
     </select>
 
     <select id="selectUserByLogin" parameterType="string" resultType="User">
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.login=#{id} AND u.active=${_true}
+        WHERE u.login=#{id, jdbcType=INTEGER} AND u.active=${_true}
     </select>
 
     <select id="selectByLogins" parameterType="string" resultType="User">
@@ -72,7 +72,7 @@
         FROM users u
         WHERE u.login in
         <foreach collection="list" open="(" close=")" item="login" separator=",">
-            #{login}
+            #{login, jdbcType=VARCHAR}
         </foreach>
     </select>
 
@@ -82,7 +82,7 @@
         FROM users u
         WHERE u.uuid in
         <foreach collection="list" open="(" close=")" item="uuid" separator=",">
-            #{uuid}
+            #{uuid, jdbcType=VARCHAR}
         </foreach>
     </select>
 
@@ -98,7 +98,7 @@
         FROM users u
         WHERE u.id in
         <foreach collection="ids" open="(" close=")" item="id" separator=",">
-            #{id}
+            #{id, jdbcType=INTEGER}
         </foreach>
     </select>
 
@@ -110,14 +110,14 @@
             <if test="logins != null and logins.size() > 0">
                 u.login IN
                 <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
-                    #{login}
+                    #{login, jdbcType=VARCHAR}
                 </foreach>
             </if>
             <if test="includeDeactivated==false">
                 AND u.active=${_true}
             </if>
             <if test="searchText != null">
-                AND (u.login LIKE #{searchTextSql} ESCAPE '/' OR u.name LIKE #{searchTextSql} ESCAPE '/')
+                AND (u.login LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/' OR u.name LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/')
             </if>
             <if test="mustBeRoot != null and mustBeRoot==true">
                 AND u.is_root = ${_true}
@@ -141,14 +141,25 @@
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.external_id=#{externalId} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
+        WHERE u.external_id=#{externalId, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByExternalIdsAndIdentityProvider" parameterType="map" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
+        AND u.external_id in
+        <foreach collection="externalIds" open="(" close=")" item="externalId" separator=",">
+            #{externalId, jdbcType=VARCHAR}
+        </foreach>
     </select>
 
     <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultType="User">
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        WHERE u.external_login=#{externalLogin} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
+        WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
     <select id="countRootUsersButLogin" parameterType="String" resultType="long">

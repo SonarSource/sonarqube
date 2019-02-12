@@ -21,6 +21,7 @@ package org.sonar.server.organization.ws;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.Module;
+import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganisationSupport;
 
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
@@ -49,6 +50,7 @@ public class OrganizationsWsModule extends Module {
         AddMemberAction.class,
         CreateAction.class,
         DeleteAction.class,
+        MemberUpdater.class,
         RemoveMemberAction.class,
         UpdateAction.class,
         SetMembersSyncAction.class);

@@ -173,6 +173,10 @@ public class UserDao implements Dao {
     return mapper(dbSession).selectByExternalIdAndIdentityProvider(externalId, externalIdentityProvider);
   }
 
+  public List<UserDto> selectByExternalIdsAndIdentityProvider(DbSession dbSession, Collection<String> externalIds, String externalIdentityProvider) {
+    return executeLargeInputs(externalIds, e -> mapper(dbSession).selectByExternalIdsAndIdentityProvider(e, externalIdentityProvider));
+  }
+
   @CheckForNull
   public UserDto selectByExternalLoginAndIdentityProvider(DbSession dbSession, String externalLogin, String externalIdentityProvider) {
     return mapper(dbSession).selectByExternalLoginAndIdentityProvider(externalLogin, externalIdentityProvider);

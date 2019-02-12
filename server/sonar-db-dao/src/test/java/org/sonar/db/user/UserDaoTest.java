@@ -37,6 +37,7 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -609,6 +610,22 @@ public class UserDaoTest {
     assertThat(underTest.selectByExternalIdAndIdentityProvider(session, activeUser.getExternalId(), activeUser.getExternalIdentityProvider())).isNotNull();
     assertThat(underTest.selectByExternalIdAndIdentityProvider(session, disableUser.getExternalId(), disableUser.getExternalIdentityProvider())).isNotNull();
     assertThat(underTest.selectByExternalIdAndIdentityProvider(session, "unknown", "unknown")).isNull();
+  }
+
+  @Test
+  public void select_by_external_ids_and_identity_provider() {
+    UserDto user1 = db.users().insertUser(u -> u.setExternalIdentityProvider("github"));
+    UserDto user2 = db.users().insertUser(u -> u.setExternalIdentityProvider("github"));
+    UserDto user3 = db.users().insertUser(u -> u.setExternalIdentityProvider("bitbucket"));
+    UserDto disableUser = db.users().insertDisabledUser(u -> u.setExternalIdentityProvider("github"));
+
+    assertThat(underTest.selectByExternalIdsAndIdentityProvider(session, singletonList(user1.getExternalId()), "github"))
+      .extracting(UserDto::getUuid).containsExactlyInAnyOrder(user1.getUuid());
+    assertThat(underTest.selectByExternalIdsAndIdentityProvider(session,
+      asList(user1.getExternalId(), user2.getExternalId(), user3.getExternalId(), disableUser.getExternalId()), "github"))
+        .extracting(UserDto::getUuid).containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), disableUser.getUuid());
+    assertThat(underTest.selectByExternalIdsAndIdentityProvider(session, singletonList("unknown"), "github")).isEmpty();
+    assertThat(underTest.selectByExternalIdsAndIdentityProvider(session, singletonList(user1.getExternalId()), "unknown")).isEmpty();
   }
 
   @Test

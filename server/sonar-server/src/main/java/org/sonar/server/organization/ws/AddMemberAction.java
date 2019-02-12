@@ -26,15 +26,12 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.issue.ws.AvatarResolver;
+import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndexer;
-import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 import org.sonarqube.ws.Organizations.User;
 
@@ -51,19 +48,17 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class AddMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final UserIndexer userIndexer;
-  private final DefaultGroupFinder defaultGroupFinder;
   private final AvatarResolver avatarResolver;
   private final OrganizationsWsSupport wsSupport;
+  private final MemberUpdater memberUpdater;
 
-  public AddMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder,
-    AvatarResolver avatarResolver, OrganizationsWsSupport wsSupport) {
+  public AddMemberAction(DbClient dbClient, UserSession userSession, AvatarResolver avatarResolver, OrganizationsWsSupport wsSupport,
+    MemberUpdater memberUpdater) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.userIndexer = userIndexer;
-    this.defaultGroupFinder = defaultGroupFinder;
     this.avatarResolver = avatarResolver;
     this.wsSupport = wsSupport;
+    this.memberUpdater = memberUpdater;
   }
 
   @Override
@@ -98,10 +93,10 @@ public class AddMemberAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
         organizationKey);
-      UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
       wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
-
-      addMember(dbSession, organization, user);
+      UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
+      memberUpdater.addMember(dbSession, organization, user);
 
       int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
@@ -110,20 +105,6 @@ public class AddMemberAction implements OrganizationsWsAction {
       AddMemberWsResponse wsResponse = buildResponse(user, groups);
       writeProtobuf(wsResponse, request, response);
     }
-  }
-
-  private void addMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
-    if (isMemberOf(dbSession, organization, user)) {
-      return;
-    }
-
-    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
-      .setOrganizationUuid(organization.getUuid())
-      .setUserId(user.getId()));
-    dbClient.userGroupDao().insert(dbSession,
-      new UserGroupDto().setGroupId(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getId()).setUserId(user.getId()));
-    userIndexer.commitAndIndex(dbSession, user);
   }
 
   private AddMemberWsResponse buildResponse(UserDto user, int groups) {
@@ -135,10 +116,6 @@ public class AddMemberAction implements OrganizationsWsAction {
     ofNullable(emptyToNull(user.getEmail())).ifPresent(text -> wsUser.setAvatar(avatarResolver.create(user)));
     response.setUser(wsUser);
     return response.build();
-  }
-
-  private boolean isMemberOf(DbSession dbSession, OrganizationDto organizationDto, UserDto userDto) {
-    return dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), userDto.getId()).isPresent();
   }
 
 }

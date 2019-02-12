@@ -27,30 +27,28 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndexer;
 
-import static java.util.Collections.singletonList;
-import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class RemoveMemberAction implements OrganizationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final UserIndexer userIndexer;
   private final OrganizationsWsSupport wsSupport;
+  private final MemberUpdater memberUpdater;
 
-  public RemoveMemberAction(DbClient dbClient, UserSession userSession, UserIndexer userIndexer, OrganizationsWsSupport wsSupport) {
+  public RemoveMemberAction(DbClient dbClient, UserSession userSession, OrganizationsWsSupport wsSupport,
+    MemberUpdater memberUpdater) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.userIndexer = userIndexer;
     this.wsSupport = wsSupport;
+    this.memberUpdater = memberUpdater;
   }
 
   @Override
@@ -84,33 +82,13 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "Organization '%s' is not found", organizationKey);
-      UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);
       userSession.checkPermission(ADMINISTER, organization);
       wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
-      dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())
-        .ifPresent(om -> removeMember(dbSession, organization, user));
+
+      UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);
+      memberUpdater.removeMember(dbSession, organization, user);
     }
     response.noContent();
   }
 
-  private void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    ensureLastAdminIsNotRemoved(dbSession, organization, user);
-    int userId = user.getId();
-    String organizationUuid = organization.getUuid();
-    dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
-    dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
-    dbClient.qProfileEditUsersDao().deleteByOrganizationAndUser(dbSession, organization, user);
-    dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
-    dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
-    dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
-
-    dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userId);
-    userIndexer.commitAndIndex(dbSession, user);
-  }
-
-  private void ensureLastAdminIsNotRemoved(DbSession dbSession, OrganizationDto organizationDto, UserDto user) {
-    int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession,
-      organizationDto.getUuid(), ADMINISTER.getKey(), user.getId());
-    checkRequest(remainingAdmins > 0, "The last administrator member cannot be removed");
-  }
 }

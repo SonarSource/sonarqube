@@ -19,14 +19,12 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.util.List;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -36,16 +34,13 @@ import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
+import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
-import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -67,17 +62,18 @@ public class AddMemberActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public EsTester es = EsTester.create();
-  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   @Rule
   public DbTester db = DbTester.create();
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private OrganizationsWsSupport wsSupport = new OrganizationsWsSupport(new OrganizationValidationImpl(), dbClient);
   private WsActionTester ws = new WsActionTester(
-    new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client()), new DefaultGroupFinder(dbClient), new AvatarResolverImpl(), wsSupport));
+    new AddMemberAction(dbClient, userSession, new AvatarResolverImpl(), wsSupport,
+      new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), new UserIndexer(dbClient, es.client()))));
 
   @Test
-  public void add_member_in_db_and_user_index() {
+  public void add_member() {
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "default");
     UserDto user = db.users().insertUser();
@@ -85,9 +81,6 @@ public class AddMemberActionTest {
     call(organization.getKey(), user.getLogin());
 
     assertMember(organization.getUuid(), user.getId());
-    List<UserDoc> userDocs = userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs();
-    assertThat(userDocs).hasSize(1);
-    assertThat(userDocs.get(0).organizationUuids()).containsOnly(organization.getUuid());
   }
 
   @Test

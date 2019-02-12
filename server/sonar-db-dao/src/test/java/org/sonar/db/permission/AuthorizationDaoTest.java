@@ -48,6 +48,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class AuthorizationDaoTest {
@@ -223,6 +224,35 @@ public class AuthorizationDaoTest {
     // nobody has the permission
     assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
       organization.getUuid(), "missingPermission", group1.getId())).isEqualTo(0);
+  }
+
+  @Test
+  public void selectUserIdsWithGlobalPermission() {
+    // group g1 has the permission p1 and has members user1 and user2
+    // user3 has the permission
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
+
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(organization);
+    db.users().insertPermissionOnGroup(group1, ADMINISTER);
+    db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
+    db.users().insertMember(group1, user1);
+    db.users().insertMember(group1, user2);
+    db.users().insertPermissionOnUser(organization, user3, ADMINISTER);
+    db.users().insertPermissionOnAnyone(organization, ADMINISTER);
+
+    // other organizations are ignored
+    OrganizationDto org2 = db.organizations().insert();
+    db.users().insertPermissionOnUser(org2, user1, ADMINISTER);
+
+    assertThat(underTest.selectUserIdsWithGlobalPermission(db.getSession(), organization.getUuid(), ADMINISTER.getKey()))
+      .containsExactlyInAnyOrder(user1.getId(), user2.getId(), user3.getId());
+    assertThat(underTest.selectUserIdsWithGlobalPermission(db.getSession(), organization.getUuid(), PROVISION_PROJECTS.getKey()))
+      .containsExactlyInAnyOrder(user1.getId(), user2.getId());
+    assertThat(underTest.selectUserIdsWithGlobalPermission(db.getSession(), org2.getUuid(), ADMINISTER.getKey()))
+      .containsExactlyInAnyOrder(user1.getId());
   }
 
   @Test
