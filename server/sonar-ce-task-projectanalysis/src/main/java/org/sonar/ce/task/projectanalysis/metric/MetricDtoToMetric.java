@@ -26,7 +26,7 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-enum MetricDtoToMetric implements Function<MetricDto, Metric> {
+public enum MetricDtoToMetric implements Function<MetricDto, Metric> {
   INSTANCE;
 
   private static final int DEFAULT_DECIMAL_SCALE = 1;
