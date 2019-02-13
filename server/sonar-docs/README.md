@@ -102,14 +102,16 @@ All urls _must_ end with a trailing slash (`/`).
 
 Each documentation file should contain a header at the top of the file delimited by "---" top and bottom. The header holds file metadata:
 
-* The `title` tag defines the title of the page for the index
+* The `title` tag defines the title of the page.
 * The `url` tag is required and defines the path at which to publish the page. Reminder: end this with a trailing slash.
+* The `nav` tag is optional and controls the title of the page inside the navigation tree.
 
 Ex.:
 
 ```
 ---
 title: Demo page
+nav: Demo
 url: /sonarcloud-pricing/
 ---
 ```

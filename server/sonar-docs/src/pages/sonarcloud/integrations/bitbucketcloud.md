@@ -1,25 +1,28 @@
 ---
-title: Bitbucket Cloud
+title: Get started with Bitbucket Cloud
+nav: Bitbucket Cloud
 url: /integrations/bitbucketcloud/
 ---
 
-You can connect to SonarCloud using your Bitbucket Cloud account. On the [login page](/#sonarcloud#/sessions/new), just click on the "Log in with Bitbucket" button.
-
-## Install SonarCloud add-on for Bitbucket Cloud
-
-Our Bitbucket Cloud application allows users to automate the SonarCloud analysis with Pipelines. It also allows users to view their SonarCloud metrics directly on Bitbucket Cloud via our Code Quality widget and the decoration of pull-requests.
-
-In Bitbucket Cloud, go to your team's "Settings > Find integrations" page, search for "SonarCloud" in the "Code Quality" category and click on "Add" to install the application.
+## Sign up and set up your first project
+1. On the [login page](/#sonarcloud#/sessions/new), click on the "Log in with Bitbucket" button and connect to SonarCloud using your Bitbucket Cloud account.
+2. Click on "Analyze your code" and follow the path to set up a first project
+3. You will be asked to install the SonarCould application on your team or user account, which will allow you to 
+  choose which repositories you want to analyze.
 
 ## Analyzing with Pipelines
 
-1.  On SonarCloud, once your project is created, generate a token to allow to publish analysis from Bitbucket Pipelines. To generate a token, follow the first step of the tutorial on the dashboard of the project, or go to your user security page.
+Once your project is created and initiated from the repository you selected:
 
-2.  On Bitbucket Cloud, go to the "Settings > Pipelines > Account variables" page of your team, and add a new SONAR_TOKEN variable that contains the value of the SonarCloud token (something like `9ad01c85336b265406fa6554a9a681a4b281135f`). **Make sure that you click on the "Lock" icon to encrypt and hide this token.**
+1. Generate a token to allow to publish analysis from Bitbucket Pipelines. To generate a token, follow the first step of the tutorial on the dashboard of the project, or go to your user security page.
 
-3.  Edit the `bitbucket-pipelines.yml` file of your repository to trigger the SonarCloud analysis. If you have a Maven or Gradle project, the simplest way is to use our dedicated plugins. For most other projects, you need our command line scanner to trigger analyses. See [various example projects](https://bitbucket.org/account/user/sonarsource/projects/SAMPLES).
+2. On Bitbucket Cloud, go to the "Settings > Pipelines > Account variables" page of your team, and add a new SONAR_TOKEN variable that contains the value of the SonarCloud token (something like `9ad01c85336b265406fa6554a9a681a4b281135f`).
+   * **Make sure that you click on the "Lock" icon to encrypt and hide this token.**
 
-When a change on `bitbucket-pipelines.yml` is committed and pushed, Pipelines should automatically run a new build and therefore trigger the analysis of the repository. Shortly after, your project will appear on SonarCloud in your organization.
+3. Edit the `bitbucket-pipelines.yml` file of your repository to trigger the SonarCloud analysis. See [our various example projects](https://bitbucket.org/account/user/sonarsource/projects/SAMPLES) to see how to achieve this.
+   * Note: if you did not activate Pipelines prior to this step, you should go to the "Pipelines" menu entry on your repository to enable it.
+
+Once those changes are pushed, Pipelines will automatically trigger analyses on the repository.
 
 ## Analyzing pull requests with Pipelines
 

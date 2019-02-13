@@ -1,5 +1,6 @@
 ---
-title: Azure DevOps
+title: Get started with Azure DevOps
+nav: Azure DevOps
 url: /integrations/vsts/
 ---
 
