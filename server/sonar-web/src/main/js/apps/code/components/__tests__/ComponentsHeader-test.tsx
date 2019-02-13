@@ -20,52 +20,28 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentsHeader from '../ComponentsHeader';
-
-const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
-const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };
-const METRICS = ['foo', 'bar'];
+import { mockComponent } from '../../../../helpers/testMocks';
 
 it('renders correctly for projects', () => {
-  expect(
-    shallow(
-      <ComponentsHeader
-        baseComponent={COMPONENT}
-        isLeak={false}
-        metrics={METRICS}
-        rootComponent={COMPONENT}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('renders correctly for leak', () => {
-  expect(
-    shallow(
-      <ComponentsHeader
-        baseComponent={COMPONENT}
-        isLeak={true}
-        metrics={METRICS}
-        rootComponent={COMPONENT}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders correctly for portfolios', () => {
-  expect(
-    shallow(
-      <ComponentsHeader
-        baseComponent={PORTFOLIO}
-        isLeak={false}
-        metrics={METRICS}
-        rootComponent={PORTFOLIO}
-      />
-    )
-  ).toMatchSnapshot();
+  const portfolio = mockComponent({ qualifier: 'VW' });
+  expect(shallowRender({ baseComponent: portfolio, rootComponent: portfolio })).toMatchSnapshot();
 });
 
 it('renders correctly for a search', () => {
-  expect(
-    shallow(<ComponentsHeader isLeak={false} metrics={METRICS} rootComponent={COMPONENT} />)
-  ).toMatchSnapshot();
+  expect(shallowRender({ baseComponent: undefined })).toMatchSnapshot();
 });
+
+function shallowRender(props = {}) {
+  return shallow(
+    <ComponentsHeader
+      baseComponent={mockComponent()}
+      metrics={['foo', 'bar']}
+      rootComponent={mockComponent()}
+      {...props}
+    />
+  );
+}

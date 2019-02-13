@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
-import { getCodeMetrics, showLeakMeasure } from '../utils';
+import { getCodeMetrics } from '../utils';
 import { isDefined } from '../../../helpers/types';
 
 interface Props {
@@ -40,13 +39,11 @@ export class Components extends React.PureComponent<Props> {
     const { baseComponent, branchLike, components, rootComponent, selected } = this.props;
     const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
     const metrics = metricKeys.map(metric => this.props.metrics[metric]).filter(isDefined);
-    const isLeak = Boolean(baseComponent && showLeakMeasure(branchLike));
     return (
       <table className="data boxed-padding zebra">
         {baseComponent && (
           <ComponentsHeader
             baseComponent={baseComponent}
-            isLeak={isLeak}
             metrics={metricKeys}
             rootComponent={rootComponent}
           />
@@ -56,17 +53,13 @@ export class Components extends React.PureComponent<Props> {
             <Component
               branchLike={branchLike}
               component={baseComponent}
-              isLeak={isLeak}
               key={baseComponent.key}
               metrics={metrics}
               rootComponent={rootComponent}
             />
             <tr className="blank">
               <td colSpan={3}>&nbsp;</td>
-              <td className={classNames({ leak: isLeak })} colSpan={10}>
-                {' '}
-                &nbsp;{' '}
-              </td>
+              <td colSpan={10}>&nbsp;</td>
             </tr>
           </tbody>
         )}
@@ -77,7 +70,6 @@ export class Components extends React.PureComponent<Props> {
                 branchLike={branchLike}
                 canBrowse={true}
                 component={component}
-                isLeak={isLeak}
                 key={component.key}
                 metrics={metrics}
                 previous={index > 0 ? list[index - 1] : undefined}
@@ -86,12 +78,12 @@ export class Components extends React.PureComponent<Props> {
               />
             ))
           ) : (
-            <ComponentsEmpty isLeak={isLeak} />
+            <ComponentsEmpty />
           )}
 
           <tr className="blank">
             <td colSpan={3} />
-            <td className={classNames({ leak: isLeak })} colSpan={10} />
+            <td colSpan={10} />
           </tr>
         </tbody>
       </table>

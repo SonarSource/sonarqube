@@ -12,7 +12,6 @@ exports[`renders correctly 1`] = `
         "qualifier": "TRK",
       }
     }
-    isLeak={false}
     metrics={
       Array [
         "ncloc",
@@ -40,7 +39,6 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
-      isLeak={false}
       key="foo"
       metrics={
         Array [
@@ -69,12 +67,9 @@ exports[`renders correctly 1`] = `
          
       </td>
       <td
-        className=""
         colSpan={10}
       >
-         
          
-         
       </td>
     </tr>
   </tbody>
@@ -88,7 +83,6 @@ exports[`renders correctly 1`] = `
           "qualifier": "TRK",
         }
       }
-      isLeak={false}
       key="foo"
       metrics={
         Array [
@@ -115,7 +109,6 @@ exports[`renders correctly 1`] = `
         colSpan={3}
       />
       <td
-        className=""
         colSpan={10}
       />
     </tr>
@@ -137,7 +130,6 @@ exports[`renders correctly for a search 1`] = `
           "qualifier": "TRK",
         }
       }
-      isLeak={false}
       key="foo"
       metrics={
         Array [
@@ -164,7 +156,6 @@ exports[`renders correctly for a search 1`] = `
         colSpan={3}
       />
       <td
-        className=""
         colSpan={10}
       />
     </tr>
@@ -184,7 +175,6 @@ exports[`renders correctly for leak 1`] = `
         "qualifier": "TRK",
       }
     }
-    isLeak={true}
     metrics={
       Array [
         "new_lines",
@@ -220,7 +210,6 @@ exports[`renders correctly for leak 1`] = `
           "qualifier": "TRK",
         }
       }
-      isLeak={true}
       key="foo"
       metrics={Array []}
       rootComponent={
@@ -240,12 +229,9 @@ exports[`renders correctly for leak 1`] = `
          
       </td>
       <td
-        className="leak"
         colSpan={10}
       >
-         
          
-         
       </td>
     </tr>
   </tbody>
@@ -267,7 +253,6 @@ exports[`renders correctly for leak 1`] = `
           "qualifier": "TRK",
         }
       }
-      isLeak={true}
       key="foo"
       metrics={Array []}
       rootComponent={
@@ -285,7 +270,6 @@ exports[`renders correctly for leak 1`] = `
         colSpan={3}
       />
       <td
-        className="leak"
         colSpan={10}
       />
     </tr>

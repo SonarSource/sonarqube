@@ -29,7 +29,6 @@ interface Props {
   branchLike?: T.BranchLike;
   canBrowse?: boolean;
   component: T.ComponentMeasure;
-  isLeak: boolean;
   metrics: T.Metric[];
   previous?: T.ComponentMeasure;
   rootComponent: T.ComponentMeasure;
@@ -42,7 +41,6 @@ export class Component extends React.PureComponent<Props> {
       branchLike,
       canBrowse = false,
       component,
-      isLeak,
       metrics,
       previous,
       rootComponent,
@@ -80,13 +78,13 @@ export class Component extends React.PureComponent<Props> {
         </td>
 
         {metrics.map(metric => (
-          <td className={classNames('thin nowrap text-right', { leak: isLeak })} key={metric.key}>
+          <td className="thin nowrap text-right" key={metric.key}>
             <div className="code-components-cell">
               <ComponentMeasure component={component} metric={metric} />
             </div>
           </td>
         ))}
-        <td className={classNames('blank', { leak: isLeak })} />
+        <td className="blank" />
       </tr>
     );
   }

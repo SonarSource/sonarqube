@@ -23,7 +23,6 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   baseComponent?: T.ComponentMeasure;
-  isLeak: boolean;
   metrics: string[];
   rootComponent: T.ComponentMeasure;
 }
@@ -35,7 +34,7 @@ const SHORT_NAME_METRICS = [
   'new_duplicated_lines_density'
 ];
 
-export default function ComponentsHeader({ baseComponent, isLeak, metrics, rootComponent }: Props) {
+export default function ComponentsHeader({ baseComponent, metrics, rootComponent }: Props) {
   const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
   let columns: string[] = [];
   if (isPortfolio) {
@@ -61,14 +60,13 @@ export default function ComponentsHeader({ baseComponent, isLeak, metrics, rootC
           columns.map((column, index) => (
             <th
               className={classNames('thin', 'nowrap', 'text-right', {
-                'code-components-cell': index > 0,
-                leak: isLeak
+                'code-components-cell': index > 0
               })}
               key={column}>
               {column}
             </th>
           ))}
-        <th className={classNames({ leak: isLeak })} />
+        <th />
       </tr>
     </thead>
   );
