@@ -92,11 +92,36 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
 
   into("${archiveDir}/") {
     from file('src/main/assembly')
-    exclude 'elasticsearch/modules/lang-expression/**'
-    exclude 'elasticsearch/modules/lang-groovy/**'
-    exclude 'elasticsearch/modules/lang-mustache/**'
-    exclude 'elasticsearch/modules/lang-painless/**'
-    exclude 'elasticsearch/modules/transport-netty3/**'
+      // no windows related binaries are packaged since we start ES on windows directly with java -jar
+      exclude 'elasticsearch/bin/elasticsearch.bat'
+      exclude 'elasticsearch/bin/elasticsearch-env.bat'
+      exclude 'elasticsearch/bin/elasticsearch-service.bat'
+      exclude 'elasticsearch/bin/elasticsearch-service-*.exe'
+      exclude 'elasticsearch/bin/elasticsearch-certgen*'
+      exclude 'elasticsearch/bin/elasticsearch-certutil*'
+      exclude 'elasticsearch/bin/elasticsearch-cli*'
+      exclude 'elasticsearch/bin/elasticsearch-croneval*'
+      exclude 'elasticsearch/bin/elasticsearch-keystore*'
+      exclude 'elasticsearch/bin/elasticsearch-migrate*'
+      exclude 'elasticsearch/bin/elasticsearch-plugin*'
+      exclude 'elasticsearch/bin/elasticsearch-saml-metadata*'
+      exclude 'elasticsearch/bin/elasticsearch-setup-passwords*'
+      exclude 'elasticsearch/bin/elasticsearch-shard*'
+      exclude 'elasticsearch/bin/elasticsearch-sql-cli*'
+      exclude 'elasticsearch/bin/elasticsearch-syskeygen*'
+      exclude 'elasticsearch/bin/elasticsearch-translog*'
+      exclude 'elasticsearch/bin/elasticsearch-users*'
+      exclude 'elasticsearch/bin/x-pack/**'
+      exclude 'elasticsearch/bin/x-pack*'
+      exclude 'elasticsearch/lib/tools/**'
+      exclude 'elasticsearch/modules/aggs-matrix-stats/**'
+      exclude 'elasticsearch/modules/ingest-common/**'
+      exclude 'elasticsearch/modules/lang-expression/**'
+      exclude 'elasticsearch/modules/lang-groovy/**'
+      exclude 'elasticsearch/modules/lang-mustache/**'
+      exclude 'elasticsearch/modules/rank-eval/**'
+      exclude 'elasticsearch/modules/tribe/**'
+      exclude 'elasticsearch/modules/x-pack-*/**'
   }
   // Create the empty dir (plugins) required by elasticsearch
   into("${archiveDir}/elasticsearch/") {
@@ -145,7 +170,7 @@ zip.doFirst {
 // Check the size of the archive
 zip.doLast {
   def minLength = 185000000
-  def maxLength = 190000000
+  def maxLength = 193000000
   def length = new File(distsDir, archiveName).length()
   if (length < minLength)
     throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
