@@ -4,32 +4,32 @@
 <mapper namespace="org.sonar.db.alm.OrganizationAlmBindingMapper">
 
   <sql id="columns">
-    uuid,
-    organization_uuid as organizationUuid,
-    alm_app_install_uuid as almAppInstallUuid,
-    alm_id as rawAlmId,
-    url,
-    user_uuid as userUuid,
-    members_sync_enabled as membersSyncEnabled,
-    created_at as createdAt
+    oab.uuid,
+    oab.organization_uuid as organizationUuid,
+    oab.alm_app_install_uuid as almAppInstallUuid,
+    oab.alm_id as rawAlmId,
+    oab.url,
+    oab.user_uuid as userUuid,
+    oab.members_sync_enabled as membersSyncEnabled,
+    oab.created_at as createdAt
   </sql>
 
   <select id="selectByOrganizationUuid" parameterType="String" resultType="org.sonar.db.alm.OrganizationAlmBindingDto">
     select
       <include refid="columns"/>
     from
-      organization_alm_bindings
+      organization_alm_bindings oab
     where
-      organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      oab.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByOrganizationUuids" parameterType="String" resultType="org.sonar.db.alm.OrganizationAlmBindingDto">
     select
     <include refid="columns"/>
     from
-      organization_alm_bindings
+      organization_alm_bindings oab
     where
-      organization_uuid in
+      oab.organization_uuid in
       <foreach collection="organizationUuids" open="(" close=")" item="organizationUuid" separator=",">
         #{organizationUuid , jdbcType=VARCHAR}
       </foreach>
@@ -39,9 +39,23 @@
     select
     <include refid="columns"/>
     from
-      organization_alm_bindings
+      organization_alm_bindings oab
     where
-      alm_app_install_uuid = #{installationUuid, jdbcType=VARCHAR}
+      oab.alm_app_install_uuid = #{installationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByOrganizationAlmIds" parameterType="Map" resultType="org.sonar.db.alm.OrganizationAlmBindingDto">
+    select
+    <include refid="columns"/>
+    from
+      organization_alm_bindings oab
+      inner join alm_app_installs aai on aai.uuid = oab.alm_app_install_uuid and aai.alm_id = oab.alm_id
+    where
+      aai.alm_id = #{alm, jdbcType=VARCHAR}
+      and aai.owner_id in
+      <foreach collection="organizationAlmIds" open="(" close=")" item="organizationAlmId" separator=",">
+        #{organizationAlmId , jdbcType=VARCHAR}
+      </foreach>
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

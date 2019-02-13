@@ -19,6 +19,7 @@
  */
 package org.sonar.server.organization;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
@@ -29,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
@@ -38,8 +40,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipDto;
-import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
@@ -60,9 +60,9 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.alm.ALM.GITHUB;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 
@@ -88,7 +88,7 @@ public class MemberUpdaterTest {
 
     underTest.addMember(db.getSession(), organization, user);
 
-    assertUserIsMember(organization, user);
+    db.organizations().assertUserIsMemberOfOrganization(organization, user);
     assertThat(userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs())
       .extracting(UserDoc::login, UserDoc::organizationUuids)
       .containsExactlyInAnyOrder(tuple(user.getLogin(), singletonList(organization.getUuid())));
@@ -101,11 +101,11 @@ public class MemberUpdaterTest {
     UserDto user = db.users().insertUser();
     db.organizations().addMember(organization, user);
     db.users().insertMember(defaultGroup, user);
-    assertUserIsMember(organization, user);
+    db.organizations().assertUserIsMemberOfOrganization(organization, user);
 
     underTest.addMember(db.getSession(), organization, user);
 
-    assertUserIsMember(organization, user);
+    db.organizations().assertUserIsMemberOfOrganization(organization, user);
   }
 
   @Test
@@ -129,8 +129,8 @@ public class MemberUpdaterTest {
 
     underTest.addMembers(db.getSession(), organization, asList(user1, user2, disableUser));
 
-    assertUserIsMember(organization, user1);
-    assertUserIsMember(organization, user2);
+    db.organizations().assertUserIsMemberOfOrganization(organization, user1);
+    db.organizations().assertUserIsMemberOfOrganization(organization, user2);
     assertUserIsNotMember(organization, disableUser);
     assertThat(userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs())
       .extracting(UserDoc::login, UserDoc::organizationUuids)
@@ -151,8 +151,8 @@ public class MemberUpdaterTest {
 
     underTest.addMembers(db.getSession(), organization, asList(userAlreadyMember, userNotMember));
 
-    assertUserIsMember(organization, userAlreadyMember);
-    assertUserIsMember(organization, userNotMember);
+    db.organizations().assertUserIsMemberOfOrganization(organization, userAlreadyMember);
+    db.organizations().assertUserIsMemberOfOrganization(organization, userNotMember);
     assertThat(userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs())
       .extracting(UserDoc::login, UserDoc::organizationUuids)
       .containsExactlyInAnyOrder(
@@ -192,7 +192,7 @@ public class MemberUpdaterTest {
 
     assertUserIsNotMember(organization, user1);
     assertUserIsNotMember(organization, user2);
-    assertUserIsMember(organization, adminUser);
+    db.organizations().assertUserIsMemberOfOrganization(organization, adminUser);
   }
 
   @Test
@@ -400,19 +400,95 @@ public class MemberUpdaterTest {
     underTest.removeMembers(db.getSession(), organization, asList(admin1, admin2));
   }
 
-  private void assertUserIsMember(OrganizationDto organization, UserDto user) {
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).isPresent();
-    Integer defaultGroupId = dbClient.organizationDao().getDefaultGroupId(db.getSession(), organization.getUuid()).get();
-    assertThat(db.getDbClient().groupMembershipDao().selectGroups(
-      db.getSession(),
-      GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
-      user.getId(), 0, 10))
-        .extracting(GroupMembershipDto::getId)
-        .containsOnly(defaultGroupId.longValue());
+  @Test
+  public void synchronize_user_organization_membership() {
+    OrganizationDto organization1 = db.organizations().insert();
+    GroupDto org1defaultGroup = db.users().insertDefaultGroup(organization1, "Members");
+    AlmAppInstallDto gitHubInstall1 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization1, gitHubInstall1, true);
+    OrganizationDto organization2 = db.organizations().insert();
+    db.users().insertDefaultGroup(organization2, "Members");
+    AlmAppInstallDto gitHubInstall2 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization2, gitHubInstall2, true);
+    OrganizationDto organization3 = db.organizations().insert();
+    GroupDto org3defaultGroup = db.users().insertDefaultGroup(organization3, "Members");
+    AlmAppInstallDto gitHubInstall3 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization3, gitHubInstall3, true);
+    // User is member of organization1 and organization3, but organization3 membership will be removed and organization2 membership will be
+    // added
+    UserDto user = db.users().insertUser();
+    db.organizations().addMember(organization1, user);
+    db.users().insertMember(org1defaultGroup, user);
+    db.organizations().addMember(organization3, user);
+    db.users().insertMember(org3defaultGroup, user);
+
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall1.getOwnerId(), gitHubInstall2.getOwnerId()));
+
+    db.organizations().assertUserIsMemberOfOrganization(organization1, user);
+    db.organizations().assertUserIsMemberOfOrganization(organization2, user);
+    assertUserIsNotMember(organization3, user);
+  }
+
+  @Test
+  public void synchronize_user_organization_membership_does_not_update_es_index() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "Members");
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
+    UserDto user = db.users().insertUser();
+
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall.getOwnerId()));
+
+    assertThat(userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs()).isEmpty();
+  }
+
+  @Test
+  public void synchronize_user_organization_membership_ignores_organization_alm_ids_match_no_existing_organizations() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "Members");
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
+    UserDto user = db.users().insertUser();
+
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of("unknown"));
+
+    // User is member of no organization
+    assertThat(db.getDbClient().organizationMemberDao().selectOrganizationUuidsByUser(db.getSession(), user.getId())).isEmpty();
+  }
+
+  @Test
+  public void synchronize_user_organization_membership_ignores_organization_with_member_sync_disabled() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "Members");
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, false);
+    UserDto user = db.users().insertUser();
+
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall.getOwnerId()));
+
+    db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
+  }
+
+  @Test
+  public void synchronize_user_organization_membership_does_not_remove_existing_membership_on_organization_with_member_sync_disabled() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto org1defaultGroup = db.users().insertDefaultGroup(organization, "Members");
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, false);
+    UserDto user = db.users().insertUser();
+    db.users().insertMember(org1defaultGroup, user);
+    db.organizations().addMember(organization, user);
+    // User is member of a organization on which member sync is disabled
+    db.organizations().assertUserIsMemberOfOrganization(organization, user);
+
+    // The organization is not in the list, but membership should not be removed
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of("other"));
+
+    db.organizations().assertUserIsMemberOfOrganization(organization, user);
   }
 
   private void assertUserIsNotMember(OrganizationDto organization, UserDto user) {
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).isNotPresent();
+    db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
     SearchRequestBuilder request = es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_ORGANIZATION_UUIDS, organization.getUuid()))

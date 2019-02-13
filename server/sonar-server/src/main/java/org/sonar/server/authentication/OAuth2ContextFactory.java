@@ -21,6 +21,8 @@ package org.sonar.server.authentication;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
@@ -67,7 +69,7 @@ public class OAuth2ContextFactory {
     return new OAuthContextImpl(request, response, identityProvider);
   }
 
-  private class OAuthContextImpl implements OAuth2IdentityProvider.InitContext, OAuth2IdentityProvider.CallbackContext {
+  public class OAuthContextImpl implements OAuth2IdentityProvider.InitContext, OAuth2CallbackContext {
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -131,6 +133,11 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
+      authenticate(userIdentity, null);
+    }
+
+    @Override
+    public void authenticate(UserIdentity userIdentity, @Nullable Set<String> organizationAlmIds) {
       Boolean allowEmailShift = oAuthParameters.getAllowEmailShift(request).orElse(false);
       Boolean allowUpdateLogin = oAuthParameters.getAllowUpdateLogin(request).orElse(false);
       UserDto userDto = userRegistrar.register(
@@ -140,6 +147,7 @@ public class OAuth2ContextFactory {
           .setSource(AuthenticationEvent.Source.oauth2(identityProvider))
           .setExistingEmailStrategy(allowEmailShift ? ExistingEmailStrategy.ALLOW : ExistingEmailStrategy.WARN)
           .setUpdateLoginStrategy(allowUpdateLogin ? UpdateLoginStrategy.ALLOW : UpdateLoginStrategy.WARN)
+          .setOrganizationAlmIds(organizationAlmIds)
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -65,6 +68,7 @@ class UserRegistration {
   private final AuthenticationEvent.Source source;
   private final ExistingEmailStrategy existingEmailStrategy;
   private final UpdateLoginStrategy updateLoginStrategy;
+  private final Set<String> organizationAlmIds;
 
   UserRegistration(Builder builder) {
     this.userIdentity = builder.userIdentity;
@@ -72,6 +76,7 @@ class UserRegistration {
     this.source = builder.source;
     this.existingEmailStrategy = builder.existingEmailStrategy;
     this.updateLoginStrategy = builder.updateLoginStrategy;
+    this.organizationAlmIds = builder.organizationAlmIds;
   }
 
   public UserIdentity getUserIdentity() {
@@ -94,6 +99,11 @@ class UserRegistration {
     return updateLoginStrategy;
   }
 
+  @CheckForNull
+  public Set<String> getOrganizationAlmIds() {
+    return organizationAlmIds;
+  }
+
   static UserRegistration.Builder builder() {
     return new Builder();
   }
@@ -104,6 +114,7 @@ class UserRegistration {
     private AuthenticationEvent.Source source;
     private ExistingEmailStrategy existingEmailStrategy;
     private UpdateLoginStrategy updateLoginStrategy;
+    private Set<String> organizationAlmIds;
 
     public Builder setUserIdentity(UserIdentity userIdentity) {
       this.userIdentity = userIdentity;
@@ -133,6 +144,15 @@ class UserRegistration {
      */
     public Builder setUpdateLoginStrategy(UpdateLoginStrategy updateLoginStrategy) {
       this.updateLoginStrategy = updateLoginStrategy;
+      return this;
+    }
+
+    /**
+     * List of ALM organization the user is member of.
+     * When set to null, it means that no organization membership synchronization should be done.
+     */
+    public Builder setOrganizationAlmIds(@Nullable Set<String> organizationAlmIds) {
+      this.organizationAlmIds = organizationAlmIds;
       return this;
     }
 

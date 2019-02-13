@@ -37,6 +37,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -69,10 +70,12 @@ public class OAuth2CallbackFilterTest {
   private FakeOAuth2IdentityProvider oAuth2IdentityProvider = new WellbehaveFakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true, LOGIN);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private OAuth2AuthenticationParameters oAuthRedirection = mock(OAuth2AuthenticationParameters.class);
+  private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
 
   private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
 
-  private OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server, authenticationEvent, oAuthRedirection);
+  private OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server, authenticationEvent, oAuthRedirection,
+    threadLocalUserSession);
 
   @Before
   public void setUp() throws Exception {
@@ -90,6 +93,8 @@ public class OAuth2CallbackFilterTest {
     when(server.getContextPath()).thenReturn("/sonarqube");
     when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
+    when(threadLocalUserSession.hasSession()).thenReturn(true);
+    when(threadLocalUserSession.getLogin()).thenReturn(LOGIN);
 
     underTest.doFilter(request, response, chain);
 
@@ -119,6 +124,8 @@ public class OAuth2CallbackFilterTest {
   public void do_filter_on_auth2_identity_provider() {
     when(request.getRequestURI()).thenReturn("/oauth2/callback/" + OAUTH2_PROVIDER_KEY);
     identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
+    when(threadLocalUserSession.hasSession()).thenReturn(true);
+    when(threadLocalUserSession.getLogin()).thenReturn(LOGIN);
 
     underTest.doFilter(request, response, chain);
 
@@ -202,7 +209,8 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sessions/email_already_exists?email=john%40email.com&login=john.github&provider=failing&existingLogin=john.bitbucket&existingProvider=bitbucket");
+    verify(response)
+      .sendRedirect("/sessions/email_already_exists?email=john%40email.com&login=john.github&provider=failing&existingLogin=john.bitbucket&existingProvider=bitbucket");
     verify(oAuthRedirection).delete(eq(request), eq(response));
   }
 
@@ -227,14 +235,14 @@ public class OAuth2CallbackFilterTest {
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }
 
-  private static class FailWithUnauthorizedExceptionIdProvider extends FailingIdentityProvider  {
+  private static class FailWithUnauthorizedExceptionIdProvider extends FailingIdentityProvider {
     @Override
     public void callback(CallbackContext context) {
       throw new UnauthorizedException("Email john@email.com is already used");
     }
   }
 
-  private static class FailWithIllegalStateException extends FailingIdentityProvider  {
+  private static class FailWithIllegalStateException extends FailingIdentityProvider {
     @Override
     public void callback(CallbackContext context) {
       throw new IllegalStateException("Failure !");

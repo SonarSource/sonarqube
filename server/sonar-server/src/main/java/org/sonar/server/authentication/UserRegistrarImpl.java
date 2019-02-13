@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
@@ -36,6 +37,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.ALM;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -46,11 +48,13 @@ import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionEx
 import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -71,15 +75,17 @@ public class UserRegistrarImpl implements UserRegistrar {
   private final OrganizationFlags organizationFlags;
   private final OrganizationUpdater organizationUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
+  private final MemberUpdater memberUpdater;
 
   public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
-    OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder) {
+    OrganizationUpdater organizationUpdater, DefaultGroupFinder defaultGroupFinder, MemberUpdater memberUpdater) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
     this.organizationUpdater = organizationUpdater;
     this.defaultGroupFinder = defaultGroupFinder;
+    this.memberUpdater = memberUpdater;
   }
 
   @Override
@@ -120,9 +126,9 @@ public class UserRegistrarImpl implements UserRegistrar {
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
     NewUser newUser = createNewUser(authenticatorParameters);
     if (disabledUser == null) {
-      return userUpdater.createAndCommit(dbSession, newUser, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
+      return userUpdater.createAndCommit(dbSession, newUser, beforeCommit(dbSession, true, authenticatorParameters), toArray(otherUserToIndex));
     }
-    return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
+    return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, beforeCommit(dbSession, true, authenticatorParameters), toArray(otherUserToIndex));
   }
 
   private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
@@ -139,8 +145,15 @@ public class UserRegistrarImpl implements UserRegistrar {
     }
     detectLoginUpdate(dbSession, userDto, update, authenticatorParameters);
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters);
-    userUpdater.updateAndCommit(dbSession, userDto, update, u -> syncGroups(dbSession, authenticatorParameters.getUserIdentity(), u), toArray(otherUserToIndex));
+    userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, false, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;
+  }
+
+  private Consumer<UserDto> beforeCommit(DbSession dbSession, boolean isNewUser, UserRegistration authenticatorParameters) {
+    return user -> {
+      syncGroups(dbSession, authenticatorParameters.getUserIdentity(), user);
+      synchronizeOrganizationMembership(dbSession, user, authenticatorParameters, isNewUser);
+    };
   }
 
   private Optional<UserDto> detectEmailUpdate(DbSession dbSession, UserRegistration authenticatorParameters) {
@@ -256,6 +269,18 @@ public class UserRegistrarImpl implements UserRegistrar {
 
   private Optional<GroupDto> getDefaultGroup(DbSession dbSession) {
     return organizationFlags.isEnabled(dbSession) ? Optional.empty() : Optional.of(defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid()));
+  }
+
+  private void synchronizeOrganizationMembership(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters, boolean isNewUser) {
+    Set<String> almOrganizationIds = authenticatorParameters.getOrganizationAlmIds();
+    if (almOrganizationIds == null || !isNewUser || !organizationFlags.isEnabled(dbSession)) {
+      return;
+    }
+    UserSession.IdentityProvider identityProvider = UserSession.IdentityProvider.getFromKey(authenticatorParameters.getProvider().getKey());
+    if (identityProvider != UserSession.IdentityProvider.GITHUB) {
+      return;
+    }
+    memberUpdater.synchronizeUserOrganizationMembership(dbSession, userDto, ALM.GITHUB, almOrganizationIds);
   }
 
   private static NewUser createNewUser(UserRegistration authenticatorParameters) {

@@ -25,15 +25,19 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.user.GroupMembershipDto;
+import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
 
 public class OrganizationDbTester {
-  private final DbTester dbTester;
+  private final DbTester db;
 
-  public OrganizationDbTester(DbTester dbTester) {
-    this.dbTester = dbTester;
+  public OrganizationDbTester(DbTester db) {
+    this.db = db;
   }
 
   /**
@@ -61,8 +65,8 @@ public class OrganizationDbTester {
    * Insert the provided {@link OrganizationDto} and commit the session
    */
   public OrganizationDto insert(OrganizationDto dto) {
-    DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().insert(dbSession, dto, false);
+    DbSession dbSession = db.getSession();
+    db.getDbClient().organizationDao().insert(dbSession, dto, false);
     dbSession.commit();
     return dto;
   }
@@ -73,11 +77,11 @@ public class OrganizationDbTester {
       || portfolioDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
       "default template for project and portfolio must belong to the same organization");
     checkArgument(applicationDefaultTemplate == null
-        || applicationDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
+      || applicationDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
       "default template for project and application must belong to the same organization");
 
-    DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
+    DbSession dbSession = db.getSession();
+    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplate.getUuid())
         .setPortfoliosUuid(portfolioDefaultTemplate == null ? null : portfolioDefaultTemplate.getUuid())
@@ -87,8 +91,8 @@ public class OrganizationDbTester {
 
   public void setDefaultTemplates(OrganizationDto defaultOrganization, String projectDefaultTemplateUuid,
     @Nullable String applicationDefaultTemplateUuid, @Nullable String portfoliosDefaultTemplateUuid) {
-    DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
+    DbSession dbSession = db.getSession();
+    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplateUuid)
         .setApplicationsUuid(applicationDefaultTemplateUuid)
@@ -97,16 +101,38 @@ public class OrganizationDbTester {
   }
 
   public void addMember(OrganizationDto organization, UserDto... users) {
-    Arrays.stream(users).forEach(u -> dbTester.getDbClient().organizationMemberDao().insert(dbTester.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserId(u.getId())));
-    dbTester.commit();
+    Arrays.stream(users)
+      .forEach(u -> db.getDbClient().organizationMemberDao().insert(db.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserId(u.getId())));
+    db.commit();
   }
 
   public void setNewProjectPrivate(OrganizationDto organization, boolean newProjectPrivate) {
-    dbTester.getDbClient().organizationDao().setNewProjectPrivate(dbTester.getSession(), organization, newProjectPrivate);
-    dbTester.commit();
+    db.getDbClient().organizationDao().setNewProjectPrivate(db.getSession(), organization, newProjectPrivate);
+    db.commit();
   }
 
   public boolean getNewProjectPrivate(OrganizationDto organization) {
-    return dbTester.getDbClient().organizationDao().getNewProjectPrivate(dbTester.getSession(), organization);
+    return db.getDbClient().organizationDao().getNewProjectPrivate(db.getSession(), organization);
   }
+
+  public void assertUserIsMemberOfOrganization(OrganizationDto organization, UserDto user) {
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).as("User is not member of the organization").isPresent();
+    Integer defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organization.getUuid()).get();
+    assertThat(db.getDbClient().groupMembershipDao().selectGroups(
+      db.getSession(),
+      GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
+      user.getId(), 0, 10))
+        .extracting(GroupMembershipDto::getId)
+        .as("User is not member of the default group of the organization")
+        .containsOnly(defaultGroupId.longValue());
+  }
+
+  public void assertUserIsNotMemberOfOrganization(OrganizationDto organization, UserDto user) {
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).as("User is still member of the organization")
+      .isNotPresent();
+    assertThat(db.getDbClient().groupMembershipDao().countGroups(db.getSession(),
+      GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
+      user.getId())).isZero();
+  }
+
 }

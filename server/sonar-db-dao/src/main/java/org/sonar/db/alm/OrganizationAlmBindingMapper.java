@@ -34,6 +34,8 @@ public interface OrganizationAlmBindingMapper {
   @CheckForNull
   OrganizationAlmBindingDto selectByInstallationUuid(@Param("installationUuid") String installationUuid);
 
+  List<OrganizationAlmBindingDto> selectByOrganizationAlmIds(@Param("alm") String alm, @Param("organizationAlmIds") List<String> organizationAlmId);
+
   void insert(@Param("dto") OrganizationAlmBindingDto dto);
 
   void deleteByOrganizationUuid(@Param("organizationUuid") String organizationUuid);

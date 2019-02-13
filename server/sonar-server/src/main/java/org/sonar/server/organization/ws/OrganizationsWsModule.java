@@ -39,6 +39,7 @@ public class OrganizationsWsModule extends Module {
     add(
       OrganizationsWs.class,
       OrganizationsWsSupport.class,
+      MemberUpdater.class,
       // actions
       SearchAction.class,
       SearchMembersAction.class);
@@ -50,7 +51,6 @@ public class OrganizationsWsModule extends Module {
         AddMemberAction.class,
         CreateAction.class,
         DeleteAction.class,
-        MemberUpdater.class,
         RemoveMemberAction.class,
         UpdateAction.class,
         SetMembersSyncAction.class);

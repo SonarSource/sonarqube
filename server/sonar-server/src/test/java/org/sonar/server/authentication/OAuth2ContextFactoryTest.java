@@ -19,7 +19,9 @@
  */
 package org.sonar.server.authentication;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -32,6 +34,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.OAuth2ContextFactory.OAuthContextImpl;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.UserRegistration.UpdateLoginStrategy;
 import org.sonar.server.user.TestUserSessionFactory;
@@ -181,6 +184,16 @@ public class OAuth2ContextFactoryTest {
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
     assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getUpdateLoginStrategy()).isEqualTo(UpdateLoginStrategy.WARN);
+  }
+
+  @Test
+  public void authenticate_with_organization_alm_ids() {
+    OAuthContextImpl callback = (OAuthContextImpl) newCallbackContext();
+    Set<String> organizationAlmIds = ImmutableSet.of("ABCD", "EFGH");
+
+    callback.authenticate(USER_IDENTITY, organizationAlmIds);
+
+    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getOrganizationAlmIds()).containsAll(organizationAlmIds);
   }
 
   @Test

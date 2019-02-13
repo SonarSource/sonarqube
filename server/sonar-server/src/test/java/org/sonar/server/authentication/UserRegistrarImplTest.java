@@ -45,6 +45,7 @@ import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionEx
 import org.sonar.server.authentication.exception.UpdateLoginRedirectionException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.OrganizationUpdaterImpl;
 import org.sonar.server.organization.OrganizationValidationImpl;
@@ -114,11 +115,12 @@ public class UserRegistrarImplTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
 
   private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new OrganizationUpdaterImpl(db.getDbClient(), mock(System2.class), UuidFactoryFast.getInstance(),
       new OrganizationValidationImpl(), settings.asConfig(), null, null, null, permissionService),
-    new DefaultGroupFinder(db.getDbClient()));
+    defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
 
   @Test
   public void authenticate_new_user() {

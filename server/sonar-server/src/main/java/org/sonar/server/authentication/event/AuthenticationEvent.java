@@ -32,7 +32,7 @@ import static java.util.Objects.requireNonNull;
 
 public interface AuthenticationEvent {
 
-  void loginSuccess(HttpServletRequest request, String login, Source source);
+  void loginSuccess(HttpServletRequest request, @Nullable String login, Source source);
 
   void loginFailure(HttpServletRequest request, AuthenticationException e);
 

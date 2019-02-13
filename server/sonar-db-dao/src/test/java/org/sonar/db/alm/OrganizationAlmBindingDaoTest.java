@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +37,8 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.alm.ALM.BITBUCKETCLOUD;
+import static org.sonar.db.alm.ALM.GITHUB;
 
 public class OrganizationAlmBindingDaoTest {
 
@@ -64,7 +67,7 @@ public class OrganizationAlmBindingDaoTest {
         OrganizationAlmBindingDto::getUrl, OrganizationAlmBindingDto::getAlm,
         OrganizationAlmBindingDto::getUserUuid, OrganizationAlmBindingDto::getCreatedAt)
       .containsExactlyInAnyOrder(dto.getUuid(), organization.getUuid(), dto.getAlmAppInstallUuid(),
-        dto.getUrl(), ALM.GITHUB,
+        dto.getUrl(), GITHUB,
         dto.getUserUuid(), NOW);
   }
 
@@ -92,7 +95,7 @@ public class OrganizationAlmBindingDaoTest {
         OrganizationAlmBindingDto::getUrl, OrganizationAlmBindingDto::getAlm,
         OrganizationAlmBindingDto::getUserUuid, OrganizationAlmBindingDto::getCreatedAt)
       .containsExactlyInAnyOrder(dto.getUuid(), organization.getUuid(), dto.getAlmAppInstallUuid(),
-        dto.getUrl(), ALM.GITHUB,
+        dto.getUrl(), GITHUB,
         dto.getUserUuid(), NOW);
 
     assertThat(underTest.selectByOrganizationUuid(db.getSession(), "unknown")).isNotPresent();
@@ -128,7 +131,7 @@ public class OrganizationAlmBindingDaoTest {
         OrganizationAlmBindingDto::getUrl, OrganizationAlmBindingDto::getAlm,
         OrganizationAlmBindingDto::getUserUuid, OrganizationAlmBindingDto::getCreatedAt)
       .containsExactlyInAnyOrder(dto.getUuid(), organization.getUuid(), dto.getAlmAppInstallUuid(),
-        dto.getUrl(), ALM.GITHUB,
+        dto.getUrl(), GITHUB,
         dto.getUserUuid(), NOW);
   }
 
@@ -143,6 +146,22 @@ public class OrganizationAlmBindingDaoTest {
     Optional<OrganizationAlmBindingDto> result = underTest.selectByAlmAppInstall(db.getSession(), otherAlmAppInstall);
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void selectByOrganizationAlmIds() {
+    AlmAppInstallDto gitHubInstall1 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    OrganizationAlmBindingDto organizationAlmBinding1 = db.alm().insertOrganizationAlmBinding(db.organizations().insert(), gitHubInstall1, true);
+    AlmAppInstallDto gitHubInstall2 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    OrganizationAlmBindingDto organizationAlmBinding2 = db.alm().insertOrganizationAlmBinding(db.organizations().insert(), gitHubInstall2, true);
+    AlmAppInstallDto bitBucketInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(BITBUCKETCLOUD.getId()));
+    OrganizationAlmBindingDto organizationAlmBinding3 = db.alm().insertOrganizationAlmBinding(db.organizations().insert(), bitBucketInstall, true);
+
+    List<OrganizationAlmBindingDto> result = underTest.selectByOrganizationAlmIds(db.getSession(), GITHUB,
+      asList(gitHubInstall1.getOwnerId(), gitHubInstall2.getOwnerId(), bitBucketInstall.getOwnerId(), "unknown"));
+
+    assertThat(result).extracting(OrganizationAlmBindingDto::getUuid)
+      .containsExactlyInAnyOrder(organizationAlmBinding1.getUuid(), organizationAlmBinding2.getUuid());
   }
 
   @Test

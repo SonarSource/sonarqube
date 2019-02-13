@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Optional.ofNullable;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class OrganizationAlmBindingDao implements Dao {
@@ -51,12 +51,19 @@ public class OrganizationAlmBindingDao implements Dao {
   }
 
   public List<OrganizationAlmBindingDto> selectByOrganizations(DbSession dbSession, Collection<OrganizationDto> organizations) {
-    return executeLargeInputs(organizations.stream().map(OrganizationDto::getUuid).collect(MoreCollectors.toSet()),
-      organizationUuids -> getMapper(dbSession).selectByOrganizationUuids(organizationUuids));
+    return selectByOrganizationUuids(dbSession, organizations.stream().map(OrganizationDto::getUuid).collect(toSet()));
+  }
+
+  public List<OrganizationAlmBindingDto> selectByOrganizationUuids(DbSession dbSession, Collection<String> organizationUuids) {
+    return executeLargeInputs(organizationUuids, uuids -> getMapper(dbSession).selectByOrganizationUuids(uuids));
   }
 
   public Optional<OrganizationAlmBindingDto> selectByAlmAppInstall(DbSession dbSession, AlmAppInstallDto almAppInstall) {
     return ofNullable(getMapper(dbSession).selectByInstallationUuid(almAppInstall.getUuid()));
+  }
+
+  public List<OrganizationAlmBindingDto> selectByOrganizationAlmIds(DbSession dbSession, ALM alm, Collection<String> organizationAlmIds) {
+    return executeLargeInputs(organizationAlmIds, o -> getMapper(dbSession).selectByOrganizationAlmIds(alm.getId(), o));
   }
 
   public void insert(DbSession dbSession, OrganizationDto organization, AlmAppInstallDto almAppInstall, String url, String userUuid, boolean membersSync) {
