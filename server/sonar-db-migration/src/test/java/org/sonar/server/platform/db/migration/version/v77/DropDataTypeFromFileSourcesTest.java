@@ -20,23 +20,38 @@
 
 package org.sonar.server.platform.db.migration.version.v77;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropDataTypeFromFileSourcesTest {
 
-public class DbVersion77Test {
+  private static final String TABLE = "file_sources";
 
-  private DbVersion77 underTest = new DbVersion77();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropDataTypeFromFileSourcesTest.class, "file_sources.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DropDataTypeFromFileSources underTest = new DropDataTypeFromFileSources(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2600() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public void drop_column_and_recreate_index() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist(TABLE, "data_type");
+    db.assertUniqueIndex(TABLE, "file_sources_file_uuid", "file_uuid");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }
