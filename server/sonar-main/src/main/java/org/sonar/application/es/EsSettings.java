@@ -82,7 +82,6 @@ public class EsSettings {
 
   private void configureFileSystem(Map<String, String> builder) {
     builder.put("path.data", fileSystem.getDataDirectory().getAbsolutePath());
-    builder.put("path.conf", fileSystem.getConfDirectory().getAbsolutePath());
     builder.put("path.logs", fileSystem.getLogDirectory().getAbsolutePath());
   }
 

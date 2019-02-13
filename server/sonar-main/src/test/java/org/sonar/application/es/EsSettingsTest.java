@@ -141,7 +141,7 @@ public class EsSettingsTest {
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
     assertThat(generated.get("path.home")).isNull();
-    assertThat(generated.get("path.conf")).isNotNull();
+    assertThat(generated.get("path.conf")).isNull();
 
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
@@ -226,7 +226,7 @@ public class EsSettingsTest {
     Map<String, String> generated = underTest.build();
     assertThat(generated.get("path.data")).isEqualTo(data.getPath());
     assertThat(generated.get("path.logs")).isEqualTo(log.getPath());
-    assertThat(generated.get("path.conf")).isEqualTo(conf.getPath());
+    assertThat(generated.get("path.conf")).isNull();
   }
 
   @Test

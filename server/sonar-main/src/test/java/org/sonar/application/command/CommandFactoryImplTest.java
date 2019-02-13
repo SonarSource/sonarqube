@@ -127,10 +127,11 @@ public class CommandFactoryImplTest {
     Properties props = new Properties();
     props.setProperty("sonar.search.host", "localhost");
 
-    AbstractCommand esCommand = newFactory(props, system2).createEsCommand();
+    AbstractCommand command = newFactory(props, system2).createEsCommand();
+    assertThat(command).isInstanceOf(EsScriptCommand.class);
+    EsScriptCommand esCommand = (EsScriptCommand) command;
     EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(esCommand).isInstanceOf(EsScriptCommand.class);
     assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
     assertThat(esConfig.getHost()).isNotEmpty();
     assertThat(esConfig.getPort()).isEqualTo(9001);
@@ -139,15 +140,15 @@ public class CommandFactoryImplTest {
       .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
-    File esConfDir = new File(tempDir, "conf/es");
-    assertThat(esCommand.getEnvVariables())
-      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
-      .containsKey("JAVA_HOME");
     assertThat(esConfig.getEsYmlSettings()).isNotNull();
-
     assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
+    File esConfDir = new File(tempDir, "conf/es");
+    assertThat(esCommand.getEnvVariables())
+      .contains(entry("ES_PATH_CONF", esConfDir.getAbsolutePath()))
+      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
+      .containsKey("JAVA_HOME");
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
   }
 
@@ -160,10 +161,11 @@ public class CommandFactoryImplTest {
     Properties props = new Properties();
     props.setProperty("sonar.search.host", "localhost");
 
-    AbstractCommand esCommand = newFactory(props, system2).createEsCommand();
+    AbstractCommand command = newFactory(props, system2).createEsCommand();
+    assertThat(command).isInstanceOf(JavaCommand.class);
+    JavaCommand<?> esCommand = (JavaCommand<?>) command;
     EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(esCommand).isInstanceOf(JavaCommand.class);
     assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
     assertThat(esConfig.getHost()).isNotEmpty();
     assertThat(esConfig.getPort()).isEqualTo(9001);
@@ -172,16 +174,23 @@ public class CommandFactoryImplTest {
       .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
-    File esConfDir = new File(tempDir, "conf/es");
-    assertThat(esCommand.getEnvVariables())
-      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
-      .containsKey("JAVA_HOME");
     assertThat(esConfig.getEsYmlSettings()).isNotNull();
 
     assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
+    File esConfDir = new File(tempDir, "conf/es");
+    assertThat(esCommand.getArguments()).isEmpty();
+    assertThat(esCommand.getEnvVariables())
+      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
+      .containsKey("JAVA_HOME");
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
+
+    assertThat(esCommand.getJvmOptions().getAll())
+      .containsAll(esConfig.getEsJvmOptions().getAll())
+      .contains("-Delasticsearch")
+      .contains("-Des.path.home=" + new File(homeDir, "elasticsearch"))
+      .contains("-Des.path.conf=" + esConfDir.getAbsolutePath());
   }
 
   @Test
