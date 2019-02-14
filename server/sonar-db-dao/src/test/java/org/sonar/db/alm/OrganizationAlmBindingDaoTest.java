@@ -150,15 +150,15 @@ public class OrganizationAlmBindingDaoTest {
 
   @Test
   public void selectByOrganizationAlmIds() {
-    AlmAppInstallDto gitHubInstall1 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall1 = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     OrganizationAlmBindingDto organizationAlmBinding1 = db.alm().insertOrganizationAlmBinding(db.organizations().insert(), gitHubInstall1, true);
-    AlmAppInstallDto gitHubInstall2 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall2 = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     OrganizationAlmBindingDto organizationAlmBinding2 = db.alm().insertOrganizationAlmBinding(db.organizations().insert(), gitHubInstall2, true);
-    AlmAppInstallDto bitBucketInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(BITBUCKETCLOUD.getId()));
+    AlmAppInstallDto bitBucketInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(BITBUCKETCLOUD));
     OrganizationAlmBindingDto organizationAlmBinding3 = db.alm().insertOrganizationAlmBinding(db.organizations().insert(), bitBucketInstall, true);
 
     List<OrganizationAlmBindingDto> result = underTest.selectByOrganizationAlmIds(db.getSession(), GITHUB,
-      asList(gitHubInstall1.getOwnerId(), gitHubInstall2.getOwnerId(), bitBucketInstall.getOwnerId(), "unknown"));
+      asList(gitHubInstall1.getOrganizationAlmId(), gitHubInstall2.getOrganizationAlmId(), bitBucketInstall.getOrganizationAlmId(), "unknown"));
 
     assertThat(result).extracting(OrganizationAlmBindingDto::getUuid)
       .containsExactlyInAnyOrder(organizationAlmBinding1.getUuid(), organizationAlmBinding2.getUuid());

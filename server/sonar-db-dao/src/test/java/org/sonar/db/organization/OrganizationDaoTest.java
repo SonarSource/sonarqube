@@ -66,7 +66,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.db.alm.ALM.BITBUCKETCLOUD;
 import static org.sonar.db.alm.ALM.GITHUB;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
@@ -1121,7 +1120,7 @@ public class OrganizationDaoTest {
 
   private void insertOrgAlmBinding(OrganizationDto organization, ALM alm, String organizationAlmId) {
     dbClient.almAppInstallDao().insertOrUpdate(dbSession, alm, organizationAlmId, true, randomAlphabetic(8), randomAlphabetic(8));
-    Optional<AlmAppInstallDto> almAppInstallDto = dbClient.almAppInstallDao().selectByOwnerId(dbSession, GITHUB, organizationAlmId);
+    Optional<AlmAppInstallDto> almAppInstallDto = dbClient.almAppInstallDao().selectByOrganizationAlmId(dbSession, GITHUB, organizationAlmId);
     dbClient.organizationAlmBindingDao().insert(dbSession, organization, almAppInstallDto.get(), "http://github.com/myteam", random(8),true);
   }
 

@@ -123,7 +123,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     organizationFlags.setEnabled(true);
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
 
     underTest.register(UserRegistration.builder()
@@ -132,7 +132,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setSource(Source.realm(BASIC, GITHUB_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
       .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOwnerId()))
+      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -144,7 +144,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     organizationFlags.setEnabled(true);
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
 
     underTest.register(UserRegistration.builder()
@@ -165,7 +165,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     organizationFlags.setEnabled(true);
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(BITBUCKETCLOUD.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(BITBUCKETCLOUD));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
 
     underTest.register(UserRegistration.builder()
@@ -174,7 +174,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setSource(Source.realm(BASIC, BITBUCKET_PROVIDER.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
       .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOwnerId()))
+      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -186,7 +186,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     organizationFlags.setEnabled(true);
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     TestIdentityProvider identityProvider = new TestIdentityProvider()
       .setKey("unknown")
@@ -200,7 +200,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setSource(Source.realm(BASIC, identityProvider.getName()))
       .setExistingEmailStrategy(ExistingEmailStrategy.ALLOW)
       .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .setOrganizationAlmIds(ImmutableSet.of(almAppInstall.getOwnerId()))
+      .setOrganizationAlmIds(ImmutableSet.of(almAppInstall.getOrganizationAlmId()))
       .build());
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -212,7 +212,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     organizationFlags.setEnabled(true);
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
     UserDto user = db.users().insertUser(u -> u
       .setLogin("Old login")
@@ -225,7 +225,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOwnerId()))
+      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
     db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
@@ -236,7 +236,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     organizationFlags.setEnabled(true);
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
     UserDto user = db.users().insertDisabledUser(u -> u.setLogin(USER_LOGIN));
 
@@ -246,7 +246,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
       .setSource(Source.local(BASIC))
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .setUpdateLoginStrategy(UpdateLoginStrategy.ALLOW)
-      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOwnerId()))
+      .setOrganizationAlmIds(ImmutableSet.of(gitHubInstall.getOrganizationAlmId()))
       .build());
 
     db.organizations().assertUserIsMemberOfOrganization(organization, user);

@@ -27,24 +27,24 @@ import org.apache.ibatis.annotations.Param;
 public interface AlmAppInstallMapper {
 
   @CheckForNull
-  AlmAppInstallDto selectByOwnerId(@Param("almId") String almId, @Param("ownerId") String ownerId);
+  AlmAppInstallDto selectByOrganizationAlmId(@Param("alm") String alm, @Param("organizationAlmId") String organizationAlmId);
 
   @CheckForNull
-  AlmAppInstallDto selectByInstallationId(@Param("almId") String almId, @Param("installId") String installId);
+  AlmAppInstallDto selectByInstallationId(@Param("alm") String alm, @Param("installId") String installId);
 
   @CheckForNull
   AlmAppInstallDto selectByUuid(@Param("uuid") String uuid);
 
   @CheckForNull
-  AlmAppInstallDto selectByOrganizationUuid(@Param("almId") String almId, @Param("organizationUuid") String organizationUuid);
+  AlmAppInstallDto selectByOrganizationUuid(@Param("alm") String alm, @Param("organizationUuid") String organizationUuid);
 
   List<AlmAppInstallDto> selectUnboundByUserExternalId(@Param("userExternalId") String userExternalId);
 
-  void insert(@Param("uuid") String uuid, @Param("almId") String almId, @Param("ownerId") String ownerId,
+  void insert(@Param("uuid") String uuid, @Param("alm") String alm, @Param("organizationAlmId") String organizationAlmId,
     @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Nullable @Param("userExternalId") String userExternalId, @Param("now") long now);
 
-  int update(@Param("almId") String almId, @Param("ownerId") String ownerId,
+  int update(@Param("alm") String alm, @Param("organizationAlmId") String organizationAlmId,
     @Nullable @Param("isOwnerUser") Boolean isOwnerUser, @Param("installId") String installId, @Nullable @Param("userExternalId") String userExternalId, @Param("now") long now);
 
-  void delete(@Param("almId") String almId, @Param("ownerId") String ownerId);
+  void delete(@Param("alm") String alm, @Param("organizationAlmId") String organizationAlmId);
 }

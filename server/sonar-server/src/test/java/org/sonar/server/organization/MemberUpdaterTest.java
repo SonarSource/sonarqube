@@ -404,15 +404,15 @@ public class MemberUpdaterTest {
   public void synchronize_user_organization_membership() {
     OrganizationDto organization1 = db.organizations().insert();
     GroupDto org1defaultGroup = db.users().insertDefaultGroup(organization1, "Members");
-    AlmAppInstallDto gitHubInstall1 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall1 = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization1, gitHubInstall1, true);
     OrganizationDto organization2 = db.organizations().insert();
     db.users().insertDefaultGroup(organization2, "Members");
-    AlmAppInstallDto gitHubInstall2 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall2 = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization2, gitHubInstall2, true);
     OrganizationDto organization3 = db.organizations().insert();
     GroupDto org3defaultGroup = db.users().insertDefaultGroup(organization3, "Members");
-    AlmAppInstallDto gitHubInstall3 = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall3 = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization3, gitHubInstall3, true);
     // User is member of organization1 and organization3, but organization3 membership will be removed and organization2 membership will be
     // added
@@ -422,7 +422,7 @@ public class MemberUpdaterTest {
     db.organizations().addMember(organization3, user);
     db.users().insertMember(org3defaultGroup, user);
 
-    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall1.getOwnerId(), gitHubInstall2.getOwnerId()));
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall1.getOrganizationAlmId(), gitHubInstall2.getOrganizationAlmId()));
 
     db.organizations().assertUserIsMemberOfOrganization(organization1, user);
     db.organizations().assertUserIsMemberOfOrganization(organization2, user);
@@ -433,11 +433,11 @@ public class MemberUpdaterTest {
   public void synchronize_user_organization_membership_does_not_update_es_index() {
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
     UserDto user = db.users().insertUser();
 
-    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall.getOwnerId()));
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall.getOrganizationAlmId()));
 
     assertThat(userIndex.search(UserQuery.builder().build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -446,7 +446,7 @@ public class MemberUpdaterTest {
   public void synchronize_user_organization_membership_ignores_organization_alm_ids_match_no_existing_organizations() {
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, true);
     UserDto user = db.users().insertUser();
 
@@ -460,11 +460,11 @@ public class MemberUpdaterTest {
   public void synchronize_user_organization_membership_ignores_organization_with_member_sync_disabled() {
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, false);
     UserDto user = db.users().insertUser();
 
-    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall.getOwnerId()));
+    underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of(gitHubInstall.getOrganizationAlmId()));
 
     db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
   }
@@ -473,7 +473,7 @@ public class MemberUpdaterTest {
   public void synchronize_user_organization_membership_does_not_remove_existing_membership_on_organization_with_member_sync_disabled() {
     OrganizationDto organization = db.organizations().insert();
     GroupDto org1defaultGroup = db.users().insertDefaultGroup(organization, "Members");
-    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlmId(GITHUB.getId()));
+    AlmAppInstallDto gitHubInstall = db.alm().insertAlmAppInstall(a -> a.setAlm(GITHUB));
     db.alm().insertOrganizationAlmBinding(organization, gitHubInstall, false);
     UserDto user = db.users().insertUser();
     db.users().insertMember(org1defaultGroup, user);

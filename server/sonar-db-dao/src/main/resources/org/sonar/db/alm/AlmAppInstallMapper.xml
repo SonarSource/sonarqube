@@ -5,8 +5,8 @@
 
   <sql id="sqlColumns">
     aai.uuid,
-    aai.alm_id as almId,
-    aai.owner_id as ownerId,
+      aai.alm_id as rawAlm,
+    aai.owner_id as organizationAlmId,
     aai.is_owner_user as isOwnerUser,
     aai.install_id as installId,
     aai.user_external_id as userExternalId,
@@ -14,13 +14,13 @@
     aai.updated_at as updatedAt
   </sql>
 
-  <select id="selectByOwnerId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
+  <select id="selectByOrganizationAlmId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
     select <include refid="sqlColumns" />
     from
       alm_app_installs aai
     where
-      alm_id = #{almId, jdbcType=VARCHAR}
-      and owner_id = #{ownerId, jdbcType=VARCHAR}
+      alm_id = #{alm, jdbcType=VARCHAR}
+      and owner_id = #{organizationAlmId, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByInstallationId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
@@ -28,7 +28,7 @@
     from
       alm_app_installs aai
     where
-      alm_id = #{almId, jdbcType=VARCHAR}
+      alm_id = #{alm, jdbcType=VARCHAR}
       and install_id = #{installId, jdbcType=VARCHAR}
   </select>
 
@@ -46,7 +46,7 @@
     alm_app_installs aai
     inner join organization_alm_bindings oab on oab.alm_app_install_uuid = aai.uuid
     where
-    oab.alm_id = #{almId, jdbcType=VARCHAR}
+    oab.alm_id = #{alm, jdbcType=VARCHAR}
     and oab.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
@@ -74,8 +74,8 @@
     )
     VALUES (
       #{uuid, jdbcType=VARCHAR},
-      #{almId, jdbcType=VARCHAR},
-      #{ownerId, jdbcType=VARCHAR},
+      #{alm, jdbcType=VARCHAR},
+      #{organizationAlmId, jdbcType=VARCHAR},
       #{isOwnerUser, jdbcType=BOOLEAN},
       #{installId, jdbcType=VARCHAR},
       #{userExternalId, jdbcType=VARCHAR},
@@ -91,15 +91,15 @@
       user_external_id = #{userExternalId, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
-      alm_id = #{almId, jdbcType=VARCHAR}
-      and owner_id = #{ownerId, jdbcType=VARCHAR}
+      alm_id = #{alm, jdbcType=VARCHAR}
+      and owner_id = #{organizationAlmId, jdbcType=VARCHAR}
   </update>
 
   <delete id="delete" parameterType="Map">
     delete from alm_app_installs
     where
-      alm_id = #{almId, jdbcType=VARCHAR}
-      and owner_id = #{ownerId, jdbcType=VARCHAR}
+      alm_id = #{alm, jdbcType=VARCHAR}
+      and owner_id = #{organizationAlmId, jdbcType=VARCHAR}
   </delete>
 
 

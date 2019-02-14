@@ -29,15 +29,20 @@ public class AlmAppInstallDto {
    */
   private String uuid;
   /**
-   * alm_id, can't be null
+   * Identifier of the ALM, like 'bitbucketcloud' or 'github', can't be null.
+   * Note that the db column is named alm_id.
+   *
+   * @see ALM for the list of available values
    */
-  private String almId;
+  private String rawAlm;
   /**
-   * Owner id, can't be null
+   * ALM specific identifier of the organization, like team or user uuid for Bitbucket Cloud or organization id for Github, can't be null.
+   * Note that the column is badly named owner_id, in the first place it was only possible to install personal organizations.
+   * The column name has been kept to prevent doing a db migration.
    */
-  private String ownerId;
+  private String organizationAlmId;
   /**
-   * Installation id, can't be null
+   * ALM specific identifier of the app installation, can't be null
    */
   private String installId;
   /**
@@ -61,25 +66,21 @@ public class AlmAppInstallDto {
     return this;
   }
 
-  public String getAlmId() {
-    return almId;
-  }
-
   public ALM getAlm() {
-    return ALM.fromId(almId);
+    return ALM.fromId(rawAlm);
   }
 
-  public AlmAppInstallDto setAlmId(String almId) {
-    this.almId = almId;
+  public AlmAppInstallDto setAlm(ALM alm) {
+    this.rawAlm = alm.getId();
     return this;
   }
 
-  public String getOwnerId() {
-    return ownerId;
+  public String getOrganizationAlmId() {
+    return organizationAlmId;
   }
 
-  public AlmAppInstallDto setOwnerId(String ownerId) {
-    this.ownerId = ownerId;
+  public AlmAppInstallDto setOrganizationAlmId(String organizationAlmId) {
+    this.organizationAlmId = organizationAlmId;
     return this;
   }
 
