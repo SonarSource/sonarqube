@@ -23,12 +23,12 @@ import com.google.common.base.MoreObjects;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -46,6 +46,7 @@ import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 public class NewEffortAggregator extends IssueVisitor {
   private final Map<String, NewEffortCounter> counterByComponentUuid = new HashMap<>();
   private final PeriodHolder periodHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MeasureRepository measureRepository;
 
   private final Metric newMaintainabilityEffortMetric;
@@ -54,8 +55,10 @@ public class NewEffortAggregator extends IssueVisitor {
 
   private NewEffortCounter counter = null;
 
-  public NewEffortAggregator(PeriodHolder periodHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
+  public NewEffortAggregator(PeriodHolder periodHolder, AnalysisMetadataHolder analysisMetadataHolder, MetricRepository metricRepository,
+    MeasureRepository measureRepository) {
     this.periodHolder = periodHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.measureRepository = measureRepository;
 
     this.newMaintainabilityEffortMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
@@ -77,14 +80,18 @@ public class NewEffortAggregator extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.resolution() == null && issue.effortInMinutes() != null && periodHolder.hasPeriod()) {
-      counter.add(issue, periodHolder.getPeriod());
+    if (issue.resolution() == null && issue.effortInMinutes() != null) {
+      if (analysisMetadataHolder.isSLBorPR()) {
+        counter.add(issue, 0L);
+      } else if (periodHolder.hasPeriod()) {
+        counter.add(issue, periodHolder.getPeriod().getSnapshotDate());
+      }
     }
   }
 
   @Override
   public void afterComponent(Component component) {
-    if (periodHolder.hasPeriod()) {
+    if (periodHolder.hasPeriod() || analysisMetadataHolder.isSLBorPR()) {
       computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
       computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
       computeMeasure(component, newSecurityEffortMetric, counter.securitySum);
@@ -108,8 +115,8 @@ public class NewEffortAggregator extends IssueVisitor {
       securitySum.add(otherCounter.securitySum);
     }
 
-    void add(DefaultIssue issue, Period period) {
-      long newEffort = calculate(issue, period);
+    void add(DefaultIssue issue, long startDate) {
+      long newEffort = calculate(issue, startDate);
       switch (issue.type()) {
         case CODE_SMELL:
           maintainabilitySum.add(newEffort);
@@ -128,8 +135,8 @@ public class NewEffortAggregator extends IssueVisitor {
       }
     }
 
-    long calculate(DefaultIssue issue, Period period) {
-      if (issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate())) {
+    long calculate(DefaultIssue issue, long startDate) {
+      if (issue.creationDate().getTime() > truncateToSeconds(startDate)) {
         return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
       }
       return 0L;

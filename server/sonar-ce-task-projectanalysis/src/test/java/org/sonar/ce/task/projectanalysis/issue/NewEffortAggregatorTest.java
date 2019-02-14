@@ -24,7 +24,10 @@ import java.util.Random;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -32,9 +35,12 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.component.BranchType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
@@ -68,9 +74,11 @@ public class NewEffortAggregatorTest {
     .add(NEW_SECURITY_REMEDIATION_EFFORT);
   @org.junit.Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create();
+  @org.junit.Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private final Random random = new Random();
-  private NewEffortAggregator underTest = new NewEffortAggregator(periodsHolder, metricRepository, measureRepository);
+  private NewEffortAggregator underTest = new NewEffortAggregator(periodsHolder, analysisMetadataHolder, metricRepository, measureRepository);
 
   @Test
   public void sum_new_maintainability_effort_of_issues() {
@@ -255,6 +263,9 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void no_measures_if_no_periods() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.LONG);
+    analysisMetadataHolder.setBranch(branch);
     periodsHolder.setPeriod(null);
     DefaultIssue unresolved = newCodeSmellIssue(10);
 

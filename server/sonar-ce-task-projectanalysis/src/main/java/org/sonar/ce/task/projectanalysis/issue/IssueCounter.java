@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
@@ -104,15 +105,17 @@ public class IssueCounter extends IssueVisitor {
     .build();
 
   private final PeriodHolder periodHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final Map<String, Counters> countersByComponentUuid = new HashMap<>();
 
   private Counters currentCounters;
 
-  public IssueCounter(PeriodHolder periodHolder,
+  public IssueCounter(PeriodHolder periodHolder, AnalysisMetadataHolder analysisMetadataHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.periodHolder = periodHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
   }
@@ -137,13 +140,13 @@ public class IssueCounter extends IssueVisitor {
     }
 
     currentCounters.add(issue);
-    if (!periodHolder.hasPeriod()) {
-      return;
-    }
-    Period period = periodHolder.getPeriod();
-    // Add one second to not take into account issues created during current analysis
-    if (issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate())) {
+    if (analysisMetadataHolder.isSLBorPR()) {
       currentCounters.addOnPeriod(issue);
+    } else if (periodHolder.hasPeriod()) {
+      Period period = periodHolder.getPeriod();
+      if (issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate())) {
+        currentCounters.addOnPeriod(issue);
+      }
     }
   }
 
@@ -152,7 +155,7 @@ public class IssueCounter extends IssueVisitor {
     addMeasuresBySeverity(component);
     addMeasuresByStatus(component);
     addMeasuresByType(component);
-    addMeasuresByPeriod(component);
+    addNewMeasures(component);
     currentCounters = null;
   }
 
@@ -184,8 +187,8 @@ public class IssueCounter extends IssueVisitor {
     measureRepository.add(component, metric, Measure.newMeasureBuilder().create(value));
   }
 
-  private void addMeasuresByPeriod(Component component) {
-    if (!periodHolder.hasPeriod()) {
+  private void addNewMeasures(Component component) {
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isSLBorPR()) {
       return;
     }
     double unresolvedVariations = (double) currentCounters.counterForPeriod().unresolved;

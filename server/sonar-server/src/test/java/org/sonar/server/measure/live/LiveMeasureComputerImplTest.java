@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,14 +43,15 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.measure.Rating;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.measure.Rating;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
@@ -85,6 +87,8 @@ public class LiveMeasureComputerImplTest {
   private ComponentDto dir;
   private ComponentDto file1;
   private ComponentDto file2;
+  private ComponentDto branch;
+  private ComponentDto branchFile;
   private LiveQualityGateComputer qGateComputer = mock(LiveQualityGateComputer.class);
   private QualityGate qualityGate = mock(QualityGate.class);
   private EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
@@ -99,6 +103,8 @@ public class LiveMeasureComputerImplTest {
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
     file2 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
+    branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    branchFile = db.components().insertComponent(ComponentTesting.newFileDto(branch));
   }
 
   @Test
@@ -217,10 +223,28 @@ public class LiveMeasureComputerImplTest {
   }
 
   @Test
+  public void calculate_new_metrics_if_it_is_pr_or_branch() {
+    markProjectAsAnalyzed(branch, null);
+    db.measures().insertLiveMeasure(branch, intMetric, m -> m.setVariation(42.0).setValue(null));
+    db.measures().insertLiveMeasure(branchFile, intMetric, m -> m.setVariation(42.0).setValue(null));
+
+    // generates values 1, 2, 3 on leak measures
+    List<QGChangeEvent> result = run(branchFile, newQualifierBasedIntLeakFormula(), newRatingLeakFormula(Rating.B));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(4);
+
+    // Numeric value depends on qualifier (see newQualifierBasedIntLeakFormula())
+    assertThatIntMeasureHasLeakValue(branchFile, ORDERED_BOTTOM_UP.indexOf(Qualifiers.FILE));
+    assertThatRatingMeasureHasLeakValue(branchFile, Rating.B);
+    assertThatIntMeasureHasLeakValue(branch, ORDERED_BOTTOM_UP.indexOf(Qualifiers.PROJECT));
+    assertThatRatingMeasureHasLeakValue(branch, Rating.B);
+    assertThatProjectChanged(result, branch);
+  }
+
+  @Test
   public void do_nothing_if_project_has_not_been_analyzed() {
     // project has no snapshots
     List<QGChangeEvent> result = run(file1, newIncrementalFormula());
-
     assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(0);
     assertThatProjectNotChanged(result, project);
   }
@@ -380,8 +404,12 @@ public class LiveMeasureComputerImplTest {
   }
 
   private void markProjectAsAnalyzed(ComponentDto p) {
+    markProjectAsAnalyzed(p, 1_490_000_000L);
+  }
+
+  private void markProjectAsAnalyzed(ComponentDto p, @Nullable Long periodDate) {
     assertThat(p.qualifier()).isEqualTo(Qualifiers.PROJECT);
-    db.components().insertSnapshot(p, s -> s.setPeriodDate(1_490_000_000L));
+    db.components().insertSnapshot(p, s -> s.setPeriodDate(periodDate));
   }
 
   private LiveMeasureDto assertThatIntMeasureHasValue(ComponentDto component, double expectedValue) {

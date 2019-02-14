@@ -27,6 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -38,9 +40,12 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
@@ -112,6 +117,9 @@ public class IssueCounterTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+
+  @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(ISSUES_METRIC)
     .add(OPEN_ISSUES_METRIC)
@@ -140,7 +148,7 @@ public class IssueCounterTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private IssueCounter underTest = new IssueCounter(periodsHolder, metricRepository, measureRepository);
+  private IssueCounter underTest = new IssueCounter(periodsHolder, analysisMetadataHolder, metricRepository, measureRepository);
 
   @Test
   public void count_issues_by_status() {
@@ -282,7 +290,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_new_issues() {
+  public void count_new_issues_if_period_exists() {
     Period period = newPeriod(1500000000000L);
     periodsHolder.setPeriod(period);
 
@@ -317,6 +325,44 @@ public class IssueCounterTest {
     assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
     assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, 1);
     assertVariation(PROJECT, NEW_BUGS_METRIC, 1);
+    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
+  }
+
+  @Test
+  public void count_all_issues_as_new_issues_if_pr_or_slb() {
+    periodsHolder.setPeriod(null);
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.SHORT);
+    analysisMetadataHolder.setBranch(branch);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, 1000000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, 0L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, 100000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, 100000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, 200000L).setType(RuleType.BUG));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(FILE2);
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertVariation(FILE1, NEW_ISSUES_METRIC, 4);
+    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, 2);
+    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 2);
+    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, 2);
+    assertVariation(FILE1, NEW_BUGS_METRIC, 2);
+    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
+
+    assertVariation(PROJECT, NEW_ISSUES_METRIC, 4);
+    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 2);
+    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 2);
+    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, 2);
+    assertVariation(PROJECT, NEW_BUGS_METRIC, 2);
     assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
   }
 

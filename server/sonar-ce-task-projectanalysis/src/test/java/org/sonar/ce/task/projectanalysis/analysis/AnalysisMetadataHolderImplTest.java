@@ -350,6 +350,28 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
+  public void getIsSLBorPR_returns_true() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.SHORT);
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isSLBorPR()).isTrue();
+  }
+
+  @Test
+  public void getIsSLBorPR_returns_false() {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.LONG);
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setBranch(branch);
+
+    assertThat(underTest.isSLBorPR()).isFalse();
+  }
+
+  @Test
   public void getPullRequestBranch_returns_true() {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);

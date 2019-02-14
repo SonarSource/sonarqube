@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.formula.counter.RatingValue;
@@ -73,9 +74,10 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   private final PeriodHolder periodHolder;
 
   private final Map<String, Metric> metricsByKey;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public NewReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository,
-    PeriodHolder periodHolder) {
+  public NewReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository,
+    ComponentIssuesRepository componentIssuesRepository, PeriodHolder periodHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     super(LEAVES, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.componentIssuesRepository = componentIssuesRepository;
@@ -85,6 +87,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     this.metricsByKey = ImmutableMap.of(
       NEW_RELIABILITY_RATING_KEY, metricRepository.getByKey(NEW_RELIABILITY_RATING_KEY),
       NEW_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SECURITY_RATING_KEY));
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -103,7 +106,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
-    if (!periodHolder.hasPeriod()) {
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isSLBorPR()) {
       return;
     }
     initRatingsToA(path);
@@ -128,7 +131,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       .stream()
       .filter(issue -> issue.resolution() == null)
       .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
-      .forEach(issue -> path.current().processIssue(issue, periodHolder.getPeriod()));
+      .forEach(issue -> path.current().processIssue(issue, analysisMetadataHolder.isSLBorPR(), periodHolder));
   }
 
   private static void addToParent(Path<Counter> path) {
@@ -147,11 +150,11 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     }
 
     void add(Counter otherCounter) {
-      newRatingValueByMetric.entrySet().forEach(e -> e.getValue().increment(otherCounter.newRatingValueByMetric.get(e.getKey())));
+      newRatingValueByMetric.forEach((metric, rating) -> rating.increment(otherCounter.newRatingValueByMetric.get(metric)));
     }
 
-    void processIssue(Issue issue, Period period) {
-      if (isOnPeriod((DefaultIssue) issue, period)) {
+    void processIssue(Issue issue, boolean isSLBorPR, PeriodHolder periodHolder) {
+      if (isSLBorPR || isOnPeriod((DefaultIssue) issue, periodHolder.getPeriod())) {
         Rating rating = RATING_BY_SEVERITY.get(issue.severity());
         if (issue.type().equals(BUG)) {
           newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(rating);

@@ -25,6 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -39,9 +41,12 @@ import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.component.BranchType;
 import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
@@ -107,13 +112,16 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("mode", null, LEAK_PERIOD_SNAPSHOT_IN_MILLISEC, "UUID"));
 
   @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
 
   @Rule
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
   private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
-    new NewReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule, periodsHolder)));
+    new NewReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule,
+      periodsHolder, analysisMetadataHolder)));
 
   @Test
   public void measures_created_for_project_are_all_A_when_they_have_no_FILE_child() {
@@ -276,6 +284,12 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   @Test
   public void compute_C_reliability_and_security_rating_on_major_issue() {
+    // Calculate metric not because a period is set, but because it is a PR
+    periodsHolder.setPeriod(null);
+    Branch b = mock(Branch.class);
+    when(b.getType()).thenReturn(BranchType.PULL_REQUEST);
+    analysisMetadataHolder.setBranch(b);
+
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newBugIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
