@@ -57,7 +57,6 @@ public abstract class NewIndex<T extends NewIndex<T>> {
   private void applySettingsConfiguration(SettingsConfiguration settingsConfiguration) {
     settings.put("index.mapper.dynamic", valueOf(false));
     settings.put("index.refresh_interval", refreshInterval(settingsConfiguration));
-    settings.put("mapping.single_type", valueOf(true));
 
     Configuration config = settingsConfiguration.getConfiguration();
     boolean clusterMode = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);

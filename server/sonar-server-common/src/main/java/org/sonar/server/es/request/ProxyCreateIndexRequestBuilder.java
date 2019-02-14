@@ -79,7 +79,7 @@ public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
       request.settings().toXContent(builder, ToXContent.EMPTY_PARAMS);
       builder.endObject().endObject();
       builder.prettyPrint();
-      return builder.string();
+      return builder.toString();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

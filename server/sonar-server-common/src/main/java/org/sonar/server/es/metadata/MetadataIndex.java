@@ -22,7 +22,7 @@ package org.sonar.server.es.metadata;
 import java.util.Optional;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.index.get.GetField;
+import org.elasticsearch.common.document.DocumentField;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
@@ -88,9 +88,8 @@ public class MetadataIndex {
       .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
     GetResponse response = request.get();
     if (response.isExists()) {
-      GetField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
-      String value = String.valueOf(field.getValue());
-      return Optional.of(value);
+      DocumentField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
+      return Optional.of(field.getValue());
     }
     return Optional.empty();
   }

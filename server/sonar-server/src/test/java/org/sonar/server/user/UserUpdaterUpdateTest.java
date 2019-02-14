@@ -108,7 +108,7 @@ public class UserUpdaterUpdateTest {
 
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
-    assertThat(indexUsers.get(0).getSource())
+    assertThat(indexUsers.get(0).getSourceAsMap())
       .contains(
         entry("login", DEFAULT_LOGIN),
         entry("name", "Marius2"),
@@ -230,7 +230,7 @@ public class UserUpdaterUpdateTest {
 
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
-    assertThat(indexUsers.get(0).getSource())
+    assertThat(indexUsers.get(0).getSourceAsMap())
       .contains(entry("login", "new_login"));
   }
 

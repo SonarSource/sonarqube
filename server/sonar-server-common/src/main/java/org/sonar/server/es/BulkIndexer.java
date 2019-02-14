@@ -45,11 +45,11 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -156,7 +156,7 @@ public class BulkIndexer {
     while (true) {
       SearchHit[] hits = searchResponse.getHits().getHits();
       for (SearchHit hit : hits) {
-        SearchHitField routing = hit.getField("_routing");
+        DocumentField routing = hit.field("_routing");
         DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.getIndex(), hit.getType(), hit.getId());
         if (routing != null) {
           deleteRequestBuilder.setRouting(routing.getValue());

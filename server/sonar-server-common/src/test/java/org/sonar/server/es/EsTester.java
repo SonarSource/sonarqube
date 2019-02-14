@@ -27,40 +27,51 @@ import com.google.common.collect.Iterables;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.routing.allocation.DiskThresholdSettings;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.network.NetworkModule;
+import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.util.BigArrays;
+import org.elasticsearch.common.util.PageCacheRecycler;
 import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.indices.breaker.CircuitBreakerService;
 import org.elasticsearch.indices.recovery.RecoverySettings;
 import org.elasticsearch.join.ParentJoinPlugin;
 import org.elasticsearch.node.InternalSettingsPreparer;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.plugins.NetworkPlugin;
+import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.threadpool.ThreadPool;
+import org.elasticsearch.transport.MockTcpTransport;
+import org.elasticsearch.transport.Transport;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
@@ -204,7 +215,7 @@ public class EsTester extends ExternalResource {
     List<SearchHit> hits = getDocuments(indexType);
     return new ArrayList<>(Collections2.transform(hits, input -> {
       try {
-        return (E) ConstructorUtils.invokeConstructor(docClass, input.getSource());
+        return (E) ConstructorUtils.invokeConstructor(docClass, input.getSourceAsMap());
       } catch (Exception e) {
         throw Throwables.propagate(e);
       }
@@ -287,7 +298,7 @@ public class EsTester extends ExternalResource {
   }
 
   private void setIndexSettings(String index, Map<String, Object> settings) {
-    UpdateSettingsResponse response = SHARED_NODE.client().admin().indices()
+    AcknowledgedResponse response = SHARED_NODE.client().admin().indices()
       .prepareUpdateSettings(index)
       .setSettings(settings)
       .get();
@@ -296,7 +307,7 @@ public class EsTester extends ExternalResource {
 
   private static void deleteIndexIfExists(String name) {
     try {
-      DeleteIndexResponse response = SHARED_NODE.client().admin().indices().prepareDelete(name).get();
+      AcknowledgedResponse response = SHARED_NODE.client().admin().indices().prepareDelete(name).get();
       checkState(response.isAcknowledged(), "Fail to drop the index " + name);
     } catch (IndexNotFoundException e) {
       // ignore
@@ -328,7 +339,7 @@ public class EsTester extends ExternalResource {
 
       // create types
       String typeName = index.getMainType().getType();
-      PutMappingResponse mappingResponse = SHARED_NODE.client().admin().indices().preparePutMapping(indexName)
+      AcknowledgedResponse mappingResponse = SHARED_NODE.client().admin().indices().preparePutMapping(indexName)
         .setType(typeName)
         .setSource(index.getAttributes())
         .get();
@@ -355,26 +366,39 @@ public class EsTester extends ExternalResource {
         // from failing on nodes without enough disk space
         .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b")
         .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_HIGH_DISK_WATERMARK_SETTING.getKey(), "1b")
+        .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_DISK_FLOOD_STAGE_WATERMARK_SETTING.getKey(), "1b")
         // always reduce this - it can make tests really slow
         .put(RecoverySettings.INDICES_RECOVERY_RETRY_DELAY_STATE_SYNC_SETTING.getKey(), TimeValue.timeValueMillis(20))
         .put(NetworkModule.TRANSPORT_TYPE_KEY, "local")
         .put(NetworkModule.HTTP_ENABLED.getKey(), false)
         .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
         .build();
-      Node node = new TesterNode(settings);
+      Node node = new Node(InternalSettingsPreparer.prepareEnvironment(settings, null),
+        ImmutableList.of(
+          CommonAnalysisPlugin.class,
+          // mock local transport plugin
+          MockTcpTransportPlugin.class,
+          // install ParentJoin plugin required to create field of type "join"
+          ParentJoinPlugin.class),
+        true) {
+        @Override
+        protected void registerDerivedNodeNameWithLogger(String nodeName) {
+          // nothing to do
+        }
+      };
       return node.start();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start embedded Elasticsearch", e);
     }
   }
 
-  private static class TesterNode extends Node {
-    public TesterNode(Settings preparedSettings) {
-      super(
-        InternalSettingsPreparer.prepareEnvironment(preparedSettings, null),
-        ImmutableList.of(
-          // install ParentJoin plugin required to create field of type "join"
-          ParentJoinPlugin.class));
+  public static final class MockTcpTransportPlugin extends Plugin implements NetworkPlugin {
+    @Override
+    public Map<String, Supplier<Transport>> getTransports(Settings settings, ThreadPool threadPool, PageCacheRecycler pageCacheRecycler,
+      CircuitBreakerService circuitBreakerService, NamedWriteableRegistry namedWriteableRegistry, NetworkService networkService) {
+      return Collections.singletonMap(
+        "local",
+        () -> new MockTcpTransport(settings, threadPool, BigArrays.NON_RECYCLING_INSTANCE, circuitBreakerService, namedWriteableRegistry, networkService));
     }
   }
 }

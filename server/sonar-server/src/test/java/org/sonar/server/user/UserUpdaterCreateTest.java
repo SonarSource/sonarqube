@@ -123,7 +123,7 @@ public class UserUpdaterCreateTest {
     assertThat(dbClient.userDao().selectByLogin(session, "user").getId()).isEqualTo(dto.getId());
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
-    assertThat(indexUsers.get(0).getSource())
+    assertThat(indexUsers.get(0).getSourceAsMap())
       .contains(
         entry("login", "user"),
         entry("name", "User"),

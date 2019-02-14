@@ -23,9 +23,9 @@ import com.hazelcast.spi.exception.RetryableHazelcastException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
-import org.apache.logging.log4j.Logger;
-import org.elasticsearch.common.logging.Loggers;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -38,7 +38,7 @@ import static org.sonar.process.cluster.hz.HazelcastObjects.WORKER_UUIDS;
  * Provide the set of worker's UUID in a clustered SonarQube instance
  */
 public class CeDistributedInformationImpl implements CeDistributedInformation, Startable {
-  private static final Logger LOGGER = Loggers.getLogger(CeDistributedInformationImpl.class);
+  private static final Logger LOGGER = Loggers.get(CeDistributedInformationImpl.class);
 
   private final HazelcastMember hazelcastMember;
   private final CeWorkerFactory ceCeWorkerFactory;

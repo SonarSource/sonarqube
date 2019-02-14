@@ -103,15 +103,15 @@ public class IssueIndexTest {
     IssueQuery.Builder query = IssueQuery.builder();
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setPage(2, 10));
-    assertThat(result.getHits().hits()).hasSize(2);
+    assertThat(result.getHits().getHits()).hasSize(2);
     assertThat(result.getHits().getTotalHits()).isEqualTo(12);
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(0).setLimit(5));
-    assertThat(result.getHits().hits()).hasSize(5);
+    assertThat(result.getHits().getHits()).hasSize(5);
     assertThat(result.getHits().getTotalHits()).isEqualTo(12);
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(0));
-    assertThat(result.getHits().hits()).hasSize(10);
+    assertThat(result.getHits().getHits()).hasSize(10);
     assertThat(result.getHits().getTotalHits()).isEqualTo(12);
   }
 
@@ -128,7 +128,7 @@ public class IssueIndexTest {
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));
-    assertThat(result.getHits().hits()).hasSize(SearchOptions.MAX_LIMIT);
+    assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_LIMIT);
   }
 
   @Test

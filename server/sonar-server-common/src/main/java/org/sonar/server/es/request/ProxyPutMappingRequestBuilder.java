@@ -20,10 +20,10 @@
 package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.api.utils.log.Profiler;
@@ -36,7 +36,7 @@ public class ProxyPutMappingRequestBuilder extends PutMappingRequestBuilder {
   }
 
   @Override
-  public PutMappingResponse get() {
+  public AcknowledgedResponse get() {
     Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER).start();
     try {
       return super.execute().actionGet();
@@ -50,17 +50,17 @@ public class ProxyPutMappingRequestBuilder extends PutMappingRequestBuilder {
   }
 
   @Override
-  public PutMappingResponse get(TimeValue timeout) {
+  public AcknowledgedResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public PutMappingResponse get(String timeout) {
+  public AcknowledgedResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public ListenableActionFuture<PutMappingResponse> execute() {
+  public ActionFuture<AcknowledgedResponse> execute() {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 

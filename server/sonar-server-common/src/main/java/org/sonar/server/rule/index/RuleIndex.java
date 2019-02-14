@@ -45,10 +45,10 @@ import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -502,7 +502,7 @@ public class RuleIndex {
   }
 
   private static StickyFacetBuilder stickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
-    return new StickyFacetBuilder(query, filters, null, Terms.Order.compound(Terms.Order.count(false), Terms.Order.term(true)));
+    return new StickyFacetBuilder(query, filters, null, BucketOrder.compound(BucketOrder.count(false), BucketOrder.key(true)));
   }
 
   private static void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
@@ -556,7 +556,7 @@ public class RuleIndex {
     TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(FIELD_RULE_EXTENSION_TAGS)
       .size(size)
-      .order(Terms.Order.term(true))
+      .order(BucketOrder.key(true))
       .minDocCount(1);
     ofNullable(query)
       .map(EsUtils::escapeSpecialRegexChars)

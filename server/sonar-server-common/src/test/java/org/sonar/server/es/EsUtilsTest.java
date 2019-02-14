@@ -24,28 +24,24 @@ import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 
 public class EsUtilsTest {
 
   @Test
   public void convertToDocs_empty() {
-    SearchHits hits = mock(SearchHits.class, Mockito.RETURNS_MOCKS);
+    SearchHits hits = new SearchHits(new SearchHit[] {}, 0, 0);
     List<BaseDoc> docs = EsUtils.convertToDocs(hits, IssueDoc::new);
     assertThat(docs).isEmpty();
   }
 
   @Test
   public void convertToDocs() {
-    SearchHits hits = mock(SearchHits.class, Mockito.RETURNS_MOCKS);
-    when(hits.getHits()).thenReturn(new SearchHit[] {mock(SearchHit.class)});
+    SearchHits hits = new SearchHits(new SearchHit[] {new SearchHit(16)}, 1, 1);
     List<BaseDoc> docs = EsUtils.convertToDocs(hits, IssueDoc::new);
     assertThat(docs).hasSize(1);
   }

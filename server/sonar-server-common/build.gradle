@@ -8,6 +8,8 @@ sonarqube {
 
 configurations {
   tests
+
+  testCompile.extendsFrom tests
 }
 
 dependencies {
@@ -27,6 +29,10 @@ dependencies {
   compileOnly project(path: ':server:sonar-process')
 
   compileOnly 'com.google.code.findbugs:jsr305'
+
+  // "tests" dependencies are pulled by other modules which depends on "tests" configuration, "testCompile" are not pulled
+  tests 'org.codelibs.elasticsearch.module:analysis-common'
+  tests 'org.elasticsearch:mocksocket'
 
   testCompile 'ch.qos.logback:logback-core'
   testCompile 'com.google.code.findbugs:jsr305'

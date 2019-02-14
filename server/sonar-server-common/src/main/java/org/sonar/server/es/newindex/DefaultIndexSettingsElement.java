@@ -81,7 +81,7 @@ public enum DefaultIndexSettingsElement {
       set(TYPE, "nGram");
       set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
       set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
-      setArray("token_chars", "letter", "digit", "punctuation", "symbol");
+      setList("token_chars", "letter", "digit", "punctuation", "symbol");
     }
   },
 
@@ -94,7 +94,7 @@ public enum DefaultIndexSettingsElement {
       set(TYPE, "nGram");
       set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
       set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
-      setArray("token_chars", "letter", "digit", "punctuation", "symbol");
+      setList("token_chars", "letter", "digit", "punctuation", "symbol");
     }
   },
   PREFIX_TOKENIZER(TOKENIZER) {
@@ -122,7 +122,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, KEYWORD);
-      setArray(FILTER, TRIM, LOWERCASE);
+      setList(FILTER, TRIM, LOWERCASE);
     }
 
     @Override
@@ -139,7 +139,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, GRAM_TOKENIZER);
-      setArray(FILTER, TRIM, LOWERCASE);
+      setList(FILTER, TRIM, LOWERCASE);
     }
   },
   SEARCH_GRAMS_ANALYZER(ANALYZER) {
@@ -147,7 +147,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, WHITESPACE);
-      setArray(FILTER, TRIM, LOWERCASE);
+      setList(FILTER, TRIM, LOWERCASE);
     }
 
     @Override
@@ -164,7 +164,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, PREFIX_TOKENIZER);
-      setArray(FILTER, TRIM);
+      setList(FILTER, TRIM);
     }
   },
   SEARCH_PREFIX_ANALYZER(ANALYZER) {
@@ -172,7 +172,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, WHITESPACE);
-      setArray(FILTER, TRIM);
+      setList(FILTER, TRIM);
     }
 
     @Override
@@ -189,7 +189,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, PREFIX_TOKENIZER);
-      setArray(FILTER, TRIM, LOWERCASE);
+      setList(FILTER, TRIM, LOWERCASE);
     }
   },
   SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER(ANALYZER) {
@@ -197,7 +197,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, WHITESPACE);
-      setArray(FILTER, TRIM, LOWERCASE);
+      setList(FILTER, TRIM, LOWERCASE);
     }
 
     @Override
@@ -214,7 +214,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, WHITESPACE);
-      setArray(FILTER, TRIM, LOWERCASE, NGRAM_FILTER.getName());
+      setList(FILTER, TRIM, LOWERCASE, NGRAM_FILTER.getName());
     }
   },
   USER_SEARCH_GRAMS_ANALYZER(ANALYZER) {
@@ -222,7 +222,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, WHITESPACE);
-      setArray(FILTER, TRIM, LOWERCASE);
+      setList(FILTER, TRIM, LOWERCASE);
     }
 
     @Override
@@ -239,7 +239,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, STANDARD);
-      setArray(FILTER, STANDARD, "word_filter", LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setList(FILTER, STANDARD, "word_filter", LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
     }
   },
   SEARCH_WORDS_ANALYZER(ANALYZER) {
@@ -247,7 +247,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, STANDARD);
-      setArray(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setList(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
     }
 
     @Override
@@ -264,8 +264,8 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, STANDARD);
-      setArray(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
-      setArray(CHAR_FILTER, HTML_STRIP);
+      setList(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setList(CHAR_FILTER, HTML_STRIP);
     }
 
     @Override
@@ -288,7 +288,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, UUID_MODULE_TOKENIZER);
-      setArray(FILTER, TRIM);
+      setList(FILTER, TRIM);
     }
   },
 
@@ -321,20 +321,20 @@ public enum DefaultIndexSettingsElement {
     put(localName(settingSuffix), value);
   }
 
-  protected void setArray(String settingSuffix, String... values) {
-    putArray(localName(settingSuffix), values);
+  protected void setList(String settingSuffix, String... values) {
+    putList(localName(settingSuffix), values);
   }
 
-  protected void setArray(String settingSuffix, DefaultIndexSettingsElement... values) {
-    putArray(localName(settingSuffix), Arrays.stream(values).map(DefaultIndexSettingsElement::getName).toArray(String[]::new));
+  protected void setList(String settingSuffix, DefaultIndexSettingsElement... values) {
+    putList(localName(settingSuffix), Arrays.stream(values).map(DefaultIndexSettingsElement::getName).toArray(String[]::new));
   }
 
   private void put(String setting, String value) {
     builder = builder.put(setting, value);
   }
 
-  private void putArray(String setting, String... values) {
-    builder = builder.putArray(setting, values);
+  private void putList(String setting, String... values) {
+    builder = builder.putList(setting, values);
   }
 
   private String localName(String settingSuffix) {

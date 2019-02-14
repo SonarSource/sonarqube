@@ -70,6 +70,8 @@ public class NewIndexTest {
     assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
     assertThat(underTest.get("index.mapper.dynamic")).isEqualTo("false");
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
+    // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
+    assertThat(underTest.get("mapping.single_type")).isNull();
     assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
     assertThat(underTest.get("index.number_of_replicas")).isEqualTo("0");
   }
@@ -83,6 +85,8 @@ public class NewIndexTest {
     assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
     assertThat(underTest.get("index.mapper.dynamic")).isEqualTo("false");
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
+    // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
+    assertThat(underTest.get("mapping.single_type")).isNull();
     assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
     assertThat(underTest.get("index.number_of_replicas")).isEqualTo("1");
   }

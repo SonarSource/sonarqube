@@ -47,8 +47,8 @@ public class FooIndex {
         .filter(authorizationTypeSupport.createQueryFilter()))
       .get()
       .getHits();
-    List<String> names = Arrays.stream(hits.hits())
-      .map(h -> h.getSource().get(FooIndexDefinition.FIELD_NAME).toString())
+    List<String> names = Arrays.stream(hits.getHits())
+      .map(h -> h.getSourceAsMap().get(FooIndexDefinition.FIELD_NAME).toString())
       .collect(MoreCollectors.toList());
     return names.size() == 2 && names.contains("bar") && names.contains("baz");
   }

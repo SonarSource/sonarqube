@@ -43,21 +43,21 @@ class IndexDefinitionHash {
   static String of(BuiltIndex<?> index) {
     IndexType.IndexMainType mainType = index.getMainType();
     return of(
+      index.getSettings().toString(),
       ImmutableMap.of(mainType.getIndex(), mainType),
       index.getRelationTypes().stream().collect(uniqueIndex(IndexType.IndexRelationType::getName, t -> t)),
-      index.getSettings().getAsMap(),
       index.getAttributes());
   }
 
-  private static String of(Map... maps) {
-    StringBuilder sb = new StringBuilder();
-    for (Map map : maps) {
+  private static String of(String str, Map<?,?>... maps) {
+    StringBuilder sb = new StringBuilder(str);
+    for (Map<?,?> map : maps) {
       appendMap(sb, map);
     }
     return DigestUtils.sha256Hex(sb.toString());
   }
 
-  private static void appendMap(StringBuilder sb, Map attributes) {
+  private static void appendMap(StringBuilder sb, Map<?,?> attributes) {
     for (Object entry : sort(attributes).entrySet()) {
       sb.append(((Map.Entry) entry).getKey());
       sb.append(DELIMITER);
@@ -78,9 +78,9 @@ class IndexDefinitionHash {
     }
   }
 
-  private static SortedMap sort(Map map) {
+  private static SortedMap<?,?> sort(Map<?,?> map) {
     if (map instanceof ImmutableSortedMap) {
-      return (ImmutableSortedMap) map;
+      return (ImmutableSortedMap<?,?>) map;
     }
     return ImmutableSortedMap.copyOf(map);
   }

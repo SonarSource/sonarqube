@@ -32,11 +32,10 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 
 import static java.lang.Math.max;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -45,7 +44,7 @@ public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
   private static final int FACET_DEFAULT_SIZE = 10;
-  private static final Order FACET_DEFAULT_ORDER = Terms.Order.count(false);
+  private static final BucketOrder FACET_DEFAULT_ORDER = BucketOrder.count(false);
   /** In some cases the user selects >15 items for one facet. In that case, we want to calculate the doc count for all of them (not just the first 15 items, which would be the
    * default for the TermsAggregation). */
   private static final int MAXIMUM_NUMBER_OF_SELECTED_ITEMS_WHOSE_DOC_COUNT_WILL_BE_CALCULATED = 50;
@@ -54,13 +53,13 @@ public class StickyFacetBuilder {
   private final QueryBuilder query;
   private final Map<String, QueryBuilder> filters;
   private final AbstractAggregationBuilder subAggregation;
-  private final Order order;
+  private final BucketOrder order;
 
   public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
     this(query, filters, null, FACET_DEFAULT_ORDER);
   }
 
-  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable Order order) {
+  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable BucketOrder order) {
     this.query = query;
     this.filters = filters;
     this.subAggregation = subAggregation;

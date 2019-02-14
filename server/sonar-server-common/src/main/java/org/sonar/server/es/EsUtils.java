@@ -60,7 +60,7 @@ public class EsUtils {
   public static <D extends BaseDoc> List<D> convertToDocs(SearchHits hits, Function<Map<String, Object>, D> converter) {
     List<D> docs = new ArrayList<>();
     for (SearchHit hit : hits.getHits()) {
-      docs.add(converter.apply(hit.getSource()));
+      docs.add(converter.apply(hit.getSourceAsMap()));
     }
     return docs;
   }

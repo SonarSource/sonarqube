@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import java.util.Map;
+import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.test.TestUtils;
@@ -31,12 +31,11 @@ public class DefaultIndexSettingsTest {
 
   @Test
   public void defaults() {
-    Map<String, String> map = DefaultIndexSettings.defaults().build().getAsMap();
-    assertThat(map).isNotEmpty();
+    Settings settings = DefaultIndexSettings.defaults().build();
 
     // test some values
-    assertThat(map.get("index.number_of_shards")).isEqualTo("1");
-    assertThat(map.get("index.analysis.analyzer." + SORTABLE_ANALYZER.getName() + ".tokenizer")).isEqualTo("keyword");
+    assertThat(settings.get("index.number_of_shards")).isEqualTo("1");
+    assertThat(settings.get("index.analysis.analyzer." + SORTABLE_ANALYZER.getName() + ".tokenizer")).isEqualTo("keyword");
   }
 
   @Test

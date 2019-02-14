@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.join.ParentJoinPlugin;
 import org.elasticsearch.percolator.PercolatorPlugin;
@@ -89,7 +88,7 @@ public class EsClientProvider extends ProviderAdapter {
 
   private static void addHostToClient(HostAndPort host, TransportClient client) {
     try {
-      client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host.getHostText()), host.getPortOrDefault(9001)));
+      client.addTransportAddress(new TransportAddress(InetAddress.getByName(host.getHostText()), host.getPortOrDefault(9001)));
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + host + "]", e);
     }

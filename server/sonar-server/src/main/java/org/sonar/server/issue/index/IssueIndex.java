@@ -47,6 +47,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.indices.TermsLookup;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
@@ -55,9 +56,8 @@ import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
@@ -243,7 +243,7 @@ public class IssueIndex {
   private static final String FACET_SUFFIX_MISSING = "_missing";
   private static final String IS_ASSIGNED_FILTER = "__isAssigned";
   private static final SumAggregationBuilder EFFORT_AGGREGATION = AggregationBuilders.sum(FACET_MODE_EFFORT).field(FIELD_ISSUE_EFFORT);
-  private static final Order EFFORT_AGGREGATION_ORDER = Order.aggregation(FACET_MODE_EFFORT, false);
+  private static final BucketOrder EFFORT_AGGREGATION_ORDER = BucketOrder.aggregation(FACET_MODE_EFFORT, false);
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
   private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
@@ -700,21 +700,21 @@ public class IssueIndex {
   }
 
   public List<String> searchTags(IssueQuery query, @Nullable String textQuery, int size) {
-    Terms terms = listTermsMatching(FIELD_ISSUE_TAGS, query, textQuery, Terms.Order.term(true), size);
+    Terms terms = listTermsMatching(FIELD_ISSUE_TAGS, query, textQuery, BucketOrder.key(true), size);
     return EsUtils.termsKeys(terms);
   }
 
   public Map<String, Long> countTags(IssueQuery query, int maxNumberOfTags) {
-    Terms terms = listTermsMatching(FIELD_ISSUE_TAGS, query, null, Terms.Order.count(false), maxNumberOfTags);
+    Terms terms = listTermsMatching(FIELD_ISSUE_TAGS, query, null, BucketOrder.count(false), maxNumberOfTags);
     return EsUtils.termsToMap(terms);
   }
 
   public List<String> searchAuthors(IssueQuery query, @Nullable String textQuery, int maxNumberOfAuthors) {
-    Terms terms = listTermsMatching(FIELD_ISSUE_AUTHOR_LOGIN, query, textQuery, Terms.Order.term(true), maxNumberOfAuthors);
+    Terms terms = listTermsMatching(FIELD_ISSUE_AUTHOR_LOGIN, query, textQuery, BucketOrder.key(true), maxNumberOfAuthors);
     return EsUtils.termsKeys(terms);
   }
 
-  private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int size) {
+  private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, BucketOrder termsOrder, int size) {
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(TYPE_ISSUE.getMainType())
       // Avoids returning search hits

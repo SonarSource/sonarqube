@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
@@ -131,7 +131,7 @@ public class IndexCreator implements Startable {
 
     // create types
     LOGGER.info("Create type {}", builtIndex.getMainType().format());
-    PutMappingResponse mappingResponse = client.preparePutMapping(index)
+    AcknowledgedResponse mappingResponse = client.preparePutMapping(index)
       .setType(builtIndex.getMainType().getType())
       .setSource(builtIndex.getAttributes())
       .get();

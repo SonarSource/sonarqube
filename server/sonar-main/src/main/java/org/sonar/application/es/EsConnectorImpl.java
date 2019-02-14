@@ -33,7 +33,6 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
@@ -106,7 +105,7 @@ public class EsConnectorImpl implements EsConnector {
       boolean connectedToOneHost = false;
       for (HostAndPort hostAndPort : hostAndPorts) {
         try {
-          addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostAndPort.getHostText()), hostAndPort.getPortOrDefault(9001)));
+          addTransportAddress(new TransportAddress(InetAddress.getByName(hostAndPort.getHostText()), hostAndPort.getPortOrDefault(9001)));
           connectedToOneHost = true;
         } catch (UnknownHostException e) {
           LOG.debug("Can not resolve host [" + hostAndPort.getHostText() + "]", e);

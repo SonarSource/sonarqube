@@ -38,14 +38,15 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Bucket;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
-import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregator.KeyedFilter;
+import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.sonar.api.server.ServerSide;
@@ -192,13 +193,13 @@ public class ProjectMeasuresIndex {
       .field(FIELD_LANGUAGES)
       .size(MAX_PAGE_SIZE)
       .minDocCount(1)
-      .order(Terms.Order.count(false)));
+      .order(BucketOrder.count(false)));
     request.addAggregation(AggregationBuilders.nested(FIELD_NCLOC_LANGUAGE_DISTRIBUTION, FIELD_NCLOC_LANGUAGE_DISTRIBUTION)
       .subAggregation(AggregationBuilders.terms(FIELD_NCLOC_LANGUAGE_DISTRIBUTION + "_terms")
         .field(FIELD_DISTRIB_LANGUAGE)
         .size(MAX_PAGE_SIZE)
         .minDocCount(1)
-        .order(Terms.Order.count(false))
+        .order(BucketOrder.count(false))
         .subAggregation(sum(FIELD_DISTRIB_NCLOC).field(FIELD_DISTRIB_NCLOC))));
 
     request.addAggregation(AggregationBuilders.nested(NCLOC_KEY, FIELD_MEASURES)
@@ -336,7 +337,7 @@ public class ProjectMeasuresIndex {
   }
 
   private static AbstractAggregationBuilder createQualityGateFacet() {
-    return AggregationBuilders.filters(
+    return filters(
       ALERT_STATUS_KEY,
       QUALITY_GATE_STATUS.entrySet().stream()
         .map(entry -> new KeyedFilter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())))
@@ -425,7 +426,7 @@ public class ProjectMeasuresIndex {
       .field(FIELD_TAGS)
       .size(size)
       .minDocCount(1)
-      .order(Terms.Order.term(true));
+      .order(BucketOrder.key(true));
     if (textQuery != null) {
       tagFacet.includeExclude(new IncludeExclude(".*" + escapeSpecialRegexChars(textQuery) + ".*", null));
     }
