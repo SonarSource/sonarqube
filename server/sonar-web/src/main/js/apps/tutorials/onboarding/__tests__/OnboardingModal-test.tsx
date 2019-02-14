@@ -19,31 +19,18 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { OnboardingModal } from '../OnboardingModal';
+import { OnboardingModal, Props } from '../OnboardingModal';
 import { click } from '../../../../helpers/testUtils';
+import { mockCurrentUser, mockOrganization } from '../../../../helpers/testMocks';
 
 it('renders correctly', () => {
-  expect(
-    shallow(
-      <OnboardingModal
-        currentUser={{ isLoggedIn: true }}
-        onClose={jest.fn()}
-        onOpenProjectOnboarding={jest.fn()}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should correctly open the different tutorials', () => {
+it('should open project create page', () => {
   const onClose = jest.fn();
   const onOpenProjectOnboarding = jest.fn();
-  const wrapper = shallow(
-    <OnboardingModal
-      currentUser={{ isLoggedIn: true }}
-      onClose={onClose}
-      onOpenProjectOnboarding={onOpenProjectOnboarding}
-    />
-  );
+  const wrapper = shallowRender({ onClose, onOpenProjectOnboarding });
 
   click(wrapper.find('ResetButtonLink'));
   expect(onClose).toHaveBeenCalled();
@@ -51,3 +38,30 @@ it('should correctly open the different tutorials', () => {
   wrapper.find('Button').forEach(button => click(button));
   expect(onOpenProjectOnboarding).toHaveBeenCalled();
 });
+
+it('should display organization list if any', () => {
+  const wrapper = shallowRender({
+    currentUser: mockCurrentUser({ personalOrganization: 'personal' }),
+    userOrganizations: [
+      mockOrganization({ key: 'a', name: 'Arthur' }),
+      mockOrganization({ key: 'd', name: 'Daniel Inc' }),
+      mockOrganization({ key: 'personal', name: 'Personal' })
+    ]
+  });
+
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('OrganizationsShortList').prop('organizations')).toHaveLength(2);
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
+    <OnboardingModal
+      currentUser={mockCurrentUser()}
+      onClose={jest.fn()}
+      onOpenProjectOnboarding={jest.fn()}
+      skipOnboarding={jest.fn()}
+      userOrganizations={[]}
+      {...props}
+    />
+  );
+}

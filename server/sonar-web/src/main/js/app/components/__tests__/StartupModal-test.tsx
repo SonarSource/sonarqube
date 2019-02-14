@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
-import { StartupModal } from '../StartupModal';
+import { StartupModal, ModalKey } from '../StartupModal';
 import { showLicense } from '../../../api/marketplace';
 import { save, get } from '../../../helpers/storage';
 import { hasMessage } from '../../../helpers/l10n';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { differenceInDays, toShortNotSoISOString } from '../../../helpers/dates';
 import { EditionKey } from '../../../apps/marketplace/utils';
+import { mockOrganization, mockRouter } from '../../../helpers/testMocks';
 
 jest.mock('../../../api/marketplace', () => ({
   showLicense: jest.fn().mockResolvedValue(undefined)
@@ -110,6 +111,36 @@ it('should render license prompt', async () => {
   await shouldDisplayLicense(getWrapper());
 });
 
+describe('closeOnboarding', () => {
+  it('should set state and skip onboarding', () => {
+    const skipOnboarding = jest.fn();
+    const wrapper = getWrapper({ skipOnboarding });
+
+    wrapper.setState({ modal: ModalKey.onboarding });
+    wrapper.instance().closeOnboarding();
+
+    expect(wrapper.state('modal')).toBe(undefined);
+
+    expect(skipOnboarding).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('openProjectOnboarding', () => {
+  it('should set state and redirect', () => {
+    const push = jest.fn();
+    const wrapper = getWrapper({ router: mockRouter({ push }) });
+
+    wrapper.instance().openProjectOnboarding(mockOrganization());
+
+    expect(wrapper.state('modal')).toBe(undefined);
+
+    expect(push).toHaveBeenCalledWith({
+      pathname: `/projects/create`,
+      state: { organization: 'foo', tab: 'manual' }
+    });
+  });
+});
+
 async function shouldNotHaveModals(wrapper: ShallowWrapper) {
   await waitAndUpdate(wrapper);
   expect(wrapper.find('LicensePromptModal').exists()).toBeFalsy();
@@ -121,7 +152,7 @@ async function shouldDisplayLicense(wrapper: ShallowWrapper) {
 }
 
 function getWrapper(props: Partial<StartupModal['props']> = {}) {
-  return shallow(
+  return shallow<StartupModal>(
     <StartupModal
       canAdmin={true}
       currentEdition={EditionKey.enterprise}

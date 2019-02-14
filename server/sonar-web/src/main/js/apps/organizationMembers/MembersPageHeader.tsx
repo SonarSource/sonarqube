@@ -37,6 +37,7 @@ interface Props {
   loading: boolean;
   members?: T.OrganizationMember[];
   organization: T.Organization;
+  refreshMembers: () => Promise<void>;
   setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
 }
 
@@ -50,7 +51,7 @@ export class MembersPageHeader extends React.PureComponent<Props> {
   };
 
   render() {
-    const { dismissSyncNotifOrg, members, organization } = this.props;
+    const { dismissSyncNotifOrg, members, organization, refreshMembers } = this.props;
     const memberLogins = members ? members.map(member => member.login) : [];
     const isAdmin = organization.actions && organization.actions.admin;
     const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
@@ -67,7 +68,10 @@ export class MembersPageHeader extends React.PureComponent<Props> {
         <DeferredSpinner loading={this.props.loading} />
         {isAdmin && (
           <div className="page-actions text-right">
-            {almKey && !showSyncNotif && <SyncMemberForm organization={organization} />}
+            {almKey &&
+              !showSyncNotif && (
+                <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
+              )}
             {!hasMemberSync && (
               <div className="display-inline-block spacer-left spacer-bottom">
                 <AddMemberForm
@@ -93,7 +97,11 @@ export class MembersPageHeader extends React.PureComponent<Props> {
                     'organization.members.auto_sync_with_x',
                     translate(almKey)
                   )}>
-                  <SyncMemberForm organization={organization} />
+                  <SyncMemberForm
+                    dismissSyncNotif={this.handleDismissSyncNotif}
+                    organization={organization}
+                    refreshMembers={refreshMembers}
+                  />
                 </NewInfoBox>
               )}
           </div>

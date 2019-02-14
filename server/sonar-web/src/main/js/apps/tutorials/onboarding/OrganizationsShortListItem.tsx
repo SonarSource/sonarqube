@@ -18,41 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import OnboardingModal from './OnboardingModal';
-import { skipOnboarding } from '../../../store/users';
-import { OnboardingContext } from '../../../app/components/OnboardingContext';
-import { Router } from '../../../components/hoc/withRouter';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
+import { ListButton } from '../../../components/ui/buttons';
+import { withRouter, Router } from '../../../components/hoc/withRouter';
+import { getOrganizationUrl } from '../../../helpers/urls';
 
 interface Props {
+  organization: T.Organization;
   router: Router;
   skipOnboarding: () => void;
 }
 
-export class OnboardingPage extends React.PureComponent<Props> {
-  closeOnboarding = () => {
-    this.props.skipOnboarding();
-    this.props.router.replace('/');
+export class OrganizationsShortListItem extends React.PureComponent<Props> {
+  handleClick = () => {
+    const { organization, router, skipOnboarding } = this.props;
+    skipOnboarding();
+    router.push(getOrganizationUrl(organization.key));
   };
 
   render() {
+    const { organization } = this.props;
     return (
-      <OnboardingContext.Consumer>
-        {openProjectOnboarding => (
-          <OnboardingModal
-            onClose={this.closeOnboarding}
-            onOpenProjectOnboarding={openProjectOnboarding}
-            skipOnboarding={this.props.skipOnboarding}
-          />
-        )}
-      </OnboardingContext.Consumer>
+      <ListButton className="abs-width-300" onClick={this.handleClick}>
+        <div className="display-flex-center">
+          <OrganizationAvatar className="spacer-right" organization={organization} />
+          <span>{organization.name}</span>
+        </div>
+      </ListButton>
     );
   }
 }
 
-const mapDispatchToProps = { skipOnboarding };
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(OnboardingPage);
+export default withRouter(OrganizationsShortListItem);

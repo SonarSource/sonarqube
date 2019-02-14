@@ -24,6 +24,7 @@ import ClearIcon from '../icons-components/ClearIcon';
 import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
 import './buttons.css';
+import ChevronRightIcon from '../icons-components/ChevronRightcon';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -136,5 +137,14 @@ export function EditButton(props: ActionButtonProps) {
     <ButtonIcon {...props}>
       <EditIcon />
     </ButtonIcon>
+  );
+}
+
+export function ListButton({ className, children, ...props }: ButtonProps) {
+  return (
+    <Button className={classNames('button-list', className)} {...props}>
+      {children}
+      <ChevronRightIcon />
+    </Button>
   );
 }

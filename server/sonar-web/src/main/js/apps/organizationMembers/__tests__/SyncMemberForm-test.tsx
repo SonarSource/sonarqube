@@ -35,8 +35,10 @@ beforeEach(() => {
 });
 
 it('should allow to switch to automatic mode with github', async () => {
+  const dismissSyncNotif = jest.fn();
   const fetchOrganization = jest.fn();
-  const wrapper = shallowRender({ fetchOrganization });
+  const refreshMembers = jest.fn().mockResolvedValue({});
+  const wrapper = shallowRender({ dismissSyncNotif, fetchOrganization, refreshMembers });
   expect(wrapper).toMatchSnapshot();
 
   wrapper.setState({ membersSync: true });
@@ -46,6 +48,8 @@ it('should allow to switch to automatic mode with github', async () => {
   await waitAndUpdate(wrapper);
   expect(fetchOrganization).toHaveBeenCalledWith('foo');
   expect(syncMembers).toHaveBeenCalledWith('foo');
+  expect(refreshMembers).toBeCalledTimes(1);
+  expect(dismissSyncNotif).toBeCalledTimes(1);
 });
 
 it('should allow to switch to automatic mode with bitbucket', async () => {
@@ -87,6 +91,7 @@ function shallowRender(props: Partial<SyncMemberForm['props']> = {}) {
     <SyncMemberForm
       fetchOrganization={jest.fn()}
       organization={mockOrganizationWithAlm()}
+      refreshMembers={jest.fn().mockResolvedValue({})}
       {...props}
     />
   );

@@ -151,6 +151,18 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
     );
   };
 
+  refreshMembers = () => {
+    return searchMembers({
+      organization: this.props.organization.key,
+      ps: PAGE_SIZE,
+      q: this.state.query || undefined
+    }).then(({ paging, users }) => {
+      if (this.mounted) {
+        this.setState({ members: users, paging });
+      }
+    });
+  };
+
   updateGroup = (
     login: string,
     updater: (member: T.OrganizationMember) => T.OrganizationMember
@@ -195,6 +207,7 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
           loading={loading}
           members={members}
           organization={organization}
+          refreshMembers={this.refreshMembers}
         />
         {members !== undefined &&
           paging !== undefined && (

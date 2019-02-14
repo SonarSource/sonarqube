@@ -58,7 +58,7 @@ interface WithRouterProps {
 
 type Props = StateProps & DispatchProps & OwnProps & WithRouterProps;
 
-enum ModalKey {
+export enum ModalKey {
   license,
   onboarding
 }
@@ -153,6 +153,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
           <OnboardingModal
             onClose={this.closeOnboarding}
             onOpenProjectOnboarding={this.openProjectOnboarding}
+            skipOnboarding={this.props.skipOnboarding}
           />
         )}
       </OnboardingContext.Provider>

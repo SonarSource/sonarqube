@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<ListButton
+  className="abs-width-300"
+  onClick={[Function]}
+>
+  <div
+    className="display-flex-center"
+  >
+    <OrganizationAvatar
+      className="spacer-right"
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        }
+      }
+    />
+    <span>
+      Foo
+    </span>
+  </div>
+</ListButton>
+`;

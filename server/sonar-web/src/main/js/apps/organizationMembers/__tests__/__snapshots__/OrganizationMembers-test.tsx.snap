@@ -21,6 +21,7 @@ exports[`should fetch members and render for non-admin 1`] = `
         "name": "Foo",
       }
     }
+    refreshMembers={[Function]}
   />
 </div>
 `;
@@ -62,6 +63,7 @@ exports[`should fetch members and render for non-admin 2`] = `
         "name": "Foo",
       }
     }
+    refreshMembers={[Function]}
   />
   <MembersListHeader
     currentUser={

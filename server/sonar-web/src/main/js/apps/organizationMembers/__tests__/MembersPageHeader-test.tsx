@@ -63,6 +63,7 @@ function shallowRender(props: Partial<MembersPageHeader['props']> = {}) {
       loading={false}
       members={[]}
       organization={mockOrganization()}
+      refreshMembers={jest.fn()}
       setCurrentUserSetting={jest.fn()}
       {...props}
     />

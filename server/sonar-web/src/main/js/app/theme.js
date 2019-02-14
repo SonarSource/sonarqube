@@ -95,6 +95,7 @@ module.exports = {
   bigFontSize: '16px',
   hugeFontSize: '24px',
 
+  hugeControlHeight: `${5 * grid}px`,
   largeControlHeight: `${4 * grid}px`,
   controlHeight: `${3 * grid}px`,
   smallControlHeight: `${2.5 * grid}px`,

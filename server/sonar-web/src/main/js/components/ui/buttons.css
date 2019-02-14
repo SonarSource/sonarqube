@@ -79,6 +79,7 @@
 .button-red:focus {
   box-shadow: 0 0 0 3px rgba(212, 51, 63, 0.25);
 }
+
 /* #endregion */
 
 /* #region .button-success */
@@ -96,6 +97,7 @@
 .button-success:focus {
   box-shadow: 0 0 0 3px rgba(0, 170, 0, 0.25);
 }
+
 /* #endregion */
 
 /* #region .button-grey */
@@ -113,12 +115,14 @@
 .button-grey:focus {
   box-shadow: 0 0 0 3px rgba(180, 180, 180, 0.25);
 }
+
 /* #endregion */
 
 /* #region .button-link */
 .button-link {
   display: inline-flex;
-  height: auto; /* Keep this to not inherit the height from .button */
+  height: auto;
+  /* Keep this to not inherit the height from .button */
   line-height: 1;
   margin: 0;
   padding: 0;
@@ -154,6 +158,7 @@
   background: transparent !important;
   cursor: default;
 }
+
 /* #endregion */
 
 .button-small {
@@ -217,6 +222,7 @@
   margin: 0 8px;
   font-size: var(--smallFontSize);
 }
+
 /* #endregion */
 
 /* #region .button-icon */
@@ -261,4 +267,23 @@
 .button-icon:focus svg {
   color: #fff;
 }
+
 /* #endregion */
+
+.button-list {
+  height: auto;
+  border: 1px solid var(--barBorderColor);
+  padding: var(--gridSize);
+  margin: calc(var(--gridSize) / 2);
+  text-align: left;
+  justify-content: space-between;
+  color: var(--secondFontColor);
+  font-weight: normal;
+}
+
+.button-list:hover {
+  background-color: white;
+  border-color: var(--blue);
+  color: var(--darkBlue);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.175);
+}

@@ -29,7 +29,7 @@ interface OwnProps {
 }
 
 export function withUserOrganizations<P>(
-  WrappedComponent: React.ComponentClass<P & Partial<OwnProps>>
+  WrappedComponent: React.ComponentType<P & Partial<OwnProps>>
 ) {
   class Wrapper extends React.Component<P & OwnProps> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withUserOrganizations');

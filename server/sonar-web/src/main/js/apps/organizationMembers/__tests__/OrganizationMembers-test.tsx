@@ -54,8 +54,7 @@ jest.mock('../../../api/user_groups', () => ({
 }));
 
 beforeEach(() => {
-  (searchMembers as jest.Mock).mockClear();
-  (searchUsersGroups as jest.Mock).mockClear();
+  jest.clearAllMocks();
 });
 
 it('should fetch members and render for non-admin', async () => {
@@ -86,6 +85,28 @@ it('should load more members', async () => {
   await waitAndUpdate(wrapper);
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   expect(searchMembers).lastCalledWith({ organization: 'foo', p: 2, ps: 50, q: undefined });
+});
+
+it('should refresh members', async () => {
+  const paging = { pageIndex: 1, pageSize: 5, total: 3 };
+  const users = [
+    { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },
+    { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af', groupCount: 1 },
+    { login: 'stan', name: 'Stan Marsh', avatar: '', groupCount: 7 }
+  ];
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  (searchMembers as jest.Mock).mockResolvedValueOnce({
+    paging,
+    users
+  });
+
+  await wrapper.instance().refreshMembers();
+  expect(searchMembers).toBeCalled();
+  expect(wrapper.state('members')).toEqual(users);
+  expect(wrapper.state('paging')).toEqual(paging);
 });
 
 it('should add new member', async () => {
@@ -140,7 +161,7 @@ it('should update groups', async () => {
 });
 
 function shallowRender(props: Partial<OrganizationMembers['props']> = {}) {
-  return shallow(
+  return shallow<OrganizationMembers>(
     <OrganizationMembers
       currentUser={mockCurrentUser()}
       organization={mockOrganizationWithAdminActions()}

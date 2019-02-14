@@ -30,8 +30,10 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { fetchOrganization } from '../../store/rootActions';
 
 interface Props {
+  dismissSyncNotif?: () => void;
   fetchOrganization: (key: string) => void;
   organization: T.Organization;
+  refreshMembers: () => Promise<void>;
 }
 
 interface State {
@@ -47,15 +49,20 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
   }
 
   handleConfirm = () => {
-    const { organization } = this.props;
+    const { dismissSyncNotif, organization } = this.props;
     const { membersSync } = this.state;
+
+    if (dismissSyncNotif) {
+      dismissSyncNotif();
+    }
+
     return setOrganizationMemberSync({
       organization: organization.key,
       enabled: membersSync
     }).then(() => {
       this.props.fetchOrganization(organization.key);
       if (membersSync && isGithub(organization.alm && organization.alm.key)) {
-        return syncMembers(organization.key);
+        return this.handleMemberSync();
       }
       return Promise.resolve();
     });
@@ -67,6 +74,10 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
 
   handleAutoClick = () => {
     this.setState({ membersSync: true });
+  };
+
+  handleMemberSync = () => {
+    return syncMembers(this.props.organization.key).then(this.props.refreshMembers);
   };
 
   renderModalDescription = () => {

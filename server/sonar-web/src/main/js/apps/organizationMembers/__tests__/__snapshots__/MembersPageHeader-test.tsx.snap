@@ -143,6 +143,7 @@ exports[`should render for bound organization without sync 1`] = `
       title="organization.members.auto_sync_with_x.github"
     >
       <Connect(SyncMemberForm)
+        dismissSyncNotif={[Function]}
         organization={
           Object {
             "actions": Object {
@@ -157,6 +158,7 @@ exports[`should render for bound organization without sync 1`] = `
             "name": "Foo",
           }
         }
+        refreshMembers={[MockFunction]}
       />
     </NewInfoBox>
   </div>

@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should limit displayed orgs to the first three 1`] = `
+<div>
+  <ul
+    className="account-projects-list"
+  >
+    <li
+      key="bar"
+    >
+      <withRouter(OrganizationsShortListItem)
+        organization={
+          Object {
+            "key": "bar",
+            "name": "Bar",
+          }
+        }
+        skipOnboarding={[MockFunction]}
+      />
+    </li>
+    <li
+      key="foo"
+    >
+      <withRouter(OrganizationsShortListItem)
+        organization={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+        skipOnboarding={[MockFunction]}
+      />
+    </li>
+    <li
+      key="kor"
+    >
+      <withRouter(OrganizationsShortListItem)
+        organization={
+          Object {
+            "key": "kor",
+            "name": "Kor",
+          }
+        }
+        skipOnboarding={[MockFunction]}
+      />
+    </li>
+  </ul>
+  <div
+    className="big-spacer-top"
+  >
+    <span
+      className="big-spacer-right"
+    >
+      x_of_y_shown.3.4
+    </span>
+    <Link
+      className="small"
+      onClick={[MockFunction]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/account/organizations"
+    >
+      see_all
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 1`] = `
+<div>
+  <ul
+    className="account-projects-list"
+  >
+    <li
+      key="bar"
+    >
+      <withRouter(OrganizationsShortListItem)
+        organization={
+          Object {
+            "key": "bar",
+            "name": "Bar",
+          }
+        }
+        skipOnboarding={[MockFunction]}
+      />
+    </li>
+    <li
+      key="foo"
+    >
+      <withRouter(OrganizationsShortListItem)
+        organization={
+          Object {
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+        skipOnboarding={[MockFunction]}
+      />
+    </li>
+  </ul>
+  <div
+    className="big-spacer-top"
+  >
+    <span
+      className="big-spacer-right"
+    >
+      x_of_y_shown.2.2
+    </span>
+  </div>
+</div>
+`;

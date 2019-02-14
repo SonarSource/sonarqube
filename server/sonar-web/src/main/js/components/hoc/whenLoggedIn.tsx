@@ -23,7 +23,7 @@ import { withCurrentUser } from './withCurrentUser';
 import { isLoggedIn } from '../../helpers/users';
 import handleRequiredAuthentication from '../../app/utils/handleRequiredAuthentication';
 
-export function whenLoggedIn<P>(WrappedComponent: React.ComponentClass<P>) {
+export function whenLoggedIn<P>(WrappedComponent: React.ComponentType<P>) {
   class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'whenLoggedIn');
 

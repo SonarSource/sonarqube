@@ -18,67 +18,79 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import OrganizationsShortList from './OrganizationsShortList';
 import Modal from '../../../components/controls/Modal';
 import OnboardingProjectIcon from '../../../components/icons-components/OnboardingProjectIcon';
+import OnboardingTeamIcon from '../../../components/icons-components/OnboardingTeamIcon';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { withUserOrganizations } from '../../../components/hoc/withUserOrganizations';
 import { Button, ResetButtonLink } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { isLoggedIn } from '../../../helpers/users';
 import '../styles.css';
 
-interface OwnProps {
+export interface Props {
+  currentUser: T.LoggedInUser;
   onClose: () => void;
   onOpenProjectOnboarding: () => void;
+  skipOnboarding: () => void;
+  userOrganizations: T.Organization[];
 }
 
-interface StateProps {
-  currentUser: T.CurrentUser;
-}
+export function OnboardingModal(props: Props) {
+  const {
+    currentUser,
+    onClose,
+    onOpenProjectOnboarding,
+    skipOnboarding,
+    userOrganizations
+  } = props;
 
-type Props = OwnProps & StateProps;
+  const organizations = userOrganizations.filter(o => o.key !== currentUser.personalOrganization);
 
-export class OnboardingModal extends React.PureComponent<Props> {
-  componentDidMount() {
-    if (!isLoggedIn(this.props.currentUser)) {
-      handleRequiredAuthentication();
-    }
-  }
-
-  render() {
-    if (!isLoggedIn(this.props.currentUser)) {
-      return null;
-    }
-
-    const header = translate('onboarding.header');
-    return (
-      <Modal
-        contentLabel={header}
-        medium={true}
-        onRequestClose={this.props.onClose}
-        shouldCloseOnOverlayClick={false}>
-        <div className="modal-head">
-          <h2>{translate('onboarding.header')}</h2>
-          <p className="spacer-top">{translate('onboarding.header.description')}</p>
-        </div>
-        <div className="modal-body text-center huge-spacer-top huge-spacer-bottom">
+  const header = translate('onboarding.header');
+  return (
+    <Modal
+      contentLabel={header}
+      medium={true}
+      onRequestClose={onClose}
+      shouldCloseOnOverlayClick={false}>
+      <div className="modal-head">
+        <h2>{translate('onboarding.header')}</h2>
+        <p className="spacer-top">{translate('onboarding.header.description')}</p>
+      </div>
+      <div className="modal-body text-center display-flex-row huge-spacer-top huge-spacer-bottom">
+        <div className="flex-1">
           <OnboardingProjectIcon className="big-spacer-bottom" />
           <h6 className="onboarding-choice-name big-spacer-bottom">
             {translate('onboarding.analyze_your_code')}
           </h6>
-          <Button onClick={this.props.onOpenProjectOnboarding}>
+          <Button onClick={onOpenProjectOnboarding}>
             {translate('onboarding.project.create')}
           </Button>
         </div>
-        <div className="modal-foot text-right">
-          <ResetButtonLink onClick={this.props.onClose}>{translate('not_now')}</ResetButtonLink>
-        </div>
-      </Modal>
-    );
-  }
+        {organizations.length > 0 && (
+          <>
+            <div className="vertical-pipe-separator">
+              <div className="vertical-separator" />
+            </div>
+            <div className="flex-1">
+              <OnboardingTeamIcon className="big-spacer-bottom" />
+              <h6 className="onboarding-choice-name big-spacer-bottom">
+                {translate('onboarding.browse_your_organizations')}
+              </h6>
+              <OrganizationsShortList
+                organizations={organizations}
+                skipOnboarding={skipOnboarding}
+              />
+            </div>
+          </>
+        )}
+      </div>
+      <div className="modal-foot text-right">
+        <ResetButtonLink onClick={onClose}>{translate('not_now')}</ResetButtonLink>
+      </div>
+    </Modal>
+  );
 }
 
-const mapStateToProps = (state: Store): StateProps => ({ currentUser: getCurrentUser(state) });
-
-export default connect(mapStateToProps)(OnboardingModal);
+export default withUserOrganizations(whenLoggedIn(OnboardingModal));

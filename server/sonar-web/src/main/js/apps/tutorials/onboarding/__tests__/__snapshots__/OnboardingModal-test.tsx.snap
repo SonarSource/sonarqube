@@ -20,21 +20,111 @@ exports[`renders correctly 1`] = `
     </p>
   </div>
   <div
-    className="modal-body text-center huge-spacer-top huge-spacer-bottom"
+    className="modal-body text-center display-flex-row huge-spacer-top huge-spacer-bottom"
   >
-    <OnboardingProjectIcon
-      className="big-spacer-bottom"
-    />
-    <h6
-      className="onboarding-choice-name big-spacer-bottom"
+    <div
+      className="flex-1"
     >
-      onboarding.analyze_your_code
-    </h6>
-    <Button
+      <OnboardingProjectIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name big-spacer-bottom"
+      >
+        onboarding.analyze_your_code
+      </h6>
+      <Button
+        onClick={[MockFunction]}
+      >
+        onboarding.project.create
+      </Button>
+    </div>
+  </div>
+  <div
+    className="modal-foot text-right"
+  >
+    <ResetButtonLink
       onClick={[MockFunction]}
     >
-      onboarding.project.create
-    </Button>
+      not_now
+    </ResetButtonLink>
+  </div>
+</Modal>
+`;
+
+exports[`should display organization list if any 1`] = `
+<Modal
+  contentLabel="onboarding.header"
+  medium={true}
+  onRequestClose={[MockFunction]}
+  shouldCloseOnOverlayClick={false}
+>
+  <div
+    className="modal-head"
+  >
+    <h2>
+      onboarding.header
+    </h2>
+    <p
+      className="spacer-top"
+    >
+      onboarding.header.description
+    </p>
+  </div>
+  <div
+    className="modal-body text-center display-flex-row huge-spacer-top huge-spacer-bottom"
+  >
+    <div
+      className="flex-1"
+    >
+      <OnboardingProjectIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name big-spacer-bottom"
+      >
+        onboarding.analyze_your_code
+      </h6>
+      <Button
+        onClick={[MockFunction]}
+      >
+        onboarding.project.create
+      </Button>
+    </div>
+    <div
+      className="vertical-pipe-separator"
+    >
+      <div
+        className="vertical-separator"
+      />
+    </div>
+    <div
+      className="flex-1"
+    >
+      <OnboardingTeamIcon
+        className="big-spacer-bottom"
+      />
+      <h6
+        className="onboarding-choice-name big-spacer-bottom"
+      >
+        onboarding.browse_your_organizations
+      </h6>
+      <OrganizationsShortList
+        organizations={
+          Array [
+            Object {
+              "key": "a",
+              "name": "Arthur",
+            },
+            Object {
+              "key": "d",
+              "name": "Daniel Inc",
+            },
+          ]
+        }
+        skipOnboarding={[MockFunction]}
+      />
+    </div>
   </div>
   <div
     className="modal-foot text-right"
