@@ -64,6 +64,6 @@
   },
   {
     "title": "Appendices",
-    "children": ["/sonarcloud-pricing/", "/privacy/", "/security/", "/faq/"]
+    "children": ["/sonarcloud-pricing/", "/privacy/", "/security/", "/faq/", "/autoscan/"]
   }
 ]
