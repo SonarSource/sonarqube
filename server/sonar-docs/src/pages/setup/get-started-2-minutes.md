@@ -15,7 +15,7 @@ url: /setup/get-started-2-minutes/
 # On Windows, execute:
 C:\sonarqube\bin\windows-x86-xx\StartSonar.bat
 
-# On other operating systems, execute:
+# On other operating systems, as a non-root user execute:
 /opt/sonarqube/bin/[OS]/sonar.sh console
 ```
 

@@ -70,9 +70,9 @@ Once all SonarQube tables are using the InnoDB engine, the first thing to do is 
 
 ## Installing the Web Server
 
-First, check the [requirements](/requirements/requirements/).  Note that you cannot run the SonarQube server as `root` on Unix-based systems.
+First, check the [requirements](/requirements/requirements/). Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
 
-Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
+SonarQube cannot be run as `root` on Unix-based systems, so create a dedicated user account to use for SonarQube if necessary.
 
 _$SONARQUBE-HOME_ (below) refers to the path to the directory where the SonarQube distribution has been unzipped.
 
@@ -197,3 +197,7 @@ http.proxyUser=domain\\user
 ```
 
 For some proxies, the exception "java.net.ProtocolException: Server redirected too many times" might mean an incorrect username or password has been configured.
+
+### Exception java.lang.RuntimeException: can not run elasticsearch as root
+
+SonarQube starts an Elasticsearch process, and the same account that is running SonarQube itself will be used for the Elasticsearch process. Since Elasticsearch cannot be run as `root`, that means SonarQube can't be either. You must choose some other, non-`root` account with which to run SonarQube, preferably an account dedicated to the purpose.
