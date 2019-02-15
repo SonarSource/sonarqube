@@ -1,5 +1,5 @@
 ---
-title: Configuring Portfolios and Applications
+title: Managing Portfolios and Applications
 url: /project-administration/configuring-portfolios-and-applications/
 ---
 
@@ -13,6 +13,8 @@ Users with the Create Portfolios or Create Applications permission have access t
 Global Administrators  have access to the overall Portfolio and Application administration interface at **[Administration > Configuration > Portfolios](/#sonarqube-admin#/admin/extension/governance/views_console)**. From this page, Portfolios and Applications can be created and edited. 
 
 Users of either type can edit an individual Portfolio or Application definition from the lower-level **Administration > Edit Definition** interface.
+
+Global Administrators also have access to the Projects Management page at **[Administration > Projects > Management](/#sonarqute-admin#/admin/projects_management)**. Changing the selection mechanism on this page to “Portfolios” or “Applications” lets you manage the Portfolios or Applications of your SonarQube instance. The dropdown menu to the right of each item lets you edit permissions, apply Permission Templates or restore access to a Portfolio or Application.
 
 ## Populating Portfolios
 Once your Portfolio exists, you can populate it with any mix of projects, Applications, and sub-portfolios. Applications may only be populated with projects.
