@@ -13,6 +13,7 @@ exports[`should render correctly when creating a new webhook 1`] = `
   isInitialValid={false}
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
+  size="small"
   validate={[Function]}
 >
   <Component />
@@ -32,6 +33,7 @@ exports[`should render correctly when updating a webhook 1`] = `
   isInitialValid={true}
   onClose={[MockFunction]}
   onSubmit={[MockFunction]}
+  size="small"
   validate={[Function]}
 >
   <Component />

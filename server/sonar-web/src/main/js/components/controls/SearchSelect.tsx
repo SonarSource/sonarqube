@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 interface Props<T> {
   autofocus?: boolean;
   canCreate?: boolean;
+  className?: string;
   clearable?: boolean;
   defaultOptions?: T[];
   minimumQueryLength?: number;
@@ -126,7 +127,7 @@ export default class SearchSelect<T extends { value: string }> extends React.Pur
     return (
       <Component
         autoFocus={this.autofocus}
-        className="input-super-large"
+        className={this.props.className}
         clearable={this.props.clearable}
         escapeClearsValue={false}
         filterOption={this.handleFilterOption}

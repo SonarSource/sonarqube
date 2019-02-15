@@ -23,20 +23,21 @@ import MembersListItem from './MembersListItem';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
+  currentUser: T.LoggedInUser;
   members: T.OrganizationMember[];
   organizationGroups: T.Group[];
   organization: T.Organization;
-  removeMember: (member: T.OrganizationMember) => void;
+  removeMember?: (member: T.OrganizationMember) => void;
   updateMemberGroups: (
     member: T.OrganizationMember,
     add: Array<string>,
     remove: Array<string>
-  ) => void;
+  ) => Promise<void>;
 }
 
 export default class MembersList extends React.PureComponent<Props> {
   render() {
-    const { members } = this.props;
+    const { currentUser, members } = this.props;
 
     if (!members.length) {
       return <div className="note">{translate('no_results')}</div>;
@@ -53,7 +54,9 @@ export default class MembersList extends React.PureComponent<Props> {
                 member={member}
                 organization={this.props.organization}
                 organizationGroups={this.props.organizationGroups}
-                removeMember={this.props.removeMember}
+                removeMember={
+                  currentUser.login !== member.login ? this.props.removeMember : undefined
+                }
                 updateMemberGroups={this.props.updateMemberGroups}
               />
             ))}

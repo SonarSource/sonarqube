@@ -52,7 +52,11 @@ export default class CreationModal extends React.PureComponent<Props, State> {
     const header = translate('project_links.create_new_project_link');
 
     return (
-      <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.handleSubmit}>
+      <SimpleModal
+        header={header}
+        onClose={this.props.onClose}
+        onSubmit={this.handleSubmit}
+        size="small">
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form onSubmit={onFormSubmit}>
             <header className="modal-head">

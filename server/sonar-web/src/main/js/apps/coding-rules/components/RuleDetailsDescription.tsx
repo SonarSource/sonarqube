@@ -127,16 +127,16 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
   renderForm = () => (
     <div className="coding-rules-detail-extend-description-form">
-      <table className="width100">
+      <table className="width-100">
         <tbody>
           <tr>
-            <td className="width100" colSpan={2}>
+            <td colSpan={2}>
               <textarea
                 autoFocus={true}
+                className="width-100 little-spacer-bottom"
                 id="coding-rules-detail-extend-description-text"
                 onChange={this.handleDescriptionChange}
                 rows={4}
-                style={{ width: '100%', marginBottom: 4 }}
                 value={this.state.description}
               />
             </td>

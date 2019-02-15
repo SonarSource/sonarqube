@@ -98,7 +98,11 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
     );
 
     return (
-      <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.handleSubmit}>
+      <SimpleModal
+        header={header}
+        onClose={this.props.onClose}
+        onSubmit={this.handleSubmit}
+        size="small">
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form id="project-permissions-apply-template-form" onSubmit={onFormSubmit}>
             <header className="modal-head">

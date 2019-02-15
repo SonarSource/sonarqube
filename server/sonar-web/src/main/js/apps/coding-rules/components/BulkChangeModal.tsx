@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Query, serializeQuery } from '../query';
-import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
+import { Alert } from '../../../components/ui/Alert';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   action: string;
@@ -198,7 +198,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
         : `${translate('coding_rules.deactivate_in_quality_profile')} (${formatMeasure(total, 'INT')} ${translate('coding_rules._rules')})`;
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form onSubmit={this.handleFormSubmit}>
           <header className="modal-head">
             <h2>{header}</h2>
@@ -218,11 +218,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
                     </label>
                   </h3>
                   {profile ? (
-                    <h3 className="readonly-field">
+                    <span>
                       {profile.name}
                       {' — '}
                       {translate('are_you_sure')}
-                    </h3>
+                    </span>
                   ) : (
                     this.renderProfileSelect()
                   )}

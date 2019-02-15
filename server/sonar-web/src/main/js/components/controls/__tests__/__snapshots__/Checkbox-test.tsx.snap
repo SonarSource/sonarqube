@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the checkbox on the right 1`] = `
+<a
+  className="icon-checkbox icon-checkbox-checked"
+  href="#"
+  onClick={[Function]}
+/>
+`;

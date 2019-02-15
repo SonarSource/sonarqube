@@ -94,8 +94,8 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
   };
 
   render() {
-    const { header, onClose, medium, noBackdrop, large } = this.props;
-    const modalProps = { header, onClose, medium, noBackdrop, large };
+    const { header, onClose, noBackdrop, size } = this.props;
+    const modalProps = { header, onClose, noBackdrop, size };
     return (
       <SimpleModal onSubmit={this.handleSubmit} {...modalProps}>
         {this.renderModalContent}

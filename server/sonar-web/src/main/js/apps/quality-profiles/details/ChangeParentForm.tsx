@@ -95,7 +95,8 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
     return (
       <Modal
         contentLabel={translate('quality_profiles.change_parent')}
-        onRequestClose={this.props.onClose}>
+        onRequestClose={this.props.onClose}
+        size="small">
         <form id="change-profile-parent-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{translate('quality_profiles.change_parent')}</h2>

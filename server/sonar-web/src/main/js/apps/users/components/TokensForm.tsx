@@ -154,7 +154,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
           id="generate-token-form"
           onSubmit={this.handleGenerateToken}>
           <input
-            className="spacer-right"
+            className="input-large spacer-right"
             maxLength={100}
             onChange={this.handleNewTokenChange}
             placeholder={translate('users.enter_token_name')}

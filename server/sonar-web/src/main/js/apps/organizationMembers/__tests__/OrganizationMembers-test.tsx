@@ -25,7 +25,8 @@ import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../..
 import {
   mockOrganization,
   mockCurrentUser,
-  mockOrganizationWithAdminActions
+  mockOrganizationWithAdminActions,
+  mockOrganizationWithAlm
 } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 
@@ -112,7 +113,7 @@ it('should refresh members', async () => {
 it('should add new member', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  wrapper.find('Connect(MembersPageHeader)').prop<Function>('handleAddMember')({ login: 'bar' });
+  wrapper.find('MembersPageHeader').prop<Function>('handleAddMember')({ login: 'bar' });
   await waitAndUpdate(wrapper);
   expect(
     wrapper
@@ -158,6 +159,14 @@ it('should update groups', async () => {
   expect(addUserToGroup).toBeCalledWith({ login: 'john', name: 'dogs', organization: 'foo' });
   expect(removeUserFromGroup).toHaveBeenCalledTimes(1);
   expect(removeUserFromGroup).toBeCalledWith({ login: 'john', name: 'birds', organization: 'foo' });
+});
+
+it('should not allow to remove members when in sync mode', async () => {
+  const wrapper = shallowRender({
+    organization: mockOrganizationWithAlm(mockOrganizationWithAdminActions(), { membersSync: true })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('MembersList').prop('removeMember')).toBeUndefined();
 });
 
 function shallowRender(props: Partial<OrganizationMembers['props']> = {}) {

@@ -153,76 +153,60 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   };
 
   renderNameField = () => (
-    <tr className="property">
-      <th className="nowrap">
-        <h3>
-          {translate('name')} <em className="mandatory">*</em>
-        </h3>
-      </th>
-      <td>
-        <input
-          autoFocus={true}
-          className="coding-rules-name-key"
-          disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-name"
-          onChange={this.handleNameChange}
-          required={true}
-          type="text"
-          value={this.state.name}
-        />
-      </td>
-    </tr>
+    <div className="modal-field">
+      <label htmlFor="coding-rules-custom-rule-creation-name">
+        {translate('name')} <em className="mandatory">*</em>
+      </label>
+      <input
+        autoFocus={true}
+        disabled={this.state.submitting}
+        id="coding-rules-custom-rule-creation-name"
+        onChange={this.handleNameChange}
+        required={true}
+        type="text"
+        value={this.state.name}
+      />
+    </div>
   );
 
   renderKeyField = () => (
-    <tr className="property">
-      <th className="nowrap">
-        <h3>
-          {translate('key')} {!this.props.customRule && <em className="mandatory">*</em>}
-        </h3>
-      </th>
-      <td>
-        {this.props.customRule ? (
-          <span className="coding-rules-detail-custom-rule-key" title={this.props.customRule.key}>
-            {this.props.customRule.key}
-          </span>
-        ) : (
-          <input
-            className="coding-rules-name-key"
-            disabled={this.state.submitting}
-            id="coding-rules-custom-rule-creation-key"
-            onChange={this.handleKeyChange}
-            required={true}
-            type="text"
-            value={this.state.key}
-          />
-        )}
-      </td>
-    </tr>
+    <div className="modal-field">
+      <label htmlFor="coding-rules-custom-rule-creation-key">
+        {translate('key')} {!this.props.customRule && <em className="mandatory">*</em>}
+      </label>
+
+      {this.props.customRule ? (
+        <span className="coding-rules-detail-custom-rule-key" title={this.props.customRule.key}>
+          {this.props.customRule.key}
+        </span>
+      ) : (
+        <input
+          disabled={this.state.submitting}
+          id="coding-rules-custom-rule-creation-key"
+          onChange={this.handleKeyChange}
+          required={true}
+          type="text"
+          value={this.state.key}
+        />
+      )}
+    </div>
   );
 
   renderDescriptionField = () => (
-    <tr className="property">
-      <th className="nowrap">
-        <h3>
-          {translate('description')} <em className="mandatory">*</em>
-        </h3>
-      </th>
-      <td>
-        <textarea
-          className="coding-rules-markdown-description"
-          disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-html-description"
-          onChange={this.handleDescriptionChange}
-          required={true}
-          rows={5}
-          value={this.state.description}
-        />
-        <span className="text-right">
-          <MarkdownTips />
-        </span>
-      </td>
-    </tr>
+    <div className="modal-field">
+      <label htmlFor="coding-rules-custom-rule-creation-html-description">
+        {translate('description')} <em className="mandatory">*</em>
+      </label>
+      <textarea
+        disabled={this.state.submitting}
+        id="coding-rules-custom-rule-creation-html-description"
+        onChange={this.handleDescriptionChange}
+        required={true}
+        rows={5}
+        value={this.state.description}
+      />
+      <MarkdownTips className="modal-field-descriptor text-right" />
+    </div>
   );
 
   renderTypeOption = ({ value }: { value: T.RuleType }) => {
@@ -230,107 +214,99 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   };
 
   renderTypeField = () => (
-    <tr className="property">
-      <th className="nowrap">
-        <h3>{translate('type')}</h3>
-      </th>
-      <td>
-        <Select
-          className="input-medium"
-          clearable={false}
-          disabled={this.state.submitting}
-          onChange={this.handleTypeChange}
-          optionRenderer={this.renderTypeOption}
-          options={RULE_TYPES.map(type => ({
-            label: translate('issue.type', type),
-            value: type
-          }))}
-          searchable={false}
-          value={this.state.type}
-          valueRenderer={this.renderTypeOption}
-        />
-      </td>
-    </tr>
+    <div className="modal-field flex-1 spacer-right">
+      <label htmlFor="coding-rules-custom-rule-type">{translate('type')}</label>
+      <Select
+        clearable={false}
+        disabled={this.state.submitting}
+        id="coding-rules-custom-rule-type"
+        onChange={this.handleTypeChange}
+        optionRenderer={this.renderTypeOption}
+        options={RULE_TYPES.map(type => ({
+          label: translate('issue.type', type),
+          value: type
+        }))}
+        searchable={false}
+        value={this.state.type}
+        valueRenderer={this.renderTypeOption}
+      />
+    </div>
   );
 
   renderSeverityOption = ({ value }: { value: string }) => <SeverityHelper severity={value} />;
 
   renderSeverityField = () => (
-    <tr className="property">
-      <th className="nowrap">
-        <h3>{translate('severity')}</h3>
-      </th>
-      <td>
-        <Select
-          className="input-medium"
-          clearable={false}
-          disabled={this.state.submitting}
-          onChange={this.handleSeverityChange}
-          optionRenderer={this.renderSeverityOption}
-          options={SEVERITIES.map(severity => ({
-            label: translate('severity', severity),
-            value: severity
-          }))}
-          searchable={false}
-          value={this.state.severity}
-          valueRenderer={this.renderSeverityOption}
-        />
-      </td>
-    </tr>
+    <div className="modal-field flex-1 spacer-right">
+      <label htmlFor="coding-rules-custom-rule-severity">{translate('severity')}</label>
+      <Select
+        clearable={false}
+        disabled={this.state.submitting}
+        id="coding-rules-custom-rule-severity"
+        onChange={this.handleSeverityChange}
+        optionRenderer={this.renderSeverityOption}
+        options={SEVERITIES.map(severity => ({
+          label: translate('severity', severity),
+          value: severity
+        }))}
+        searchable={false}
+        value={this.state.severity}
+        valueRenderer={this.renderSeverityOption}
+      />
+    </div>
   );
 
   renderStatusField = () => (
-    <tr className="property">
-      <th className="nowrap">
-        <h3>{translate('coding_rules.filters.status')}</h3>
-      </th>
-      <td>
-        <Select
-          className="input-medium"
-          clearable={false}
-          disabled={this.state.submitting}
-          onChange={this.handleStatusChange}
-          options={RULE_STATUSES.map(status => ({
-            label: translate('rules.status', status),
-            value: status
-          }))}
-          searchable={false}
-          value={this.state.status}
-        />
-      </td>
-    </tr>
+    <div className="modal-field flex-1">
+      <label htmlFor="coding-rules-custom-rule-status">
+        {translate('coding_rules.filters.status')}
+      </label>
+      <Select
+        clearable={false}
+        disabled={this.state.submitting}
+        id="coding-rules-custom-rule-status"
+        onChange={this.handleStatusChange}
+        options={RULE_STATUSES.map(status => ({
+          label: translate('rules.status', status),
+          value: status
+        }))}
+        searchable={false}
+        value={this.state.status}
+      />
+    </div>
   );
 
   renderParameterField = (param: T.RuleParameter) => (
-    <tr className="property" key={param.key}>
-      <th className="nowrap">
-        <h3>{param.key}</h3>
-      </th>
-      <td>
-        {param.type === 'TEXT' ? (
-          <textarea
-            className="width100"
-            disabled={this.state.submitting}
-            name={param.key}
-            onChange={this.handleParameterChange}
-            placeholder={param.defaultValue}
-            rows={3}
-            value={this.state.params[param.key] || ''}
-          />
-        ) : (
-          <input
-            className="input-super-large"
-            disabled={this.state.submitting}
-            name={param.key}
-            onChange={this.handleParameterChange}
-            placeholder={param.defaultValue}
-            type="text"
-            value={this.state.params[param.key] || ''}
-          />
-        )}
-        <div className="note" dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }} />
-      </td>
-    </tr>
+    <div className="modal-field" key={param.key}>
+      <label className="capitalize" htmlFor={param.key}>
+        {param.key}
+      </label>
+
+      {param.type === 'TEXT' ? (
+        <textarea
+          disabled={this.state.submitting}
+          id={param.key}
+          name={param.key}
+          onChange={this.handleParameterChange}
+          placeholder={param.defaultValue}
+          rows={3}
+          value={this.state.params[param.key] || ''}
+        />
+      ) : (
+        <input
+          disabled={this.state.submitting}
+          id={param.key}
+          name={param.key}
+          onChange={this.handleParameterChange}
+          placeholder={param.defaultValue}
+          type="text"
+          value={this.state.params[param.key] || ''}
+        />
+      )}
+      <div
+        className="modal-field-description"
+        dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }}
+      />
+    </div>
   );
 
   renderSubmitButton = () => {
@@ -371,18 +347,17 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
             {reactivating && (
               <Alert variant="warning">{translate('coding_rules.reactivate.help')}</Alert>
             )}
-            <table>
-              <tbody>
-                {this.renderNameField()}
-                {this.renderKeyField()}
-                {this.renderDescriptionField()}
-                {/* do not allow to change the type of existing rule */}
-                {!customRule && this.renderTypeField()}
-                {this.renderSeverityField()}
-                {this.renderStatusField()}
-                {params.map(this.renderParameterField)}
-              </tbody>
-            </table>
+
+            {this.renderNameField()}
+            {this.renderKeyField()}
+            <div className="display-flex-space-between">
+              {/* do not allow to change the type of existing rule */}
+              {!customRule && this.renderTypeField()}
+              {this.renderSeverityField()}
+              {this.renderStatusField()}
+            </div>
+            {this.renderDescriptionField()}
+            {params.map(this.renderParameterField)}
           </div>
 
           <div className="modal-foot">

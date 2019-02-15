@@ -79,9 +79,10 @@ exports[`creates project 1`] = `
         />
       </div>
       <div
-        className="spacer-top display-flex-space-around"
+        className="spacer-top"
       >
         <UpgradeOrganizationBox
+          className="width-100"
           insideModal={true}
           onOrganizationUpgrade={[MockFunction]}
           organization={
@@ -196,9 +197,10 @@ exports[`creates project 2`] = `
         />
       </div>
       <div
-        className="spacer-top display-flex-space-around"
+        className="spacer-top"
       >
         <UpgradeOrganizationBox
+          className="width-100"
           insideModal={true}
           onOrganizationUpgrade={[MockFunction]}
           organization={
@@ -313,9 +315,10 @@ exports[`creates project 3`] = `
         />
       </div>
       <div
-        className="spacer-top display-flex-space-around"
+        className="spacer-top"
       >
         <UpgradeOrganizationBox
+          className="width-100"
           insideModal={true}
           onOrganizationUpgrade={[MockFunction]}
           organization={

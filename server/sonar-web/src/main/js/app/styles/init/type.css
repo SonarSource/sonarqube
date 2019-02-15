@@ -168,6 +168,10 @@ small,
   font-size: var(--smallFontSize);
 }
 
+.medium {
+  font-size: var(--mediumFontSize);
+}
+
 .big {
   font-size: var(--bigFontSize);
 }
@@ -255,7 +259,7 @@ small,
 }
 
 .text-normal {
-  font-weight: normal;
+  font-weight: normal !important;
 }
 
 .text-muted {

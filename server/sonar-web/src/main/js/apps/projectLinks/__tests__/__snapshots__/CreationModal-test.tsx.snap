@@ -4,6 +4,7 @@ exports[`should create link 1`] = `
 <Modal
   contentLabel="project_links.create_new_project_link"
   onRequestClose={[MockFunction]}
+  size="small"
 >
   <form
     onSubmit={[Function]}

@@ -10,20 +10,20 @@ exports[`should hide add members button when member sync activated 1`] = `
     onboarding.create_organization.ready
   </h3>
   <div
-    className="onboarding-choices"
+    className="display-flex-space-around huge-spacer-top"
   >
     <Button
-      className="onboarding-choice"
+      className="button-huge"
       onClick={[Function]}
     >
       <OnboardingProjectIcon
         className="big-spacer-bottom"
       />
-      <h6
-        className="onboarding-choice-name"
+      <p
+        className="medium spacer-top"
       >
         provisioning.analyze_new_project
-      </h6>
+      </p>
     </Button>
   </div>
 </div>
@@ -39,31 +39,31 @@ exports[`should render 1`] = `
     onboarding.create_organization.ready
   </h3>
   <div
-    className="onboarding-choices"
+    className="display-flex-space-around huge-spacer-top"
   >
     <Button
-      className="onboarding-choice"
+      className="button-huge"
       onClick={[Function]}
     >
       <OnboardingProjectIcon
         className="big-spacer-bottom"
       />
-      <h6
-        className="onboarding-choice-name"
+      <p
+        className="medium spacer-top"
       >
         provisioning.analyze_new_project
-      </h6>
+      </p>
     </Button>
     <Button
-      className="onboarding-choice"
+      className="button-huge"
       onClick={[Function]}
     >
       <OnboardingAddMembersIcon />
-      <h6
-        className="onboarding-choice-name"
+      <p
+        className="medium spacer-top"
       >
         organization.members.add.multiple
-      </h6>
+      </p>
     </Button>
   </div>
 </div>

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../components/controls/SimpleModal';
-import { translate } from '../../../helpers/l10n';
 import Select, { Creatable } from '../../../components/controls/Select';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
 
 export interface MetricProps {
   description: string;
@@ -98,7 +98,8 @@ export default class Form extends React.PureComponent<Props, State> {
       <SimpleModal
         header={this.props.header}
         onClose={this.props.onClose}
-        onSubmit={this.handleSubmit}>
+        onSubmit={this.handleSubmit}
+        size="small">
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form onSubmit={onFormSubmit}>
             <header className="modal-head">

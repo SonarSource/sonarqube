@@ -77,7 +77,7 @@ export default class AddMemberForm extends React.PureComponent<Props, State> {
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
-            <div className="modal-large-field">
+            <div className="modal-field">
               <label>{translate('users.search_description')}</label>
               <UsersSelectSearch
                 autoFocus={true}

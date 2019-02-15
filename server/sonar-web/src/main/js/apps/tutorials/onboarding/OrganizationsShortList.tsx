@@ -25,10 +25,10 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   organizations: T.Organization[];
-  skipOnboarding: () => void;
+  onClick: () => void;
 }
 
-export default function OrganizationsShortList({ organizations, skipOnboarding }: Props) {
+export default function OrganizationsShortList({ onClick, organizations }: Props) {
   if (organizations.length === 0) {
     return null;
   }
@@ -39,26 +39,27 @@ export default function OrganizationsShortList({ organizations, skipOnboarding }
 
   return (
     <div>
-      <ul className="account-projects-list">
+      <ul>
         {organizationsShown.map(organization => (
           <li key={organization.key}>
-            <OrganizationsShortListItem
-              organization={organization}
-              skipOnboarding={skipOnboarding}
-            />
+            <OrganizationsShortListItem onClick={onClick} organization={organization} />
           </li>
         ))}
       </ul>
-      <div className="big-spacer-top">
-        <span className="big-spacer-right">
-          {translateWithParameters('x_of_y_shown', organizationsShown.length, organizations.length)}
-        </span>
-        {organizations.length > 3 && (
-          <Link className="small" onClick={skipOnboarding} to="/account/organizations">
+      {organizations.length > 3 && (
+        <div className="big-spacer-top">
+          <span className="big-spacer-right">
+            {translateWithParameters(
+              'x_of_y_shown',
+              organizationsShown.length,
+              organizations.length
+            )}
+          </span>
+          <Link className="small" onClick={onClick} to="/account/organizations">
             {translate('see_all')}
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -121,7 +121,7 @@ exports[`should render prefilled and create org 1`] = `
               "avatar": <img
                 alt="BitBucket"
                 className="little-spacer-left"
-                src="/images/sonarcloud/bitbucket.svg"
+                src="/images/sonarcloud/github.svg"
                 width={16}
               />,
               "name": <strong>
@@ -144,21 +144,21 @@ exports[`should render prefilled and create org 1`] = `
           variant="info"
         >
           <p>
-            onboarding.import_organization.members_sync_info_x.organization.bitbucket.foo.bitbucket
+            onboarding.import_organization.members_sync_info_x.organization.github.foo.github
           </p>
           <a
-            href="https://github.com/foo/profile/members"
+            href="http://github.com/orgs/thing/people"
             rel="noopener noreferrer"
             target="_blank"
           >
-            onboarding.import_organization.see_who_has_access
+            organization.members.see_all_members_on_x.github
           </a>
         </Alert>
       }
       onContinue={[MockFunction]}
       organization={
         Object {
-          "almUrl": "https://github.com/foo",
+          "almUrl": "http://github.com/thing",
           "avatar": "http://example.com/avatar",
           "description": "description-foo",
           "key": "foo",
@@ -178,13 +178,13 @@ exports[`should render prefilled and create org 1`] = `
         "backgroundColor": "#0052CC",
         "iconPath": "\\"/static/authbitbucket/bitbucket.svg\\"",
         "installationUrl": "https://bitbucket.org/install/app",
-        "key": "bitbucket",
+        "key": "github",
         "name": "BitBucket",
       }
     }
     almOrganization={
       Object {
-        "almUrl": "https://github.com/foo",
+        "almUrl": "http://github.com/thing",
         "avatar": "http://example.com/avatar",
         "description": "description-foo",
         "key": "foo",

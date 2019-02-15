@@ -32,18 +32,11 @@ export interface Props {
   currentUser: T.LoggedInUser;
   onClose: () => void;
   onOpenProjectOnboarding: () => void;
-  skipOnboarding: () => void;
   userOrganizations: T.Organization[];
 }
 
 export function OnboardingModal(props: Props) {
-  const {
-    currentUser,
-    onClose,
-    onOpenProjectOnboarding,
-    skipOnboarding,
-    userOrganizations
-  } = props;
+  const { currentUser, onClose, onOpenProjectOnboarding, userOrganizations } = props;
 
   const organizations = userOrganizations.filter(o => o.key !== currentUser.personalOrganization);
 
@@ -51,9 +44,9 @@ export function OnboardingModal(props: Props) {
   return (
     <Modal
       contentLabel={header}
-      medium={true}
       onRequestClose={onClose}
-      shouldCloseOnOverlayClick={false}>
+      shouldCloseOnOverlayClick={false}
+      size={organizations.length > 0 ? 'medium' : 'small'}>
       <div className="modal-head">
         <h2>{translate('onboarding.header')}</h2>
         <p className="spacer-top">{translate('onboarding.header.description')}</p>
@@ -61,9 +54,7 @@ export function OnboardingModal(props: Props) {
       <div className="modal-body text-center display-flex-row huge-spacer-top huge-spacer-bottom">
         <div className="flex-1">
           <OnboardingProjectIcon className="big-spacer-bottom" />
-          <h6 className="onboarding-choice-name big-spacer-bottom">
-            {translate('onboarding.analyze_your_code')}
-          </h6>
+          <h3 className="big-spacer-bottom">{translate('onboarding.analyze_your_code')}</h3>
           <Button onClick={onOpenProjectOnboarding}>
             {translate('onboarding.project.create')}
           </Button>
@@ -75,13 +66,10 @@ export function OnboardingModal(props: Props) {
             </div>
             <div className="flex-1">
               <OnboardingTeamIcon className="big-spacer-bottom" />
-              <h6 className="onboarding-choice-name big-spacer-bottom">
+              <h3 className="big-spacer-bottom">
                 {translate('onboarding.browse_your_organizations')}
-              </h6>
-              <OrganizationsShortList
-                organizations={organizations}
-                skipOnboarding={skipOnboarding}
-              />
+              </h3>
+              <OrganizationsShortList onClick={onClose} organizations={organizations} />
             </div>
           </>
         )}

@@ -35,7 +35,7 @@ export default class UserScmAccountInput extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className="js-scm-account">
+      <div className="js-scm-account display-flex-row spacer-bottom">
         <input
           maxLength={255}
           onChange={this.handleChange}

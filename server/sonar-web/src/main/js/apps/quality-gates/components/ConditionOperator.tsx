@@ -23,9 +23,9 @@ import { translate } from '../../../helpers/l10n';
 import { getPossibleOperators } from '../utils';
 
 interface Props {
-  op?: string;
   metric: T.Metric;
   onOperatorChange: (op: string) => void;
+  op?: string;
 }
 
 export default class ConditionOperator extends React.PureComponent<Props> {
@@ -62,7 +62,11 @@ export default class ConditionOperator extends React.PureComponent<Props> {
         />
       );
     } else {
-      return <span className="note">{this.getLabel(operators, this.props.metric)}</span>;
+      return (
+        <span className="display-inline-block note abs-width-150">
+          {this.getLabel(operators, this.props.metric)}
+        </span>
+      );
     }
   }
 }

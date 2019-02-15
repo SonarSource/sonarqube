@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Select
+  className="text-middle"
+  id="condition-metric"
+  onChange={[Function]}
+  options={
+    Array [
+      Object {
+        "domain": undefined,
+        "label": "metric 1",
+        "value": 0,
+      },
+    ]
+  }
+  placeholder="search.search_for_metrics"
+  value={-1}
+/>
+`;

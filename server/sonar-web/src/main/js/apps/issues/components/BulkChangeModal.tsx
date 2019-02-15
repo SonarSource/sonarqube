@@ -18,23 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import { pickBy, sortBy } from 'lodash';
 import { searchAssignees } from '../utils';
-import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
-import MarkdownTips from '../../../components/common/MarkdownTips';
-import SearchSelect from '../../../components/controls/SearchSelect';
-import Checkbox from '../../../components/controls/Checkbox';
-import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 import Avatar from '../../../components/ui/Avatar';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import MarkdownTips from '../../../components/common/MarkdownTips';
+import Modal from '../../../components/controls/Modal';
+import Radio from '../../../components/controls/Radio';
+import SearchSelect from '../../../components/controls/SearchSelect';
+import Select from '../../../components/controls/Select';
+import SeverityHelper from '../../../components/shared/SeverityHelper';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { Alert } from '../../../components/ui/Alert';
+import { searchIssueTags, bulkChangeIssues } from '../../../api/issues';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 
 interface AssigneeOption {
@@ -188,10 +190,12 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
   };
 
-  handleFieldChange = (field: 'comment' | 'transition') => (
-    event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    this.setState<keyof FormFields>({ [field]: event.currentTarget.value });
+  handleRadioTransitionChange = (transition: string) => {
+    this.setState({ transition });
+  };
+
+  handleCommentChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    this.setState({ comment: event.currentTarget.value });
   };
 
   handleSelectFieldChange = (field: 'severity' | 'type') => (data: { value: string } | null) => {
@@ -269,14 +273,6 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     </div>
   );
 
-  renderCheckbox = (field: keyof FormFields, id?: string) => (
-    <Checkbox
-      checked={this.state[field] !== undefined}
-      id={id}
-      onCheck={this.handleFieldCheck(field)}
-    />
-  );
-
   renderAffected = (affected: number) => (
     <div className="pull-right note">
       ({translateWithParameters('issue_bulk_change.x_issues', affected)})
@@ -316,6 +312,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <AssigneeSelect
+        className="input-super-large"
         clearable={true}
         defaultOptions={this.getDefaultAssignee()}
         onSearch={this.handleAssigneeSearch}
@@ -348,6 +345,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <Select
+        className="input-super-large"
         clearable={true}
         onChange={this.handleSelectFieldChange('type')}
         optionRenderer={optionRenderer}
@@ -376,6 +374,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <Select
+        className="input-super-large"
         clearable={true}
         onChange={this.handleSelectFieldChange('severity')}
         optionRenderer={(option: { value: string }) => <SeverityHelper severity={option.value} />}
@@ -404,6 +403,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     const input = (
       <TagSelect
         canCreate={allowCreate}
+        className="input-super-large"
         clearable={true}
         defaultOptions={this.state.initialTags}
         minimumQueryLength={0}
@@ -431,22 +431,16 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       <div className="modal-field">
         <label>{translate('issue.transition')}</label>
         {transitions.map(transition => (
-          <span className="clearfix" key={transition.transition}>
-            <input
+          <span
+            className="bulk-change-radio-button display-flex-center display-flex-space-between"
+            key={transition.transition}>
+            <Radio
               checked={this.state.transition === transition.transition}
-              id={`transition-${transition.transition}`}
-              name="do_transition.transition"
-              onChange={this.handleFieldChange('transition')}
-              type="radio"
-              value={transition.transition}
-            />
-            <label
-              htmlFor={`transition-${transition.transition}`}
-              style={{ float: 'none', display: 'inline', left: 0, cursor: 'pointer' }}>
+              onCheck={this.handleRadioTransitionChange}
+              value={transition.transition}>
               {translate('issue.transition', transition.transition)}
-            </label>
+            </Radio>
             {this.renderAffected(transition.count)}
-            <br />
           </span>
         ))}
       </div>
@@ -469,27 +463,26 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
             overlay={translate('issue_bulk_change.comment.help')}
           />
         </label>
-        <div>
-          <textarea
-            id="comment"
-            onChange={this.handleFieldChange('comment')}
-            rows={4}
-            style={{ width: '100%' }}
-            value={this.state.comment || ''}
-          />
-        </div>
-        <div className="pull-right">
-          <MarkdownTips />
-        </div>
+        <textarea
+          id="comment"
+          onChange={this.handleCommentChange}
+          rows={4}
+          value={this.state.comment || ''}
+        />
+        <MarkdownTips className="modal-field-descriptor text-right" />
       </div>
     );
   };
 
   renderNotificationsField = () => (
-    <div className="modal-field">
-      <label htmlFor="send-notifications">{translate('issue.send_notifications')}</label>
-      {this.renderCheckbox('notifications', 'send-notifications')}
-    </div>
+    <Checkbox
+      checked={this.state.notifications !== undefined}
+      className="display-inline-block spacer-top"
+      id="send-notifications"
+      onCheck={this.handleFieldCheck('notifications')}
+      right={true}>
+      <strong className="little-spacer-right">{translate('issue.send_notifications')}</strong>
+    </Checkbox>
   );
 
   renderForm = () => {
@@ -503,7 +496,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <h2>{translateWithParameters('issue_bulk_change.form.title', issues.length)}</h2>
         </div>
 
-        <div className="modal-body">
+        <div className={classNames('modal-body', { 'modal-container': limitReached })}>
           {limitReached && (
             <Alert variant="warning">
               <FormattedMessage
@@ -540,7 +533,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal contentLabel="modal" onRequestClose={this.props.onClose}>
+      <Modal contentLabel="modal" onRequestClose={this.props.onClose} size={'small'}>
         {this.state.loading ? this.renderLoading() : this.renderForm()}
       </Modal>
     );

@@ -16,7 +16,7 @@ exports[`changes value 1`] = `
       }
     />
     <div
-      className="big-spacer-bottom"
+      className="modal-field"
     >
       <input
         autoFocus={true}
@@ -27,7 +27,7 @@ exports[`changes value 1`] = `
         value="release-.*"
       />
       <div
-        className="note spacer-top"
+        className="modal-field-description"
       >
         settings._default
       </div>
@@ -66,7 +66,7 @@ exports[`resets value 1`] = `
       }
     />
     <div
-      className="big-spacer-bottom"
+      className="modal-field"
     >
       <input
         autoFocus={true}
@@ -77,7 +77,7 @@ exports[`resets value 1`] = `
         value="release-.*"
       />
       <div
-        className="note spacer-top"
+        className="modal-field-description"
       >
         settings.default_x.branch-.*
       </div>

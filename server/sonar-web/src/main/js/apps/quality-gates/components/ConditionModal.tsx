@@ -107,7 +107,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         confirmDisable={metric === undefined}
         header={header}
         onClose={onClose}
-        onConfirm={this.handleFormSubmit}>
+        onConfirm={this.handleFormSubmit}
+        size="small">
         {this.state.errorMessage && <Alert variant="error">{this.state.errorMessage}</Alert>}
         <div className="modal-field">
           <label htmlFor="condition-metric">{translate('quality_gates.conditions.metric')}</label>
@@ -118,7 +119,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         </div>
         {metric && (
           <>
-            <div className="modal-field">
+            <div className="modal-field display-inline-block">
               <label htmlFor="condition-operator">
                 {translate('quality_gates.conditions.operator')}
               </label>
@@ -128,7 +129,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
                 op={op}
               />
             </div>
-            <div className="modal-field">
+            <div className="modal-field display-inline-block spacer-left">
               <label htmlFor="condition-threshold">
                 {translate('quality_gates.conditions.error')}
               </label>

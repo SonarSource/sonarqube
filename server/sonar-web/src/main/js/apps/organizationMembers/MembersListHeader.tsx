@@ -52,7 +52,7 @@ export default function MembersListHeader({
               <HelpTooltip
                 className="spacer-left"
                 overlay={
-                  <div className="abs-width-300  markdown cut-margins">
+                  <div className="abs-width-300 markdown cut-margins">
                     <p>
                       {translate(
                         'organization.members.auto_sync_total_help',

@@ -182,22 +182,20 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
         removeUserFromGroup({ name, login, organization: this.props.organization.key })
       )
     ];
-    Promise.all(promises).then(
-      () => {
-        if (this.mounted) {
-          this.updateGroup(login, member => ({
-            ...member,
-            groupCount: (member.groupCount || 0) + add.length - remove.length
-          }));
-        }
-      },
-      () => {}
-    );
+    return Promise.all(promises).then(() => {
+      if (this.mounted) {
+        this.updateGroup(login, member => ({
+          ...member,
+          groupCount: (member.groupCount || 0) + add.length - remove.length
+        }));
+      }
+    });
   };
 
   render() {
-    const { organization } = this.props;
+    const { currentUser, organization } = this.props;
     const { groups, loading, members, paging } = this.state;
+    const hasMemberSync = organization.alm && organization.alm.membersSync;
     return (
       <div className="page page-limited">
         <Helmet title={translate('organization.members.page')} />
@@ -213,16 +211,17 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
           paging !== undefined && (
             <>
               <MembersListHeader
-                currentUser={this.props.currentUser}
+                currentUser={currentUser}
                 handleSearch={this.handleSearchMembers}
                 organization={organization}
                 total={paging.total}
               />
               <MembersList
+                currentUser={currentUser}
                 members={members}
                 organization={organization}
                 organizationGroups={groups}
-                removeMember={this.handleRemoveMember}
+                removeMember={hasMemberSync ? undefined : this.handleRemoveMember}
                 updateMemberGroups={this.updateMemberGroups}
               />
               {paging.total !== 0 && (

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { MembersPageHeader } from '../MembersPageHeader';
+import MembersPageHeader, { Props } from '../MembersPageHeader';
 import {
   mockOrganization,
   mockOrganizationWithAlm,
@@ -39,10 +39,6 @@ it('should render for admin', () => {
 it('should render for bound organization without sync', () => {
   const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions());
   expect(shallowRender({ organization })).toMatchSnapshot();
-
-  const wrapper = shallowRender({ organization, dismissSyncNotifOrg: [organization.key] });
-  expect(wrapper.find('Connect(SyncMemberForm)').exists()).toBe(true);
-  expect(wrapper.find('NewInfoBox').exists()).toBe(false);
 });
 
 it('should render for bound organization with sync', () => {
@@ -52,19 +48,17 @@ it('should render for bound organization with sync', () => {
   const wrapper = shallowRender({ organization });
   expect(wrapper.find('Connect(SyncMemberForm)').exists()).toBe(true);
   expect(wrapper.find('AddMemberForm').exists()).toBe(false);
-  expect(wrapper.find('NewInfoBox').exists()).toBe(false);
+  expect(wrapper.find('Alert').exists()).toBe(false);
 });
 
-function shallowRender(props: Partial<MembersPageHeader['props']> = {}) {
+function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <MembersPageHeader
-      dismissSyncNotifOrg={[]}
       handleAddMember={jest.fn()}
       loading={false}
       members={[]}
       organization={mockOrganization()}
       refreshMembers={jest.fn()}
-      setCurrentUserSetting={jest.fn()}
       {...props}
     />
   );

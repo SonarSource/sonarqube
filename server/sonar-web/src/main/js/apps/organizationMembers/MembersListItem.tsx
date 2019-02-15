@@ -32,8 +32,12 @@ interface Props {
   member: T.OrganizationMember;
   organization: T.Organization;
   organizationGroups: T.Group[];
-  removeMember: (member: T.OrganizationMember) => void;
-  updateMemberGroups: (member: T.OrganizationMember, add: string[], remove: string[]) => void;
+  removeMember?: (member: T.OrganizationMember) => void;
+  updateMemberGroups: (
+    member: T.OrganizationMember,
+    add: string[],
+    remove: string[]
+  ) => Promise<void>;
 }
 
 interface State {
@@ -76,7 +80,7 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { member, organization } = this.props;
+    const { member, organization, removeMember } = this.props;
     const { actions = {} } = organization;
     return (
       <tr>
@@ -96,16 +100,20 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
           </td>
         )}
         {actions.admin && (
-          <React.Fragment>
+          <>
             <td className="nowrap text-middle text-right">
               <ActionsDropdown>
                 <ActionsDropdownItem onClick={this.handleManageGroupsClick}>
                   {translate('organization.members.manage_groups')}
                 </ActionsDropdownItem>
-                <ActionsDropdownDivider />
-                <ActionsDropdownItem destructive={true} onClick={this.handleRemoveMemberClick}>
-                  {translate('organization.members.remove')}
-                </ActionsDropdownItem>
+                {removeMember && (
+                  <>
+                    <ActionsDropdownDivider />
+                    <ActionsDropdownItem destructive={true} onClick={this.handleRemoveMemberClick}>
+                      {translate('organization.members.remove')}
+                    </ActionsDropdownItem>
+                  </>
+                )}
               </ActionsDropdown>
             </td>
 
@@ -119,15 +127,16 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
               />
             )}
 
-            {this.state.removeMemberForm && (
-              <RemoveMemberForm
-                member={this.props.member}
-                onClose={this.closeRemoveMemberForm}
-                organization={this.props.organization}
-                removeMember={this.props.removeMember}
-              />
-            )}
-          </React.Fragment>
+            {removeMember &&
+              this.state.removeMemberForm && (
+                <RemoveMemberForm
+                  member={this.props.member}
+                  onClose={this.closeRemoveMemberForm}
+                  organization={this.props.organization}
+                  removeMember={removeMember}
+                />
+              )}
+          </>
         )}
       </tr>
     );

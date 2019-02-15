@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import Icon, { IconProps } from './Icon';
+import * as theme from '../../app/theme';
 
 export default function OnboardingAddMembersIcon({
   className,
-  fill = 'currentColor',
+  fill = theme.darkBlue,
   size = 64
 }: IconProps) {
   return (

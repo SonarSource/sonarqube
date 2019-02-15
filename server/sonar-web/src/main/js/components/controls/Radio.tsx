@@ -38,10 +38,7 @@ export default class Radio extends React.PureComponent<Props> {
     return (
       <a
         aria-checked={this.props.checked}
-        className={classNames(
-          'display-inline-flex-center link-base-color link-no-underline',
-          this.props.className
-        )}
+        className={classNames('display-inline-flex-center link-checkbox', this.props.className)}
         href="#"
         onClick={this.handleClick}
         role="radio">

@@ -24,15 +24,15 @@ import { withRouter, Router } from '../../../components/hoc/withRouter';
 import { getOrganizationUrl } from '../../../helpers/urls';
 
 interface Props {
+  onClick: () => void;
   organization: T.Organization;
   router: Router;
-  skipOnboarding: () => void;
 }
 
 export class OrganizationsShortListItem extends React.PureComponent<Props> {
   handleClick = () => {
-    const { organization, router, skipOnboarding } = this.props;
-    skipOnboarding();
+    const { onClick, organization, router } = this.props;
+    onClick();
     router.push(getOrganizationUrl(organization.key));
   };
 

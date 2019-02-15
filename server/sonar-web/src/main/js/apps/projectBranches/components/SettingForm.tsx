@@ -98,7 +98,7 @@ export default class SettingForm extends React.PureComponent<Props, State> {
             className="big-spacer-bottom markdown"
             dangerouslySetInnerHTML={{ __html: translate(`property.${setting.key}.description`) }}
           />
-          <div className="big-spacer-bottom">
+          <div className="modal-field">
             <input
               autoFocus={true}
               className="input-super-large"
@@ -108,11 +108,11 @@ export default class SettingForm extends React.PureComponent<Props, State> {
               value={this.state.value}
             />
             {setting.inherited && (
-              <div className="note spacer-top">{translate('settings._default')}</div>
+              <div className="modal-field-description">{translate('settings._default')}</div>
             )}
             {!setting.inherited &&
               setting.parentValue && (
-                <div className="note spacer-top">
+                <div className="modal-field-description">
                   {translateWithParameters('settings.default_x', setting.parentValue)}
                 </div>
               )}

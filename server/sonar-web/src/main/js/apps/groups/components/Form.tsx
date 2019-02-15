@@ -64,7 +64,8 @@ export default class Form extends React.PureComponent<Props, State> {
       <SimpleModal
         header={this.props.header}
         onClose={this.props.onClose}
-        onSubmit={this.handleSubmit}>
+        onSubmit={this.handleSubmit}
+        size="small">
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form onSubmit={onFormSubmit}>
             <header className="modal-head">

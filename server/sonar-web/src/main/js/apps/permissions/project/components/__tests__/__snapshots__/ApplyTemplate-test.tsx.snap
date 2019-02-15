@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<SimpleModal
+  header="projects_role.apply_template_to_xxx.Foo"
+  onClose={[MockFunction]}
+  onSubmit={[Function]}
+  size="small"
+>
+  <Component />
+</SimpleModal>
+`;
+
+exports[`render correctly 2`] = `
+<Modal
+  contentLabel="projects_role.apply_template_to_xxx.Foo"
+  onRequestClose={[MockFunction]}
+  size="small"
+>
+  <form
+    id="project-permissions-apply-template-form"
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        projects_role.apply_template_to_xxx.Foo
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="project-permissions-template"
+        >
+          template
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <Select
+          clearable={false}
+          id="project-permissions-template"
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "SonarSource projects",
+                "value": "tmp1",
+              },
+            ]
+          }
+        />
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        disabled={true}
+      >
+        apply
+      </SubmitButton>
+      <ResetButtonLink
+        onClick={[Function]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;

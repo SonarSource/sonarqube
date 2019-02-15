@@ -89,11 +89,11 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
         <form className="big-spacer-bottom" id="encryption-form" onSubmit={this.handleEncrypt}>
           <textarea
             autoFocus={true}
-            className="input-super-large"
+            className="abs-width-600"
             id="encryption-form-value"
             onChange={this.handleChange}
             required={true}
-            rows={3}
+            rows={5}
             value={this.state.value}
           />
           <div className="spacer-top">

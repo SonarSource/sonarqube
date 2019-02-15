@@ -174,6 +174,27 @@
   font-size: var(--mediumFontSize);
 }
 
+.button-huge {
+  flex-direction: column;
+  padding: calc(2 * var(--gridSize));
+  width: 200px;
+  height: 200px;
+  background-color: #fff;
+  border: solid 1px #fff;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 1px 1px var(--barBorderColor);
+}
+
+.button-huge:hover,
+.button-huge:focus,
+.button-huge:active {
+  background-color: #fff;
+  color: var(--darkBlue);
+  box-shadow: var(--defaultShadow);
+  transform: translateY(-2px);
+}
+
 /* #region .button-group */
 .button-group {
   display: inline-block;
@@ -271,12 +292,12 @@
 /* #endregion */
 
 .button-list {
+  display: inline-flex;
+  justify-content: space-between;
   height: auto;
   border: 1px solid var(--barBorderColor);
   padding: var(--gridSize);
   margin: calc(var(--gridSize) / 2);
-  text-align: left;
-  justify-content: space-between;
   color: var(--secondFontColor);
   font-weight: normal;
 }
@@ -285,5 +306,4 @@
   background-color: white;
   border-color: var(--blue);
   color: var(--darkBlue);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.175);
 }

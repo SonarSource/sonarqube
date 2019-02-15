@@ -388,7 +388,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     const { loading } = this.state;
 
     return (
-      <Modal contentLabel="" large={true} onRequestClose={this.props.onClose}>
+      <Modal contentLabel="" onRequestClose={this.props.onClose} size={'large'}>
         <div className="modal-container source-viewer-measures-modal">
           <div className="source-viewer-header-component source-viewer-measures-component">
             <div className="source-viewer-header-component-project">

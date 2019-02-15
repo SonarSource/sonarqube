@@ -20,17 +20,17 @@
 import * as React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import SimpleModal from '../../../components/controls/SimpleModal';
-import { translate } from '../../../helpers/l10n';
 import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   confirmButtonText: string;
   header: string;
-  permissionTemplate?: { description?: string; name: string; projectKeyPattern?: string };
   onClose: () => void;
   onSubmit: (
     data: { description: string; name: string; projectKeyPattern: string }
   ) => Promise<void>;
+  permissionTemplate?: { description?: string; name: string; projectKeyPattern?: string };
 }
 
 interface State {
@@ -79,7 +79,8 @@ export default class Form extends React.PureComponent<Props, State> {
       <SimpleModal
         header={this.props.header}
         onClose={this.props.onClose}
-        onSubmit={this.handleSubmit}>
+        onSubmit={this.handleSubmit}
+        size="small">
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form id="permission-template-form" onSubmit={onFormSubmit}>
             <header className="modal-head">

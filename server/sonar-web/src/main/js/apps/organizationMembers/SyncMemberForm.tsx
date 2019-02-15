@@ -30,7 +30,6 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { fetchOrganization } from '../../store/rootActions';
 
 interface Props {
-  dismissSyncNotif?: () => void;
   fetchOrganization: (key: string) => void;
   organization: T.Organization;
   refreshMembers: () => Promise<void>;
@@ -49,12 +48,8 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
   }
 
   handleConfirm = () => {
-    const { dismissSyncNotif, organization } = this.props;
+    const { organization } = this.props;
     const { membersSync } = this.state;
-
-    if (dismissSyncNotif) {
-      dismissSyncNotif();
-    }
 
     return setOrganizationMemberSync({
       organization: organization.key,
@@ -99,63 +94,55 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
     const { organization } = this.props;
     const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
     return (
-      <>
-        <div className="display-flex-stretch big-spacer-top">
-          <RadioCard
-            onClick={this.handleManualClick}
-            selected={!membersSync}
-            title={translate('organization.members.management.manual')}>
-            <div className="spacer-left">
-              <ul className="big-spacer-left note">
-                <li className="spacer-bottom">
-                  {translate('organization.members.management.manual.add_members_manually')}
-                </li>
-                <li>
-                  {translate('organization.members.management.manual.choose_members_permissions')}
-                </li>
-              </ul>
-            </div>
-          </RadioCard>
-          <RadioCard
-            onClick={this.handleAutoClick}
-            selected={membersSync}
-            title={translateWithParameters(
-              'organization.members.management.automatic',
-              translate(almKey || '')
-            )}>
-            <div className="spacer-left">
-              <ul className="big-spacer-left note">
-                {almKey && (
-                  <>
-                    <li className="spacer-bottom">
-                      {translateWithParameters(
-                        'organization.members.management.automatic.synchronized_from_x',
-                        translate(almKey)
-                      )}
-                    </li>
-                    <li className="spacer-bottom">
-                      {translate(
-                        'organization.members.management.automatic.members_changes_reflected',
-                        almKey
-                      )}
-                    </li>
-                  </>
-                )}
-                <li>
-                  {translate(
-                    'organization.members.management.automatic.still_choose_members_permissions'
-                  )}
-                </li>
-              </ul>
-            </div>
-            {(!organization.alm || !organization.alm.membersSync) && (
-              <Alert className="big-spacer-top" variant="warning">
-                {translate('organization.members.management.automatic.warning')}
-              </Alert>
-            )}
-          </RadioCard>
-        </div>
-      </>
+      <div className="display-flex-stretch big-spacer-top">
+        <RadioCard
+          onClick={this.handleManualClick}
+          selected={!membersSync}
+          title={translate('organization.members.management.manual')}>
+          <div className="spacer-left">
+            <ul className="big-spacer-left note">
+              <li className="spacer-bottom">
+                {translate('organization.members.management.manual.add_members_manually')}
+              </li>
+              <li>{translate('organization.members.management.choose_members_permissions')}</li>
+            </ul>
+          </div>
+        </RadioCard>
+        <RadioCard
+          onClick={this.handleAutoClick}
+          selected={membersSync}
+          title={translateWithParameters(
+            'organization.members.management.automatic',
+            translate(almKey || '')
+          )}>
+          <div className="spacer-left">
+            <ul className="big-spacer-left note">
+              {almKey && (
+                <>
+                  <li className="spacer-bottom">
+                    {translateWithParameters(
+                      'organization.members.management.automatic.synchronized_from_x',
+                      translate('organization', almKey)
+                    )}
+                  </li>
+                  <li className="spacer-bottom">
+                    {translate(
+                      'organization.members.management.automatic.members_changes_reflected',
+                      almKey
+                    )}
+                  </li>
+                </>
+              )}
+              <li>{translate('organization.members.management.choose_members_permissions')}</li>
+            </ul>
+          </div>
+          {(!organization.alm || !organization.alm.membersSync) && (
+            <Alert className="big-spacer-top" variant="warning">
+              {translate('organization.members.management.automatic.warning')}
+            </Alert>
+          )}
+        </RadioCard>
+      </div>
     );
   };
 
@@ -167,14 +154,12 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
         cancelButtonText={translate('close')}
         confirmButtonText={translate('save')}
         confirmDisable={this.state.membersSync === orgMemberSync}
-        medium={true}
         modalBody={this.renderModalBody()}
         modalHeader={translate('organization.members.management.title')}
         modalHeaderDescription={this.renderModalDescription()}
-        onConfirm={this.handleConfirm}>
-        {({ onClick }) => (
-          <Button onClick={onClick}>{translate('organization.members.config_synchro')}</Button>
-        )}
+        onConfirm={this.handleConfirm}
+        size={'medium'}>
+        {({ onClick }) => <Button onClick={onClick}>{translate('configure')}</Button>}
       </ConfirmButton>
     );
   }

@@ -91,17 +91,11 @@ public class SetSettingActionTest {
       .setParam("value", "true")
       .execute();
 
-    ws.newRequest()
-      .setParam("key", "organizations.members.dismissSyncNotif")
-      .setParam("value", "org1,org2")
-      .execute();
-
     assertThat(db.getDbClient().userPropertiesDao().selectByUser(db.getSession(), user))
       .extracting(UserPropertyDto::getKey, UserPropertyDto::getValue)
       .containsExactlyInAnyOrder(
         tuple("notifications.readDate", "1234"),
-        tuple("notifications.optOut", "true"),
-        tuple("organizations.members.dismissSyncNotif", "org1,org2"));
+        tuple("notifications.optOut", "true"));
   }
 
   @Test
@@ -131,8 +125,7 @@ public class SetSettingActionTest {
 
     assertThat(definition.param("key").possibleValues()).containsExactlyInAnyOrder(
       "notifications.optOut",
-      "notifications.readDate",
-      "organizations.members.dismissSyncNotif");
+      "notifications.readDate");
   }
 
 }

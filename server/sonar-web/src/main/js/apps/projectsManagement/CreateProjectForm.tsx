@@ -199,8 +199,9 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
               {organization.actions &&
                 organization.actions.admin &&
                 !organization.canUpdateProjectsVisibilityToPrivate && (
-                  <div className="spacer-top display-flex-space-around">
+                  <div className="spacer-top">
                     <UpgradeOrganizationBox
+                      className="width-100"
                       insideModal={true}
                       onOrganizationUpgrade={this.props.onOrganizationUpgrade}
                       organization={organization}

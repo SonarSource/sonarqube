@@ -59,7 +59,6 @@ function shallowRender(props: Partial<Props> = {}) {
       currentUser={mockCurrentUser()}
       onClose={jest.fn()}
       onOpenProjectOnboarding={jest.fn()}
-      skipOnboarding={jest.fn()}
       userOrganizations={[]}
       {...props}
     />

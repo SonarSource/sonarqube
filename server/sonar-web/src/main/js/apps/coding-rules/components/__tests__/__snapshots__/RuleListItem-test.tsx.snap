@@ -3,7 +3,7 @@
 exports[`should render 1`] = `
 <div
   className="coding-rule"
-  data-rule="foo"
+  data-rule="javascript:S1067"
 >
   <table
     className="coding-rule-table"
@@ -23,8 +23,8 @@ exports[`should render 1`] = `
                 Object {
                   "pathname": "/organizations/org/rules",
                   "query": Object {
-                    "open": "foo",
-                    "rule_key": "foo",
+                    "open": "javascript:S1067",
+                    "rule_key": "javascript:S1067",
                   },
                 }
               }
@@ -72,7 +72,7 @@ exports[`should render 1`] = `
               onFilterChange={[MockFunction]}
               rule={
                 Object {
-                  "key": "foo",
+                  "key": "javascript:S1067",
                   "lang": "js",
                   "langName": "JavaScript",
                   "name": "Use foo",

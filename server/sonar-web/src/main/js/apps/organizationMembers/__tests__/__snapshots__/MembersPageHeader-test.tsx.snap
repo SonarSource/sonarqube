@@ -24,6 +24,7 @@ exports[`should render correctly 1`] = `
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
+            target="_blank"
             to="/documentation/organizations/manage-team/"
           >
             organization.members.manage_a_team
@@ -84,6 +85,7 @@ exports[`should render for admin 1`] = `
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
+            target="_blank"
             to="/documentation/organizations/manage-team/"
           >
             organization.members.manage_a_team
@@ -137,30 +139,6 @@ exports[`should render for bound organization without sync 1`] = `
         doc={Promise {}}
       />
     </div>
-    <NewInfoBox
-      description="organization.members.auto_sync_members_from_org_x.github"
-      onClose={[Function]}
-      title="organization.members.auto_sync_with_x.github"
-    >
-      <Connect(SyncMemberForm)
-        dismissSyncNotif={[Function]}
-        organization={
-          Object {
-            "actions": Object {
-              "admin": true,
-            },
-            "alm": Object {
-              "key": "github",
-              "membersSync": false,
-              "url": "https://github.com/foo",
-            },
-            "key": "foo",
-            "name": "Foo",
-          }
-        }
-        refreshMembers={[MockFunction]}
-      />
-    </NewInfoBox>
   </div>
   <div
     className="page-description"
@@ -173,6 +151,7 @@ exports[`should render for bound organization without sync 1`] = `
           "link": <Link
             onlyActiveOnIndex={false}
             style={Object {}}
+            target="_blank"
             to="/documentation/organizations/manage-team/"
           >
             organization.members.manage_a_team
@@ -180,6 +159,34 @@ exports[`should render for bound organization without sync 1`] = `
         }
       }
     />
+    <Alert
+      className="spacer-top"
+      display="inline"
+      variant="info"
+    >
+      organization.members.auto_sync_members_from_org_x.organization.github
+      <span
+        className="spacer-left"
+      >
+        <Connect(SyncMemberForm)
+          organization={
+            Object {
+              "actions": Object {
+                "admin": true,
+              },
+              "alm": Object {
+                "key": "github",
+                "membersSync": false,
+                "url": "https://github.com/foo",
+              },
+              "key": "foo",
+              "name": "Foo",
+            }
+          }
+          refreshMembers={[MockFunction]}
+        />
+      </span>
+    </Alert>
   </div>
 </header>
 `;

@@ -21,6 +21,17 @@ import { InjectedRouter } from 'react-router';
 import { Location } from 'history';
 import { Profile } from '../apps/quality-profiles/types';
 
+export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
+  return {
+    backgroundColor: '#0052CC',
+    iconPath: '"/static/authbitbucket/bitbucket.svg"',
+    installationUrl: 'https://bitbucket.org/install/app',
+    key: 'bitbucket',
+    name: 'BitBucket',
+    ...overrides
+  };
+}
+
 export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}): T.AlmOrganization {
   return {
     avatar: 'http://example.com/avatar',
@@ -90,73 +101,6 @@ export function mockEvent(overrides = {}) {
   } as any;
 }
 
-export function mockLocation(overrides: Partial<Location> = {}): Location {
-  return {
-    action: 'PUSH',
-    key: 'key',
-    pathname: '/path',
-    query: {},
-    search: '',
-    state: {},
-    ...overrides
-  };
-}
-
-export function mockOrganization(overrides: Partial<T.Organization> = {}): T.Organization {
-  return { key: 'foo', name: 'Foo', ...overrides };
-}
-
-export function mockOrganizationWithAdminActions(
-  overrides: Partial<T.Organization> = {},
-  actionsOverrides: Partial<T.Organization['actions']> = {}
-) {
-  return mockOrganization({ actions: { admin: true, ...actionsOverrides }, ...overrides });
-}
-
-export function mockOrganizationWithAlm(
-  overrides: Partial<T.Organization> = {},
-  almOverrides: Partial<T.Organization['alm']> = {}
-): T.Organization {
-  return mockOrganization({
-    alm: { key: 'github', membersSync: false, url: 'https://github.com/foo', ...almOverrides },
-    ...overrides
-  });
-}
-
-export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
-  return {
-    activeDeprecatedRuleCount: 2,
-    activeRuleCount: 10,
-    childrenCount: 0,
-    depth: 1,
-    isBuiltIn: false,
-    isDefault: false,
-    isInherited: false,
-    key: 'key',
-    language: 'js',
-    languageName: 'JavaScript',
-    name: 'name',
-    projectCount: 3,
-    organization: 'foo',
-    ...overrides
-  };
-}
-
-export function mockRouter(overrides: { push?: Function; replace?: Function } = {}) {
-  return {
-    createHref: jest.fn(),
-    createPath: jest.fn(),
-    go: jest.fn(),
-    goBack: jest.fn(),
-    goForward: jest.fn(),
-    isActive: jest.fn(),
-    push: jest.fn(),
-    replace: jest.fn(),
-    setRouteLeaveHook: jest.fn(),
-    ...overrides
-  } as InjectedRouter;
-}
-
 export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {}) {
   const issue: T.Issue = {
     actions: [],
@@ -201,4 +145,94 @@ export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {
     ...issue,
     ...overrides
   };
+}
+
+export function mockLocation(overrides: Partial<Location> = {}): Location {
+  return {
+    action: 'PUSH',
+    key: 'key',
+    pathname: '/path',
+    query: {},
+    search: '',
+    state: {},
+    ...overrides
+  };
+}
+
+export function mockOrganization(overrides: Partial<T.Organization> = {}): T.Organization {
+  return { key: 'foo', name: 'Foo', ...overrides };
+}
+
+export function mockOrganizationWithAdminActions(
+  overrides: Partial<T.Organization> = {},
+  actionsOverrides: Partial<T.Organization['actions']> = {}
+) {
+  return mockOrganization({ actions: { admin: true, ...actionsOverrides }, ...overrides });
+}
+
+export function mockOrganizationWithAlm(
+  overrides: Partial<T.Organization> = {},
+  almOverrides: Partial<T.Organization['alm']> = {}
+): T.Organization {
+  return mockOrganization({
+    alm: { key: 'github', membersSync: false, url: 'https://github.com/foo', ...almOverrides },
+    ...overrides
+  });
+}
+
+export function mockQualityGate(overrides: Partial<T.QualityGate> = {}): T.QualityGate {
+  return {
+    id: 1,
+    name: 'qualitygate',
+    ...overrides
+  };
+}
+
+export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
+  return {
+    activeDeprecatedRuleCount: 2,
+    activeRuleCount: 10,
+    childrenCount: 0,
+    depth: 1,
+    isBuiltIn: false,
+    isDefault: false,
+    isInherited: false,
+    key: 'key',
+    language: 'js',
+    languageName: 'JavaScript',
+    name: 'name',
+    projectCount: 3,
+    organization: 'foo',
+    ...overrides
+  };
+}
+
+export function mockRouter(overrides: { push?: Function; replace?: Function } = {}) {
+  return {
+    createHref: jest.fn(),
+    createPath: jest.fn(),
+    go: jest.fn(),
+    goBack: jest.fn(),
+    goForward: jest.fn(),
+    isActive: jest.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+    setRouteLeaveHook: jest.fn(),
+    ...overrides
+  } as InjectedRouter;
+}
+
+export function mockRule(overrides: Partial<T.Rule> = {}): T.Rule {
+  return {
+    key: 'javascript:S1067',
+    lang: 'js',
+    langName: 'JavaScript',
+    name: 'Use foo',
+    severity: 'MAJOR',
+    status: 'READY',
+    sysTags: ['a', 'b'],
+    tags: ['x'],
+    type: 'CODE_SMELL',
+    ...overrides
+  } as T.Rule;
 }

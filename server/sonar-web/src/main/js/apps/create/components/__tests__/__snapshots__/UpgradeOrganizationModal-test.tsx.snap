@@ -3,9 +3,9 @@
 exports[`should render correctly 1`] = `
 <Modal
   contentLabel="billing.upgrade_box.upgrade_to_paid_plan"
-  medium={true}
   onRequestClose={[MockFunction]}
   shouldCloseOnOverlayClick={false}
+  size="medium"
 >
   <div
     className="modal-head"

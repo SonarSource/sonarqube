@@ -153,7 +153,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
           <OnboardingModal
             onClose={this.closeOnboarding}
             onOpenProjectOnboarding={this.openProjectOnboarding}
-            skipOnboarding={this.props.skipOnboarding}
           />
         )}
       </OnboardingContext.Provider>

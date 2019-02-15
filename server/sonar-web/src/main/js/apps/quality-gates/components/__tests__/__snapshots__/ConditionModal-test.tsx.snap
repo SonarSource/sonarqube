@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ConfirmModal
+  confirmButtonText="a"
+  confirmDisable={true}
+  header="a"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field"
+  >
+    <label
+      htmlFor="condition-metric"
+    >
+      quality_gates.conditions.metric
+    </label>
+  </div>
+</ConfirmModal>
+`;
+
+exports[`should render correctly 2`] = `
+<ConfirmModal
+  confirmButtonText="a"
+  confirmDisable={false}
+  header="a"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field"
+  >
+    <label
+      htmlFor="condition-metric"
+    >
+      quality_gates.conditions.metric
+    </label>
+  </div>
+  <div
+    className="modal-field display-inline-block"
+  >
+    <label
+      htmlFor="condition-operator"
+    >
+      quality_gates.conditions.operator
+    </label>
+    <ConditionOperator
+      metric={
+        Object {
+          "id": "1",
+          "key": "foo",
+          "name": "Foo",
+          "type": "PERCENT",
+        }
+      }
+      onOperatorChange={[Function]}
+    />
+  </div>
+  <div
+    className="modal-field display-inline-block spacer-left"
+  >
+    <label
+      htmlFor="condition-threshold"
+    >
+      quality_gates.conditions.error
+    </label>
+    <ThresholdInput
+      metric={
+        Object {
+          "id": "1",
+          "key": "foo",
+          "name": "Foo",
+          "type": "PERCENT",
+        }
+      }
+      name="error"
+      onChange={[Function]}
+      value=""
+    />
+  </div>
+</ConfirmModal>
+`;

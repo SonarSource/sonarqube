@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from './Modal';
+import Modal, { ModalProps } from './Modal';
 import ValidationForm, { ChildrenProps } from './ValidationForm';
 import DeferredSpinner from '../common/DeferredSpinner';
 import { SubmitButton, ResetButtonLink } from '../ui/buttons';
 import { translate } from '../../helpers/l10n';
 
-interface Props<V> {
+interface Props<V> extends ModalProps {
   children: (props: ChildrenProps<V>) => React.ReactNode;
   confirmButtonText: string;
   header: string;
@@ -44,7 +44,11 @@ export default class ValidationModal<V> extends React.PureComponent<Props<V>> {
 
   render() {
     return (
-      <Modal contentLabel={this.props.header} onRequestClose={this.props.onClose}>
+      <Modal
+        contentLabel={this.props.header}
+        noBackdrop={this.props.noBackdrop}
+        onRequestClose={this.props.onClose}
+        size={this.props.size}>
         <ValidationForm
           initialValues={this.props.initialValues}
           isInitialValid={this.props.isInitialValid}

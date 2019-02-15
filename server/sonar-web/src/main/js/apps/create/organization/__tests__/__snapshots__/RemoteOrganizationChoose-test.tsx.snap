@@ -124,6 +124,7 @@ exports[`should display unbound installations 1`] = `
             className="form-field abs-width-400"
           >
             <label
+              className="text-normal"
               htmlFor="select-unbound-installation"
             >
               onboarding.import_organization.choose_unbound_installation_x.github

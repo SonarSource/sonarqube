@@ -42,7 +42,6 @@ export class OnboardingPage extends React.PureComponent<Props> {
           <OnboardingModal
             onClose={this.closeOnboarding}
             onOpenProjectOnboarding={openProjectOnboarding}
-            skipOnboarding={this.props.skipOnboarding}
           />
         )}
       </OnboardingContext.Consumer>

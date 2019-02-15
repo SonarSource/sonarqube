@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sendTestEmail } from '../../../api/settings';
-import { parseError } from '../../../helpers/request';
-import { SubmitButton } from '../../../components/ui/buttons';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { Alert } from '../../../components/ui/Alert';
+import { SubmitButton } from '../../../components/ui/buttons';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import { sendTestEmail } from '../../../api/settings';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { parseError } from '../../../helpers/request';
 
 interface Props {
   currentUser: T.LoggedInUser;
@@ -38,7 +39,7 @@ interface State {
   error?: string;
 }
 
-class EmailForm extends React.PureComponent<Props, State> {
+export class EmailForm extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -93,12 +94,16 @@ class EmailForm extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <div className="huge-spacer-top">
-        <h3 className="spacer-bottom">{translate('email_configuration.test.title')}</h3>
+      <div className="settings-definition">
+        <div className="settings-definition-left">
+          <h3 className="settings-definition-name">
+            {translate('email_configuration.test.title')}
+          </h3>
+        </div>
 
-        <form onSubmit={this.handleFormSubmit} style={{ marginLeft: 201 }}>
+        <form className="settings-definition-right" onSubmit={this.handleFormSubmit}>
           {this.state.success && (
-            <div className="modal-field">
+            <div className="form-field">
               <Alert variant="success">
                 {translateWithParameters(
                   'email_configuration.test.email_was_sent_to_x',
@@ -109,12 +114,12 @@ class EmailForm extends React.PureComponent<Props, State> {
           )}
 
           {this.state.error != null && (
-            <div className="modal-field">
+            <div className="form-field">
               <Alert variant="error">{this.state.error}</Alert>
             </div>
           )}
 
-          <div className="modal-field">
+          <div className="form-field">
             <label htmlFor="test-email-to">
               {translate('email_configuration.test.to_address')}
               <em className="mandatory">*</em>
@@ -129,7 +134,7 @@ class EmailForm extends React.PureComponent<Props, State> {
               value={this.state.recipient}
             />
           </div>
-          <div className="modal-field">
+          <div className="form-field">
             <label htmlFor="test-email-subject">
               {translate('email_configuration.test.subject')}
             </label>
@@ -142,7 +147,7 @@ class EmailForm extends React.PureComponent<Props, State> {
               value={this.state.subject}
             />
           </div>
-          <div className="modal-field">
+          <div className="form-field">
             <label htmlFor="test-email-message">
               {translate('email_configuration.test.message')}
               <em className="mandatory">*</em>
@@ -158,12 +163,10 @@ class EmailForm extends React.PureComponent<Props, State> {
             />
           </div>
 
-          <div className="modal-field">
-            {this.state.loading && <i className="spacer-right spinner" />}
-            <SubmitButton disabled={this.state.loading}>
-              {translate('email_configuration.test.send')}
-            </SubmitButton>
-          </div>
+          <SubmitButton disabled={this.state.loading}>
+            {translate('email_configuration.test.send')}
+          </SubmitButton>
+          {this.state.loading && <DeferredSpinner className="spacer-left" />}
         </form>
       </div>
     );

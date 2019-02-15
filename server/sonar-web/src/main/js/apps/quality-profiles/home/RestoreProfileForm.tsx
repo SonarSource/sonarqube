@@ -79,13 +79,34 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
     );
   };
 
+  renderAlert(profile: { name: string }, ruleFailures = 0, ruleSuccesses: number): React.ReactNode {
+    return ruleFailures ? (
+      <Alert variant="warning">
+        {translateWithParameters(
+          'quality_profiles.restore_profile.warning',
+          profile.name,
+          ruleSuccesses,
+          ruleFailures
+        )}
+      </Alert>
+    ) : (
+      <Alert variant="success">
+        {translateWithParameters(
+          'quality_profiles.restore_profile.success',
+          profile.name,
+          ruleSuccesses
+        )}
+      </Alert>
+    );
+  }
+
   render() {
     const header = translate('quality_profiles.restore_profile');
 
     const { loading, profile, ruleFailures, ruleSuccesses } = this.state;
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form id="restore-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>
@@ -93,24 +114,7 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
 
           <div className="modal-body">
             {profile != null && ruleSuccesses != null ? (
-              ruleFailures ? (
-                <Alert variant="warning">
-                  {translateWithParameters(
-                    'quality_profiles.restore_profile.warning',
-                    profile.name,
-                    ruleSuccesses,
-                    ruleFailures
-                  )}
-                </Alert>
-              ) : (
-                <Alert variant="success">
-                  {translateWithParameters(
-                    'quality_profiles.restore_profile.success',
-                    profile.name,
-                    ruleSuccesses
-                  )}
-                </Alert>
-              )
+              this.renderAlert(profile, ruleFailures, ruleSuccesses)
             ) : (
               <div className="modal-field">
                 <label htmlFor="restore-profile-backup">

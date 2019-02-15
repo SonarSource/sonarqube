@@ -27,23 +27,23 @@ it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('calls skiponboarding and redirects to org page', () => {
-  const skipOnboarding = jest.fn();
+it('calls onClick and redirects to org page', () => {
+  const onClick = jest.fn();
   const push = jest.fn();
-  const wrapper = shallowRender({ skipOnboarding, router: mockRouter({ push }) });
+  const wrapper = shallowRender({ onClick, router: mockRouter({ push }) });
 
   click(wrapper);
 
-  expect(skipOnboarding).toHaveBeenCalledTimes(1);
+  expect(onClick).toHaveBeenCalledTimes(1);
   expect(push).toHaveBeenCalledWith('/organizations/foo');
 });
 
 function shallowRender(props: Partial<OrganizationsShortListItem['props']> = {}) {
   return shallow(
     <OrganizationsShortListItem
+      onClick={jest.fn()}
       organization={mockOrganization()}
       router={mockRouter()}
-      skipOnboarding={jest.fn()}
       {...props}
     />
   );

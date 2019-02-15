@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<Modal
+  contentLabel="coding_rules.activate_in_quality_profile (42 coding_rules._rules)"
+  onRequestClose={[MockFunction]}
+  size="small"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        coding_rules.activate_in_quality_profile (42 coding_rules._rules)
+      </h2>
+    </header>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <h3>
+          <label
+            htmlFor="coding-rules-bulk-change-profile"
+          >
+            coding_rules.activate_in
+          </label>
+        </h3>
+        <span>
+          name
+           — 
+          are_you_sure
+        </span>
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={false}
+        id="coding-rules-submit-bulk-change"
+      >
+        apply
+      </SubmitButton>
+      <ResetButtonLink
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;

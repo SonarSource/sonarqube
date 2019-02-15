@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="quality_profiles.restore_profile"
+  onRequestClose={[MockFunction]}
+  size="small"
+>
+  <form
+    id="restore-profile-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        quality_profiles.restore_profile
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="restore-profile-backup"
+        >
+          backup
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          id="restore-profile-backup"
+          name="backup"
+          required={true}
+          type="file"
+        />
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={false}
+        id="restore-profile-submit"
+      >
+        restore
+      </SubmitButton>
+      <ResetButtonLink
+        id="restore-profile-cancel"
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;

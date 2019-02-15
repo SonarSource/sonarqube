@@ -30,15 +30,13 @@ jest.mock('../../../api/organizations', () => ({
 }));
 
 beforeEach(() => {
-  (setOrganizationMemberSync as jest.Mock).mockClear();
-  (syncMembers as jest.Mock).mockClear();
+  jest.clearAllMocks();
 });
 
 it('should allow to switch to automatic mode with github', async () => {
-  const dismissSyncNotif = jest.fn();
   const fetchOrganization = jest.fn();
   const refreshMembers = jest.fn().mockResolvedValue({});
-  const wrapper = shallowRender({ dismissSyncNotif, fetchOrganization, refreshMembers });
+  const wrapper = shallowRender({ fetchOrganization, refreshMembers });
   expect(wrapper).toMatchSnapshot();
 
   wrapper.setState({ membersSync: true });
@@ -48,8 +46,7 @@ it('should allow to switch to automatic mode with github', async () => {
   await waitAndUpdate(wrapper);
   expect(fetchOrganization).toHaveBeenCalledWith('foo');
   expect(syncMembers).toHaveBeenCalledWith('foo');
-  expect(refreshMembers).toBeCalledTimes(1);
-  expect(dismissSyncNotif).toBeCalledTimes(1);
+  expect(refreshMembers).toBeCalled();
 });
 
 it('should allow to switch to automatic mode with bitbucket', async () => {

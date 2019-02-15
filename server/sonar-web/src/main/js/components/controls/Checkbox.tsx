@@ -29,6 +29,7 @@ interface Props {
   id?: string;
   loading?: boolean;
   onCheck: (checked: boolean, id?: string) => void;
+  right?: boolean;
   thirdState?: boolean;
 }
 
@@ -46,31 +47,33 @@ export default class Checkbox extends React.PureComponent<Props> {
   };
 
   render() {
+    const { children, disabled, loading, right } = this.props;
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': this.props.checked,
       'icon-checkbox-single': this.props.thirdState,
-      'icon-checkbox-disabled': this.props.disabled
+      'icon-checkbox-disabled': disabled
     });
 
-    if (this.props.children) {
+    if (children) {
       return (
         <a
           className={classNames('link-checkbox', this.props.className, {
-            note: this.props.disabled,
-            disabled: this.props.disabled
+            note: disabled,
+            disabled
           })}
           href="#"
           id={this.props.id}
           onClick={this.handleClick}>
-          <DeferredSpinner loading={Boolean(this.props.loading)}>
+          {right && children}
+          <DeferredSpinner loading={Boolean(loading)}>
             <i className={className} />
           </DeferredSpinner>
-          {this.props.children}
+          {!right && children}
         </a>
       );
     }
 
-    if (this.props.loading) {
+    if (loading) {
       return <DeferredSpinner />;
     }
 

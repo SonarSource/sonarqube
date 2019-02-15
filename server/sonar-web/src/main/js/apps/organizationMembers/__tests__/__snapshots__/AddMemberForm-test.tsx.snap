@@ -38,7 +38,7 @@ exports[`should render and open the modal 2`] = `
         className="modal-body"
       >
         <div
-          className="modal-large-field"
+          className="modal-field"
         >
           <label>
             users.search_description

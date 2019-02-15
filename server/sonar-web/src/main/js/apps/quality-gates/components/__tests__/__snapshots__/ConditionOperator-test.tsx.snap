@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Select
+  autoFocus={true}
+  className="input-medium"
+  clearable={false}
+  id="condition-operator"
+  name="operator"
+  onChange={[Function]}
+  options={
+    Array [
+      Object {
+        "label": "quality_gates.operator.LT",
+        "value": "LT",
+      },
+      Object {
+        "label": "quality_gates.operator.GT",
+        "value": "GT",
+      },
+    ]
+  }
+  searchable={false}
+  value="LT"
+/>
+`;

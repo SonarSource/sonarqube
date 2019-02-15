@@ -20,19 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import RuleListItem from '../RuleListItem';
-import { mockEvent } from '../../../../helpers/testMocks';
-
-const rule: T.Rule = {
-  key: 'foo',
-  lang: 'js',
-  langName: 'JavaScript',
-  name: 'Use foo',
-  severity: 'MAJOR',
-  status: 'READY',
-  sysTags: ['a', 'b'],
-  tags: ['x'],
-  type: 'CODE_SMELL'
-};
+import { mockEvent, mockRule } from '../../../../helpers/testMocks';
 
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -42,7 +30,7 @@ it('should open rule', () => {
   const onOpen = jest.fn();
   const wrapper = shallowRender({ onOpen });
   wrapper.find('Link').prop<Function>('onClick')(mockEvent({ button: 0 }));
-  expect(onOpen).toBeCalledWith('foo');
+  expect(onOpen).toBeCalledWith('javascript:S1067');
 });
 
 function shallowRender(props?: Partial<RuleListItem['props']>) {
@@ -53,7 +41,7 @@ function shallowRender(props?: Partial<RuleListItem['props']>) {
       onFilterChange={jest.fn()}
       onOpen={jest.fn()}
       organization="org"
-      rule={rule}
+      rule={mockRule()}
       selected={false}
       {...props}
     />

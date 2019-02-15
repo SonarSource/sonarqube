@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ManageMemberGroupsForm from '../ManageMemberGroupsForm';
-import { mockEvent } from '../../../helpers/testMocks';
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { name: 'MyOrg', key: 'myorg' };
@@ -45,11 +44,17 @@ const organizationGroups = [
   }
 ];
 const userGroups = {
-  11: { id: 11, name: 'pull-request-analysers', description: 'Technical accounts', selected: true }
+  '11': {
+    default: false,
+    id: 11,
+    name: 'pull-request-analysers',
+    description: 'Technical accounts',
+    selected: true
+  }
 };
 
-function getMountedForm(updateFunc = jest.fn()) {
-  const wrapper = shallow(
+function getMountedForm(updateFunc = jest.fn().mockResolvedValue({})) {
+  const wrapper = shallow<ManageMemberGroupsForm>(
     <ManageMemberGroupsForm
       member={member}
       onClose={jest.fn()}
@@ -75,27 +80,26 @@ it('should render', () => {
     />
   );
   expect(wrapper).toMatchSnapshot();
+  expect(wrapper.dive()).toMatchSnapshot();
 });
 
 it('should correctly select the groups', () => {
   const form = getMountedForm();
-  const instance = form.instance as ManageMemberGroupsForm;
-  expect(instance.isGroupSelected('11')).toBeTruthy();
-  expect(instance.isGroupSelected('7')).toBeFalsy();
-  instance.onCheck('11', false);
-  instance.onCheck('7', true);
+  expect(form.instance.isGroupSelected('11')).toBeTruthy();
+  expect(form.instance.isGroupSelected('7')).toBeFalsy();
+  form.instance.onCheck('11', false);
+  form.instance.onCheck('7', true);
   expect(form.wrapper.state('userGroups')).toMatchSnapshot();
-  expect(instance.isGroupSelected('11')).toBeFalsy();
-  expect(instance.isGroupSelected('7')).toBeTruthy();
+  expect(form.instance.isGroupSelected('11')).toBeFalsy();
+  expect(form.instance.isGroupSelected('7')).toBeTruthy();
 });
 
 it('should correctly handle the submit event and close the modal', () => {
-  const updateMemberGroups = jest.fn();
+  const updateMemberGroups = jest.fn().mockResolvedValue({});
   const form = getMountedForm(updateMemberGroups);
-  const instance = form.instance as ManageMemberGroupsForm;
-  instance.onCheck('11', false);
-  instance.onCheck('7', true);
-  instance.handleSubmit(mockEvent());
+  form.instance.onCheck('11', false);
+  form.instance.onCheck('7', true);
+  form.instance.handleSubmit();
   expect(updateMemberGroups.mock.calls).toMatchSnapshot();
   expect(form.wrapper.state()).toMatchSnapshot();
 });

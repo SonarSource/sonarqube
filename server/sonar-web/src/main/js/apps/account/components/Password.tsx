@@ -87,7 +87,7 @@ export default class Password extends React.Component<Props, State> {
               </Alert>
             ))}
 
-          <div className="modal-field">
+          <div className="form-field">
             <label htmlFor="old_password">
               {translate('my_profile.password.old')}
               <em className="mandatory">*</em>
@@ -101,7 +101,7 @@ export default class Password extends React.Component<Props, State> {
               type="password"
             />
           </div>
-          <div className="modal-field">
+          <div className="form-field">
             <label htmlFor="password">
               {translate('my_profile.password.new')}
               <em className="mandatory">*</em>
@@ -115,7 +115,7 @@ export default class Password extends React.Component<Props, State> {
               type="password"
             />
           </div>
-          <div className="modal-field">
+          <div className="form-field">
             <label htmlFor="password_confirmation">
               {translate('my_profile.password.confirm')}
               <em className="mandatory">*</em>
@@ -129,7 +129,7 @@ export default class Password extends React.Component<Props, State> {
               type="password"
             />
           </div>
-          <div className="modal-field">
+          <div className="form-field">
             <SubmitButton id="change-password">
               {translate('my_profile.password.submit')}
             </SubmitButton>

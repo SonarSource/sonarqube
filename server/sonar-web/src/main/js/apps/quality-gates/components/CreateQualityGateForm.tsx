@@ -67,7 +67,8 @@ class CreateQualityGateForm extends React.PureComponent<Props, State> {
         confirmDisable={!name}
         header={translate('quality_gates.create')}
         onClose={this.props.onClose}
-        onConfirm={this.handleCreate}>
+        onConfirm={this.handleCreate}
+        size="small">
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">
             {translate('name')}

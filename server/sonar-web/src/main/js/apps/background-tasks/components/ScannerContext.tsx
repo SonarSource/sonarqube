@@ -62,7 +62,7 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
     const { scannerContext } = this.state;
 
     return (
-      <Modal contentLabel="scanner context" large={true} onRequestClose={this.props.onClose}>
+      <Modal contentLabel="scanner context" onRequestClose={this.props.onClose} size={'large'}>
         <div className="modal-head">
           <h2>
             {translate('background_tasks.scanner_context')}

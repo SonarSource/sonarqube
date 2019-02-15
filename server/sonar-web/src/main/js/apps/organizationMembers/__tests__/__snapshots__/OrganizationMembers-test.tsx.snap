@@ -12,7 +12,7 @@ exports[`should fetch members and render for non-admin 1`] = `
   <Suggestions
     suggestions="organization_members"
   />
-  <Connect(MembersPageHeader)
+  <MembersPageHeader
     handleAddMember={[Function]}
     loading={true}
     organization={
@@ -38,7 +38,7 @@ exports[`should fetch members and render for non-admin 2`] = `
   <Suggestions
     suggestions="organization_members"
   />
-  <Connect(MembersPageHeader)
+  <MembersPageHeader
     handleAddMember={[Function]}
     loading={false}
     members={
@@ -85,6 +85,15 @@ exports[`should fetch members and render for non-admin 2`] = `
     total={3}
   />
   <MembersList
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
     members={
       Array [
         Object {

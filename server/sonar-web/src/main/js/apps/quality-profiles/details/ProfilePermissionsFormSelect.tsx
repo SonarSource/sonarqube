@@ -122,15 +122,15 @@ function getStringValue(option: Option) {
 
 function optionRenderer(option: OptionWithValue) {
   return isUser(option) ? (
-    <div>
+    <>
       <Avatar hash={option.avatar} name={option.name} size={16} />
       <strong className="spacer-left">{option.name}</strong>
       <span className="note little-spacer-left">{option.login}</span>
-    </div>
+    </>
   ) : (
-    <div>
+    <>
       <GroupIcon size={16} />
       <strong className="spacer-left">{option.name}</strong>
-    </div>
+    </>
   );
 }

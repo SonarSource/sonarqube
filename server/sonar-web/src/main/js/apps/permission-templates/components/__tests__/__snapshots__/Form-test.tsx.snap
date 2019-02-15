@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<SimpleModal
+  header="title"
+  onClose={[MockFunction]}
+  onSubmit={[Function]}
+  size="small"
+>
+  <Component />
+</SimpleModal>
+`;

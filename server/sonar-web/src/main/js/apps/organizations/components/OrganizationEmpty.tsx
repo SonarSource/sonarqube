@@ -50,19 +50,15 @@ export class OrganizationEmpty extends React.PureComponent<Props> {
     return (
       <div className="organization-empty">
         <h3 className="text-center">{translate('onboarding.create_organization.ready')}</h3>
-        <div className="onboarding-choices">
-          <Button className="onboarding-choice" onClick={this.handleNewProjectClick}>
+        <div className="display-flex-space-around huge-spacer-top">
+          <Button className="button-huge" onClick={this.handleNewProjectClick}>
             <OnboardingProjectIcon className="big-spacer-bottom" />
-            <h6 className="onboarding-choice-name">
-              {translate('provisioning.analyze_new_project')}
-            </h6>
+            <p className="medium spacer-top">{translate('provisioning.analyze_new_project')}</p>
           </Button>
           {!memberSyncActivated && (
-            <Button className="onboarding-choice" onClick={this.handleAddMembersClick}>
+            <Button className="button-huge" onClick={this.handleAddMembersClick}>
               <OnboardingAddMembersIcon />
-              <h6 className="onboarding-choice-name">
-                {translate('organization.members.add.multiple')}
-              </h6>
+              <p className="medium spacer-top">{translate('organization.members.add.multiple')}</p>
             </Button>
           )}
         </div>

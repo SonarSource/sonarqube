@@ -20,35 +20,31 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MembersList from '../MembersList';
+import { mockOrganization, mockCurrentUser } from '../../../helpers/testMocks';
 
-const organization = { key: 'foo', name: 'Foo' };
 const members = [
   { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },
   { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af', groupCount: 1 }
 ];
 
 it('should render a list of members of an organization', () => {
-  const wrapper = shallow(
-    <MembersList
-      members={members}
-      organization={organization}
-      organizationGroups={[]}
-      removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render "no results"', () => {
-  const wrapper = shallow(
+  expect(shallowRender({ members: [] })).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<MembersList['props']> = {}) {
+  return shallow(
     <MembersList
-      members={[]}
-      organization={organization}
+      currentUser={mockCurrentUser({ login: 'admin' })}
+      members={members}
+      organization={mockOrganization()}
       organizationGroups={[]}
       removeMember={jest.fn()}
       updateMemberGroups={jest.fn()}
+      {...props}
     />
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

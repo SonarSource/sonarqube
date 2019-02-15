@@ -80,7 +80,7 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
       this.state.loading || !this.state.name || this.state.name === profile.name;
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form id="copy-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>

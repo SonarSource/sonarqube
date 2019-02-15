@@ -19,26 +19,17 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import NewInfoBox from '../NewInfoBox';
-import { click } from '../../../helpers/testUtils';
+import RenameQualityGateForm from '../RenameQualityGateForm';
+import { mockQualityGate } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   expect(
     shallow(
-      <NewInfoBox description="My description" onClose={jest.fn()} title="My title">
-        <div />
-      </NewInfoBox>
+      <RenameQualityGateForm
+        onClose={jest.fn()}
+        onRename={jest.fn()}
+        qualityGate={mockQualityGate()}
+      />
     )
   ).toMatchSnapshot();
-});
-
-it('should allow to opt out', () => {
-  const onClose = jest.fn();
-  const wrapper = shallow(
-    <NewInfoBox description="" onClose={onClose} title="">
-      <div />
-    </NewInfoBox>
-  );
-  click(wrapper.find('ButtonIcon'));
-  expect(onClose).toHaveBeenCalled();
 });

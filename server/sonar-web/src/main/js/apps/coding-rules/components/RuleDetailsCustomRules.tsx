@@ -104,7 +104,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
       </td>
 
       <td className="coding-rules-detail-list-severity">
-        <SeverityHelper severity={rule.severity} />
+        <SeverityHelper className="display-flex-center" severity={rule.severity} />
       </td>
 
       <td className="coding-rules-detail-list-parameters">
@@ -163,7 +163,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             </CustomRuleButton>
           )}
 
-          <DeferredSpinner loading={loading}>
+          <DeferredSpinner className="spacer-left" loading={loading}>
             {rules.length > 0 && (
               <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
                 <tbody>{sortBy(rules, rule => rule.name).map(this.renderRule)}</tbody>

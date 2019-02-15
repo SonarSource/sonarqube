@@ -4,6 +4,7 @@ exports[`should render correctly 1`] = `
 <Modal
   contentLabel="quality_profiles.extend_x_title.name.JavaScript"
   onRequestClose={[MockFunction]}
+  size="small"
 >
   <form>
     <div

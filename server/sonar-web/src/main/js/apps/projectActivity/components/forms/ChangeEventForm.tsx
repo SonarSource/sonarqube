@@ -23,8 +23,8 @@ import ConfirmModal from '../../../../components/controls/ConfirmModal';
 
 interface Props {
   changeEvent: (event: string, name: string) => Promise<void>;
-  header: string;
   event: T.AnalysisEvent;
+  header: string;
   onClose: () => void;
 }
 
@@ -54,7 +54,8 @@ export default class ChangeEventForm extends React.PureComponent<Props, State> {
         confirmDisable={!name || name === this.props.event.name}
         header={this.props.header}
         onClose={this.props.onClose}
-        onConfirm={this.handleSubmit}>
+        onConfirm={this.handleSubmit}
+        size="small">
         <div className="modal-field">
           <label>{translate('name')}</label>
           <input autoFocus={true} onChange={this.changeInput} type="text" value={name} />

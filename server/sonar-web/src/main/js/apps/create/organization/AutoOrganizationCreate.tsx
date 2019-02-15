@@ -77,12 +77,17 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
   };
 
   handleCreateOrganization = () => {
-    const { organization } = this.props;
+    const { almApplication, almOrganization, organization } = this.props;
     if (!organization) {
       return Promise.reject();
     }
     return this.props.createOrganization({
       ...organization,
+      alm: {
+        key: almApplication.key,
+        membersSync: true,
+        url: almOrganization.almUrl
+      },
       installationId: this.props.almInstallId
     });
   };
@@ -169,10 +174,13 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
                     )}
                   </p>
                   <a
-                    href={getAlmMembersUrl(almOrganization.key, almOrganization.almUrl)}
+                    href={getAlmMembersUrl(almApplication.key, almOrganization.almUrl)}
                     rel="noopener noreferrer"
                     target="_blank">
-                    {translate('onboarding.import_organization.see_who_has_access')}
+                    {translateWithParameters(
+                      'organization.members.see_all_members_on_x',
+                      translate(almKey)
+                    )}
                   </a>
                 </Alert>
               }

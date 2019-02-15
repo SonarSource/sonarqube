@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ConfirmModal
+  confirmButtonText="rename"
+  confirmDisable={true}
+  header="quality_gates.rename"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field"
+  >
+    <label
+      htmlFor="quality-gate-form-name"
+    >
+      name
+      <em
+        className="mandatory"
+      >
+        *
+      </em>
+    </label>
+    <input
+      autoFocus={true}
+      id="quality-gate-form-name"
+      maxLength={100}
+      onChange={[Function]}
+      required={true}
+      size={50}
+      type="text"
+      value="qualitygate"
+    />
+  </div>
+</ConfirmModal>
+`;

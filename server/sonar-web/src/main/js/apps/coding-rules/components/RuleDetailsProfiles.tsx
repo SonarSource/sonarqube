@@ -280,7 +280,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
 
           {activations.length > 0 && (
             <table
-              className="coding-rules-detail-quality-profiles width100"
+              className="coding-rules-detail-quality-profiles width-100"
               id="coding-rules-detail-quality-profiles">
               <tbody>{activations.map(this.renderActivation)}</tbody>
             </table>

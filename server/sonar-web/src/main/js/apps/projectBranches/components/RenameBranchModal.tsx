@@ -79,7 +79,7 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
       this.state.loading || !this.state.name || this.state.name === branch.name;
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

@@ -20,11 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import * as theme from '../../app/theme';
+import ChevronRightIcon from '../icons-components/ChevronRightcon';
 import ClearIcon from '../icons-components/ClearIcon';
 import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
 import './buttons.css';
-import ChevronRightIcon from '../icons-components/ChevronRightcon';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,

@@ -3,9 +3,9 @@
 exports[`renders correctly 1`] = `
 <Modal
   contentLabel="onboarding.header"
-  medium={true}
   onRequestClose={[MockFunction]}
   shouldCloseOnOverlayClick={false}
+  size="small"
 >
   <div
     className="modal-head"
@@ -28,11 +28,11 @@ exports[`renders correctly 1`] = `
       <OnboardingProjectIcon
         className="big-spacer-bottom"
       />
-      <h6
-        className="onboarding-choice-name big-spacer-bottom"
+      <h3
+        className="big-spacer-bottom"
       >
         onboarding.analyze_your_code
-      </h6>
+      </h3>
       <Button
         onClick={[MockFunction]}
       >
@@ -55,9 +55,9 @@ exports[`renders correctly 1`] = `
 exports[`should display organization list if any 1`] = `
 <Modal
   contentLabel="onboarding.header"
-  medium={true}
   onRequestClose={[MockFunction]}
   shouldCloseOnOverlayClick={false}
+  size="medium"
 >
   <div
     className="modal-head"
@@ -80,11 +80,11 @@ exports[`should display organization list if any 1`] = `
       <OnboardingProjectIcon
         className="big-spacer-bottom"
       />
-      <h6
-        className="onboarding-choice-name big-spacer-bottom"
+      <h3
+        className="big-spacer-bottom"
       >
         onboarding.analyze_your_code
-      </h6>
+      </h3>
       <Button
         onClick={[MockFunction]}
       >
@@ -104,12 +104,13 @@ exports[`should display organization list if any 1`] = `
       <OnboardingTeamIcon
         className="big-spacer-bottom"
       />
-      <h6
-        className="onboarding-choice-name big-spacer-bottom"
+      <h3
+        className="big-spacer-bottom"
       >
         onboarding.browse_your_organizations
-      </h6>
+      </h3>
       <OrganizationsShortList
+        onClick={[MockFunction]}
         organizations={
           Array [
             Object {
@@ -122,7 +123,6 @@ exports[`should display organization list if any 1`] = `
             },
           ]
         }
-        skipOnboarding={[MockFunction]}
       />
     </div>
   </div>

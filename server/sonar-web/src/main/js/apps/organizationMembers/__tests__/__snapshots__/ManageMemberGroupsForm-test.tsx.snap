@@ -24,6 +24,7 @@ Object {
   "loading": false,
   "userGroups": Object {
     "11": Object {
+      "default": false,
       "description": "Technical accounts",
       "id": 11,
       "name": "pull-request-analysers",
@@ -40,6 +41,7 @@ Object {
 exports[`should correctly select the groups 1`] = `
 Object {
   "11": Object {
+    "default": false,
     "description": "Technical accounts",
     "id": 11,
     "name": "pull-request-analysers",
@@ -53,44 +55,62 @@ Object {
 `;
 
 exports[`should render 1`] = `
+<SimpleModal
+  header="organization.members.manage_groups"
+  onClose={[MockFunction]}
+  onSubmit={[Function]}
+>
+  <Component />
+</SimpleModal>
+`;
+
+exports[`should render 2`] = `
 <Modal
   contentLabel="organization.members.manage_groups"
   onRequestClose={[MockFunction]}
 >
-  <header
-    className="modal-head"
-  >
-    <h2>
-      organization.members.manage_groups
-    </h2>
-  </header>
   <form
     onSubmit={[Function]}
   >
+    <header
+      className="modal-head"
+    >
+      <h2>
+        organization.members.manage_groups
+      </h2>
+    </header>
     <div
       className="modal-body modal-container"
     >
-      <strong>
-        organization.members.members_groups.Admin Istrator
-      </strong>
-       
-      <i
-        className="spinner"
+      <p>
+        <strong>
+          organization.members.members_groups.Admin Istrator
+        </strong>
+      </p>
+      <DeferredSpinner
+        className="spacer-top"
+        timeout={100}
       />
     </div>
     <footer
       className="modal-foot"
     >
-      <div>
-        <SubmitButton>
-          save
-        </SubmitButton>
-        <ResetButtonLink
-          onClick={[MockFunction]}
-        >
-          cancel
-        </ResetButtonLink>
-      </div>
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <ResetButtonLink
+        disabled={false}
+        onClick={[Function]}
+      >
+        cancel
+      </ResetButtonLink>
     </footer>
   </form>
 </Modal>

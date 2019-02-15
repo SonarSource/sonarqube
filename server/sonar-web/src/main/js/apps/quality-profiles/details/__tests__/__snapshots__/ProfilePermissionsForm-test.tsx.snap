@@ -19,7 +19,7 @@ exports[`adds group 1`] = `
       className="modal-body"
     >
       <div
-        className="modal-large-field"
+        className="modal-field"
       >
         <label>
           quality_profiles.search_description
@@ -67,7 +67,7 @@ exports[`adds group 2`] = `
       className="modal-body"
     >
       <div
-        className="modal-large-field"
+        className="modal-field"
       >
         <label>
           quality_profiles.search_description
@@ -120,7 +120,7 @@ exports[`adds group 3`] = `
       className="modal-body"
     >
       <div
-        className="modal-large-field"
+        className="modal-field"
       >
         <label>
           quality_profiles.search_description
@@ -176,7 +176,7 @@ exports[`adds user 1`] = `
       className="modal-body"
     >
       <div
-        className="modal-large-field"
+        className="modal-field"
       >
         <label>
           quality_profiles.search_description
@@ -224,7 +224,7 @@ exports[`adds user 2`] = `
       className="modal-body"
     >
       <div
-        className="modal-large-field"
+        className="modal-field"
       >
         <label>
           quality_profiles.search_description
@@ -277,7 +277,7 @@ exports[`adds user 3`] = `
       className="modal-body"
     >
       <div
-        className="modal-large-field"
+        className="modal-field"
       >
         <label>
           quality_profiles.search_description

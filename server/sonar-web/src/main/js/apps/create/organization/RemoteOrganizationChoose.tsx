@@ -168,7 +168,7 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
                 </div>
                 <form className="big-spacer-top big-spacer-bottom" onSubmit={this.handleSubmit}>
                   <div className="form-field abs-width-400">
-                    <label htmlFor="select-unbound-installation">
+                    <label className="text-normal" htmlFor="select-unbound-installation">
                       {translateWithParameters(
                         'onboarding.import_organization.choose_unbound_installation_x',
                         translate(sanitizeAlmId(almApplication.key))

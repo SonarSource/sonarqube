@@ -21,17 +21,21 @@ import { Dispatch } from 'redux';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import * as api from '../../../api/organizations';
 import * as actions from '../../../store/organizations';
+import { isGithub } from '../../../helpers/almIntegrations';
 
-export function createOrganization(organization: T.Organization & { installationId?: string }) {
+export function createOrganization({
+  alm,
+  ...organization
+}: T.Organization & { installationId?: string }) {
   return (dispatch: Dispatch) => {
     return api
       .createOrganization({ ...organization, name: organization.name || organization.key })
-      .then((organization: T.Organization) => {
-        dispatch(actions.createOrganization(organization));
-        if (organization.alm && organization.alm.membersSync) {
-          api.syncMembers(organization.key);
+      .then((newOrganization: T.Organization) => {
+        dispatch(actions.createOrganization({ ...newOrganization, alm }));
+        if (alm && alm.membersSync && isGithub(alm.key)) {
+          api.syncMembers(newOrganization.key);
         }
-        return organization.key;
+        return newOrganization.key;
       });
   };
 }

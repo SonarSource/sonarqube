@@ -4,6 +4,7 @@ exports[`should display error message when no issues available 1`] = `
 <Modal
   contentLabel="modal"
   onRequestClose={[Function]}
+  size="small"
 >
   <form
     id="bulk-change-form"
@@ -48,6 +49,7 @@ exports[`should display form when issues are present 1`] = `
 <Modal
   contentLabel="modal"
   onRequestClose={[Function]}
+  size="small"
 >
   <form
     id="bulk-change-form"
@@ -63,21 +65,20 @@ exports[`should display form when issues are present 1`] = `
     <div
       className="modal-body"
     >
-      <div
-        className="modal-field"
+      <Checkbox
+        checked={false}
+        className="display-inline-block spacer-top"
+        id="send-notifications"
+        onCheck={[Function]}
+        right={true}
+        thirdState={false}
       >
-        <label
-          htmlFor="send-notifications"
+        <strong
+          className="little-spacer-right"
         >
           issue.send_notifications
-        </label>
-        <Checkbox
-          checked={false}
-          id="send-notifications"
-          onCheck={[Function]}
-          thirdState={false}
-        />
-      </div>
+        </strong>
+      </Checkbox>
     </div>
     <div
       className="modal-foot"

@@ -160,14 +160,9 @@ select {
 }
 
 .input-super-large {
-  width: 100%;
+  width: 100% !important;
   max-width: 300px;
   min-width: 200px;
-}
-
-textarea.input-super-large {
-  max-width: 600px;
-  min-width: 300px;
 }
 
 .input-ghost {
@@ -193,13 +188,31 @@ em.mandatory {
 .form-field {
   clear: both;
   display: block;
-  padding-top: var(--gridSize);
   padding-bottom: calc(2 * var(--gridSize));
 }
 
 .form-field label {
   display: block;
-  padding-bottom: var(--gridSize);
+  font-weight: bold;
+  padding-bottom: calc(var(--gridSize) / 2);
+}
+
+.form-field-description {
+  line-height: 1.4;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.form-field input[type='text'],
+.form-field input[type='email'],
+.form-field input[type='password'],
+.form-field textarea,
+.form-field select,
+.form-field .Select {
+  width: 250px;
 }
 
 .radio-toggle {

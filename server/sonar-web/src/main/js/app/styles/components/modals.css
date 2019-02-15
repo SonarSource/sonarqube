@@ -28,9 +28,6 @@
   background-color: #fff;
   opacity: 0;
   transition: all 0.2s ease;
-}
-
-.modal.sonarcloud {
   border-radius: 3px;
 }
 
@@ -43,6 +40,11 @@
 .ReactModal__Content--after-open {
   top: 15%;
   opacity: 1;
+}
+
+.modal-small {
+  width: 450px;
+  margin-left: -225px;
 }
 
 .modal-medium {
@@ -86,116 +88,57 @@
   margin-right: var(--sbw);
 }
 
-.modal-container {
-  max-height: 60vh;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow: auto;
-}
-
-.modal.sonarcloud .modal-container {
-  border-top: 1px solid var(--barBorderColor);
-  margin-top: var(--pagePadding);
-}
-
-.modal.sonarcloud .modal-container > :last-child {
-  margin-bottom: var(--pagePadding);
-}
-
 .modal-head {
-  padding: 0 10px;
-  background-color: var(--gray94);
-  border-bottom: 1px solid var(--disableGrayBorder);
-}
-
-.modal.sonarcloud .modal-head {
-  background-color: transparent;
-  border-bottom: none;
-  padding: var(--pagePadding) calc(2 * var(--pagePadding)) 0;
+  padding: calc(4 * var(--gridSize));
+  padding-bottom: 0;
 }
 
 .modal-head h1,
 .modal-head h2 {
-  line-height: 30px;
-  min-height: 30px;
-}
-
-.modal.sonarcloud .modal-head h1,
-.modal.sonarcloud .modal-head h2 {
-  margin-top: var(--gridSize);
+  margin: 0;
   font-size: var(--bigFontSize);
   font-weight: bold;
-  line-height: 30px;
+  line-height: normal;
 }
 
 .modal-body {
-  padding: 10px;
+  padding: var(--pagePadding) calc(4 * var(--gridSize));
 }
 
-.modal.sonarcloud .modal-body {
-  padding: var(--pagePadding) calc(2 * var(--pagePadding));
+.modal-container {
+  max-height: 60vh;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  border-top: 1px solid var(--barBorderColor);
+  margin-top: var(--pagePadding);
+  padding-right: calc(4 * var(--gridSize) - var(--sbw));
+}
+
+.modal-container > :last-child {
+  margin-bottom: var(--pagePadding);
 }
 
 .modal-field,
-.modal-large-field,
 .modal-validation-field {
   clear: both;
   display: block;
-  padding: 5px 0 5px 130px;
-}
-
-.modal-large-field {
-  padding: 20px 40px;
-}
-
-.modal-validation-field {
-  padding: 3px 0 3px 130px;
+  padding: 0;
+  margin-bottom: calc(var(--gridSize) * 2);
 }
 
 .modal-field label,
 .modal-validation-field label {
-  position: relative;
-  left: -140px;
   display: block;
-  float: left;
-  width: 120px;
-  margin-right: -130px;
-  padding-top: 5px;
-  padding-bottom: 2px;
-  padding-left: 10px;
-  line-height: 1;
-  text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.modal-large-field label {
-  display: inline-block;
-  padding-bottom: 15px;
   font-weight: bold;
-}
-
-.modal-field .note {
-  line-height: var(--controlHeight);
-}
-
-.readonly-field {
-  padding-top: 5px;
-  margin-left: -5px;
-  line-height: 1;
+  padding-bottom: calc(var(--gridSize) / 2);
 }
 
 .modal-field a.icon-checkbox,
 .modal-field input,
-.modal-large-field input,
 .modal-field select,
-.modal-large-field select,
 .modal-field textarea,
-.modal-large-field textarea,
-.modal-field .Select,
-.modal-large-field .Select {
+.modal-field .Select {
   margin-right: 5px;
-  margin-bottom: 10px;
 }
 
 .modal-field a.icon-checkbox {
@@ -203,15 +146,12 @@
 }
 
 .modal-field input[type='radio'],
-.modal-large-field input[type='radio'],
-.modal-field input[type='checkbox'],
-.modal-large-field input[type='checkbox'] {
+.modal-field input[type='checkbox'] {
   margin-top: 5px;
   margin-bottom: 4px;
 }
 
-.modal-field > .icon-checkbox,
-.modal-large-field > .icon-checkbox {
+.modal-field > .icon-checkbox {
   padding-top: 6px;
   padding-right: 8px;
 }
@@ -222,77 +162,44 @@
 .modal-field textarea,
 .modal-field select,
 .modal-field .Select {
-  width: 250px;
-}
-
-.modal-field textarea {
-  max-width: 250px;
-  min-width: 250px;
-  max-height: 50vh;
-  min-height: var(--controlHeight);
-}
-
-.modal-large-field input[type='text'],
-.modal-large-field input[type='email'],
-.modal-large-field input[type='password'],
-.modal-large-field textarea,
-.modal-large-field select,
-.modal-large-field .Select {
   width: 100%;
-}
-
-.modal-large-field textarea {
-  max-width: 100%;
-  min-width: 100%;
-  max-height: 50vh;
-  min-height: var(--controlHeight);
 }
 
 .modal-validation-field input,
 .modal-validation-field textarea,
 .modal-validation-field .Select {
-  margin-right: 5px;
+  margin-right: var(--gridSize);
   margin-bottom: 2px;
-  width: 250px;
+  width: calc(100% - 3 * var(--gridSize));
 }
 
+.modal-field textarea,
 .modal-validation-field textarea {
-  max-width: 250px;
-  min-width: 250px;
+  max-width: 100%;
+  min-width: 100%;
   max-height: 50vh;
   min-height: var(--controlHeight);
 }
-
 .modal-validation-field input:not(.is-invalid),
 .modal-validation-field .Select:not(.is-invalid) {
-  margin-bottom: 18px;
+  margin-bottom: calc(var(--tinyControlHeight) + 2px);
 }
 
 .modal-field-description {
-  padding-bottom: 4px;
   line-height: 1.4;
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.modal-validation-field .modal-field-description {
   margin-top: 2px;
 }
 
 .modal-foot {
-  padding: 10px;
-  border-top: 1px solid var(--disableGrayBorder);
-  background-color: var(--gray94);
-  text-align: right;
-}
-
-.modal.sonarcloud .modal-foot {
-  padding: var(--pagePadding);
+  padding: var(--pagePadding) calc(4 * var(--gridSize));
   border-top: 1px solid var(--barBorderColor);
   background-color: var(--barBackgroundColor);
   border-radius: 3px;
+  text-align: right;
 }
 
 .modal-foot button,

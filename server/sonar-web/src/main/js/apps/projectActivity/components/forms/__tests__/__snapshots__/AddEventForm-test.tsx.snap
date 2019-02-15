@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ConfirmModal
+  confirmButtonText="save"
+  confirmDisable={true}
+  header="add"
+  onClose={[MockFunction]}
+  onConfirm={[Function]}
+  size="small"
+>
+  <div
+    className="modal-field"
+  >
+    <label>
+      name
+    </label>
+    <input
+      autoFocus={true}
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+</ConfirmModal>
+`;

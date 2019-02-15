@@ -153,7 +153,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
     const header = user ? translate('users.update_user') : translate('users.create_user');
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form
           autoComplete="off"
           id="user-form"

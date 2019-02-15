@@ -101,7 +101,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
 
     const header = translate('my_profile.password.title');
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form autoComplete="off" id="user-password-form" onSubmit={this.handleChangePassword}>
           <header className="modal-head">
             <h2>{header}</h2>

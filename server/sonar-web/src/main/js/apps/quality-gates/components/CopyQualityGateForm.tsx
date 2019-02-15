@@ -71,7 +71,8 @@ class CopyQualityGateForm extends React.PureComponent<Props, State> {
         confirmDisable={confirmDisable}
         header={translate('quality_gates.copy')}
         onClose={this.props.onClose}
-        onConfirm={this.handleCopy}>
+        onConfirm={this.handleCopy}
+        size="small">
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">
             {translate('name')}

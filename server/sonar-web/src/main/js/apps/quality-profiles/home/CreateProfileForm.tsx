@@ -134,7 +134,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
     }
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form id="create-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>
@@ -163,7 +163,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   value={this.state.name}
                 />
               </div>
-              <div className="modal-field spacer-bottom">
+              <div className="modal-field">
                 <label htmlFor="create-profile-language">
                   {translate('language')}
                   <em className="mandatory">*</em>

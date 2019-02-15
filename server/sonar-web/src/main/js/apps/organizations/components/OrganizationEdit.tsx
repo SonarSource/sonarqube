@@ -111,12 +111,13 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
 
         <div className="boxed-group boxed-group-inner">
           <form onSubmit={this.handleSubmit}>
-            <div className="modal-field">
+            <div className="form-field">
               <label htmlFor="organization-name">
                 {translate('organization.name')}
                 <em className="mandatory">*</em>
               </label>
               <input
+                className="input-super-large"
                 disabled={this.state.loading}
                 id="organization-name"
                 maxLength={255}
@@ -126,13 +127,14 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                 type="text"
                 value={this.state.name}
               />
-              <div className="modal-field-description">
+              <div className="form-field-description">
                 {translate('organization.name.description')}
               </div>
             </div>
-            <div className="modal-field">
+            <div className="form-field">
               <label htmlFor="organization-avatar">{translate('organization.avatar')}</label>
               <input
+                className="input-super-large"
                 disabled={this.state.loading}
                 id="organization-avatar"
                 maxLength={256}
@@ -142,11 +144,11 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                 type="text"
                 value={this.state.avatar}
               />
-              <div className="modal-field-description">
+              <div className="form-field-description">
                 {translate('organization.avatar.description')}
               </div>
               {(this.state.avatarImage || this.state.name) && (
-                <div className="spacer-top spacer-bottom">
+                <div className="spacer-top">
                   <div className="little-spacer-bottom">
                     {translate('organization.avatar.preview')}
                     {':'}
@@ -160,9 +162,10 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                 </div>
               )}
             </div>
-            <div className="modal-field">
+            <div className="form-field">
               <label htmlFor="organization-description">{translate('description')}</label>
               <textarea
+                className="input-super-large"
                 disabled={this.state.loading}
                 id="organization-description"
                 maxLength={256}
@@ -171,13 +174,14 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                 rows={3}
                 value={this.state.description}
               />
-              <div className="modal-field-description">
+              <div className="form-field-description">
                 {translate('organization.description.description')}
               </div>
             </div>
-            <div className="modal-field">
+            <div className="form-field">
               <label htmlFor="organization-url">{translate('organization.url')}</label>
               <input
+                className="input-super-large"
                 disabled={this.state.loading}
                 id="organization-url"
                 maxLength={256}
@@ -186,14 +190,12 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                 type="text"
                 value={this.state.url}
               />
-              <div className="modal-field-description">
+              <div className="form-field-description">
                 {translate('organization.url.description')}
               </div>
             </div>
-            <div className="modal-field">
-              <SubmitButton disabled={this.state.loading}>{translate('save')}</SubmitButton>
-              {this.state.loading && <i className="spinner spacer-left" />}
-            </div>
+            <SubmitButton disabled={this.state.loading}>{translate('save')}</SubmitButton>
+            {this.state.loading && <i className="spinner spacer-left" />}
           </form>
         </div>
       </div>

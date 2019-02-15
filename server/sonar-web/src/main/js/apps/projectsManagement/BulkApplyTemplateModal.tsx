@@ -152,7 +152,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     const header = translate('permission_templates.bulk_apply_permission_template');
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

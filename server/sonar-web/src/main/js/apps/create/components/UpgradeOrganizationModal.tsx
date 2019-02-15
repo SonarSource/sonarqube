@@ -72,10 +72,10 @@ export default class UpgradeOrganizationModal extends React.PureComponent<Props,
     return (
       <Modal
         contentLabel={header}
-        medium={true}
         noBackdrop={this.props.insideModal}
         onRequestClose={this.props.onClose}
-        shouldCloseOnOverlayClick={false}>
+        shouldCloseOnOverlayClick={false}
+        size={'medium'}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>

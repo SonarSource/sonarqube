@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<CopyQualityGateForm
+  onClose={[MockFunction]}
+  onCopy={[MockFunction]}
+  qualityGate={
+    Object {
+      "id": 1,
+      "name": "qualitygate",
+    }
+  }
+/>
+`;

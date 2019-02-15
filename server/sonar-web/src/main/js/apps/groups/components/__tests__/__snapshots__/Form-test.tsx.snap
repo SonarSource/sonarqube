@@ -4,6 +4,7 @@ exports[`should render form 1`] = `
 <Modal
   contentLabel="header"
   onRequestClose={[MockFunction]}
+  size="small"
 >
   <form
     onSubmit={[Function]}

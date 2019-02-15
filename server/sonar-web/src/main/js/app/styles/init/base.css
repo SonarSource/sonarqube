@@ -81,6 +81,10 @@ textarea {
   font-family: inherit;
 }
 
+textarea {
+  min-height: 40px;
+}
+
 /*Remove button padding in FF*/
 select::-moz-focus-inner,
 input::-moz-focus-inner,

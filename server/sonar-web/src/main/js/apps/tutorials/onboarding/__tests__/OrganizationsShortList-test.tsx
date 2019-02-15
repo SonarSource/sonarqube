@@ -50,7 +50,5 @@ it('should limit displayed orgs to the first three', () => {
 });
 
 function shallowRender(props: Partial<Props> = {}) {
-  return shallow(
-    <OrganizationsShortList organizations={[]} skipOnboarding={jest.fn()} {...props} />
-  );
+  return shallow(<OrganizationsShortList onClick={jest.fn()} organizations={[]} {...props} />);
 }

@@ -51,9 +51,13 @@ describe('#createOrganization', () => {
   });
 
   it('should create and sync members', async () => {
-    const org = mockOrganizationWithAlm({}, { membersSync: true });
+    const { alm, ...org } = mockOrganizationWithAlm(
+      {},
+      { key: 'github', membersSync: true, url: 'https://github.com/foo' }
+    );
+
     (createOrganization as jest.Mock).mockResolvedValueOnce(org);
-    const promise = actions.createOrganization(org)(dispatch);
+    const promise = actions.createOrganization({ alm, ...org })(dispatch);
 
     expect(createOrganization).toHaveBeenCalledWith(org);
     await promise;

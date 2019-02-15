@@ -21,60 +21,30 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import MembersListItem from '../MembersListItem';
 import { click } from '../../../helpers/testUtils';
-
-const organization = { key: 'foo', name: 'Foo' };
-const admin = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
-const john = { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af' };
+import { mockOrganizationWithAdminActions, mockOrganization } from '../../../helpers/testMocks';
 
 it('should not render actions and groups for non admin', () => {
-  const wrapper = shallow(
-    <MembersListItem
-      member={admin}
-      organization={organization}
-      organizationGroups={[]}
-      removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender({ organization: mockOrganization() })).toMatchSnapshot();
 });
 
 it('should render actions and groups for admin', () => {
-  const wrapper = shallow(
-    <MembersListItem
-      member={admin}
-      organization={{ ...organization, actions: { admin: true } }}
-      organizationGroups={[]}
-      removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should groups at 0 if the groupCount field is not defined (just added user)', () => {
-  const wrapper = shallow(
-    <MembersListItem
-      member={john}
-      organization={{ ...organization, actions: { admin: true } }}
-      organizationGroups={[]}
-      removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should show groups at 0 if the groupCount field is not defined (just added user)', () => {
+  expect(
+    shallowRender({
+      member: { login: 'john', name: 'John Doe', avatar: '7daf6c79d4802916d83f6266e24850af' }
+    })
+  ).toMatchSnapshot();
+});
+
+it('should not display the remove member action', () => {
+  expect(shallowRender({ removeMember: undefined }).find('ActionsDropdown')).toMatchSnapshot();
 });
 
 it('should open groups form', () => {
-  const wrapper = shallow(
-    <MembersListItem
-      member={admin}
-      organization={{ ...organization, actions: { admin: true } }}
-      organizationGroups={[]}
-      removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
-    />
-  );
+  const wrapper = shallowRender();
 
   click(wrapper.find('ActionsDropdownItem').first());
   expect(wrapper.find('ManageMemberGroupsForm').exists()).toBe(true);
@@ -85,15 +55,7 @@ it('should open groups form', () => {
 });
 
 it('should open remove member form', () => {
-  const wrapper = shallow(
-    <MembersListItem
-      member={admin}
-      organization={{ ...organization, actions: { admin: true } }}
-      organizationGroups={[]}
-      removeMember={jest.fn()}
-      updateMemberGroups={jest.fn()}
-    />
-  );
+  const wrapper = shallowRender();
 
   click(wrapper.find('ActionsDropdownItem').last());
   expect(wrapper.find('RemoveMemberForm').exists()).toBe(true);
@@ -102,3 +64,16 @@ it('should open remove member form', () => {
   wrapper.update();
   expect(wrapper.find('RemoveMemberForm').exists()).toBe(false);
 });
+
+function shallowRender(props: Partial<MembersListItem['props']> = {}) {
+  return shallow(
+    <MembersListItem
+      member={{ login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 }}
+      organization={mockOrganizationWithAdminActions()}
+      organizationGroups={[]}
+      removeMember={jest.fn()}
+      updateMemberGroups={jest.fn()}
+      {...props}
+    />
+  );
+}

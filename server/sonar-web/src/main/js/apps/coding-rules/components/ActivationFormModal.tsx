@@ -21,7 +21,7 @@ import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { activateRule, Profile as BaseProfile } from '../../../api/quality-profiles';
+import { activateRule, Profile } from '../../../api/quality-profiles';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sortProfiles } from '../../quality-profiles/utils';
@@ -34,7 +34,7 @@ interface Props {
   onClose: () => void;
   onDone: (severity: string) => Promise<void>;
   organization: string | undefined;
-  profiles: BaseProfile[];
+  profiles: Profile[];
   rule: T.Rule | T.RuleDetails;
 }
 
@@ -153,7 +153,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const isUpdateMode = !!activation;
 
     return (
-      <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
         <form onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{this.props.modalHeader}</h2>
@@ -206,7 +206,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                   <label title={param.key}>{param.key}</label>
                   {param.type === 'TEXT' ? (
                     <textarea
-                      className="width100"
                       disabled={submitting}
                       name={param.key}
                       onChange={this.handleParameterChange}
@@ -216,7 +215,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                     />
                   ) : (
                     <input
-                      className="input-super-large"
                       disabled={submitting}
                       name={param.key}
                       onChange={this.handleParameterChange}

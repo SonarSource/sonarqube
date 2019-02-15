@@ -18,19 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { keyBy, pickBy } from 'lodash';
-import { getUserGroups, UserGroup } from '../../api/users';
-import Modal from '../../components/controls/Modal';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { keyBy, pickBy, some } from 'lodash';
 import OrganizationGroupCheckbox from '../organizations/components/OrganizationGroupCheckbox';
+import SimpleModal from '../../components/controls/SimpleModal';
 import { SubmitButton, ResetButtonLink } from '../../components/ui/buttons';
+import { getUserGroups, UserGroup } from '../../api/users';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import DeferredSpinner from '../../components/common/DeferredSpinner';
 
 interface Props {
   onClose: () => void;
   member: T.OrganizationMember;
   organization: T.Organization;
   organizationGroups: T.Group[];
-  updateMemberGroups: (member: T.OrganizationMember, add: string[], remove: string[]) => void;
+  updateMemberGroups: (
+    member: T.OrganizationMember,
+    add: string[],
+    remove: string[]
+  ) => Promise<void>;
 }
 
 interface State {
@@ -81,7 +86,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
 
   onCheck = (groupName: string, checked: boolean) => {
     this.setState((prevState: State) => {
-      const userGroups = prevState.userGroups || {};
+      const { userGroups = {} } = prevState;
       const group = userGroups[groupName] || {};
       let status = '';
       if (group.selected && !checked) {
@@ -93,53 +98,62 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
     });
   };
 
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    this.props.updateMemberGroups(
-      this.props.member,
-      Object.keys(pickBy(this.state.userGroups, group => group.status === 'add')),
-      Object.keys(pickBy(this.state.userGroups, group => group.status === 'remove'))
-    );
-    this.props.onClose();
+  handleSubmit = () => {
+    return this.props
+      .updateMemberGroups(
+        this.props.member,
+        Object.keys(pickBy(this.state.userGroups, group => group.status === 'add')),
+        Object.keys(pickBy(this.state.userGroups, group => group.status === 'remove'))
+      )
+      .then(this.props.onClose);
   };
 
   render() {
+    const { loading, userGroups = {} } = this.state;
     const header = translate('organization.members.manage_groups');
+    const hasChanges = some(userGroups, group => group.status !== undefined);
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body modal-container">
-            <strong>
-              {translateWithParameters(
-                'organization.members.members_groups',
-                this.props.member.name
+      <SimpleModal header={header} onClose={this.props.onClose} onSubmit={this.handleSubmit}>
+        {({ onCloseClick, onFormSubmit, submitting }) => (
+          <form onSubmit={onFormSubmit}>
+            <header className="modal-head">
+              <h2>{header}</h2>
+            </header>
+            <div className="modal-body modal-container">
+              <p>
+                <strong>
+                  {translateWithParameters(
+                    'organization.members.members_groups',
+                    this.props.member.name
+                  )}
+                </strong>
+              </p>
+              {loading ? (
+                <DeferredSpinner className="spacer-top" />
+              ) : (
+                <ul className="list-spaced">
+                  {this.props.organizationGroups.map(group => (
+                    <OrganizationGroupCheckbox
+                      checked={this.isGroupSelected(group.name)}
+                      group={group}
+                      key={group.id}
+                      onCheck={this.onCheck}
+                    />
+                  ))}
+                </ul>
               )}
-            </strong>{' '}
-            {this.state.loading && <i className="spinner" />}
-            {!this.state.loading && (
-              <ul className="list-spaced">
-                {this.props.organizationGroups.map(group => (
-                  <OrganizationGroupCheckbox
-                    checked={this.isGroupSelected(group.name)}
-                    group={group}
-                    key={group.id}
-                    onCheck={this.onCheck}
-                  />
-                ))}
-              </ul>
-            )}
-          </div>
-          <footer className="modal-foot">
-            <div>
-              <SubmitButton>{translate('save')}</SubmitButton>
-              <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
             </div>
-          </footer>
-        </form>
-      </Modal>
+
+            <footer className="modal-foot">
+              <DeferredSpinner className="spacer-right" loading={submitting} />
+              <SubmitButton disabled={submitting || !hasChanges}>{translate('save')}</SubmitButton>
+              <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
+                {translate('cancel')}
+              </ResetButtonLink>
+            </footer>
+          </form>
+        )}
+      </SimpleModal>
     );
   }
 }

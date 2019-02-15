@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="quality_profiles.new_profile"
+  onRequestClose={[MockFunction]}
+  size="small"
+>
+  <form
+    id="create-profile-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        quality_profiles.new_profile
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <i
+        className="spinner"
+      />
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <ResetButtonLink
+        id="create-profile-cancel"
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;

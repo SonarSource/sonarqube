@@ -18,121 +18,82 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import AddMemberForm from './AddMemberForm';
 import SyncMemberForm from './SyncMemberForm';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
 import DocTooltip from '../../components/docs/DocTooltip';
-import NewInfoBox from '../../components/ui/NewInfoBox';
 import { sanitizeAlmId } from '../../helpers/almIntegrations';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { getCurrentUserSetting, Store } from '../../store/rootReducer';
-import { setCurrentUserSetting } from '../../store/users';
+import { Alert } from '../../components/ui/Alert';
 
-interface Props {
-  dismissSyncNotifOrg: string[];
+export interface Props {
   handleAddMember: (member: T.OrganizationMember) => void;
   loading: boolean;
   members?: T.OrganizationMember[];
   organization: T.Organization;
   refreshMembers: () => Promise<void>;
-  setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
 }
 
-export class MembersPageHeader extends React.PureComponent<Props> {
-  handleDismissSyncNotif = () => {
-    const { dismissSyncNotifOrg, organization } = this.props;
-    this.props.setCurrentUserSetting({
-      key: 'organizations.members.dismissSyncNotif',
-      value: [...dismissSyncNotifOrg, organization.key].join(',')
-    });
-  };
+export default function MembersPageHeader(props: Props) {
+  const { members, organization, refreshMembers } = props;
+  const memberLogins = members ? members.map(member => member.login) : [];
+  const isAdmin = organization.actions && organization.actions.admin;
+  const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
+  const hasMemberSync = organization.alm && organization.alm.membersSync;
+  const showSyncNotif = isAdmin && organization.alm && !hasMemberSync;
 
-  render() {
-    const { dismissSyncNotifOrg, members, organization, refreshMembers } = this.props;
-    const memberLogins = members ? members.map(member => member.login) : [];
-    const isAdmin = organization.actions && organization.actions.admin;
-    const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
-    const hasMemberSync = organization.alm && organization.alm.membersSync;
-    const showSyncNotif =
-      isAdmin &&
-      organization.alm &&
-      !hasMemberSync &&
-      !dismissSyncNotifOrg.some(orgKey => orgKey === organization.key);
-
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('organization.members.page')}</h1>
-        <DeferredSpinner loading={this.props.loading} />
-        {isAdmin && (
-          <div className="page-actions text-right">
-            {almKey &&
-              !showSyncNotif && (
-                <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
-              )}
-            {!hasMemberSync && (
-              <div className="display-inline-block spacer-left spacer-bottom">
-                <AddMemberForm
-                  addMember={this.props.handleAddMember}
-                  memberLogins={memberLogins}
-                  organization={organization}
-                />
-                <DocTooltip
-                  className="spacer-left"
-                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
-                />
-              </div>
+  return (
+    <header className="page-header">
+      <h1 className="page-title">{translate('organization.members.page')}</h1>
+      <DeferredSpinner loading={props.loading} />
+      {isAdmin && (
+        <div className="page-actions text-right">
+          {almKey &&
+            !showSyncNotif && (
+              <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
             )}
-            {almKey &&
-              showSyncNotif && (
-                <NewInfoBox
-                  description={translateWithParameters(
-                    'organization.members.auto_sync_members_from_org_x',
-                    translate(almKey)
-                  )}
-                  onClose={this.handleDismissSyncNotif}
-                  title={translateWithParameters(
-                    'organization.members.auto_sync_with_x',
-                    translate(almKey)
-                  )}>
-                  <SyncMemberForm
-                    dismissSyncNotif={this.handleDismissSyncNotif}
-                    organization={organization}
-                    refreshMembers={refreshMembers}
-                  />
-                </NewInfoBox>
-              )}
-          </div>
-        )}
-        <div className="page-description">
-          <FormattedMessage
-            defaultMessage={translate('organization.members.page.description')}
-            id="organization.members.page.description"
-            values={{
-              link: (
-                <Link to="/documentation/organizations/manage-team/">
-                  {translate('organization.members.manage_a_team')}
-                </Link>
-              )
-            }}
-          />
+          {!hasMemberSync && (
+            <div className="display-inline-block spacer-left spacer-bottom">
+              <AddMemberForm
+                addMember={props.handleAddMember}
+                memberLogins={memberLogins}
+                organization={organization}
+              />
+              <DocTooltip
+                className="spacer-left"
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
+              />
+            </div>
+          )}
         </div>
-      </header>
-    );
-  }
+      )}
+      <div className="page-description">
+        <FormattedMessage
+          defaultMessage={translate('organization.members.page.description')}
+          id="organization.members.page.description"
+          values={{
+            link: (
+              <Link target="_blank" to="/documentation/organizations/manage-team/">
+                {translate('organization.members.manage_a_team')}
+              </Link>
+            )
+          }}
+        />
+        {almKey &&
+          showSyncNotif && (
+            <Alert className="spacer-top" display="inline" variant="info">
+              {translateWithParameters(
+                'organization.members.auto_sync_members_from_org_x',
+                translate('organization', almKey)
+              )}
+              <span className="spacer-left">
+                <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
+              </span>
+            </Alert>
+          )}
+      </div>
+    </header>
+  );
 }
-
-const mapStateToProps = (state: Store) => ({
-  dismissSyncNotifOrg: (
-    getCurrentUserSetting(state, 'organizations.members.dismissSyncNotif') || ''
-  ).split(',')
-});
-
-const mapDispatchToProps = { setCurrentUserSetting };
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MembersPageHeader);

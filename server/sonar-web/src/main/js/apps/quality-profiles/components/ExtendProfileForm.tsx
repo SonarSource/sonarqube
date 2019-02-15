@@ -96,7 +96,7 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
     );
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
         <form>
           <div className="modal-head">
             <h2>{header}</h2>

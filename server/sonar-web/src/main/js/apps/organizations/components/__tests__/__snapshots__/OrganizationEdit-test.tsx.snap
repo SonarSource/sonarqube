@@ -25,7 +25,7 @@ exports[`smoke test 1`] = `
       onSubmit={[Function]}
     >
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-name"
@@ -38,6 +38,7 @@ exports[`smoke test 1`] = `
           </em>
         </label>
         <input
+          className="input-super-large"
           disabled={false}
           id="organization-name"
           maxLength={255}
@@ -48,13 +49,13 @@ exports[`smoke test 1`] = `
           value="Foo"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.name.description
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-avatar"
@@ -62,6 +63,7 @@ exports[`smoke test 1`] = `
           organization.avatar
         </label>
         <input
+          className="input-super-large"
           disabled={false}
           id="organization-avatar"
           maxLength={256}
@@ -72,12 +74,12 @@ exports[`smoke test 1`] = `
           value=""
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.avatar.description
         </div>
         <div
-          className="spacer-top spacer-bottom"
+          className="spacer-top"
         >
           <div
             className="little-spacer-bottom"
@@ -96,7 +98,7 @@ exports[`smoke test 1`] = `
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-description"
@@ -104,6 +106,7 @@ exports[`smoke test 1`] = `
           description
         </label>
         <textarea
+          className="input-super-large"
           disabled={false}
           id="organization-description"
           maxLength={256}
@@ -113,13 +116,13 @@ exports[`smoke test 1`] = `
           value=""
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.description.description
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-url"
@@ -127,6 +130,7 @@ exports[`smoke test 1`] = `
           organization.url
         </label>
         <input
+          className="input-super-large"
           disabled={false}
           id="organization-url"
           maxLength={256}
@@ -136,20 +140,16 @@ exports[`smoke test 1`] = `
           value=""
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.url.description
         </div>
       </div>
-      <div
-        className="modal-field"
+      <SubmitButton
+        disabled={false}
       >
-        <SubmitButton
-          disabled={false}
-        >
-          save
-        </SubmitButton>
-      </div>
+        save
+      </SubmitButton>
     </form>
   </div>
 </div>
@@ -180,7 +180,7 @@ exports[`smoke test 2`] = `
       onSubmit={[Function]}
     >
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-name"
@@ -193,6 +193,7 @@ exports[`smoke test 2`] = `
           </em>
         </label>
         <input
+          className="input-super-large"
           disabled={false}
           id="organization-name"
           maxLength={255}
@@ -203,13 +204,13 @@ exports[`smoke test 2`] = `
           value="New Foo"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.name.description
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-avatar"
@@ -217,6 +218,7 @@ exports[`smoke test 2`] = `
           organization.avatar
         </label>
         <input
+          className="input-super-large"
           disabled={false}
           id="organization-avatar"
           maxLength={256}
@@ -227,12 +229,12 @@ exports[`smoke test 2`] = `
           value="foo-avatar"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.avatar.description
         </div>
         <div
-          className="spacer-top spacer-bottom"
+          className="spacer-top"
         >
           <div
             className="little-spacer-bottom"
@@ -251,7 +253,7 @@ exports[`smoke test 2`] = `
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-description"
@@ -259,6 +261,7 @@ exports[`smoke test 2`] = `
           description
         </label>
         <textarea
+          className="input-super-large"
           disabled={false}
           id="organization-description"
           maxLength={256}
@@ -268,13 +271,13 @@ exports[`smoke test 2`] = `
           value="foo-description"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.description.description
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-url"
@@ -282,6 +285,7 @@ exports[`smoke test 2`] = `
           organization.url
         </label>
         <input
+          className="input-super-large"
           disabled={false}
           id="organization-url"
           maxLength={256}
@@ -291,20 +295,16 @@ exports[`smoke test 2`] = `
           value="foo-url"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.url.description
         </div>
       </div>
-      <div
-        className="modal-field"
+      <SubmitButton
+        disabled={false}
       >
-        <SubmitButton
-          disabled={false}
-        >
-          save
-        </SubmitButton>
-      </div>
+        save
+      </SubmitButton>
     </form>
   </div>
 </div>
@@ -335,7 +335,7 @@ exports[`smoke test 3`] = `
       onSubmit={[Function]}
     >
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-name"
@@ -348,6 +348,7 @@ exports[`smoke test 3`] = `
           </em>
         </label>
         <input
+          className="input-super-large"
           disabled={true}
           id="organization-name"
           maxLength={255}
@@ -358,13 +359,13 @@ exports[`smoke test 3`] = `
           value="New Foo"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.name.description
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-avatar"
@@ -372,6 +373,7 @@ exports[`smoke test 3`] = `
           organization.avatar
         </label>
         <input
+          className="input-super-large"
           disabled={true}
           id="organization-avatar"
           maxLength={256}
@@ -382,12 +384,12 @@ exports[`smoke test 3`] = `
           value="foo-avatar"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.avatar.description
         </div>
         <div
-          className="spacer-top spacer-bottom"
+          className="spacer-top"
         >
           <div
             className="little-spacer-bottom"
@@ -406,7 +408,7 @@ exports[`smoke test 3`] = `
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-description"
@@ -414,6 +416,7 @@ exports[`smoke test 3`] = `
           description
         </label>
         <textarea
+          className="input-super-large"
           disabled={true}
           id="organization-description"
           maxLength={256}
@@ -423,13 +426,13 @@ exports[`smoke test 3`] = `
           value="foo-description"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.description.description
         </div>
       </div>
       <div
-        className="modal-field"
+        className="form-field"
       >
         <label
           htmlFor="organization-url"
@@ -437,6 +440,7 @@ exports[`smoke test 3`] = `
           organization.url
         </label>
         <input
+          className="input-super-large"
           disabled={true}
           id="organization-url"
           maxLength={256}
@@ -446,23 +450,19 @@ exports[`smoke test 3`] = `
           value="foo-url"
         />
         <div
-          className="modal-field-description"
+          className="form-field-description"
         >
           organization.url.description
         </div>
       </div>
-      <div
-        className="modal-field"
+      <SubmitButton
+        disabled={true}
       >
-        <SubmitButton
-          disabled={true}
-        >
-          save
-        </SubmitButton>
-        <i
-          className="spinner spacer-left"
-        />
-      </div>
+        save
+      </SubmitButton>
+      <i
+        className="spinner spacer-left"
+      />
     </form>
   </div>
 </div>

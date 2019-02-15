@@ -216,10 +216,7 @@ declare namespace T {
     value: string;
   }
 
-  type CurrentUserSettingNames =
-    | 'notifications.optOut'
-    | 'notifications.readDate'
-    | 'organizations.members.dismissSyncNotif';
+  type CurrentUserSettingNames = 'notifications.optOut' | 'notifications.readDate';
 
   export interface CustomMeasure {
     createdAt?: string;

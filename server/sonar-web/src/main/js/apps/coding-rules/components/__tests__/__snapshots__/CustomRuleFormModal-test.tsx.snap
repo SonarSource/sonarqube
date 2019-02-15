@@ -1,0 +1,237 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="coding_rules.create_custom_rule"
+  onRequestClose={[MockFunction]}
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        coding_rules.create_custom_rule
+      </h2>
+    </div>
+    <div
+      className="modal-body modal-container"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="coding-rules-custom-rule-creation-name"
+        >
+          name
+           
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          autoFocus={true}
+          disabled={false}
+          id="coding-rules-custom-rule-creation-name"
+          onChange={[Function]}
+          required={true}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="coding-rules-custom-rule-creation-key"
+        >
+          key
+           
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          disabled={false}
+          id="coding-rules-custom-rule-creation-key"
+          onChange={[Function]}
+          required={true}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="display-flex-space-between"
+      >
+        <div
+          className="modal-field flex-1 spacer-right"
+        >
+          <label
+            htmlFor="coding-rules-custom-rule-type"
+          >
+            type
+          </label>
+          <Select
+            clearable={false}
+            disabled={false}
+            id="coding-rules-custom-rule-type"
+            onChange={[Function]}
+            optionRenderer={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "issue.type.BUG",
+                  "value": "BUG",
+                },
+                Object {
+                  "label": "issue.type.VULNERABILITY",
+                  "value": "VULNERABILITY",
+                },
+                Object {
+                  "label": "issue.type.CODE_SMELL",
+                  "value": "CODE_SMELL",
+                },
+                Object {
+                  "label": "issue.type.SECURITY_HOTSPOT",
+                  "value": "SECURITY_HOTSPOT",
+                },
+                Object {
+                  "label": "issue.type.UNKNOWN",
+                  "value": "UNKNOWN",
+                },
+              ]
+            }
+            searchable={false}
+            value="CODE_SMELL"
+            valueRenderer={[Function]}
+          />
+        </div>
+        <div
+          className="modal-field flex-1 spacer-right"
+        >
+          <label
+            htmlFor="coding-rules-custom-rule-severity"
+          >
+            severity
+          </label>
+          <Select
+            clearable={false}
+            disabled={false}
+            id="coding-rules-custom-rule-severity"
+            onChange={[Function]}
+            optionRenderer={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "severity.BLOCKER",
+                  "value": "BLOCKER",
+                },
+                Object {
+                  "label": "severity.CRITICAL",
+                  "value": "CRITICAL",
+                },
+                Object {
+                  "label": "severity.MAJOR",
+                  "value": "MAJOR",
+                },
+                Object {
+                  "label": "severity.MINOR",
+                  "value": "MINOR",
+                },
+                Object {
+                  "label": "severity.INFO",
+                  "value": "INFO",
+                },
+              ]
+            }
+            searchable={false}
+            value="MAJOR"
+            valueRenderer={[Function]}
+          />
+        </div>
+        <div
+          className="modal-field flex-1"
+        >
+          <label
+            htmlFor="coding-rules-custom-rule-status"
+          >
+            coding_rules.filters.status
+          </label>
+          <Select
+            clearable={false}
+            disabled={false}
+            id="coding-rules-custom-rule-status"
+            onChange={[Function]}
+            options={
+              Array [
+                Object {
+                  "label": "rules.status.READY",
+                  "value": "READY",
+                },
+                Object {
+                  "label": "rules.status.BETA",
+                  "value": "BETA",
+                },
+                Object {
+                  "label": "rules.status.DEPRECATED",
+                  "value": "DEPRECATED",
+                },
+              ]
+            }
+            searchable={false}
+            value="READY"
+          />
+        </div>
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="coding-rules-custom-rule-creation-html-description"
+        >
+          description
+           
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <textarea
+          disabled={false}
+          id="coding-rules-custom-rule-creation-html-description"
+          onChange={[Function]}
+          required={true}
+          rows={5}
+          value=""
+        />
+        <MarkdownTips
+          className="modal-field-descriptor text-right"
+        />
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={false}
+        id="coding-rules-custom-rule-creation-create"
+      >
+        create
+      </SubmitButton>
+      <ResetButtonLink
+        disabled={false}
+        id="coding-rules-custom-rule-creation-cancel"
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;

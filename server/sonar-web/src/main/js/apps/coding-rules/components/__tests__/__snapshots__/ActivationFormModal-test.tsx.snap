@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<Modal
+  contentLabel="title"
+  onRequestClose={[MockFunction]}
+  size="small"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        title
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <Alert
+        variant="info"
+      >
+        coding_rules.active_in_all_profiles
+      </Alert>
+      <div
+        className="modal-field"
+      >
+        <label>
+          coding_rules.quality_profile
+        </label>
+        <Select
+          className="js-profile"
+          clearable={false}
+          disabled={false}
+          onChange={[Function]}
+          options={Array []}
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label>
+          severity
+        </label>
+        <Select
+          className="js-severity"
+          clearable={false}
+          disabled={false}
+          onChange={[Function]}
+          optionRenderer={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "severity.BLOCKER",
+                "value": "BLOCKER",
+              },
+              Object {
+                "label": "severity.CRITICAL",
+                "value": "CRITICAL",
+              },
+              Object {
+                "label": "severity.MAJOR",
+                "value": "MAJOR",
+              },
+              Object {
+                "label": "severity.MINOR",
+                "value": "MINOR",
+              },
+              Object {
+                "label": "severity.INFO",
+                "value": "INFO",
+              },
+            ]
+          }
+          searchable={false}
+          value="MAJOR"
+          valueRenderer={[Function]}
+        />
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        coding_rules.activate
+      </SubmitButton>
+      <ResetButtonLink
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;

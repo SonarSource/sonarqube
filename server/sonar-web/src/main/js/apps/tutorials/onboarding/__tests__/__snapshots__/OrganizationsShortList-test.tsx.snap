@@ -2,46 +2,44 @@
 
 exports[`should limit displayed orgs to the first three 1`] = `
 <div>
-  <ul
-    className="account-projects-list"
-  >
+  <ul>
     <li
       key="bar"
     >
       <withRouter(OrganizationsShortListItem)
+        onClick={[MockFunction]}
         organization={
           Object {
             "key": "bar",
             "name": "Bar",
           }
         }
-        skipOnboarding={[MockFunction]}
       />
     </li>
     <li
       key="foo"
     >
       <withRouter(OrganizationsShortListItem)
+        onClick={[MockFunction]}
         organization={
           Object {
             "key": "foo",
             "name": "Foo",
           }
         }
-        skipOnboarding={[MockFunction]}
       />
     </li>
     <li
       key="kor"
     >
       <withRouter(OrganizationsShortListItem)
+        onClick={[MockFunction]}
         organization={
           Object {
             "key": "kor",
             "name": "Kor",
           }
         }
-        skipOnboarding={[MockFunction]}
       />
     </li>
   </ul>
@@ -68,44 +66,33 @@ exports[`should limit displayed orgs to the first three 1`] = `
 
 exports[`should render correctly 1`] = `
 <div>
-  <ul
-    className="account-projects-list"
-  >
+  <ul>
     <li
       key="bar"
     >
       <withRouter(OrganizationsShortListItem)
+        onClick={[MockFunction]}
         organization={
           Object {
             "key": "bar",
             "name": "Bar",
           }
         }
-        skipOnboarding={[MockFunction]}
       />
     </li>
     <li
       key="foo"
     >
       <withRouter(OrganizationsShortListItem)
+        onClick={[MockFunction]}
         organization={
           Object {
             "key": "foo",
             "name": "Foo",
           }
         }
-        skipOnboarding={[MockFunction]}
       />
     </li>
   </ul>
-  <div
-    className="big-spacer-top"
-  >
-    <span
-      className="big-spacer-right"
-    >
-      x_of_y_shown.2.2
-    </span>
-  </div>
 </div>
 `;

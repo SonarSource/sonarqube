@@ -70,7 +70,7 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
     const { loading, stacktrace } = this.state;
 
     return (
-      <Modal contentLabel="stacktrace" large={true} onRequestClose={this.props.onClose}>
+      <Modal contentLabel="stacktrace" onRequestClose={this.props.onClose} size={'large'}>
         <div className="modal-head">
           <h2>
             {translate('background_tasks.error_stacktrace')}

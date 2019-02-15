@@ -41,7 +41,8 @@ interface Option {
 export default class MetricSelect extends React.PureComponent<Props, State> {
   state = { value: -1 };
 
-  handleChange = ({ value }: Option) => {
+  handleChange = (option: Option | null) => {
+    const value = option ? option.value : -1;
     this.setState({ value });
     this.props.onMetricChange(this.props.metrics[value]);
   };
@@ -74,7 +75,7 @@ export default class MetricSelect extends React.PureComponent<Props, State> {
 
     return (
       <Select
-        className="text-middle input-large"
+        className="text-middle"
         id="condition-metric"
         onChange={this.handleChange}
         options={optionsWithDomains}

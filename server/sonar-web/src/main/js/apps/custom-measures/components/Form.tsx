@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getAllMetrics } from '../../../api/metrics';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Select from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
-import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
-import { translate } from '../../../helpers/l10n';
 import { Alert } from '../../../components/ui/Alert';
+import { SubmitButton, ResetButtonLink } from '../../../components/ui/buttons';
+import { getAllMetrics } from '../../../api/metrics';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   confirmButtonText: string;
@@ -145,7 +145,8 @@ export default class Form extends React.PureComponent<Props, State> {
       <SimpleModal
         header={this.props.header}
         onClose={this.props.onClose}
-        onSubmit={this.handleSubmit}>
+        onSubmit={this.handleSubmit}
+        size="small">
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form onSubmit={onFormSubmit}>
             <header className="modal-head">

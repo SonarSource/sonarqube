@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.new-info-box {
-  display: flex;
-  padding: var(--gridSize);
-  background-color: var(--veryLightBlue);
-  border: 1px solid var(--alertBorderInfo);
-  border-radius: 2px;
-}
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Form from '../Form';
 
-.new-info-box-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+it('render correctly', () => {
+  expect(
+    shallow(
+      <Form confirmButtonText="confirm" header="title" onClose={jest.fn()} onSubmit={jest.fn()} />
+    )
+  ).toMatchSnapshot();
+});

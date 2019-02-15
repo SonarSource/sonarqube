@@ -102,3 +102,7 @@ it('should apply custom class', () => {
   );
   expect(checkbox.is('.customclass')).toBeTruthy();
 });
+
+it('should render the checkbox on the right', () => {
+  expect(shallow(<Checkbox checked={true} onCheck={() => true} right={true} />)).toMatchSnapshot();
+});

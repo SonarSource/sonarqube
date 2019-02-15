@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import AutoOrganizationCreate from '../AutoOrganizationCreate';
 import { Step } from '../utils';
 import { bindAlmOrganization } from '../../../../api/alm-integration';
-import { mockAlmOrganization } from '../../../../helpers/testMocks';
+import { mockAlmOrganization, mockAlmApplication } from '../../../../helpers/testMocks';
 import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/alm-integration', () => ({
@@ -34,7 +34,14 @@ const organization = mockAlmOrganization();
 it('should render prefilled and create org', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
   const handleOrgDetailsFinish = jest.fn();
-  const wrapper = shallowRender({ createOrganization, handleOrgDetailsFinish });
+  const almApplication = mockAlmApplication({ key: 'github' });
+  const almOrganization = mockAlmOrganization({ almUrl: 'http://github.com/thing' });
+  const wrapper = shallowRender({
+    almApplication,
+    almOrganization,
+    createOrganization,
+    handleOrgDetailsFinish
+  });
 
   expect(wrapper).toMatchSnapshot();
 
@@ -44,7 +51,13 @@ it('should render prefilled and create org', async () => {
 
   wrapper.setProps({ organization });
   wrapper.find('PlanStep').prop<Function>('createOrganization')();
-  expect(createOrganization).toBeCalledWith({ ...organization, installationId: 'id-foo' });
+
+  const alm = {
+    key: 'github',
+    membersSync: true,
+    url: 'http://github.com/thing'
+  };
+  expect(createOrganization).toBeCalledWith({ ...organization, alm, installationId: 'id-foo' });
 });
 
 it('should allow to cancel org import', () => {
@@ -86,13 +99,7 @@ it('should bind existing organization', async () => {
 function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {
   return shallow(
     <AutoOrganizationCreate
-      almApplication={{
-        backgroundColor: '#0052CC',
-        iconPath: '"/static/authbitbucket/bitbucket.svg"',
-        installationUrl: 'https://bitbucket.org/install/app',
-        key: 'bitbucket',
-        name: 'BitBucket'
-      }}
+      almApplication={mockAlmApplication()}
       almInstallId="id-foo"
       almOrganization={{ ...organization, personal: false }}
       createOrganization={jest.fn()}
