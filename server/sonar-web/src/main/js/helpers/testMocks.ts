@@ -71,34 +71,6 @@ export function mockEvent(overrides = {}) {
   } as any;
 }
 
-export function mockIssue(overrides = {}): T.Issue {
-  return {
-    actions: [],
-    component: 'my-component',
-    componentLongName: 'My Component',
-    componentQualifier: 'my-component',
-    componentUuid: 'uuid',
-    creationDate: 'date',
-    key: 'foo',
-    flows: [],
-    fromHotspot: false,
-    message: 'Message',
-    organization: 'foo',
-    project: 'my-project',
-    projectName: 'My Project',
-    projectOrganization: 'org',
-    projectKey: 'key',
-    rule: 'rule',
-    ruleName: 'Rule',
-    secondaryLocations: [],
-    severity: 'severity',
-    status: 'status',
-    transitions: [],
-    type: 'BUG',
-    ...overrides
-  };
-}
-
 export function mockLocation(overrides: Partial<Location> = {}): Location {
   return {
     action: 'PUSH',
