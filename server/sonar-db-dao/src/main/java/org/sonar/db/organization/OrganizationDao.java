@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.KeyType;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
@@ -79,6 +80,10 @@ public class OrganizationDao implements Dao {
 
   public List<OrganizationDto> selectByPermission(DbSession dbSession, Integer userId, String permission) {
     return getMapper(dbSession).selectByPermission(userId, permission);
+  }
+
+  public Optional<OrganizationDto> selectByOrganizationAlmId(DbSession dbSession, ALM alm, String organizationAlmId) {
+    return Optional.ofNullable(getMapper(dbSession).selectByOrganizationAlmId(alm.getId(), organizationAlmId));
   }
 
   public List<String> selectAllUuids(DbSession dbSession) {
@@ -161,4 +166,5 @@ public class OrganizationDao implements Dao {
     requireNonNull(defaultTemplates, "defaultTemplates can't be null");
     requireNonNull(defaultTemplates.getProjectUuid());
   }
+
 }

@@ -140,8 +140,8 @@ public class AlmAppInstallDaoTest {
     AlmAppInstallDto almAppInstall1 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user1.getExternalId()));
     AlmAppInstallDto almAppInstall2 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user1.getExternalId()));
     AlmAppInstallDto almAppInstall3 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user2.getExternalId()));
-    db.alm().insertOrganizationAlmBinding(organization1, almAppInstall1);
-    db.alm().insertOrganizationAlmBinding(organization2, almAppInstall3);
+    db.alm().insertOrganizationAlmBinding(organization1, almAppInstall1, true);
+    db.alm().insertOrganizationAlmBinding(organization2, almAppInstall3, true);
 
     assertThat(underTest.selectUnboundByUserExternalId(dbSession, user1.getExternalId()))
       .extracting(AlmAppInstallDto::getUuid)

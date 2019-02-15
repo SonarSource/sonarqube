@@ -40,6 +40,9 @@ public interface OrganizationMapper {
   @CheckForNull
   OrganizationDto selectByUuid(@Param("uuid") String uuid);
 
+  @CheckForNull
+  OrganizationDto selectByOrganizationAlmId(@Param("alm") String alm, @Param("organizationAlmId") String organizationAlmId);
+
   List<OrganizationDto> selectByUuids(@Param("uuids") List<String> uuids);
 
   List<OrganizationDto> selectByPermission(@Param("userId") Integer userId, @Param("permission") String permission);

@@ -54,7 +54,7 @@ public class OrganizationAlmBindingDaoTest {
   public void selectByOrganization() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
 
     Optional<OrganizationAlmBindingDto> result = underTest.selectByOrganization(db.getSession(), organization);
 
@@ -72,7 +72,7 @@ public class OrganizationAlmBindingDaoTest {
   public void selectByOrganization_returns_empty_when_organization_is_not_bound_to_installation() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     // No binding on other installation
     OrganizationDto otherOrganization = db.organizations().insert();
 
@@ -85,7 +85,7 @@ public class OrganizationAlmBindingDaoTest {
   public void selectByOrganizationUuid() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
 
     assertThat(underTest.selectByOrganizationUuid(db.getSession(), organization.getUuid()).get())
       .extracting(OrganizationAlmBindingDto::getUuid, OrganizationAlmBindingDto::getOrganizationUuid, OrganizationAlmBindingDto::getAlmAppInstallUuid,
@@ -101,9 +101,9 @@ public class OrganizationAlmBindingDaoTest {
   @Test
   public void selectByOrganizations() {
     OrganizationDto organization1 = db.organizations().insert();
-    OrganizationAlmBindingDto organizationAlmBinding1 = db.alm().insertOrganizationAlmBinding(organization1, db.alm().insertAlmAppInstall());
+    OrganizationAlmBindingDto organizationAlmBinding1 = db.alm().insertOrganizationAlmBinding(organization1, db.alm().insertAlmAppInstall(), true);
     OrganizationDto organization2 = db.organizations().insert();
-    OrganizationAlmBindingDto organizationAlmBinding2 = db.alm().insertOrganizationAlmBinding(organization2, db.alm().insertAlmAppInstall());
+    OrganizationAlmBindingDto organizationAlmBinding2 = db.alm().insertOrganizationAlmBinding(organization2, db.alm().insertAlmAppInstall(), true);
     OrganizationDto organizationNotBound = db.organizations().insert();
 
     assertThat(underTest.selectByOrganizations(db.getSession(), asList(organization1, organization2, organizationNotBound)))
@@ -119,7 +119,7 @@ public class OrganizationAlmBindingDaoTest {
   public void selectByAlmAppInstall() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto dto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
 
     Optional<OrganizationAlmBindingDto> result = underTest.selectByAlmAppInstall(db.getSession(), almAppInstall);
 
@@ -136,7 +136,7 @@ public class OrganizationAlmBindingDaoTest {
   public void selectByAlmAppInstall_returns_empty_when_installation_is_not_bound_to_organization() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     // No binding on other organization
     AlmAppInstallDto otherAlmAppInstall = db.alm().insertAlmAppInstall();
 
@@ -175,10 +175,10 @@ public class OrganizationAlmBindingDaoTest {
   public void deleteByOrganization() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     OrganizationDto otherOrganization = db.organizations().insert();
     AlmAppInstallDto otherAlmAppInstall = db.alm().insertAlmAppInstall();
-    db.alm().insertOrganizationAlmBinding(otherOrganization, otherAlmAppInstall);
+    db.alm().insertOrganizationAlmBinding(otherOrganization, otherAlmAppInstall, true);
 
     underTest.deleteByOrganization(db.getSession(), organization);
 
@@ -190,10 +190,10 @@ public class OrganizationAlmBindingDaoTest {
   public void deleteByAlmAppInstall() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     OrganizationDto otherOrganization = db.organizations().insert();
     AlmAppInstallDto otherAlmAppInstall = db.alm().insertAlmAppInstall();
-    db.alm().insertOrganizationAlmBinding(otherOrganization, otherAlmAppInstall);
+    db.alm().insertOrganizationAlmBinding(otherOrganization, otherAlmAppInstall, true);
 
     underTest.deleteByAlmAppInstall(db.getSession(), almAppInstall);
 
@@ -205,7 +205,7 @@ public class OrganizationAlmBindingDaoTest {
   public void updateMembersSync() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto orgAlmBindingDto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto orgAlmBindingDto = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
 
     underTest.updateMembersSync(db.getSession(), orgAlmBindingDto, false);
 

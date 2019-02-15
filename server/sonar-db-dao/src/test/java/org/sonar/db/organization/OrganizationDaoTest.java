@@ -45,8 +45,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.KeyLongValue;
 import org.sonar.db.Pagination;
+import org.sonar.db.alm.ALM;
+import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
@@ -58,11 +59,15 @@ import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singleton;
+import static org.apache.commons.lang.RandomStringUtils.random;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.db.alm.ALM.BITBUCKETCLOUD;
+import static org.sonar.db.alm.ALM.GITHUB;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.organization.OrganizationQuery.Builder;
@@ -327,6 +332,31 @@ public class OrganizationDaoTest {
       dbSession,
       of(ORGANIZATION_DTO_1.getUuid().toUpperCase(Locale.ENGLISH), ORGANIZATION_DTO_2.getUuid().toUpperCase(Locale.ENGLISH))))
         .isEmpty();
+  }
+
+  @Test
+  public void selectByOwnerId_returns_row_data_when_key_exists() {
+    insertOrganization(ORGANIZATION_DTO_1);
+    insertOrgAlmBinding(ORGANIZATION_DTO_1, GITHUB, "123456");
+
+    Optional<OrganizationDto> result = underTest.selectByOrganizationAlmId(dbSession, GITHUB, "123456");
+
+    verifyOrganization1(result);
+  }
+
+  @Test
+  public void selectByOwnerId_returns_empty_if_organization_is_not_bound() {
+    insertOrganization(ORGANIZATION_DTO_1);
+
+    assertThat(underTest.selectByOrganizationAlmId(dbSession, GITHUB, "123456")).isEmpty();
+  }
+
+  @Test
+  public void selectByOwnerId_returns_empty_if_ownerId_doesnt_match_any_install() {
+    insertOrganization(ORGANIZATION_DTO_1);
+    insertOrgAlmBinding(ORGANIZATION_DTO_1, GITHUB, "123456");
+
+    assertThat(underTest.selectByOrganizationAlmId(dbSession, GITHUB,"unknown")).isEmpty();
   }
 
   @Test
@@ -1087,6 +1117,12 @@ public class OrganizationDaoTest {
   private void insertOrganization(OrganizationDto dto) {
     underTest.insert(dbSession, dto, false);
     dbSession.commit();
+  }
+
+  private void insertOrgAlmBinding(OrganizationDto organization, ALM alm, String organizationAlmId) {
+    dbClient.almAppInstallDao().insertOrUpdate(dbSession, alm, organizationAlmId, true, randomAlphabetic(8), randomAlphabetic(8));
+    Optional<AlmAppInstallDto> almAppInstallDto = dbClient.almAppInstallDao().selectByOwnerId(dbSession, GITHUB, organizationAlmId);
+    dbClient.organizationAlmBindingDao().insert(dbSession, organization, almAppInstallDto.get(), "http://github.com/myteam", random(8),true);
   }
 
   private void dirtyInsertWithDefaultTemplate(String organizationUuid, @Nullable String project, @Nullable String view) {

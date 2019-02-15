@@ -266,7 +266,7 @@ public class SearchActionTest {
     userSession.logIn(user);
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     OrganizationDto organizationNotBoundToAlm = db.organizations().insert();
     db.organizations().addMember(organization, user);
     db.organizations().addMember(organizationNotBoundToAlm, user);
@@ -283,7 +283,7 @@ public class SearchActionTest {
   public void do_not_return_alm_info_when_no_member_parameter() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
     OrganizationDto organizationNotBoundToAlm = db.organizations().insert();
 
     SearchWsResponse result = call(ws.newRequest());

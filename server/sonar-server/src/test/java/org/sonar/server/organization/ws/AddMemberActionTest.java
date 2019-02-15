@@ -222,7 +222,7 @@ public class AddMemberActionTest {
   @Test
   public void fail_if_org_is_bind_to_alm_and_members_sync_is_enabled() {
     OrganizationDto organization = db.organizations().insert();
-    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
     UserDto user = db.users().insertUser();
 
     expectedException.expect(IllegalArgumentException.class);

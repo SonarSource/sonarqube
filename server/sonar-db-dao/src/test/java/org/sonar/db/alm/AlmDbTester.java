@@ -28,6 +28,7 @@ import org.sonar.db.user.UserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 import static org.sonar.db.alm.ALM.GITHUB;
 
 public class AlmDbTester {
@@ -38,9 +39,9 @@ public class AlmDbTester {
     this.db = db;
   }
 
-  public OrganizationAlmBindingDto insertOrganizationAlmBinding(OrganizationDto organization, AlmAppInstallDto almAppInstall) {
+  public OrganizationAlmBindingDto insertOrganizationAlmBinding(OrganizationDto organization, AlmAppInstallDto almAppInstall, boolean membersSync) {
     UserDto user = db.users().insertUser();
-    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), user.getUuid(), true);
+    db.getDbClient().organizationAlmBindingDao().insert(db.getSession(), organization, almAppInstall, randomAlphabetic(10), user.getUuid(), membersSync);
     db.commit();
     return db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization).get();
   }
@@ -57,7 +58,7 @@ public class AlmDbTester {
     AlmAppInstallDto dto = new AlmAppInstallDto()
       .setAlmId(GITHUB.getId())
       .setInstallId(randomAlphanumeric(10))
-      .setOwnerId(randomAlphanumeric(10))
+      .setOwnerId(randomNumeric(10))
       .setIsOwnerUser(false)
       .setUserExternalId(randomAlphanumeric(10));
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(dto));

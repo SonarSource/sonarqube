@@ -545,7 +545,7 @@ public class DeleteActionTest {
   @Test
   public void delete_organization_alm_binding() {
     OrganizationDto organization = db.organizations().insert();
-    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
     logInAsAdministrator(organization);
 
     sendRequest(organization);

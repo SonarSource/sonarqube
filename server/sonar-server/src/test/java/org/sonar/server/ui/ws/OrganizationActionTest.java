@@ -185,7 +185,7 @@ public class OrganizationActionTest {
   public void return_alm_binding() {
     OrganizationDto organization = db.organizations().insert();
     AlmAppInstallDto almAppInstall = db.alm().insertAlmAppInstall();
-    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall);
+    OrganizationAlmBindingDto organizationAlmBinding = db.alm().insertOrganizationAlmBinding(organization, almAppInstall, true);
 
     TestResponse response = executeRequest(organization);
 

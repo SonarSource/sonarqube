@@ -58,6 +58,17 @@
         </foreach>
   </select>
 
+  <select id="selectByOrganizationAlmId" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    from organizations org
+    inner join organization_alm_bindings oab on org.uuid=oab.organization_uuid
+    inner join alm_app_installs aai on aai.uuid=oab.alm_app_install_uuid
+    where
+      aai.owner_id = #{organizationAlmId, jdbcType=VARCHAR} and
+      aai.alm_id = #{alm, jdbcType=VARCHAR}
+  </select>
+
   <select id="countByQuery" resultType="int">
     select count(org.uuid)
     <include refid="sqlSelectByQuery" />

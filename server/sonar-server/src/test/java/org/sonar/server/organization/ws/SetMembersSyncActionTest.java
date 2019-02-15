@@ -21,7 +21,6 @@ package org.sonar.server.organization.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -63,7 +62,7 @@ public class SetMembersSyncActionTest {
   @Test
   public void definition() {
     OrganizationDto organization = db.organizations().insert();
-    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
 
     WebService.Action definition = ws.getDef();
 
@@ -79,7 +78,7 @@ public class SetMembersSyncActionTest {
   @Test
   public void update_members_sync() {
     OrganizationDto organization = db.organizations().insert();
-    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
 
     sendRequest(organization.getKey(), true);
 
@@ -91,7 +90,7 @@ public class SetMembersSyncActionTest {
   @Test
   public void returns_no_content() {
     OrganizationDto organization = db.organizations().insert();
-    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
 
     TestResponse result = sendRequest(organization.getKey(), true);
 
@@ -124,7 +123,7 @@ public class SetMembersSyncActionTest {
   @Test
   public void fail_if_org_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
-    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall());
+    db.alm().insertOrganizationAlmBinding(organization, db.alm().insertAlmAppInstall(), true);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Organization '1234' does not exist");
