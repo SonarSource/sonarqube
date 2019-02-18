@@ -76,7 +76,7 @@ import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAddi
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
-import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -154,10 +154,10 @@ public class ComponentAction implements MeasuresWsAction {
       checkPermissions(component);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
       List<MetricDto> metrics = searchMetrics(dbSession, request);
-      List<Measures.Period> periods = snapshotToWsPeriods(analysis);
+      Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
       List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
 
-      return buildResponse(request, component, refComponent, measures, metrics, periods);
+      return buildResponse(request, component, refComponent, measures, metrics, period);
     }
   }
 
@@ -183,8 +183,8 @@ public class ComponentAction implements MeasuresWsAction {
     return dbClient.componentDao().selectByUuid(dbSession, component.getCopyResourceUuid());
   }
 
-  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<LiveMeasureDto> measures,
-    List<MetricDto> metrics, List<Measures.Period> periods) {
+  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,
+    List<LiveMeasureDto> measures, List<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     Map<MetricDto, LiveMeasureDto> measuresByMetric = new HashMap<>();
@@ -205,8 +205,8 @@ public class ComponentAction implements MeasuresWsAction {
           response.getMetricsBuilder().addMetrics(metricDtoToWsMetric(metric));
         }
       }
-      if (additionalFields.contains(ADDITIONAL_PERIODS)) {
-        response.getPeriodsBuilder().addAllPeriods(periods);
+      if (additionalFields.contains(ADDITIONAL_PERIODS) && period.isPresent()) {
+        response.getPeriodsBuilder().addPeriods(period.get());
       }
     }
 
@@ -282,8 +282,6 @@ public class ComponentAction implements MeasuresWsAction {
     private String pullRequest;
     private List<String> metricKeys;
     private List<String> additionalFields;
-    private String developerId;
-    private String developerKey;
 
     /**
      * @deprecated since 6.6, please use {@link #getComponent()} instead
@@ -349,26 +347,6 @@ public class ComponentAction implements MeasuresWsAction {
 
     private ComponentRequest setAdditionalFields(@Nullable List<String> additionalFields) {
       this.additionalFields = additionalFields;
-      return this;
-    }
-
-    @CheckForNull
-    private String getDeveloperId() {
-      return developerId;
-    }
-
-    private ComponentRequest setDeveloperId(@Nullable String developerId) {
-      this.developerId = developerId;
-      return this;
-    }
-
-    @CheckForNull
-    private String getDeveloperKey() {
-      return developerKey;
-    }
-
-    private ComponentRequest setDeveloperKey(@Nullable String developerKey) {
-      this.developerKey = developerKey;
       return this;
     }
   }

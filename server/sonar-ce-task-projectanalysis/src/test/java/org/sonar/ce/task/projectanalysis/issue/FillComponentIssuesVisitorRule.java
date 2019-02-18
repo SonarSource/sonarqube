@@ -65,11 +65,6 @@ public class FillComponentIssuesVisitorRule extends TypeAwareVisitorAdapter impl
     };
   }
 
-  public void setIssues(Component component, DefaultIssue... issues) {
-    checkNotNull(component, "component cannot be null");
-    setIssues(component.getReportAttributes().getRef(), issues);
-  }
-
   public void setIssues(int componentRef, DefaultIssue... issues) {
     Component component = treeRootHolder.getComponentByRef(componentRef);
     checkArgument(component != null, String.format("Component '%s' does not exists in the report ", componentRef));

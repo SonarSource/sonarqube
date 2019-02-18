@@ -107,12 +107,12 @@ import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAddi
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
-import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -121,15 +121,15 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
  * To limit the number of rows in database, a best value algorithm exists in database.</p>
  * A measure is not stored in database if:
  * <ul>
- *   <li>the component is a file (production or test)</li>
- *   <li>optimization algorithm is enabled on the metric</li>
- *   <li>the measure computed equals the metric best value</li>
- *   <li>the period values are all equal to 0</li>
+ * <li>the component is a file (production or test)</li>
+ * <li>optimization algorithm is enabled on the metric</li>
+ * <li>the measure computed equals the metric best value</li>
+ * <li>the period values are all equal to 0</li>
  * </ul>
  * To recreate a best value 2 different cases:
  * <ul>
- *   <li>Metric starts with 'new_' (ex: new_violations): the best value measure doesn't have a value and period values are all equal to 0</li>
- *   <li>Other metrics: the best value measure has a value of 0 and no period value</li>
+ * <li>Metric starts with 'new_' (ex: new_violations): the best value measure doesn't have a value and period values are all equal to 0</li>
+ * <li>Other metrics: the best value measure has a value of 0 and no period value</li>
  * </ul>
  */
 public class ComponentTreeAction implements MeasuresWsAction {
@@ -177,8 +177,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures. The %s or the %s parameter must be provided.<br>" +
-        "Requires the following permission: 'Browse' on the specified project.<br>" +
-        "When limiting search with the %s parameter, directories are not returned.",
+          "Requires the following permission: 'Browse' on the specified project.<br>" +
+          "When limiting search with the %s parameter, directories are not returned.",
         DEPRECATED_PARAM_BASE_COMPONENT_ID, PARAM_COMPONENT, Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
@@ -316,8 +316,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       }
     }
 
-    if (arePeriodsInResponse(request)) {
-      response.getPeriodsBuilder().addAllPeriods(data.getPeriods());
+    if (arePeriodsInResponse(request) && data.getPeriod() != null) {
+      response.getPeriodsBuilder().addPeriods(data.getPeriod());
     }
 
     return response.build();
@@ -431,7 +431,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
         .setComponentCount(componentCount)
         .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
         .setMetrics(metrics)
-        .setPeriods(snapshotToWsPeriods(baseSnapshot.get()))
+        .setPeriod(snapshotToWsPeriods(baseSnapshot.get()).orElse(null))
         .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
         .build();
     }

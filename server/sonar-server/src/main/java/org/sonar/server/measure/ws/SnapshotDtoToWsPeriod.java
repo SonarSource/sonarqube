@@ -19,31 +19,28 @@
  */
 package org.sonar.server.measure.ws;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
 import org.sonarqube.ws.Measures;
 
-import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
-class SnapshotDtoToWsPeriods {
-  private SnapshotDtoToWsPeriods() {
+class SnapshotDtoToWsPeriod {
+  private SnapshotDtoToWsPeriod() {
     // prevent instantiation
   }
 
-  static List<Measures.Period> snapshotToWsPeriods(@Nullable SnapshotDto snapshot) {
+  static Optional<Measures.Period> snapshotToWsPeriods(@Nullable SnapshotDto snapshot) {
     if (snapshot == null) {
-      return emptyList();
+      return Optional.empty();
     }
 
-    List<Measures.Period> periods = new ArrayList<>();
     if (snapshot.getPeriodDate() != null) {
-      periods.add(snapshotDtoToWsPeriod(snapshot));
+      return Optional.of(snapshotDtoToWsPeriod(snapshot));
     }
 
-    return periods;
+    return Optional.empty();
   }
 
   private static Measures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot) {
