@@ -101,11 +101,13 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
     private final String key;
     private final QGChangeEventListener.Status status;
     private final RuleType type;
+    private final String severity;
 
-    private ChangedIssueImpl(DefaultIssue issue) {
+    ChangedIssueImpl(DefaultIssue issue) {
       this.key = issue.key();
       this.status = statusOf(issue);
       this.type = issue.type();
+      this.severity = issue.severity();
     }
 
     static QGChangeEventListener.Status statusOf(DefaultIssue issue) {
@@ -154,11 +156,17 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
     }
 
     @Override
+    public String getSeverity() {
+      return severity;
+    }
+
+    @Override
     public String toString() {
       return "ChangedIssueImpl{" +
         "key='" + key + '\'' +
         ", status=" + status +
         ", type=" + type +
+        ", severity=" + severity +
         '}';
     }
   }

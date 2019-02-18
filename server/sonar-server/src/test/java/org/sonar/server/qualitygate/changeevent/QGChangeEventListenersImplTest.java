@@ -228,6 +228,32 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
+  public void isNotClosed_returns_true_if_issue_in_one_of_opened_states() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_REOPENED);
+    defaultIssue.setKey("abc");
+    defaultIssue.setType(RuleType.BUG);
+    defaultIssue.setSeverity("BLOCKER");
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.isNotClosed()).isTrue();
+  }
+
+  @Test
+  public void isNotClosed_returns_false_if_issue_in_one_of_closed_states() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_CONFIRMED);
+    defaultIssue.setKey("abc");
+    defaultIssue.setType(RuleType.BUG);
+    defaultIssue.setSeverity("BLOCKER");
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.isNotClosed()).isFalse();
+  }
+
+  @Test
   public void test_status_mapping() {
     assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_OPEN))).isEqualTo(QGChangeEventListener.Status.OPEN);
     assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_REOPENED))).isEqualTo(QGChangeEventListener.Status.REOPENED);
@@ -267,7 +293,7 @@ public class QGChangeEventListenersImplTest {
       .toArray(Tuple[]::new);
     assertThat(changedIssues)
       .hasSize(issues.length)
-      .extracting(ChangedIssue::getKey, t -> t.getStatus(), ChangedIssue::getType)
+      .extracting(ChangedIssue::getKey, ChangedIssue::getStatus, ChangedIssue::getType)
       .containsOnly(expected);
   }
 

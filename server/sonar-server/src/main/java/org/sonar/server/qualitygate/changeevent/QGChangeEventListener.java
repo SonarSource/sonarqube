@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
+import java.util.EnumSet;
 import java.util.Set;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -34,11 +35,18 @@ public interface QGChangeEventListener {
   void onIssueChanges(QGChangeEvent qualityGateEvent, Set<ChangedIssue> changedIssues);
 
   interface ChangedIssue {
+
     String getKey();
 
     Status getStatus();
 
     RuleType getType();
+
+    String getSeverity();
+
+    default boolean isNotClosed() {
+      return !Status.CLOSED_STATUSES.contains(getStatus());
+    }
   }
 
   enum Status {
@@ -47,7 +55,9 @@ public interface QGChangeEventListener {
     REOPENED,
     RESOLVED_FP,
     RESOLVED_WF,
-    RESOLVED_FIXED
+    RESOLVED_FIXED;
+
+    protected static final Set<Status> CLOSED_STATUSES = EnumSet.of(CONFIRMED, RESOLVED_FIXED, RESOLVED_FP, RESOLVED_WF);
   }
 
 }

@@ -751,7 +751,7 @@ public final class CoreMetrics {
   /**
    * @since 6.1
    */
-  public static final Metric<Integer> NEW_DUPLICATED_LINES_DENSITY = new Metric.Builder(NEW_DUPLICATED_LINES_DENSITY_KEY, "Duplicated Lines on New Code (%)",
+  public static final Metric<Integer> NEW_DUPLICATED_LINES_DENSITY = new Metric.Builder(NEW_DUPLICATED_LINES_DENSITY_KEY, "Duplicated Lines on New Code",
     Metric.ValueType.PERCENT)
     .setDescription("Duplicated lines on new code balanced by statements")
     .setDirection(Metric.DIRECTION_WORST)
