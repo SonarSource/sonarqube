@@ -639,16 +639,18 @@ declare namespace T {
     name: string;
   }
 
+  export interface QualityGateProjectStatusCondition {
+    status: 'ERROR' | 'OK';
+    metricKey: string;
+    comparator: string;
+    periodIndex: number;
+    errorThreshold: string;
+    actualValue: string;
+  }
+
   export interface QualityGateProjectStatus {
     projectStatus: {
-      conditions?: Array<{
-        status: 'ERROR' | 'OK';
-        metricKey: string;
-        comparator: string;
-        periodIndex: number;
-        errorThreshold: string;
-        actualValue: string;
-      }>;
+      conditions?: QualityGateProjectStatusCondition[];
       ignoredConditions: boolean;
       status: string;
     };
