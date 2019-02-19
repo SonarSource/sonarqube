@@ -43,7 +43,10 @@ build_task:
   gradle_cache:
     folder: ~/.gradle/caches
   env:
-    CIRRUS_CLONE_DEPTH: 1
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-build.sh
   cleanup_before_cache_script:
@@ -62,7 +65,10 @@ deploy_docs_task:
     cpu: 1
     memory: 1Gb
   env:
-    CIRRUS_CLONE_DEPTH: 1
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
@@ -129,7 +135,10 @@ qa_task:
       QA_CATEGORY: Billing
       QA_CATEGORY: License
       QA_CATEGORY: Branch
-    CIRRUS_CLONE_DEPTH: 1
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
   gradle_cache:
     folder: ~/.gradle/caches
   script:
@@ -153,7 +162,10 @@ promote_task:
     cpu: 1
     memory: 1Gb
   env:
-    CIRRUS_CLONE_DEPTH: 1
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-promote.sh
 
