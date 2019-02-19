@@ -119,7 +119,22 @@ public class ExternalIssueImporter {
       if (location.textRange != null) {
         if (location.textRange.startColumn != null) {
           TextPointer start = file.newPointer(location.textRange.startLine, location.textRange.startColumn);
-          TextPointer end = file.newPointer(location.textRange.endLine, location.textRange.endColumn);
+          int endLine;
+          int endColumn;
+
+          if (location.textRange.endLine == null) {
+            // assume it's on a single line
+            endLine = location.textRange.startLine;
+          } else {
+            endLine = location.textRange.endLine;
+          }
+          if (location.textRange.endColumn == null) {
+            // assume it's until the last character of the end line
+            endColumn = file.selectLine(endLine).end().lineOffset();
+          } else {
+            endColumn = location.textRange.endColumn;
+          }
+          TextPointer end = file.newPointer(endLine, endColumn);
           newLocation.at(file.newRange(start, end));
         } else {
           newLocation.at(file.selectLine(location.textRange.startLine));
