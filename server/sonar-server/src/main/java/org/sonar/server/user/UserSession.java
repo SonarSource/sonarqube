@@ -73,7 +73,7 @@ public interface UserSession {
    * This enum supports by name only the few providers for which specific code exists.
    */
   enum IdentityProvider {
-    SONARQUBE("sonarqube"), GITHUB("github"), BITBUCKET("bitbucket"), OTHER("other");
+    SONARQUBE("sonarqube"), GITHUB("github"), BITBUCKETCLOUD("bitbucket"), OTHER("other");
 
     String key;
 
