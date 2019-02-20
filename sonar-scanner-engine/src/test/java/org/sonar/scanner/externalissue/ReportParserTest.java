@@ -36,7 +36,6 @@ public class ReportParserTest {
   public void parse_sample() {
     ReportParser parser = new ReportParser(Paths.get("src/test/resources/org/sonar/scanner/externalissue/report.json"));
 
-    System.out.println(Paths.get("org/sonar/scanner/externalissue/report.json").toAbsolutePath());
     Report report = parser.parse();
 
     assertThat(report.issues).hasSize(4);

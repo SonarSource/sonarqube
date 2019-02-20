@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.externalissue;
 
+import com.google.common.base.MoreObjects;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -108,41 +109,34 @@ public class ExternalIssueImporter {
   @CheckForNull
   private static NewIssueLocation fillLocation(SensorContext context, NewIssueLocation newLocation, Location location) {
     InputFile file = findFile(context, location.filePath);
-    if (file != null) {
-      newLocation
-        .on(file);
-
-      if (location.message != null) {
-        newLocation.message(location.message);
-      }
-
-      if (location.textRange != null) {
-        if (location.textRange.startColumn != null) {
-          TextPointer start = file.newPointer(location.textRange.startLine, location.textRange.startColumn);
-          int endLine;
-          int endColumn;
-
-          if (location.textRange.endLine == null) {
-            // assume it's on a single line
-            endLine = location.textRange.startLine;
-          } else {
-            endLine = location.textRange.endLine;
-          }
-          if (location.textRange.endColumn == null) {
-            // assume it's until the last character of the end line
-            endColumn = file.selectLine(endLine).end().lineOffset();
-          } else {
-            endColumn = location.textRange.endColumn;
-          }
-          TextPointer end = file.newPointer(endLine, endColumn);
-          newLocation.at(file.newRange(start, end));
-        } else {
-          newLocation.at(file.selectLine(location.textRange.startLine));
-        }
-      }
-      return newLocation;
+    if (file == null) {
+      return null;
     }
-    return null;
+    newLocation.on(file);
+
+    if (location.message != null) {
+      newLocation.message(location.message);
+    }
+
+    if (location.textRange != null) {
+      if (location.textRange.startColumn != null) {
+        TextPointer start = file.newPointer(location.textRange.startLine, location.textRange.startColumn);
+        int endLine = MoreObjects.firstNonNull(location.textRange.endLine, location.textRange.startLine);
+        int endColumn;
+
+        if (location.textRange.endColumn == null) {
+          // assume it's until the last character of the end line
+          endColumn = file.selectLine(endLine).end().lineOffset();
+        } else {
+          endColumn = location.textRange.endColumn;
+        }
+        TextPointer end = file.newPointer(endLine, endColumn);
+        newLocation.at(file.newRange(start, end));
+      } else {
+        newLocation.at(file.selectLine(location.textRange.startLine));
+      }
+    }
+    return newLocation;
   }
 
   @CheckForNull
