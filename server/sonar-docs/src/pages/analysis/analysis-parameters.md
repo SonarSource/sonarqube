@@ -61,7 +61,6 @@ Key | Description | Default
 `sonar.links.ci` | Continuous integration. | `<ciManagement><url>` for Maven projects
 `sonar.links.issue` | Issue tracker. | `<issueManagement><url>` for Maven projects
 `sonar.links.scm` | Project source repository. | `<scm><url>` for Maven projects
-`sonar.links.scm_dev` | Developer connection. | `<scm><developerConnection>` for Maven projects
 `sonar.sources` | Comma-separated paths to directories containing main source files. | Read from build system for Maven, Gradle, MSBuild projects. Defaults to project base directory when neither `sonar.sources` nor `sonar.tests` is provided.
 `sonar.tests` | Comma-separated paths to directories containing test source files. | Read from build system for Maven, Gradle, MSBuild projects. Else default to empty.
 `sonar.sourceEncoding` | Encoding of the source files. Ex: `UTF-8`, `MacRoman`, `Shift_JIS`. This property can be replaced by the standard property `project.build.sourceEncoding` in Maven projects. The list of available encodings depends on your JVM. | System encoding
@@ -96,11 +95,12 @@ Key | Description | Default
 ### Deprecated
 [[danger]]
 | ![](/images/cross.svg) These parameters are listed for completeness, but are deprecated and should not be used in new analyses.
+
 Key | Description
 ---|----|---
 `sonar.branch` **![](/images/cross.svg)Deprecated since SQ 6.7** | _The Developer Edition provides fuller-featured branch functionality._ Manage SCM branches. Two branches of the same project are considered to be different projects in SonarQube. As a consequence issues found in a project A in a branch B1 are not linked to issues found for this project A in a branch B2. There is no way to automatically resolve issues from B2 when they are resolved in B1 as again A-B1 & A-B2 are considered separated projects. 
 `sonar.language` **![](/images/cross.svg)Deprecated since SQ 4.5** | Set the language of the source code to analyze. Browse the Plugin Library page to get the list of all available languages. If not set, a multi-language analysis will be triggered. 
 `sonar.profile` **![](/images/cross.svg)Deprecated since SQ 4.5** | Override the profile to be used. This should be set on a per-langauge basis through the UI instead. 
 `sonar.analysis.mode` **![](/images/cross.svg)Deprecated since SQ 6.6** | This parameter is set to `preview` as part of non-Developer Edition PR decoration.
-
+`sonar.links.scm_dev` **![](/images/cross.svg)Deprecated since SQ 7.1** | Developer connection. | `<scm><developerConnection>` for Maven projects
 <!-- /sonarqube -->
