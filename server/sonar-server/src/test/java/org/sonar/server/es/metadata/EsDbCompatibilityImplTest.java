@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

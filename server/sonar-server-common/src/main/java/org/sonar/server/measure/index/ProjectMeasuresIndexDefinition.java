@@ -20,18 +20,26 @@
 package org.sonar.server.measure.index;
 
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType.IndexRelationType;
+import org.sonar.server.es.newindex.NewAuthorizedIndex;
+import org.sonar.server.es.newindex.TypeMapping;
+import org.sonar.server.permission.index.IndexAuthorizationConstants;
 
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
-  public static final IndexType INDEX_TYPE_PROJECT_MEASURES = new IndexType("projectmeasures", "projectmeasure");
+  public static final Index DESCRIPTOR = Index.withRelations("projectmeasures");
+  public static final IndexType.IndexMainType TYPE_AUTHORIZATION = IndexType.main(DESCRIPTOR, IndexAuthorizationConstants.TYPE_AUTHORIZATION);
+  public static final IndexRelationType TYPE_PROJECT_MEASURES = IndexType.relation(TYPE_AUTHORIZATION, "projectmeasure");
+
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_ORGANIZATION_UUID = "organizationUuid";
 
@@ -52,23 +60,36 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_DISTRIB_NCLOC = "ncloc";
 
   private final Configuration config;
+  private final boolean enableSource;
 
-  public ProjectMeasuresIndexDefinition(Configuration settings) {
-    this.config = settings;
+  private ProjectMeasuresIndexDefinition(Configuration config, boolean enableSource) {
+    this.config = config;
+    this.enableSource = enableSource;
+  }
+
+  public ProjectMeasuresIndexDefinition(Configuration config) {
+    this(config, false);
+  }
+
+  /**
+   * Keep the document sources in index so that indexer tests can verify content
+   * of indexed documents.
+   */
+  public static ProjectMeasuresIndexDefinition createForTest() {
+    return new ProjectMeasuresIndexDefinition(new MapSettings().asConfig(), true);
   }
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(
-      INDEX_TYPE_PROJECT_MEASURES.getIndex(),
+    NewAuthorizedIndex index = context.createWithAuthorization(
+      DESCRIPTOR,
       newBuilder(config)
         .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
         .setDefaultNbOfShards(5)
-        .build());
+        .build())
+      .setEnableSource(enableSource);
 
-    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_PROJECT_MEASURES.getType())
-      .requireProjectAuthorization();
-
+    TypeMapping mapping = index.createTypeMapping(TYPE_PROJECT_MEASURES);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
@@ -85,6 +106,5 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
       .addIntegerField(FIELD_DISTRIB_NCLOC)
       .build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
-    mapping.setEnableSource(false);
   }
 }

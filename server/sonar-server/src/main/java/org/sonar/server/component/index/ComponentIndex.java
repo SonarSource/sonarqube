@@ -61,9 +61,10 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_LA
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.NAME_ANALYZERS;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
+import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndex {
 
@@ -82,7 +83,7 @@ public class ComponentIndex {
 
   public SearchIdResult<String> search(ComponentQuery query, SearchOptions searchOptions) {
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_COMPONENT)
+      .prepareSearch(TYPE_COMPONENT.getMainType())
       .setFetchSource(false)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit());
@@ -118,7 +119,7 @@ public class ComponentIndex {
     }
 
     SearchRequestBuilder request = client
-      .prepareSearch(INDEX_TYPE_COMPONENT)
+      .prepareSearch(TYPE_COMPONENT.getMainType())
       .setQuery(createQuery(query, features))
       .addAggregation(createAggregation(query))
 
@@ -166,6 +167,7 @@ public class ComponentIndex {
 
   private QueryBuilder createQuery(SuggestionQuery query, ComponentTextSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
+    esQuery.filter(termQuery(FIELD_INDEX_TYPE, TYPE_COMPONENT.getName()));
     esQuery.filter(authorizationTypeSupport.createQueryFilter());
     ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
       .setQueryText(query.getQuery())

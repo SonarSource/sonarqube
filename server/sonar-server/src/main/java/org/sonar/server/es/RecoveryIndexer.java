@@ -64,7 +64,7 @@ public class RecoveryIndexer implements Startable {
   private final System2 system2;
   private final Configuration config;
   private final DbClient dbClient;
-  private final Map<IndexType, ResilientIndexer> indexersByType;
+  private final Map<String, Indexer> indexersByType;
   private final long minAgeInMs;
   private final long loopLimit;
 
@@ -73,9 +73,27 @@ public class RecoveryIndexer implements Startable {
     this.config = config;
     this.dbClient = dbClient;
     this.indexersByType = new HashMap<>();
-    Arrays.stream(indexers).forEach(i -> i.getIndexTypes().forEach(indexType -> indexersByType.put(indexType, i)));
+    Arrays.stream(indexers).forEach(i -> i.getIndexTypes().forEach(indexType -> indexersByType.put(indexType.format(), new Indexer(indexType, i))));
     this.minAgeInMs = getSetting(PROPERTY_MIN_AGE, DEFAULT_MIN_AGE_IN_MS);
     this.loopLimit = getSetting(PROPERTY_LOOP_LIMIT, DEFAULT_LOOP_LIMIT);
+  }
+
+  private static final class Indexer {
+    private final IndexType indexType;
+    private final ResilientIndexer delegate;
+
+    private Indexer(IndexType indexType, ResilientIndexer delegate) {
+      this.indexType = indexType;
+      this.delegate = delegate;
+    }
+
+    public IndexType getIndexType() {
+      return indexType;
+    }
+
+    public ResilientIndexer getDelegate() {
+      return delegate;
+    }
   }
 
   @Override
@@ -116,7 +134,7 @@ public class RecoveryIndexer implements Startable {
       while (!items.isEmpty()) {
         IndexingResult loopResult = new IndexingResult();
 
-        groupItemsByType(items).asMap().forEach((type, typeItems) -> loopResult.add(doIndex(dbSession, type, typeItems)));
+        groupItemsByDocType(items).asMap().forEach((type, typeItems) -> loopResult.add(doIndex(dbSession, type, typeItems)));
         result.add(loopResult);
 
         if (loopResult.getSuccessRatio() <= CIRCUIT_BREAKER_IN_PERCENT) {
@@ -138,19 +156,19 @@ public class RecoveryIndexer implements Startable {
     }
   }
 
-  private IndexingResult doIndex(DbSession dbSession, IndexType type, Collection<EsQueueDto> typeItems) {
-    LOGGER.trace(LOG_PREFIX + "processing {} {}", typeItems.size(), type);
+  private IndexingResult doIndex(DbSession dbSession, String docType, Collection<EsQueueDto> typeItems) {
+    LOGGER.trace(LOG_PREFIX + "processing {} [{}]", typeItems.size(), docType);
 
-    ResilientIndexer indexer = indexersByType.get(type);
+    Indexer indexer = indexersByType.get(docType);
     if (indexer == null) {
-      LOGGER.error(LOG_PREFIX + "ignore {} items with unsupported type {}", typeItems.size(), type);
+      LOGGER.error(LOG_PREFIX + "ignore {} items with unsupported type [{}]", typeItems.size(), docType);
       return new IndexingResult();
     }
-    return indexer.index(dbSession, typeItems);
+    return indexer.delegate.index(dbSession, typeItems);
   }
 
-  private static ListMultimap<IndexType, EsQueueDto> groupItemsByType(Collection<EsQueueDto> items) {
-    return items.stream().collect(MoreCollectors.index(i -> IndexType.parse(i.getDocType())));
+  private static ListMultimap<String, EsQueueDto> groupItemsByDocType(Collection<EsQueueDto> items) {
+    return items.stream().collect(MoreCollectors.index(EsQueueDto::getDocType));
   }
 
   private long getSetting(String key, long defaultValue) {

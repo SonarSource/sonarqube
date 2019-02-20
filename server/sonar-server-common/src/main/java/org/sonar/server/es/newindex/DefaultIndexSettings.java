@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.es.newindex;
 
 import java.util.Arrays;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
@@ -80,7 +80,7 @@ public class DefaultIndexSettings {
     // only static stuff
   }
 
-  static Settings.Builder defaults() {
+  public static Settings.Builder defaults() {
     Settings.Builder builder = Settings.builder()
       .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
       .put("index.refresh_interval", "30s")

@@ -34,11 +34,12 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.BulkIndexer.Size;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.es.FakeIndexDefinition.INDEX;
-import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.INDEX;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
 public class BulkIndexerTest {
 
@@ -53,7 +54,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_nothing() {
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR);
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR);
     indexer.start();
     indexer.stop();
 
@@ -62,7 +63,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_documents() {
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR);
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR);
     indexer.start();
     indexer.add(newIndexRequest(42));
     indexer.add(newIndexRequest(78));
@@ -80,7 +81,7 @@ public class BulkIndexerTest {
     // index has one replica
     assertThat(replicas()).isEqualTo(1);
 
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.LARGE);
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.LARGE);
     indexer.start();
 
     // replicas are temporarily disabled
@@ -108,12 +109,12 @@ public class BulkIndexerTest {
     for (int i = 0; i < max; i++) {
       docs[i] = FakeIndexDefinition.newDoc(i);
     }
-    es.putDocuments(INDEX_TYPE_FAKE, docs);
+    es.putDocuments(TYPE_FAKE, docs);
     assertThat(count()).isEqualTo(max);
 
-    SearchRequestBuilder req = es.client().prepareSearch(INDEX_TYPE_FAKE)
+    SearchRequestBuilder req = es.client().prepareSearch(TYPE_FAKE)
       .setQuery(QueryBuilders.rangeQuery(FakeIndexDefinition.INT_FIELD).gte(removeFrom));
-    BulkIndexer.delete(es.client(), INDEX_TYPE_FAKE, req);
+    BulkIndexer.delete(es.client(), TYPE_FAKE, req);
 
     assertThat(count()).isEqualTo(removeFrom);
   }
@@ -121,12 +122,12 @@ public class BulkIndexerTest {
   @Test
   public void listener_is_called_on_successful_requests() {
     FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
-    indexer.addDeletion(INDEX_TYPE_FAKE, "foo");
+    indexer.addDeletion(TYPE_FAKE, "foo");
     indexer.stop();
     assertThat(listener.calledDocIds)
-      .containsExactlyInAnyOrder(new DocId(INDEX_TYPE_FAKE, "foo"));
+      .containsExactlyInAnyOrder(newDocId(TYPE_FAKE, "foo"));
     assertThat(listener.calledResult.getSuccess()).isEqualTo(1);
     assertThat(listener.calledResult.getTotal()).isEqualTo(1);
   }
@@ -134,13 +135,13 @@ public class BulkIndexerTest {
   @Test
   public void listener_is_called_even_if_deleting_a_doc_that_does_not_exist() {
     FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
     indexer.add(newIndexRequestWithDocId("foo"));
     indexer.add(newIndexRequestWithDocId("bar"));
     indexer.stop();
     assertThat(listener.calledDocIds)
-      .containsExactlyInAnyOrder(new DocId(INDEX_TYPE_FAKE, "foo"), new DocId(INDEX_TYPE_FAKE, "bar"));
+      .containsExactlyInAnyOrder(newDocId(TYPE_FAKE, "foo"), newDocId(TYPE_FAKE, "bar"));
     assertThat(listener.calledResult.getSuccess()).isEqualTo(2);
     assertThat(listener.calledResult.getTotal()).isEqualTo(2);
   }
@@ -148,12 +149,12 @@ public class BulkIndexerTest {
   @Test
   public void listener_is_not_called_with_errors() {
     FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, listener);
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
     indexer.add(newIndexRequestWithDocId("foo"));
     indexer.add(new IndexRequest("index_does_not_exist", "index_does_not_exist", "bar").source(emptyMap()));
     indexer.stop();
-    assertThat(listener.calledDocIds).containsExactly(new DocId(INDEX_TYPE_FAKE, "foo"));
+    assertThat(listener.calledDocIds).containsExactly(newDocId(TYPE_FAKE, "foo"));
     assertThat(listener.calledResult.getSuccess()).isEqualTo(1);
     assertThat(listener.calledResult.getTotal()).isEqualTo(2);
   }
@@ -162,10 +163,10 @@ public class BulkIndexerTest {
   public void log_requests_when_TRACE_level_is_enabled() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    BulkIndexer indexer = new BulkIndexer(es.client(), INDEX_TYPE_FAKE, Size.REGULAR, new FakeListener());
+    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, new FakeListener());
     indexer.start();
     indexer.add(newIndexRequestWithDocId("foo"));
-    indexer.addDeletion(INDEX_TYPE_FAKE, "foo");
+    indexer.addDeletion(TYPE_FAKE, "foo");
     indexer.add(newIndexRequestWithDocId("bar"));
     indexer.stop();
 
@@ -192,7 +193,7 @@ public class BulkIndexerTest {
   }
 
   private long count() {
-    return es.countDocuments("fakes", "fake");
+    return es.countDocuments(IndexType.main(Index.simple("fakes"), "fake"));
   }
 
   private int replicas() {
@@ -202,13 +203,17 @@ public class BulkIndexerTest {
   }
 
   private IndexRequest newIndexRequest(int intField) {
-    return new IndexRequest(INDEX, INDEX_TYPE_FAKE.getType())
+    return new IndexRequest(INDEX, TYPE_FAKE.getType())
       .source(ImmutableMap.of(FakeIndexDefinition.INT_FIELD, intField));
   }
 
   private IndexRequest newIndexRequestWithDocId(String id) {
-    return new IndexRequest(INDEX, INDEX_TYPE_FAKE.getType())
+    return new IndexRequest(INDEX, TYPE_FAKE.getType())
       .id(id)
       .source(ImmutableMap.of(FakeIndexDefinition.INT_FIELD, 42));
+  }
+
+  private static DocId newDocId(IndexType.IndexMainType mainType, String id) {
+    return new DocId(TYPE_FAKE.getIndex().getName(), mainType.getType(), id);
   }
 }

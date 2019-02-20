@@ -45,7 +45,7 @@ public class ViewIndex {
   }
 
   public List<String> findAllViewUuids() {
-    SearchRequestBuilder esSearch = esClient.prepareSearch(ViewIndexDefinition.INDEX_TYPE_VIEW)
+    SearchRequestBuilder esSearch = esClient.prepareSearch(ViewIndexDefinition.TYPE_VIEW)
       .addSort("_doc", SortOrder.ASC)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
       .setFetchSource(false)

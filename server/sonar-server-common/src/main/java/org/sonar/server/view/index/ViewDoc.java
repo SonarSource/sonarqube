@@ -24,29 +24,21 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
+
 public class ViewDoc extends BaseDoc {
 
   public ViewDoc(Map<String, Object> fields) {
-    super(fields);
+    super(TYPE_VIEW, fields);
   }
 
   public ViewDoc() {
-    super(Maps.newHashMap());
+    super(TYPE_VIEW, Maps.newHashMap());
   }
 
   @Override
   public String getId() {
     return uuid();
-  }
-
-  @Override
-  public String getRouting() {
-    return null;
-  }
-
-  @Override
-  public String getParent() {
-    return null;
   }
 
   public String uuid() {

@@ -68,8 +68,9 @@ public class ProxyIndicesStatsRequestBuilder extends IndicesStatsRequestBuilder 
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES indices stats request");
-    if (request.indices().length > 0) {
-      message.append(String.format(" on indices '%s'", StringUtils.join(request.indices(), ",")));
+    String[] indices = request.indices();
+    if (indices != null && indices.length > 0) {
+      message.append(String.format(" on indices '%s'", StringUtils.join(indices, ",")));
     }
     return message.toString();
   }

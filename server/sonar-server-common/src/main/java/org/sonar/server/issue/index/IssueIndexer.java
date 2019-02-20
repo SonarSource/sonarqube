@@ -46,6 +46,7 @@ import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToManyResilientIndexingListener;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
@@ -53,7 +54,7 @@ import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
@@ -66,8 +67,8 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
    */
   private static final String ID_TYPE_PROJECT_UUID = "projectUuid";
   private static final Logger LOGGER = Loggers.get(IssueIndexer.class);
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
-  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(INDEX_TYPE_ISSUE);
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
+  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(TYPE_ISSUE);
 
   private final EsClient esClient;
   private final DbClient dbClient;
@@ -187,7 +188,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
     // the remaining uuids reference issues that don't exist in db. They must
     // be deleted from index.
     itemsByIssueKey.values().forEach(
-      item -> bulkIndexer.addDeletion(INDEX_TYPE_ISSUE, item.getDocId(), item.getDocRouting()));
+      item -> bulkIndexer.addDeletion(TYPE_ISSUE.getMainType(), item.getDocId(), item.getDocRouting()));
 
     return bulkIndexer.stop();
   }
@@ -229,7 +230,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
     bulkIndexer.start();
-    issueKeys.forEach(issueKey -> bulkIndexer.addDeletion(INDEX_TYPE_ISSUE, issueKey, projectUuid));
+    issueKeys.forEach(issueKey -> bulkIndexer.addDeletion(TYPE_ISSUE.getMainType(), issueKey, AuthorizationDoc.idOf(projectUuid)));
     bulkIndexer.stop();
   }
 
@@ -249,27 +250,25 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   }
 
   private IndexRequest newIndexRequest(IssueDoc issue) {
-    String projectUuid = issue.projectUuid();
-    return esClient.prepareIndex(INDEX_TYPE_ISSUE)
-      .setId(issue.key())
-      .setRouting(projectUuid)
-      .setParent(projectUuid)
+    return esClient.prepareIndex(TYPE_ISSUE.getMainType())
+      .setId(issue.getId())
+      .setRouting(issue.getRouting().orElseThrow(() -> new IllegalStateException("IssueDoc should define a routing")))
       .setSource(issue.getFields())
       .request();
   }
 
   private void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ISSUE)
-      .setRouting(projectUuid)
+    SearchRequestBuilder search = esClient.prepareSearch(TYPE_ISSUE.getMainType())
+      .setRouting(AuthorizationDoc.idOf(projectUuid))
       .setQuery(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, projectUuid)));
     bulkIndexer.addDeletion(search);
   }
 
   private static EsQueueDto createQueueDto(String docId, String docIdType, String projectUuid) {
-    return EsQueueDto.create(INDEX_TYPE_ISSUE.format(), docId, docIdType, projectUuid);
+    return EsQueueDto.create(TYPE_ISSUE.format(), docId, docIdType, projectUuid);
   }
 
   private BulkIndexer createBulkIndexer(Size size, IndexingListener listener) {
-    return new BulkIndexer(esClient, INDEX_TYPE_ISSUE, size, listener);
+    return new BulkIndexer(esClient, TYPE_ISSUE, size, listener);
   }
 }

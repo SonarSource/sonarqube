@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

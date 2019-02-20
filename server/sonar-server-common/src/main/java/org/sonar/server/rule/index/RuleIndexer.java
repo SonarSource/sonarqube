@@ -23,17 +23,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.es.RuleExtensionId;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleExtensionForIndexingDto;
-import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
@@ -47,8 +44,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 
 public class RuleIndexer implements ResilientIndexer {
 
@@ -62,7 +59,7 @@ public class RuleIndexer implements ResilientIndexer {
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(INDEX_TYPE_RULE, INDEX_TYPE_RULE_EXTENSION);
+    return ImmutableSet.of(TYPE_RULE, TYPE_RULE_EXTENSION);
   }
 
   @Override
@@ -72,16 +69,16 @@ public class RuleIndexer implements ResilientIndexer {
       bulk.start();
 
       // index all definitions and system extensions
-      if (uninitializedIndexTypes.contains(INDEX_TYPE_RULE)) {
+      if (uninitializedIndexTypes.contains(TYPE_RULE)) {
         dbClient.ruleDao().scrollIndexingRules(dbSession, dto -> {
-          bulk.add(newRuleDocIndexRequest(dto));
-          bulk.add(newRuleExtensionDocIndexRequest(dto));
+          bulk.add(RuleDoc.of(dto).toIndexRequest());
+          bulk.add(RuleExtensionDoc.of(dto).toIndexRequest());
         });
       }
 
       // index all organization extensions
-      if (uninitializedIndexTypes.contains(INDEX_TYPE_RULE_EXTENSION)) {
-        dbClient.ruleDao().scrollIndexingRuleExtensions(dbSession, dto -> bulk.add(newRuleExtensionDocIndexRequest(dto)));
+      if (uninitializedIndexTypes.contains(TYPE_RULE_EXTENSION)) {
+        dbClient.ruleDao().scrollIndexingRuleExtensions(dbSession, dto -> bulk.add(RuleExtensionDoc.of(dto).toIndexRequest()));
       }
 
       bulk.stop();
@@ -123,14 +120,18 @@ public class RuleIndexer implements ResilientIndexer {
   public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
     IndexingResult result = new IndexingResult();
     if (!items.isEmpty()) {
-      ListMultimap<IndexType, EsQueueDto> itemsByType = groupItemsByType(items);
-      result.add(doIndexRules(dbSession, itemsByType.get(INDEX_TYPE_RULE)));
-      result.add(doIndexRuleExtensions(dbSession, itemsByType.get(INDEX_TYPE_RULE_EXTENSION)));
+      ListMultimap<String, EsQueueDto> itemsByType = groupItemsByIndexTypeFormat(items);
+      doIndexRules(dbSession, itemsByType.get(TYPE_RULE.format())).ifPresent(result::add);
+      doIndexRuleExtensions(dbSession, itemsByType.get(TYPE_RULE_EXTENSION.format())).ifPresent(result::add);
     }
     return result;
   }
 
-  private IndexingResult doIndexRules(DbSession dbSession, List<EsQueueDto> items) {
+  private Optional<IndexingResult> doIndexRules(DbSession dbSession, List<EsQueueDto> items) {
+    if (items.isEmpty()) {
+      return Optional.empty();
+    }
+
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
@@ -141,22 +142,26 @@ public class RuleIndexer implements ResilientIndexer {
 
     dbClient.ruleDao().scrollIndexingRulesByKeys(dbSession, ruleIds,
       r -> {
-        bulkIndexer.add(newRuleDocIndexRequest(r));
-        bulkIndexer.add(newRuleExtensionDocIndexRequest(r));
+        bulkIndexer.add(RuleDoc.of(r).toIndexRequest());
+        bulkIndexer.add(RuleExtensionDoc.of(r).toIndexRequest());
         ruleIds.remove(r.getId());
       });
 
     // the remaining items reference rows that don't exist in db. They must
     // be deleted from index.
     ruleIds.forEach(ruleId -> {
-      bulkIndexer.addDeletion(INDEX_TYPE_RULE, ruleId.toString(), ruleId.toString());
-      bulkIndexer.addDeletion(INDEX_TYPE_RULE_EXTENSION, RuleExtensionDoc.idOf(ruleId, RuleExtensionScope.system()), ruleId.toString());
+      bulkIndexer.addDeletion(TYPE_RULE, ruleId.toString(), ruleId.toString());
+      bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, RuleExtensionDoc.idOf(ruleId, RuleExtensionScope.system()), ruleId.toString());
     });
 
-    return bulkIndexer.stop();
+    return Optional.of(bulkIndexer.stop());
   }
 
-  private IndexingResult doIndexRuleExtensions(DbSession dbSession, List<EsQueueDto> items) {
+  private Optional<IndexingResult> doIndexRuleExtensions(DbSession dbSession, List<EsQueueDto> items) {
+    if (items.isEmpty()) {
+      return Optional.empty();
+    }
+
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
@@ -171,65 +176,37 @@ public class RuleIndexer implements ResilientIndexer {
       r -> {
         RuleExtensionId docId = new RuleExtensionId(r.getOrganizationUuid(), r.getRuleId());
         docIds.remove(docId);
-        bulkIndexer.add(newRuleExtensionDocIndexRequest(r));
+        bulkIndexer.add(RuleExtensionDoc.of(r).toIndexRequest());
       });
 
     // the remaining items reference rows that don't exist in db. They must
     // be deleted from index.
-    docIds.forEach(docId -> bulkIndexer.addDeletion(INDEX_TYPE_RULE_EXTENSION, docId.getId(), String.valueOf(docId.getRuleId())));
+    docIds.forEach(docId -> bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, docId.getId(), String.valueOf(docId.getRuleId())));
 
-    return bulkIndexer.stop();
-  }
-
-  private static IndexRequest newRuleDocIndexRequest(RuleForIndexingDto ruleForIndexingDto) {
-    RuleDoc doc = RuleDoc.of(ruleForIndexingDto);
-
-    return new IndexRequest(INDEX_TYPE_RULE.getIndex(), INDEX_TYPE_RULE.getType())
-      .id(doc.getId())
-      .routing(doc.getRouting())
-      .source(doc.getFields());
-  }
-
-  private static IndexRequest newRuleExtensionDocIndexRequest(RuleForIndexingDto ruleForIndexingDto) {
-    RuleExtensionDoc ruleExtensionDoc = RuleExtensionDoc.of(ruleForIndexingDto);
-
-    return new IndexRequest(INDEX_TYPE_RULE_EXTENSION.getIndex(), INDEX_TYPE_RULE_EXTENSION.getType())
-      .id(ruleExtensionDoc.getId())
-      .routing(ruleExtensionDoc.getRouting())
-      .parent(ruleExtensionDoc.getParent())
-      .source(ruleExtensionDoc.getFields());
-  }
-
-  private static IndexRequest newRuleExtensionDocIndexRequest(RuleExtensionForIndexingDto ruleExtensionForIndexingDto) {
-    RuleExtensionDoc doc = RuleExtensionDoc.of(ruleExtensionForIndexingDto);
-    return new IndexRequest(INDEX_TYPE_RULE_EXTENSION.getIndex(), INDEX_TYPE_RULE_EXTENSION.getType())
-      .id(doc.getId())
-      .routing(doc.getRouting())
-      .parent(doc.getParent())
-      .source(doc.getFields());
+    return Optional.of(bulkIndexer.stop());
   }
 
   private BulkIndexer createBulkIndexer(Size bulkSize, IndexingListener listener) {
-    return new BulkIndexer(esClient, INDEX_TYPE_RULE, bulkSize, listener);
+    return new BulkIndexer(esClient, TYPE_RULE, bulkSize, listener);
   }
 
-  private static ListMultimap<IndexType, EsQueueDto> groupItemsByType(Collection<EsQueueDto> items) {
-    return items.stream().collect(MoreCollectors.index(i -> IndexType.parse(i.getDocType())));
+  private static ListMultimap<String, EsQueueDto> groupItemsByIndexTypeFormat(Collection<EsQueueDto> items) {
+    return items.stream().collect(MoreCollectors.index(EsQueueDto::getDocType));
   }
 
   private static RuleExtensionId explodeRuleExtensionDocId(EsQueueDto esQueueDto) {
-    checkArgument(Objects.equals(esQueueDto.getDocType(), "rules/ruleExtension"));
+    checkArgument(TYPE_RULE_EXTENSION.format().equals(esQueueDto.getDocType()));
     return new RuleExtensionId(esQueueDto.getDocId());
   }
 
   private static EsQueueDto createQueueDtoForRule(int ruleId) {
     String docId = String.valueOf(ruleId);
-    return EsQueueDto.create("rules/rule", docId, null, docId);
+    return EsQueueDto.create(TYPE_RULE.format(), docId, null, docId);
   }
 
   private static EsQueueDto createQueueDtoForRuleExtension(int ruleId, OrganizationDto organization) {
     String docId = RuleExtensionDoc.idOf(ruleId, RuleExtensionScope.organization(organization));
-    return EsQueueDto.create("rules/ruleExtension", docId, null, String.valueOf(ruleId));
+    return EsQueueDto.create(TYPE_RULE_EXTENSION.format(), docId, null, String.valueOf(ruleId));
   }
 
 }

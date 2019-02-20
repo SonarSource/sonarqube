@@ -68,7 +68,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 @RunWith(DataProviderRunner.class)
@@ -1383,7 +1383,7 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void search_statistics() {
-    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES,
+    es.putDocuments(TYPE_PROJECT_MEASURES,
       newDoc("lines", 10, "coverage", 80)
         .setLanguages(Arrays.asList("java", "cs", "js"))
         .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "cs", 250, "js", 50)),
@@ -1409,17 +1409,17 @@ public class ProjectMeasuresIndexTest {
   }
 
   private void index(ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
+    es.putDocuments(TYPE_PROJECT_MEASURES, docs);
     authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).allowAnyone()).collect(toList()));
   }
 
   private void indexForUser(UserDto user, ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
+    es.putDocuments(TYPE_PROJECT_MEASURES, docs);
     authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addUserId(user.getId())).collect(toList()));
   }
 
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
+    es.putDocuments(TYPE_PROJECT_MEASURES, docs);
     authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addGroupId(group.getId())).collect(toList()));
   }
 

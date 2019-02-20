@@ -23,15 +23,15 @@ import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.user.User;
 import org.sonar.server.es.BaseDoc;
 
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
-public class UserDoc extends BaseDoc implements User {
+public class UserDoc extends BaseDoc {
 
   public UserDoc(Map<String, Object> fields) {
-    super(fields);
+    super(TYPE_USER, fields);
   }
 
   public UserDoc() {
@@ -43,37 +43,23 @@ public class UserDoc extends BaseDoc implements User {
     return uuid();
   }
 
-  @Override
-  public String getRouting() {
-    return null;
-  }
-
-  @Override
-  public String getParent() {
-    return null;
-  }
-
   public String uuid() {
     return getField(UserIndexDefinition.FIELD_UUID);
   }
 
-  @Override
   public String login() {
     return getField(UserIndexDefinition.FIELD_LOGIN);
   }
 
-  @Override
   public String name() {
     return getField(UserIndexDefinition.FIELD_NAME);
   }
 
-  @Override
   @Nullable
   public String email() {
     return getNullableField(UserIndexDefinition.FIELD_EMAIL);
   }
 
-  @Override
   public boolean active() {
     return (Boolean) getField(UserIndexDefinition.FIELD_ACTIVE);
   }

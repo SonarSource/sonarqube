@@ -149,7 +149,7 @@ public class IssueIndexTest {
     // project2 can be seen by group2
     indexIssue(newDoc("I2", file2));
     authorizationIndexer.allowOnlyGroup(project2, group2);
-    // project3 can be seen by nobody
+    // project3 can be seen by nobody but root
     indexIssue(newDoc("I3", file3));
 
     userSessionRule.logIn().setGroups(group1);
@@ -167,6 +167,9 @@ public class IssueIndexTest {
 
     userSessionRule.logIn().setGroups(group1, group2);
     assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.uuid())));
+
+    userSessionRule.setRoot();
+    assertThatSearchReturnsOnly(IssueQuery.builder(), "I1", "I2", "I3");
   }
 
   @Test
@@ -198,6 +201,9 @@ public class IssueIndexTest {
     // another user
     userSessionRule.logIn(newUserDto());
     assertThatSearchReturnsEmpty(IssueQuery.builder());
+
+    userSessionRule.setRoot();
+    assertThatSearchReturnsOnly(IssueQuery.builder(), "I1", "I2", "I3");
   }
 
   @Test

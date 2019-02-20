@@ -25,7 +25,9 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -34,24 +36,26 @@ public class ProxyDeleteRequestBuilderTest {
 
   @Rule
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
-
   @Rule
   public LogTester logTester = new LogTester();
 
+  private final Index index = Index.simple("fakes");
+  private final IndexType.IndexMainType mainType = IndexType.main(index, "fake");
+
   @Test
   public void delete() {
-    es.client().prepareDelete("fakes", "fake", "the_id").get();
+    es.client().prepareDelete(mainType, "the_id").get();
   }
 
   @Test
   public void to_string() {
-    assertThat(es.client().prepareDelete("fakes", "fake", "the_id").toString()).isEqualTo("ES delete request of doc the_id in index fakes/fake");
+    assertThat(es.client().prepareDelete(mainType, "the_id").toString()).isEqualTo("ES delete request of doc the_id in index fakes/fake");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
-    es.client().prepareDelete("fakes", "fake", "the_id").get();
+    es.client().prepareDelete(mainType, "the_id").get();
 
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -59,7 +63,7 @@ public class ProxyDeleteRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareDelete("fakes", "fake", "the_id").get("1");
+      es.client().prepareDelete(mainType, "the_id").get("1");
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("Not yet implemented");
@@ -69,7 +73,7 @@ public class ProxyDeleteRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareDelete("fakes", "fake", "the_id").get(TimeValue.timeValueMinutes(1));
+      es.client().prepareDelete(mainType, "the_id").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("Not yet implemented");
@@ -79,7 +83,7 @@ public class ProxyDeleteRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareDelete("fakes", "fake", "the_id").execute();
+      es.client().prepareDelete(mainType, "the_id").execute();
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("execute() should not be called as it's used for asynchronous");

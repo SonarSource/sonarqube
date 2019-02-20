@@ -21,7 +21,8 @@ package org.sonar.server.permission.index;
 
 import java.util.function.Predicate;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.IndexType.IndexRelationType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -29,28 +30,31 @@ import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE
 
 @Immutable
 public final class AuthorizationScope {
-  private final IndexType indexType;
+  private final IndexMainType indexType;
   private final Predicate<IndexPermissions> projectPredicate;
 
-  public AuthorizationScope(IndexType indexType, Predicate<IndexPermissions> projectPredicate) {
-    this.indexType = getAuthorizationIndexType(indexType);
+  public AuthorizationScope(IndexRelationType functionalType, Predicate<IndexPermissions> projectPredicate) {
+    this.indexType = getAuthorizationIndexType(functionalType);
     this.projectPredicate = requireNonNull(projectPredicate);
   }
 
   /**
    * @return the identifier of the ElasticSearch type (including it's index name), that corresponds to a certain document type
    */
-  private static IndexType getAuthorizationIndexType(IndexType indexType) {
-    requireNonNull(indexType);
-    requireNonNull(indexType.getIndex());
-    checkArgument(!TYPE_AUTHORIZATION.equals(indexType.getType()), "Authorization types do not have authorization on their own.");
-    return new IndexType(indexType.getIndex(), TYPE_AUTHORIZATION);
+  private static IndexMainType getAuthorizationIndexType(IndexRelationType functionalType) {
+    requireNonNull(functionalType);
+    IndexMainType mainType = functionalType.getMainType();
+    checkArgument(
+      TYPE_AUTHORIZATION.equals(mainType.getType()),
+      "Index %s doesn't seem to be an authorized index as main type is not %s (got %s)",
+      mainType.getIndex(), TYPE_AUTHORIZATION, mainType.getType());
+    return mainType;
   }
 
   /**
    * Identifier of the authorization type (in the same index than the original IndexType, passed into the constructor).
    */
-  public IndexType getIndexType() {
+  public IndexMainType getIndexType() {
     return indexType;
   }
 

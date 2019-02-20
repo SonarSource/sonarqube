@@ -72,12 +72,13 @@ public class IndexerStartupTask {
   }
 
   private Set<IndexType> getUninitializedTypes(StartupIndexer indexer) {
-    return indexer.getIndexTypes().stream().filter(indexType -> !metadataIndex.getInitialized(indexType)).collect(toSet());
+    return indexer.getIndexTypes().stream()
+      .filter(indexType -> !metadataIndex.getInitialized(indexType))
+      .collect(toSet());
   }
 
   private void setInitialized(IndexType indexType) {
-    String index = indexType.getIndex();
-    waitForIndexYellow(index);
+    waitForIndexYellow(indexType.getMainType().getIndex().getName());
     metadataIndex.setInitialized(indexType, true);
   }
 

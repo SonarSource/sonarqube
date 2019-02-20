@@ -21,8 +21,10 @@ package org.sonar.server.user.index;
 
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.newindex.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,11 +39,12 @@ public class UserIndexDefinitionTest {
 
     assertThat(underTest.getIndices()).hasSize(1);
     NewIndex index = underTest.getIndices().get("users");
-    assertThat(index).isNotNull();
-    assertThat(index.getTypes().keySet()).containsOnly("user");
+    assertThat(index.getMainType())
+      .isEqualTo(IndexType.main(Index.simple("users"), "user"));
+    assertThat(index.getRelationsStream()).isEmpty();
 
     // no cluster by default
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("1");
-    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(index.getSetting("index.number_of_shards")).isEqualTo("1");
+    assertThat(index.getSetting("index.number_of_replicas")).isEqualTo("0");
   }
 }

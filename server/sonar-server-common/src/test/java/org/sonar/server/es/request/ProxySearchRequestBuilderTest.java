@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
-import org.sonar.server.es.IndexType;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -41,40 +41,43 @@ public class ProxySearchRequestBuilderTest {
 
   @Test
   public void search() {
-    es.client().prepareSearch(FakeIndexDefinition.INDEX).get();
+    es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).get();
   }
 
   @Test
   public void to_string() {
-    assertThat(es.client().prepareSearch(FakeIndexDefinition.INDEX).setTypes(FakeIndexDefinition.TYPE).toString()).contains("ES search request '").contains(
-      "' on indices '[fakes]' on types '[fake]'");
-    assertThat(es.client().prepareSearch(FakeIndexDefinition.INDEX).toString()).contains("ES search request '").contains("' on indices '[fakes]'");
-    assertThat(es.client().prepareSearch(new IndexType[0]).toString()).contains("ES search request");
+    assertThat(es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).setTypes(FakeIndexDefinition.TYPE).toString()).contains("ES search request '")
+      .contains("' on indices '[fakes]' on types '[fake]'");
+    assertThat(es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).toString())
+      .contains("ES search request '")
+      .contains("' on indices '[fakes]'");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    es.client().prepareSearch(FakeIndexDefinition.INDEX).get();
+    es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test
   public void fail_to_search_bad_query() {
     try {
-      es.client().prepareSearch("non-existing-index").get();
+      es.client().prepareSearch(Index.simple("unknown")).get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search request 'SearchRequest{").contains("}' on indices '[non-existing-index]'");
+      assertThat(e.getMessage())
+        .contains("Fail to execute ES search request 'SearchRequest{")
+        .contains("}' on indices '[unknown]'");
     }
   }
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareSearch(FakeIndexDefinition.INDEX).get("1");
+      es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +87,7 @@ public class ProxySearchRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareSearch(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +97,7 @@ public class ProxySearchRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareSearch(FakeIndexDefinition.INDEX).execute();
+      es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

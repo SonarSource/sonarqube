@@ -49,7 +49,6 @@ public class ProxyWebServerHealthRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(es.client().prepareHealth("rules").toString()).isEqualTo("ES cluster health request on indices 'rules'");
     assertThat(es.client().prepareHealth().toString()).isEqualTo("ES cluster health request");
   }
 

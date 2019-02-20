@@ -25,7 +25,8 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -40,12 +41,12 @@ public class ProxyIndicesStatsRequestBuilderTest {
 
   @Test
   public void stats() {
-    es.client().prepareStats(FakeIndexDefinition.INDEX).get();
+    es.client().prepareStats(FakeIndexDefinition.DESCRIPTOR).get();
   }
 
   @Test
   public void to_string() {
-    assertThat(es.client().prepareStats(FakeIndexDefinition.INDEX).setIndices("rules").toString()).isEqualTo("ES indices stats request on indices 'rules'");
+    assertThat(es.client().prepareStats(FakeIndexDefinition.DESCRIPTOR).setIndices("rules").toString()).isEqualTo("ES indices stats request on indices 'rules'");
     assertThat(es.client().prepareStats().toString()).isEqualTo("ES indices stats request");
   }
 
@@ -53,7 +54,7 @@ public class ProxyIndicesStatsRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    es.client().prepareStats(FakeIndexDefinition.INDEX).get();
+    es.client().prepareStats(FakeIndexDefinition.DESCRIPTOR).get();
 
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
@@ -61,7 +62,7 @@ public class ProxyIndicesStatsRequestBuilderTest {
   @Test
   public void fail_to_stats() {
     try {
-      es.client().prepareStats("unknown").get();
+      es.client().prepareStats(Index.simple("unknown")).get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -72,7 +73,7 @@ public class ProxyIndicesStatsRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareStats(FakeIndexDefinition.INDEX).get("1");
+      es.client().prepareStats(FakeIndexDefinition.DESCRIPTOR).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -82,7 +83,7 @@ public class ProxyIndicesStatsRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareStats(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareStats(FakeIndexDefinition.DESCRIPTOR).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -92,7 +93,7 @@ public class ProxyIndicesStatsRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareStats(FakeIndexDefinition.INDEX).execute();
+      es.client().prepareStats(FakeIndexDefinition.DESCRIPTOR).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

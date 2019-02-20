@@ -61,7 +61,8 @@ public class WebIssueStorageTest {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), mock(IssueIndexer.class));
+  private IssueIndexer issueIndexer = mock(IssueIndexer.class);
+  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), issueIndexer);
 
   @Test
   public void load_component_id_from_db() {

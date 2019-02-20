@@ -48,7 +48,10 @@ public class OneToOneResilientIndexingListener implements IndexingListener {
     this.dbClient = dbClient;
     this.dbSession = dbSession;
     this.itemsById = items.stream()
-      .collect(MoreCollectors.index(i -> new DocId(IndexType.parse(i.getDocType()), i.getDocId()), Function.identity()));
+      .collect(MoreCollectors.index(i -> {
+        IndexType.SimpleIndexMainType mainType = IndexType.parseMainType(i.getDocType());
+        return new DocId(mainType.getIndex(), mainType.getType(), i.getDocId());
+      }, Function.identity()));
   }
 
   @Override

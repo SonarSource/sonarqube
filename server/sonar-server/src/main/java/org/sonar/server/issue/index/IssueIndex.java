@@ -75,10 +75,12 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
+import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
@@ -96,6 +98,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
+import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNEES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHOR;
@@ -143,11 +146,12 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVE
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.issue.index.SecurityStandardHelper.UNKNOWN_STANDARD;
+import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
@@ -277,7 +281,7 @@ public class IssueIndex {
   }
 
   public SearchResponse search(IssueQuery query, SearchOptions options) {
-    SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_TYPE_ISSUE);
+    SearchRequestBuilder requestBuilder = client.prepareSearch(TYPE_ISSUE.getMainType());
 
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
@@ -313,7 +317,7 @@ public class IssueIndex {
   private static void configureRouting(IssueQuery query, SearchOptions options, SearchRequestBuilder requestBuilder) {
     Collection<String> uuids = query.projectUuids();
     if (!uuids.isEmpty() && options.getFacets().isEmpty()) {
-      requestBuilder.setRouting(uuids.toArray(new String[uuids.size()]));
+      requestBuilder.setRouting(uuids.stream().map(AuthorizationDoc::idOf).toArray(String[]::new));
     }
   }
 
@@ -323,6 +327,7 @@ public class IssueIndex {
 
   private Map<String, QueryBuilder> createFilters(IssueQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
+    filters.put("__indexType", termQuery(FIELD_INDEX_TYPE, TYPE_ISSUE.getName()));
     filters.put("__authorization", createAuthorizationFilter());
 
     // Issue is assigned Filter
@@ -425,10 +430,11 @@ public class IssueIndex {
 
     BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
+      IndexType.IndexMainType mainType = TYPE_VIEW;
       viewsFilter.should(QueryBuilders.termsLookupQuery(FIELD_ISSUE_BRANCH_UUID,
         new TermsLookup(
-          ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(),
-          ViewIndexDefinition.INDEX_TYPE_VIEW.getType(),
+          mainType.getIndex().getName(),
+          mainType.getType(),
           viewUuid,
           ViewIndexDefinition.FIELD_PROJECTS)));
     }
@@ -635,7 +641,7 @@ public class IssueIndex {
   private OptionalLong getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = CREATED_AT.getFieldName();
     SearchRequestBuilder esRequest = client
-      .prepareSearch(INDEX_TYPE_ISSUE)
+      .prepareSearch(TYPE_ISSUE.getMainType())
       .setSize(0);
     BoolQueryBuilder esFilter = boolQuery();
     filters.values().stream().filter(Objects::nonNull).forEach(esFilter::must);
@@ -710,7 +716,7 @@ public class IssueIndex {
 
   private Terms listTermsMatching(String fieldName, IssueQuery query, @Nullable String textQuery, Terms.Order termsOrder, int size) {
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_ISSUE)
+      .prepareSearch(TYPE_ISSUE.getMainType())
       // Avoids returning search hits
       .setSize(0);
 
@@ -745,7 +751,7 @@ public class IssueIndex {
     if (projectUuids.isEmpty()) {
       return Collections.emptyList();
     }
-    SearchRequestBuilder request = client.prepareSearch(INDEX_TYPE_ISSUE)
+    SearchRequestBuilder request = client.prepareSearch(TYPE_ISSUE.getMainType())
       .setQuery(
         boolQuery()
           .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION))
@@ -787,8 +793,8 @@ public class IssueIndex {
       return Collections.emptyList();
     }
 
-    SearchRequestBuilder request = client.prepareSearch(INDEX_TYPE_ISSUE)
-      .setRouting(projectUuid)
+    SearchRequestBuilder request = client.prepareSearch(TYPE_ISSUE.getMainType())
+      .setRouting(AuthorizationDoc.idOf(projectUuid))
       .setQuery(
         boolQuery()
           .must(termsQuery(FIELD_ISSUE_BRANCH_UUID, branchUuids))
@@ -912,16 +918,17 @@ public class IssueIndex {
   private SearchRequestBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid, boolean isViewOrApp) {
     BoolQueryBuilder componentFilter = boolQuery();
     if (isViewOrApp) {
+      IndexType.IndexMainType mainType = TYPE_VIEW;
       componentFilter.filter(QueryBuilders.termsLookupQuery(FIELD_ISSUE_BRANCH_UUID,
         new TermsLookup(
-          ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(),
-          ViewIndexDefinition.INDEX_TYPE_VIEW.getType(),
+          mainType.getIndex().getName(),
+          mainType.getType(),
           projectUuid,
           ViewIndexDefinition.FIELD_PROJECTS)));
     } else {
       componentFilter.filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectUuid));
     }
-    return client.prepareSearch(INDEX_TYPE_ISSUE)
+    return client.prepareSearch(TYPE_ISSUE.getMainType())
       .setQuery(
         componentFilter
           .filter(termsQuery(FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name(), RuleType.VULNERABILITY.name()))

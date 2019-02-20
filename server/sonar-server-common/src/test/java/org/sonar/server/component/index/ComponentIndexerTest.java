@@ -42,8 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 
@@ -62,7 +62,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void test_getIndexTypes() {
-    assertThat(underTest.getIndexTypes()).containsExactly(INDEX_TYPE_COMPONENT);
+    assertThat(underTest.getIndexTypes()).containsExactly(TYPE_COMPONENT);
   }
 
   @Test
@@ -90,7 +90,7 @@ public class ComponentIndexerTest {
     underTest.indexOnStartup(emptySet());
 
     assertThatIndexContainsOnly(project);
-    ComponentDoc doc = es.getDocuments(INDEX_TYPE_COMPONENT, ComponentDoc.class).get(0);
+    ComponentDoc doc = es.getDocuments(TYPE_COMPONENT, ComponentDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(project.uuid());
     assertThat(doc.getKey()).isEqualTo(project.getDbKey());
     assertThat(doc.getProjectUuid()).isEqualTo(project.projectUuid());
@@ -234,7 +234,7 @@ public class ComponentIndexerTest {
   public void errors_during_indexing_are_recovered() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    es.lockWrites(INDEX_TYPE_COMPONENT);
+    es.lockWrites(TYPE_COMPONENT);
 
     IndexingResult result = indexProject(project, PROJECT_CREATION);
     assertThat(result.getTotal()).isEqualTo(2L);
@@ -244,9 +244,9 @@ public class ComponentIndexerTest {
     result = recover();
     assertThat(result.getTotal()).isEqualTo(2L);
     assertThat(result.getFailures()).isEqualTo(2L);
-    assertThat(es.countDocuments(INDEX_TYPE_COMPONENT)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_COMPONENT)).isEqualTo(0);
 
-    es.unlockWrites(INDEX_TYPE_COMPONENT);
+    es.unlockWrites(TYPE_COMPONENT);
 
     result = recover();
     assertThat(result.getTotal()).isEqualTo(2L);
@@ -275,17 +275,17 @@ public class ComponentIndexerTest {
   }
 
   private void assertThatIndexHasSize(int expectedSize) {
-    assertThat(es.countDocuments(INDEX_TYPE_COMPONENT)).isEqualTo(expectedSize);
+    assertThat(es.countDocuments(TYPE_COMPONENT)).isEqualTo(expectedSize);
   }
 
   private void assertThatIndexContainsOnly(ComponentDto... expectedComponents) {
-    assertThat(es.getIds(INDEX_TYPE_COMPONENT)).containsExactlyInAnyOrder(
+    assertThat(es.getIds(TYPE_COMPONENT)).containsExactlyInAnyOrder(
       Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new));
   }
 
   private void assertThatComponentHasName(ComponentDto component, String expectedName) {
     SearchHit[] hits = es.client()
-      .prepareSearch(INDEX_TYPE_COMPONENT)
+      .prepareSearch(TYPE_COMPONENT.getMainType())
       .setQuery(matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), expectedName))
       .get()
       .getHits()

@@ -117,7 +117,7 @@ public class CreateActionTest {
       .containsOnly("john", "John", "john@email.com", singletonList("jn"), true);
 
     // exists in index
-    assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+    assertThat(es.client().prepareSearch(UserIndexDefinition.TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_LOGIN, "john"))
         .must(termQuery(FIELD_NAME, "John"))

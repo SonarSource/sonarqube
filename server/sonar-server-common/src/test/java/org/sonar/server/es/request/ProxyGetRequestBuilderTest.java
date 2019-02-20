@@ -19,20 +19,26 @@
  */
 package org.sonar.server.es.request;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 import org.sonar.server.es.IndexType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
+@RunWith(DataProviderRunner.class)
 public class ProxyGetRequestBuilderTest {
 
   @Rule
@@ -45,14 +51,15 @@ public class ProxyGetRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey")
+    es.client().prepareGet(TYPE_FAKE, "ruleKey")
       .get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test
-  public void fail_to_get_bad_query() {
-    GetRequestBuilder requestBuilder = es.client().prepareGet(new IndexType("unknown", "test"), "rule1");
+  @UseDataProvider("mainAndRelationWithUnknownIndex")
+  public void prepareGet_fails_if_index_unknown(IndexType indexType) {
+    GetRequestBuilder requestBuilder = es.client().prepareGet(indexType, "rule1");
     try {
       requestBuilder.get();
       fail();
@@ -62,10 +69,19 @@ public class ProxyGetRequestBuilderTest {
     }
   }
 
+  @DataProvider
+  public static Object[][] mainAndRelationWithUnknownIndex() {
+    IndexType.IndexMainType mainType = IndexType.main(Index.withRelations("unknown"), "test");
+    return new Object[][] {
+      {mainType},
+      {IndexType.relation(mainType, "donut")}
+    };
+  }
+
   @Test
   public void get_with_string_timeout_is_not_implemented() {
     try {
-      es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey").get("1");
+      es.client().prepareGet(TYPE_FAKE, "ruleKey").get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -75,7 +91,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey").get(TimeValue.timeValueMinutes(1));
+      es.client().prepareGet(TYPE_FAKE, "ruleKey").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -85,7 +101,7 @@ public class ProxyGetRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareGet(INDEX_TYPE_FAKE, "ruleKey").execute();
+      es.client().prepareGet(TYPE_FAKE, "ruleKey").execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

@@ -41,6 +41,7 @@ import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.Priority;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.request.ProxyClearCacheRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
@@ -77,12 +78,16 @@ public class EsClient implements Closeable {
     this.nativeClient = null;
   }
 
-  public RefreshRequestBuilder prepareRefresh(String... indices) {
-    return new ProxyRefreshRequestBuilder(nativeClient()).setIndices(indices);
+  public RefreshRequestBuilder prepareRefresh(Index index) {
+    return new ProxyRefreshRequestBuilder(nativeClient()).setIndices(index.getName());
   }
 
-  public IndicesStatsRequestBuilder prepareStats(String... indices) {
-    return new ProxyIndicesStatsRequestBuilder(nativeClient()).setIndices(indices);
+  public IndicesStatsRequestBuilder prepareStats() {
+    return new ProxyIndicesStatsRequestBuilder(nativeClient());
+  }
+
+  public IndicesStatsRequestBuilder prepareStats(Index index) {
+    return new ProxyIndicesStatsRequestBuilder(nativeClient()).setIndices(index.getName());
   }
 
   public NodesStatsRequestBuilder prepareNodesStats(String... nodesIds) {
@@ -97,34 +102,34 @@ public class EsClient implements Closeable {
     return new ProxyClusterStateRequestBuilder(nativeClient());
   }
 
-  public ClusterHealthRequestBuilder prepareHealth(String... indices) {
-    return new ProxyClusterHealthRequestBuilder(nativeClient()).setIndices(indices);
+  public ClusterHealthRequestBuilder prepareHealth() {
+    return new ProxyClusterHealthRequestBuilder(nativeClient());
   }
 
   public void waitForStatus(ClusterHealthStatus status) {
     prepareHealth().setWaitForEvents(Priority.LANGUID).setWaitForStatus(status).get();
   }
 
-  public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {
-    return new ProxyIndicesExistsRequestBuilder(nativeClient(), indices);
+  public IndicesExistsRequestBuilder prepareIndicesExist(Index index) {
+    return new ProxyIndicesExistsRequestBuilder(nativeClient(), index.getName());
   }
 
-  public CreateIndexRequestBuilder prepareCreate(String index) {
-    return new ProxyCreateIndexRequestBuilder(nativeClient(), index);
+  public CreateIndexRequestBuilder prepareCreate(Index index) {
+    return new ProxyCreateIndexRequestBuilder(nativeClient(), index.getName());
   }
 
-  public PutMappingRequestBuilder preparePutMapping(String... indices) {
-    return new ProxyPutMappingRequestBuilder(nativeClient()).setIndices(indices);
+  public PutMappingRequestBuilder preparePutMapping(Index index) {
+    return new ProxyPutMappingRequestBuilder(nativeClient()).setIndices(index.getName());
   }
 
-  public SearchRequestBuilder prepareSearch(String... indices) {
-    return new ProxySearchRequestBuilder(nativeClient()).setIndices(indices);
+  public SearchRequestBuilder prepareSearch(Index index) {
+    return new ProxySearchRequestBuilder(nativeClient()).setIndices(index.getName());
   }
 
-  public SearchRequestBuilder prepareSearch(IndexType... indexType) {
+  public SearchRequestBuilder prepareSearch(IndexMainType indexType) {
     return new ProxySearchRequestBuilder(nativeClient())
-      .setIndices(IndexType.getIndices(indexType))
-      .setTypes(IndexType.getTypes(indexType));
+      .setIndices(indexType.getIndex().getName())
+      .setTypes(indexType.getType());
   }
 
   public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
@@ -132,19 +137,22 @@ public class EsClient implements Closeable {
   }
 
   public GetRequestBuilder prepareGet(IndexType indexType, String id) {
-    return new ProxyGetRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType()).setId(id);
+    IndexMainType mainType = indexType.getMainType();
+    return new ProxyGetRequestBuilder(nativeClient()).setIndex(mainType.getIndex().getName()).setType(mainType.getType()).setId(id);
   }
 
   public DeleteRequestBuilder prepareDelete(IndexType indexType, String id) {
-    return new ProxyDeleteRequestBuilder(nativeClient(), indexType.getIndex()).setType(indexType.getType()).setId(id);
+    IndexMainType mainType = indexType.getMainType();
+    return new ProxyDeleteRequestBuilder(nativeClient(), mainType.getIndex().getName()).setType(mainType.getType()).setId(id);
   }
 
-  public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
+  DeleteRequestBuilder prepareDelete(String index, String type, String id) {
     return new ProxyDeleteRequestBuilder(nativeClient(), index).setType(type).setId(id);
   }
 
   public IndexRequestBuilder prepareIndex(IndexType indexType) {
-    return new ProxyIndexRequestBuilder(nativeClient()).setIndex(indexType.getIndex()).setType(indexType.getType());
+    IndexMainType mainType = indexType.getMainType();
+    return new ProxyIndexRequestBuilder(nativeClient()).setIndex(mainType.getIndex().getName()).setType(mainType.getType());
   }
 
   public ForceMergeRequestBuilder prepareForceMerge(String indexName) {

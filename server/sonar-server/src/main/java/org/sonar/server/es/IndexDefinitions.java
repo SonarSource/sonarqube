@@ -24,6 +24,8 @@ import java.util.Map;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.es.newindex.BuiltIndex;
+import org.sonar.server.es.newindex.NewIndex;
 
 /**
  * This class collects definitions of all Elasticsearch indices during server startup
@@ -31,7 +33,7 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class IndexDefinitions implements Startable {
 
-  private final Map<String, IndexDefinition.Index> byKey = Maps.newHashMap();
+  private final Map<String, BuiltIndex> byKey = Maps.newHashMap();
   private final IndexDefinition[] defs;
   private final Configuration config;
 
@@ -40,7 +42,7 @@ public class IndexDefinitions implements Startable {
     this.config = config;
   }
 
-  public Map<String, IndexDefinition.Index> getIndices() {
+  public Map<String, BuiltIndex> getIndices() {
     return byKey;
   }
 
@@ -55,7 +57,7 @@ public class IndexDefinitions implements Startable {
       }
 
       for (Map.Entry<String, NewIndex> entry : context.getIndices().entrySet()) {
-        byKey.put(entry.getKey(), new IndexDefinition.Index(entry.getValue()));
+        byKey.put(entry.getKey(), entry.getValue().build());
       }
     }
   }

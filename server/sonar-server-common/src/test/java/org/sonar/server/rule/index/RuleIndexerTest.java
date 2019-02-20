@@ -43,6 +43,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 
 public class RuleIndexerTest {
 
@@ -75,7 +77,7 @@ public class RuleIndexerTest {
   @Test
   public void index_nothing() {
     underTest.index(dbSession, emptyList());
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0L);
+    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(0L);
   }
 
   @Test
@@ -83,7 +85,7 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule);
     underTest.commitAndIndex(dbSession, rule.getId());
 
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
   }
 
   @Test
@@ -92,13 +94,13 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
   }
 
   @Test
@@ -115,7 +117,7 @@ public class RuleIndexerTest {
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
     assertThat(
       es.client()
-        .prepareSearch(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)
+        .prepareSearch(TYPE_RULE_EXTENSION.getMainType())
         .setQuery(termQuery("_id", doc.getId()))
         .get()
         .getHits()
@@ -136,13 +138,13 @@ public class RuleIndexerTest {
     RuleExtensionDoc doc = new RuleExtensionDoc()
       .setRuleId(rule.getId())
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
-    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)).contains(doc.getId());
+    assertThat(es.getIds(TYPE_RULE_EXTENSION)).contains(doc.getId());
 
     // update db table "rules_metadata" with empty tags and delete tags from index
     metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(emptySet());
     dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
     underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
-    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)).doesNotContain(doc.getId());
+    assertThat(es.getIds(TYPE_RULE_EXTENSION)).doesNotContain(doc.getId());
   }
 
   @Test
@@ -151,6 +153,6 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
     underTest.commitAndIndex(dbTester.getSession(), rule.getId());
 
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
   }
 }

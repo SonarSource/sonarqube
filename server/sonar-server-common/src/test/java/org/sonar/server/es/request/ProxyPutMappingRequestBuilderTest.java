@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -44,7 +44,7 @@ public class ProxyPutMappingRequestBuilderTest {
 
   @Test
   public void put_mapping() {
-    PutMappingRequestBuilder requestBuilder = es.client().preparePutMapping(FakeIndexDefinition.INDEX)
+    PutMappingRequestBuilder requestBuilder = es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR)
       .setType(FakeIndexDefinition.TYPE)
       .setSource(mapDomain());
     requestBuilder.get();
@@ -52,9 +52,9 @@ public class ProxyPutMappingRequestBuilderTest {
 
   @Test
   public void to_string() {
-    assertThat(es.client().preparePutMapping(FakeIndexDefinition.INDEX).setSource(mapDomain()).toString())
+    assertThat(es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR).setSource(mapDomain()).toString())
       .isEqualTo("ES put mapping request on indices 'fakes' with source '{\"dynamic\":false,\"_all\":{\"enabled\":false}}'");
-    assertThat(es.client().preparePutMapping(FakeIndexDefinition.INDEX).setType(FakeIndexDefinition.TYPE).setSource(mapDomain()).toString())
+    assertThat(es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR).setType(FakeIndexDefinition.TYPE).setSource(mapDomain()).toString())
       .isEqualTo("ES put mapping request on indices 'fakes' on type 'fake' with source '{\"dynamic\":false,\"_all\":{\"enabled\":false}}'");
   }
 
@@ -62,7 +62,7 @@ public class ProxyPutMappingRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    PutMappingRequestBuilder requestBuilder = es.client().preparePutMapping(FakeIndexDefinition.INDEX)
+    PutMappingRequestBuilder requestBuilder = es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR)
       .setType(FakeIndexDefinition.TYPE)
       .setSource(mapDomain());
     requestBuilder.get();
@@ -73,7 +73,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void fail_on_bad_query() {
     try {
-      es.client().preparePutMapping().get();
+      es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR).get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -84,7 +84,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      es.client().preparePutMapping().get("1");
+      es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().preparePutMapping().get(TimeValue.timeValueMinutes(1));
+      es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -104,7 +104,7 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().preparePutMapping().execute();
+      es.client().preparePutMapping(FakeIndexDefinition.DESCRIPTOR).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

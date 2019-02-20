@@ -22,7 +22,6 @@ package org.sonar.server.es;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
@@ -36,10 +35,14 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.es.IndexDefinition.Index;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
+import org.sonar.server.es.newindex.BuiltIndex;
+import org.sonar.server.es.newindex.NewIndex;
+
+import static org.sonar.server.es.metadata.MetadataIndexDefinition.DESCRIPTOR;
+import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
 
 /**
  * Creates/deletes all indices in Elasticsearch during server startup.
@@ -69,26 +72,29 @@ public class IndexCreator implements Startable {
   @Override
   public void start() {
     // create the "metadata" index first
-    if (!client.prepareIndicesExist(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()).get().isExists()) {
+    IndexType.IndexMainType metadataMainType = TYPE_METADATA;
+    if (!client.prepareIndicesExist(metadataMainType.getIndex()).get().isExists()) {
       IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
       metadataIndexDefinition.define(context);
       NewIndex index = context.getIndices().values().iterator().next();
-      createIndex(new Index(index), false);
+      createIndex(index.build(), false);
     }
 
     checkDbCompatibility(definitions.getIndices().values());
 
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
-    for (Index index : definitions.getIndices().values()) {
-      boolean exists = client.prepareIndicesExist(index.getName()).get().isExists();
-      if (exists && !index.getName().equals(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()) && hasDefinitionChange(index)) {
-        verifyNotBlueGreenDeployment(index.getName());
-        LOGGER.info("Delete Elasticsearch index {} (structure changed)", index.getName());
-        deleteIndex(index.getName());
+    for (BuiltIndex<?> builtIndex : definitions.getIndices().values()) {
+      Index index = builtIndex.getMainType().getIndex();
+      String indexName = index.getName();
+      boolean exists = client.prepareIndicesExist(index).get().isExists();
+      if (exists && !builtIndex.getMainType().equals(metadataMainType) && hasDefinitionChange(builtIndex)) {
+        verifyNotBlueGreenDeployment(indexName);
+        LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
+        deleteIndex(indexName);
         exists = false;
       }
       if (!exists) {
-        createIndex(index, true);
+        createIndex(builtIndex, true);
       }
     }
   }
@@ -104,18 +110,18 @@ public class IndexCreator implements Startable {
     // nothing to do
   }
 
-  private void createIndex(Index index, boolean useMetadata) {
+  private void createIndex(BuiltIndex<?> builtIndex, boolean useMetadata) {
+    Index index = builtIndex.getMainType().getIndex();
     LOGGER.info(String.format("Create index %s", index.getName()));
     Settings.Builder settings = Settings.builder();
-    settings.put(index.getSettings());
+    settings.put(builtIndex.getSettings());
     if (useMetadata) {
-      metadataIndex.setHash(index.getName(), IndexDefinitionHash.of(index));
-      for (IndexDefinition.Type type : index.getTypes().values()) {
-        metadataIndex.setInitialized(new IndexType(index.getName(), type.getName()), false);
-      }
+      metadataIndex.setHash(index, IndexDefinitionHash.of(builtIndex));
+      metadataIndex.setInitialized(builtIndex.getMainType(), false);
+      builtIndex.getRelationTypes().forEach(relationType -> metadataIndex.setInitialized(relationType, false));
     }
     CreateIndexResponse indexResponse = client
-      .prepareCreate(index.getName())
+      .prepareCreate(index)
       .setSettings(settings)
       .get();
     if (!indexResponse.isAcknowledged()) {
@@ -124,15 +130,13 @@ public class IndexCreator implements Startable {
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
     // create types
-    for (Map.Entry<String, IndexDefinition.Type> entry : index.getTypes().entrySet()) {
-      LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
-      PutMappingResponse mappingResponse = client.preparePutMapping(index.getName())
-        .setType(entry.getKey())
-        .setSource(entry.getValue().getAttributes())
-        .get();
-      if (!mappingResponse.isAcknowledged()) {
-        throw new IllegalStateException("Failed to create type " + entry.getKey());
-      }
+    LOGGER.info("Create type {}", builtIndex.getMainType().format());
+    PutMappingResponse mappingResponse = client.preparePutMapping(index)
+      .setType(builtIndex.getMainType().getType())
+      .setSource(builtIndex.getAttributes())
+      .get();
+    if (!mappingResponse.isAcknowledged()) {
+      throw new IllegalStateException("Failed to create type " + builtIndex.getMainType().getType());
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
   }
@@ -141,15 +145,15 @@ public class IndexCreator implements Startable {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
   }
 
-  private boolean hasDefinitionChange(Index index) {
-    return metadataIndex.getHash(index.getName())
+  private boolean hasDefinitionChange(BuiltIndex<?> index) {
+    return metadataIndex.getHash(index.getMainType().getIndex())
       .map(hash -> {
         String defHash = IndexDefinitionHash.of(index);
         return !StringUtils.equals(hash, defHash);
       }).orElse(true);
   }
 
-  private void checkDbCompatibility(Collection<Index> definitions) {
+  private void checkDbCompatibility(Collection<BuiltIndex> definitions) {
     List<String> existingIndices = loadExistingIndicesExceptMetadata(definitions);
     if (!existingIndices.isEmpty()) {
       boolean delete = false;
@@ -164,11 +168,13 @@ public class IndexCreator implements Startable {
     esDbCompatibility.markAsCompatible();
   }
 
-  private List<String> loadExistingIndicesExceptMetadata(Collection<Index> definitions) {
-    Set<String> definedNames = definitions.stream().map(IndexDefinition.Index::getName).collect(Collectors.toSet());
+  private List<String> loadExistingIndicesExceptMetadata(Collection<BuiltIndex> definitions) {
+    Set<String> definedNames = definitions.stream()
+      .map(t -> t.getMainType().getIndex().getName())
+      .collect(Collectors.toSet());
     return Arrays.stream(client.nativeClient().admin().indices().prepareGetIndex().get().getIndices())
       .filter(definedNames::contains)
-      .filter(index -> !MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex().equals(index))
+      .filter(index -> !DESCRIPTOR.getName().equals(index))
       .collect(Collectors.toList());
   }
 }

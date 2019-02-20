@@ -61,14 +61,14 @@ public class WebAuthorizationTypeSupportTest {
         "          \"bool\" : {" +
         "            \"should\" : [{" +
         "              \"term\" : {" +
-        "                \"allowAnyone\" : {\"value\": true}" +
+        "                \"auth_allowAnyone\" : {\"value\": true}" +
         "              }" +
         "            }]" +
         "          }" +
         "        }]" +
         "      }" +
         "    }," +
-        "    \"parent_type\" : \"authorization\"" +
+        "    \"parent_type\" : \"auth\"" +
         "  }" +
         "}");
   }
@@ -88,12 +88,12 @@ public class WebAuthorizationTypeSupportTest {
         "            \"should\": [" +
         "              {" +
         "                \"term\": {" +
-        "                  \"allowAnyone\": {\"value\": true}" +
+        "                  \"auth_allowAnyone\": {\"value\": true}" +
         "                }" +
         "              }," +
         "              {" +
         "                \"term\": {" +
-        "                  \"userIds\": {\"value\": 1234}" +
+        "                  \"auth_userIds\": {\"value\": 1234}" +
         "                }" +
         "              }" +
         "            ]" +
@@ -101,7 +101,7 @@ public class WebAuthorizationTypeSupportTest {
         "        }]" +
         "      }" +
         "    }," +
-        "    \"parent_type\": \"authorization\"" +
+        "    \"parent_type\": \"auth\"" +
         "  }" +
         "}");
   }
@@ -123,22 +123,22 @@ public class WebAuthorizationTypeSupportTest {
         "            \"should\": [" +
         "              {" +
         "                \"term\": {" +
-        "                  \"allowAnyone\": {\"value\": true}" +
+        "                  \"auth_allowAnyone\": {\"value\": true}" +
         "                }" +
         "              }," +
         "              {" +
         "                \"term\": {" +
-        "                  \"userIds\": {\"value\": 1234}" +
+        "                  \"auth_userIds\": {\"value\": 1234}" +
         "                }" +
         "              }," +
         "              {" +
         "                \"term\": {" +
-        "                  \"groupIds\": {\"value\": 10}" +
+        "                  \"auth_groupIds\": {\"value\": 10}" +
         "                }" +
         "              }," +
         "              {" +
         "                \"term\": {" +
-        "                  \"groupIds\": {\"value\": 11}" +
+        "                  \"auth_groupIds\": {\"value\": 11}" +
         "                }" +
         "              }" +
         "            ]" +
@@ -146,7 +146,7 @@ public class WebAuthorizationTypeSupportTest {
         "        }]" +
         "      }" +
         "    }," +
-        "    \"parent_type\": \"authorization\"" +
+        "    \"parent_type\": \"auth\"" +
         "  }" +
         "}");
   }

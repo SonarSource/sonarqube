@@ -29,30 +29,23 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.server.es.BaseDoc;
+import org.sonar.server.permission.index.AuthorizationDoc;
+
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class IssueDoc extends BaseDoc {
 
   public IssueDoc(Map<String, Object> fields) {
-    super(fields);
+    super(TYPE_ISSUE, fields);
   }
 
   public IssueDoc() {
-    super(Maps.newHashMapWithExpectedSize(32));
+    super(TYPE_ISSUE, Maps.newHashMapWithExpectedSize(32));
   }
 
   @Override
   public String getId() {
     return key();
-  }
-
-  @Override
-  public String getRouting() {
-    return projectUuid();
-  }
-
-  @Override
-  public String getParent() {
-    return projectUuid();
   }
 
   public String key() {
@@ -181,6 +174,7 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setProjectUuid(String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, s);
+    setParent(AuthorizationDoc.idOf(s));
     return this;
   }
 

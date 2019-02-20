@@ -20,16 +20,19 @@
 package org.sonar.server.es.metadata;
 
 import org.sonar.api.config.Configuration;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.newindex.NewRegularIndex;
 
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class MetadataIndexDefinition {
 
-  public static final IndexType INDEX_TYPE_METADATA = new IndexType("metadatas", "metadata");
+  public static final Index DESCRIPTOR = Index.simple("metadatas");
+  public static final IndexMainType TYPE_METADATA = IndexType.main(DESCRIPTOR, "metadata");
   public static final String FIELD_VALUE = "value";
 
   private static final int DEFAULT_NUMBER_OF_SHARDS = 1;
@@ -41,15 +44,14 @@ public class MetadataIndexDefinition {
   }
 
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(
-      INDEX_TYPE_METADATA.getIndex(),
+    NewRegularIndex index = context.create(
+      DESCRIPTOR,
       newBuilder(configuration)
         .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
         .setDefaultNbOfShards(DEFAULT_NUMBER_OF_SHARDS)
         .build());
 
-    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_METADATA.getType());
-
-    mapping.keywordFieldBuilder(FIELD_VALUE).disableSearch().store().build();
+    index.createTypeMapping(TYPE_METADATA)
+      .keywordFieldBuilder(FIELD_VALUE).disableSearch().store().build();
   }
 }

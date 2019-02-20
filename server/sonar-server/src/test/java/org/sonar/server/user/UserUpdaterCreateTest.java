@@ -121,7 +121,7 @@ public class UserUpdaterCreateTest {
       .isEqualTo(dto.getUpdatedAt());
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getId()).isEqualTo(dto.getId());
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
       .contains(
@@ -351,7 +351,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
       }, otherUser);
 
-    assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(created.getUuid(), otherUser.getUuid());
+    assertThat(es.getIds(UserIndexDefinition.TYPE_USER)).containsExactlyInAnyOrder(created.getUuid(), otherUser.getUuid());
   }
 
   @Test

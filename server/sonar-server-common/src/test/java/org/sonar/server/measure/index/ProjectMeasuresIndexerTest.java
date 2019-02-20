@@ -43,12 +43,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_KEY_UPDATE;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexerTest {
 
@@ -65,7 +66,7 @@ public class ProjectMeasuresIndexerTest {
   public void index_nothing() {
     underTest.indexOnStartup(emptySet());
 
-    assertThat(es.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isZero();
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
   }
 
   @Test
@@ -158,7 +159,7 @@ public class ProjectMeasuresIndexerTest {
     db.getDbClient().componentDao().delete(db.getSession(), project.getId());
     IndexingResult result = indexProject(project, PROJECT_DELETION);
 
-    assertThat(es.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
     assertThat(result.getTotal()).isEqualTo(1L);
     assertThat(result.getSuccess()).isEqualTo(1L);
   }
@@ -170,13 +171,13 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.index(db.getSession(), emptyList());
 
-    assertThat(es.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
   }
 
   @Test
   public void errors_during_indexing_are_recovered() {
     ComponentDto project = db.components().insertPrivateProject();
-    es.lockWrites(INDEX_TYPE_PROJECT_MEASURES);
+    es.lockWrites(TYPE_PROJECT_MEASURES);
 
     IndexingResult result = indexProject(project, PROJECT_CREATION);
     assertThat(result.getTotal()).isEqualTo(1L);
@@ -186,10 +187,10 @@ public class ProjectMeasuresIndexerTest {
     result = recover();
     assertThat(result.getTotal()).isEqualTo(1L);
     assertThat(result.getFailures()).isEqualTo(1L);
-    assertThat(es.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
     assertThatEsQueueTableHasSize(1);
 
-    es.unlockWrites(INDEX_TYPE_PROJECT_MEASURES);
+    es.unlockWrites(TYPE_PROJECT_MEASURES);
 
     result = recover();
     assertThat(result.getTotal()).isEqualTo(1L);
@@ -205,7 +206,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.indexOnAnalysis(branch.uuid());
 
-    assertThat(es.countDocuments(INDEX_TYPE_PROJECT_MEASURES)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isEqualTo(0);
   }
 
   private IndexingResult indexProject(ComponentDto project, ProjectIndexer.Cause cause) {
@@ -217,8 +218,10 @@ public class ProjectMeasuresIndexerTest {
 
   private void assertThatProjectHasTag(ComponentDto project, String expectedTag) {
     SearchRequestBuilder request = es.client()
-      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
-      .setQuery(boolQuery().filter(termQuery(FIELD_TAGS, expectedTag)));
+      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
+      .setQuery(boolQuery()
+        .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
+        .filter(termQuery(FIELD_TAGS, expectedTag)));
     assertThat(request.get().getHits().getHits())
       .extracting(SearchHit::getId)
       .contains(project.uuid());
@@ -229,12 +232,12 @@ public class ProjectMeasuresIndexerTest {
   }
 
   private void assertThatIndexContainsOnly(SnapshotDto... expectedProjects) {
-    assertThat(es.getIds(INDEX_TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
+    assertThat(es.getIds(TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
       Arrays.stream(expectedProjects).map(SnapshotDto::getComponentUuid).toArray(String[]::new));
   }
 
   private void assertThatIndexContainsOnly(ComponentDto... expectedProjects) {
-    assertThat(es.getIds(INDEX_TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
+    assertThat(es.getIds(TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
       Arrays.stream(expectedProjects).map(ComponentDto::uuid).toArray(String[]::new));
   }
 

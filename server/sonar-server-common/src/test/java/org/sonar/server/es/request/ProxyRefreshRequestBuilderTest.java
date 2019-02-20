@@ -26,7 +26,8 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -41,21 +42,20 @@ public class ProxyRefreshRequestBuilderTest {
 
   @Test
   public void refresh() {
-    RefreshRequestBuilder requestBuilder = es.client().prepareRefresh(FakeIndexDefinition.INDEX);
+    RefreshRequestBuilder requestBuilder = es.client().prepareRefresh(FakeIndexDefinition.DESCRIPTOR);
     requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    assertThat(es.client().prepareRefresh(FakeIndexDefinition.INDEX).toString()).isEqualTo("ES refresh request on indices 'fakes'");
-    assertThat(es.client().prepareRefresh().toString()).isEqualTo("ES refresh request");
+    assertThat(es.client().prepareRefresh(FakeIndexDefinition.DESCRIPTOR).toString()).isEqualTo("ES refresh request on indices 'fakes'");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    RefreshRequestBuilder requestBuilder = es.client().prepareRefresh(FakeIndexDefinition.INDEX);
+    RefreshRequestBuilder requestBuilder = es.client().prepareRefresh(FakeIndexDefinition.DESCRIPTOR);
     requestBuilder.get();
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
@@ -63,7 +63,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void fail_to_refresh() {
     try {
-      es.client().prepareRefresh("unknown").get();
+      es.client().prepareRefresh(Index.simple("unknown")).get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -74,7 +74,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareRefresh(FakeIndexDefinition.INDEX).get("1");
+      es.client().prepareRefresh(FakeIndexDefinition.DESCRIPTOR).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -84,7 +84,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareRefresh(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareRefresh(FakeIndexDefinition.DESCRIPTOR).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -94,7 +94,7 @@ public class ProxyRefreshRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareRefresh(FakeIndexDefinition.INDEX).execute();
+      es.client().prepareRefresh(FakeIndexDefinition.DESCRIPTOR).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");

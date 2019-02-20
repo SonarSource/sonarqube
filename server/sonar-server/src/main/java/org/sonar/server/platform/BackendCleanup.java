@@ -36,6 +36,7 @@ import org.sonar.db.version.SqTables;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
@@ -96,7 +97,8 @@ public class BackendCleanup {
       esClient.prepareClearCache().get();
 
       for (String index : esClient.prepareState().get().getState().getMetaData().getConcreteAllIndices()) {
-        clearIndex(new IndexType(index, index));
+        /*under the hood, type is not used to perform clearIndex, so it's ok it does not match any existing index*/
+        clearIndex(Index.simple(index));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to clear indexes", e);
@@ -121,10 +123,10 @@ public class BackendCleanup {
       throw new IllegalStateException("Fail to reset data", e);
     }
 
-    clearIndex(IssueIndexDefinition.INDEX_TYPE_ISSUE);
-    clearIndex(ViewIndexDefinition.INDEX_TYPE_VIEW);
-    clearIndex(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES);
-    clearIndex(ComponentIndexDefinition.INDEX_TYPE_COMPONENT);
+    clearIndex(IssueIndexDefinition.DESCRIPTOR);
+    clearIndex(ViewIndexDefinition.DESCRIPTOR);
+    clearIndex(ProjectMeasuresIndexDefinition.DESCRIPTOR);
+    clearIndex(ComponentIndexDefinition.DESCRIPTOR);
   }
 
   private void truncateAnalysisTables(Connection connection) throws SQLException {
@@ -166,8 +168,8 @@ public class BackendCleanup {
   /**
    * Completely remove a index with all types
    */
-  public void clearIndex(IndexType indexType) {
-    BulkIndexer.delete(esClient, indexType, esClient.prepareSearch(indexType.getIndex()).setQuery(matchAllQuery()));
+  public void clearIndex(Index index) {
+    BulkIndexer.delete(esClient, IndexType.main(index, index.getName()), esClient.prepareSearch(index).setQuery(matchAllQuery()));
   }
 
   @FunctionalInterface

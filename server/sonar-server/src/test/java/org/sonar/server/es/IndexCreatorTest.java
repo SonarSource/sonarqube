@@ -32,16 +32,20 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
+import org.sonar.server.es.newindex.NewRegularIndex;
+import org.sonar.server.es.newindex.SettingsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.IndexType.main;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class IndexCreatorTest {
 
-  private static final NewIndex.SettingsConfiguration SETTINGS_CONFIGURATION = newBuilder(new MapSettings().asConfig()).build();
+  private static final SettingsConfiguration SETTINGS_CONFIGURATION = newBuilder(new MapSettings().asConfig()).build();
   private static final String LOG_DB_VENDOR_CHANGED = "Delete Elasticsearch indices (DB vendor changed)";
   private static final String LOG_DB_SCHEMA_CHANGED = "Delete Elasticsearch indices (DB schema changed)";
 
@@ -80,15 +84,19 @@ public class IndexCreatorTest {
 
   @Test
   public void mark_all_non_existing_index_types_as_uninitialized() {
+    Index fakesIndex = Index.simple("fakes");
+    Index fakersIndex = Index.simple("fakers");
     startNewCreator(context -> {
-      NewIndex i = context.create("fakes", SETTINGS_CONFIGURATION);
-      i.createType("t1");
-      i.createType("t2");
+      context.create(fakesIndex, SETTINGS_CONFIGURATION)
+        .createTypeMapping(IndexType.main(fakesIndex, "fake"));
+      context.create(fakersIndex, SETTINGS_CONFIGURATION)
+        .createTypeMapping(IndexType.main(fakersIndex, "faker"));
     });
 
-    assertThat(metadataIndex.getHash("fakes")).isNotEmpty();
-    assertThat(metadataIndex.getInitialized(new IndexType("fakes", "t1"))).isFalse();
-    assertThat(metadataIndex.getInitialized(new IndexType("fakes", "t2"))).isFalse();
+    assertThat(metadataIndex.getHash(fakesIndex)).isNotEmpty();
+    assertThat(metadataIndex.getHash(fakersIndex)).isNotEmpty();
+    assertThat(metadataIndex.getInitialized(main(fakesIndex, "fake"))).isFalse();
+    assertThat(metadataIndex.getInitialized(main(fakersIndex, "faker"))).isFalse();
   }
 
   @Test
@@ -96,7 +104,7 @@ public class IndexCreatorTest {
     // v1
     startNewCreator(new FakeIndexDefinition());
 
-    IndexType fakeIndexType = new IndexType("fakes", "fake");
+    IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
     String id = "1";
     es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
@@ -135,7 +143,7 @@ public class IndexCreatorTest {
   public void do_not_recreate_index_on_unchanged_definition() {
     // v1
     startNewCreator(new FakeIndexDefinition());
-    IndexType fakeIndexType = new IndexType("fakes", "fake");
+    IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
     String id = "1";
     es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(IMMEDIATE).get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
@@ -225,25 +233,27 @@ public class IndexCreatorTest {
 
   private static class FakeIndexDefinition implements IndexDefinition {
 
-    private static final IndexType INDEX_TYPE = new IndexType("fakes", "fake");
+    private static final IndexMainType INDEX_TYPE = main(Index.simple("fakes"), "fake");
 
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes", SETTINGS_CONFIGURATION);
-      NewIndex.NewIndexType mapping = index.createType("fake");
-      mapping.keywordFieldBuilder("key").build();
-      mapping.createDateTimeField("updatedAt");
+      Index index = Index.simple("fakes");
+      NewRegularIndex newIndex = context.create(index, SETTINGS_CONFIGURATION);
+      newIndex.createTypeMapping(IndexType.main(index, "fake"))
+        .keywordFieldBuilder("key").build()
+        .createDateTimeField("updatedAt");
     }
   }
   private static class FakeIndexDefinitionV2 implements IndexDefinition {
 
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create("fakes", SETTINGS_CONFIGURATION);
-      NewIndex.NewIndexType mapping = index.createType("fake");
-      mapping.keywordFieldBuilder("key").build();
-      mapping.createDateTimeField("updatedAt");
-      mapping.createIntegerField("newField");
+      Index index = Index.simple("fakes");
+      NewRegularIndex newIndex = context.create(index, SETTINGS_CONFIGURATION);
+      newIndex.createTypeMapping(IndexType.main(index, "fake"))
+        .keywordFieldBuilder("key").build()
+        .createDateTimeField("updatedAt")
+        .createIntegerField("newField");
     }
   }
 }

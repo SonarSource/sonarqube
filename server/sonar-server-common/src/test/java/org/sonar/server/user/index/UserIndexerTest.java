@@ -33,6 +33,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexerTest {
 
@@ -50,7 +51,7 @@ public class UserIndexerTest {
   public void index_nothing_on_startup() {
     underTest.indexOnStartup(new HashSet<>());
 
-    assertThat(es.countDocuments(UserIndexDefinition.INDEX_TYPE_USER)).isEqualTo(0L);
+    assertThat(es.countDocuments(TYPE_USER)).isEqualTo(0L);
   }
 
   @Test
@@ -59,7 +60,7 @@ public class UserIndexerTest {
 
     underTest.indexOnStartup(new HashSet<>());
 
-    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
     UserDoc doc = docs.get(0);
     assertThat(doc.uuid()).isEqualTo(user.getUuid());
@@ -81,7 +82,7 @@ public class UserIndexerTest {
 
     underTest.indexOnStartup(new HashSet<>());
 
-    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(1);
     UserDoc doc = docs.get(0);
     assertThat(doc.uuid()).isEqualTo(user.getUuid());
@@ -96,7 +97,7 @@ public class UserIndexerTest {
 
     underTest.commitAndIndex(db.getSession(), user);
 
-    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
     assertThat(docs)
       .extracting(UserDoc::uuid)
       .containsExactlyInAnyOrder(user.getUuid())
@@ -115,7 +116,7 @@ public class UserIndexerTest {
 
     underTest.commitAndIndex(db.getSession(), user);
 
-    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
     assertThat(docs)
       .extracting(UserDoc::uuid, UserDoc::organizationUuids)
       .containsExactlyInAnyOrder(tuple(user.getUuid(), asList(organization1.getUuid(), organization2.getUuid())));
@@ -132,7 +133,7 @@ public class UserIndexerTest {
 
     underTest.commitAndIndex(db.getSession(), asList(user1, user2));
 
-    List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
+    List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
     assertThat(docs)
       .extracting(UserDoc::login, UserDoc::organizationUuids)
       .containsExactlyInAnyOrder(

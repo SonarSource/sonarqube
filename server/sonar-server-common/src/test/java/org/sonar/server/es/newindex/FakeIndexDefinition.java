@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.es.newindex;
 
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.FakeDoc;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexType.IndexMainType;
 
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class FakeIndexDefinition implements IndexDefinition {
 
   public static final String INDEX = "fakes";
   public static final String TYPE = "fake";
-  public static final IndexType INDEX_TYPE_FAKE = new IndexType("fakes", "fake");
+  public static final Index DESCRIPTOR = Index.simple(INDEX);
+  public static final IndexMainType TYPE_FAKE = IndexType.main(DESCRIPTOR, TYPE);
   public static final String INT_FIELD = "intField";
 
   private int replicas = 0;
@@ -40,11 +46,11 @@ public class FakeIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX, newBuilder(new MapSettings().asConfig()).build());
+    NewIndex index = context.create(DESCRIPTOR, newBuilder(new MapSettings().asConfig()).build());
     index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
     index.getSettings().put("index.refresh_interval", "-1");
-    NewIndex.NewIndexType type = index.createType(INDEX_TYPE_FAKE.getType());
-    type.createIntegerField(INT_FIELD);
+    index.createTypeMapping(TYPE_FAKE)
+      .createIntegerField(INT_FIELD);
   }
 
   public static FakeDoc newDoc(int value) {

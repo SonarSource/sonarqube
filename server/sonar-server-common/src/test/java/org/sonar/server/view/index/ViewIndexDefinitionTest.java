@@ -21,8 +21,10 @@ package org.sonar.server.view.index;
 
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.newindex.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,10 +39,11 @@ public class ViewIndexDefinitionTest {
 
     assertThat(underTest.getIndices()).hasSize(1);
     NewIndex index = underTest.getIndices().get("views");
-    assertThat(index).isNotNull();
-    assertThat(index.getTypes().keySet()).containsOnly("view");
+    assertThat(index.getMainType())
+      .isEqualTo(IndexType.main(Index.simple("views"), "view"));
+    assertThat(index.getRelationsStream()).isEmpty();
 
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("5");
-    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(index.getSetting("index.number_of_shards")).isEqualTo("5");
+    assertThat(index.getSetting("index.number_of_replicas")).isEqualTo("0");
   }
 }

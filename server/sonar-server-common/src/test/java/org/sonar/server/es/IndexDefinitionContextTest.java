@@ -19,35 +19,59 @@
  */
 package org.sonar.server.es;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Locale;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.newindex.SettingsConfiguration;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
+@RunWith(DataProviderRunner.class)
 public class IndexDefinitionContextTest {
-  private NewIndex.SettingsConfiguration emptySettingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
+  private SettingsConfiguration emptySettingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_indices() {
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
-    context.create("issues", emptySettingsConfiguration);
-    context.create("measures", emptySettingsConfiguration);
-    assertThat(context.getIndices().keySet()).containsOnly("issues", "measures");
+    context.create(Index.withRelations("issues"), emptySettingsConfiguration);
+    context.create(Index.simple("users"), emptySettingsConfiguration);
+    assertThat(context.getIndices().keySet())
+      .containsOnly("issues", "users");
   }
 
   @Test
-  public void fail_to_create_twice_the_same_index() {
+  @UseDataProvider("paarOfIndicesWithSameName")
+  public void fail_to_create_twice_index_with_given_name(Index index1, Index index2) {
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
-    context.create("issues", emptySettingsConfiguration);
-    try {
-      context.create("issues", emptySettingsConfiguration);
-      fail();
-    } catch (IllegalArgumentException ok) {
-      assertThat(ok).hasMessage("Index already exists: issues");
-    }
+    context.create(index1, emptySettingsConfiguration);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Index already exists: " + index1.getName());
+
+    context.create(index2, emptySettingsConfiguration);
+  }
+
+  @DataProvider
+  public static Object[][] paarOfIndicesWithSameName() {
+    String indexName = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
+    return new Object[][] {
+      {Index.simple(indexName), Index.simple(indexName)},
+      {Index.withRelations(indexName), Index.withRelations(indexName)},
+      {Index.simple(indexName), Index.withRelations(indexName)},
+      {Index.withRelations(indexName), Index.simple(indexName)},
+    };
   }
 }

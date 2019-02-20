@@ -19,13 +19,15 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.elasticsearch.common.settings.Settings;
-import org.sonar.api.server.ServerSide;
-
 import java.util.Map;
+import org.sonar.api.server.ServerSide;
+import org.sonar.server.es.newindex.NewAuthorizedIndex;
+import org.sonar.server.es.newindex.NewIndex;
+import org.sonar.server.es.newindex.NewRegularIndex;
+import org.sonar.server.es.newindex.SettingsConfiguration;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @ServerSide
 public interface IndexDefinition {
@@ -33,11 +35,22 @@ public interface IndexDefinition {
   class IndexDefinitionContext {
     private final Map<String, NewIndex> byKey = Maps.newHashMap();
 
-    public NewIndex create(String key, NewIndex.SettingsConfiguration settingsConfiguration) {
-      Preconditions.checkArgument(!byKey.containsKey(key), String.format("Index already exists: %s", key));
-      NewIndex index = new NewIndex(key, settingsConfiguration);
-      byKey.put(key, index);
-      return index;
+    public NewRegularIndex create(Index index, SettingsConfiguration settingsConfiguration) {
+      String indexName = index.getName();
+      checkArgument(!byKey.containsKey(indexName), String.format("Index already exists: %s", indexName));
+      NewRegularIndex newIndex = new NewRegularIndex(index, settingsConfiguration);
+      byKey.put(indexName, newIndex);
+      return newIndex;
+    }
+
+    public NewAuthorizedIndex createWithAuthorization(Index index, SettingsConfiguration settingsConfiguration) {
+      checkArgument(index.acceptsRelations(), "Index with authorization must accept relations");
+      String indexName = index.getName();
+      checkArgument(!byKey.containsKey(indexName), String.format("Index already exists: %s", indexName));
+
+      NewAuthorizedIndex newIndex = new NewAuthorizedIndex(index, settingsConfiguration);
+      byKey.put(indexName, newIndex);
+      return newIndex;
     }
 
     public Map<String, NewIndex> getIndices() {
@@ -47,56 +60,4 @@ public interface IndexDefinition {
 
   void define(IndexDefinitionContext context);
 
-  /**
-   * Immutable copy of {@link NewIndex}
-   */
-  class Index {
-    private final String name;
-    private final Settings settings;
-    private final Map<String, Type> types;
-
-    Index(NewIndex newIndex) {
-      this.name = newIndex.getName();
-      this.settings = newIndex.getSettings().build();
-      ImmutableMap.Builder<String, Type> builder = ImmutableMap.builder();
-      for (NewIndex.NewIndexType newIndexType : newIndex.getTypes().values()) {
-        Type type = new Type(newIndexType);
-        builder.put(type.getName(), type);
-      }
-      this.types = builder.build();
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Settings getSettings() {
-      return settings;
-    }
-
-    public Map<String, Type> getTypes() {
-      return types;
-    }
-  }
-
-  /**
-   * Immutable copy of {@link NewIndex.NewIndexType}
-   */
-  class Type {
-    private final String name;
-    private final Map<String, Object> attributes;
-
-    private Type(NewIndex.NewIndexType newType) {
-      this.name = newType.getName();
-      this.attributes = ImmutableMap.copyOf(newType.getAttributes());
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Map<String, Object> getAttributes() {
-      return attributes;
-    }
-  }
 }

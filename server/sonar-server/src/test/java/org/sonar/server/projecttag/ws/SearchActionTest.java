@@ -47,7 +47,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -110,7 +110,7 @@ public class SearchActionTest {
   }
 
   private void index(ProjectMeasuresDoc... docs) {
-    es.putDocuments(INDEX_TYPE_PROJECT_MEASURES, docs);
+    es.putDocuments(TYPE_PROJECT_MEASURES, docs);
     authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).allowAnyone()).collect(toList()));
   }
 

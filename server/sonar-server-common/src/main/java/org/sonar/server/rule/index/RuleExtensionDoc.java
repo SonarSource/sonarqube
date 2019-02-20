@@ -27,14 +27,16 @@ import org.sonar.db.rule.RuleExtensionForIndexingDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
+
 public class RuleExtensionDoc extends BaseDoc {
 
   public RuleExtensionDoc(Map<String, Object> fields) {
-    super(fields);
+    super(TYPE_RULE_EXTENSION, fields);
   }
 
   public RuleExtensionDoc() {
-    super(Maps.newHashMapWithExpectedSize(4));
+    super(TYPE_RULE_EXTENSION, Maps.newHashMapWithExpectedSize(4));
   }
 
   @Override
@@ -42,26 +44,18 @@ public class RuleExtensionDoc extends BaseDoc {
     return idOf(getRuleId(), getScope());
   }
 
-  @Override
-  public String getRouting() {
-    return ruleIdAsString();
-  }
-
-  @Override
-  public String getParent() {
-    return ruleIdAsString();
-  }
-
   public int getRuleId() {
     return Integer.valueOf(ruleIdAsString());
   }
 
   private String ruleIdAsString() {
-    return getField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_ID);
+    return getField(RuleIndexDefinition.FIELD_RULE_ID);
   }
 
   public RuleExtensionDoc setRuleId(int ruleId) {
-    setField(RuleIndexDefinition.FIELD_RULE_EXTENSION_RULE_ID, String.valueOf(ruleId));
+    String parent = String.valueOf(ruleId);
+    setField(RuleIndexDefinition.FIELD_RULE_ID, parent);
+    setParent(parent);
     return this;
   }
 

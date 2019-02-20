@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -43,7 +43,7 @@ public class ProxySearchScrollRequestBuilderTest {
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    SearchResponse response = es.client().prepareSearch(FakeIndexDefinition.INDEX)
+    SearchResponse response = es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR)
       .setScroll(TimeValue.timeValueMinutes(1))
       .get();
     logTester.clear();
@@ -55,7 +55,7 @@ public class ProxySearchScrollRequestBuilderTest {
   public void no_trace_logs() {
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    SearchResponse response = es.client().prepareSearch(FakeIndexDefinition.INDEX)
+    SearchResponse response = es.client().prepareSearch(FakeIndexDefinition.DESCRIPTOR)
       .setScroll(TimeValue.timeValueMinutes(1))
       .get();
     logTester.clear();

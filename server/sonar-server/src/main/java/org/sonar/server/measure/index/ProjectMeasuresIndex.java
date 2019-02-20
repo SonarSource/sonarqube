@@ -51,7 +51,7 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.es.DefaultIndexSettingsElement;
+import org.sonar.server.es.newindex.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -86,6 +86,7 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.termsToMap;
+import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
@@ -96,7 +97,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
@@ -164,7 +165,7 @@ public class ProjectMeasuresIndex {
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
+      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
       .setFetchSource(false)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit());
@@ -181,7 +182,7 @@ public class ProjectMeasuresIndex {
 
   public ProjectMeasuresStatistics searchTelemetryStatistics() {
     SearchRequestBuilder request = client
-      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
+      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
       .setFetchSource(false)
       .setSize(0);
 
@@ -344,6 +345,7 @@ public class ProjectMeasuresIndex {
 
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
+    filters.put("__indexType", termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()));
     filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
     Multimap<String, MetricCriterion> metricCriterionMultimap = ArrayListMultimap.create();
     query.getMetricCriteria().forEach(metricCriterion -> metricCriterionMultimap.put(metricCriterion.getMetricKey(), metricCriterion));
@@ -429,7 +431,7 @@ public class ProjectMeasuresIndex {
     }
 
     SearchRequestBuilder searchQuery = client
-      .prepareSearch(INDEX_TYPE_PROJECT_MEASURES)
+      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
       .setQuery(authorizationTypeSupport.createQueryFilter())
       .setFetchSource(false)
       .setSize(0)

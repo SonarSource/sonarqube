@@ -277,7 +277,7 @@ public class RegisterRulesTest {
       .containsOnly(READY);
 
     // verify index
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(numberOfRules);
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .isNotEmpty();
 
@@ -291,7 +291,7 @@ public class RegisterRulesTest {
       .containsOnly(REMOVED);
 
     // verify index (documents are still in the index, but all are removed)
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(numberOfRules);
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(numberOfRules);
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
       .isEmpty();
   }
@@ -315,7 +315,7 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY2);
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, HOTSPOT_RULE_KEY);
-    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
 
     // user adds tags and sets markdown note
     rule1.setTags(newHashSet("usertag1", "usertag2"));
@@ -739,7 +739,7 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY2);
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, HOTSPOT_RULE_KEY);
-    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
 
     assertThat(rule2.getStatus()).isEqualTo(READY);
 
@@ -774,7 +774,7 @@ public class RegisterRulesTest {
     execute(new BigRepository());
     assertThat(db.countRowsOfTable("rules")).isEqualTo(BigRepository.SIZE);
     assertThat(db.countRowsOfTable("rules_parameters")).isEqualTo(BigRepository.SIZE * 20);
-    assertThat(es.getIds(RuleIndexDefinition.INDEX_TYPE_RULE)).hasSize(BigRepository.SIZE);
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).hasSize(BigRepository.SIZE);
   }
 
   @Test

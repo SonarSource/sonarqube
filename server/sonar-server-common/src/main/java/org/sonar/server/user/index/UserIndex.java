@@ -41,8 +41,8 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
@@ -69,7 +69,7 @@ public class UserIndex {
   public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount, String organizationUuid) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
-      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.TYPE_USER)
         .setQuery(boolQuery().must(matchAllQuery()).filter(
           boolQuery()
             .must(termQuery(FIELD_ACTIVE, true))
@@ -86,7 +86,7 @@ public class UserIndex {
   }
 
   public SearchResult<UserDoc> search(UserQuery userQuery, SearchOptions options) {
-    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.TYPE_USER)
       .setSize(options.getLimit())
       .setFrom(options.getOffset())
       .addSort(FIELD_NAME, SortOrder.ASC);

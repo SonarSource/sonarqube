@@ -43,6 +43,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
 
@@ -57,7 +58,7 @@ import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 public class RecoveryIndexerTest {
 
   private static final long PAST = 1_000L;
-  private static final IndexType FOO_TYPE = new IndexType("foos", "foo");
+  private static final IndexMainType FOO_TYPE = IndexType.main(Index.simple("foos"), "foo");
 
   private TestSystem2 system2 = new TestSystem2().setNow(PAST);
   private MapSettings emptySettings = new MapSettings();
@@ -114,13 +115,12 @@ public class RecoveryIndexerTest {
 
   @Test
   public void successfully_recover_indexing_requests() {
-    IndexType type1 = new IndexType("foos", "foo");
-    EsQueueDto item1a = insertItem(type1, "f1");
-    EsQueueDto item1b = insertItem(type1, "f2");
-    IndexType type2 = new IndexType("bars", "bar");
+    EsQueueDto item1a = insertItem(FOO_TYPE, "f1");
+    EsQueueDto item1b = insertItem(FOO_TYPE, "f2");
+    IndexMainType type2 = IndexType.main(Index.simple("bars"), "bar");
     EsQueueDto item2 = insertItem(type2, "b1");
 
-    SuccessfulFakeIndexer indexer1 = new SuccessfulFakeIndexer(type1);
+    SuccessfulFakeIndexer indexer1 = new SuccessfulFakeIndexer(FOO_TYPE);
     SuccessfulFakeIndexer indexer2 = new SuccessfulFakeIndexer(type2);
     advanceInTime();
 
@@ -221,7 +221,7 @@ public class RecoveryIndexerTest {
   public void unsupported_types_are_kept_in_queue_for_manual_fix_operation() {
     insertItem(FOO_TYPE, "f1");
 
-    ResilientIndexer indexer = new SuccessfulFakeIndexer(new IndexType("bars", "bar"));
+    ResilientIndexer indexer = new SuccessfulFakeIndexer(IndexType.main(Index.simple("bars"), "bar"));
     advanceInTime();
 
     underTest = newRecoveryIndexer(indexer);

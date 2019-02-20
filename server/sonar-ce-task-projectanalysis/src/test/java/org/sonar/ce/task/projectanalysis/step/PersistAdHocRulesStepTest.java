@@ -94,8 +94,8 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     assertThat(reloaded.getSeverity()).isNull();
     assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
 
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1l);
-    assertThat(es.getDocuments(RuleIndexDefinition.INDEX_TYPE_RULE).iterator().next().getId()).isEqualTo(Integer.toString(reloaded.getId()));
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(1l);
+    assertThat(es.getDocuments(RuleIndexDefinition.TYPE_RULE).iterator().next().getId()).isEqualTo(Integer.toString(reloaded.getId()));
   }
 
   @Test
@@ -108,7 +108,7 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
 
     RuleDao ruleDao = dbClient.ruleDao();
     assertThat(ruleDao.selectAllDefinitions(dbClient.openSession(false))).hasSize(1);
-    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isZero();
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isZero();
   }
 
 }

@@ -106,7 +106,7 @@ public class UserUpdaterUpdateTest {
     assertThat(updatedUser.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(updatedUser.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
 
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
       .contains(
@@ -228,7 +228,7 @@ public class UserUpdaterUpdateTest {
       .setLogin("new_login"), u -> {
       });
 
-    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
       .contains(entry("login", "new_login"));
@@ -473,7 +473,7 @@ public class UserUpdaterUpdateTest {
       .setScmAccounts(asList("ma2")), u -> {
       }, otherUser);
 
-    assertThat(es.getIds(UserIndexDefinition.INDEX_TYPE_USER)).containsExactlyInAnyOrder(user.getUuid(), otherUser.getUuid());
+    assertThat(es.getIds(UserIndexDefinition.TYPE_USER)).containsExactlyInAnyOrder(user.getUuid(), otherUser.getUuid());
   }
 
   @Test

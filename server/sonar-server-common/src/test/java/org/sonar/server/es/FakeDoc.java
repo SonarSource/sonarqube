@@ -20,32 +20,18 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.Maps;
-import java.util.Map;
 
-import static org.sonar.server.es.FakeIndexDefinition.INT_FIELD;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.INT_FIELD;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
 public class FakeDoc extends BaseDoc {
-  public FakeDoc(Map<String, Object> fields) {
-    super(fields);
+  public FakeDoc() {
+    super(TYPE_FAKE, Maps.newHashMap());
   }
 
   @Override
   public String getId() {
     return null;
-  }
-
-  @Override
-  public String getRouting() {
-    return null;
-  }
-
-  @Override
-  public String getParent() {
-    return null;
-  }
-
-  public FakeDoc() {
-    super(Maps.newHashMap());
   }
 
   public int getInt() {

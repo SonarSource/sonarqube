@@ -20,29 +20,33 @@
 package org.sonar.server.permission.index;
 
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.newindex.NewAuthorizedIndex;
 
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class FooIndexDefinition implements IndexDefinition {
 
-  public static final String FOO_INDEX = "foos";
+  public static final Index DESCRIPTOR = Index.withRelations("foos");
   public static final String FOO_TYPE = "foo";
-  public static final IndexType INDEX_TYPE_FOO = new IndexType(FOO_INDEX, FOO_TYPE);
+  public static final IndexType.IndexMainType TYPE_AUTHORIZATION = IndexType.main(DESCRIPTOR, IndexAuthorizationConstants.TYPE_AUTHORIZATION);
+  public static final IndexType.IndexRelationType TYPE_FOO = IndexType.relation(TYPE_AUTHORIZATION, FOO_TYPE);
   public static final String FIELD_NAME = "name";
   public static final String FIELD_PROJECT_UUID = "projectUuid";
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(FOO_INDEX, newBuilder(new MapSettings().asConfig()).setRefreshInterval(MANUAL_REFRESH_INTERVAL).build());
+    NewAuthorizedIndex newIndex = context.createWithAuthorization(
+      DESCRIPTOR,
+      newBuilder(new MapSettings().asConfig())
+        .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
+        .build());
 
-    NewIndex.NewIndexType type = index.createType(FOO_TYPE)
-      .requireProjectAuthorization();
-
-    type.keywordFieldBuilder(FIELD_NAME).build();
-    type.keywordFieldBuilder(FIELD_PROJECT_UUID).build();
+    newIndex.createTypeMapping(TYPE_FOO)
+      .keywordFieldBuilder(FIELD_NAME).build()
+      .keywordFieldBuilder(FIELD_PROJECT_UUID).build();
   }
 }

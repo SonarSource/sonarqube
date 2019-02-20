@@ -23,9 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.es.DefaultIndexSettings;
+import org.sonar.server.es.newindex.DefaultIndexSettings;
 
-import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 
 /**
  * Splits text queries into their tokens, for to use them in n_gram match queries later.

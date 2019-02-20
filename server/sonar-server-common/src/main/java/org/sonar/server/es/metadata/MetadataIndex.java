@@ -24,9 +24,13 @@ import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.index.get.GetField;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.IndexType.IndexRelationType;
 
-import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
+import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class MetadataIndex {
 
@@ -38,16 +42,16 @@ public class MetadataIndex {
     this.esClient = esClient;
   }
 
-  public Optional<String> getHash(String index) {
+  public Optional<String> getHash(Index index) {
     return getMetadata(hashId(index));
   }
 
-  public void setHash(String index, String hash) {
+  public void setHash(Index index, String hash) {
     setMetadata(hashId(index), hash);
   }
 
-  private static String hashId(String index) {
-    return index + ".indexStructure";
+  private static String hashId(Index index) {
+    return index.getName() + ".indexStructure";
   }
 
   public boolean getInitialized(IndexType indexType) {
@@ -59,7 +63,16 @@ public class MetadataIndex {
   }
 
   private static String initializedId(IndexType indexType) {
-    return indexType.getIndex() + "." + indexType.getType() + ".initialized";
+    if (indexType instanceof IndexMainType) {
+      IndexMainType mainType = (IndexMainType) indexType;
+      return mainType.getIndex().getName() + "." + mainType.getType() + ".initialized";
+    }
+    if (indexType instanceof IndexRelationType) {
+      IndexRelationType relationType = (IndexRelationType) indexType;
+      IndexMainType mainType = relationType.getMainType();
+      return mainType.getIndex().getName() + "." + mainType.getType() + "." + relationType.getName() + ".initialized";
+    }
+    throw new IllegalArgumentException("Unsupported IndexType " + indexType.getClass());
   }
 
   public Optional<String> getDbVendor() {
@@ -71,7 +84,7 @@ public class MetadataIndex {
   }
 
   private Optional<String> getMetadata(String id) {
-    GetRequestBuilder request = esClient.prepareGet(MetadataIndexDefinition.INDEX_TYPE_METADATA, id)
+    GetRequestBuilder request = esClient.prepareGet(TYPE_METADATA, id)
       .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
     GetResponse response = request.get();
     if (response.isExists()) {
@@ -83,7 +96,7 @@ public class MetadataIndex {
   }
 
   private void setMetadata(String id, String value) {
-    esClient.prepareIndex(MetadataIndexDefinition.INDEX_TYPE_METADATA)
+    esClient.prepareIndex(TYPE_METADATA)
       .setId(id)
       .setSource(MetadataIndexDefinition.FIELD_VALUE, value)
       .setRefreshPolicy(REFRESH_IMMEDIATE)

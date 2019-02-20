@@ -20,15 +20,15 @@
 package org.sonar.server.permission.index;
 
 public final class IndexAuthorizationConstants {
-  public static final String TYPE_AUTHORIZATION = "authorization";
-  public static final String FIELD_GROUP_IDS = "groupIds";
-  public static final String FIELD_USER_IDS = "userIds";
+  public static final String TYPE_AUTHORIZATION = "auth";
+  public static final String FIELD_GROUP_IDS = TYPE_AUTHORIZATION + "_groupIds";
+  public static final String FIELD_USER_IDS = TYPE_AUTHORIZATION + "_userIds";
   /**
    * When true, then anybody can access to the project. In that case
    * it's useless to store granted groups and users. The related
    * fields are empty.
    */
-  public static final String FIELD_ALLOW_ANYONE = "allowAnyone";
+  public static final String FIELD_ALLOW_ANYONE = TYPE_AUTHORIZATION + "_allowAnyone";
 
   private IndexAuthorizationConstants() {
     // prevents instantiation

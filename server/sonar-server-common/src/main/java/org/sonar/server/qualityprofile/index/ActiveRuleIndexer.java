@@ -48,12 +48,13 @@ import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.server.qualityprofile.index.ActiveRuleDoc.docIdOf;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexer implements ResilientIndexer {
 
@@ -81,13 +82,13 @@ public class ActiveRuleIndexer implements ResilientIndexer {
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(INDEX_TYPE_ACTIVE_RULE);
+    return ImmutableSet.of(TYPE_ACTIVE_RULE);
   }
 
   public void commitAndIndex(DbSession dbSession, Collection<ActiveRuleChange> changes) {
     List<EsQueueDto> items = changes.stream()
       .map(ActiveRuleChange::getActiveRule)
-      .map(ar -> newQueueDto(String.valueOf(ar.getId()), ID_TYPE_ACTIVE_RULE_ID, String.valueOf(ar.getRuleId())))
+      .map(ar -> newQueueDto(docIdOf(ar.getId()), ID_TYPE_ACTIVE_RULE_ID, String.valueOf(ar.getRuleId())))
       .collect(toArrayList());
 
     dbClient.esQueueDao().insert(dbSession, items);
@@ -125,13 +126,13 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       return result;
     }
 
-    Map<Long, EsQueueDto> activeRuleItems = new HashMap<>();
+    Map<String, EsQueueDto> activeRuleItems = new HashMap<>();
     Map<String, EsQueueDto> ruleProfileItems = new HashMap<>();
     items.forEach(i -> {
       if (ID_TYPE_RULE_PROFILE_UUID.equals(i.getDocIdType())) {
         ruleProfileItems.put(i.getDocId(), i);
       } else if (ID_TYPE_ACTIVE_RULE_ID.equals(i.getDocIdType())) {
-        activeRuleItems.put(Long.parseLong(i.getDocId()), i);
+        activeRuleItems.put(i.getDocId(), i);
       } else {
         LOGGER.error("Unsupported es_queue.doc_id_type. Removing row from queue: " + i);
         deleteQueueDto(dbSession, i);
@@ -147,22 +148,29 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     return result;
   }
 
-  private IndexingResult doIndexActiveRules(DbSession dbSession, Map<Long, EsQueueDto> activeRuleItems) {
+  private IndexingResult doIndexActiveRules(DbSession dbSession, Map<String, EsQueueDto> activeRuleItems) {
     OneToOneResilientIndexingListener listener = new OneToOneResilientIndexingListener(dbClient, dbSession, activeRuleItems.values());
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
     bulkIndexer.start();
-    Map<Long, EsQueueDto> remaining = new HashMap<>(activeRuleItems);
-    dbClient.activeRuleDao().scrollByIdsForIndexing(dbSession, activeRuleItems.keySet(),
+    Map<String, EsQueueDto> remaining = new HashMap<>(activeRuleItems);
+    dbClient.activeRuleDao().scrollByIdsForIndexing(dbSession, toActiveRuleIds(activeRuleItems),
       i -> {
-        remaining.remove(i.getId());
+        remaining.remove(docIdOf(i.getId()));
         bulkIndexer.add(newIndexRequest(i));
       });
 
     // the remaining ids reference rows that don't exist in db. They must
     // be deleted from index.
-    remaining.values().forEach(item -> bulkIndexer.addDeletion(RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE,
+    remaining.values().forEach(item -> bulkIndexer.addDeletion(TYPE_ACTIVE_RULE,
       item.getDocId(), item.getDocRouting()));
     return bulkIndexer.stop();
+  }
+
+  private static Collection<Long> toActiveRuleIds(Map<String, EsQueueDto> activeRuleItems) {
+    Set<String> docIds = activeRuleItems.keySet();
+    return docIds.stream()
+      .map(ActiveRuleDoc::activeRuleIdOf)
+      .collect(toSet(docIds.size()));
   }
 
   private IndexingResult doIndexRuleProfiles(DbSession dbSession, Map<String, EsQueueDto> ruleProfileItems) {
@@ -176,9 +184,9 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       RulesProfileDto profile = dbClient.qualityProfileDao().selectRuleProfile(dbSession, ruleProfileUUid);
       if (profile == null) {
         // profile does not exist anymore in db --> related documents must be deleted from index rules/activeRule
-        SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
+        SearchRequestBuilder search = esClient.prepareSearch(TYPE_ACTIVE_RULE.getMainType())
           .setQuery(QueryBuilders.boolQuery().must(termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, ruleProfileUUid)));
-        profileResult = BulkIndexer.delete(esClient, INDEX_TYPE_ACTIVE_RULE, search);
+        profileResult = BulkIndexer.delete(esClient, TYPE_ACTIVE_RULE, search);
 
       } else {
         BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
@@ -202,7 +210,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
   }
 
   private BulkIndexer createBulkIndexer(Size size, IndexingListener listener) {
-    return new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE, size, listener);
+    return new BulkIndexer(esClient, TYPE_ACTIVE_RULE, size, listener);
   }
 
   private static IndexRequest newIndexRequest(IndexedActiveRuleDto dto) {
@@ -213,14 +221,10 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
     doc.setInheritance(inheritance == null ? ActiveRuleInheritance.NONE.name() : inheritance);
-    return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType())
-      .id(doc.getId())
-      .parent(doc.getParent())
-      .routing(doc.getRouting())
-      .source(doc.getFields());
+    return doc.toIndexRequest();
   }
 
   private static EsQueueDto newQueueDto(String docId, String docIdType, @Nullable String routing) {
-    return EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), docId, docIdType, routing);
+    return EsQueueDto.create(TYPE_ACTIVE_RULE.format(), docId, docIdType, routing);
   }
 }

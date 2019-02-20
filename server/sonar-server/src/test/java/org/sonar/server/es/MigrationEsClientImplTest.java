@@ -20,7 +20,6 @@
 package org.sonar.server.es;
 
 import java.util.Iterator;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -29,39 +28,39 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class MigrationEsClientImplTest {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
   public EsTester es = EsTester.createCustom(
-    new SimpleIndexDefinition("a"),
-    new SimpleIndexDefinition("b"),
-    new SimpleIndexDefinition("c"));
+    new SimpleIndexDefinition("as"),
+    new SimpleIndexDefinition("bs"),
+    new SimpleIndexDefinition("cs"));
 
   private MigrationEsClient underTest = new MigrationEsClientImpl(es.client());
 
   @Test
   public void delete_existing_index() {
-    underTest.deleteIndexes("a");
+    underTest.deleteIndexes("as");
 
     assertThat(loadExistingIndices())
-      .doesNotContain("a")
-      .contains("b", "c");
+      .doesNotContain("as")
+      .contains("bs", "cs");
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("Drop Elasticsearch index [a]");
+      .contains("Drop Elasticsearch index [as]");
   }
 
   @Test
   public void ignore_indices_that_do_not_exist() {
-    underTest.deleteIndexes("a", "xxx", "c");
+    underTest.deleteIndexes("as", "xxx", "cs");
 
     assertThat(loadExistingIndices())
-      .doesNotContain("a", "c")
-      .contains("b");
+      .doesNotContain("as", "cs")
+      .contains("bs");
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("Drop Elasticsearch index [a]", "Drop Elasticsearch index [c]")
+      .contains("Drop Elasticsearch index [as]", "Drop Elasticsearch index [cs]")
       .doesNotContain("Drop Elasticsearch index [xxx]");
   }
 
@@ -78,9 +77,11 @@ public class MigrationEsClientImplTest {
 
     @Override
     public void define(IndexDefinitionContext context) {
-      NewIndex index = context.create(indexName, newBuilder(new MapSettings().asConfig()).build());
-      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
-      index.getSettings().put("index.refresh_interval", "-1");
+      IndexType.IndexMainType mainType = IndexType.main(Index.simple(indexName), indexName.substring(1));
+      context.create(
+        mainType.getIndex(),
+        newBuilder(new MapSettings().asConfig()).build())
+        .createTypeMapping(mainType);
     }
   }
 }

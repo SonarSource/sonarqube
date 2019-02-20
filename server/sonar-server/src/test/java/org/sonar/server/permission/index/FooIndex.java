@@ -26,8 +26,8 @@ import org.elasticsearch.search.SearchHits;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 
-import static org.sonar.server.permission.index.FooIndexDefinition.FOO_INDEX;
-import static org.sonar.server.permission.index.FooIndexDefinition.FOO_TYPE;
+import static org.sonar.server.permission.index.FooIndexDefinition.DESCRIPTOR;
+import static org.sonar.server.permission.index.FooIndexDefinition.TYPE_AUTHORIZATION;
 
 public class FooIndex {
 
@@ -40,8 +40,8 @@ public class FooIndex {
   }
 
   public boolean hasAccessToProject(String projectUuid) {
-    SearchHits hits = esClient.prepareSearch(FOO_INDEX)
-      .setTypes(FOO_TYPE)
+    SearchHits hits = esClient.prepareSearch(DESCRIPTOR)
+      .setTypes(TYPE_AUTHORIZATION.getType())
       .setQuery(QueryBuilders.boolQuery()
         .must(QueryBuilders.termQuery(FooIndexDefinition.FIELD_PROJECT_UUID, projectUuid))
         .filter(authorizationTypeSupport.createQueryFilter()))

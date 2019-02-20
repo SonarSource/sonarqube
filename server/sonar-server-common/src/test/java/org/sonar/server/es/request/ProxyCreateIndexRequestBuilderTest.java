@@ -19,15 +19,18 @@
  */
 package org.sonar.server.es.request;
 
+import java.util.Locale;
+import java.util.Random;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.Index;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -41,21 +44,21 @@ public class ProxyCreateIndexRequestBuilderTest {
 
   @Test
   public void create_index() {
-    CreateIndexRequestBuilder requestBuilder = es.client().prepareCreate(generateNewIndexName());
+    CreateIndexRequestBuilder requestBuilder = es.client().prepareCreate(generateNewIndex());
     requestBuilder.get();
   }
 
   @Test
   public void to_string() {
-    String indexName = generateNewIndexName();
-    assertThat(es.client().prepareCreate(indexName).toString()).contains("ES create index '" + indexName + "'");
+    Index index = generateNewIndex();
+    assertThat(es.client().prepareCreate(index).toString()).contains("ES create index '" + index.getName() + "'");
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
 
-    CreateIndexRequestBuilder requestBuilder = es.client().prepareCreate(generateNewIndexName());
+    CreateIndexRequestBuilder requestBuilder = es.client().prepareCreate(generateNewIndex());
     requestBuilder.get();
     assertThat(logTester.logs()).hasSize(1);
   }
@@ -63,7 +66,7 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareCreate(generateNewIndexName()).get("1");
+      es.client().prepareCreate(generateNewIndex()).get("1");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -73,7 +76,7 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
-      es.client().prepareCreate(generateNewIndexName()).get(TimeValue.timeValueMinutes(1));
+      es.client().prepareCreate(generateNewIndex()).get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
@@ -83,15 +86,16 @@ public class ProxyCreateIndexRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
     try {
-      es.client().prepareCreate(generateNewIndexName()).execute();
+      es.client().prepareCreate(generateNewIndex()).execute();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");
     }
   }
 
-  private static String generateNewIndexName(){
-    return "index_" + Long.toString(System2.INSTANCE.now());
+  private static Index generateNewIndex(){
+    String name = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
+    return new Random().nextBoolean() ? Index.simple(name) : Index.withRelations(name);
   }
 
 }

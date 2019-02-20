@@ -20,18 +20,23 @@
 package org.sonar.server.view.index;
 
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.newindex.NewRegularIndex;
+import org.sonar.server.es.newindex.TypeMapping;
 
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "views", including settings and fields.
  */
 public class ViewIndexDefinition implements IndexDefinition {
 
-  public static final IndexType INDEX_TYPE_VIEW = new IndexType("views", "view");
+  public static final Index DESCRIPTOR = Index.simple("views");
+  public static final IndexMainType TYPE_VIEW = IndexType.main(DESCRIPTOR, "view");
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_PROJECTS = "projects";
 
@@ -41,16 +46,27 @@ public class ViewIndexDefinition implements IndexDefinition {
     this.config = config;
   }
 
+  /**
+   * Keep the document sources in index so that indexer tests can verify content
+   * of indexed documents.
+   */
+  public static ViewIndexDefinition createForTest() {
+    return new ViewIndexDefinition(new MapSettings().asConfig());
+  }
+
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(
-      INDEX_TYPE_VIEW.getIndex(),
+    NewRegularIndex index = context.create(
+      DESCRIPTOR,
       newBuilder(config)
         .setDefaultNbOfShards(5)
-        .build());
+        .build())
+      // storing source is required because some search queries on issue index use terms lookup query onto the view index
+      // and this requires source to be stored (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html#query-dsl-terms-lookup)
+      .setEnableSource(true);
 
     // type "view"
-    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_VIEW.getType());
+    TypeMapping mapping = index.createTypeMapping(TYPE_VIEW);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_PROJECTS).disableNorms().build();
   }

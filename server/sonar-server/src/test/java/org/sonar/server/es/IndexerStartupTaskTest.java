@@ -26,13 +26,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
 public class IndexerStartupTaskTest {
 
@@ -46,31 +47,31 @@ public class IndexerStartupTaskTest {
 
   @Before
   public void setUp() throws Exception {
-    doReturn(ImmutableSet.of(INDEX_TYPE_FAKE)).when(indexer).getIndexTypes();
+    doReturn(ImmutableSet.of(TYPE_FAKE)).when(indexer).getIndexTypes();
   }
 
   @Test
   public void index_if_not_initialized() {
-    doReturn(false).when(metadataIndex).getInitialized(INDEX_TYPE_FAKE);
+    doReturn(false).when(metadataIndex).getInitialized(TYPE_FAKE);
 
     underTest.execute();
 
     verify(indexer).getIndexTypes();
-    verify(indexer).indexOnStartup(Mockito.eq(ImmutableSet.of(INDEX_TYPE_FAKE)));
+    verify(indexer).indexOnStartup(Mockito.eq(ImmutableSet.of(TYPE_FAKE)));
   }
 
   @Test
   public void set_initialized_after_indexation() {
-    doReturn(false).when(metadataIndex).getInitialized(INDEX_TYPE_FAKE);
+    doReturn(false).when(metadataIndex).getInitialized(TYPE_FAKE);
 
     underTest.execute();
 
-    verify(metadataIndex).setInitialized(eq(INDEX_TYPE_FAKE), eq(true));
+    verify(metadataIndex).setInitialized(eq(TYPE_FAKE), eq(true));
   }
 
   @Test
   public void do_not_index_if_already_initialized() {
-    doReturn(true).when(metadataIndex).getInitialized(INDEX_TYPE_FAKE);
+    doReturn(true).when(metadataIndex).getInitialized(TYPE_FAKE);
 
     underTest.execute();
 
@@ -81,7 +82,7 @@ public class IndexerStartupTaskTest {
   @Test
   public void do_not_index_if_indexes_are_disabled() {
     settings.setProperty("sonar.internal.es.disableIndexes", "true");
-    es.putDocuments(INDEX_TYPE_FAKE, new FakeDoc());
+    es.putDocuments(TYPE_FAKE, new FakeDoc());
 
     underTest.execute();
 

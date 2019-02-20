@@ -42,7 +42,7 @@ import org.sonar.server.es.ResilientIndexer;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
+import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexer implements ResilientIndexer {
 
@@ -56,7 +56,7 @@ public class ViewIndexer implements ResilientIndexer {
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(INDEX_TYPE_VIEW);
+    return ImmutableSet.of(TYPE_VIEW);
   }
 
   @Override
@@ -92,14 +92,14 @@ public class ViewIndexer implements ResilientIndexer {
    * The views lookup cache will be cleared
    */
   public void index(ViewDoc viewDoc) {
-    BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW, Size.REGULAR);
+    BulkIndexer bulk = new BulkIndexer(esClient, TYPE_VIEW, Size.REGULAR);
     bulk.start();
     doIndex(bulk, viewDoc, true);
     bulk.stop();
   }
 
   private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache, Size bulkSize) {
-    BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW, bulkSize);
+    BulkIndexer bulk = new BulkIndexer(esClient, TYPE_VIEW, bulkSize);
     bulk.start();
     for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
       String viewUuid = entry.getKey();
@@ -119,7 +119,10 @@ public class ViewIndexer implements ResilientIndexer {
   }
 
   private static IndexRequest newIndexRequest(ViewDoc doc) {
-    return new IndexRequest(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), ViewIndexDefinition.INDEX_TYPE_VIEW.getType(), doc.uuid())
+    IndexType.IndexMainType mainType = TYPE_VIEW;
+    return new IndexRequest(mainType.getIndex().getName(), mainType.getType())
+      .id(doc.getId())
+      .routing(doc.getRouting().orElse(null))
       .source(doc.getFields());
   }
 
@@ -156,13 +159,13 @@ public class ViewIndexer implements ResilientIndexer {
 
     // Safety check to remove all views that may not have been deleted
     views.removeAll(dbClient.componentDao().selectExistingUuids(dbSession, views));
-    views.forEach(v -> bulkIndexer.addDeletion(INDEX_TYPE_VIEW, v));
+    views.forEach(v -> bulkIndexer.addDeletion(TYPE_VIEW, v));
     return bulkIndexer.stop();
   }
 
   public void delete(DbSession dbSession, Collection<String> viewUuids) {
     List<EsQueueDto> items = viewUuids.stream()
-      .map(l -> EsQueueDto.create(INDEX_TYPE_VIEW.format(), l))
+      .map(l -> EsQueueDto.create(TYPE_VIEW.format(), l))
       .collect(MoreCollectors.toArrayList());
 
     dbClient.esQueueDao().insert(dbSession, items);
@@ -171,6 +174,6 @@ public class ViewIndexer implements ResilientIndexer {
   }
 
   private BulkIndexer newBulkIndexer(Size bulkSize, IndexingListener listener) {
-    return new BulkIndexer(esClient, INDEX_TYPE_VIEW, bulkSize, listener);
+    return new BulkIndexer(esClient, TYPE_VIEW, bulkSize, listener);
   }
 }

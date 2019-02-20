@@ -43,7 +43,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexerTest {
 
@@ -73,13 +73,13 @@ public class ActiveRuleIndexerTest {
 
   @Test
   public void getIndexTypes() {
-    assertThat(underTest.getIndexTypes()).containsExactly(INDEX_TYPE_ACTIVE_RULE);
+    assertThat(underTest.getIndexTypes()).containsExactly(TYPE_ACTIVE_RULE);
   }
 
   @Test
   public void indexOnStartup_does_nothing_if_no_data() {
     underTest.indexOnStartup(emptySet());
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isZero();
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isZero();
   }
 
   @Test
@@ -88,7 +88,7 @@ public class ActiveRuleIndexerTest {
 
     underTest.indexOnStartup(emptySet());
 
-    List<ActiveRuleDoc> docs = es.getDocuments(INDEX_TYPE_ACTIVE_RULE, ActiveRuleDoc.class);
+    List<ActiveRuleDoc> docs = es.getDocuments(TYPE_ACTIVE_RULE, ActiveRuleDoc.class);
     assertThat(docs).hasSize(1);
     verify(docs.get(0), profile1, activeRule);
     assertThatEsQueueTableIsEmpty();
@@ -112,44 +112,44 @@ public class ActiveRuleIndexerTest {
 
     underTest.commitAndIndex(db.getSession(), Collections.emptyList());
 
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
     assertThatEsQueueTableIsEmpty();
   }
 
   @Test
   public void commitAndIndex_keeps_elements_to_recover_in_ES_QUEUE_on_errors() {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
-    es.lockWrites(INDEX_TYPE_ACTIVE_RULE);
+    es.lockWrites(TYPE_ACTIVE_RULE);
 
     commitAndIndex(rule1, ar);
 
-    EsQueueDto expectedItem = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "" + ar.getId(), "activeRuleId", valueOf(ar.getRuleId()));
+    EsQueueDto expectedItem = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "ar_" + ar.getId(), "activeRuleId", valueOf(ar.getRuleId()));
     assertThatEsQueueContainsExactly(expectedItem);
-    es.unlockWrites(INDEX_TYPE_ACTIVE_RULE);
+    es.unlockWrites(TYPE_ACTIVE_RULE);
   }
 
   @Test
   public void commitAndIndex_deletes_the_documents_that_dont_exist_in_database() {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
     indexAll();
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(1);
 
     db.getDbClient().activeRuleDao().delete(db.getSession(), ar.getKey());
     commitAndIndex(rule1, ar);
 
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
     assertThatEsQueueTableIsEmpty();
   }
 
   @Test
   public void index_fails_and_deletes_doc_if_docIdType_is_unsupported() {
-    EsQueueDto item = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "the_id", "unsupported", "the_routing");
+    EsQueueDto item = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "the_id", "unsupported", "the_routing");
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
 
     underTest.index(db.getSession(), asList(item));
 
     assertThatEsQueueTableIsEmpty();
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(0);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
   }
 
   @Test
@@ -169,11 +169,11 @@ public class ActiveRuleIndexerTest {
   public void commitDeletionOfProfiles_does_nothing_if_profiles_are_not_indexed() {
     db.qualityProfiles().activateRule(profile1, rule1);
     indexAll();
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(1);
 
     underTest.commitDeletionOfProfiles(db.getSession(), singletonList(profile2));
 
-    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(1);
   }
 
   private void assertThatEsQueueTableIsEmpty() {
@@ -194,16 +194,16 @@ public class ActiveRuleIndexerTest {
   }
 
   private void verifyOnlyIndexed(ActiveRuleDto... expected) {
-    List<String> docs = es.getIds(INDEX_TYPE_ACTIVE_RULE);
+    List<String> docs = es.getIds(TYPE_ACTIVE_RULE);
     assertThat(docs).hasSize(expected.length);
     for (ActiveRuleDto activeRuleDto : expected) {
-      assertThat(docs).contains(activeRuleDto.getId().toString());
+      assertThat(docs).contains("ar_" + activeRuleDto.getId());
     }
   }
 
   private void verify(ActiveRuleDoc doc1, QProfileDto profile, ActiveRuleDto activeRule) {
     assertThat(doc1)
-      .matches(doc -> doc.getId().equals("" + activeRule.getId()))
+      .matches(doc -> doc.getId().equals("ar_" + activeRule.getId()))
       .matches(doc -> doc.getRuleProfileUuid().equals(profile.getRulesProfileUuid()))
       .matches(doc -> doc.getSeverity().equals(activeRule.getSeverityString()));
   }

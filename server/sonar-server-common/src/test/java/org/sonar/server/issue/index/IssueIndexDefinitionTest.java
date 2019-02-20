@@ -21,10 +21,13 @@ package org.sonar.server.issue.index;
 
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.newindex.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
 public class IssueIndexDefinitionTest {
 
@@ -36,12 +39,14 @@ public class IssueIndexDefinitionTest {
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);
-    NewIndex issuesIndex = underTest.getIndices().get("issues");
-    assertThat(issuesIndex).isNotNull();
-    assertThat(issuesIndex.getTypes().keySet()).containsOnly("issue", "authorization");
+    NewIndex<?> issuesIndex = underTest.getIndices().get("issues");
+    IndexType.IndexMainType mainType = IndexType.main(Index.withRelations("issues"), TYPE_AUTHORIZATION);
+    assertThat(issuesIndex.getMainType()).isEqualTo(mainType);
+    assertThat(issuesIndex.getRelationsStream())
+      .containsOnly(IndexType.relation(mainType, "issue"));
 
     // no cluster by default
-    assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo("5");
-    assertThat(issuesIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(issuesIndex.getSetting("index.number_of_shards")).isEqualTo("5");
+    assertThat(issuesIndex.getSetting("index.number_of_replicas")).isEqualTo("0");
   }
 }

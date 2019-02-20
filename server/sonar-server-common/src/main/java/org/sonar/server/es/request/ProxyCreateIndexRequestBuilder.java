@@ -19,12 +19,16 @@
  */
 package org.sonar.server.es.request;
 
+import java.io.IOException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexAction;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.es.EsClient;
 
@@ -64,6 +68,21 @@ public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
   @Override
   public ListenableActionFuture<CreateIndexResponse> execute() {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
+  }
+
+  public String toJson() {
+    try {
+      XContentBuilder builder = XContentFactory.jsonBuilder();
+      builder.startObject()
+        .field("settings")
+        .startObject();
+      request.settings().toXContent(builder, ToXContent.EMPTY_PARAMS);
+      builder.endObject().endObject();
+      builder.prettyPrint();
+      return builder.string();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

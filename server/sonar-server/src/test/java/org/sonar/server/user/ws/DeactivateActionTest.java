@@ -103,7 +103,7 @@ public class DeactivateActionTest {
     deactivate(user.getLogin());
 
     verifyThatUserIsDeactivated(user.getLogin());
-    assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+    assertThat(es.client().prepareSearch(UserIndexDefinition.TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_UUID, user.getUuid()))
         .must(termQuery(FIELD_ACTIVE, "false")))

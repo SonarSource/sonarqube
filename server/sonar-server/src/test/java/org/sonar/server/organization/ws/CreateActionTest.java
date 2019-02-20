@@ -60,7 +60,6 @@ import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.ws.TestRequest;
@@ -82,6 +81,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_NAME;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ORGANIZATION_UUIDS;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -236,7 +236,7 @@ public class CreateActionTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "bar").get();
     assertThat(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())).isPresent();
-    assertThat(es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+    assertThat(es.client().prepareSearch(TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_ORGANIZATION_UUIDS, organization.getUuid()))
         .must(termQuery(FIELD_UUID, user.getUuid())))

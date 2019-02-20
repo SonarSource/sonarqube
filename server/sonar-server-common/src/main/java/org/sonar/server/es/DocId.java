@@ -21,6 +21,8 @@ package org.sonar.server.es;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Objects.requireNonNull;
+
 @Immutable
 class DocId {
 
@@ -28,14 +30,10 @@ class DocId {
   private final String indexType;
   private final String id;
 
-  DocId(IndexType indexType, String id) {
-    this(indexType.getIndex(), indexType.getType(), id);
-  }
-
   DocId(String index, String indexType, String id) {
-    this.index = index;
-    this.indexType = indexType;
-    this.id = id;
+    this.index = requireNonNull(index, "index can't be null");
+    this.indexType = requireNonNull(indexType,"type can't be null");
+    this.id = requireNonNull(id, "id can't be null");
   }
 
   @Override
@@ -48,13 +46,7 @@ class DocId {
     }
     DocId docId = (DocId) o;
 
-    if (!index.equals(docId.index)) {
-      return false;
-    }
-    if (!indexType.equals(docId.indexType)) {
-      return false;
-    }
-    return id.equals(docId.id);
+    return index.equals(docId.index) && indexType.equals(docId.indexType) && id.equals(docId.id);
   }
 
   @Override
@@ -63,5 +55,10 @@ class DocId {
     result = 31 * result + indexType.hashCode();
     result = 31 * result + id.hashCode();
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "DocId{" + index + '/' + indexType + '/' + id + '}';
   }
 }

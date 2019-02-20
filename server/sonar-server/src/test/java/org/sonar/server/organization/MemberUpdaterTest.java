@@ -489,7 +489,7 @@ public class MemberUpdaterTest {
 
   private void assertUserIsNotMember(OrganizationDto organization, UserDto user) {
     db.organizations().assertUserIsNotMemberOfOrganization(organization, user);
-    SearchRequestBuilder request = es.client().prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
+    SearchRequestBuilder request = es.client().prepareSearch(UserIndexDefinition.TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_ORGANIZATION_UUIDS, organization.getUuid()))
         .must(termQuery(FIELD_UUID, user.getUuid())));

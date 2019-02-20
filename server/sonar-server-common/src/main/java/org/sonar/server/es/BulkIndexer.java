@@ -117,7 +117,7 @@ public class BulkIndexer {
       Thread.currentThread().interrupt();
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 1 minute", e);
     }
-    client.prepareRefresh(indexType.getIndex()).get();
+    client.prepareRefresh(indexType.getMainType().getIndex()).get();
     sizeHandler.afterStop(this);
     indexingListener.onFinish(result);
     return result;
@@ -384,21 +384,22 @@ public class BulkIndexer {
 
     @Override
     void beforeStart(BulkIndexer bulkIndexer) {
-      this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", bulkIndexer.indexType.getIndex()), bulkIndexer.result.total, LOGGER)
+      String index = bulkIndexer.indexType.getMainType().getIndex().getName();
+      this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", index), bulkIndexer.result.total, LOGGER)
         .setPluralLabel("requests");
       this.progress.start();
       Map<String, Object> temporarySettings = new HashMap<>();
-      GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(bulkIndexer.indexType.getIndex()).get();
+      GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(index).get();
 
       // deactivate replicas
-      int initialReplicas = Integer.parseInt(settingsResp.getSetting(bulkIndexer.indexType.getIndex(), IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+      int initialReplicas = Integer.parseInt(settingsResp.getSetting(index, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
       if (initialReplicas > 0) {
         initialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
         temporarySettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
       }
 
       // deactivate periodical refresh
-      String refreshInterval = settingsResp.getSetting(bulkIndexer.indexType.getIndex(), REFRESH_INTERVAL_SETTING);
+      String refreshInterval = settingsResp.getSetting(index, REFRESH_INTERVAL_SETTING);
       initialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
       temporarySettings.put(REFRESH_INTERVAL_SETTING, "-1");
 
@@ -410,14 +411,14 @@ public class BulkIndexer {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      bulkIndexer.client.prepareForceMerge(bulkIndexer.indexType.getIndex()).get();
+      bulkIndexer.client.prepareForceMerge(bulkIndexer.indexType.getMainType().getIndex().getName()).get();
 
       updateSettings(bulkIndexer, initialSettings);
       this.progress.stop();
     }
 
     private static void updateSettings(BulkIndexer bulkIndexer, Map<String, Object> settings) {
-      UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexType.getIndex());
+      UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexType.getMainType().getIndex().getName());
       req.setSettings(settings);
       req.get();
     }

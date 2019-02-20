@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.nio.file.Files;
@@ -53,13 +54,19 @@ import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.index.IndexNotFoundException;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.indices.recovery.RecoverySettings;
+import org.elasticsearch.join.ParentJoinPlugin;
+import org.elasticsearch.node.InternalSettingsPreparer;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.component.index.ComponentIndexDefinition;
+import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
+import org.sonar.server.es.IndexType.IndexRelationType;
+import org.sonar.server.es.newindex.BuiltIndex;
+import org.sonar.server.es.newindex.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -69,7 +76,9 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
+import static org.sonar.server.es.Index.ALL_INDICES;
+import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource {
 
@@ -102,17 +111,16 @@ public class EsTester extends ExternalResource {
    */
   public static EsTester create() {
     if (!CORE_INDICES_CREATED.get()) {
-      Configuration config = new MapSettings().asConfig();
-      List<IndexDefinition.Index> createdIndices = createIndices(
-        new ComponentIndexDefinition(config),
+      List<BuiltIndex> createdIndices = createIndices(
+        ComponentIndexDefinition.createForTest(),
         IssueIndexDefinition.createForTest(),
-        new ProjectMeasuresIndexDefinition(config),
+        ProjectMeasuresIndexDefinition.createForTest(),
         RuleIndexDefinition.createForTest(),
-        new UserIndexDefinition(config),
-        new ViewIndexDefinition(config));
+        UserIndexDefinition.createForTest(),
+        ViewIndexDefinition.createForTest());
 
       CORE_INDICES_CREATED.set(true);
-      createdIndices.stream().map(IndexDefinition.Index::getName).forEach(CORE_INDICES_NAMES::add);
+      createdIndices.stream().map(t -> t.getMainType().getIndex().getName()).forEach(CORE_INDICES_NAMES::add);
     }
     return new EsTester(false);
   }
@@ -135,15 +143,11 @@ public class EsTester extends ExternalResource {
         .filter(i -> !CORE_INDICES_NAMES.contains(i))
         .forEach(EsTester::deleteIndexIfExists);
     }
-    BulkIndexer.delete(client(), new IndexType("_all", ""), client().prepareSearch("_all").setQuery(matchAllQuery()));
+    BulkIndexer.delete(client(), IndexType.main(ALL_INDICES, "dummy"), client().prepareSearch(ALL_INDICES).setQuery(matchAllQuery()));
   }
 
   public EsClient client() {
     return new EsClient(SHARED_NODE.client());
-  }
-
-  public void putDocuments(String index, String type, BaseDoc... docs) {
-    putDocuments(new IndexType(index, type), docs);
   }
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
@@ -151,10 +155,7 @@ public class EsTester extends ExternalResource {
       BulkRequestBuilder bulk = SHARED_NODE.client().prepareBulk()
         .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (BaseDoc doc : docs) {
-        bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
-          .parent(doc.getParent())
-          .routing(doc.getRouting())
-          .source(doc.getFields()));
+        bulk.add(doc.toIndexRequest());
       }
       BulkResponse bulkResponse = bulk.get();
       if (bulkResponse.hasFailures()) {
@@ -170,7 +171,8 @@ public class EsTester extends ExternalResource {
       BulkRequestBuilder bulk = SHARED_NODE.client().prepareBulk()
         .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (Map<String, Object> doc : docs) {
-        bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType())
+        IndexType.IndexMainType mainType = indexType.getMainType();
+        bulk.add(new IndexRequest(mainType.getIndex().getName(), mainType.getType())
           .source(doc));
       }
       BulkResponse bulkResponse = bulk.get();
@@ -182,12 +184,16 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  public long countDocuments(String index, String type) {
-    return countDocuments(new IndexType(index, type));
+  public long countDocuments(Index index) {
+    return client().prepareSearch(index)
+      .setQuery(matchAllQuery())
+      .setSize(0).get().getHits().getTotalHits();
   }
 
   public long countDocuments(IndexType indexType) {
-    return client().prepareSearch(indexType).setSize(0).get().getHits().getTotalHits();
+    return client().prepareSearch(indexType.getMainType())
+      .setQuery(getDocumentsQuery(indexType))
+      .setSize(0).get().getHits().getTotalHits();
   }
 
   /**
@@ -206,10 +212,27 @@ public class EsTester extends ExternalResource {
   }
 
   /**
-   * Get all the indexed documents (no paginated results). Results are not sorted.
+   * Get all the indexed documents (no paginated results) in the specified index, whatever their type. Results are not sorted.
+   */
+  public List<SearchHit> getDocuments(Index index) {
+    SearchRequestBuilder req = SHARED_NODE.client()
+      .prepareSearch(index.getName())
+      .setQuery(matchAllQuery());
+    return getDocuments(req);
+  }
+
+  /**
+   * Get all the indexed documents (no paginated results) of the specified type. Results are not sorted.
    */
   public List<SearchHit> getDocuments(IndexType indexType) {
-    SearchRequestBuilder req = SHARED_NODE.client().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(matchAllQuery());
+    IndexType.IndexMainType mainType = indexType.getMainType();
+    SearchRequestBuilder req = SHARED_NODE.client()
+      .prepareSearch(mainType.getIndex().getName())
+      .setQuery(getDocumentsQuery(indexType));
+    return getDocuments(req);
+  }
+
+  private List<SearchHit> getDocuments(SearchRequestBuilder req) {
     EsUtils.optimizeScrollRequest(req);
     req.setScroll(new TimeValue(60000))
       .setSize(100);
@@ -227,6 +250,20 @@ public class EsTester extends ExternalResource {
     return result;
   }
 
+  private QueryBuilder getDocumentsQuery(IndexType indexType) {
+    if (!indexType.getMainType().getIndex().acceptsRelations()) {
+      return matchAllQuery();
+    }
+
+    if (indexType instanceof IndexRelationType) {
+      return new TermQueryBuilder(FIELD_INDEX_TYPE, ((IndexRelationType) indexType).getName());
+    }
+    if (indexType instanceof IndexType.IndexMainType) {
+      return new TermQueryBuilder(FIELD_INDEX_TYPE, ((IndexType.IndexMainType) indexType).getType());
+    }
+    throw new IllegalArgumentException("Unsupported IndexType " + indexType.getClass());
+  }
+
   /**
    * Get a list of a specific field from all indexed documents.
    */
@@ -242,11 +279,11 @@ public class EsTester extends ExternalResource {
   }
 
   public void lockWrites(IndexType index) {
-    setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "true"));
+    setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "true"));
   }
 
   public void unlockWrites(IndexType index) {
-    setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "false"));
+    setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "false"));
   }
 
   private void setIndexSettings(String index, Map<String, Object> settings) {
@@ -266,39 +303,39 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  private static List<IndexDefinition.Index> createIndices(IndexDefinition... definitions) {
-    IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+  private static List<BuiltIndex> createIndices(IndexDefinition... definitions) {
+    IndexDefinitionContext context = new IndexDefinitionContext();
     Stream.of(definitions).forEach(d -> d.define(context));
 
-    List<IndexDefinition.Index> result = new ArrayList<>();
+    List<BuiltIndex> result = new ArrayList<>();
     for (NewIndex newIndex : context.getIndices().values()) {
-      IndexDefinition.Index index = new IndexDefinition.Index(newIndex);
+      BuiltIndex index = newIndex.build();
 
-      deleteIndexIfExists(index.getName());
+      String indexName = index.getMainType().getIndex().getName();
+      deleteIndexIfExists(indexName);
 
       // create index
       Settings.Builder settings = Settings.builder();
       settings.put(index.getSettings());
       CreateIndexResponse indexResponse = SHARED_NODE.client().admin().indices()
-        .prepareCreate(index.getName())
+        .prepareCreate(indexName)
         .setSettings(settings)
         .get();
       if (!indexResponse.isAcknowledged()) {
-        throw new IllegalStateException("Failed to create index " + index.getName());
+        throw new IllegalStateException("Failed to create index " + indexName);
       }
-      SHARED_NODE.client().admin().cluster().prepareHealth(index.getName()).setWaitForStatus(ClusterHealthStatus.YELLOW).get();
+      SHARED_NODE.client().admin().cluster().prepareHealth(indexName).setWaitForStatus(ClusterHealthStatus.YELLOW).get();
 
       // create types
-      for (Map.Entry<String, IndexDefinition.Type> entry : index.getTypes().entrySet()) {
-        PutMappingResponse mappingResponse = SHARED_NODE.client().admin().indices().preparePutMapping(index.getName())
-          .setType(entry.getKey())
-          .setSource(entry.getValue().getAttributes())
-          .get();
-        if (!mappingResponse.isAcknowledged()) {
-          throw new IllegalStateException("Failed to create type " + entry.getKey());
-        }
+      String typeName = index.getMainType().getType();
+      PutMappingResponse mappingResponse = SHARED_NODE.client().admin().indices().preparePutMapping(indexName)
+        .setType(typeName)
+        .setSource(index.getAttributes())
+        .get();
+      if (!mappingResponse.isAcknowledged()) {
+        throw new IllegalStateException("Failed to create type " + typeName);
       }
-      SHARED_NODE.client().admin().cluster().prepareHealth(index.getName()).setWaitForStatus(ClusterHealthStatus.YELLOW).get();
+      SHARED_NODE.client().admin().cluster().prepareHealth(indexName).setWaitForStatus(ClusterHealthStatus.YELLOW).get();
       result.add(index);
     }
     return result;
@@ -324,10 +361,20 @@ public class EsTester extends ExternalResource {
         .put(NetworkModule.HTTP_ENABLED.getKey(), false)
         .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
         .build();
-      Node node = new Node(settings);
+      Node node = new TesterNode(settings);
       return node.start();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start embedded Elasticsearch", e);
+    }
+  }
+
+  private static class TesterNode extends Node {
+    public TesterNode(Settings preparedSettings) {
+      super(
+        InternalSettingsPreparer.prepareEnvironment(preparedSettings, null),
+        ImmutableList.of(
+          // install ParentJoin plugin required to create field of type "join"
+          ParentJoinPlugin.class));
     }
   }
 }

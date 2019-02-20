@@ -34,7 +34,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class OneToOneResilientIndexingListenerTest {
 
@@ -47,9 +47,9 @@ public class OneToOneResilientIndexingListenerTest {
 
   @Test
   public void onSuccess_deletes_rows_from_ES_QUEUE_table() {
-    EsQueueDto item1 = insertInQueue(INDEX_TYPE_ISSUE, "foo");
-    EsQueueDto item2 = insertInQueue(INDEX_TYPE_ISSUE, "bar");
-    EsQueueDto item3 = insertInQueue(INDEX_TYPE_ISSUE, "baz");
+    EsQueueDto item1 = insertInQueue(TYPE_ISSUE, "foo");
+    EsQueueDto item2 = insertInQueue(TYPE_ISSUE, "bar");
+    EsQueueDto item3 = insertInQueue(TYPE_ISSUE, "baz");
     db.commit();
 
     IndexingListener underTest = newListener(asList(item1, item2, item3));
@@ -76,10 +76,10 @@ public class OneToOneResilientIndexingListenerTest {
    */
   @Test
   public void onSuccess_deletes_all_the_rows_with_same_doc_id() {
-    EsQueueDto item1 = insertInQueue(INDEX_TYPE_ISSUE, "foo");
+    EsQueueDto item1 = insertInQueue(TYPE_ISSUE, "foo");
     // same id as item1
-    EsQueueDto item2 = insertInQueue(INDEX_TYPE_ISSUE, item1.getDocId());
-    EsQueueDto item3 = insertInQueue(INDEX_TYPE_ISSUE, "bar");
+    EsQueueDto item2 = insertInQueue(TYPE_ISSUE, item1.getDocId());
+    EsQueueDto item3 = insertInQueue(TYPE_ISSUE, "bar");
     db.commit();
 
     IndexingListener underTest = newListener(asList(item1, item2, item3));
@@ -89,7 +89,8 @@ public class OneToOneResilientIndexingListenerTest {
   }
 
   private static DocId toDocId(EsQueueDto dto) {
-    return new DocId(IndexType.parse(dto.getDocType()), dto.getDocId());
+    IndexType.SimpleIndexMainType mainType = IndexType.parseMainType(dto.getDocType());
+    return new DocId(mainType.getIndex(), mainType.getType(), dto.getDocId());
   }
 
   private IndexingListener newListener(Collection<EsQueueDto> items) {

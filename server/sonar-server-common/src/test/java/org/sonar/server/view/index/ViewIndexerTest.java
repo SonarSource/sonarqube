@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
+import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexerTest {
 
@@ -58,7 +58,7 @@ public class ViewIndexerTest {
   @Test
   public void index_nothing() {
     underTest.indexOnStartup(emptySet());
-    assertThat(es.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
+    assertThat(es.countDocuments(TYPE_VIEW)).isEqualTo(0L);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class ViewIndexerTest {
 
     underTest.indexOnStartup(emptySet());
 
-    List<ViewDoc> docs = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> docs = es.getDocuments(TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(4);
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
@@ -84,7 +84,7 @@ public class ViewIndexerTest {
 
     underTest.index("EFGH");
 
-    List<ViewDoc> docs = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> docs = es.getDocuments(TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(2);
 
     Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
@@ -97,7 +97,7 @@ public class ViewIndexerTest {
   public void index_view_doc() {
     underTest.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
 
-    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc view = result.get(0);
@@ -112,7 +112,7 @@ public class ViewIndexerTest {
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.index(application.uuid());
-    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
@@ -127,7 +127,7 @@ public class ViewIndexerTest {
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
     underTest.indexOnStartup(emptySet());
-    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
 
     assertThat(result).hasSize(1);
     ViewDoc resultApp = result.get(0);
@@ -153,7 +153,7 @@ public class ViewIndexerTest {
 
     underTest.index(applicationBranch1.uuid());
 
-    List<ViewDoc> result = es.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
+    List<ViewDoc> result = es.getDocuments(TYPE_VIEW, ViewDoc.class);
     assertThat(result)
       .extracting(ViewDoc::uuid, ViewDoc::projects)
       .containsExactlyInAnyOrder(
@@ -165,16 +165,16 @@ public class ViewIndexerTest {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
     ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
-    es.putDocuments(INDEX_TYPE_VIEW, view1);
-    es.putDocuments(INDEX_TYPE_VIEW, view2);
-    es.putDocuments(INDEX_TYPE_VIEW, view3);
+    es.putDocuments(TYPE_VIEW, view1);
+    es.putDocuments(TYPE_VIEW, view2);
+    es.putDocuments(TYPE_VIEW, view3);
 
-    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view1.uuid(), view2.uuid(), view3.uuid());
 
     underTest.delete(dbSession, asList(view1.uuid(), view2.uuid()));
 
-    assertThat(es.getDocumentFieldValues(INDEX_TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
+    assertThat(es.getDocumentFieldValues(TYPE_VIEW, ViewIndexDefinition.FIELD_UUID))
       .containsOnly(view3.uuid());
   }
 

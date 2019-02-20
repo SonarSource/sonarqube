@@ -27,7 +27,7 @@ import org.sonar.server.es.EsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.view.index.ViewIndexDefinition.INDEX_TYPE_VIEW;
+import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexTest {
 
@@ -40,8 +40,8 @@ public class ViewIndexTest {
   public void find_all_view_uuids() {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(singletonList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(singletonList("P2"));
-    es.putDocuments(INDEX_TYPE_VIEW, view1);
-    es.putDocuments(INDEX_TYPE_VIEW, view2);
+    es.putDocuments(TYPE_VIEW, view1);
+    es.putDocuments(TYPE_VIEW, view2);
 
     List<String> result = newArrayList(index.findAllViewUuids());
 

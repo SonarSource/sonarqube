@@ -19,18 +19,27 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.IndexType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class BaseDocTest {
+  private final IndexType.IndexMainType someType = IndexType.main(Index.simple("bar"), "donut");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void getField() {
@@ -38,21 +47,12 @@ public class BaseDocTest {
     fields.put("a_string", "foo");
     fields.put("a_int", 42);
     fields.put("a_null", null);
-    BaseDoc doc = new BaseDoc(fields) {
+    BaseDoc doc = new BaseDoc(someType, fields) {
       @Override
       public String getId() {
         return null;
       }
 
-      @Override
-      public String getRouting() {
-        return null;
-      }
-
-      @Override
-      public String getParent() {
-        return null;
-      }
     };
 
     assertThat((String) doc.getNullableField("a_string")).isEqualTo("foo");
@@ -63,21 +63,12 @@ public class BaseDocTest {
   @Test
   public void getField_fails_if_missing_field() {
     Map<String, Object> fields = Collections.emptyMap();
-    BaseDoc doc = new BaseDoc(fields) {
+    BaseDoc doc = new BaseDoc(someType, fields) {
       @Override
       public String getId() {
         return null;
       }
 
-      @Override
-      public String getRouting() {
-        return null;
-      }
-
-      @Override
-      public String getParent() {
-        return null;
-      }
     };
 
     try {
@@ -90,21 +81,12 @@ public class BaseDocTest {
 
   @Test
   public void getFieldAsDate() {
-    BaseDoc doc = new BaseDoc(Maps.newHashMap()) {
+    BaseDoc doc = new BaseDoc(someType, Maps.newHashMap()) {
       @Override
       public String getId() {
         return null;
       }
 
-      @Override
-      public String getRouting() {
-        return null;
-      }
-
-      @Override
-      public String getParent() {
-        return null;
-      }
     };
     Date now = new Date();
     doc.setField("javaDate", now);
@@ -116,21 +98,12 @@ public class BaseDocTest {
 
   @Test
   public void getNullableFieldAsDate() {
-    BaseDoc doc = new BaseDoc(Maps.newHashMap()) {
+    BaseDoc doc = new BaseDoc(someType, Maps.newHashMap()) {
       @Override
       public String getId() {
         return null;
       }
 
-      @Override
-      public String getRouting() {
-        return null;
-      }
-
-      @Override
-      public String getParent() {
-        return null;
-      }
     };
     Date now = new Date();
     doc.setField("javaDate", now);
@@ -141,5 +114,46 @@ public class BaseDocTest {
 
     doc.setField("noValue", null);
     assertThat(doc.getNullableFieldAsDate("noValue")).isNull();
+  }
+
+  @Test
+  public void getFields_fails_with_ISE_if_setParent_has_not_been_called_on_IndexRelationType() {
+    IndexType.IndexRelationType relationType = IndexType.relation(IndexType.main(Index.withRelations("foo"), "bar"), "donut");
+    BaseDoc doc = new BaseDoc(relationType) {
+
+      @Override
+      public String getId() {
+        throw new UnsupportedOperationException("getId not implemented");
+      }
+
+    };
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("parent must be set on a doc associated to a IndexRelationType (see BaseDoc#setParent(String))");
+
+    doc.getFields();
+  }
+
+  @Test
+  public void getFields_contains_join_field_and_indexType_field_when_setParent_has_been_called_on_IndexRelationType() {
+    Index index = Index.withRelations("foo");
+    IndexType.IndexRelationType relationType = IndexType.relation(IndexType.main(index, "bar"), "donut");
+    BaseDoc doc = new BaseDoc(relationType) {
+      {
+        setParent("miam");
+      }
+
+      @Override
+      public String getId() {
+        throw new UnsupportedOperationException("getId not implemented");
+      }
+
+    };
+
+    Map<String, Object> fields = doc.getFields();
+
+    assertThat((Map) fields.get(index.getJoinField()))
+      .isEqualTo(ImmutableMap.of("name", relationType.getName(), "parent", "miam"));
+    assertThat(fields.get("indexType")).isEqualTo(relationType.getName());
   }
 }

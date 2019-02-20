@@ -20,15 +20,15 @@
 package org.sonar.server.permission.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,7 +43,6 @@ import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Populates the types "authorization" of each index requiring project
@@ -54,7 +53,7 @@ public class PermissionIndexer implements ProjectIndexer {
   private final DbClient dbClient;
   private final EsClient esClient;
   private final Collection<AuthorizationScope> authorizationScopes;
-  private final Set<IndexType> indexTypes;
+  private final Map<String, IndexType> indexTypeByFormat;
 
   public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer... needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
@@ -67,14 +66,14 @@ public class PermissionIndexer implements ProjectIndexer {
     this.dbClient = dbClient;
     this.esClient = esClient;
     this.authorizationScopes = authorizationScopes;
-    this.indexTypes = authorizationScopes.stream()
+    this.indexTypeByFormat = authorizationScopes.stream()
       .map(AuthorizationScope::getIndexType)
-      .collect(toSet(authorizationScopes.size()));
+      .collect(MoreCollectors.uniqueIndex(IndexType.IndexMainType::format, t -> t, authorizationScopes.size()));
   }
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return indexTypes;
+    return ImmutableSet.copyOf(indexTypeByFormat.values());
   }
 
   @Override
@@ -116,8 +115,8 @@ public class PermissionIndexer implements ProjectIndexer {
   }
 
   private Collection<EsQueueDto> insertIntoEsQueue(DbSession dbSession, Collection<String> projectUuids) {
-    List<EsQueueDto> items = indexTypes.stream()
-      .flatMap(indexType -> projectUuids.stream().map(projectUuid -> EsQueueDto.create(indexType.format(), projectUuid, null, projectUuid)))
+    List<EsQueueDto> items = indexTypeByFormat.values().stream()
+      .flatMap(indexType -> projectUuids.stream().map(projectUuid -> EsQueueDto.create(indexType.format(), AuthorizationDoc.idOf(projectUuid), null, projectUuid)))
       .collect(toArrayList());
 
     dbClient.esQueueDao().insert(dbSession, items);
@@ -138,7 +137,7 @@ public class PermissionIndexer implements ProjectIndexer {
 
       authorizations.stream()
         .filter(scope.getProjectPredicate())
-        .map(dto -> newIndexRequest(dto, indexType))
+        .map(dto -> AuthorizationDoc.fromDto(indexType, dto).toIndexRequest())
         .forEach(bulkIndexer::add);
 
       bulkIndexer.stop();
@@ -152,8 +151,8 @@ public class PermissionIndexer implements ProjectIndexer {
     List<BulkIndexer> bulkIndexers = items.stream()
       .map(EsQueueDto::getDocType)
       .distinct()
-      .map(IndexType::parse)
-      .filter(indexTypes::contains)
+      .map(indexTypeByFormat::get)
+      .filter(Objects::nonNull)
       .map(indexType -> new BulkIndexer(esClient, indexType, Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items)))
       .collect(Collectors.toList());
 
@@ -164,35 +163,24 @@ public class PermissionIndexer implements ProjectIndexer {
     bulkIndexers.forEach(BulkIndexer::start);
 
     PermissionIndexerDao permissionIndexerDao = new PermissionIndexerDao();
-    Set<String> remainingProjectUuids = items.stream().map(EsQueueDto::getDocId).collect(MoreCollectors.toHashSet());
+    Set<String> remainingProjectUuids = items.stream().map(EsQueueDto::getDocId)
+      .map(AuthorizationDoc::projectUuidOf)
+      .collect(MoreCollectors.toHashSet());
     permissionIndexerDao.selectByUuids(dbClient, dbSession, remainingProjectUuids).forEach(p -> {
       remainingProjectUuids.remove(p.getProjectUuid());
-      bulkIndexers.forEach(bi -> bi.add(newIndexRequest(p, bi.getIndexType())));
+      bulkIndexers.forEach(bi -> bi.add(AuthorizationDoc.fromDto(bi.getIndexType(), p).toIndexRequest()));
     });
 
     // the remaining references on projects that don't exist in db. They must
     // be deleted from index.
-    remainingProjectUuids.forEach(projectUuid -> bulkIndexers.forEach(bi -> bi.addDeletion(bi.getIndexType(), projectUuid, projectUuid)));
+    remainingProjectUuids.forEach(projectUuid -> bulkIndexers.forEach(bi -> {
+      String authorizationDocId = AuthorizationDoc.idOf(projectUuid);
+      bi.addDeletion(bi.getIndexType(), authorizationDocId, authorizationDocId);
+    }));
 
     bulkIndexers.forEach(b -> result.add(b.stop()));
 
     return result;
-  }
-
-  private static IndexRequest newIndexRequest(IndexPermissions dto, IndexType indexType) {
-    Map<String, Object> doc = new HashMap<>();
-    if (dto.isAllowAnyone()) {
-      doc.put(IndexAuthorizationConstants.FIELD_ALLOW_ANYONE, true);
-      // no need to feed users and groups
-    } else {
-      doc.put(IndexAuthorizationConstants.FIELD_ALLOW_ANYONE, false);
-      doc.put(IndexAuthorizationConstants.FIELD_GROUP_IDS, dto.getGroupIds());
-      doc.put(IndexAuthorizationConstants.FIELD_USER_IDS, dto.getUserIds());
-    }
-    return new IndexRequest(indexType.getIndex(), indexType.getType())
-      .id(dto.getProjectUuid())
-      .routing(dto.getProjectUuid())
-      .source(doc);
   }
 
   private Stream<AuthorizationScope> getScopes(Set<IndexType> indexTypes) {

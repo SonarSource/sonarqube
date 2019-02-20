@@ -68,8 +68,9 @@ public class ProxyClusterHealthRequestBuilder extends ClusterHealthRequestBuilde
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES cluster health request");
-    if (request.indices().length > 0) {
-      message.append(String.format(" on indices '%s'", StringUtils.join(request.indices(), ",")));
+    String[] indices = request.indices();
+    if (indices != null && indices.length > 0) {
+      message.append(String.format(" on indices '%s'", StringUtils.join(indices, ",")));
     }
     return message.toString();
   }

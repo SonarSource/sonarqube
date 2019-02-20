@@ -34,7 +34,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexTest {
 
@@ -53,9 +53,9 @@ public class UserIndexTest {
     UserDoc user1 = newUser("user1", asList("user_1", "u1"));
     UserDoc user2 = newUser("user_with_same_email_as_user1", asList("user_2")).setEmail(user1.email());
     UserDoc user3 = newUser("inactive_user_with_same_scm_as_user1", user1.scmAccounts()).setActive(false);
-    es.putDocuments(INDEX_TYPE_USER, user1);
-    es.putDocuments(INDEX_TYPE_USER, user2);
-    es.putDocuments(INDEX_TYPE_USER, user3);
+    es.putDocuments(TYPE_USER, user1);
+    es.putDocuments(TYPE_USER, user2);
+    es.putDocuments(TYPE_USER, user3);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.scmAccounts().get(0), ORGANIZATION_UUID)).extractingResultOf("login").containsOnly(user1.login());
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.login(), ORGANIZATION_UUID)).extractingResultOf("login").containsOnly(user1.login());
@@ -71,7 +71,7 @@ public class UserIndexTest {
   public void getAtMostThreeActiveUsersForScmAccount_ignores_inactive_user() {
     String scmAccount = "scmA";
     UserDoc user = newUser(USER1_LOGIN, singletonList(scmAccount)).setActive(false);
-    es.putDocuments(INDEX_TYPE_USER, user);
+    es.putDocuments(TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user.login(), ORGANIZATION_UUID)).isEmpty();
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(scmAccount, ORGANIZATION_UUID)).isEmpty();
@@ -84,10 +84,10 @@ public class UserIndexTest {
     UserDoc user2 = newUser("user2", Collections.emptyList()).setEmail(email);
     UserDoc user3 = newUser("user3", Collections.emptyList()).setEmail(email);
     UserDoc user4 = newUser("user4", Collections.emptyList()).setEmail(email);
-    es.putDocuments(INDEX_TYPE_USER, user1);
-    es.putDocuments(INDEX_TYPE_USER, user2);
-    es.putDocuments(INDEX_TYPE_USER, user3);
-    es.putDocuments(INDEX_TYPE_USER, user4);
+    es.putDocuments(TYPE_USER, user1);
+    es.putDocuments(TYPE_USER, user2);
+    es.putDocuments(TYPE_USER, user3);
+    es.putDocuments(TYPE_USER, user4);
 
     // restrict results to 3 users
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(email, ORGANIZATION_UUID)).hasSize(3);
@@ -96,7 +96,7 @@ public class UserIndexTest {
   @Test
   public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_login() {
     UserDoc user = newUser("the_login", singletonList("John.Smith"));
-    es.putDocuments(INDEX_TYPE_USER, user);
+    es.putDocuments(TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_login", ORGANIZATION_UUID)).hasSize(1);
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_Login", ORGANIZATION_UUID)).isEmpty();
@@ -105,7 +105,7 @@ public class UserIndexTest {
   @Test
   public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_email() {
     UserDoc user = newUser("the_login", "the_EMAIL@corp.com", singletonList("John.Smith"));
-    es.putDocuments(INDEX_TYPE_USER, user);
+    es.putDocuments(TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_EMAIL@corp.com", ORGANIZATION_UUID)).hasSize(1);
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_email@corp.com", ORGANIZATION_UUID)).hasSize(1);
@@ -115,7 +115,7 @@ public class UserIndexTest {
   @Test
   public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_scm_account() {
     UserDoc user = newUser("the_login", singletonList("John.Smith"));
-    es.putDocuments(INDEX_TYPE_USER, user);
+    es.putDocuments(TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("John.Smith", ORGANIZATION_UUID)).hasSize(1);
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMIth", ORGANIZATION_UUID)).hasSize(1);
@@ -127,16 +127,16 @@ public class UserIndexTest {
   public void getAtMostThreeActiveUsersForScmAccount_search_only_user_within_given_organization() {
     UserDoc user1 = newUser("user1", singletonList("same_scm")).setOrganizationUuids(singletonList(ORGANIZATION_UUID));
     UserDoc user2 = newUser("user2", singletonList("same_scm")).setOrganizationUuids(singletonList("another_organization"));
-    es.putDocuments(INDEX_TYPE_USER, user1);
-    es.putDocuments(INDEX_TYPE_USER, user2);
+    es.putDocuments(TYPE_USER, user1);
+    es.putDocuments(TYPE_USER, user2);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("same_scm", ORGANIZATION_UUID)).extractingResultOf("login").containsOnly(user1.login());
   }
 
   @Test
   public void searchUsers() {
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
+    es.putDocuments(TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
+    es.putDocuments(TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
 
     assertThat(underTest.search(userQuery.build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(userQuery.setTextQuery("user").build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -149,9 +149,9 @@ public class UserIndexTest {
 
   @Test
   public void search_users_filter_by_organization_uuid() {
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
+    es.putDocuments(TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
       .setOrganizationUuids(newArrayList("O1", "O2")));
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, emptyList()).setEmail("email2")
+    es.putDocuments(TYPE_USER, newUser(USER2_LOGIN, emptyList()).setEmail("email2")
       .setOrganizationUuids(newArrayList("O2")));
 
     assertThat(underTest.search(userQuery.setOrganizationUuid("O42").build(), new SearchOptions()).getDocs()).isEmpty();
@@ -161,9 +161,9 @@ public class UserIndexTest {
 
   @Test
   public void search_users_filter_by_excluded_organization_uuid() {
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
+    es.putDocuments(TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
       .setOrganizationUuids(newArrayList("O1", "O2")));
-    es.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, emptyList()).setEmail("email2")
+    es.putDocuments(TYPE_USER, newUser(USER2_LOGIN, emptyList()).setEmail("email2")
       .setOrganizationUuids(newArrayList("O2")));
 
     assertThat(underTest.search(userQuery.setExcludedOrganizationUuid("O42").build(), new SearchOptions()).getDocs()).hasSize(2);

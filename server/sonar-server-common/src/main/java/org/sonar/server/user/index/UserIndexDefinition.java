@@ -20,20 +20,25 @@
 package org.sonar.server.user.index;
 
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.newindex.NewRegularIndex;
+import org.sonar.server.es.newindex.TypeMapping;
 
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "users", including settings and fields.
  */
 public class UserIndexDefinition implements IndexDefinition {
 
-  public static final IndexType INDEX_TYPE_USER = new IndexType("users", "user");
+  public static final Index DESCRIPTOR = Index.simple("users");
+  public static final IndexMainType TYPE_USER = IndexType.main(DESCRIPTOR, "user");
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_LOGIN = "login";
   public static final String FIELD_NAME = "name";
@@ -48,15 +53,21 @@ public class UserIndexDefinition implements IndexDefinition {
     this.config = config;
   }
 
+  public static UserIndexDefinition createForTest() {
+    return new UserIndexDefinition(new MapSettings().asConfig());
+  }
+
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_TYPE_USER.getIndex(),
+    NewRegularIndex index = context.create(
+      DESCRIPTOR,
       newBuilder(config)
         .setDefaultNbOfShards(1)
-        .build());
+        .build())
+      // all information is retrieved from the index, not only IDs
+      .setEnableSource(true);
 
-    // type "user"
-    NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_USER.getType());
+    TypeMapping mapping = index.createTypeMapping(TYPE_USER);
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();

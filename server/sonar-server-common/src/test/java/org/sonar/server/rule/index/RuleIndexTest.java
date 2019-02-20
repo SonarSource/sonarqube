@@ -82,9 +82,9 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 
 public class RuleIndexTest {
 
@@ -296,7 +296,7 @@ public class RuleIndexTest {
     createRuleMetadata(rule2, organization, setTags("tag2"));
     index();
 
-    assertThat(es.countDocuments(INDEX_TYPE_RULE_EXTENSION)).isEqualTo(4);
+    assertThat(es.countDocuments(TYPE_RULE_EXTENSION)).isEqualTo(4);
     // tag2s in filter
     RuleQuery query = new RuleQuery().setOrganization(organization).setTags(of("tag2s"));
     verifySearch(query, rule2);
@@ -588,8 +588,8 @@ public class RuleIndexTest {
   }
 
   private void index() {
-    ruleIndexer.indexOnStartup(Sets.newHashSet(INDEX_TYPE_RULE, INDEX_TYPE_RULE_EXTENSION));
-    activeRuleIndexer.indexOnStartup(Sets.newHashSet(INDEX_TYPE_ACTIVE_RULE));
+    ruleIndexer.indexOnStartup(Sets.newHashSet(TYPE_RULE, TYPE_RULE_EXTENSION));
+    activeRuleIndexer.indexOnStartup(Sets.newHashSet(TYPE_ACTIVE_RULE));
   }
 
   private RuleQuery newRuleQuery() {
@@ -1102,8 +1102,8 @@ public class RuleIndexTest {
     index();
 
     // inactive rules on profile
-    List<SearchHit> ruleDocs = es.getDocuments(INDEX_TYPE_RULE);
-    List<SearchHit> activeRuleDocs = es.getDocuments(INDEX_TYPE_ACTIVE_RULE);
+    List<SearchHit> ruleDocs = es.getDocuments(TYPE_RULE);
+    List<SearchHit> activeRuleDocs = es.getDocuments(TYPE_ACTIVE_RULE);
     assertThat(underTest.searchAll(new RuleQuery().setActivation(false).setQProfile(profile2)))
       .containsOnly(rule2.getId(), rule3.getId());
 

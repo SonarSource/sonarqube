@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.es.newindex;
 
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Arrays;
@@ -26,34 +26,34 @@ import java.util.SortedMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 
-import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
-import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettings.ASCIIFOLDING;
-import static org.sonar.server.es.DefaultIndexSettings.CHAR_FILTER;
-import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
-import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
-import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
-import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
-import static org.sonar.server.es.DefaultIndexSettings.FILTER;
-import static org.sonar.server.es.DefaultIndexSettings.HTML_STRIP;
-import static org.sonar.server.es.DefaultIndexSettings.INDEX;
-import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE;
-import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
-import static org.sonar.server.es.DefaultIndexSettings.LOWERCASE;
-import static org.sonar.server.es.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
-import static org.sonar.server.es.DefaultIndexSettings.MAX_GRAM;
-import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
-import static org.sonar.server.es.DefaultIndexSettings.MIN_GRAM;
-import static org.sonar.server.es.DefaultIndexSettings.PATTERN;
-import static org.sonar.server.es.DefaultIndexSettings.PORTER_STEM;
-import static org.sonar.server.es.DefaultIndexSettings.SEARCH_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettings.STANDARD;
-import static org.sonar.server.es.DefaultIndexSettings.STOP;
-import static org.sonar.server.es.DefaultIndexSettings.SUB_FIELD_DELIMITER;
-import static org.sonar.server.es.DefaultIndexSettings.TOKENIZER;
-import static org.sonar.server.es.DefaultIndexSettings.TRIM;
-import static org.sonar.server.es.DefaultIndexSettings.TYPE;
-import static org.sonar.server.es.DefaultIndexSettings.WHITESPACE;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.ANALYSIS;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.ASCIIFOLDING;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.CHAR_FILTER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.DELIMITER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.FIELDDATA_ENABLED;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.FIELD_FIELDDATA;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.FIELD_TYPE_TEXT;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.FILTER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.HTML_STRIP;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.INDEX;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.INDEX_SEARCHABLE;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.KEYWORD;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.LOWERCASE;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.MAX_GRAM;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.MIN_GRAM;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.PATTERN;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.PORTER_STEM;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.SEARCH_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.STANDARD;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.STOP;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.SUB_FIELD_DELIMITER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.TOKENIZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.TRIM;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.TYPE;
+import static org.sonar.server.es.newindex.DefaultIndexSettings.WHITESPACE;
 
 public enum DefaultIndexSettingsElement {
 

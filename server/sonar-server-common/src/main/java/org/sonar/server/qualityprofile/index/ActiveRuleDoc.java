@@ -29,41 +29,48 @@ import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_ID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_ID;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleDoc extends BaseDoc {
 
+  public static final String DOC_ID_PREFIX = "ar_";
+
   public ActiveRuleDoc(long id) {
-    super(Maps.newHashMapWithExpectedSize(10));
+    super(TYPE_ACTIVE_RULE, Maps.newHashMapWithExpectedSize(10));
     setField(FIELD_ACTIVE_RULE_ID, String.valueOf(id));
   }
 
   public ActiveRuleDoc(Map<String, Object> source) {
-    super(source);
+    super(TYPE_ACTIVE_RULE, source);
+  }
+
+  public static String docIdOf(long activeRuleId) {
+    return docIdOf(String.valueOf(activeRuleId));
+  }
+
+  public static String docIdOf(String activeRuleId) {
+    return DOC_ID_PREFIX + activeRuleId;
+  }
+
+  public static long activeRuleIdOf(String docId) {
+    if (docId.startsWith(DOC_ID_PREFIX)) {
+      return Long.valueOf(docId.substring(DOC_ID_PREFIX.length()));
+    }
+    // support for old active rule docId
+    return Long.valueOf(docId);
   }
 
   @Override
   public String getId() {
-    return getField(FIELD_ACTIVE_RULE_ID);
-  }
-
-  @Override
-  public String getRouting() {
-    return getRuleIdAsString();
-  }
-
-  @Override
-  public String getParent() {
-    return getRuleIdAsString();
-  }
-
-  private String getRuleIdAsString() {
-    return getField(FIELD_ACTIVE_RULE_RULE_ID);
+    return docIdOf(getField(FIELD_ACTIVE_RULE_ID));
   }
 
   ActiveRuleDoc setRuleId(int ruleId) {
-    setField(FIELD_ACTIVE_RULE_RULE_ID, String.valueOf(ruleId));
+    String parent = String.valueOf(ruleId);
+    setParent(parent);
+    setField(FIELD_RULE_ID, parent);
     return this;
   }
 

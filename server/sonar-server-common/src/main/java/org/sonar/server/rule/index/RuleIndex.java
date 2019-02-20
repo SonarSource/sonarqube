@@ -59,12 +59,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
+import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.server.es.textsearch.JavaTokenizer;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -77,14 +77,14 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
-import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.es.EsUtils.scrollIds;
+import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
@@ -105,9 +105,9 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_STATUS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TYPE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UPDATED_AT;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 
 /**
  * The unique entry-point to interact with Elasticsearch index "rules".
@@ -131,7 +131,6 @@ public class RuleIndex {
     .map(RuleStatus::toString)
     .collect(MoreCollectors.toList());
 
-  private static final String AGGREGATION_NAME = "_ref";
   private static final String AGGREGATION_NAME_FOR_TAGS = "tagsAggregation";
 
   private final EsClient client;
@@ -144,7 +143,7 @@ public class RuleIndex {
 
   public SearchIdResult<Integer> search(RuleQuery query, SearchOptions options) {
     SearchRequestBuilder esSearch = client
-      .prepareSearch(INDEX_TYPE_RULE);
+      .prepareSearch(TYPE_RULE);
 
     QueryBuilder qb = buildQuery(query);
     Map<String, QueryBuilder> filters = buildFilters(query);
@@ -172,7 +171,7 @@ public class RuleIndex {
    */
   public Iterator<Integer> searchAll(RuleQuery query) {
     SearchRequestBuilder esSearch = client
-      .prepareSearch(INDEX_TYPE_RULE)
+      .prepareSearch(TYPE_RULE)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
     optimizeScrollRequest(esSearch);
@@ -235,6 +234,11 @@ public class RuleIndex {
   /* Build main filter (match based) */
   private static Map<String, QueryBuilder> buildFilters(RuleQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
+
+    /* Add enforced filter on main type Rule */
+    filters.put(
+      FIELD_INDEX_TYPE,
+      boolQuery().must(QueryBuilders.termsQuery(FIELD_INDEX_TYPE, TYPE_RULE.getType())));
 
     /* Add enforced filter on rules that are REMOVED */
     filters.put(FIELD_RULE_STATUS,
@@ -323,19 +327,19 @@ public class RuleIndex {
 
       if (TRUE.equals(query.getActivation())) {
         filters.put("activation",
-          JoinQueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+          JoinQueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE.getName(),
             childQuery, ScoreMode.None));
       } else if (FALSE.equals(query.getActivation())) {
         filters.put("activation",
           boolQuery().mustNot(
-            JoinQueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+            JoinQueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE.getName(),
               childQuery, ScoreMode.None)));
       }
       QProfileDto compareToQProfile = query.getCompareToQProfile();
       if (compareToQProfile != null) {
         filters.put("comparison",
           JoinQueryBuilders.hasChildQuery(
-            INDEX_TYPE_ACTIVE_RULE.getType(),
+            TYPE_ACTIVE_RULE.getName(),
             boolQuery().must(QueryBuilders.termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, compareToQProfile.getRulesProfileUuid())),
             ScoreMode.None));
       }
@@ -350,7 +354,7 @@ public class RuleIndex {
       .map(tag -> boolQuery()
         .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))
         .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(organization).getScope())))
-      .map(childQuery -> JoinQueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery, ScoreMode.None))
+      .map(childQuery -> JoinQueryBuilders.hasChildQuery(TYPE_RULE_EXTENSION.getName(), childQuery, ScoreMode.None))
       .forEach(q::should);
     return q;
   }
@@ -428,7 +432,7 @@ public class RuleIndex {
             RuleExtensionScope.organization(query.getOrganization()).getScope()))
           .subAggregation(termsAggregation);
 
-        return JoinAggregationBuilders.children("children_for_" + termsAggregation.getName(), INDEX_TYPE_RULE_EXTENSION.getType())
+        return JoinAggregationBuilders.children("children_for_" + termsAggregation.getName(), TYPE_RULE_EXTENSION.getName())
           .subAggregation(scopeAggregation);
       };
 
@@ -473,7 +477,7 @@ public class RuleIndex {
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
       HasParentQueryBuilder ruleFilter = JoinQueryBuilders.hasParentQuery(
-        INDEX_TYPE_RULE.getType(),
+        TYPE_RULE.getType(),
         stickyFacetBuilder.getStickyFacetFilter("activation"),
         false);
 
@@ -483,7 +487,7 @@ public class RuleIndex {
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       QueryBuilder activeRuleFilter = childrenFilter.must(ruleFilter);
 
-      AggregationBuilder activeSeverities = JoinAggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children", INDEX_TYPE_ACTIVE_RULE.getType())
+      AggregationBuilder activeSeverities = JoinAggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children", TYPE_ACTIVE_RULE.getName())
         .subAggregation(
           AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter", activeRuleFilter)
             .subAggregation(
@@ -533,28 +537,6 @@ public class RuleIndex {
     esSearch.setSize(options.getLimit());
   }
 
-  public List<String> terms(String fields) {
-    return terms(fields, null, Integer.MAX_VALUE);
-  }
-
-  public List<String> terms(String fields, @Nullable String query, int size) {
-    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME)
-      .field(fields)
-      .size(size)
-      .minDocCount(1);
-    if (query != null) {
-      termsAggregation.includeExclude(new IncludeExclude(".*" + escapeSpecialRegexChars(query) + ".*", null));
-    }
-    SearchRequestBuilder request = client
-      .prepareSearch(INDEX_TYPE_RULE, INDEX_TYPE_ACTIVE_RULE)
-      .setQuery(matchAllQuery())
-      .setSize(0)
-      .addAggregation(termsAggregation);
-
-    SearchResponse esResponse = request.get();
-    return EsUtils.termsKeys(esResponse.getAggregations().get(AGGREGATION_NAME));
-  }
-
   public List<String> listTags(@Nullable OrganizationDto organization, @Nullable String query, int size) {
     int maxPageSize = 500;
     checkArgument(size <= maxPageSize, "Page size must be lower than or equals to " + maxPageSize);
@@ -583,7 +565,7 @@ public class RuleIndex {
       .ifPresent(termsAggregation::includeExclude);
 
     SearchRequestBuilder request = client
-      .prepareSearch(INDEX_TYPE_RULE_EXTENSION)
+      .prepareSearch(TYPE_RULE_EXTENSION.getMainType())
       .setQuery(boolQuery().filter(scopeFilter))
       .setSize(0)
       .addAggregation(termsAggregation);

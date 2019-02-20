@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.SecurityStandardHelper.UNKNOWN_STANDARD;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
@@ -82,13 +82,13 @@ public class IssueIndexerTest {
 
   @Test
   public void test_getIndexTypes() {
-    assertThat(underTest.getIndexTypes()).containsExactly(INDEX_TYPE_ISSUE);
+    assertThat(underTest.getIndexTypes()).containsExactly(TYPE_ISSUE);
   }
 
   @Test
   public void test_getAuthorizationScope() {
     AuthorizationScope scope = underTest.getAuthorizationScope();
-    assertThat(scope.getIndexType().getIndex()).isEqualTo(INDEX_TYPE_ISSUE.getIndex());
+    assertThat(scope.getIndexType().getIndex()).isEqualTo(IssueIndexDefinition.DESCRIPTOR);
     assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
     Predicate<IndexPermissions> projectPredicate = scope.getProjectPredicate();
@@ -118,7 +118,7 @@ public class IssueIndexerTest {
 
     underTest.indexOnStartup(emptySet());
 
-    IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
+    IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
     assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.assigneeUuid()).isEqualTo(issue.getAssigneeUuid());
@@ -131,8 +131,6 @@ public class IssueIndexerTest {
     assertThat(doc.creationDate()).isEqualToIgnoringMillis(issue.getIssueCreationDate());
     assertThat(doc.directoryPath()).isEqualTo(dir.path());
     assertThat(doc.filePath()).isEqualTo(file.path());
-    assertThat(doc.getParent()).isEqualTo(project.uuid());
-    assertThat(doc.getRouting()).isEqualTo(project.uuid());
     assertThat(doc.language()).isEqualTo(issue.getLanguage());
     assertThat(doc.line()).isEqualTo(issue.getLine());
     // functional date
@@ -152,7 +150,7 @@ public class IssueIndexerTest {
 
     underTest.indexOnStartup(emptySet());
 
-    IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
+    IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getCwe()).containsExactlyInAnyOrder("123", "863");
     assertThat(doc.getOwaspTop10()).containsExactlyInAnyOrder("a3");
     assertThat(doc.getSansTop25()).containsExactlyInAnyOrder(SANS_TOP_25_POROUS_DEFENSES);
@@ -160,7 +158,7 @@ public class IssueIndexerTest {
 
   @Test
   public void indexOnStartup_does_not_fail_on_errors_and_does_enable_recovery_mode() {
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
     db.issues().insertIssue(organization);
 
     try {
@@ -170,7 +168,7 @@ public class IssueIndexerTest {
     } finally {
       assertThatIndexHasSize(0);
       assertThatEsQueueTableHasSize(0);
-      es.unlockWrites(INDEX_TYPE_ISSUE);
+      es.unlockWrites(TYPE_ISSUE);
     }
   }
 
@@ -200,7 +198,7 @@ public class IssueIndexerTest {
 
     underTest.indexOnAnalysis(project.uuid());
 
-    assertThat(es.getDocuments(INDEX_TYPE_ISSUE))
+    assertThat(es.getDocuments(TYPE_ISSUE))
       .extracting(SearchHit::getId)
       .containsExactlyInAnyOrder(issue.getKey(), "orphan");
   }
@@ -211,7 +209,7 @@ public class IssueIndexerTest {
    */
   @Test
   public void indexOnAnalysis_does_not_fail_on_errors_and_does_not_enable_recovery_mode() {
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
     IssueDto issue = db.issues().insertIssue(organization);
 
     try {
@@ -221,7 +219,7 @@ public class IssueIndexerTest {
     } finally {
       assertThatIndexHasSize(0);
       assertThatEsQueueTableHasSize(0);
-      es.unlockWrites(INDEX_TYPE_ISSUE);
+      es.unlockWrites(TYPE_ISSUE);
     }
   }
 
@@ -273,7 +271,7 @@ public class IssueIndexerTest {
   public void errors_during_project_deletion_are_recovered() {
     addIssueToIndex("P1", "I1");
     assertThatIndexHasSize(1);
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
 
     IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
     assertThat(result.getTotal()).isEqualTo(1L);
@@ -285,7 +283,7 @@ public class IssueIndexerTest {
     assertThat(result.getFailures()).isEqualTo(1L);
     assertThatIndexHasSize(1);
 
-    es.unlockWrites(INDEX_TYPE_ISSUE);
+    es.unlockWrites(TYPE_ISSUE);
 
     result = recover();
     assertThat(result.getTotal()).isEqualTo(1L);
@@ -338,7 +336,7 @@ public class IssueIndexerTest {
     db.getDbClient().issueDao().insert(db.getSession(), issue1, issue2);
 
     // index is read-only
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
 
     underTest.commitAndIndexIssues(db.getSession(), asList(issue1, issue2));
 
@@ -348,7 +346,7 @@ public class IssueIndexerTest {
     assertThatEsQueueTableHasSize(2);
 
     // re-enable write on index
-    es.unlockWrites(INDEX_TYPE_ISSUE);
+    es.unlockWrites(TYPE_ISSUE);
 
     // emulate the recovery daemon
     IndexingResult result = recover();
@@ -361,7 +359,7 @@ public class IssueIndexerTest {
 
   @Test
   public void recovery_does_not_fail_if_unsupported_docIdType() {
-    EsQueueDto item = EsQueueDto.create(INDEX_TYPE_ISSUE.format(), "I1", "unknown", "P1");
+    EsQueueDto item = EsQueueDto.create(TYPE_ISSUE.format(), "I1", "unknown", "P1");
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
     db.commit();
 
@@ -375,7 +373,7 @@ public class IssueIndexerTest {
 
   @Test
   public void indexing_recovers_multiple_errors_on_the_same_issue() {
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
     IssueDto issue = db.issues().insertIssue(organization);
 
     // three changes on the same issue
@@ -387,7 +385,7 @@ public class IssueIndexerTest {
     // three attempts of indexing are stored in es_queue recovery table
     assertThatEsQueueTableHasSize(3);
 
-    es.unlockWrites(INDEX_TYPE_ISSUE);
+    es.unlockWrites(TYPE_ISSUE);
     recover();
 
     assertThatIndexHasOnly(issue);
@@ -402,7 +400,7 @@ public class IssueIndexerTest {
     IssueDto issue1 = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
     IssueDto issue2 = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
 
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
 
     IndexingResult result = indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_DELETION);
     assertThat(result.getTotal()).isEqualTo(2L);
@@ -414,7 +412,7 @@ public class IssueIndexerTest {
     assertThat(result.getFailures()).isEqualTo(2L);
     assertThatIndexHasSize(0);
 
-    es.unlockWrites(INDEX_TYPE_ISSUE);
+    es.unlockWrites(TYPE_ISSUE);
 
     result = recover();
     assertThat(result.getTotal()).isEqualTo(2L);
@@ -446,7 +444,7 @@ public class IssueIndexerTest {
   @Test
   public void deleteByKeys_does_not_recover_from_errors() {
     addIssueToIndex("P1", "Issue1");
-    es.lockWrites(INDEX_TYPE_ISSUE);
+    es.lockWrites(TYPE_ISSUE);
 
     try {
       // FIXME : test also message
@@ -455,7 +453,7 @@ public class IssueIndexerTest {
     } finally {
       assertThatIndexHasOnly("Issue1");
       assertThatEsQueueTableHasSize(0);
-      es.unlockWrites(INDEX_TYPE_ISSUE);
+      es.unlockWrites(TYPE_ISSUE);
     }
   }
 
@@ -481,7 +479,7 @@ public class IssueIndexerTest {
     new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()))
       .index(asList(issueDoc).iterator());
 
-    assertThat(es.countDocuments(INDEX_TYPE_ISSUE)).isEqualTo(1L);
+    assertThat(es.countDocuments(TYPE_ISSUE)).isEqualTo(1L);
   }
 
   @Test
@@ -495,7 +493,7 @@ public class IssueIndexerTest {
 
     underTest.indexOnStartup(emptySet());
 
-    IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
+    IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
     assertThat(doc.getId()).isEqualTo(issue.getKey());
     assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
     assertThat(doc.componentUuid()).isEqualTo(file.uuid());
@@ -505,22 +503,22 @@ public class IssueIndexerTest {
   }
 
   private void addIssueToIndex(String projectUuid, String issueKey) {
-    es.putDocuments(INDEX_TYPE_ISSUE,
+    es.putDocuments(TYPE_ISSUE,
       newDoc().setKey(issueKey).setProjectUuid(projectUuid));
   }
 
   private void assertThatIndexHasSize(long expectedSize) {
-    assertThat(es.countDocuments(INDEX_TYPE_ISSUE)).isEqualTo(expectedSize);
+    assertThat(es.countDocuments(TYPE_ISSUE)).isEqualTo(expectedSize);
   }
 
   private void assertThatIndexHasOnly(IssueDto... expectedIssues) {
-    assertThat(es.getDocuments(INDEX_TYPE_ISSUE))
+    assertThat(es.getDocuments(TYPE_ISSUE))
       .extracting(SearchHit::getId)
       .containsExactlyInAnyOrder(Arrays.stream(expectedIssues).map(IssueDto::getKey).toArray(String[]::new));
   }
 
   private void assertThatIndexHasOnly(String... expectedKeys) {
-    List<IssueDoc> issues = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class);
+    List<IssueDoc> issues = es.getDocuments(TYPE_ISSUE, IssueDoc.class);
     assertThat(issues).extracting(IssueDoc::key).containsOnly(expectedKeys);
   }
 

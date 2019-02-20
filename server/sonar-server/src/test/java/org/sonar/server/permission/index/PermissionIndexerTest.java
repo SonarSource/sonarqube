@@ -33,6 +33,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,7 +48,7 @@ import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE
 
 public class PermissionIndexerTest {
 
-  private static final IndexType INDEX_TYPE_FOO_AUTH = new IndexType(FooIndexDefinition.INDEX_TYPE_FOO.getIndex(), TYPE_AUTHORIZATION);
+  private static final IndexMainType INDEX_TYPE_FOO_AUTH = IndexType.main(FooIndexDefinition.DESCRIPTOR, TYPE_AUTHORIZATION);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -336,8 +337,7 @@ public class PermissionIndexerTest {
   }
 
   private void assertThatAuthIndexHasSize(int expectedSize) {
-    IndexType authIndexType = underTest.getIndexTypes().iterator().next();
-    assertThat(es.countDocuments(authIndexType)).isEqualTo(expectedSize);
+    assertThat(es.countDocuments(FooIndexDefinition.TYPE_AUTHORIZATION)).isEqualTo(expectedSize);
   }
 
   private void indexOnStartup() {

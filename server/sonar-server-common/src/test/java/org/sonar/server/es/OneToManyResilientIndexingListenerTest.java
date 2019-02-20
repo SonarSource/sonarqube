@@ -34,7 +34,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class OneToManyResilientIndexingListenerTest {
 
@@ -47,16 +47,16 @@ public class OneToManyResilientIndexingListenerTest {
 
   @Test
   public void ES_QUEUE_rows_are_deleted_when_all_docs_are_successfully_indexed() {
-    EsQueueDto item1 = insertInQueue(INDEX_TYPE_ISSUE, "P1");
-    EsQueueDto item2 = insertInQueue(INDEX_TYPE_ISSUE, "P2");
-    EsQueueDto outOfScopeItem = insertInQueue(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, "P1");
+    EsQueueDto item1 = insertInQueue(TYPE_ISSUE, "P1");
+    EsQueueDto item2 = insertInQueue(TYPE_ISSUE, "P2");
+    EsQueueDto outOfScopeItem = insertInQueue(ComponentIndexDefinition.TYPE_COMPONENT, "P1");
     db.commit();
 
     // does not contain outOfScopeItem
     IndexingListener underTest = newListener(asList(item1, item2));
 
-    DocId issue1 = newDocId(INDEX_TYPE_ISSUE, "I1");
-    DocId issue2 = newDocId(INDEX_TYPE_ISSUE, "I2");
+    DocId issue1 = newDocId(TYPE_ISSUE, "I1");
+    DocId issue2 = newDocId(TYPE_ISSUE, "I2");
     underTest.onSuccess(asList(issue1, issue2));
     assertThatEsTableContainsOnly(item1, item2, outOfScopeItem);
 
@@ -71,16 +71,16 @@ public class OneToManyResilientIndexingListenerTest {
 
   @Test
   public void ES_QUEUE_rows_are_not_deleted_on_partial_error() {
-    EsQueueDto item1 = insertInQueue(INDEX_TYPE_ISSUE, "P1");
-    EsQueueDto item2 = insertInQueue(INDEX_TYPE_ISSUE, "P2");
-    EsQueueDto outOfScopeItem = insertInQueue(ComponentIndexDefinition.INDEX_TYPE_COMPONENT, "P1");
+    EsQueueDto item1 = insertInQueue(TYPE_ISSUE, "P1");
+    EsQueueDto item2 = insertInQueue(TYPE_ISSUE, "P2");
+    EsQueueDto outOfScopeItem = insertInQueue(ComponentIndexDefinition.TYPE_COMPONENT, "P1");
     db.commit();
 
     // does not contain outOfScopeItem
     IndexingListener underTest = newListener(asList(item1, item2));
 
-    DocId issue1 = newDocId(INDEX_TYPE_ISSUE, "I1");
-    DocId issue2 = newDocId(INDEX_TYPE_ISSUE, "I2");
+    DocId issue1 = newDocId(TYPE_ISSUE, "I1");
+    DocId issue2 = newDocId(TYPE_ISSUE, "I2");
     underTest.onSuccess(asList(issue1, issue2));
     assertThatEsTableContainsOnly(item1, item2, outOfScopeItem);
 
@@ -93,8 +93,9 @@ public class OneToManyResilientIndexingListenerTest {
     assertThatEsTableContainsOnly(item1, item2, outOfScopeItem);
   }
 
-  private static DocId newDocId(IndexType indexType, String id) {
-    return new DocId(indexType, id);
+  private static DocId newDocId(IndexType.IndexRelationType indexType, String id) {
+    IndexType.IndexMainType mainType = indexType.getMainType();
+    return new DocId(mainType.getIndex().getName(), mainType.getType(), id);
   }
 
   private IndexingListener newListener(Collection<EsQueueDto> items) {

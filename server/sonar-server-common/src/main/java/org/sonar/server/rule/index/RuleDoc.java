@@ -19,8 +19,11 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -32,17 +35,21 @@ import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
 
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+
+
 /**
  * Implementation of Rule based on an Elasticsearch document
  */
 public class RuleDoc extends BaseDoc {
 
+  @VisibleForTesting
   public RuleDoc(Map<String, Object> fields) {
-    super(fields);
+    super(TYPE_RULE, new HashMap<>(fields));
   }
 
   public RuleDoc() {
-    super(Maps.newHashMapWithExpectedSize(15));
+    super(TYPE_RULE, Maps.newHashMapWithExpectedSize(16));
   }
 
   @Override
@@ -60,13 +67,8 @@ public class RuleDoc extends BaseDoc {
   }
 
   @Override
-  public String getRouting() {
-    return idAsString();
-  }
-
-  @Override
-  public String getParent() {
-    return null;
+  protected Optional<String> getSimpleMainTypeRouting() {
+    return Optional.of(idAsString());
   }
 
   public RuleKey key() {

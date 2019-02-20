@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -44,15 +43,16 @@ import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
-  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(INDEX_TYPE_PROJECT_MEASURES);
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
+  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(TYPE_PROJECT_MEASURES);
 
   private final DbClient dbClient;
   private final EsClient esClient;
@@ -96,7 +96,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PROJECT_TAGS_UPDATE:
       case PROJECT_DELETION:
         List<EsQueueDto> items = projectUuids.stream()
-          .map(projectUuid -> EsQueueDto.create(INDEX_TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
+          .map(projectUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
           .collect(MoreCollectors.toArrayList(projectUuids.size()));
         return dbClient.esQueueDao().insert(dbSession, items);
 
@@ -108,7 +108,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
   public IndexingResult commitAndIndex(DbSession dbSession, Collection<String> projectUuids) {
     List<EsQueueDto> items = projectUuids.stream()
-      .map(projectUuid -> EsQueueDto.create(INDEX_TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
+      .map(projectUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
       .collect(MoreCollectors.toArrayList(projectUuids.size()));
     dbClient.esQueueDao().insert(dbSession, items);
 
@@ -132,7 +132,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       String projectUuid = it.next();
       try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
         while (rowIt.hasNext()) {
-          bulkIndexer.add(newIndexRequest(toProjectMeasuresDoc(rowIt.next())));
+          bulkIndexer.add(toProjectMeasuresDoc(rowIt.next()).toIndexRequest());
           it.remove();
         }
       }
@@ -140,7 +140,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
     // the remaining uuids reference projects that don't exist in db. They must
     // be deleted from index.
-    projectUuids.forEach(projectUuid -> bulkIndexer.addDeletion(INDEX_TYPE_PROJECT_MEASURES, projectUuid, projectUuid));
+    projectUuids.forEach(projectUuid -> bulkIndexer.addDeletion(TYPE_PROJECT_MEASURES, projectUuid, AuthorizationDoc.idOf(projectUuid)));
 
     return bulkIndexer.stop();
   }
@@ -153,22 +153,14 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       bulkIndexer.start();
       while (rowIt.hasNext()) {
         ProjectMeasures doc = rowIt.next();
-        bulkIndexer.add(newIndexRequest(toProjectMeasuresDoc(doc)));
+        bulkIndexer.add(toProjectMeasuresDoc(doc).toIndexRequest());
       }
       bulkIndexer.stop();
     }
   }
 
   private BulkIndexer createBulkIndexer(Size bulkSize, IndexingListener listener) {
-    return new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES, bulkSize, listener);
-  }
-
-  private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {
-    String projectUuid = doc.getId();
-    return new IndexRequest(INDEX_TYPE_PROJECT_MEASURES.getIndex(), INDEX_TYPE_PROJECT_MEASURES.getType(), projectUuid)
-      .routing(projectUuid)
-      .parent(projectUuid)
-      .source(doc.getFields());
+    return new BulkIndexer(esClient, TYPE_PROJECT_MEASURES, bulkSize, listener);
   }
 
   private static ProjectMeasuresDoc toProjectMeasuresDoc(ProjectMeasures projectMeasures) {

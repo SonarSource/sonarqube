@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.BaseDoc;
+import org.sonar.server.permission.index.AuthorizationDoc;
 
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
@@ -47,13 +48,14 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
   public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
 
   public ProjectMeasuresDoc() {
-    super(new HashMap<>(8));
+    super(TYPE_PROJECT_MEASURES, new HashMap<>(8));
   }
 
   @Override
@@ -61,18 +63,9 @@ public class ProjectMeasuresDoc extends BaseDoc {
     return getField(FIELD_UUID);
   }
 
-  @Override
-  public String getRouting() {
-    return getId();
-  }
-
-  @Override
-  public String getParent() {
-    return getId();
-  }
-
   public ProjectMeasuresDoc setId(String s) {
     setField(FIELD_UUID, s);
+    setParent(AuthorizationDoc.idOf(s));
     return this;
   }
 

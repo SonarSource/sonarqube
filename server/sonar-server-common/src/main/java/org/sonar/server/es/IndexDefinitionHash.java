@@ -19,14 +19,15 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Lists;
-import org.apache.commons.codec.digest.DigestUtils;
-
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.SortedMap;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.sonar.server.es.newindex.BuiltIndex;
+
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Hash of index definition is stored in the index itself in order to detect changes of mappings
@@ -34,14 +35,18 @@ import java.util.SortedMap;
  * and re-populated from scratch. There's no attempt to migrate existing data.
  */
 class IndexDefinitionHash {
-
   private static final char DELIMITER = ',';
 
   private IndexDefinitionHash() {
   }
 
-  static String of(IndexDefinition.Index index) {
-    return of(index.getSettings().getAsMap(), index.getTypes());
+  static String of(BuiltIndex<?> index) {
+    IndexType.IndexMainType mainType = index.getMainType();
+    return of(
+      ImmutableMap.of(mainType.getIndex(), mainType),
+      index.getRelationTypes().stream().collect(uniqueIndex(IndexType.IndexRelationType::getName, t -> t)),
+      index.getSettings().getAsMap(),
+      index.getAttributes());
   }
 
   private static String of(Map... maps) {
@@ -50,22 +55,6 @@ class IndexDefinitionHash {
       appendMap(sb, map);
     }
     return DigestUtils.sha256Hex(sb.toString());
-  }
-
-  private static void appendObject(StringBuilder sb, Object value) {
-    if (value instanceof IndexDefinition.Type) {
-      appendIndexType(sb, (IndexDefinition.Type) value);
-    } else if (value instanceof Map) {
-      appendMap(sb, (Map) value);
-    } else if (value instanceof Iterable) {
-      appendIterable(sb, (Iterable) value);
-    } else {
-      sb.append(String.valueOf(value));
-    }
-  }
-
-  private static void appendIndexType(StringBuilder sb, IndexDefinition.Type type) {
-    appendMap(sb, type.getAttributes());
   }
 
   private static void appendMap(StringBuilder sb, Map attributes) {
@@ -77,16 +66,22 @@ class IndexDefinitionHash {
     }
   }
 
-  private static void appendIterable(StringBuilder sb, Iterable value) {
-    List sorted = Lists.newArrayList(value);
-    Collections.sort(sorted);
-    for (Object o : sorted) {
-      appendObject(sb, o);
-      sb.append(DELIMITER);
+  private static void appendObject(StringBuilder sb, Object value) {
+    if (value instanceof Object[]) {
+      sb.append(Arrays.toString((Object[]) value));
+    } else if (value instanceof Map) {
+      appendMap(sb, (Map) value);
+    } else if (value instanceof IndexType) {
+      sb.append(((IndexType) value).format());
+    } else {
+      sb.append(String.valueOf(value));
     }
   }
 
   private static SortedMap sort(Map map) {
+    if (map instanceof ImmutableSortedMap) {
+      return (ImmutableSortedMap) map;
+    }
     return ImmutableSortedMap.copyOf(map);
   }
 }

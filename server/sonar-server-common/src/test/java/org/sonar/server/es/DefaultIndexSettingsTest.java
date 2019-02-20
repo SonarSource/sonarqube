@@ -21,10 +21,11 @@ package org.sonar.server.es;
 
 import java.util.Map;
 import org.junit.Test;
+import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class DefaultIndexSettingsTest {
 

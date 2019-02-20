@@ -24,10 +24,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
+import org.sonar.server.es.newindex.SettingsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class NewIndexSettingsConfigurationTest {
   @Rule
@@ -45,7 +46,7 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void setDefaultNbOfShards_fails_with_IAE_if_argument_is_zero() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("defaultNbOfShards must be >= 1");
@@ -55,7 +56,7 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void setDefaultNbOfShards_fails_with_IAE_if_argument_is_less_than_zero() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("defaultNbOfShards must be >= 1");
@@ -65,14 +66,14 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void setDefaultNbOfShards_accepts_1() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     assertThat(underTest.setDefaultNbOfShards(1).build().getDefaultNbOfShards()).isEqualTo(1);
   }
 
   @Test
   public void setDefaultNbOfShards_accepts_any_int_greater_than_1() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     int value = 1 + new Random().nextInt(200);
 
@@ -86,7 +87,7 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void setRefreshInterval_fails_with_IAE_if_argument_is_zero() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("refreshInterval must be either -1 or strictly positive");
@@ -96,7 +97,7 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void setRefreshInterval_fails_with_IAE_if_argument_is_less_than_minus_1() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("refreshInterval must be either -1 or strictly positive");
@@ -106,14 +107,14 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void setRefreshInterval_accepts_minus_1() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     assertThat(underTest.setRefreshInterval(-1).build().getRefreshInterval()).isEqualTo(-1);
   }
 
   @Test
   public void setRefreshInterval_accepts_any_int_greater_than_1() {
-    NewIndex.SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
+    SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
     int value = 1 + new Random().nextInt(200);
 

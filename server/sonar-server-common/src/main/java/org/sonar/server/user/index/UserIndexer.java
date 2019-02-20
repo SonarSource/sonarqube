@@ -44,7 +44,7 @@ import org.sonar.server.es.ResilientIndexer;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexer implements ResilientIndexer {
 
@@ -58,7 +58,7 @@ public class UserIndexer implements ResilientIndexer {
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(INDEX_TYPE_USER);
+    return ImmutableSet.of(TYPE_USER);
   }
 
   @Override
@@ -84,7 +84,7 @@ public class UserIndexer implements ResilientIndexer {
   public void commitAndIndex(DbSession dbSession, Collection<UserDto> users) {
     List<String> uuids = users.stream().map(UserDto::getUuid).collect(toList());
     List<EsQueueDto> items = uuids.stream()
-      .map(uuid -> EsQueueDto.create(INDEX_TYPE_USER.format(), uuid))
+      .map(uuid -> EsQueueDto.create(TYPE_USER.format(), uuid))
       .collect(MoreCollectors.toArrayList());
 
     dbClient.esQueueDao().insert(dbSession, items);
@@ -128,12 +128,12 @@ public class UserIndexer implements ResilientIndexer {
 
     // the remaining uuids reference rows that don't exist in db. They must
     // be deleted from index.
-    uuids.forEach(uuid -> bulkIndexer.addDeletion(INDEX_TYPE_USER, uuid));
+    uuids.forEach(uuid -> bulkIndexer.addDeletion(TYPE_USER, uuid));
     return bulkIndexer.stop();
   }
 
   private BulkIndexer newBulkIndexer(Size bulkSize, IndexingListener listener) {
-    return new BulkIndexer(esClient, INDEX_TYPE_USER, bulkSize, listener);
+    return new BulkIndexer(esClient, TYPE_USER, bulkSize, listener);
   }
 
   private static IndexRequest newIndexRequest(UserDto user, ListMultimap<String, String> organizationUuidsByUserUuid) {
@@ -147,9 +147,6 @@ public class UserIndexer implements ResilientIndexer {
     doc.setScmAccounts(UserDto.decodeScmAccounts(user.getScmAccounts()));
     doc.setOrganizationUuids(organizationUuidsByUserUuid.get(user.getUuid()));
 
-    return new IndexRequest(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType())
-      .id(doc.getId())
-      .routing(doc.getRouting())
-      .source(doc.getFields());
+    return doc.toIndexRequest();
   }
 }

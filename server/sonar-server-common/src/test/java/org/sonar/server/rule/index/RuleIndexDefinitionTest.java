@@ -27,18 +27,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.newindex.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
-import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_ID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 
 public class RuleIndexDefinitionTest {
 
@@ -54,13 +56,16 @@ public class RuleIndexDefinitionTest {
     underTest.define(context);
 
     assertThat(context.getIndices()).hasSize(1);
-    NewIndex ruleIndex = context.getIndices().get("rules");
-    assertThat(ruleIndex).isNotNull();
-    assertThat(ruleIndex.getTypes().keySet()).containsOnly("activeRule", "ruleExtension", "rule");
+    NewIndex<?> ruleIndex = context.getIndices().get("rules");
+    assertThat(ruleIndex.getMainType())
+      .isEqualTo(IndexType.main(Index.withRelations("rules"), "rule"));
+    assertThat(ruleIndex.getRelationsStream())
+      .extracting(IndexType.IndexRelationType::getName)
+      .containsOnly("activeRule", "ruleExtension");
 
     // no cluster by default
-    assertThat(ruleIndex.getSettings().get("index.number_of_shards")).isEqualTo("2");
-    assertThat(ruleIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(ruleIndex.getSetting("index.number_of_shards")).isEqualTo("2");
+    assertThat(ruleIndex.getSetting("index.number_of_replicas")).isEqualTo("0");
   }
 
   @Test
@@ -70,7 +75,7 @@ public class RuleIndexDefinitionTest {
     underTest.define(context);
 
     NewIndex ruleIndex = context.getIndices().get("rules");
-    assertThat(ruleIndex.getSettings().get("index.number_of_replicas")).isEqualTo("1");
+    assertThat(ruleIndex.getSetting("index.number_of_replicas")).isEqualTo("1");
   }
 
   @Test
@@ -82,13 +87,13 @@ public class RuleIndexDefinitionTest {
       "quick", "brown", "fox", "jump", "over", "lazi", "dog");
 
     // the following method fails if PUT fails
-    tester.putDocuments(INDEX_TYPE_RULE, new RuleDoc(ImmutableMap.of(
+    tester.putDocuments(TYPE_RULE, new RuleDoc(ImmutableMap.of(
       FIELD_RULE_ID, "123",
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "squid",
       FIELD_RULE_KEY, "squid:S001")));
-    assertThat(tester.countDocuments(INDEX_TYPE_RULE)).isEqualTo(1);
-    assertThat(tester.client().prepareSearch(INDEX_TYPE_RULE.getIndex()).setQuery(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))
+    assertThat(tester.countDocuments(TYPE_RULE)).isEqualTo(1);
+    assertThat(tester.client().prepareSearch(TYPE_RULE.getIndex()).setQuery(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))
       .get().getHits().getTotalHits()).isEqualTo(1);
   }
 
@@ -110,7 +115,7 @@ public class RuleIndexDefinitionTest {
   }
 
   private List<AnalyzeResponse.AnalyzeToken> analyzeIndexedTokens(String text) {
-    return tester.client().nativeClient().admin().indices().prepareAnalyze(INDEX_TYPE_RULE.getIndex(),
+    return tester.client().nativeClient().admin().indices().prepareAnalyze(TYPE_RULE.getIndex().getName(),
       text)
       .setField(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION))
       .execute().actionGet().getTokens();

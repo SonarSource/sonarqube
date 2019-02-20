@@ -19,30 +19,32 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
-import org.sonar.server.es.NewIndex;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.IndexType.IndexRelationType;
+import org.sonar.server.es.newindex.NewRegularIndex;
+import org.sonar.server.es.newindex.TypeMapping;
 
-import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
-import static org.sonar.server.es.NewIndex.SettingsConfiguration.newBuilder;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
+import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 /**
  * Definition of ES index "rules", including settings and fields.
  */
 public class RuleIndexDefinition implements IndexDefinition {
 
-  private static final String INDEX = "rules";
-
-  public static final IndexType INDEX_TYPE_RULE = new IndexType(INDEX, "rule");
-  public static final String FIELD_RULE_ID = "id";
+  public static final Index DESCRIPTOR = Index.withRelations("rules");
+  public static final IndexMainType TYPE_RULE = IndexType.main(DESCRIPTOR, "rule");
+  public static final String FIELD_RULE_ID = "ruleId";
   public static final String FIELD_RULE_KEY = "key";
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
@@ -66,21 +68,19 @@ public class RuleIndexDefinition implements IndexDefinition {
     FIELD_RULE_KEY);
 
   // Rule extension fields
-  public static final IndexType INDEX_TYPE_RULE_EXTENSION = new IndexType(INDEX, "ruleExtension");
+  public static final IndexRelationType TYPE_RULE_EXTENSION = IndexType.relation(TYPE_RULE, "ruleExtension");
   /**
    * The uuid of a {@link RuleExtensionScope}
    */
-  public static final String FIELD_RULE_EXTENSION_SCOPE = "scope";
-  public static final String FIELD_RULE_EXTENSION_RULE_ID = "ruleId";
-  public static final String FIELD_RULE_EXTENSION_TAGS = "tags";
+  public static final String FIELD_RULE_EXTENSION_SCOPE = "ruleExt_scope";
+  public static final String FIELD_RULE_EXTENSION_TAGS = "ruleExt_tags";
 
   // Active rule fields
-  public static final IndexType INDEX_TYPE_ACTIVE_RULE = new IndexType(INDEX, "activeRule");
-  public static final String FIELD_ACTIVE_RULE_ID = "id";
-  public static final String FIELD_ACTIVE_RULE_RULE_ID = "ruleId";
-  public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
-  public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "ruleProfile";
-  public static final String FIELD_ACTIVE_RULE_SEVERITY = "severity";
+  public static final IndexRelationType TYPE_ACTIVE_RULE = IndexType.relation(TYPE_RULE, "activeRule");
+  public static final String FIELD_ACTIVE_RULE_ID = "activeRule_id";
+  public static final String FIELD_ACTIVE_RULE_INHERITANCE = "activeRule_inheritance";
+  public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "activeRule_ruleProfile";
+  public static final String FIELD_ACTIVE_RULE_SEVERITY = "activeRule_severity";
 
   private final Configuration config;
   private final boolean enableSource;
@@ -104,39 +104,19 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(
-      INDEX_TYPE_RULE.getIndex(),
+    NewRegularIndex index = context.create(
+      DESCRIPTOR,
       newBuilder(config)
         .setRefreshInterval(MANUAL_REFRESH_INTERVAL)
         // Default nb of shards should be greater than 1 in order to
         // easily detect routing misconfiguration.
         // See https://jira.sonarsource.com/browse/SONAR-9489
         .setDefaultNbOfShards(2)
-        .build());
-
-    // Active rule type
-    NewIndex.NewIndexType activeRuleMapping = index.createType(INDEX_TYPE_ACTIVE_RULE.getType());
-    activeRuleMapping.setEnableSource(enableSource);
-    activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
-
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_ID).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
-
-    // Rule extension type
-    NewIndex.NewIndexType ruleExtensionType = index.createType(INDEX_TYPE_RULE_EXTENSION.getType());
-    ruleExtensionType.setEnableSource(enableSource);
-    ruleExtensionType.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
-
-    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build();
-    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
+        .build())
+      .setEnableSource(enableSource);
 
     // Rule type
-    NewIndex.NewIndexType ruleMapping = index.createType(INDEX_TYPE_RULE.getType());
-    ruleMapping.setEnableSource(enableSource);
-
+    TypeMapping ruleMapping = index.createTypeMapping(TYPE_RULE);
     ruleMapping.keywordFieldBuilder(FIELD_RULE_ID).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
@@ -162,5 +142,17 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);
+
+    // Active rule
+    index.createTypeMapping(TYPE_ACTIVE_RULE)
+      .keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build()
+      .keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build()
+      .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
+      .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
+
+    // Rule extension
+    index.createTypeMapping(TYPE_RULE_EXTENSION)
+      .keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build()
+      .keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
   }
 }

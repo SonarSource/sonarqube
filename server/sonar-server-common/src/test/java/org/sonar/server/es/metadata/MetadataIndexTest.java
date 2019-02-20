@@ -19,33 +19,54 @@
  */
 package org.sonar.server.es.metadata;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Locale;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.FakeIndexDefinition;
+import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.es.newindex.FakeIndexDefinition;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(DataProviderRunner.class)
 public class MetadataIndexTest {
 
   @Rule
   public EsTester es = EsTester.createCustom(new MetadataIndexDefinitionBridge(), new FakeIndexDefinition());
   private final MetadataIndex underTest = new MetadataIndex(es.client());
-  private final String index = randomAlphanumeric(20);
+  private final String indexName = randomAlphabetic(20).toLowerCase(Locale.ENGLISH);
+  private final Index index = new Random().nextBoolean() ? Index.simple(indexName) : Index.withRelations(indexName);
 
   @Test
-  public void type_should_be_not_initialized_by_default() {
-    IndexType indexType = new IndexType("examples", "example");
+  @UseDataProvider("mainOrRelationType")
+  public void type_should_be_not_initialized_by_default(IndexType indexType) {
     assertThat(underTest.getInitialized(indexType)).isFalse();
   }
 
   @Test
-  public void type_should_be_initialized_after_explicitly_set_to_initialized() {
-    IndexType indexType = new IndexType("examples", "example");
+  @UseDataProvider("mainOrRelationType")
+  public void type_should_be_initialized_after_explicitly_set_to_initialized(IndexType indexType) {
+
     underTest.setInitialized(indexType, true);
     assertThat(underTest.getInitialized(indexType)).isTrue();
+  }
+
+  @DataProvider
+  public static Object[][] mainOrRelationType() {
+    IndexMainType mainType = IndexType.main(Index.withRelations("examples"), "example");
+    return new Object[][] {
+      {mainType},
+      {IndexType.relation(mainType, "doo")}
+    };
   }
 
   @Test
