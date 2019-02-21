@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import * as key from 'keymaster';
 import Helmet from 'react-helmet';
-import { keyBy, omit, union, without } from 'lodash';
+import { keyBy, omit, without } from 'lodash';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesList from './IssuesList';
@@ -116,7 +116,6 @@ export interface State {
   effortTotal?: number;
   facets: { [facet: string]: Facet };
   issues: T.Issue[];
-  lastChecked?: string;
   loading: boolean;
   loadingFacets: { [key: string]: boolean };
   loadingMore: boolean;
@@ -493,20 +492,27 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchIssuesUntil = (
     p: number,
-    done: (issues: T.Issue[], paging: T.Paging) => boolean
+    done: (lastIssue: T.Issue, paging: T.Paging) => boolean
   ): Promise<{ issues: T.Issue[]; paging: T.Paging }> => {
-    return this.fetchIssuesPage(p).then(response => {
-      const { issues, paging } = response;
+    const recursiveFetch = (
+      p: number,
+      issues: T.Issue[]
+    ): Promise<{ issues: T.Issue[]; paging: T.Paging }> => {
+      return this.fetchIssuesPage(p)
+        .then(response => {
+          return {
+            issues: [...issues, ...response.issues],
+            paging: response.paging
+          };
+        })
+        .then(({ issues, paging }) => {
+          return done(issues[issues.length - 1], paging)
+            ? { issues, paging }
+            : recursiveFetch(p + 1, issues);
+        });
+    };
 
-      return done(issues, paging)
-        ? { issues, paging }
-        : this.fetchIssuesUntil(p + 1, done).then(nextResponse => {
-            return {
-              issues: [...issues, ...nextResponse.issues],
-              paging: nextResponse.paging
-            };
-          });
-    });
+    return recursiveFetch(p, []);
   };
 
   fetchMoreIssues = () => {
@@ -546,18 +552,17 @@ export class App extends React.PureComponent<Props, State> {
 
     const isSameComponent = (issue: T.Issue) => issue.component === openIssue.component;
 
-    const done = (issues: T.Issue[], paging: T.Paging) => {
+    const done = (lastIssue: T.Issue, paging: T.Paging) => {
       if (paging.total <= paging.pageIndex * paging.pageSize) {
         return true;
       }
-      const lastIssue = issues[issues.length - 1];
       if (lastIssue.component !== openIssue.component) {
         return true;
       }
       return lastIssue.textRange !== undefined && lastIssue.textRange.endLine > to;
     };
 
-    if (done(issues, paging)) {
+    if (done(issues[issues.length - 1], paging)) {
       return Promise.resolve(issues.filter(isSameComponent));
     }
 
@@ -737,37 +742,13 @@ export class App extends React.PureComponent<Props, State> {
     });
   };
 
-  handleIssueCheck = (issue: string, event: { shiftKey?: boolean }) => {
-    // Selecting multiple issues with shift+click
-    const { lastChecked } = this.state;
-    if (event.shiftKey && lastChecked) {
-      this.setState(state => {
-        const issueKeys = state.issues.map(issue => issue.key);
-        const currentIssueIndex = issueKeys.indexOf(issue);
-        const lastSelectedIndex = issueKeys.indexOf(lastChecked);
-        const shouldCheck = state.checked.includes(lastChecked);
-        let { checked } = state;
-        if (currentIssueIndex < 0) {
-          return null;
-        }
-        const start = Math.min(currentIssueIndex, lastSelectedIndex);
-        const end = Math.max(currentIssueIndex, lastSelectedIndex);
-        for (let i = start; i < end + 1; i++) {
-          checked = shouldCheck
-            ? union(checked, [state.issues[i].key])
-            : without(checked, state.issues[i].key);
-        }
-        return { checkAll: false, checked };
-      });
-    } else {
-      this.setState(state => ({
-        checkAll: false,
-        lastChecked: issue,
-        checked: state.checked.includes(issue)
-          ? without(state.checked, issue)
-          : [...state.checked, issue]
-      }));
-    }
+  handleIssueCheck = (issue: string) => {
+    this.setState(state => ({
+      checkAll: false,
+      checked: state.checked.includes(issue)
+        ? without(state.checked, issue)
+        : [...state.checked, issue]
+    }));
   };
 
   handleIssueChange = (issue: T.Issue) => {

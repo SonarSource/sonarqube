@@ -207,7 +207,9 @@
 }
 
 .issue-with-checkbox .issue-checkbox-container {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .issue-checkbox-container {
@@ -222,13 +224,6 @@
 
 .issue-checkbox-container:hover {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-.issue-checkbox {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -8px 0 0 -8px;
 }
 
 .issue:not(.selected) .location-index {

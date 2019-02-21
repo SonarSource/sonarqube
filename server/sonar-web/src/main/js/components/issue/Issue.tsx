@@ -31,7 +31,7 @@ interface Props {
   displayLocationsLink?: boolean;
   issue: T.Issue;
   onChange: (issue: T.Issue) => void;
-  onCheck?: (issue: string, event: { shiftKey?: boolean }) => void;
+  onCheck?: (issue: string) => void;
   onClick: (issueKey: string) => void;
   onFilter?: (property: string, issue: T.Issue) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
@@ -97,9 +97,9 @@ export default class Issue extends React.PureComponent<Props> {
       this.togglePopup('edit-tags');
       return false;
     });
-    key('space', 'issues', (event: KeyboardEvent) => {
+    key('space', 'issues', () => {
       if (this.props.onCheck) {
-        this.props.onCheck(this.props.issue.key, event);
+        this.props.onCheck(this.props.issue.key);
         return false;
       }
       return undefined;

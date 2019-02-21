@@ -28,7 +28,7 @@ interface Props {
   component: T.Component | undefined;
   issue: T.Issue;
   onChange: (issue: T.Issue) => void;
-  onCheck: ((issueKey: string, event: { shiftKey?: boolean }) => void) | undefined;
+  onCheck: ((issueKey: string) => void) | undefined;
   onClick: (issueKey: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;

@@ -20,7 +20,12 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { App } from '../App';
-import { mockCurrentUser, mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockCurrentUser,
+  mockRouter,
+  mockIssue,
+  mockLocation
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
 const ISSUES = [
@@ -32,9 +37,6 @@ const ISSUES = [
 const FACETS = [{ property: 'severities', values: [{ val: 'MINOR', count: 4 }] }];
 const PAGING = { pageIndex: 1, pageSize: 100, total: 4 };
 
-const eventNoShiftKey = { shiftKey: false } as MouseEvent;
-const eventWithShiftKey = { shiftKey: true } as MouseEvent;
-
 const referencedComponent = { key: 'foo-key', name: 'bar', organization: 'John', uuid: 'foo-uuid' };
 
 it('should render a list of issue', async () => {
@@ -45,46 +47,14 @@ it('should render a list of issue', async () => {
   expect(wrapper.state().referencedComponentsByKey).toEqual({ 'foo-key': referencedComponent });
 });
 
-it('should be able to check/uncheck a group of issues with the Shift key', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().issues.length).toBe(4);
-
-  const instance = wrapper.instance();
-  instance.handleIssueCheck('foo', eventNoShiftKey);
-  expect(wrapper.state().checked.length).toBe(1);
-
-  instance.handleIssueCheck('fourth', eventWithShiftKey);
-  expect(wrapper.state().checked.length).toBe(4);
-
-  instance.handleIssueCheck('third', eventNoShiftKey);
-  expect(wrapper.state().checked.length).toBe(3);
-
-  instance.handleIssueCheck('foo', eventWithShiftKey);
-  expect(wrapper.state().checked.length).toBe(1);
-});
-
-it('should avoid non-existing keys', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().issues.length).toBe(4);
-
-  const instance = wrapper.instance();
-  instance.handleIssueCheck('foo', eventNoShiftKey);
-  expect(wrapper.state().checked.length).toBe(1);
-
-  instance.handleIssueCheck('non-existing-key', eventWithShiftKey);
-  expect(wrapper.state().checked.length).toBe(1);
-});
-
 it('should be able to uncheck all issue with global checkbox', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().issues.length).toBe(4);
 
   const instance = wrapper.instance();
-  instance.handleIssueCheck('foo', eventNoShiftKey);
-  instance.handleIssueCheck('bar', eventNoShiftKey);
+  instance.handleIssueCheck('foo');
+  instance.handleIssueCheck('bar');
   expect(wrapper.state().checked.length).toBe(2);
 
   instance.handleCheckAll(false);
@@ -145,6 +115,73 @@ it('should check max 500 issues', async () => {
   waitAndUpdate(wrapper);
   expect(wrapper.find('#issues-bulk-change')).toMatchSnapshot();
 });
+
+it('should fetch issues for component', async () => {
+  const wrapper = shallowRender({
+    fetchIssues: fetchIssuesMockFactory(),
+    location: mockLocation({
+      query: { open: '0' }
+    })
+  });
+  const instance = wrapper.instance();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state('issues')).toHaveLength(2);
+
+  await instance.fetchIssuesForComponent('', 0, 30);
+  expect(wrapper.state('issues')).toHaveLength(6);
+});
+
+it('should fetch issues until defined', async () => {
+  const mockDone = (_lastIssue: T.Issue, paging: T.Paging) =>
+    paging.total <= paging.pageIndex * paging.pageSize;
+
+  const wrapper = shallowRender({
+    fetchIssues: fetchIssuesMockFactory(),
+    location: mockLocation({
+      query: { open: '0' }
+    })
+  });
+  const instance = wrapper.instance();
+  await waitAndUpdate(wrapper);
+
+  const result = await instance.fetchIssuesUntil(1, mockDone);
+  expect(result.issues).toHaveLength(6);
+  expect(result.paging.pageIndex).toBe(3);
+});
+
+function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {
+  return jest.fn().mockImplementation(({ p }: any) =>
+    Promise.resolve({
+      components: [referencedComponent],
+      effortTotal: 1,
+      facets: FACETS,
+      issues: [
+        mockIssue(false, {
+          key: '' + keyCount++,
+          textRange: {
+            startLine: lineCount++,
+            endLine: lineCount,
+            startOffset: 0,
+            endOffset: 15
+          }
+        }),
+        mockIssue(false, {
+          key: '' + keyCount++,
+          textRange: {
+            startLine: lineCount++,
+            endLine: lineCount,
+            startOffset: 0,
+            endOffset: 15
+          }
+        })
+      ],
+      languages: [],
+      paging: { pageIndex: p || 1, pageSize: 2, total: 6 },
+      rules: [],
+      users: []
+    })
+  );
+}
 
 function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(

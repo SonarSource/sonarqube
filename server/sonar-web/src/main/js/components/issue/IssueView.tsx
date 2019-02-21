@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import classNames from 'classnames';
+import { updateIssue } from './actions';
 import IssueTitleBar from './components/IssueTitleBar';
 import IssueActionsBar from './components/IssueActionsBar';
 import IssueCommentLine from './components/IssueCommentLine';
-import { updateIssue } from './actions';
+import Checkbox from '../controls/Checkbox';
 import { deleteIssueComment, editIssueComment } from '../../api/issues';
 
 interface Props {
@@ -34,7 +35,7 @@ interface Props {
   issue: T.Issue;
   onAssign: (login: string) => void;
   onChange: (issue: T.Issue) => void;
-  onCheck?: (issue: string, event: { shiftKey?: boolean }) => void;
+  onCheck?: (issue: string) => void;
   onClick: (issueKey: string) => void;
   onFilter?: (property: string, issue: T.Issue) => void;
   selected: boolean;
@@ -42,10 +43,9 @@ interface Props {
 }
 
 export default class IssueView extends React.PureComponent<Props> {
-  handleCheck = (event: React.MouseEvent) => {
-    event.preventDefault();
+  handleCheck = (_checked: boolean) => {
     if (this.props.onCheck) {
-      this.props.onCheck(this.props.issue.key, event);
+      this.props.onCheck(this.props.issue.key);
     }
   };
 
@@ -111,13 +111,13 @@ export default class IssueView extends React.PureComponent<Props> {
             </div>
           )}
         {hasCheckbox && (
-          <a className="js-toggle issue-checkbox-container" href="#" onClick={this.handleCheck}>
-            <i
-              className={classNames('issue-checkbox', 'icon-checkbox', {
-                'icon-checkbox-checked': this.props.checked
-              })}
+          <>
+            <Checkbox
+              checked={this.props.checked || false}
+              className="issue-checkbox-container"
+              onCheck={this.handleCheck}
             />
-          </a>
+          </>
         )}
       </div>
     );
