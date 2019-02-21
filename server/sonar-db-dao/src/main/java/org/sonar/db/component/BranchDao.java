@@ -74,7 +74,7 @@ public class BranchDao implements Dao {
    */
   public int updateManualBaseline(DbSession dbSession, String uuid, @Nullable String analysisUuid) {
     long now = system2.now();
-    return mapper(dbSession).updateManualBaseline(uuid, analysisUuid, now);
+    return mapper(dbSession).updateManualBaseline(uuid, analysisUuid == null || analysisUuid.isEmpty() ? null : analysisUuid, now);
   }
 
   public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {

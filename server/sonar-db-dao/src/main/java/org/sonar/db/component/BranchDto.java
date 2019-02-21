@@ -201,7 +201,7 @@ public class BranchDto {
   }
 
   public BranchDto setManualBaseline(@Nullable String manualBaseline) {
-    this.manualBaseline = manualBaseline;
+    this.manualBaseline = manualBaseline == null || manualBaseline.isEmpty() ? null : manualBaseline;
     return this;
   }
 

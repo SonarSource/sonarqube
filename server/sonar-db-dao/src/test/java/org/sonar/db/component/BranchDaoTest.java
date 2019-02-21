@@ -101,8 +101,31 @@ public class BranchDaoTest {
   }
 
   @Test
-  @UseDataProvider("nullOrEmptyOrValue")
-  public void insert_manual_baseline_analysis_uuid(@Nullable String manualBaselineAnalysisUuid) {
+  @UseDataProvider("nullOrEmpty")
+  public void insert_null_or_empty_manual_baseline_analysis_uuid_is_null(@Nullable String nullOrEmpty) {
+    BranchDto dto = new BranchDto();
+    dto.setProjectUuid("U1");
+    dto.setUuid("U1");
+    dto.setBranchType(BranchType.LONG);
+    dto.setKey("foo");
+    dto.setManualBaseline(nullOrEmpty);
+
+    underTest.insert(dbSession, dto);
+
+    assertThat(underTest.selectByUuid(dbSession, dto.getUuid()).get().getManualBaseline()).isNull();
+  }
+
+  @DataProvider
+  public static Object[][] nullOrEmpty() {
+    return new Object[][] {
+      {null},
+      {""}
+    };
+  }
+
+  @Test
+  public void insert_manual_baseline_analysis_uuid() {
+    String manualBaselineAnalysisUuid = randomAlphabetic(12);
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
@@ -113,15 +136,6 @@ public class BranchDaoTest {
     underTest.insert(dbSession, dto);
 
     assertThat(underTest.selectByUuid(dbSession, dto.getUuid()).get().getManualBaseline()).isEqualTo(manualBaselineAnalysisUuid);
-  }
-
-  @DataProvider
-  public static Object[][] nullOrEmptyOrValue() {
-    return new Object[][] {
-      {null},
-      {""},
-      {randomAlphabetic(12)}
-    };
   }
 
   @Test
@@ -146,9 +160,9 @@ public class BranchDaoTest {
     assertThat(underTest.updateManualBaseline(dbSession, dto.getUuid(), newValue)).isEqualTo(1);
 
     assertThat(underTest.selectByUuid(dbSession, dto.getUuid()).get().getManualBaseline())
-      .isEqualTo(newValue);
+      .isEqualTo(emptyToNull(newValue));
     assertThat(underTest.selectByUuid(dbSession, otherDtoThatShouldNotChange.getUuid()).get().getManualBaseline())
-      .isEqualTo(oldValue);
+      .isEqualTo(emptyToNull(oldValue));
   }
 
   @DataProvider
@@ -157,9 +171,12 @@ public class BranchDaoTest {
     String value2 = randomAlphabetic(20);
     return new Object[][] {
       {null, value1},
+      {"", value1},
       {value1, null},
+      {value1, ""},
       {value1, value2},
       {null, null},
+      {"", null},
       {value1, value1}
     };
   }
@@ -514,5 +531,9 @@ public class BranchDaoTest {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, 0L)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isEqualTo(0);
+  }
+
+  private static String emptyToNull(@Nullable String newValue) {
+    return newValue == null || newValue.isEmpty() ? null : newValue;
   }
 }
