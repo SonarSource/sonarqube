@@ -19,58 +19,24 @@
  */
 package org.sonar.scanner.analysis;
 
-import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 
 @Immutable
 public class DefaultAnalysisMode implements AnalysisMode {
-  private static final Logger LOG = Loggers.get(DefaultAnalysisMode.class);
-  private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
-
-  private final Map<String, String> analysisProps;
-  private final GlobalAnalysisMode analysisMode;
-
-  private boolean scanAllFiles;
-
-  public DefaultAnalysisMode(ProcessedScannerProperties props, GlobalAnalysisMode analysisMode) {
-    this.analysisMode = analysisMode;
-    this.analysisProps = props.properties();
-    load();
-    printFlags();
-  }
-
-  public boolean scanAllFiles() {
-    return scanAllFiles;
-  }
-
-  private void printFlags() {
-    if (!scanAllFiles) {
-      LOG.info("Scanning only changed files");
-    }
-  }
-
-  private void load() {
-    String scanAllStr = analysisProps.get(KEY_SCAN_ALL);
-    scanAllFiles = !analysisMode.isIssues() || "true".equals(scanAllStr);
-  }
 
   @Override
   public boolean isPreview() {
-    return analysisMode.isPreview();
+    return false;
   }
 
   @Override
   public boolean isIssues() {
-    return analysisMode.isIssues();
+    return false;
   }
 
   @Override
   public boolean isPublish() {
-    return analysisMode.isPublish();
+    return true;
   }
 }

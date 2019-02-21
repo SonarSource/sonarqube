@@ -34,21 +34,18 @@ public class ExtensionInstaller {
 
   private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;
-  private final GlobalAnalysisMode analysisMode;
   private final Configuration bootConfiguration;
 
-  public ExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository, GlobalAnalysisMode analysisMode,
-    Configuration bootConfiguration) {
+  public ExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository, Configuration bootConfiguration) {
     this.sonarRuntime = sonarRuntime;
     this.pluginRepository = pluginRepository;
-    this.analysisMode = analysisMode;
     this.bootConfiguration = bootConfiguration;
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
 
     // core components
-    for (Object o : BatchComponents.all(analysisMode)) {
+    for (Object o : BatchComponents.all()) {
       doInstall(container, matcher, null, o);
     }
 

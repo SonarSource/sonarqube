@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
@@ -55,24 +54,6 @@ public class StatusDetection {
       return checkChanged(ADDED, inputFile);
     }
     return checkChanged(CHANGED, inputFile);
-  }
-
-  /**
-   * If possible, get the status of the provided file without initializing metadata of the file.
-   *
-   * @return null if it was not possible to get the status without calculating metadata
-   */
-  @CheckForNull
-  public InputFile.Status getStatusWithoutMetadata(String moduleKeyWithBranch, DefaultInputFile inputFile) {
-    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile);
-    if (fileDataPerPath == null) {
-      return checkChanged(ADDED, inputFile);
-    }
-    String previousHash = fileDataPerPath.hash();
-    if (StringUtils.isEmpty(previousHash)) {
-      return checkChanged(ADDED, inputFile);
-    }
-    return null;
   }
 
   private InputFile.Status checkChanged(InputFile.Status status, DefaultInputFile inputFile) {

@@ -59,7 +59,6 @@ public class ProjectActionTest {
 
     assertThat(queryArgumentCaptor.getValue().getProjectKey()).isEqualTo(projectKey);
     assertThat(queryArgumentCaptor.getValue().getProfileName()).isEqualTo("Default");
-    assertThat(queryArgumentCaptor.getValue().isIssuesMode()).isFalse();
     assertThat(queryArgumentCaptor.getValue().getBranch()).isEqualTo("my_branch");
   }
 

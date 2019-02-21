@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public class SingleProjectRepository extends ProjectRepositories {
+public class SingleProjectRepository implements ProjectRepositories {
   private Map<String, FileData> fileDataByPath = new HashMap<>();
 
-  public ProjectRepositories addFileData(@Nullable String path, FileData fileData) {
+  public SingleProjectRepository addFileData(@Nullable String path, FileData fileData) {
     if (path == null || (fileData.hash() == null && fileData.revision() == null)) {
       return this;
     }

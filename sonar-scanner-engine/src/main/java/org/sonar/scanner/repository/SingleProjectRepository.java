@@ -20,10 +20,8 @@
 package org.sonar.scanner.repository;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -32,13 +30,12 @@ public class SingleProjectRepository extends ProjectRepositories {
   private final ImmutableMap<String, FileData> fileDataByPath;
 
   public SingleProjectRepository() {
-    super(null, false);
+    super(false);
     this.fileDataByPath = ImmutableMap.<String, FileData>builder().build();
   }
 
-  public SingleProjectRepository(Map<String, FileData> fileDataByPath,
-    @Nullable Date lastAnalysisDate) {
-    super(lastAnalysisDate, true);
+  public SingleProjectRepository(Map<String, FileData> fileDataByPath) {
+    super(true);
     this.fileDataByPath = ImmutableMap.copyOf(fileDataByPath);
   }
 

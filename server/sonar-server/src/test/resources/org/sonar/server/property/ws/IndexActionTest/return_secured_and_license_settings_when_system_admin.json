@@ -4,15 +4,7 @@
     "value": "password"
   },
   {
-    "key": "plugin.licenseHash.secured",
-    "value": "987654321"
-  },
-  {
     "key": "foo",
     "value": "one"
-  },
-  {
-    "key": "plugin.license.secured",
-    "value": "ABCD"
   }
 ]

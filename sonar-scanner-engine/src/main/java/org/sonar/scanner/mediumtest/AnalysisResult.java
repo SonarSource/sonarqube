@@ -39,8 +39,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.issue.IssueCache;
-import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
@@ -54,7 +52,6 @@ public class AnalysisResult implements AnalysisObserver {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisResult.class);
 
-  private List<TrackedIssue> issues = new ArrayList<>();
   private Map<String, InputFile> inputFilesByKeys = new HashMap<>();
   private InputProject project;
   private ScannerReportReader reader;
@@ -62,10 +59,6 @@ public class AnalysisResult implements AnalysisObserver {
   @Override
   public void analysisCompleted(ProjectScanContainer container) {
     LOG.info("Store analysis results in memory for later assertions in medium test");
-    for (TrackedIssue issue : container.getComponentByType(IssueCache.class).all()) {
-      issues.add(issue);
-    }
-
     ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
     reader = new ScannerReportReader(reportPublisher.getReportDir().toFile());
     project = container.getComponentByType(InputProject.class);
@@ -83,10 +76,6 @@ public class AnalysisResult implements AnalysisObserver {
     for (InputFile inputPath : inputFileCache.inputFiles()) {
       inputFilesByKeys.put(((DefaultInputFile) inputPath).getProjectRelativePath(), inputPath);
     }
-  }
-
-  public List<TrackedIssue> trackedIssues() {
-    return issues;
   }
 
   public Component getReportComponent(InputComponent inputComponent) {

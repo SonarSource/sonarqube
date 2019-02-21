@@ -376,61 +376,10 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
-   * @deprecated in 5.1 no more used
-   */
-  @Deprecated
-  String PREVIEW_READ_TIMEOUT_SEC = "sonar.preview.readTimeout";
-
-  /**
-   * @since 4.0
    * @deprecated replaced in 5.2 by the permission 'provisioning'
    */
   @Deprecated
   String CORE_PREVENT_AUTOMATIC_PROJECT_CREATION = "sonar.preventAutoProjectCreation";
-
-  /**
-   * @since 4.0
-   */
-  String ANALYSIS_MODE = "sonar.analysis.mode";
-
-  /**
-   * @since 4.0
-   * @deprecated since 5.2 the default mode is publish
-   */
-  @Deprecated
-  String ANALYSIS_MODE_ANALYSIS = "analysis";
-
-  /**
-   * @since 4.0
-   * @deprecated since 7.3 preview mode deprecated since 6.6
-   */
-  @Deprecated
-  String ANALYSIS_MODE_PREVIEW = "preview";
-
-  /**
-   * @since 5.2
-   * @deprecated since 7.3 issues mode deprecated since 6.6
-   */
-  @Deprecated
-  String ANALYSIS_MODE_ISSUES = "issues";
-
-  /**
-   * @since 5.2
-   */
-  String ANALYSIS_MODE_PUBLISH = "publish";
-
-  /**
-   * @since 4.0
-   */
-  String PREVIEW_INCLUDE_PLUGINS = "sonar.preview.includePlugins";
-  String PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE = "";
-
-  /**
-   * @since 4.0
-   */
-  String PREVIEW_EXCLUDE_PLUGINS = "sonar.preview.excludePlugins";
-
-  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,governance,ldap,authaad,authgithub,authbitbucket,googleanalytics";
 
   /**
    * @since 4.0

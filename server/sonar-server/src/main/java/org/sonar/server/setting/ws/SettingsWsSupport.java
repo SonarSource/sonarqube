@@ -22,8 +22,6 @@ package org.sonar.server.setting.ws;
 import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -35,7 +33,6 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_PULL_REQUEST;
@@ -48,9 +45,6 @@ public class SettingsWsSupport {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
 
   public static final String DOT_SECURED = ".secured";
-  public static final String DOT_LICENSE = ".license";
-  private static final String LICENSE_SUFFIX = DOT_LICENSE + DOT_SECURED;
-  private static final String LICENSE_HASH_SUFFIX = ".licenseHash" + DOT_SECURED;
 
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;
@@ -69,24 +63,16 @@ public class SettingsWsSupport {
       });
   }
 
-  boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return hasPermission(OrganizationPermission.SCAN, UserRole.SCAN, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
+  boolean isVisible(String key, Optional<ComponentDto> component) {
+    return hasPermission(OrganizationPermission.SCAN, UserRole.SCAN, component) || verifySecuredSetting(key, component);
   }
 
   static boolean isSecured(String key) {
     return key.endsWith(DOT_SECURED);
   }
 
-  private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return isLicense(key, definition) || (!isSecured(key) || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component));
-  }
-
-  private boolean verifyLicenseSetting(String key, @Nullable PropertyDefinition definition) {
-    return !isLicense(key, definition) || userSession.isLoggedIn();
-  }
-
-  private static boolean isLicense(String key, @Nullable PropertyDefinition definition) {
-    return key.endsWith(LICENSE_SUFFIX) || key.endsWith(LICENSE_HASH_SUFFIX) || (definition != null && definition.type() == LICENSE);
+  private boolean verifySecuredSetting(String key, Optional<ComponentDto> component) {
+    return (!isSecured(key) || hasPermission(OrganizationPermission.ADMINISTER, ADMIN, component));
   }
 
   private boolean hasPermission(OrganizationPermission orgPermission, String projectPermission, Optional<ComponentDto> component) {

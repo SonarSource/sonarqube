@@ -26,21 +26,11 @@ public class ProjectDataQuery {
 
   private String projectKey;
   private String profileName;
-  private boolean issuesMode;
   private String branch;
   private String pullRequest;
 
   private ProjectDataQuery() {
     // No direct call
-  }
-
-  public boolean isIssuesMode() {
-    return issuesMode;
-  }
-
-  public ProjectDataQuery setIssuesMode(boolean issuesMode) {
-    this.issuesMode = issuesMode;
-    return this;
   }
 
   @CheckForNull

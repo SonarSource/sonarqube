@@ -19,34 +19,5 @@
  */
 package org.sonar.scanner.protocol.input;
 
-import java.util.Date;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-/**
- * Container for all project data going from server to batch.
- * This is not an API since server and batch always share the same version.
- */
-public abstract class ProjectRepositories {
-
-  private long timestamp;
-
-  private Date lastAnalysisDate;
-
-  public long timestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  @CheckForNull
-  public Date lastAnalysisDate() {
-    return lastAnalysisDate;
-  }
-
-  public void setLastAnalysisDate(@Nullable Date lastAnalysisDate) {
-    this.lastAnalysisDate = lastAnalysisDate;
-  }
+public interface ProjectRepositories {
 }

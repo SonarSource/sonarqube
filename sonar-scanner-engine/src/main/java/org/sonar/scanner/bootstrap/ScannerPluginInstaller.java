@@ -45,12 +45,10 @@ public class ScannerPluginInstaller implements PluginInstaller {
   private static final String PLUGINS_WS_URL = "api/plugins/installed";
 
   private final PluginFiles pluginFiles;
-  private final ScannerPluginPredicate pluginPredicate;
   private final ScannerWsClient wsClient;
 
-  public ScannerPluginInstaller(PluginFiles pluginFiles, ScannerPluginPredicate pluginPredicate, ScannerWsClient wsClient) {
+  public ScannerPluginInstaller(PluginFiles pluginFiles, ScannerWsClient wsClient) {
     this.pluginFiles = pluginFiles;
-    this.pluginPredicate = pluginPredicate;
     this.wsClient = wsClient;
   }
 
@@ -76,15 +74,13 @@ public class ScannerPluginInstaller implements PluginInstaller {
 
   private Loaded loadPlugins(Map<String, ScannerPlugin> result) {
     for (InstalledPlugin plugin : listInstalledPlugins()) {
-      if (pluginPredicate.apply(plugin.key)) {
-        Optional<File> jarFile = pluginFiles.get(plugin);
-        if (!jarFile.isPresent()) {
-          return new Loaded(false, plugin.key);
-        }
-
-        PluginInfo info = PluginInfo.create(jarFile.get());
-        result.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, info));
+      Optional<File> jarFile = pluginFiles.get(plugin);
+      if (!jarFile.isPresent()) {
+        return new Loaded(false, plugin.key);
       }
+
+      PluginInfo info = PluginInfo.create(jarFile.get());
+      result.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, info));
     }
     return new Loaded(true, null);
   }

@@ -86,7 +86,6 @@ public class GlobalContainer extends ComponentContainer {
       PluginLoader.class,
       PluginClassloaderFactory.class,
       ScannerPluginJarExploder.class,
-      ScannerPluginPredicate.class,
       ExtensionInstaller.class,
 
       new SonarQubeVersion(apiVersion),
@@ -123,6 +122,11 @@ public class GlobalContainer extends ComponentContainer {
     } else if (!taskKey.equals(CoreProperties.SCAN_TASK)) {
       throw MessageException.of("Tasks support was removed in SonarQube 7.6.");
     }
+    String analysisMode = StringUtils.defaultIfEmpty(scannerProperties.get("sonar.analysis.mode"), "publish");
+    if (!analysisMode.equals("publish")) {
+      throw MessageException.of("The preview mode, along with the 'sonar.analysis.mode' parameter, is no more supported. You should stop using this parameter.");
+    }
+
     new ProjectScanContainer(this).execute();
 
     LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));

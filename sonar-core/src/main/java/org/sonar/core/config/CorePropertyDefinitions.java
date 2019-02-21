@@ -78,20 +78,6 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
 
-      PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
-        .name("Plugins accepted for Preview mode")
-        .description("DEPRECATED - List of plugin keys. Those plugins will be used during preview analyses.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .multiValues(true)
-        .defaultValue(CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE)
-        .build(),
-      PropertyDefinition.builder(CoreProperties.PREVIEW_EXCLUDE_PLUGINS)
-        .name("Plugins excluded for Preview mode")
-        .description("DEPRECATED - List of plugin keys. Those plugins will not be used during preview analyses.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .multiValues(true)
-        .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
-        .build(),
       PropertyDefinition.builder("sonar.authenticator.downcase")
         .name("Downcase login")
         .description("Downcase login during user authentication, typically for Active Directory")

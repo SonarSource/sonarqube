@@ -34,7 +34,7 @@ public class SingleProjectRepositoryTest {
   @Before
   public void setUp() {
     Date lastAnalysisDate = new Date();
-    repository = new SingleProjectRepository(Maps.newHashMap("/Abc.java", new FileData("123", "456")), lastAnalysisDate);
+    repository = new SingleProjectRepository(Maps.newHashMap("/Abc.java", new FileData("123", "456")));
   }
 
   @Test

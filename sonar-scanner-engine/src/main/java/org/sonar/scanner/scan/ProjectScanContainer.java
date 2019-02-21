@@ -51,8 +51,6 @@ import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
-import org.sonar.scanner.issue.DefaultProjectIssues;
-import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
@@ -60,11 +58,6 @@ import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.scanner.issue.tracking.DefaultServerLineHashesLoader;
-import org.sonar.scanner.issue.tracking.IssueTransition;
-import org.sonar.scanner.issue.tracking.LocalIssueTracking;
-import org.sonar.scanner.issue.tracking.ServerIssueRepository;
-import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
 import org.sonar.scanner.mediumtest.AnalysisObservers;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
@@ -84,13 +77,10 @@ import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
-import org.sonar.scanner.repository.DefaultServerIssuesLoader;
-import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfilesProvider;
-import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
 import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
@@ -118,7 +108,6 @@ import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
-import org.sonar.scanner.scan.report.JSONReport;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
@@ -150,13 +139,6 @@ public class ProjectScanContainer extends ComponentContainer {
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoriesInitializer.class).execute();
-
-    if (!isIssuesMode()) {
-      addReportPublishSteps();
-    } else if (isTherePreviousAnalysis()) {
-      addIssueTrackingComponents();
-    }
-
   }
 
   private void addScannerComponents() {
@@ -208,9 +190,6 @@ public class ProjectScanContainer extends ComponentContainer {
       QProfileVerifier.class,
 
       // issues
-      IssueCache.class,
-      DefaultProjectIssues.class,
-      IssueTransition.class,
       NoSonarFilter.class,
       IssueFilters.class,
       IssuePublisher.class,
@@ -257,6 +236,11 @@ public class ProjectScanContainer extends ComponentContainer {
       MetadataPublisher.class,
       ActiveRulesPublisher.class,
       AnalysisWarningsPublisher.class,
+      ComponentsPublisher.class,
+      MeasuresPublisher.class,
+      CoveragePublisher.class,
+      SourcePublisher.class,
+      ChangedLinesPublisher.class,
 
       // Cpd
       CpdExecutor.class,
@@ -291,31 +275,6 @@ public class ProjectScanContainer extends ComponentContainer {
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
-  }
-
-  private void addReportPublishSteps() {
-    add(
-      ComponentsPublisher.class,
-      MeasuresPublisher.class,
-      CoveragePublisher.class,
-      SourcePublisher.class,
-      ChangedLinesPublisher.class);
-  }
-
-  private void addIssueTrackingComponents() {
-    add(
-      LocalIssueTracking.class,
-      ServerIssueRepository.class);
-    addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
-    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
-  }
-
-  private boolean isTherePreviousAnalysis() {
-    return getComponentByType(ProjectRepositories.class).lastAnalysisDate() != null;
-  }
-
-  private boolean isIssuesMode() {
-    return getComponentByType(GlobalAnalysisMode.class).isIssues();
   }
 
   private void addScannerExtensions() {
@@ -370,14 +329,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
     getComponentByType(ScmPublisher.class).publish();
 
-    if (analysisMode.isIssues()) {
-      getComponentByType(IssueTransition.class).execute();
-      getComponentByType(JSONReport.class).execute();
-      LOG.info("ANALYSIS SUCCESSFUL");
-    } else {
-      getComponentByType(CpdExecutor.class).execute();
-      getComponentByType(ReportPublisher.class).execute();
-    }
+    getComponentByType(CpdExecutor.class).execute();
+    getComponentByType(ReportPublisher.class).execute();
 
     getComponentByType(PostJobsExecutor.class).execute();
 

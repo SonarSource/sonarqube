@@ -23,7 +23,6 @@ import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -47,8 +46,8 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   }
 
   @Override
-  public ProjectRepositories load(String projectKey, boolean issuesMode, @Nullable String branchBase) {
-    GetRequest request = new GetRequest(getUrl(projectKey, issuesMode, branchBase));
+  public ProjectRepositories load(String projectKey, @Nullable String branchBase) {
+    GetRequest request = new GetRequest(getUrl(projectKey, branchBase));
     try (WsResponse response = wsClient.call(request)) {
       try (InputStream is = response.contentStream()) {
         return processStream(is);
@@ -65,14 +64,11 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     }
   }
 
-  private static String getUrl(String projectKey, boolean issuesMode, @Nullable String branchBase) {
+  private static String getUrl(String projectKey, @Nullable String branchBase) {
     StringBuilder builder = new StringBuilder();
 
     builder.append(BATCH_PROJECT_URL)
       .append("?key=").append(ScannerUtils.encodeForUrl(projectKey));
-    if (issuesMode) {
-      builder.append("&issues_mode=true");
-    }
     if (branchBase != null) {
       builder.append("&branch=").append(branchBase);
     }
@@ -96,15 +92,15 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   private static ProjectRepositories processStream(InputStream is) throws IOException {
     WsProjectResponse response = WsProjectResponse.parseFrom(is);
     if (response.getFileDataByModuleAndPathCount() == 0) {
-      return new SingleProjectRepository(constructFileDataMap(response.getFileDataByPathMap()), new Date(response.getLastAnalysisDate()));
+      return new SingleProjectRepository(constructFileDataMap(response.getFileDataByPathMap()));
     } else {
       final Map<String, SingleProjectRepository> repositoriesPerModule = new HashMap<>();
       response.getFileDataByModuleAndPathMap().keySet().forEach(moduleKey -> {
         WsProjectResponse.FileDataByPath filePaths = response.getFileDataByModuleAndPathMap().get(moduleKey);
         repositoriesPerModule.put(moduleKey, new SingleProjectRepository(
-          constructFileDataMap(filePaths.getFileDataByPathMap()), new Date(response.getLastAnalysisDate())));
+          constructFileDataMap(filePaths.getFileDataByPathMap())));
       });
-      return new MultiModuleProjectRepository(repositoriesPerModule, new Date(response.getLastAnalysisDate()));
+      return new MultiModuleProjectRepository(repositoriesPerModule);
     }
 
   }

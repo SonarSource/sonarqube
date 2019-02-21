@@ -20,20 +20,17 @@
 package org.sonar.scanner.repository;
 
 import com.google.common.collect.Maps;
-import java.util.Date;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -47,8 +44,6 @@ public class ProjectRepositoriesProviderTest {
   @Mock
   private ProcessedScannerProperties props;
   @Mock
-  private GlobalAnalysisMode mode;
-  @Mock
   private BranchConfiguration branchConfiguration;
 
   @Before
@@ -57,7 +52,7 @@ public class ProjectRepositoriesProviderTest {
 
     Map<String, FileData> fileMap = Maps.newHashMap();
 
-    project = new SingleProjectRepository(fileMap, new Date());
+    project = new SingleProjectRepository(fileMap);
     provider = new ProjectRepositoriesProvider();
 
     when(props.getKeyWithBranch()).thenReturn("key");
@@ -65,25 +60,21 @@ public class ProjectRepositoriesProviderTest {
 
   @Test
   public void testValidation() {
-    when(mode.isIssues()).thenReturn(true);
-    when(loader.load(eq("key"), eq(true), any())).thenReturn(project);
+    when(loader.load(eq("key"), any())).thenReturn(project);
 
-    provider.provide(loader, props, mode, branchConfiguration);
+    provider.provide(loader, props, branchConfiguration);
   }
 
   @Test
   public void testAssociated() {
-    when(mode.isIssues()).thenReturn(false);
-    when(loader.load(eq("key"), eq(false), any())).thenReturn(project);
+    when(loader.load(eq("key"), any())).thenReturn(project);
 
-    ProjectRepositories repo = provider.provide(loader, props, mode, branchConfiguration);
+    ProjectRepositories repo = provider.provide(loader, props, branchConfiguration);
 
     assertThat(repo.exists()).isEqualTo(true);
-    assertThat(repo.lastAnalysisDate()).isNotNull();
 
-    verify(mode, times(1)).isIssues();
     verify(props).getKeyWithBranch();
-    verify(loader).load(eq("key"), eq(false), eq(null));
-    verifyNoMoreInteractions(loader, props, mode);
+    verify(loader).load(eq("key"), eq(null));
+    verifyNoMoreInteractions(loader, props);
   }
 }

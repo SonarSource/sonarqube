@@ -102,7 +102,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.map(s -> definition.qualifiers().contains(s)).orElseGet(definition::global))
       .filter(definition -> wsRequest.getBranch() == null || SETTING_ON_BRANCHES.contains(definition.key()))
-      .filter(definition -> settingsWsSupport.isVisible(definition.key(), definition, component))
+      .filter(definition -> settingsWsSupport.isVisible(definition.key(), component))
       .sorted(comparing(PropertyDefinition::category, String::compareToIgnoreCase)
         .thenComparingInt(PropertyDefinition::index)
         .thenComparing(PropertyDefinition::name, String::compareToIgnoreCase))

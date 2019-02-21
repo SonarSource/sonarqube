@@ -25,10 +25,10 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class MultiModuleProjectRepository extends ProjectRepositories {
+public class MultiModuleProjectRepository implements ProjectRepositories {
   private Map<String, SingleProjectRepository> repositoryPerModule = Maps.newHashMap();
 
-  public ProjectRepositories addFileDataToModule(String moduleKey, @Nullable String path, FileData fileData) {
+  public MultiModuleProjectRepository addFileDataToModule(String moduleKey, @Nullable String path, FileData fileData) {
     if (path == null || (fileData.hash() == null && fileData.revision() == null)) {
       return this;
     }

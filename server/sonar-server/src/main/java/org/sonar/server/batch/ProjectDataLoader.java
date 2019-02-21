@@ -20,10 +20,10 @@
 package org.sonar.server.batch;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -40,7 +40,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
@@ -49,11 +49,13 @@ public class ProjectDataLoader {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final boolean isSonarCloud;
 
-  public ProjectDataLoader(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public ProjectDataLoader(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, Configuration configuration) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
@@ -65,8 +67,7 @@ public class ProjectDataLoader {
       checkRequest(project.isRootProject(), "Key '%s' belongs to a component which is not a Project", projectKey);
       boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, project) ||
         userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid());
-      boolean hasBrowsePerm = userSession.hasComponentPermission(USER, project);
-      checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
+      checkPermission(hasScanPerm);
       ComponentDto branchOrMainModule = (branch == null && pullRequest == null) ? project
         : componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, projectKey, branch, pullRequest);
 
@@ -76,21 +77,15 @@ public class ProjectDataLoader {
 
       // MMF-365 we still have to support multi-module projects because it's not possible to transform from logical to
       // physical structure for some multi-module projects
-      ProjectRepositories data;
       if (modulesTree.size() > 1) {
         MultiModuleProjectRepository repository = new MultiModuleProjectRepository();
         addFileDataPerModule(repository, modulesTree, files);
-        data = repository;
+        return repository;
       } else {
         SingleProjectRepository repository = new SingleProjectRepository();
         addFileData(repository, files);
-        data = repository;
+        return repository;
       }
-
-      // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
-      // ok
-      data.setLastAnalysisDate(new Date());
-      return data;
     }
   }
 
@@ -121,16 +116,15 @@ public class ProjectDataLoader {
     }
   }
 
-  private static void checkPermission(boolean preview, boolean hasScanPerm, boolean hasBrowsePerm) {
-    if (!hasBrowsePerm && !hasScanPerm) {
-      throw new ForbiddenException(Messages.NO_PERMISSION);
-    }
-    if (!preview && !hasScanPerm) {
-      throw new ForbiddenException("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
-        "Please contact your SonarQube administrator.");
-    }
-    if (preview && !hasBrowsePerm) {
-      throw new ForbiddenException("You don't have the required permissions to access this project. Please contact your SonarQube administrator.");
+  private void checkPermission(boolean hasScanPerm) {
+    if (!hasScanPerm) {
+      if (isSonarCloud) {
+        throw new ForbiddenException("You're not authorized to push analysis results to SonarCloud. " +
+          "Please contact your SonarCloud organization administrator.");
+      } else {
+        throw new ForbiddenException("You're not authorized to push analysis results to the SonarQube server. " +
+          "Please contact your SonarQube administrator.");
+      }
     }
   }
 

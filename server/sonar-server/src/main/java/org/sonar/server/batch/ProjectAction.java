@@ -20,7 +20,6 @@
 package org.sonar.server.batch;
 
 import com.google.common.collect.Maps;
-import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
@@ -44,7 +43,6 @@ public class ProjectAction implements BatchWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";
-  private static final String PARAM_ISSUES_MODE = "issues_mode";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
 
@@ -62,6 +60,7 @@ public class ProjectAction implements BatchWsAction {
       .setSince("4.5")
       .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)))
       .setChangelog(new Change("7.6", "Stop returning settings"))
+      .setChangelog(new Change("7.7", "Stop supporting preview mode, removed timestamp and last analysis date"))
       .setInternal(true)
       .setHandler(this);
 
@@ -75,12 +74,6 @@ public class ProjectAction implements BatchWsAction {
       .createParam(PARAM_PROFILE)
       .setDescription("Profile name")
       .setExampleValue("SonarQube Way");
-
-    action
-      .createParam(PARAM_ISSUES_MODE)
-      .setDescription("Issues mode or not")
-      .setDefaultValue(false)
-      .setBooleanPossibleValues();
 
     action
       .createParam(PARAM_BRANCH)
@@ -100,7 +93,6 @@ public class ProjectAction implements BatchWsAction {
     ProjectRepositories data = projectDataLoader.load(ProjectDataQuery.create()
       .setProjectKey(wsRequest.mandatoryParam(PARAM_KEY))
       .setProfileName(wsRequest.param(PARAM_PROFILE))
-      .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_ISSUES_MODE))
       .setBranch(wsRequest.param(PARAM_BRANCH))
       .setPullRequest(wsRequest.param(PARAM_PULL_REQUEST)));
 
@@ -110,8 +102,6 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse buildResponse(ProjectRepositories data) {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
-    ofNullable(data.lastAnalysisDate()).map(Date::getTime).ifPresent(response::setLastAnalysisDate);
-    response.setTimestamp(data.timestamp());
     if (data instanceof SingleProjectRepository) {
       response.putAllFileDataByPath(buildFileDataByPath((SingleProjectRepository) data));
     } else {

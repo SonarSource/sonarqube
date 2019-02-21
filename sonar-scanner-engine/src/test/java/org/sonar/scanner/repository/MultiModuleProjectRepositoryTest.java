@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.Date;
 import java.util.Map;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
@@ -34,13 +33,12 @@ public class MultiModuleProjectRepositoryTest {
 
   @Before
   public void setUp() {
-    Date lastAnalysisDate = new Date();
-    SingleProjectRepository repository1 = new SingleProjectRepository(Maps.newHashMap("/Abc.java", new FileData("123", "456")), lastAnalysisDate);
-    SingleProjectRepository repository2 = new SingleProjectRepository(Maps.newHashMap("/Def.java", new FileData("567", "321")), lastAnalysisDate);
+    SingleProjectRepository repository1 = new SingleProjectRepository(Maps.newHashMap("/Abc.java", new FileData("123", "456")));
+    SingleProjectRepository repository2 = new SingleProjectRepository(Maps.newHashMap("/Def.java", new FileData("567", "321")));
     Map<String, SingleProjectRepository> moduleRepositories = Maps.newHashMap("module1", repository1);
     moduleRepositories.put("module2", repository2);
 
-    repository = new MultiModuleProjectRepository(moduleRepositories, lastAnalysisDate);
+    repository = new MultiModuleProjectRepository(moduleRepositories);
   }
 
   @Test

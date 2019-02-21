@@ -19,19 +19,15 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.Date;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 @Immutable
 public abstract class ProjectRepositories {
-  private final Date lastAnalysisDate;
   private final boolean exists;
 
-  public ProjectRepositories(@Nullable Date lastAnalysisDate, boolean exists) {
-    this.lastAnalysisDate = lastAnalysisDate;
+  public ProjectRepositories(boolean exists) {
     this.exists = exists;
   }
 
@@ -48,8 +44,4 @@ public abstract class ProjectRepositories {
     }
   }
 
-  @CheckForNull
-  public Date lastAnalysisDate() {
-    return lastAnalysisDate;
-  }
 }

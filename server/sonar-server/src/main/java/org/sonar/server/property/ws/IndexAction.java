@@ -48,7 +48,6 @@ import org.sonar.server.ws.WsAction;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.server.setting.ws.SettingsWsSupport.DOT_LICENSE;
 import static org.sonar.server.setting.ws.SettingsWsSupport.DOT_SECURED;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -138,8 +137,7 @@ public class IndexAction implements WsAction {
 
   Predicate<PropertyDto> isVisible(Optional<ComponentDto> component) {
     return propertyDto -> !propertyDto.getKey().endsWith(DOT_SECURED)
-      || hasAdminPermission(component)
-      || (propertyDto.getKey().contains(DOT_LICENSE) && userSession.isLoggedIn());
+      || hasAdminPermission(component);
   }
 
   private boolean hasAdminPermission(Optional<ComponentDto> component) {

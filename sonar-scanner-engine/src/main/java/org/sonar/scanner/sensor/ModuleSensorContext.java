@@ -21,7 +21,6 @@ package org.sonar.scanner.sensor;
 
 import javax.annotation.concurrent.ThreadSafe;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -36,8 +35,8 @@ public class ModuleSensorContext extends ProjectSensorContext {
   private final InputModule module;
 
   public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-                             AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
-    super(project, config, mutableSettings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
+                             SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    super(project, config, mutableSettings, fs, activeRules, sensorStorage, sonarRuntime);
     this.module = module;
   }
 

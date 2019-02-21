@@ -22,7 +22,6 @@ package org.sonar.scanner.mediumtest.fs;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.BaseMatcher;
@@ -33,8 +32,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -60,7 +59,6 @@ public class ProjectBuilderMediumTest {
     .registerPlugin("xoo", new XooPluginWithBuilder(projectBuilder))
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .setPreviousAnalysisDate(new Date())
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
 
   private class XooPluginWithBuilder extends XooPlugin {
@@ -102,12 +100,8 @@ public class ProjectBuilderMediumTest {
 
     tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
@@ -121,12 +115,8 @@ public class ProjectBuilderMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", ".")
         .put("sonar.verbose", "true")
         .put("sonar.xoo.enableProjectBuilder", "true")
@@ -150,13 +140,9 @@ public class ProjectBuilderMediumTest {
     exception.expectMessage("is not a valid branch name");
     tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
         .put("sonar.branch", "branch\n")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
@@ -169,12 +155,8 @@ public class ProjectBuilderMediumTest {
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.branch", "my-branch")
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")

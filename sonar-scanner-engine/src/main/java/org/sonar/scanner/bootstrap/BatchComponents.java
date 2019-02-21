@@ -24,14 +24,10 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
 import org.sonar.scanner.externalissue.ExternalIssuesImportSensor;
 import org.sonar.scanner.genericcoverage.GenericCoverageSensor;
 import org.sonar.scanner.genericcoverage.GenericTestExecutionSensor;
-import org.sonar.scanner.issue.tracking.ServerIssueFromWs;
-import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.report.JSONReport;
 import org.sonar.scanner.source.ZeroCoverageSensor;
 
 public class BatchComponents {
@@ -39,29 +35,23 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection<Object> all(GlobalAnalysisMode analysisMode) {
+  public static Collection<Object> all() {
     List<Object> components = Lists.newArrayList(
       DefaultResourceTypes.get());
     components.addAll(CorePropertyDefinitions.all());
-    if (!analysisMode.isIssues()) {
-      components.add(ZeroCoverageSensor.class);
-      components.add(JavaCpdBlockIndexerSensor.class);
+    components.add(ZeroCoverageSensor.class);
+    components.add(JavaCpdBlockIndexerSensor.class);
 
-      // Generic coverage
-      components.add(GenericCoverageSensor.class);
-      components.addAll(GenericCoverageSensor.properties());
-      components.add(GenericTestExecutionSensor.class);
-      components.addAll(GenericTestExecutionSensor.properties());
+    // Generic coverage
+    components.add(GenericCoverageSensor.class);
+    components.addAll(GenericCoverageSensor.properties());
+    components.add(GenericTestExecutionSensor.class);
+    components.addAll(GenericTestExecutionSensor.properties());
 
-      // External issues
-      components.add(ExternalIssuesImportSensor.class);
-      components.add(ExternalIssuesImportSensor.properties());
+    // External issues
+    components.add(ExternalIssuesImportSensor.class);
+    components.add(ExternalIssuesImportSensor.properties());
 
-    } else {
-      // Issues tracking
-      components.add(new Tracker<TrackedIssue, ServerIssueFromWs>());
-      components.add(JSONReport.class);
-    }
     return components;
   }
 }

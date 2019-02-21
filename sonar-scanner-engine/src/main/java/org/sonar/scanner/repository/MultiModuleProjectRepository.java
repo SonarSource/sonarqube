@@ -20,10 +20,8 @@
 package org.sonar.scanner.repository;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -31,8 +29,8 @@ public class MultiModuleProjectRepository extends ProjectRepositories {
 
   private Map<String, SingleProjectRepository> repositoriesPerModule;
 
-  public MultiModuleProjectRepository(Map<String, SingleProjectRepository> repositoriesPerModule, @Nullable Date lastAnalysisDate) {
-    super(lastAnalysisDate, true);
+  public MultiModuleProjectRepository(Map<String, SingleProjectRepository> repositoriesPerModule) {
+    super(true);
     this.repositoriesPerModule = ImmutableMap.copyOf(repositoriesPerModule);
   }
 

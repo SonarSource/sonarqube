@@ -103,7 +103,7 @@ public class ReportPublisher implements Startable {
     writer = new ScannerReportWriter(reportDir.toFile());
     contextPublisher.init(writer);
 
-    if (!analysisMode.isIssues() && !analysisMode.isMediumTest()) {
+    if (!analysisMode.isMediumTest()) {
       String publicUrl = server.getPublicRootUrl();
       if (HttpUrl.parse(publicUrl) == null) {
         throw MessageException.of("Failed to parse public URL set in SonarQube server: " + publicUrl);

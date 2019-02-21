@@ -22,30 +22,23 @@ package org.sonar.scanner.scan.filesystem;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 public class DefaultProjectFileSystem extends DefaultFileSystem {
 
-  public DefaultProjectFileSystem(InputComponentStore inputComponentStore, DefaultInputProject project, DefaultAnalysisMode mode,
-    StatusDetection statusDetection) {
+  public DefaultProjectFileSystem(InputComponentStore inputComponentStore, DefaultInputProject project) {
     super(project.getBaseDir(), inputComponentStore);
-    setFields(project, mode, statusDetection);
+    setFields(project);
   }
 
   @VisibleForTesting
-  public DefaultProjectFileSystem(DefaultInputProject project, DefaultAnalysisMode mode, StatusDetection statusDetection) {
+  public DefaultProjectFileSystem(DefaultInputProject project) {
     super(project.getBaseDir());
-    setFields(project, mode, statusDetection);
+    setFields(project);
   }
 
-  private void setFields(DefaultInputProject project, DefaultAnalysisMode mode, StatusDetection statusDetection) {
+  private void setFields(DefaultInputProject project) {
     setWorkDir(project.getWorkDir());
     setEncoding(project.getEncoding());
-
-    // filter the files sensors have access to
-    if (!mode.scanAllFiles()) {
-      setDefaultPredicate(p -> new SameInputFilePredicate(p, statusDetection, project.definition().getKeyWithBranch()));
-    }
   }
 
 }

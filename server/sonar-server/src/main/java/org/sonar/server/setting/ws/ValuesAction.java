@@ -103,7 +103,6 @@ public class ValuesAction implements SettingsWsAction {
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "The settings from conf/sonar.properties are excluded from results.<br>" +
         "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>" +
-        "To access licensed settings, authentication is required<br/>" +
         "To access secured settings, one of the following permissions is required: " +
         "<ul>" +
         "<li>'Execute Analysis'</li>" +
@@ -180,7 +179,7 @@ public class ValuesAction implements SettingsWsAction {
     }
     component.ifPresent(componentDto -> settings.addAll(loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings.stream()
-      .filter(s -> settingsWsSupport.isVisible(s.getKey(), s.getDefinition(), component))
+      .filter(s -> settingsWsSupport.isVisible(s.getKey(), component))
       .collect(Collectors.toList());
   }
 
@@ -350,7 +349,7 @@ public class ValuesAction implements SettingsWsAction {
       propertySets.forEach(map -> {
         Map<String, String> set = new HashMap<>();
         map.entrySet().stream()
-          .filter(entry -> settingsWsSupport.isVisible(entry.getKey(), null, requestedComponent))
+          .filter(entry -> settingsWsSupport.isVisible(entry.getKey(), requestedComponent))
           .forEach(entry -> set.put(entry.getKey(), entry.getValue()));
         filteredPropertySets.add(set);
       });

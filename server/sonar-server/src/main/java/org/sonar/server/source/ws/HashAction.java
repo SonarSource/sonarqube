@@ -56,6 +56,7 @@ public class HashAction implements SourcesWsAction {
       .setDescription("Show line line hashes for a given file. Require See Source Code permission on file's project<br/>")
       .setSince("5.0")
       .setInternal(true)
+      .setDeprecatedSince("7.7")
       .setResponseExample(Resources.getResource(getClass(), "example-hash.txt"))
       .setHandler(this);
 

@@ -36,8 +36,7 @@ public class NoLanguagesPluginsMediumTest {
   public ExpectedException exception = ExpectedException.none();
 
   @Rule
-  public ScannerMediumTester tester = new ScannerMediumTester()
-    .setPreviousAnalysisDate(null);
+  public ScannerMediumTester tester = new ScannerMediumTester();
 
   @Test
   public void testNoLanguagePluginsInstalled() throws Exception {

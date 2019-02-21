@@ -334,9 +334,7 @@ public class ListDefinitionsActionTest {
   public void does_not_returned_secured_and_license_settings_when_not_authenticated() {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
-      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
+      PropertyDefinition.builder("secret.secured").build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
@@ -344,57 +342,39 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_license_settings_when_authenticated_but_not_admin() {
-    logInAsProjectUser();
-    propertyDefinitions.addComponents(asList(
-      PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
-      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
-
-    ListDefinitionsWsResponse result = executeRequest();
-
-    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "plugin.license.secured", "commercial.plugin");
-  }
-
-  @Test
   public void return_secured_settings_when_not_authenticated_but_with_scan_permission() {
     userSession.anonymous().addPermission(SCAN, db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
-      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
+      PropertyDefinition.builder("secret.secured").build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "commercial.plugin");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured");
   }
 
   @Test
-  public void return_secured_and_license_settings_when_system_admin() {
+  public void return_secured_settings_when_system_admin() {
     logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build()));
+      PropertyDefinition.builder("secret.secured").build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured");
   }
 
   @Test
-  public void return_secured_and_license_settings_when_project_admin() {
+  public void return_secured_settings_when_project_admin() {
     logInAsProjectAdmin();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("plugin.license.secured").onQualifiers(PROJECT).type(PropertyType.LICENSE).build()));
+      PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build()));
 
     ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
 
-    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured");
   }
 
   @Test

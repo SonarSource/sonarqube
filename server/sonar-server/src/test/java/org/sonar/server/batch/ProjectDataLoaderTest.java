@@ -22,10 +22,10 @@ package org.sonar.server.batch;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,7 +51,7 @@ import static org.junit.Assert.fail;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 public class ProjectDataLoaderTest {
   @Rule
@@ -65,7 +65,8 @@ public class ProjectDataLoaderTest {
   private DbSession dbSession = db.getSession();
   private int uuidCounter = 0;
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
+  private MapSettings settings = new MapSettings();
+  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes), settings.asConfig());
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
@@ -207,57 +208,30 @@ public class ProjectDataLoaderTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_no_browse_permission_nor_scan_permission() {
+  public void throw_ForbiddenException_if_no_scan_permission_on_sonarqube() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("You're not authorized to execute any SonarQube analysis");
+    expectedException.expectMessage("You're not authorized to push analysis results to the SonarQube server. Please contact your SonarQube administrator.");
 
     underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
   }
 
   @Test
-  public void throw_ForbiddenException_if_browse_permission_but_not_scan_permission() {
+  public void throw_ForbiddenException_if_no_scan_permission_on_sonarcloud() {
+    // Test the SonarCloud specific message
+    settings.setProperty(SONARCLOUD_ENABLED.getKey(), "true");
+    underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes), settings.asConfig());
+
     ComponentDto project = db.components().insertPrivateProject();
+    // Browse is not enough
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server");
+    expectedException.expectMessage("You're not authorized to push analysis results to SonarCloud. Please contact your SonarCloud organization administrator.");
 
     underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
-  }
-
-  @Test
-  public void issues_mode_is_allowed_if_user_has_browse_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()).setIssuesMode(true));
-
-    assertThat(repositories).isNotNull();
-  }
-
-  @Test
-  public void issues_mode_is_forbidden_if_user_doesnt_have_browse_permission() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(GlobalPermissions.SCAN_EXECUTION, project);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("You don't have the required permissions to access this project");
-
-    underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()).setIssuesMode(true));
-  }
-
-  @Test
-  public void scan_permission_on_organization_is_enough_even_without_scan_permission_on_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-
-    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()).setIssuesMode(true));
-
-    assertThat(repositories).isNotNull();
   }
 
   private static FileSourceDto newFileSourceDto(ComponentDto file) {

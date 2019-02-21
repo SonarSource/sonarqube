@@ -21,7 +21,6 @@ package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -111,20 +110,6 @@ public class DefaultFileSystemTest {
     assertThat(fs.inputFiles(fs.predicates().hasLanguage("cobol"))).isEmpty();
 
     assertThat(fs.languages()).containsOnly("java", "php");
-  }
-
-  @Test
-  public void filesWithDefaultPredicate() {
-    DefaultInputFile file1 = new TestInputFileBuilder("foo", "src/Foo.php").setLanguage("php").build();
-    fs.add(file1);
-    fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
-    fs.add(new TestInputFileBuilder("foo", "src/Baz.java").setLanguage("java").build());
-
-    fs.setDefaultPredicate(p -> f -> f.relativePath().endsWith("Foo.php"));
-    Iterator<File> iterator = fs.files(fs.predicates().all()).iterator();
-    assertThat(iterator.hasNext()).isTrue();
-    assertThat(iterator.next()).isEqualTo(file1.file());
-    assertThat(iterator.hasNext()).isFalse();
   }
 
   @Test

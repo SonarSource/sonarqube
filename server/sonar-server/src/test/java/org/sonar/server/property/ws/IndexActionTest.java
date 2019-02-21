@@ -247,65 +247,26 @@ public class IndexActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_when_not_authenticated() {
+  public void does_not_returned_secured_settings_when_not_authenticated() {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+      PropertyDefinition.builder("secret.secured").build()));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("one"),
-      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"));
 
     executeAndVerify(null, null, "does_not_returned_secured_and_license_settings_when_not_authenticated.json");
   }
 
   @Test
-  public void does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated() {
-    definitions.addComponent(PropertyDefinition
-      .builder("foo")
-      .type(PropertyType.PROPERTY_SET)
-      .fields(asList(
-        PropertyFieldDefinition.build("key").name("Key").build(),
-        PropertyFieldDefinition.build("plugin.license.secured").name("License").type(LICENSE).build(),
-        PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
-      .build());
-    propertyDb.insertPropertySet("foo", null,
-      ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
-
-    executeAndVerify(null, null, "does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated.json");
-  }
-
-  @Test
-  public void return_license_with_hash_settings_when_authenticated_but_not_admin() {
-    logInAsProjectUser();
-    definitions.addComponents(asList(
-      PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("commercial.plugin").type(LICENSE).build(),
-      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
-    propertyDb.insertProperties(
-      newGlobalPropertyDto().setKey("foo").setValue("one"),
-      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
-      newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
-
-    executeAndVerify(null, null, "return_license_with_hash_settings_when_authenticated_but_not_admin.json");
-  }
-
-  @Test
-  public void return_secured_and_license_settings_when_system_admin() {
+  public void return_secured_settings_when_system_admin() {
     logInAsSystemAdministrator();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
-      PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+      PropertyDefinition.builder("secret.secured").build()));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("one"),
-      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"));
 
     executeAndVerify(null, null, "return_secured_and_license_settings_when_system_admin.json");
   }
@@ -327,18 +288,17 @@ public class IndexActionTest {
   }
 
   @Test
-  public void return_secured_and_license_settings_in_property_set_when_system_admin() {
+  public void return_secured_settings_in_property_set_when_system_admin() {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
       .fields(asList(
         PropertyFieldDefinition.build("key").name("Key").build(),
-        PropertyFieldDefinition.build("plugin.license.secured").name("License").type(LICENSE).build(),
         PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
       .build());
     propertyDb.insertPropertySet("foo", null,
-      ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
+      ImmutableMap.of("key", "key1", "secret.secured", "123456"));
 
     executeAndVerify(null, null, "return_secured_and_license_settings_in_property_set_when_system_admin.json");
   }

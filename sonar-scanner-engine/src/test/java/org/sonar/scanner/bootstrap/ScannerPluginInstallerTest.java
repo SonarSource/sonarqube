@@ -36,13 +36,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.WsTestUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ScannerPluginInstallerTest {
 
@@ -51,17 +47,15 @@ public class ScannerPluginInstallerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ScannerPluginPredicate pluginPredicate = mock(ScannerPluginPredicate.class);
   private PluginFiles pluginFiles = mock(PluginFiles.class);
   private ScannerWsClient wsClient = mock(ScannerWsClient.class);
-  private ScannerPluginInstaller underTest = new ScannerPluginInstaller(pluginFiles, pluginPredicate, wsClient);
+  private ScannerPluginInstaller underTest = new ScannerPluginInstaller(pluginFiles, wsClient);
 
   @Test
   public void download_installed_plugins() throws IOException {
     WsTestUtil.mockReader(wsClient, "api/plugins/installed", new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
     enqueueDownload("scmgit", "abc");
     enqueueDownload("java", "def");
-    when(pluginPredicate.apply(any())).thenReturn(true);
 
     Map<String, ScannerPlugin> result = underTest.installRemotes();
 
@@ -75,20 +69,6 @@ public class ScannerPluginInstallerTest {
     assertThat(javaPlugin.getKey()).isEqualTo("java");
     assertThat(javaPlugin.getInfo().getNonNullJarFile()).exists().isFile();
     assertThat(javaPlugin.getUpdatedAt()).isEqualTo(200L);
-  }
-
-  @Test
-  public void filter_blacklisted_plugins() throws IOException {
-    WsTestUtil.mockReader(wsClient, "api/plugins/installed", new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
-    enqueueDownload("scmgit", "abc");
-    enqueueDownload("java", "def");
-    when(pluginPredicate.apply("scmgit")).thenReturn(true);
-    when(pluginPredicate.apply("java")).thenReturn(false);
-
-    Map<String, ScannerPlugin> result = underTest.installRemotes();
-
-    assertThat(result.keySet()).containsExactlyInAnyOrder("scmgit");
-    verify(pluginFiles, times(1)).get(any());
   }
 
   @Test
@@ -109,7 +89,6 @@ public class ScannerPluginInstallerTest {
     enqueueNotFoundDownload("scmgit", "abc");
     enqueueDownload("java", "def");
     enqueueDownload("cobol", "ghi");
-    when(pluginPredicate.apply(any())).thenReturn(true);
 
     Map<String, ScannerPlugin> result = underTest.installRemotes();
 
@@ -124,7 +103,6 @@ public class ScannerPluginInstallerTest {
     enqueueDownload("scmgit", "abc");
     enqueueDownload("cobol", "ghi");
     enqueueNotFoundDownload("java", "def");
-    when(pluginPredicate.apply(any())).thenReturn(true);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Fail to download plugin [java]. Not found.");

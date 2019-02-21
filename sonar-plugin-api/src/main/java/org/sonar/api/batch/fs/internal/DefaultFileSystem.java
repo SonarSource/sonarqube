@@ -31,11 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
@@ -54,7 +50,6 @@ public class DefaultFileSystem implements FileSystem {
   private Path workDir;
   private Charset encoding;
   protected final FilePredicates predicates;
-  private Function<FilePredicate, Predicate<InputFile>> defaultPredicateFactory;
 
   /**
    * Only for testing
@@ -100,11 +95,6 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  public DefaultFileSystem setDefaultPredicate(@Nullable Function<FilePredicate, Predicate<InputFile>> defaultPredicateFactory) {
-    this.defaultPredicateFactory = defaultPredicateFactory;
-    return this;
-  }
-
   @Override
   public File workDir() {
     return workDir.toFile();
@@ -136,22 +126,13 @@ public class DefaultFileSystem implements FileSystem {
 
   }
 
-  /**
-   * Bypass default predicate to get all files/dirs indexed.
-   * Default predicate is used when some files/dirs should not be processed by sensors.
-   */
   public Iterable<InputFile> inputFiles() {
-    return OptimizedFilePredicateAdapter.create(predicates.all()).get(cache);
+    return inputFiles(predicates.all());
   }
 
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
-    Iterable<InputFile> iterable = OptimizedFilePredicateAdapter.create(predicate).get(cache);
-    if (defaultPredicateFactory != null) {
-      return StreamSupport.stream(iterable.spliterator(), false)
-        .filter(defaultPredicateFactory.apply(predicate)).collect(Collectors.toList());
-    }
-    return iterable;
+    return OptimizedFilePredicateAdapter.create(predicate).get(cache);
   }
 
   @Override

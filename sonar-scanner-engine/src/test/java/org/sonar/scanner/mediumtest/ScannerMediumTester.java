@@ -35,7 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -52,15 +51,12 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
-import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.MetricsRepository;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
-import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.repository.SingleProjectRepository;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
@@ -89,10 +85,8 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeBranchConfiguration branchConfiguration = new FakeBranchConfiguration();
   private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
-  private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
   private final FakeGlobalSettingsLoader globalSettingsLoader = new FakeGlobalSettingsLoader();
   private final FakeProjectSettingsLoader projectSettingsLoader = new FakeProjectSettingsLoader();
-  private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
   private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
@@ -186,11 +180,6 @@ public class ScannerMediumTester extends ExternalResource {
     return this;
   }
 
-  public ScannerMediumTester setPreviousAnalysisDate(Date previousAnalysis) {
-    projectRefProvider.setLastAnalysisDate(previousAnalysis);
-    return this;
-  }
-
   public ScannerMediumTester bootstrapProperties(Map<String, String> props) {
     globalProperties.putAll(props);
     return this;
@@ -221,16 +210,6 @@ public class ScannerMediumTester extends ExternalResource {
     return this;
   }
 
-  public ScannerMediumTester setLastBuildDate(Date d) {
-    projectRefProvider.setLastAnalysisDate(d);
-    return this;
-  }
-
-  public ScannerMediumTester mockServerIssue(ServerIssue issue) {
-    serverIssues.getServerIssues().add(issue);
-    return this;
-  }
-
   public ScannerMediumTester addGlobalServerSettings(String key, String value) {
     globalSettingsLoader.getGlobalSettings().put(key, value);
     return this;
@@ -238,11 +217,6 @@ public class ScannerMediumTester extends ExternalResource {
 
   public ScannerMediumTester addProjectServerSettings(String key, String value) {
     projectSettingsLoader.getProjectSettings().put(key, value);
-    return this;
-  }
-
-  public ScannerMediumTester mockLineHashes(String fileKey, String[] lineHashes) {
-    serverLineHashes.byKey.put(fileKey, lineHashes);
     return this;
   }
 
@@ -312,7 +286,6 @@ public class ScannerMediumTester extends ExternalResource {
           tester.branchConfigurationLoader,
           tester.projectRefProvider,
           tester.activeRules,
-          tester.serverIssues,
           tester.globalSettingsLoader,
           tester.projectSettingsLoader,
           result)
@@ -383,20 +356,14 @@ public class ScannerMediumTester extends ExternalResource {
 
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
     private Map<String, FileData> fileDataMap = Maps.newHashMap();
-    private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable String branchBase) {
-      return new SingleProjectRepository(fileDataMap, lastAnalysisDate);
+    public ProjectRepositories load(String projectKey, @Nullable String branchBase) {
+      return new SingleProjectRepository(fileDataMap);
     }
 
     public FakeProjectRepositoriesLoader addFileData(String path, FileData fileData) {
       fileDataMap.put(path, fileData);
-      return this;
-    }
-
-    public FakeProjectRepositoriesLoader setLastAnalysisDate(Date d) {
-      lastAnalysisDate = d;
       return this;
     }
 
@@ -489,22 +456,6 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
-  private static class FakeServerIssuesLoader implements ServerIssuesLoader {
-
-    private List<ServerIssue> serverIssues = new ArrayList<>();
-
-    public List<ServerIssue> getServerIssues() {
-      return serverIssues;
-    }
-
-    @Override
-    public void load(String componentKey, Consumer<ServerIssue> consumer) {
-      for (ServerIssue serverIssue : serverIssues) {
-        consumer.accept(serverIssue);
-      }
-    }
-  }
-
   private static class FakeGlobalSettingsLoader implements GlobalSettingsLoader {
 
     private Map<String, String> globalSettings = new HashMap<>();
@@ -533,16 +484,4 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
-  private static class FakeServerLineHashesLoader implements ServerLineHashesLoader {
-    private Map<String, String[]> byKey = new HashMap<>();
-
-    @Override
-    public String[] getLineHashes(String fileKey) {
-      if (byKey.containsKey(fileKey)) {
-        return byKey.get(fileKey);
-      } else {
-        throw new IllegalStateException("You forgot to mock line hashes for " + fileKey);
-      }
-    }
-  }
 }

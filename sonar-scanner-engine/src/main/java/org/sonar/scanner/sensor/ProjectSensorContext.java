@@ -22,7 +22,6 @@ package org.sonar.scanner.sensor;
 import java.io.Serializable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
@@ -54,42 +53,28 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.sensor.noop.NoOpNewAdHocRule;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
-import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
-import org.sonar.scanner.sensor.noop.NoOpNewExternalIssue;
-import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
-import org.sonar.scanner.sensor.noop.NoOpNewSignificantCode;
-import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
 
 @ThreadSafe
 public class ProjectSensorContext implements SensorContext {
 
-  static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
-  static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
-  static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
   static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
-  static final NoOpNewExternalIssue NO_OP_NEW_EXTERNAL_ISSUE = new NoOpNewExternalIssue();
-  static final NoOpNewAdHocRule NO_OP_NEW_AD_HOC_RULE = new NoOpNewAdHocRule();
-  static final NoOpNewSignificantCode NO_OP_NEW_SIGNIFICANT_CODE = new NoOpNewSignificantCode();
 
   private final Settings mutableSettings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final SensorStorage sensorStorage;
-  private final AnalysisMode analysisMode;
   private final DefaultInputProject project;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
 
   public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-                              AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+                              SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     this.project = project;
     this.config = config;
     this.mutableSettings = mutableSettings;
     this.fs = fs;
     this.activeRules = activeRules;
-    this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
   }
@@ -146,33 +131,21 @@ public class ProjectSensorContext implements SensorContext {
 
   @Override
   public NewExternalIssue newExternalIssue() {
-    if (analysisMode.isIssues()) {
-      return NO_OP_NEW_EXTERNAL_ISSUE;
-    }
     return new DefaultExternalIssue(project, sensorStorage);
   }
 
   @Override
   public NewAdHocRule newAdHocRule() {
-    if (analysisMode.isIssues()) {
-      return NO_OP_NEW_AD_HOC_RULE;
-    }
     return new DefaultAdHocRule(sensorStorage);
   }
 
   @Override
   public NewHighlighting newHighlighting() {
-    if (analysisMode.isIssues()) {
-      return NO_OP_NEW_HIGHLIGHTING;
-    }
     return new DefaultHighlighting(sensorStorage);
   }
 
   @Override
   public NewSymbolTable newSymbolTable() {
-    if (analysisMode.isIssues()) {
-      return NO_OP_NEW_SYMBOL_TABLE;
-    }
     return new DefaultSymbolTable(sensorStorage);
   }
 
@@ -183,9 +156,6 @@ public class ProjectSensorContext implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    if (analysisMode.isIssues()) {
-      return NO_OP_NEW_CPD_TOKENS;
-    }
     return new DefaultCpdTokens(sensorStorage);
   }
 
@@ -212,9 +182,6 @@ public class ProjectSensorContext implements SensorContext {
 
   @Override
   public NewSignificantCode newSignificantCode() {
-    if (analysisMode.isIssues()) {
-      return NO_OP_NEW_SIGNIFICANT_CODE;
-    }
     return new DefaultSignificantCode(sensorStorage);
   }
 }

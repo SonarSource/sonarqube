@@ -23,7 +23,6 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
@@ -32,25 +31,13 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProcessedScannerProperties scannerProperties, GlobalAnalysisMode mode, BranchConfiguration branchConfig) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProcessedScannerProperties scannerProperties, BranchConfiguration branchConfig) {
     if (project == null) {
-      boolean isIssuesMode = mode.isIssues();
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(scannerProperties.getKeyWithBranch(), isIssuesMode, branchConfig.longLivingSonarReferenceBranch());
-      checkProject(isIssuesMode);
+      project = loader.load(scannerProperties.getKeyWithBranch(), branchConfig.longLivingSonarReferenceBranch());
       profiler.stopInfo();
     }
 
     return project;
-  }
-
-  private void checkProject(boolean isIssueMode) {
-    if (isIssueMode) {
-      if (!project.exists()) {
-        LOG.warn("Project doesn't exist on the server. All issues will be marked as 'new'.");
-      } else if (project.lastAnalysisDate() == null) {
-        LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
-      }
-    }
   }
 }

@@ -32,15 +32,11 @@ import org.sonar.scanner.repository.SingleProjectRepository;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() {
-    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap());
     ScmChangedFiles changedFiles = new ScmChangedFiles(null);
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -51,7 +47,7 @@ public class StatusDetectionTest {
 
   @Test
   public void detect_status_branches_exclude() {
-    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap());
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.emptyList());
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 
@@ -63,25 +59,8 @@ public class StatusDetectionTest {
   }
 
   @Test
-  public void detect_status_without_metadata() {
-    DefaultInputFile mockedFile = mock(DefaultInputFile.class);
-    when(mockedFile.getProjectRelativePath()).thenReturn("module/src/Foo.java");
-    when(mockedFile.path()).thenReturn(Paths.get("module", "src", "Foo.java"));
-
-    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
-    ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
-    StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
-
-    assertThat(statusDetection.getStatusWithoutMetadata("foo", mockedFile)).isEqualTo(InputFile.Status.ADDED);
-
-    verify(mockedFile).path();
-    verify(mockedFile).getProjectRelativePath();
-    verifyNoMoreInteractions(mockedFile);
-  }
-
-  @Test
   public void detect_status_branches_confirm() {
-    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap(), null);
+    SingleProjectRepository ref = new SingleProjectRepository(createFileDataPerPathMap());
     ScmChangedFiles changedFiles = new ScmChangedFiles(Collections.singletonList(Paths.get("module", "src", "Foo.java")));
     StatusDetection statusDetection = new StatusDetection(ref, changedFiles);
 

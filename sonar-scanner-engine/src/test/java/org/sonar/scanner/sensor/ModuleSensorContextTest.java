@@ -26,13 +26,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -41,7 +37,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,9 +55,7 @@ public class ModuleSensorContextTest {
   private ModuleSensorContext adaptor;
   private MapSettings settings;
   private SensorStorage sensorStorage;
-  private AnalysisMode analysisMode;
   private SonarRuntime runtime;
-  private InputModuleHierarchy hierarchy;
 
   @Before
   public void prepare() throws Exception {
@@ -73,12 +66,8 @@ public class ModuleSensorContextTest {
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new MapSettings();
     sensorStorage = mock(SensorStorage.class);
-    analysisMode = mock(AnalysisMode.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER);
-    hierarchy = new DefaultInputModuleHierarchy(new DefaultInputModule(ProjectDefinition.create()
-      .setWorkDir(temp.newFolder())
-      .setBaseDir(temp.newFolder()).setKey("foo")));
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime);
   }
 
   @Test
@@ -98,27 +87,4 @@ public class ModuleSensorContextTest {
     assertThat(adaptor.newSignificantCode()).isNotNull();
   }
 
-  @Test
-  public void shouldSkipSignificantCodeOnPreviewMode() {
-    when(analysisMode.isIssues()).thenReturn(true);
-    assertThat(adaptor.newSignificantCode()).isEqualTo(ModuleSensorContext.NO_OP_NEW_SIGNIFICANT_CODE);
-
-  }
-
-  @Test
-  public void shouldSkipSeveralObjectsInPreviewMode() {
-    when(analysisMode.isIssues()).thenReturn(true);
-    when(analysisMode.isPreview()).thenReturn(true);
-    assertThat(adaptor.newCpdTokens()).isEqualTo(ModuleSensorContext.NO_OP_NEW_CPD_TOKENS);
-    assertThat(adaptor.newSymbolTable()).isEqualTo(ModuleSensorContext.NO_OP_NEW_SYMBOL_TABLE);
-    assertThat(adaptor.newExternalIssue()).isEqualTo(ModuleSensorContext.NO_OP_NEW_EXTERNAL_ISSUE);
-    assertThat(adaptor.newAdHocRule()).isEqualTo(ModuleSensorContext.NO_OP_NEW_AD_HOC_RULE);
-    assertThat(adaptor.newHighlighting()).isEqualTo(ModuleSensorContext.NO_OP_NEW_HIGHLIGHTING);
-  }
-
-  @Test
-  public void shouldSkipDupsOnIssuesMode() {
-    when(analysisMode.isIssues()).thenReturn(true);
-    assertThat(adaptor.newCpdTokens()).isEqualTo(ModuleSensorContext.NO_OP_NEW_CPD_TOKENS);
-  }
 }
