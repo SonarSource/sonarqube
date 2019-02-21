@@ -29,6 +29,7 @@ export function changePassword(data: {
   password: string;
   previousPassword?: string;
 }) {
+  console.log(password, previousPassword);
   return post('/api/users/change_password', data).catch(throwGlobalError);
 }
 
