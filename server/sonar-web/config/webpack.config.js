@@ -68,7 +68,10 @@ module.exports = ({ production = true }) => {
       }
     },
     optimization: {
-      splitChunks: { chunks: 'all' }
+      splitChunks: {
+        chunks: 'all',
+        automaticNameDelimiter: '-'
+      }
     }
   };
 
