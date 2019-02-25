@@ -149,10 +149,14 @@ class ComponentTreeData {
     private String data;
     private double variation;
 
+    public Measure(@Nullable String data, @Nullable Double value, @Nullable Double variation) {
+      this.data = data;
+      this.value = toPrimitive(value);
+      this.variation = toPrimitive(variation);
+    }
+
     private Measure(LiveMeasureDto measureDto) {
-      this.value = toPrimitive(measureDto.getValue());
-      this.data = measureDto.getDataAsString();
-      this.variation = toPrimitive(measureDto.getVariation());
+      this(measureDto.getDataAsString(), measureDto.getValue(), measureDto.getVariation());
     }
 
     public double getValue() {

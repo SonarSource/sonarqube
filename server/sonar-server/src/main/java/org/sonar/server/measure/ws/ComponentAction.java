@@ -21,15 +21,15 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -41,6 +41,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -100,7 +101,7 @@ public class ComponentAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription(format("Return component with specified measures. The %s or the %s parameter must be provided.<br>" +
-        "Requires the following permission: 'Browse' on the project of specified component.",
+          "Requires the following permission: 'Browse' on the project of specified component.",
         DEPRECATED_PARAM_COMPONENT_ID, PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
@@ -149,28 +150,107 @@ public class ComponentAction implements MeasuresWsAction {
 
   private ComponentWsResponse doHandle(ComponentRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = loadComponent(dbSession, request);
-      Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
+      String branch = request.getBranch();
+      String pullRequest = request.getPullRequest();
+      ComponentDto component = loadComponent(dbSession, request, branch, pullRequest);
       checkPermissions(component);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
-      List<MetricDto> metrics = searchMetrics(dbSession, request);
-      Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
-      List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
 
-      return buildResponse(request, component, refComponent, measures, metrics, period);
+      boolean isSLBorPR = isSLBorPR(dbSession, component, branch, pullRequest);
+
+      Set<String> metricKeysToRequest = new HashSet<>(request.metricKeys);
+
+      if (isSLBorPR) {
+        SLBorPRMeasureFix.addReplacementMetricKeys(metricKeysToRequest);
+      }
+
+      List<MetricDto> metrics = searchMetrics(dbSession, metricKeysToRequest);
+      List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
+      Map<MetricDto, LiveMeasureDto> measuresByMetric = getMeasuresByMetric(measures, metrics);
+
+      if (isSLBorPR) {
+        Set<String> originalMetricKeys = new HashSet<>(request.metricKeys);
+        SLBorPRMeasureFix.createReplacementMeasures(metrics, measuresByMetric, originalMetricKeys);
+        SLBorPRMeasureFix.removeMetricsNotRequested(metrics, originalMetricKeys);
+      }
+
+      Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
+      Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
+      return buildResponse(request, component, refComponent, measuresByMetric, metrics, period);
     }
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, ComponentRequest request) {
+  public List<MetricDto> searchMetrics(DbSession dbSession, Collection<String> metricKeys) {
+    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
+    if (metrics.size() < metricKeys.size()) {
+      Set<String> foundMetricKeys = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
+      Set<String> missingMetricKeys = metricKeys.stream().filter(m -> !foundMetricKeys.contains(m)).collect(Collectors.toSet());
+      throw new NotFoundException(format("The following metric keys are not found: %s", Joiner.on(", ").join(missingMetricKeys)));
+    }
+
+    return metrics;
+  }
+
+  private List<LiveMeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, Collection<MetricDto> metrics) {
+    Set<Integer> metricIds = metrics.stream().map(MetricDto::getId).collect(Collectors.toSet());
+    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, singletonList(component.uuid()), metricIds);
+    addBestValuesToMeasures(measures, component, metrics);
+    return measures;
+  }
+
+  private static Map<MetricDto, LiveMeasureDto> getMeasuresByMetric(List<LiveMeasureDto> measures, Collection<MetricDto> metrics) {
+    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
+    Map<MetricDto, LiveMeasureDto> measuresByMetric = new HashMap<>();
+    for (LiveMeasureDto measure : measures) {
+      MetricDto metric = metricsById.get(measure.getMetricId());
+      measuresByMetric.put(metric, measure);
+    }
+    return measuresByMetric;
+  }
+
+  /**
+   * Conditions for best value measure:
+   * <ul>
+   * <li>component is a production file or test file</li>
+   * <li>metric is optimized for best value</li>
+   * </ul>
+   */
+  private static void addBestValuesToMeasures(List<LiveMeasureDto> measures, ComponentDto component, Collection<MetricDto> metrics) {
+    if (!QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier())) {
+      return;
+    }
+
+    List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
+      .filter(MetricDtoFunctions.isOptimizedForBestValue())
+      .map(MetricDtoWithBestValue::new)
+      .collect(MoreCollectors.toList(metrics.size()));
+    Map<Integer, LiveMeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricId);
+
+    for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {
+      if (measuresByMetricId.get(metricWithBestValue.getMetric().getId()) == null) {
+        measures.add(metricWithBestValue.getBestValue());
+      }
+    }
+  }
+
+  private boolean isSLBorPR(DbSession dbSession, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
+    if (branch != null) {
+      return dbClient.branchDao().selectByUuid(dbSession, component.projectUuid())
+        .map(b -> b.getBranchType() == BranchType.SHORT).orElse(false);
+    }
+    return pullRequest != null;
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, ComponentRequest request, @Nullable String branch, @Nullable String pullRequest) {
     String componentKey = request.getComponent();
     String componentId = request.getComponentId();
-    String branch = request.getBranch();
-    String pullRequest = request.getPullRequest();
     checkArgument(componentId == null || (branch == null && pullRequest == null), "Parameter '%s' cannot be used at the same time as '%s' or '%s'",
       DEPRECATED_PARAM_COMPONENT_ID, PARAM_BRANCH, PARAM_PULL_REQUEST);
+
     if (branch == null && pullRequest == null) {
       return componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, COMPONENT_ID_AND_KEY);
     }
+
     checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_COMPONENT);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
@@ -184,14 +264,9 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,
-    List<LiveMeasureDto> measures, List<MetricDto> metrics, Optional<Measures.Period> period) {
+    Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
-    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
-    Map<MetricDto, LiveMeasureDto> measuresByMetric = new HashMap<>();
-    for (LiveMeasureDto measure : measures) {
-      MetricDto metric = metricsById.get(measure.getMetricId());
-      measuresByMetric.put(metric, measure);
-    }
+
     if (refComponent.isPresent()) {
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.get().uuid(), refComponent.get())));
     } else {
@@ -211,52 +286,6 @@ public class ComponentAction implements MeasuresWsAction {
     }
 
     return response.build();
-  }
-
-  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentRequest request) {
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
-    if (metrics.size() < request.getMetricKeys().size()) {
-      List<String> foundMetricKeys = Lists.transform(metrics, MetricDto::getKey);
-      Set<String> missingMetricKeys = Sets.difference(
-        new LinkedHashSet<>(request.getMetricKeys()),
-        new LinkedHashSet<>(foundMetricKeys));
-
-      throw new NotFoundException(format("The following metric keys are not found: %s", Joiner.on(", ").join(missingMetricKeys)));
-    }
-
-    return metrics;
-  }
-
-  private List<LiveMeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, List<MetricDto> metrics) {
-    List<Integer> metricIds = Lists.transform(metrics, MetricDto::getId);
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, singletonList(component.uuid()), metricIds);
-    addBestValuesToMeasures(measures, component, metrics);
-    return measures;
-  }
-
-  /**
-   * Conditions for best value measure:
-   * <ul>
-   * <li>component is a production file or test file</li>
-   * <li>metric is optimized for best value</li>
-   * </ul>
-   */
-  private static void addBestValuesToMeasures(List<LiveMeasureDto> measures, ComponentDto component, List<MetricDto> metrics) {
-    if (!QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier())) {
-      return;
-    }
-
-    List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
-      .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .map(MetricDtoWithBestValue::new)
-      .collect(MoreCollectors.toList(metrics.size()));
-    Map<Integer, LiveMeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricId);
-
-    for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {
-      if (measuresByMetricId.get(metricWithBestValue.getMetric().getId()) == null) {
-        measures.add(metricWithBestValue.getBestValue());
-      }
-    }
   }
 
   private static ComponentRequest toComponentWsRequest(Request request) {

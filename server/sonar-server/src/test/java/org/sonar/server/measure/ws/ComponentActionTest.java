@@ -19,6 +19,7 @@
  */
 package org.sonar.server.measure.ws;
 
+import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -163,6 +164,66 @@ public class ComponentActionTest {
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
+  }
+
+  @Test
+  public void new_issue_count_measures_are_transformed_in_pr() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setValueType("INT"));
+    MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setValueType("INT"));
+    MetricDto violations = db.measures().insertMetric(m1 -> m1.setKey("violations").setValueType("INT"));
+    MetricDto newViolations = db.measures().insertMetric(m1 -> m1.setKey("new_violations").setValueType("INT"));
+    LiveMeasureDto bugMeasure = db.measures().insertLiveMeasure(file, bugs, m -> m.setValue(12.0d).setVariation(null));
+    LiveMeasureDto newBugMeasure = db.measures().insertLiveMeasure(file, newBugs, m -> m.setVariation(1d).setValue(null));
+    LiveMeasureDto violationMeasure = db.measures().insertLiveMeasure(file, violations, m -> m.setValue(20.0d).setVariation(null));
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_PULL_REQUEST, "pr-123")
+      .setParam(PARAM_METRIC_KEYS, newBugs.getKey() + "," + bugs.getKey() + "," + newViolations.getKey())
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getPullRequest)
+      .containsExactlyInAnyOrder(file.getKey(), "pr-123");
+
+    Function<Measures.Measure, Double> extractVariation = m -> {
+      if (m.getPeriods().getPeriodsValueCount() > 0) {
+        return parseDouble(m.getPeriods().getPeriodsValue(0).getValue());
+      }
+      return null;
+    };
+    assertThat(response.getComponent().getMeasuresList())
+      .extracting(Measures.Measure::getMetric, extractVariation, m -> m.getValue().isEmpty() ? null : parseDouble(m.getValue()))
+      .containsExactlyInAnyOrder(
+        tuple(newBugs.getKey(), bugMeasure.getValue(), null),
+        tuple(bugs.getKey(), null, bugMeasure.getValue()),
+        tuple(newViolations.getKey(), violationMeasure.getValue(), null));
+  }
+
+  @Test
+  public void new_issue_count_measures_are_not_transformed_if_they_dont_exist_in_pr() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setOptimizedBestValue(false).setValueType("INT"));
+    MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setOptimizedBestValue(false).setValueType("INT"));
+
+    ComponentWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, file.getKey())
+      .setParam(PARAM_PULL_REQUEST, "pr-123")
+      .setParam(PARAM_METRIC_KEYS, newBugs.getKey() + "," + bugs.getKey())
+      .executeProtobuf(ComponentWsResponse.class);
+
+    assertThat(response.getComponent()).extracting(Component::getKey, Component::getPullRequest)
+      .containsExactlyInAnyOrder(file.getKey(), "pr-123");
+
+    assertThat(response.getComponent().getMeasuresList()).isEmpty();
   }
 
   @Test

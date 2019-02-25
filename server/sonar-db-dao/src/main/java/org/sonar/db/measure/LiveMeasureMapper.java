@@ -30,11 +30,11 @@ import org.sonar.db.component.KeyType;
 public interface LiveMeasureMapper {
 
   List<LiveMeasureDto> selectByComponentUuidsAndMetricIds(
-    @Param("componentUuids") List<String> componentUuids,
+    @Param("componentUuids") Collection<String> componentUuids,
     @Param("metricIds") Collection<Integer> metricIds);
 
   List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(
-    @Param("componentUuids") List<String> componentUuids,
+    @Param("componentUuids") Collection<String> componentUuids,
     @Param("metricKeys") Collection<String> metricKeys);
 
   LiveMeasureDto selectByComponentUuidAndMetricKey(

@@ -57,6 +57,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
@@ -76,7 +77,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.utils.Paging.offset;
@@ -412,12 +412,26 @@ public class ComponentTreeAction implements MeasuresWsAction {
           .build();
       }
 
+      Set<String> requestedMetricKeys = new HashSet<>(wsRequest.getMetricKeys());
+      Set<String> metricKeysToSearch = new HashSet<>(requestedMetricKeys);
+
+      boolean isSLBorPR = isSLBorPR(dbSession, baseComponent, wsRequest.getBranch(), wsRequest.getPullRequest());
+      if (isSLBorPR) {
+        SLBorPRMeasureFix.addReplacementMetricKeys(metricKeysToSearch);
+      }
+
       ComponentTreeQuery componentTreeQuery = toComponentTreeQuery(wsRequest, baseComponent);
       List<ComponentDto> components = searchComponents(dbSession, componentTreeQuery);
-      List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
+
+      List<MetricDto> metrics = searchMetrics(dbSession, metricKeysToSearch);
       Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
         components,
         metrics);
+
+      if (isSLBorPR) {
+        SLBorPRMeasureFix.removeMetricsNotRequested(metrics, requestedMetricKeys);
+        SLBorPRMeasureFix.createReplacementMeasures(metrics, measuresByComponentUuidAndMetric, requestedMetricKeys);
+      }
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
@@ -435,6 +449,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
         .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
         .build();
     }
+  }
+
+  private boolean isSLBorPR(DbSession dbSession, ComponentDto component, @Nullable String branch, @Nullable String pullRequest) {
+    if (branch != null) {
+      return dbClient.branchDao().selectByUuid(dbSession, component.projectUuid())
+        .map(b -> b.getBranchType() == BranchType.SHORT).orElse(false);
+    }
+    return pullRequest != null;
   }
 
   private ComponentDto loadComponent(DbSession dbSession, ComponentTreeRequest request) {
@@ -472,8 +494,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return dbClient.componentDao().selectDescendants(dbSession, componentTreeQuery);
   }
 
-  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentTreeRequest request) {
-    List<String> metricKeys = requireNonNull(request.getMetricKeys());
+  private List<MetricDto> searchMetrics(DbSession dbSession, Set<String> metricKeys) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
     if (metrics.size() < metricKeys.size()) {
       List<String> foundMetricKeys = Lists.transform(metrics, MetricDto::getKey);

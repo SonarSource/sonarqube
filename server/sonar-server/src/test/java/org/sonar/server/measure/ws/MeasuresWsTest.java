@@ -19,14 +19,11 @@
  */
 package org.sonar.server.measure.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasuresWsTest {
   WsTester ws = new WsTester(
