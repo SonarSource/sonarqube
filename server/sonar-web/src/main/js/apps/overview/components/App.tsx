@@ -73,7 +73,10 @@ export class App extends React.PureComponent<Props> {
         )}
 
         {isShortLivingBranch(branchLike) || isPullRequest(branchLike) ? (
-          <ReviewApp branchLike={branchLike} component={component} />
+          <>
+            <Suggestions suggestions="pull_requests" />
+            <ReviewApp branchLike={branchLike} component={component} />
+          </>
         ) : (
           <>
             <Suggestions suggestions="overview" />

@@ -134,6 +134,16 @@
       "scope": "sonarcloud"
     }
   ],
+  "pull_requests": [
+    {
+      "link": "/documentation/user-guide/fixing-the-water-leak/",
+      "text": "Fixing the Water Leak"
+    },
+    {
+      "link": "/documentation/analysis/pull-request/",
+      "text": "Analyzing Pull Requests"
+    }
+  ],
   "quality_gates": [
     {
       "link": "/documentation/user-guide/fixing-the-water-leak/",
