@@ -22,7 +22,7 @@ See [Marketplace](/instance-administration/marketplace/) for more details on how
 
 ## Manual Installation
 
-In the page dedicated to the plugin you want to install (ex: for Python: SonarPython, click on the "Download" link of the version compatible with your SonarQube version.  
+In the page dedicated to the plugin you want to install (ex: for Python: SonarPython), click on the "Download" link of the version compatible with your SonarQube version.  
 
 Put the downloaded jar in `$SONARQUBE_HOME/extensions/plugins`, removing any previous versions of the same plugins.
 
