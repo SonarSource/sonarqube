@@ -24,6 +24,7 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { Alert } from '../../../components/ui/Alert';
 import { SubmitButton } from '../../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isGithub } from '../../../helpers/almIntegrations';
 
 interface Props {
   almKey: string;
@@ -79,6 +80,7 @@ export default class AutoOrganizationBind extends React.PureComponent<Props, Sta
   };
 
   render() {
+    const { almKey } = this.props;
     const { organization, submitting } = this.state;
     return (
       <form id="bind-organization-form" onSubmit={this.handleSubmit}>
@@ -87,18 +89,20 @@ export default class AutoOrganizationBind extends React.PureComponent<Props, Sta
           organization={organization}
           organizations={this.props.unboundOrganizations}
         />
-        <Alert className="abs-width-400 big-spacer-top" display="block" variant="info">
-          {translateWithParameters(
-            'onboarding.import_organization.bind_members_not_sync_info_x',
-            translate('organization', this.props.almKey)
-          )}
-          <Link
-            className="spacer-left"
-            target="_blank"
-            to={{ pathname: '/documentation/organizations/manage-team/' }}>
-            {translate('learn_more')}
-          </Link>
-        </Alert>
+        {isGithub(almKey) && (
+          <Alert className="abs-width-400 big-spacer-top" display="block" variant="info">
+            {translateWithParameters(
+              'onboarding.import_organization.bind_members_not_sync_info_x',
+              translate('organization', almKey)
+            )}
+            <Link
+              className="spacer-left"
+              target="_blank"
+              to={{ pathname: '/documentation/organizations/manage-team/' }}>
+              {translate('learn_more')}
+            </Link>
+          </Alert>
+        )}
         <div className="display-flex-center big-spacer-top">
           <SubmitButton disabled={submitting || !organization}>
             {translate('onboarding.import_organization.bind')}

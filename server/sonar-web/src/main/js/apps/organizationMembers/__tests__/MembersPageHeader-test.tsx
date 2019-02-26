@@ -36,7 +36,14 @@ it('should render for admin', () => {
   ).toMatchSnapshot();
 });
 
-it('should render for bound organization without sync', () => {
+it('should render for Bitbucket bound organization', () => {
+  const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions(), {
+    key: 'bitbucket'
+  });
+  expect(shallowRender({ organization })).toMatchSnapshot();
+});
+
+it('should render for GitHub bound organization without sync', () => {
   const organization = mockOrganizationWithAlm(mockOrganizationWithAdminActions());
   expect(shallowRender({ organization })).toMatchSnapshot();
 });

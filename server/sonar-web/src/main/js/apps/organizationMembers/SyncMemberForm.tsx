@@ -25,7 +25,7 @@ import RadioCard from '../../components/controls/RadioCard';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/buttons';
 import { setOrganizationMemberSync, syncMembers } from '../../api/organizations';
-import { sanitizeAlmId, isGithub } from '../../helpers/almIntegrations';
+import { sanitizeAlmId } from '../../helpers/almIntegrations';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { fetchOrganization } from '../../store/rootActions';
 
@@ -56,7 +56,7 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
       enabled: membersSync
     }).then(() => {
       this.props.fetchOrganization(organization.key);
-      if (membersSync && isGithub(organization.alm && organization.alm.key)) {
+      if (membersSync) {
         return this.handleMemberSync();
       }
       return Promise.resolve();

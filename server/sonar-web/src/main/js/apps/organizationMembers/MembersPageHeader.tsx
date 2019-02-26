@@ -24,7 +24,7 @@ import AddMemberForm from './AddMemberForm';
 import SyncMemberForm from './SyncMemberForm';
 import DeferredSpinner from '../../components/common/DeferredSpinner';
 import DocTooltip from '../../components/docs/DocTooltip';
-import { sanitizeAlmId } from '../../helpers/almIntegrations';
+import { sanitizeAlmId, isGithub } from '../../helpers/almIntegrations';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Alert } from '../../components/ui/Alert';
 
@@ -51,6 +51,7 @@ export default function MembersPageHeader(props: Props) {
       {isAdmin && (
         <div className="page-actions text-right">
           {almKey &&
+            isGithub(almKey) &&
             !showSyncNotif && (
               <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
             )}
@@ -82,6 +83,7 @@ export default function MembersPageHeader(props: Props) {
           }}
         />
         {almKey &&
+          isGithub(almKey) &&
           showSyncNotif && (
             <Alert className="spacer-top" display="inline" variant="info">
               {translateWithParameters(

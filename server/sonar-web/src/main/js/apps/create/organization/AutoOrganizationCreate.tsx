@@ -28,7 +28,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { DeleteButton } from '../../../components/ui/buttons';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { bindAlmOrganization } from '../../../api/alm-integration';
-import { sanitizeAlmId, getAlmMembersUrl } from '../../../helpers/almIntegrations';
+import { sanitizeAlmId, getAlmMembersUrl, isGithub } from '../../../helpers/almIntegrations';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -164,25 +164,27 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
           {filter === Filters.Create && (
             <OrganizationDetailsForm
               infoBlock={
-                <Alert className="abs-width-600 big-spacer-top" display="block" variant="info">
-                  <p>
-                    {translateWithParameters(
-                      'onboarding.import_organization.members_sync_info_x',
-                      translate('organization', almKey),
-                      almOrganization.name,
-                      translate(almKey)
-                    )}
-                  </p>
-                  <a
-                    href={getAlmMembersUrl(almApplication.key, almOrganization.almUrl)}
-                    rel="noopener noreferrer"
-                    target="_blank">
-                    {translateWithParameters(
-                      'organization.members.see_all_members_on_x',
-                      translate(almKey)
-                    )}
-                  </a>
-                </Alert>
+                isGithub(almKey) && (
+                  <Alert className="abs-width-600 big-spacer-top" display="block" variant="info">
+                    <p>
+                      {translateWithParameters(
+                        'onboarding.import_organization.members_sync_info_x',
+                        translate('organization', almKey),
+                        almOrganization.name,
+                        translate(almKey)
+                      )}
+                    </p>
+                    <a
+                      href={getAlmMembersUrl(almApplication.key, almOrganization.almUrl)}
+                      rel="noopener noreferrer"
+                      target="_blank">
+                      {translateWithParameters(
+                        'organization.members.see_all_members_on_x',
+                        translate(almKey)
+                      )}
+                    </a>
+                  </Alert>
+                )
               }
               onContinue={this.props.handleOrgDetailsFinish}
               organization={almOrganization}

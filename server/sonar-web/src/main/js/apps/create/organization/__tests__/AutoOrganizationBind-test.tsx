@@ -32,6 +32,14 @@ it('should render correctly', () => {
   expect(onBindOrganization).toHaveBeenCalled();
 });
 
+it('should not show member sync info box for Bitbucket', () => {
+  expect(
+    shallowRender({ almKey: 'bitbucket' })
+      .find('Alert')
+      .exists()
+  ).toBe(false);
+});
+
 function shallowRender(props: Partial<AutoOrganizationBind['props']> = {}) {
   return shallow(
     <AutoOrganizationBind

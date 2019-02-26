@@ -34,10 +34,8 @@ const organization = mockAlmOrganization();
 it('should render prefilled and create org', async () => {
   const createOrganization = jest.fn().mockResolvedValue({ key: 'foo' });
   const handleOrgDetailsFinish = jest.fn();
-  const almApplication = mockAlmApplication({ key: 'github' });
   const almOrganization = mockAlmOrganization({ almUrl: 'http://github.com/thing' });
   const wrapper = shallowRender({
-    almApplication,
     almOrganization,
     createOrganization,
     handleOrgDetailsFinish
@@ -94,6 +92,14 @@ it('should bind existing organization', async () => {
   });
   await waitAndUpdate(wrapper);
   expect(onOrgCreated).toHaveBeenCalledWith('foo');
+});
+
+it('should not show member sync info box for Bitbucket', () => {
+  expect(
+    shallowRender({ almApplication: mockAlmApplication({ key: 'bitbucket-cloud' }) })
+      .find('Alert')
+      .exists()
+  ).toBe(false);
 });
 
 function shallowRender(props: Partial<AutoOrganizationCreate['props']> = {}) {

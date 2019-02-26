@@ -23,11 +23,11 @@ import { Profile } from '../apps/quality-profiles/types';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
-    backgroundColor: '#0052CC',
-    iconPath: '"/static/authbitbucket/bitbucket.svg"',
-    installationUrl: 'https://bitbucket.org/install/app',
-    key: 'bitbucket',
-    name: 'BitBucket',
+    backgroundColor: '#444444',
+    iconPath: '/images/sonarcloud/github-white.svg',
+    installationUrl: 'https://github.com/apps/greg-sonarcloud/installations/new',
+    key: 'github',
+    name: 'GitHub',
     ...overrides
   };
 }

@@ -33,7 +33,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should allow to switch to automatic mode with github', async () => {
+it('should allow to switch to automatic mode', async () => {
   const fetchOrganization = jest.fn();
   const refreshMembers = jest.fn().mockResolvedValue({});
   const wrapper = shallowRender({ fetchOrganization, refreshMembers });
@@ -47,23 +47,6 @@ it('should allow to switch to automatic mode with github', async () => {
   expect(fetchOrganization).toHaveBeenCalledWith('foo');
   expect(syncMembers).toHaveBeenCalledWith('foo');
   expect(refreshMembers).toBeCalled();
-});
-
-it('should allow to switch to automatic mode with bitbucket', async () => {
-  const fetchOrganization = jest.fn();
-  const wrapper = shallowRender({
-    fetchOrganization,
-    organization: mockOrganizationWithAlm({}, { key: 'bitbucket' })
-  });
-  expect(wrapper).toMatchSnapshot();
-
-  wrapper.setState({ membersSync: true });
-  wrapper.find('ConfirmButton').prop<Function>('onConfirm')();
-  expect(setOrganizationMemberSync).toHaveBeenCalledWith({ organization: 'foo', enabled: true });
-
-  await waitAndUpdate(wrapper);
-  expect(fetchOrganization).toHaveBeenCalledWith('foo');
-  expect(syncMembers).not.toHaveBeenCalled();
 });
 
 it('should allow to switch to manual mode', async () => {

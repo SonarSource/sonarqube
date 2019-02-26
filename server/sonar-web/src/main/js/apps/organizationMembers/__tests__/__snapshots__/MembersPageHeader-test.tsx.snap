@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
 </header>
 `;
 
-exports[`should render for admin 1`] = `
+exports[`should render for Bitbucket bound organization 1`] = `
 <header
   className="page-header"
 >
@@ -62,6 +62,11 @@ exports[`should render for admin 1`] = `
           Object {
             "actions": Object {
               "admin": true,
+            },
+            "alm": Object {
+              "key": "bitbucket",
+              "membersSync": false,
+              "url": "https://github.com/foo",
             },
             "key": "foo",
             "name": "Foo",
@@ -97,7 +102,7 @@ exports[`should render for admin 1`] = `
 </header>
 `;
 
-exports[`should render for bound organization without sync 1`] = `
+exports[`should render for GitHub bound organization without sync 1`] = `
 <header
   className="page-header"
 >
@@ -187,6 +192,67 @@ exports[`should render for bound organization without sync 1`] = `
         />
       </span>
     </Alert>
+  </div>
+</header>
+`;
+
+exports[`should render for admin 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    organization.members.page
+  </h1>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  />
+  <div
+    className="page-actions text-right"
+  >
+    <div
+      className="display-inline-block spacer-left spacer-bottom"
+    >
+      <AddMemberForm
+        addMember={[MockFunction]}
+        memberLogins={Array []}
+        organization={
+          Object {
+            "actions": Object {
+              "admin": true,
+            },
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+      <DocTooltip
+        className="spacer-left"
+        doc={Promise {}}
+      />
+    </div>
+  </div>
+  <div
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="organization.members.page.description"
+      id="organization.members.page.description"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/organizations/manage-team/"
+          >
+            organization.members.manage_a_team
+          </Link>,
+        }
+      }
+    />
   </div>
 </header>
 `;
