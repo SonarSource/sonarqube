@@ -52,8 +52,7 @@ public class OrganizationsWsModule extends Module {
         CreateAction.class,
         DeleteAction.class,
         RemoveMemberAction.class,
-        UpdateAction.class,
-        SetMembersSyncAction.class);
+        UpdateAction.class);
     }
   }
 
