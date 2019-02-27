@@ -34,7 +34,7 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it.only('should correctly create a new profile and extend the existing one', async () => {
+it('should correctly create a new profile and extend the existing one', async () => {
   const profile = mockQualityProfile();
   const organization = 'org';
   const name = 'New name';
