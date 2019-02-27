@@ -41,8 +41,6 @@ Additionally, users with Quality Profile administration privileges are notified 
 
 Use the **Back up** feature on the source instance to export the profile to an XML file. Use the **Restore Profile** feature on the target instance to import the file. Note that some [limitations](https://jira.sonarsource.com/browse/SONAR-5366) on this feature exist.
 
-![Restore Quality Profile](/images/restore-quality-profile.jpeg)
-
 ### Apply a core set of rules plus additional rules to a project?
 
 Let's say your company has a minimum set of coding rules that all teams must follow, but you want to add rules that are specific to the in use technology in your project. Those rules are good for your team, but irrelevant or even misleading for others. This situation calls for inheritance. Set up a base profile, we'll call it _Root_ with your core set of rules. Then create a child profile, we'll call it _Sprout_. Once it's created, you can **Change parent** to inherit from _Root_, then add your missing rules.
