@@ -211,7 +211,7 @@ public class LiveQualityGateComputerImplTest {
       this.measures = measures;
       EvaluatedQualityGate.Builder builder = EvaluatedQualityGate.newBuilder().setQualityGate(gate).setStatus(Metric.Level.OK);
       for (Condition condition : gate.getConditions()) {
-        builder.addCondition(condition, EvaluatedCondition.EvaluationStatus.OK, "bar");
+        builder.addEvaluatedCondition(condition, EvaluatedCondition.EvaluationStatus.OK, "bar");
       }
       return builder.build();
     }

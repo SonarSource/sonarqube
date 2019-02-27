@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.api.posttask;
 import java.util.Set;
 import java.util.function.Function;
 import org.sonar.api.ce.posttask.QualityGate;
+import org.sonar.api.ce.posttask.QualityGate.EvaluationStatus;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.Condition;
@@ -37,13 +38,13 @@ public class QGToEvaluatedQG implements Function<QualityGate, EvaluatedQualityGa
 
   @Override public EvaluatedQualityGate apply(QualityGate qg) {
     EvaluatedQualityGate.Builder builder = EvaluatedQualityGate.newBuilder();
-    Set<org.sonar.server.qualitygate.Condition> conditions = qg.getConditions().stream()
+    Set<Condition> conditions = qg.getConditions().stream()
       .map(q -> {
-        org.sonar.server.qualitygate.Condition condition = new org.sonar.server.qualitygate.Condition(q.getMetricKey(), Condition.Operator.valueOf(q.getOperator().name()),
+        Condition condition = new Condition(q.getMetricKey(), Condition.Operator.valueOf(q.getOperator().name()),
           q.getErrorThreshold());
-        builder.addCondition(condition,
+        builder.addEvaluatedCondition(condition,
           EvaluatedCondition.EvaluationStatus.valueOf(q.getStatus().name()),
-          q.getStatus() == org.sonar.api.ce.posttask.QualityGate.EvaluationStatus.NO_VALUE ? null : q.getValue());
+          q.getStatus() == EvaluationStatus.NO_VALUE ? null : q.getValue());
         return condition;
       })
       .collect(MoreCollectors.toSet());

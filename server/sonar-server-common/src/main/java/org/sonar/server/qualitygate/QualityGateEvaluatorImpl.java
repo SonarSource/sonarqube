@@ -54,10 +54,10 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
       EvaluatedCondition evaluation = ConditionEvaluator.evaluate(condition, measures);
 
       if (isSmallChangeset && evaluation.getStatus() != EvaluationStatus.OK && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricKey)) {
-        result.addCondition(new EvaluatedCondition(evaluation.getCondition(), EvaluationStatus.OK, evaluation.getValue().orElse(null)));
+        result.addEvaluatedCondition(new EvaluatedCondition(evaluation.getCondition(), EvaluationStatus.OK, evaluation.getValue().orElse(null)));
         result.setIgnoredConditionsOnSmallChangeset(true);
       } else {
-        result.addCondition(evaluation);
+        result.addEvaluatedCondition(evaluation);
       }
     });
 

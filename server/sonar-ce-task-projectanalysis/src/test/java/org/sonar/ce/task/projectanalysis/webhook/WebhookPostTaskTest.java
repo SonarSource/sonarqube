@@ -150,7 +150,7 @@ public class WebhookPostTaskTest {
       webQualityGate = EvaluatedQualityGate.newBuilder()
         .setQualityGate(new org.sonar.server.qualitygate.QualityGate(qualityGate.getId(), qualityGate.getName(), Collections.singleton(qgCondition)))
         .setStatus(Metric.Level.valueOf(qualityGate.getStatus().name()))
-        .addCondition(qgCondition, EvaluatedCondition.EvaluationStatus.valueOf(condition.getStatus().name()), condition.getValue())
+        .addEvaluatedCondition(qgCondition, EvaluatedCondition.EvaluationStatus.valueOf(condition.getStatus().name()), condition.getValue())
         .build();
     }
 

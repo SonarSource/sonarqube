@@ -61,7 +61,7 @@ public class WebhookPayloadFactoryImplTest {
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
       .setStatus(Metric.Level.ERROR)
-      .addCondition(condition, EvaluatedCondition.EvaluationStatus.ERROR, "74.0")
+      .addEvaluatedCondition(condition, EvaluatedCondition.EvaluationStatus.ERROR, "74.0")
       .build();
     ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
@@ -105,7 +105,7 @@ public class WebhookPayloadFactoryImplTest {
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
       .setStatus(Metric.Level.ERROR)
-      .addCondition(condition, EvaluatedCondition.EvaluationStatus.NO_VALUE, null)
+      .addEvaluatedCondition(condition, EvaluatedCondition.EvaluationStatus.NO_VALUE, null)
       .build();
     ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 

@@ -23,7 +23,6 @@ import { ComponentNavMeta } from '../ComponentNavMeta';
 import {
   mockShortLivingBranch,
   mockComponent,
-  mockCurrentUser,
   mockLongLivingBranch,
   mockPullRequest
 } from '../../../../../helpers/testMocks';
@@ -51,7 +50,9 @@ function shallowRender(props = {}) {
     <ComponentNavMeta
       branchLike={mockShortLivingBranch()}
       component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={mockCurrentUser({ isLoggedIn: false })}
+      currentUser={{
+        isLoggedIn: false
+      }}
       warnings={[]}
       {...props}
     />

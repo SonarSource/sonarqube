@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +53,23 @@ public class QualityGateEvaluatorImplTest {
     QualityGate gate = mock(QualityGate.class);
     when(gate.getConditions()).thenReturn(conditions);
     assertThat(underTest.getMetricKeys(gate)).containsAll(metricKeys);
+  }
+
+  @Test
+  public void evaluated_conditions_are_sorted() {
+    Set<String> metricKeys = ImmutableSet.of("foo", "bar", CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY);
+    Set<Condition> conditions = metricKeys.stream().map(key -> {
+      Condition condition = mock(Condition.class);
+      when(condition.getMetricKey()).thenReturn(key);
+      return condition;
+    }).collect(Collectors.toSet());
+
+    QualityGate gate = mock(QualityGate.class);
+    when(gate.getConditions()).thenReturn(conditions);
+    QualityGateEvaluator.Measures measures = mock(QualityGateEvaluator.Measures.class);
+
+    assertThat(underTest.evaluate(gate, measures).getEvaluatedConditions()).extracting(x -> x.getCondition().getMetricKey())
+    .containsExactly(CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY, "bar", "foo");
   }
 
   @Test

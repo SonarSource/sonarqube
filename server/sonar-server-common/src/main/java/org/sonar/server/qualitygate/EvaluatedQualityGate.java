@@ -20,11 +20,18 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.measures.Metric;
@@ -32,15 +39,25 @@ import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 
 @Immutable
 public class EvaluatedQualityGate {
   private final QualityGate qualityGate;
   private final Metric.Level status;
-  private final Set<EvaluatedCondition> evaluatedConditions;
+  private final Collection<EvaluatedCondition> evaluatedConditions;
   private final boolean ignoredConditionsOnSmallChangeset;
 
-  private EvaluatedQualityGate(QualityGate qualityGate, Metric.Level status, Set<EvaluatedCondition> evaluatedConditions, boolean ignoredConditionsOnSmallChangeset) {
+  private EvaluatedQualityGate(QualityGate qualityGate, Metric.Level status, Collection<EvaluatedCondition> evaluatedConditions, boolean ignoredConditionsOnSmallChangeset) {
     this.qualityGate = requireNonNull(qualityGate, "qualityGate can't be null");
     this.status = requireNonNull(status, "status can't be null");
     this.evaluatedConditions = evaluatedConditions;
@@ -55,7 +72,7 @@ public class EvaluatedQualityGate {
     return status;
   }
 
-  public Set<EvaluatedCondition> getEvaluatedConditions() {
+  public Collection<EvaluatedCondition> getEvaluatedConditions() {
     return evaluatedConditions;
   }
 
@@ -96,9 +113,21 @@ public class EvaluatedQualityGate {
   }
 
   public static final class Builder {
+    private static final List<String> CONDITIONS_ORDER = Arrays.asList(NEW_SECURITY_RATING_KEY, SECURITY_RATING_KEY, NEW_RELIABILITY_RATING_KEY,
+      RELIABILITY_RATING_KEY, NEW_MAINTAINABILITY_RATING_KEY, SQALE_RATING_KEY, NEW_COVERAGE_KEY, COVERAGE_KEY, NEW_DUPLICATED_LINES_DENSITY_KEY,
+      DUPLICATED_LINES_DENSITY_KEY);
+    private static final Map<String, Integer> CONDITIONS_ORDER_IDX = IntStream.range(0, CONDITIONS_ORDER.size()).boxed()
+      .collect(Collectors.toMap(CONDITIONS_ORDER::get, x -> x));
+
+    private static final Comparator<EvaluatedCondition> CONDITION_COMPARATOR = (c1, c2) -> {
+      Function<EvaluatedCondition, Integer> byList = c -> CONDITIONS_ORDER_IDX.getOrDefault(c.getCondition().getMetricKey(), Integer.MAX_VALUE);
+      Function<EvaluatedCondition, String> byMetricKey = c -> c.getCondition().getMetricKey();
+      return Comparator.comparing(byList).thenComparing(byMetricKey).compare(c1, c2);
+    };
+
     private QualityGate qualityGate;
     private Metric.Level status;
-    private final Map<Condition, EvaluatedCondition> evaluatedConditions = new HashMap<>();
+    private final Map<Condition, EvaluatedCondition> evaluatedConditions = new LinkedHashMap<>();
     private boolean ignoredConditionsOnSmallChangeset = false;
 
     private Builder() {
@@ -120,12 +149,12 @@ public class EvaluatedQualityGate {
       return this;
     }
 
-    public Builder addCondition(Condition condition, EvaluationStatus status, @Nullable String value) {
+    public Builder addEvaluatedCondition(Condition condition, EvaluationStatus status, @Nullable String value) {
       evaluatedConditions.put(condition, new EvaluatedCondition(condition, status, value));
       return this;
     }
 
-    public Builder addCondition(EvaluatedCondition c) {
+    public Builder addEvaluatedCondition(EvaluatedCondition c) {
       evaluatedConditions.put(c.getCondition(), c);
       return this;
     }
@@ -135,14 +164,17 @@ public class EvaluatedQualityGate {
     }
 
     public EvaluatedQualityGate build() {
+      checkEvaluatedConditions(qualityGate, evaluatedConditions);
+      List<EvaluatedCondition> sortedEvaluatedConditions = new ArrayList<>(evaluatedConditions.values());
+      sortedEvaluatedConditions.sort(CONDITION_COMPARATOR);
       return new EvaluatedQualityGate(
         this.qualityGate,
         this.status,
-        checkEvaluatedConditions(qualityGate, evaluatedConditions),
+        sortedEvaluatedConditions,
         ignoredConditionsOnSmallChangeset);
     }
 
-    private static Set<EvaluatedCondition> checkEvaluatedConditions(QualityGate qualityGate, Map<Condition, EvaluatedCondition> evaluatedConditions) {
+    private static void checkEvaluatedConditions(QualityGate qualityGate, Map<Condition, EvaluatedCondition> evaluatedConditions) {
       Set<Condition> conditions = qualityGate.getConditions();
 
       Set<Condition> conditionsNotEvaluated = conditions.stream()
@@ -154,8 +186,6 @@ public class EvaluatedQualityGate {
         .filter(c -> !conditions.contains(c))
         .collect(Collectors.toSet());
       checkArgument(unknownConditions.isEmpty(), "Evaluation provided for unknown conditions: %s", unknownConditions);
-
-      return ImmutableSet.copyOf(evaluatedConditions.values());
     }
   }
 }

@@ -20,11 +20,14 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
 
 import static java.util.Collections.emptySet;
@@ -36,9 +39,13 @@ public class EvaluatedQualityGateTest {
   private static final String QUALITY_GATE_ID = "qg_id";
   private static final String QUALITY_GATE_NAME = "qg_name";
   private static final QualityGate NO_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, emptySet());
-  private static final Condition CONDITION_1 = new Condition("metric_key", Condition.Operator.LESS_THAN, "2");
-  private static final Condition CONDITION_2 = new Condition("metric_key_2", Condition.Operator.GREATER_THAN, "6");
+  private static final Condition CONDITION_1 = new Condition("metric_key_1", Condition.Operator.LESS_THAN, "2");
+  private static final Condition CONDITION_2 = new Condition("a_metric", Condition.Operator.GREATER_THAN, "6");
+  private static final Condition CONDITION_3 = new Condition(CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY, Condition.Operator.GREATER_THAN, "6");
+
   private static final QualityGate ONE_CONDITION_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, singleton(CONDITION_1));
+  private static final QualityGate ALL_CONDITIONS_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME,
+    new HashSet<>(Arrays.asList(CONDITION_1, CONDITION_2, CONDITION_3)));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -66,7 +73,7 @@ public class EvaluatedQualityGateTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("condition can't be null");
 
-    builder.addCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value");
+    builder.addEvaluatedCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value");
   }
 
   @Test
@@ -74,12 +81,12 @@ public class EvaluatedQualityGateTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("status can't be null");
 
-    builder.addCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2"), null, "a_value");
+    builder.addEvaluatedCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2"), null, "a_value");
   }
 
   @Test
   public void addCondition_accepts_null_value() {
-    builder.addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.NO_VALUE, null);
+    builder.addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.NO_VALUE, null);
 
     assertThat(builder.getEvaluatedConditions())
       .containsOnly(new EvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.NO_VALUE, null));
@@ -94,7 +101,7 @@ public class EvaluatedQualityGateTest {
   public void build_fails_with_IAE_if_condition_added_and_no_on_QualityGate() {
     builder.setQualityGate(NO_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus)
-      .addCondition(CONDITION_1, randomEvaluationStatus, randomValue);
+      .addEvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Evaluation provided for unknown conditions: [" + CONDITION_1 + "]");
@@ -114,11 +121,27 @@ public class EvaluatedQualityGateTest {
   }
 
   @Test
+  public void getEvaluatedConditions_is_sorted() {
+    EvaluatedQualityGate underTest = builder
+      .setQualityGate(ALL_CONDITIONS_QUALITY_GATE)
+      .setStatus(randomStatus)
+      .addEvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue)
+      .addEvaluatedCondition(CONDITION_2, randomEvaluationStatus, randomValue)
+      .addEvaluatedCondition(CONDITION_3, randomEvaluationStatus, randomValue)
+      .build();
+
+    assertThat(underTest.getQualityGate()).isEqualTo(ALL_CONDITIONS_QUALITY_GATE);
+    assertThat(underTest.getStatus()).isEqualTo(randomStatus);
+    assertThat(underTest.getEvaluatedConditions()).extracting(c -> c.getCondition().getMetricKey())
+      .contains(CONDITION_3.getMetricKey(), CONDITION_2.getMetricKey(), CONDITION_1.getMetricKey());
+  }
+
+  @Test
   public void verify_getters() {
     EvaluatedQualityGate underTest = builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus)
-      .addCondition(CONDITION_1, randomEvaluationStatus, randomValue)
+      .addEvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue)
       .build();
 
     assertThat(underTest.getQualityGate()).isEqualTo(ONE_CONDITION_QUALITY_GATE);
@@ -145,8 +168,8 @@ public class EvaluatedQualityGateTest {
     EvaluatedQualityGate underTest = builder
       .setQualityGate(qualityGate)
       .setStatus(randomStatus)
-      .addCondition(CONDITION_1, randomEvaluationStatus, randomValue)
-      .addCondition(CONDITION_2, EvaluatedCondition.EvaluationStatus.ERROR, "bad")
+      .addEvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue)
+      .addEvaluatedCondition(CONDITION_2, EvaluatedCondition.EvaluationStatus.ERROR, "bad")
       .build();
 
     assertThat(underTest.getQualityGate()).isEqualTo(qualityGate);
@@ -161,7 +184,7 @@ public class EvaluatedQualityGateTest {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(Level.ERROR)
-      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
+      .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
     assertThat(underTest).isEqualTo(builder.build());
@@ -173,7 +196,7 @@ public class EvaluatedQualityGateTest {
     assertThat(underTest).isNotEqualTo(newBuilder()
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(Level.ERROR)
-      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
+      .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
       .build());
   }
 
@@ -182,7 +205,7 @@ public class EvaluatedQualityGateTest {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(Level.ERROR)
-      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
+      .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
     assertThat(underTest.hashCode()).isEqualTo(builder.build().hashCode());
@@ -194,7 +217,7 @@ public class EvaluatedQualityGateTest {
     assertThat(underTest.hashCode()).isNotEqualTo(newBuilder()
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(Level.ERROR)
-      .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
+      .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
       .build().hashCode());
   }
 }
