@@ -69,7 +69,9 @@ it('should allow to switch to manual mode', async () => {
 function shallowRender(props: Partial<SyncMemberForm['props']> = {}) {
   return shallow<SyncMemberForm>(
     <SyncMemberForm
+      buttonText="configure"
       fetchOrganization={jest.fn()}
+      hasOtherMembers={true}
       organization={mockOrganizationWithAlm()}
       refreshMembers={jest.fn().mockResolvedValue({})}
       {...props}

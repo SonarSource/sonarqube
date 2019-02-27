@@ -63,7 +63,7 @@ exports[`should allow to switch to automatic mode 1`] = `
           className="big-spacer-top"
           variant="warning"
         >
-          organization.members.management.automatic.warning
+          organization.members.management.automatic.warning_x.organization.github
         </Alert>
       </RadioCard>
     </div>

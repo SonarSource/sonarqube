@@ -53,7 +53,12 @@ export default function MembersPageHeader(props: Props) {
           {almKey &&
             isGithub(almKey) &&
             !showSyncNotif && (
-              <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
+              <SyncMemberForm
+                buttonText={translate('organization.members.config_synchro')}
+                hasOtherMembers={members && members.length > 1}
+                organization={organization}
+                refreshMembers={refreshMembers}
+              />
             )}
           {!hasMemberSync && (
             <div className="display-inline-block spacer-left spacer-bottom">
@@ -91,7 +96,12 @@ export default function MembersPageHeader(props: Props) {
                 translate('organization', almKey)
               )}
               <span className="spacer-left">
-                <SyncMemberForm organization={organization} refreshMembers={refreshMembers} />
+                <SyncMemberForm
+                  buttonText={translate('configure')}
+                  hasOtherMembers={members && members.length > 1}
+                  organization={organization}
+                  refreshMembers={refreshMembers}
+                />
               </span>
             </Alert>
           )}

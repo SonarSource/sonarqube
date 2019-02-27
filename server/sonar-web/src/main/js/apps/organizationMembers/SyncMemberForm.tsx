@@ -30,7 +30,9 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { fetchOrganization } from '../../store/rootActions';
 
 interface Props {
+  buttonText: string;
   fetchOrganization: (key: string) => void;
+  hasOtherMembers?: boolean;
   organization: T.Organization;
   refreshMembers: () => Promise<void>;
 }
@@ -91,8 +93,9 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
 
   renderModalBody = () => {
     const { membersSync } = this.state;
-    const { organization } = this.props;
+    const { hasOtherMembers, organization } = this.props;
     const almKey = organization.alm && sanitizeAlmId(organization.alm.key);
+    const showWarning = hasOtherMembers && organization.alm && !organization.alm.membersSync;
     return (
       <div className="display-flex-stretch big-spacer-top">
         <RadioCard
@@ -136,11 +139,15 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
               <li>{translate('organization.members.management.choose_members_permissions')}</li>
             </ul>
           </div>
-          {(!organization.alm || !organization.alm.membersSync) && (
-            <Alert className="big-spacer-top" variant="warning">
-              {translate('organization.members.management.automatic.warning')}
-            </Alert>
-          )}
+          {almKey &&
+            showWarning && (
+              <Alert className="big-spacer-top" variant="warning">
+                {translateWithParameters(
+                  'organization.members.management.automatic.warning_x',
+                  translate('organization', almKey)
+                )}
+              </Alert>
+            )}
         </RadioCard>
       </div>
     );
@@ -159,7 +166,7 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
         modalHeaderDescription={this.renderModalDescription()}
         onConfirm={this.handleConfirm}
         size={'medium'}>
-        {({ onClick }) => <Button onClick={onClick}>{translate('configure')}</Button>}
+        {({ onClick }) => <Button onClick={onClick}>{this.props.buttonText}</Button>}
       </ConfirmButton>
     );
   }

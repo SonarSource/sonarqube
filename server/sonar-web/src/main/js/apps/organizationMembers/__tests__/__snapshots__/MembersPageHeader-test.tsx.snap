@@ -174,6 +174,8 @@ exports[`should render for GitHub bound organization without sync 1`] = `
         className="spacer-left"
       >
         <Connect(SyncMemberForm)
+          buttonText="configure"
+          hasOtherMembers={false}
           organization={
             Object {
               "actions": Object {
