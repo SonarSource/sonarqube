@@ -9,18 +9,14 @@ _Branch analysis is available as part of [Developer Edition](https://redirect.so
 
 <!-- /sonarqube -->
 
-## Status vs Quality Gate
+Short-lived branch analysis shows your analysis and quality gate status in the {instance} UI.
 
-For short-lived branches, there is a kind of hard-coded quality gate focusing only on new issues. Its status is reflected by the green|red signal associated with each short-lived branch:
+## Quality Gate
 
-* status: green / OK or red / ERROR
-* error conditions:
-  * new open bugs > 0
-  * new open vulnerabilities > 0
-  * new open code smells > 0
+The short-lived branch quality gate:
 
-It is possible to change the status of a short-lived branch from ERROR to OK (red to green), i.e. mergable, by manually confirming the issues. The same is true for the False-Positive and Won't Fix statuses.
-It means the status of a short-lived branch will be red only when there are Open issues in the branch.
+* **Focuses on new code** – The short-lived branch quality gate only uses your project's quality gate conditions that apply to "on New Code" metrics.
+* **Assigns a status** – Each short-lived branch shows a quality gate status reflecting whether it Passed (green) or Failed (red).
 
 ## Issue Creation and Synchronization
 

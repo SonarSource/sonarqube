@@ -8,18 +8,20 @@ url: /analysis/pull-request/
 _Pull Request analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
 <!-- /sonarqube -->
+Pull Requests (PRs) are visible in {instance} from the branches and pull requests dropdown menu of your project.
 
+PR analysis allows you to:
 
-Pull Request analysis allows you to:
+* see your PR's Quality Gate status in the {instance} UI.
+* automatically decorate your PRs with {instance} issues in your SCM provider's interface.
 
-* see your Pull Request (PR) analysis results in the {instance} UI and see the green or red status to highlight the existence of open issues.
-* automatically decorate your PRs with {instance} issues in your SCM provider's interface. 
+## Quality Gate
 
-PRs are visible in {instance} from the "branches and pull requests" dropdown menu of your project.
+The PR quality gate:
+* **Focuses on new code** – The PR quality gate only uses your project's quality gate conditions that apply to "on New Code" metrics.
+* **Assigns a status** – Each PR shows a quality gate status reflecting whether it Passed (green) or Failed (red).
 
 When PR decoration is enabled, {instance} publishes the status of the analysis (Quality Gate) on the PR.
-
-When "Confirm", "Resolved as False Positive" or "Won't Fix" actions are performed on issues in {instance} UI, the status of the PR is updated accordingly. This means, if you want to get a green status on the PR, you can either fix the issues for real or "Confirm", "Resolved as False Positive" or "Won't Fix" any remaining issues available on the PR.
 
 PR analyses on {instance} are deleted automatically after 30 days with no analysis. This can be updated in **Configuration > General > Number of days before purging inactive short living branches**. 
 
