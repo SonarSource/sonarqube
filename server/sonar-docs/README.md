@@ -177,8 +177,8 @@ This conditional (i.e. only if you use the tag) ToC will _only_ appear in embedd
 
 #### Links
 
-* External page (automatically open in a new tab): `[Link text](https://www.sonarsource.com/)`
-* Another documentation page: `[Link text](/short-lived-branches)`
+* External page (automatically opens in a new tab): `[Link text](https://www.sonarsource.com/)`
+* Another documentation page: `[Link text](/short-lived-branches/)`
   * path omits trailing '.md'
   * links inside tooltips always open in a new tab
 * Internal SonarCloud app page: `[Link text](/#sonarcloud#/onboarding)`
