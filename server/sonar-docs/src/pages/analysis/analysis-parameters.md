@@ -99,6 +99,6 @@ Key | Description
 ---|----|---
 `sonar.branch` **![](/images/cross.svg)Deprecated since SQ 6.7** | _The Developer Edition provides fuller-featured branch functionality._ Manage SCM branches. Two branches of the same project are considered to be different projects in SonarQube. As a consequence issues found in a project A in a branch B1 are not linked to issues found for this project A in a branch B2. There is no way to automatically resolve issues from B2 when they are resolved in B1 as again A-B1 & A-B2 are considered separated projects. 
 `sonar.language` **![](/images/cross.svg)Deprecated since SQ 4.5** | Set the language of the source code to analyze. Browse the Plugin Library page to get the list of all available languages. If not set, a multi-language analysis will be triggered. 
-`sonar.profile` **![](/images/cross.svg)Deprecated since SQ 4.5** | Override the profile to be used. This should be set on a per-langauge basis through the UI instead. 
+`sonar.profile` **![](/images/cross.svg)Deprecated since SQ 4.5** | Override the profile to be used. This should be set on a per-language basis through the UI instead.
 `sonar.links.scm_dev` **![](/images/cross.svg)Deprecated since SQ 7.1** | Developer connection. | `<scm><developerConnection>` for Maven projects
 <!-- /sonarqube -->

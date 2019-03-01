@@ -44,13 +44,13 @@ These parameters enable PR analysis:
 To activate PR decoration, you need to:
 
 * declare an Authentication Token
-* specify the Git provider
-* feed some specific parameters (GitHub only)
+* specify the Pull Request provider
+* feed some provider-specific parameters
 
 #### Authentication Token
 <!-- sonarqube -->
 The first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests**. The field to configure depends on the provider.
-For GitHub Enterprise or GitHub.com, you need to configure the **Authentication token** field. For Azure DevOps, it's the **Personal access token**.
+For GitHub Enterprise or GitHub.com, you need to configure the **Authentication token** field. For Azure DevOps or Bitbucket Server, this is the **Personal access token**.
 <!-- /sonarqube -->
 <!-- sonarcloud -->
 If you are using Azure DevOps, the first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests > VSTS > Personal access token**.
@@ -59,14 +59,14 @@ If you are using Azure DevOps, the first thing to configure is the authenticatio
 #### Pull Request Provider
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
-| `sonar.pullrequest.provider` | `github` or `vsts` <!-- sonarcloud -->or `bitbucketcloud`<!-- /sonarcloud -->. This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". <!-- sonarcloud -->Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->|
+| `sonar.pullrequest.provider` | `github`, `vsts` <!-- sonarcloud -->or `bitbucketcloud`<!-- /sonarcloud --><!-- sonarqube -->or `bitbucketserver`<!-- /sonarqube -->. This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". <!-- sonarcloud -->Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->|
 
 #### GitHub Parameters
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
 | `sonar.pullrequest.github.repository` | SLUG of the GitHub Repo |
 <!-- sonarqube -->
-| `sonar.pullrequest.github.endpoint` | The API url for your GitHub instance.<br/> Ex.: `https://api.github.com/` or `https://github.company.com/api/v3/` |
+| `sonar.pullrequest.github.endpoint` | The API URL for your GitHub instance.<br/> Ex.: `https://api.github.com/` or `https://github.company.com/api/v3/` |
 <!-- /sonarqube -->
 
 Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
@@ -80,6 +80,13 @@ Note: if you were relying on the GitHub Plugin, its properties are no longer req
 <!-- /sonarcloud -->
 
 <!-- sonarqube -->
+#### Bitbucket Server Parameters
+| Parameter Name        | Description |
+| --------------------- | ------------------ |
+| `sonar.pullrequest.bitbucketserver.serverUrl` | The base URL for your Bitbucket Server instance. Usually defined in global server settings.<br/> Ex.: `https://bitbucket.company.com/` |
+| `sonar.pullrequest.bitbucketserver.project` | Bitbucket project key. Can be set in project settings, or passed through scanner properties.<br/> Ex.: `MYPRJ` |
+| `sonar.pullrequest.bitbucketserver.repository` | SLUG of the Bitbucket repository. Can be set in project settings, or passed through scanner properties.<br/> Ex.: `my-repo` |
+
 #### Issue links
 During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > General](/#sonarqube-admin#/admin/settings)**) must be set correctly. Otherwise the links will default to `localhost`.
 <!-- /sonarqube -->
