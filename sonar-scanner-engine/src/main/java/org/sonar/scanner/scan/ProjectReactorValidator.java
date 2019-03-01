@@ -85,7 +85,7 @@ public class ProjectReactorValidator {
       validatePullRequestParamsWhenPluginAbsent(validationMessages);
     }
 
-    validateBranch(validationMessages, deprecatedBranchName);
+    validateLegacyBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {
       throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
@@ -122,8 +122,8 @@ public class ProjectReactorValidator {
     }
   }
 
-  private static void validateBranch(List<String> validationMessages, @Nullable String branch) {
-    if (isNotEmpty(branch) && !ComponentKeys.isValidBranch(branch)) {
+  private static void validateLegacyBranch(List<String> validationMessages, @Nullable String branch) {
+    if (isNotEmpty(branch) && !ComponentKeys.isValidLegacyBranch(branch)) {
       validationMessages.add(format("\"%s\" is not a valid branch name. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));
     }

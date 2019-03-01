@@ -68,14 +68,14 @@ public class ComponentKeysTest {
 
   @Test
   public void isValidBranchKey() {
-    assertThat(ComponentKeys.isValidBranch("")).isTrue();
-    assertThat(ComponentKeys.isValidBranch("abc")).isTrue();
-    assertThat(ComponentKeys.isValidBranch("0123")).isTrue();
-    assertThat(ComponentKeys.isValidBranch("ab 12")).isFalse();
-    assertThat(ComponentKeys.isValidBranch("ab_12")).isTrue();
-    assertThat(ComponentKeys.isValidBranch("ab/12")).isTrue();
-    assertThat(ComponentKeys.isValidBranch("ab\\12")).isFalse();
-    assertThat(ComponentKeys.isValidBranch("ab\n")).isFalse();
+    assertThat(ComponentKeys.isValidLegacyBranch("")).isTrue();
+    assertThat(ComponentKeys.isValidLegacyBranch("abc")).isTrue();
+    assertThat(ComponentKeys.isValidLegacyBranch("0123")).isTrue();
+    assertThat(ComponentKeys.isValidLegacyBranch("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidLegacyBranch("ab_12")).isTrue();
+    assertThat(ComponentKeys.isValidLegacyBranch("ab/12")).isTrue();
+    assertThat(ComponentKeys.isValidLegacyBranch("ab\\12")).isFalse();
+    assertThat(ComponentKeys.isValidLegacyBranch("ab\n")).isFalse();
   }
 
   @Test

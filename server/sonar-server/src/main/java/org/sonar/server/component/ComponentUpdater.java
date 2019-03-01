@@ -100,7 +100,7 @@ public class ComponentUpdater {
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
-    checkBranchFormat(newComponent.qualifier(), newComponent.deprecatedBranch());
+    checkLegacyBranchFormat(newComponent.qualifier(), newComponent.deprecatedBranch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.deprecatedBranch());
     checkRequest(!dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent(),
       "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), keyWithBranch);
@@ -169,8 +169,8 @@ public class ComponentUpdater {
       "Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", getQualifierToDisplay(qualifier), key);
   }
 
-  private void checkBranchFormat(String qualifier, @Nullable String branch) {
-    checkRequest(branch == null || ComponentKeys.isValidBranch(branch),
+  private void checkLegacyBranchFormat(String qualifier, @Nullable String branch) {
+    checkRequest(branch == null || ComponentKeys.isValidLegacyBranch(branch),
       "Malformed branch for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.", getQualifierToDisplay(qualifier), branch);
   }
 

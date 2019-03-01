@@ -47,7 +47,7 @@ public class DefaultBranchImpl implements Branch {
   public DefaultBranchImpl(@Nullable String name) {
     this.isLegacyBranch = (name != null);
     this.branchName = (name == null) ? BranchDto.DEFAULT_MAIN_BRANCH_NAME : name;
-    if (!ComponentKeys.isValidBranch(branchName)) {
+    if (!ComponentKeys.isValidLegacyBranch(branchName)) {
       throw MessageException.of(format("\"%s\" is not a valid branch name. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branchName));
     }

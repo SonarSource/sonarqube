@@ -111,7 +111,7 @@ public final class ComponentKeys {
    *
    * @return <code>true</code> if <code>branchCandidate</code> can be used for a project
    */
-  public static boolean isValidBranch(String branchCandidate) {
+  public static boolean isValidLegacyBranch(String branchCandidate) {
     return branchCandidate.matches(VALID_BRANCH_REGEXP);
   }
 
