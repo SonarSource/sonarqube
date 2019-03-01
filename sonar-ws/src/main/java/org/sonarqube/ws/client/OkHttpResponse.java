@@ -77,13 +77,10 @@ class OkHttpResponse extends BaseResponse {
    */
   @Override
   public String content() {
-    ResponseBody body = okResponse.body();
-    try {
+    try (ResponseBody body = okResponse.body()) {
       return body.string();
     } catch (IOException e) {
       throw fail(e);
-    } finally {
-      body.close();
     }
   }
 
