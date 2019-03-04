@@ -20,15 +20,15 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import OrganizationInput from './OrganizationInput';
+import { createProject } from '../../../api/components';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { SubmitButton } from '../../../components/ui/buttons';
-import { createProject } from '../../../api/components';
-import { translate } from '../../../helpers/l10n';
 import ProjectKeyInput from '../components/ProjectKeyInput';
-import ProjectNameInput from '../components/ProjectNameInput';
 import VisibilitySelector from '../../../components/common/VisibilitySelector';
-import { isSonarCloud } from '../../../helpers/system';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
 import './ManualProjectCreate.css';
 
 interface Props {
@@ -149,7 +149,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     );
   };
 
-  handleProjectNameChange = (projectName: string | undefined) => {
+  handleProjectNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const projectName = event.currentTarget.value.trim();
     this.setState({ projectName, projectNameChanged: true });
   };
 
@@ -185,11 +186,32 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               initialValue={this.state.projectKey}
               onChange={this.handleProjectKeyChange}
             />
-            <ProjectNameInput
-              className="form-field"
-              onChange={this.handleProjectNameChange}
-              value={this.state.projectName}
-            />
+            <div className="form-field">
+              <label htmlFor="project-name">
+                <span className="text-middle">
+                  <strong>{translate('onboarding.create_project.display_name')}</strong>
+                  <em className="mandatory">*</em>
+                </span>
+                <HelpTooltip
+                  className="spacer-left"
+                  overlay={translate('onboarding.create_project.display_name.help')}
+                />
+              </label>
+              <div className="little-spacer-top spacer-bottom">
+                <input
+                  className={'input-super-large'}
+                  id="project-name"
+                  maxLength={255}
+                  minLength={1}
+                  onChange={this.handleProjectNameChange}
+                  type="text"
+                  value={this.state.projectName}
+                />
+              </div>
+              <div className="note abs-width-400">
+                {translate('onboarding.create_project.display_name.description')}
+              </div>
+            </div>
             {isSonarCloud() &&
               selectedOrganization && (
                 <div

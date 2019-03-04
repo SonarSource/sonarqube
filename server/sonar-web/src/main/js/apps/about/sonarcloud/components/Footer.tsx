@@ -82,21 +82,17 @@ export default function Footer() {
             <h4 className="sc-footer-nav-column-title">About</h4>
             <ul>
               <li className="spacer-top">
-                <a
-                  className="sc-footer-link"
-                  href="https://www.sonarsource.com/"
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  SonarSource
-                </a>
-              </li>
-              <li className="spacer-top">
                 <Link
                   className="sc-footer-link"
                   rel="noopener noreferrer"
                   target="_blank"
                   to="/terms.pdf">
                   Terms
+                </Link>
+              </li>
+              <li className="spacer-top">
+                <Link className="sc-footer-link" to="/about/pricing/">
+                  Pricing
                 </Link>
               </li>
               <li className="spacer-top">

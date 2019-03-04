@@ -21,9 +21,7 @@ import * as React from 'react';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import OrganizationAvatarInput from '../components/OrganizationAvatarInput';
-import OrganizationDescriptionInput from '../components/OrganizationDescriptionInput';
 import OrganizationKeyInput from '../components/OrganizationKeyInput';
-import OrganizationNameInput from '../components/OrganizationNameInput';
 import OrganizationUrlInput from '../components/OrganizationUrlInput';
 import { ResetButtonLink, SubmitButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
@@ -93,16 +91,16 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
     this.setState({ avatar });
   };
 
-  handleDescriptionUpdate = (description: string | undefined) => {
-    this.setState({ description });
+  handleDescriptionUpdate = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ description: event.currentTarget.value });
   };
 
   handleKeyUpdate = (key: string | undefined) => {
     this.setState({ key });
   };
 
-  handleNameUpdate = (name: string | undefined) => {
-    this.setState({ name });
+  handleNameUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ name: event.currentTarget.value });
   };
 
   handleUrlUpdate = (url: string | undefined) => {
@@ -152,10 +150,22 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
         </div>
         <div className="js-additional-info" hidden={!this.state.additional}>
           <div className="big-spacer-top">
-            <OrganizationNameInput
-              initialValue={this.state.name}
-              onChange={this.handleNameUpdate}
-            />
+            <label htmlFor="organization-display-name">
+              <strong>{translate('onboarding.create_organization.display_name')}</strong>
+            </label>
+            <div className="little-spacer-top">
+              <input
+                className="input-super-large text-middle"
+                id="organization-display-name"
+                maxLength={255}
+                onChange={this.handleNameUpdate}
+                type="text"
+                value={this.state.name}
+              />
+            </div>
+            <div className="note abs-width-400">
+              {translate('onboarding.create_organization.display_name.description')}
+            </div>
           </div>
           <div className="big-spacer-top">
             <OrganizationAvatarInput
@@ -165,10 +175,19 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
             />
           </div>
           <div className="big-spacer-top">
-            <OrganizationDescriptionInput
-              initialValue={this.state.description}
-              onChange={this.handleDescriptionUpdate}
-            />
+            <label htmlFor="organization-description">
+              <strong>{translate('onboarding.create_organization.description')}</strong>
+            </label>
+            <div className="little-spacer-top">
+              <textarea
+                className="input-super-large text-middle"
+                id="organization-description"
+                maxLength={256}
+                onChange={this.handleDescriptionUpdate}
+                rows={3}
+                value={this.state.description}
+              />
+            </div>
           </div>
           <div className="big-spacer-top">
             <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />

@@ -71,5 +71,6 @@ export const LANGUAGES = [
   { name: 'T-SQL', file: 't-sql.svg', width: 53 },
   { name: 'PL/SQL', file: 'pl-sql.svg', width: 65 },
   { name: 'VB', file: 'vb.svg', width: 55 },
-  { name: 'XML', file: 'xml.svg', width: 67 }
+  { name: 'XML', file: 'xml.svg', width: 67 },
+  { name: 'COBOL', file: 'cobol.svg', width: 65 }
 ];

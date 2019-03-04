@@ -45,7 +45,7 @@ it('should correctly create a public project', async () => {
   wrapper.find('withRouter(OrganizationInput)').prop<Function>('onChange')({ key: 'foo' });
 
   change(wrapper.find('ProjectKeyInput'), 'bar');
-  change(wrapper.find('ProjectNameInput'), 'Bar');
+  change(wrapper.find('input#project-name'), 'Bar');
   expect(wrapper.find('SubmitButton').prop('disabled')).toBe(false);
 
   submit(wrapper.find('form'));
@@ -66,7 +66,7 @@ it('should correctly create a private project', async () => {
   wrapper.find('withRouter(OrganizationInput)').prop<Function>('onChange')({ key: 'bar' });
 
   change(wrapper.find('ProjectKeyInput'), 'bar');
-  change(wrapper.find('ProjectNameInput'), 'Bar');
+  change(wrapper.find('input#project-name'), 'Bar');
 
   submit(wrapper.find('form'));
   expect(createProject).toBeCalledWith({

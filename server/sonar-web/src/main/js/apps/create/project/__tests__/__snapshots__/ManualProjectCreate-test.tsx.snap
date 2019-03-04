@@ -32,10 +32,47 @@ exports[`should render correctly 1`] = `
         className="form-field"
         onChange={[Function]}
       />
-      <ProjectNameInput
+      <div
         className="form-field"
-        onChange={[Function]}
-      />
+      >
+        <label
+          htmlFor="project-name"
+        >
+          <span
+            className="text-middle"
+          >
+            <strong>
+              onboarding.create_project.display_name
+            </strong>
+            <em
+              className="mandatory"
+            >
+              *
+            </em>
+          </span>
+          <HelpTooltip
+            className="spacer-left"
+            overlay="onboarding.create_project.display_name.help"
+          />
+        </label>
+        <div
+          className="little-spacer-top spacer-bottom"
+        >
+          <input
+            className="input-super-large"
+            id="project-name"
+            maxLength={255}
+            minLength={1}
+            onChange={[Function]}
+            type="text"
+          />
+        </div>
+        <div
+          className="note abs-width-400"
+        >
+          onboarding.create_project.display_name.description
+        </div>
+      </div>
       <SubmitButton
         disabled={true}
       >

@@ -55,13 +55,13 @@ export default function BranchAnalysis() {
             <li className="sc-feature sc-branch-feature">
               <img
                 alt=""
-                className="sc-branch-feature-right"
+                className="sc-branch-feature-right flex-0"
                 height="270"
                 src={`${getBaseUrl()}/images/sonarcloud/branch-01.png`}
                 srcSet={`${getBaseUrl()}/images/sonarcloud/branch-01.png 1x, ${getBaseUrl()}/images/sonarcloud/branch-01@2x.png 2x`}
                 width="463"
               />
-              <div>
+              <div className="flex-1">
                 <h3 className="sc-feature-title">Analyze branches and pull requests</h3>
                 <p className="sc-feature-description">
                   For all project branches (main, maintenance, version, feature, etc.), you get the
@@ -78,7 +78,7 @@ export default function BranchAnalysis() {
               </div>
             </li>
             <li className="sc-feature sc-branch-feature">
-              <div>
+              <div className="flex-1">
                 <h3 className="sc-feature-title">Decorate PRs on Azure DevOps and GitHub</h3>
                 <p className="sc-feature-description">
                   Pull requests get decorated directly on Azure DevOps and GitHub. The result of the
@@ -89,7 +89,7 @@ export default function BranchAnalysis() {
               </div>
               <img
                 alt=""
-                className="sc-branch-feature-left"
+                className="sc-branch-feature-left flex-0"
                 height="390"
                 src={`${getBaseUrl()}/images/sonarcloud/branch-02.png`}
                 srcSet={`${getBaseUrl()}/images/sonarcloud/branch-02.png 1x, ${getBaseUrl()}/images/sonarcloud/branch-02@2x.png 2x`}
@@ -99,13 +99,13 @@ export default function BranchAnalysis() {
             <li className="sc-feature sc-branch-feature">
               <img
                 alt=""
-                className="sc-branch-feature-right"
+                className="sc-branch-feature-right flex-0"
                 height="169"
                 src={`${getBaseUrl()}/images/sonarcloud/branch-03.png`}
                 srcSet={`${getBaseUrl()}/images/sonarcloud/branch-03.png 1x, ${getBaseUrl()}/images/sonarcloud/branch-03@2x.png 2x`}
                 width="460"
               />
-              <div>
+              <div className="flex-1">
                 <h3 className="sc-feature-title">Add a check in GitHub</h3>
                 <p className="sc-feature-description">
                   Finally, a check can be added to the PR to provide the Quality Gate status of the

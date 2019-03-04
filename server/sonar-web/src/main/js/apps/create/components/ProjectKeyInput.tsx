@@ -31,7 +31,6 @@ interface Props {
 }
 
 interface State {
-  editing: boolean;
   error?: string;
   touched: boolean;
   validating: boolean;
@@ -42,7 +41,7 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
   mounted = false;
   constructor(props: Props) {
     super(props);
-    this.state = { error: undefined, editing: false, touched: false, validating: false, value: '' };
+    this.state = { error: undefined, touched: false, validating: false, value: '' };
     this.checkFreeKey = debounce(this.checkFreeKey, 250);
   }
 
@@ -90,14 +89,6 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
     this.validateKey(value);
   };
 
-  handleBlur = () => {
-    this.setState({ editing: false });
-  };
-
-  handleFocus = () => {
-    this.setState({ editing: true });
-  };
-
   validateKey(key: string) {
     if (key.length > 400 || !/^[\w-.:]*[a-zA-Z]+[\w-.:]*$/.test(key)) {
       this.setState({
@@ -111,7 +102,7 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const isInvalid = this.state.touched && !this.state.editing && this.state.error !== undefined;
+    const isInvalid = this.state.touched && this.state.error !== undefined;
     const isValid = this.state.touched && !this.state.validating && this.state.error === undefined;
     return (
       <ValidationInput
@@ -133,9 +124,7 @@ export default class ProjectKeyInput extends React.PureComponent<Props, State> {
           id="project-key"
           maxLength={400}
           minLength={1}
-          onBlur={this.handleBlur}
           onChange={this.handleChange}
-          onFocus={this.handleFocus}
           type="text"
           value={this.state.value}
         />

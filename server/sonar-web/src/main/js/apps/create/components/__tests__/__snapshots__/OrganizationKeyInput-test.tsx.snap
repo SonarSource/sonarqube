@@ -21,9 +21,7 @@ exports[`should render correctly 1`] = `
       className="input-super-large"
       id="organization-key"
       maxLength={255}
-      onBlur={[Function]}
       onChange={[Function]}
-      onFocus={[Function]}
       type="text"
       value="key"
     />

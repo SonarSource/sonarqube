@@ -28,10 +28,30 @@ exports[`should render form 1`] = `
     <div
       className="big-spacer-top"
     >
-      <OrganizationNameInput
-        initialValue=""
-        onChange={[Function]}
-      />
+      <label
+        htmlFor="organization-display-name"
+      >
+        <strong>
+          onboarding.create_organization.display_name
+        </strong>
+      </label>
+      <div
+        className="little-spacer-top"
+      >
+        <input
+          className="input-super-large text-middle"
+          id="organization-display-name"
+          maxLength={255}
+          onChange={[Function]}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="note abs-width-400"
+      >
+        onboarding.create_organization.display_name.description
+      </div>
     </div>
     <div
       className="big-spacer-top"
@@ -45,10 +65,25 @@ exports[`should render form 1`] = `
     <div
       className="big-spacer-top"
     >
-      <OrganizationDescriptionInput
-        initialValue=""
-        onChange={[Function]}
-      />
+      <label
+        htmlFor="organization-description"
+      >
+        <strong>
+          onboarding.create_organization.description
+        </strong>
+      </label>
+      <div
+        className="little-spacer-top"
+      >
+        <textarea
+          className="input-super-large text-middle"
+          id="organization-description"
+          maxLength={256}
+          onChange={[Function]}
+          rows={3}
+          value=""
+        />
+      </div>
     </div>
     <div
       className="big-spacer-top"
