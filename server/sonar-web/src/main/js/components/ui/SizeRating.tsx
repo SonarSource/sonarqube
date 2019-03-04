@@ -22,7 +22,7 @@ import * as classNames from 'classnames';
 import { inRange } from 'lodash';
 import './SizeRating.css';
 
-interface Props {
+export interface Props {
   muted?: boolean;
   small?: boolean;
   value: number | null | undefined;
@@ -51,5 +51,9 @@ export default function SizeRating({ small = false, muted = false, value }: Prop
     'size-rating-muted': muted
   });
 
-  return <div className={className}>{letter}</div>;
+  return (
+    <div aria-hidden="true" className={className}>
+      {letter}
+    </div>
+  );
 }

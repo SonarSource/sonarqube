@@ -18,33 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import { formatMeasure } from '../../helpers/measures';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import './Rating.css';
+import { shallow } from 'enzyme';
+import SizeRating, { Props } from '../SizeRating';
 
-interface Props {
-  className?: string;
-  muted?: boolean;
-  small?: boolean;
-  value: string | number | undefined;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ muted: true, small: true, value: 1000 })).toMatchSnapshot();
+  expect(shallowRender({ value: 10000 })).toMatchSnapshot();
+  expect(shallowRender({ value: 100000 })).toMatchSnapshot();
+  expect(shallowRender({ value: 500000 })).toMatchSnapshot();
+});
 
-export default function Rating({ className, muted = false, small = false, value }: Props) {
-  if (value === undefined) {
-    return <span aria-label={translate('metric.no_rating')}>{'–'}</span>;
-  }
-  const formatted = formatMeasure(value, 'RATING');
-  return (
-    <span
-      aria-label={translateWithParameters('metric.has_rating_X', formatted)}
-      className={classNames(
-        'rating',
-        'rating-' + formatted,
-        { 'rating-small': small, 'rating-muted': muted },
-        className
-      )}>
-      {formatted}
-    </span>
-  );
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(<SizeRating value={100} {...props} />);
 }
