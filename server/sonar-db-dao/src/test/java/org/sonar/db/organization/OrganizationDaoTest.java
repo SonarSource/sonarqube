@@ -42,6 +42,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -59,7 +60,6 @@ import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -1121,7 +1121,7 @@ public class OrganizationDaoTest {
   private void insertOrgAlmBinding(OrganizationDto organization, ALM alm, String organizationAlmId) {
     dbClient.almAppInstallDao().insertOrUpdate(dbSession, alm, organizationAlmId, true, randomAlphabetic(8), randomAlphabetic(8));
     Optional<AlmAppInstallDto> almAppInstallDto = dbClient.almAppInstallDao().selectByOrganizationAlmId(dbSession, GITHUB, organizationAlmId);
-    dbClient.organizationAlmBindingDao().insert(dbSession, organization, almAppInstallDto.get(), "http://github.com/myteam", random(8),true);
+    dbClient.organizationAlmBindingDao().insert(dbSession, organization, almAppInstallDto.get(), "http://github.com/myteam", Uuids.createFast(), true);
   }
 
   private void dirtyInsertWithDefaultTemplate(String organizationUuid, @Nullable String project, @Nullable String view) {
