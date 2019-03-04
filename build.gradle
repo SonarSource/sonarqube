@@ -117,7 +117,7 @@ subprojects {
       dependency 'commons-dbutils:commons-dbutils:1.5'
       dependency 'commons-io:commons-io:2.6'
       dependency 'commons-lang:commons-lang:2.6'
-      dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.5') {
+      dependencySet(group: 'com.fasterxml.jackson.core', version: '2.9.8') {
         entry 'jackson-core'
         entry 'jackson-databind'
         entry 'jackson-annotations'
