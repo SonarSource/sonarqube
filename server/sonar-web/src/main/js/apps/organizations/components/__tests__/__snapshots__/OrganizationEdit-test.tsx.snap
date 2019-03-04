@@ -7,7 +7,7 @@ exports[`smoke test 1`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="organization.edit"
+    title="organization.settings"
   />
   <header
     className="page-header"
@@ -15,12 +15,17 @@ exports[`smoke test 1`] = `
     <h1
       className="page-title"
     >
-      organization.edit
+      organization.settings
     </h1>
   </header>
   <div
     className="boxed-group boxed-group-inner"
   >
+    <h2
+      className="boxed-title"
+    >
+      organization.details
+    </h2>
     <form
       onSubmit={[Function]}
     >
@@ -162,7 +167,7 @@ exports[`smoke test 2`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="organization.edit"
+    title="organization.settings"
   />
   <header
     className="page-header"
@@ -170,12 +175,17 @@ exports[`smoke test 2`] = `
     <h1
       className="page-title"
     >
-      organization.edit
+      organization.settings
     </h1>
   </header>
   <div
     className="boxed-group boxed-group-inner"
   >
+    <h2
+      className="boxed-title"
+    >
+      organization.details
+    </h2>
     <form
       onSubmit={[Function]}
     >
@@ -317,7 +327,7 @@ exports[`smoke test 3`] = `
   <HelmetWrapper
     defer={true}
     encodeSpecialCharacters={true}
-    title="organization.edit"
+    title="organization.settings"
   />
   <header
     className="page-header"
@@ -325,12 +335,17 @@ exports[`smoke test 3`] = `
     <h1
       className="page-title"
     >
-      organization.edit
+      organization.settings
     </h1>
   </header>
   <div
     className="boxed-group boxed-group-inner"
   >
+    <h2
+      className="boxed-title"
+    >
+      organization.details
+    </h2>
     <form
       onSubmit={[Function]}
     >

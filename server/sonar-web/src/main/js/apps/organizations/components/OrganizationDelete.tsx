@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import InstanceMessage from '../../../components/common/InstanceMessage';
@@ -111,59 +110,53 @@ export class OrganizationDelete extends React.PureComponent<Props, State> {
 
   render() {
     const { hasPaidPlan } = this.state;
-    const title = translate('organization.delete');
     return (
-      <>
-        <Helmet title={title} />
-        <div className="page page-limited">
-          <header className="page-header">
-            <h1 className="page-title">{title}</h1>
-            <div className="page-description">
-              <InstanceMessage message={translate('organization.delete.description')} />
-            </div>
-          </header>
-          <ConfirmButton
-            confirmButtonText={translate('delete')}
-            confirmDisable={!this.isVerified()}
-            isDestructive={true}
-            modalBody={
-              <div>
-                {hasPaidPlan && (
-                  <Alert variant="warning">
-                    {translate('organization.delete.sonarcloud.paid_plan_info')}
-                  </Alert>
-                )}
-                <p>{translate('organization.delete.question')}</p>
-                <div className="spacer-top">
-                  <label htmlFor="downgrade-organization-name">
-                    {translate('billing.downgrade.modal.type_to_proceed')}
-                  </label>
-                  <div className="little-spacer-top">
-                    <input
-                      autoFocus={true}
-                      className="input-super-large"
-                      id="downgrade-organization-name"
-                      onChange={this.handleInput}
-                      type="text"
-                      value={this.state.verify}
-                    />
-                  </div>
+      <div className="boxed-group boxed-group-inner">
+        <h2 className="boxed-title">{translate('organization.delete')}</h2>
+        <p className="big-spacer-bottom width-50">
+          <InstanceMessage message={translate('organization.delete.description')} />
+        </p>
+        <ConfirmButton
+          confirmButtonText={translate('delete')}
+          confirmDisable={!this.isVerified()}
+          isDestructive={true}
+          modalBody={
+            <div>
+              {hasPaidPlan && (
+                <Alert variant="warning">
+                  {translate('organization.delete.sonarcloud.paid_plan_info')}
+                </Alert>
+              )}
+              <p>{translate('organization.delete.question')}</p>
+              <div className="spacer-top">
+                <label htmlFor="downgrade-organization-name">
+                  {translate('billing.downgrade.modal.type_to_proceed')}
+                </label>
+                <div className="little-spacer-top">
+                  <input
+                    autoFocus={true}
+                    className="input-super-large"
+                    id="downgrade-organization-name"
+                    onChange={this.handleInput}
+                    type="text"
+                    value={this.state.verify}
+                  />
                 </div>
               </div>
-            }
-            modalHeader={translateWithParameters(
-              'organization.delete_x',
-              this.props.organization.name
-            )}
-            onConfirm={this.onDelete}>
-            {({ onClick }) => (
-              <Button className="js-custom-measure-delete button-red" onClick={onClick}>
-                {translate('delete')}
-              </Button>
-            )}
-          </ConfirmButton>
-        </div>
-      </>
+            </div>
+          }
+          modalHeader={translateWithParameters(
+            'organization.delete_x',
+            this.props.organization.name
+          )}
+          onConfirm={this.onDelete}>
+          {({ onClick }) => (
+            <Button className="js-custom-measure-delete button-red" onClick={onClick}>
+              {translate('delete')}
+            </Button>
+          )}
+        </ConfirmButton>
+      </div>
     );
   }
 }

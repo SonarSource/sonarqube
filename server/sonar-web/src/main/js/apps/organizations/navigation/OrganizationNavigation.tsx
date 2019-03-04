@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import OrganizationNavigationHeaderContainer from './OrganizationNavigationHeaderContainer';
+import OrganizationNavigationHeader from './OrganizationNavigationHeader';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import OrganizationNavigationMenuContainer from './OrganizationNavigationMenuContainer';
 import * as theme from '../../../app/theme';
@@ -40,7 +40,11 @@ export default function OrganizationNavigation({
   return (
     <ContextNavBar height={theme.contextNavHeightRaw} id="context-navigation">
       <div className="navbar-context-justified">
-        <OrganizationNavigationHeaderContainer organization={organization} />
+        <OrganizationNavigationHeader
+          currentUser={currentUser}
+          organization={organization}
+          organizations={userOrganizations}
+        />
         <OrganizationNavigationMeta
           currentUser={currentUser}
           organization={organization}

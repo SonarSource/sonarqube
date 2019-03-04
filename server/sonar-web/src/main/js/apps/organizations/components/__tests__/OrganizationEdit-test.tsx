@@ -20,11 +20,16 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationEdit } from '../OrganizationEdit';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
 
 it('smoke test', () => {
   const organization = { key: 'foo', name: 'Foo' };
   const wrapper = shallow(
-    <OrganizationEdit organization={organization} updateOrganization={jest.fn()} />
+    <OrganizationEdit
+      currentUser={mockCurrentUser()}
+      organization={organization}
+      updateOrganization={jest.fn()}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 

@@ -93,9 +93,8 @@
 .navbar-context-description {
   display: inline-block;
   line-height: var(--controlHeight);
-  margin-left: 16px;
+  margin-left: var(--gridSize);
   padding-top: 4px;
-  padding-left: 4px;
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
 }

@@ -8,7 +8,12 @@ exports[`render 1`] = `
   <div
     className="navbar-context-justified"
   >
-    <Connect(OrganizationNavigationHeader)
+    <OrganizationNavigationHeader
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
       organization={
         Object {
           "key": "foo",
@@ -16,6 +21,7 @@ exports[`render 1`] = `
           "projectVisibility": "public",
         }
       }
+      organizations={Array []}
     />
     <OrganizationNavigationMeta
       currentUser={

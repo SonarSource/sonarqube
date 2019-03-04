@@ -31,7 +31,9 @@ import {
   serializeQuery,
   Query,
   ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP,
-  Step
+  Step,
+  BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP,
+  BIND_ORGANIZATION_KEY
 } from './utils';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';
@@ -47,7 +49,8 @@ import {
   getAlmAppInfo,
   getAlmOrganization,
   GetAlmOrganizationResponse,
-  listUnboundApplications
+  listUnboundApplications,
+  bindAlmOrganization
 } from '../../../api/alm-integration';
 import { getSubscriptionPlans } from '../../../api/billing';
 import * as api from '../../../api/organizations';
@@ -62,6 +65,7 @@ import { get, remove } from '../../../helpers/storage';
 import { slugify } from '../../../helpers/strings';
 import { getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
+import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import '../../tutorials/styles.css'; // TODO remove me
 
 interface Props {
@@ -82,6 +86,7 @@ interface State {
   almOrganization?: T.AlmOrganization;
   almOrgLoading: boolean;
   almUnboundApplications: T.AlmUnboundApplication[];
+  bindingExistingOrg: boolean;
   boundOrganization?: T.OrganizationBase;
   loading: boolean;
   organization?: T.Organization;
@@ -102,6 +107,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   state: State = {
     almOrgLoading: false,
     almUnboundApplications: [],
+    bindingExistingOrg: false,
     loading: true,
     step: Step.OrganizationDetails
   };
@@ -109,18 +115,29 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
   componentDidMount() {
     this.mounted = true;
     addWhitePageClass();
-    const initRequests = [this.fetchSubscriptionPlans()];
-    if (hasAdvancedALMIntegration(this.props.currentUser)) {
-      initRequests.push(this.fetchAlmApplication());
 
-      const query = parseQuery(this.props.location.query);
-      if (query.almInstallId) {
-        this.fetchAlmOrganization(query.almInstallId);
-      } else {
-        initRequests.push(this.fetchAlmUnboundApplications());
+    const query = parseQuery(this.props.location.query);
+
+    //highjack the process for the organization settings
+    if (
+      hasAdvancedALMIntegration(this.props.currentUser) &&
+      query.almInstallId &&
+      this.isStoredTimestampValid(BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP)
+    ) {
+      this.bindAndRedirectToOrganizationSettings(query.almInstallId);
+    } else {
+      const initRequests = [this.fetchSubscriptionPlans()];
+      if (hasAdvancedALMIntegration(this.props.currentUser)) {
+        initRequests.push(this.fetchAlmApplication());
+
+        if (query.almInstallId) {
+          this.fetchAlmOrganization(query.almInstallId);
+        } else {
+          initRequests.push(this.fetchAlmUnboundApplications());
+        }
       }
+      Promise.all(initRequests).then(this.stopLoading, this.stopLoading);
     }
-    Promise.all(initRequests).then(this.stopLoading, this.stopLoading);
   }
 
   componentDidUpdate(prevProps: WithRouterProps) {
@@ -247,6 +264,36 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
   onTabChange = (tab: TabKeys) => {
     this.updateUrlState({ tab });
+  };
+
+  bindAndRedirectToOrganizationSettings(installationId: string) {
+    const organizationKey = get(BIND_ORGANIZATION_KEY) || '';
+    remove(BIND_ORGANIZATION_KEY);
+
+    this.setState({ bindingExistingOrg: true });
+
+    bindAlmOrganization({
+      installationId,
+      organization: organizationKey
+    }).then(
+      () => {
+        this.props.router.push({
+          pathname: `/organizations/${organizationKey}`
+        });
+        addGlobalSuccessMessage(translate('organization.bind.success'));
+      },
+      () => {}
+    );
+  }
+
+  getHeader = (bindingExistingOrg: boolean, importPersonalOrg: boolean) => {
+    if (bindingExistingOrg) {
+      return translate('onboarding.binding_organization');
+    } else if (importPersonalOrg) {
+      return translate('onboarding.import_organization.personal.page.header');
+    } else {
+      return translate('onboarding.create_organization.page.header');
+    }
   };
 
   setValidOrgKey = (almOrganization: T.AlmOrganization) => {
@@ -397,13 +444,12 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       return <AlmApplicationInstalling almKey={query.almKey} />;
     }
 
-    const { almOrganization, subscriptionPlans } = this.state;
+    const { almOrganization, bindingExistingOrg, subscriptionPlans } = this.state;
     const importPersonalOrg = isPersonal(almOrganization)
       ? this.props.userOrganizations.find(o => o.key === currentUser.personalOrganization)
       : undefined;
-    const header = importPersonalOrg
-      ? translate('onboarding.import_organization.personal.page.header')
-      : translate('onboarding.create_organization.page.header');
+    const header = this.getHeader(bindingExistingOrg, !!importPersonalOrg);
+
     const startedPrice = subscriptionPlans && subscriptionPlans[0] && subscriptionPlans[0].price;
 
     return (

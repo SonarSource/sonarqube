@@ -19,28 +19,22 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationNavigationHeader from '../OrganizationNavigationHeader';
-import { mockOrganizationWithAlm } from '../../../../helpers/testMocks';
+import OrganizationNavigationHeader, { Props } from '../OrganizationNavigationHeader';
+import { mockOrganizationWithAlm, mockCurrentUser } from '../../../../helpers/testMocks';
 
 it('renders', () => {
-  expect(
-    shallow(
-      <OrganizationNavigationHeader
-        organization={{ key: 'foo', name: 'Foo', projectVisibility: 'public' }}
-        organizations={[]}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('renders with alm integration', () => {
   expect(
-    shallow(
-      <OrganizationNavigationHeader
-        organization={mockOrganizationWithAlm({ projectVisibility: 'public' })}
-        organizations={[]}
-      />
-    )
+    shallowRender({ organization: mockOrganizationWithAlm({ projectVisibility: 'public' }) })
+  ).toMatchSnapshot();
+});
+
+it('renders for external user w/o alm integration', () => {
+  expect(
+    shallowRender({ currentUser: mockCurrentUser({ externalProvider: 'github' }) })
   ).toMatchSnapshot();
 });
 
@@ -49,15 +43,23 @@ it('renders dropdown', () => {
     { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: 'public' },
     { actions: { admin: false }, key: 'org2', name: 'org2', projectVisibility: 'public' }
   ];
-  const wrapper = shallow(
+  const wrapper = shallowRender({
+    organizations
+  });
+  expect(wrapper.find('Dropdown')).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
     <OrganizationNavigationHeader
+      currentUser={mockCurrentUser()}
       organization={{
         key: 'foo',
         name: 'Foo',
         projectVisibility: 'public'
       }}
-      organizations={organizations}
+      organizations={[]}
+      {...props}
     />
   );
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
-});
+}

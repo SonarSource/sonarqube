@@ -18,21 +18,62 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import { sortBy } from 'lodash';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Dropdown from '../../../components/controls/Dropdown';
+import Tooltip from '../../../components/controls/Tooltip';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
 import OrganizationListItem from '../../../components/ui/OrganizationListItem';
-import { sanitizeAlmId } from '../../../helpers/almIntegrations';
+import {
+  sanitizeAlmId,
+  hasAdvancedALMIntegration,
+  getUserAlmKey
+} from '../../../helpers/almIntegrations';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/urls';
 
-interface Props {
+export interface Props {
+  currentUser: T.CurrentUser;
   organization: T.Organization;
   organizations: T.Organization[];
 }
 
-export default function OrganizationNavigationHeader({ organization, organizations }: Props) {
+export default function OrganizationNavigationHeader({
+  currentUser,
+  organization,
+  organizations
+}: Props) {
   const other = organizations.filter(o => o.key !== organization.key);
+
+  let almKey;
+  let tooltipContent;
+  let tooltipIconSrc;
+  if (organization.alm) {
+    almKey = sanitizeAlmId(organization.alm.key);
+    tooltipContent = (
+      <>
+        <p>{translateWithParameters('organization.bound_to_x', translate(almKey))}</p>
+        <hr className="spacer-top spacer-bottom" />
+        <a href={organization.alm.url} rel="noopener noreferrer" target="_blank">
+          {translateWithParameters('organization.see_on_x', translate(almKey))}
+        </a>
+      </>
+    );
+    tooltipIconSrc = `${getBaseUrl()}/images/sonarcloud/${almKey}.svg`;
+  } else if (hasAdvancedALMIntegration(currentUser)) {
+    almKey = getUserAlmKey(currentUser) || '';
+    tooltipContent = (
+      <>
+        <p>{translateWithParameters('organization.not_bound_to_x', translate(almKey))}</p>
+        <hr className="spacer-top spacer-bottom" />
+        <Link to={`/organizations/${organization.key}/edit`}>
+          {translate('organization.go_to_settings_to_bind')}
+        </Link>
+      </>
+    );
+    tooltipIconSrc = `${getBaseUrl()}/images/sonarcloud/${almKey}-unbound.svg`;
+  }
 
   return (
     <header className="navbar-context-header">
@@ -57,20 +98,16 @@ export default function OrganizationNavigationHeader({ organization, organizatio
       ) : (
         <span className="spacer-left">{organization.name}</span>
       )}
-      {organization.alm && (
-        <a
-          className="link-no-underline"
-          href={organization.alm.url}
-          rel="noopener noreferrer"
-          target="_blank">
+      {almKey && (
+        <Tooltip mouseLeaveDelay={0.25} overlay={tooltipContent}>
           <img
-            alt={sanitizeAlmId(organization.alm.key)}
-            className="text-text-top spacer-left"
+            alt={translate(almKey)}
+            className="text-middle spacer-left"
             height={16}
-            src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(organization.alm.key)}.svg`}
+            src={tooltipIconSrc}
             width={16}
           />
-        </a>
+        </Tooltip>
       )}
       {organization.description != null && (
         <div className="navbar-context-description">

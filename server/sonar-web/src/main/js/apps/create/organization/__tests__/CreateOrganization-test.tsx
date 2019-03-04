@@ -20,9 +20,10 @@
 import * as React from 'react';
 import { times } from 'lodash';
 import { Location } from 'history';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { CreateOrganization } from '../CreateOrganization';
 import {
+  bindAlmOrganization,
   getAlmAppInfo,
   getAlmOrganization,
   listUnboundApplications
@@ -35,7 +36,8 @@ import {
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm,
   mockAlmOrganization,
-  mockCurrentUser
+  mockCurrentUser,
+  mockLocation
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
@@ -67,7 +69,8 @@ jest.mock('../../../../api/alm-integration', () => ({
       url: 'https://www.sonarsource.com'
     }
   }),
-  listUnboundApplications: jest.fn().mockResolvedValue([])
+  listUnboundApplications: jest.fn().mockResolvedValue([]),
+  bindAlmOrganization: jest.fn().mockResolvedValue({})
 }));
 
 jest.mock('../../../../api/organizations', () => ({
@@ -246,7 +249,9 @@ it('should display AutoOrganizationCreate with already bound organization', asyn
     almOrganization: { ...fooBarAlmOrganization, personal: false },
     boundOrganization
   });
-  (get as jest.Mock<any>).mockReturnValueOnce(Date.now().toString());
+  (get as jest.Mock<any>)
+    .mockReturnValueOnce(undefined) // For BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP
+    .mockReturnValueOnce(Date.now().toString()); // For ORGANIZATION_IMPORT_BINDING_IN_PROGRESS_TIMESTAMP
   const push = jest.fn();
   const wrapper = shallowRender({
     currentUser: { ...user, externalProvider: 'github' },
@@ -294,18 +299,50 @@ it('should cancel imports', async () => {
   const wrapper = shallowRender({ router: mockRouter({ push }) });
   await waitAndUpdate(wrapper);
   wrapper.instance().handleCancelImport();
-  expect(push).toBeCalledWith({ query: {} });
+  expect(push).toBeCalledWith({ pathname: '/path', query: {}, state: {} });
 });
 
+it('should bind org and redirect to org home when coming from org binding', async () => {
+  const installation_id = '5328';
+  const orgKey = 'org4test';
+  const push = jest.fn();
+
+  (get as jest.Mock<any>)
+    .mockReturnValueOnce(Date.now().toString()) // For BIND_ORGANIZATION_REDIRECT_TO_ORG_TIMESTAMP
+    .mockReturnValueOnce(orgKey); // For BIND_ORGANIZATION_KEY
+
+  const wrapper = mountRender({
+    currentUser: mockCurrentUser({ ...user, externalProvider: 'github' }),
+    location: mockLocation({ query: { installation_id } }),
+    router: mockRouter({ push })
+  });
+  await waitAndUpdate(wrapper);
+
+  expect(bindAlmOrganization).toBeCalled();
+  expect(getAlmOrganization).not.toBeCalled();
+  expect(push).toBeCalledWith({
+    pathname: `/organizations/${orgKey}`
+  });
+});
+
+function mountRender(props: Partial<CreateOrganization['props']> = {}) {
+  return mount<CreateOrganization>(createComponent(props));
+}
+
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {
-  return shallow<CreateOrganization>(
+  return shallow<CreateOrganization>(createComponent(props));
+}
+
+function createComponent(props: Partial<CreateOrganization['props']> = {}) {
+  return (
     <CreateOrganization
       createOrganization={jest.fn()}
       currentUser={user}
       deleteOrganization={jest.fn()}
-      // @ts-ignore avoid passing everything from WithRouterProps
-      location={{}}
+      location={mockLocation()}
+      params={{}}
       router={mockRouter()}
+      routes={[]}
       skipOnboarding={jest.fn()}
       updateOrganization={jest.fn()}
       userOrganizations={[

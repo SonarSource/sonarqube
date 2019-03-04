@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <h2
+    className="boxed-title"
+  >
+    organization.bind_to_x.
+  </h2>
+  <p
+    className="spacer-bottom"
+  >
+    organization.binding_with_x_easy_sync.
+  </p>
+  <p
+    className="big-spacer-bottom"
+  >
+    organization.app_will_be_installed_on_x.
+  </p>
+</div>
+`;

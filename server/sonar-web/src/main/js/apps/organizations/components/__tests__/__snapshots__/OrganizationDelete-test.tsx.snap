@@ -1,140 +1,118 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should show a info message for paying organization 1`] = `
-<Fragment>
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="organization.delete"
-  />
-  <div
-    className="page page-limited"
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <h2
+    className="boxed-title"
   >
-    <header
-      className="page-header"
-    >
-      <h1
-        className="page-title"
-      >
-        organization.delete
-      </h1>
-      <div
-        className="page-description"
-      >
-        <InstanceMessage
-          message="organization.delete.description"
-        />
-      </div>
-    </header>
-    <ConfirmButton
-      confirmButtonText="delete"
-      confirmDisable={true}
-      isDestructive={true}
-      modalBody={
-        <div>
-          <Alert
-            variant="warning"
+    organization.delete
+  </h2>
+  <p
+    className="big-spacer-bottom width-50"
+  >
+    <InstanceMessage
+      message="organization.delete.description"
+    />
+  </p>
+  <ConfirmButton
+    confirmButtonText="delete"
+    confirmDisable={true}
+    isDestructive={true}
+    modalBody={
+      <div>
+        <Alert
+          variant="warning"
+        >
+          organization.delete.sonarcloud.paid_plan_info
+        </Alert>
+        <p>
+          organization.delete.question
+        </p>
+        <div
+          className="spacer-top"
+        >
+          <label
+            htmlFor="downgrade-organization-name"
           >
-            organization.delete.sonarcloud.paid_plan_info
-          </Alert>
-          <p>
-            organization.delete.question
-          </p>
+            billing.downgrade.modal.type_to_proceed
+          </label>
           <div
-            className="spacer-top"
+            className="little-spacer-top"
           >
-            <label
-              htmlFor="downgrade-organization-name"
-            >
-              billing.downgrade.modal.type_to_proceed
-            </label>
-            <div
-              className="little-spacer-top"
-            >
-              <input
-                autoFocus={true}
-                className="input-super-large"
-                id="downgrade-organization-name"
-                onChange={[Function]}
-                type="text"
-                value=""
-              />
-            </div>
+            <input
+              autoFocus={true}
+              className="input-super-large"
+              id="downgrade-organization-name"
+              onChange={[Function]}
+              type="text"
+              value=""
+            />
           </div>
         </div>
-      }
-      modalHeader="organization.delete_x.Foo"
-      onConfirm={[Function]}
-    >
-      <Component />
-    </ConfirmButton>
-  </div>
-</Fragment>
+      </div>
+    }
+    modalHeader="organization.delete_x.Foo"
+    onConfirm={[Function]}
+  >
+    <Component />
+  </ConfirmButton>
+</div>
 `;
 
 exports[`smoke test 1`] = `
-<Fragment>
-  <HelmetWrapper
-    defer={true}
-    encodeSpecialCharacters={true}
-    title="organization.delete"
-  />
-  <div
-    className="page page-limited"
+<div
+  className="boxed-group boxed-group-inner"
+>
+  <h2
+    className="boxed-title"
   >
-    <header
-      className="page-header"
-    >
-      <h1
-        className="page-title"
-      >
-        organization.delete
-      </h1>
-      <div
-        className="page-description"
-      >
-        <InstanceMessage
-          message="organization.delete.description"
-        />
-      </div>
-    </header>
-    <ConfirmButton
-      confirmButtonText="delete"
-      confirmDisable={true}
-      isDestructive={true}
-      modalBody={
-        <div>
-          <p>
-            organization.delete.question
-          </p>
-          <div
-            className="spacer-top"
+    organization.delete
+  </h2>
+  <p
+    className="big-spacer-bottom width-50"
+  >
+    <InstanceMessage
+      message="organization.delete.description"
+    />
+  </p>
+  <ConfirmButton
+    confirmButtonText="delete"
+    confirmDisable={true}
+    isDestructive={true}
+    modalBody={
+      <div>
+        <p>
+          organization.delete.question
+        </p>
+        <div
+          className="spacer-top"
+        >
+          <label
+            htmlFor="downgrade-organization-name"
           >
-            <label
-              htmlFor="downgrade-organization-name"
-            >
-              billing.downgrade.modal.type_to_proceed
-            </label>
-            <div
-              className="little-spacer-top"
-            >
-              <input
-                autoFocus={true}
-                className="input-super-large"
-                id="downgrade-organization-name"
-                onChange={[Function]}
-                type="text"
-                value=""
-              />
-            </div>
+            billing.downgrade.modal.type_to_proceed
+          </label>
+          <div
+            className="little-spacer-top"
+          >
+            <input
+              autoFocus={true}
+              className="input-super-large"
+              id="downgrade-organization-name"
+              onChange={[Function]}
+              type="text"
+              value=""
+            />
           </div>
         </div>
-      }
-      modalHeader="organization.delete_x.Foo"
-      onConfirm={[Function]}
-    >
-      <Component />
-    </ConfirmButton>
-  </div>
-</Fragment>
+      </div>
+    }
+    modalHeader="organization.delete_x.Foo"
+    onConfirm={[Function]}
+  >
+    <Component />
+  </ConfirmButton>
+</div>
 `;

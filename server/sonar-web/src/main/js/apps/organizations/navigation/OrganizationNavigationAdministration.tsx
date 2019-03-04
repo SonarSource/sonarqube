@@ -32,7 +32,6 @@ interface Props {
 const ADMIN_PATHS = [
   'edit',
   'groups',
-  'delete',
   'permissions',
   'permission_templates',
   'projects_management',
@@ -40,7 +39,7 @@ const ADMIN_PATHS = [
 ];
 
 export default function OrganizationNavigationAdministration({ location, organization }: Props) {
-  const { actions = {}, adminPages = [] } = organization;
+  const { adminPages = [] } = organization;
   const adminPathsWithExtensions = adminPages.map(e => `extension/${e.key}`).concat(ADMIN_PATHS);
   const adminActive = adminPathsWithExtensions.some(path =>
     location.pathname.endsWith(`organizations/${organization.key}/${path}`)
@@ -50,6 +49,11 @@ export default function OrganizationNavigationAdministration({ location, organiz
     <Dropdown
       overlay={
         <ul className="menu">
+          <li>
+            <Link activeClassName="active" to={`/organizations/${organization.key}/edit`}>
+              {translate('organization.settings')}
+            </Link>
+          </li>
           {adminPages.map(extension => (
             <li key={extension.key}>
               <Link
@@ -88,18 +92,6 @@ export default function OrganizationNavigationAdministration({ location, organiz
               {translate('webhooks.page')}
             </Link>
           </li>
-          <li>
-            <Link activeClassName="active" to={`/organizations/${organization.key}/edit`}>
-              {translate('edit')}
-            </Link>
-          </li>
-          {actions.delete && (
-            <li>
-              <Link activeClassName="active" to={`/organizations/${organization.key}/delete`}>
-                {translate('delete')}
-              </Link>
-            </li>
-          )}
         </ul>
       }
       tagName="li">

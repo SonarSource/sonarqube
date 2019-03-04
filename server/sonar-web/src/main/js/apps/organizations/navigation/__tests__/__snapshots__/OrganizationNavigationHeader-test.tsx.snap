@@ -67,6 +67,55 @@ exports[`renders dropdown 1`] = `
 </Dropdown>
 `;
 
+exports[`renders for external user w/o alm integration 1`] = `
+<header
+  className="navbar-context-header"
+>
+  <OrganizationAvatar
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+  <span
+    className="spacer-left"
+  >
+    Foo
+  </span>
+  <Tooltip
+    mouseLeaveDelay={0.25}
+    overlay={
+      <React.Fragment>
+        <p>
+          organization.not_bound_to_x.github
+        </p>
+        <hr
+          className="spacer-top spacer-bottom"
+        />
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/organizations/foo/edit"
+        >
+          organization.go_to_settings_to_bind
+        </Link>
+      </React.Fragment>
+    }
+  >
+    <img
+      alt="github"
+      className="text-middle spacer-left"
+      height={16}
+      src="/images/sonarcloud/github-unbound.svg"
+      width={16}
+    />
+  </Tooltip>
+</header>
+`;
+
 exports[`renders with alm integration 1`] = `
 <header
   className="navbar-context-header"
@@ -90,19 +139,33 @@ exports[`renders with alm integration 1`] = `
   >
     Foo
   </span>
-  <a
-    className="link-no-underline"
-    href="https://github.com/foo"
-    rel="noopener noreferrer"
-    target="_blank"
+  <Tooltip
+    mouseLeaveDelay={0.25}
+    overlay={
+      <React.Fragment>
+        <p>
+          organization.bound_to_x.github
+        </p>
+        <hr
+          className="spacer-top spacer-bottom"
+        />
+        <a
+          href="https://github.com/foo"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          organization.see_on_x.github
+        </a>
+      </React.Fragment>
+    }
   >
     <img
       alt="github"
-      className="text-text-top spacer-left"
+      className="text-middle spacer-left"
       height={16}
       src="/images/sonarcloud/github.svg"
       width={16}
     />
-  </a>
+  </Tooltip>
 </header>
 `;

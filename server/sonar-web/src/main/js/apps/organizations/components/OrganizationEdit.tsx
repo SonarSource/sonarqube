@@ -21,9 +21,13 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
-import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
-import { SubmitButton } from '../../../components/ui/buttons';
+import OrganizationBind from './OrganizationBind';
+import OrganizationDelete from './OrganizationDelete';
 import { updateOrganization } from '../actions';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { SubmitButton } from '../../../components/ui/buttons';
+import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from '../../../helpers/l10n';
 
 interface DispatchProps {
@@ -31,6 +35,7 @@ interface DispatchProps {
 }
 
 interface OwnProps {
+  currentUser: T.LoggedInUser;
   organization: T.Organization;
 }
 
@@ -100,7 +105,12 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const title = translate('organization.edit');
+    const { currentUser, organization } = this.props;
+    const title = translate('organization.settings');
+
+    const showBinding = hasAdvancedALMIntegration(currentUser);
+    const showDelete = organization.actions && organization.actions.delete;
+
     return (
       <div className="page page-limited">
         <Helmet title={title} />
@@ -110,6 +120,7 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
         </header>
 
         <div className="boxed-group boxed-group-inner">
+          <h2 className="boxed-title">{translate('organization.details')}</h2>
           <form onSubmit={this.handleSubmit}>
             <div className="form-field">
               <label htmlFor="organization-name">
@@ -198,6 +209,10 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
             {this.state.loading && <i className="spinner spacer-left" />}
           </form>
         </div>
+
+        {showBinding && <OrganizationBind currentUser={currentUser} organization={organization} />}
+
+        {showDelete && <OrganizationDelete organization={organization} />}
       </div>
     );
   }
@@ -208,4 +223,4 @@ const mapDispatchToProps = { updateOrganization: updateOrganization as any };
 export default connect(
   null,
   mapDispatchToProps
-)(OrganizationEdit);
+)(whenLoggedIn(OrganizationEdit));

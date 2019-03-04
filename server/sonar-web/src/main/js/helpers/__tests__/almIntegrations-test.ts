@@ -23,8 +23,10 @@ import {
   isPersonal,
   isVSTS,
   sanitizeAlmId,
-  getAlmMembersUrl
+  getAlmMembersUrl,
+  getUserAlmKey
 } from '../almIntegrations';
+import { mockCurrentUser } from '../testMocks';
 
 it('#getAlmMembersUrl', () => {
   expect(getAlmMembersUrl('github', 'https://github.com/Foo')).toBe(
@@ -68,4 +70,17 @@ it('#sanitizeAlmId', () => {
   expect(sanitizeAlmId('bitbucketcloud')).toBe('bitbucket');
   expect(sanitizeAlmId('bitbucket')).toBe('bitbucket');
   expect(sanitizeAlmId('github')).toBe('github');
+});
+
+describe('getUserAlmKey', () => {
+  it('should return sanitized almKey', () => {
+    expect(getUserAlmKey(mockCurrentUser({ externalProvider: 'bitbucketcloud' }))).toBe(
+      'bitbucket'
+    );
+  });
+
+  it('should return undefined', () => {
+    expect(getUserAlmKey(mockCurrentUser())).toBeUndefined();
+    expect(getUserAlmKey(mockCurrentUser({ isLoggedIn: undefined }))).toBeUndefined();
+  });
 });

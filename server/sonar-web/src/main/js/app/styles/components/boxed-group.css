@@ -35,6 +35,12 @@
   padding: calc(2 * var(--gridSize)) 20px 0;
 }
 
+.boxed-group > h2.boxed-title {
+  padding: 0 0 8px;
+  margin: 0;
+  font-weight: 600;
+}
+
 .boxed-group hr {
   height: 0;
   border-top: 1px solid var(--gray94);

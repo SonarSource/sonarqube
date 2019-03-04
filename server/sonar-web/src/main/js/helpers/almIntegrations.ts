@@ -29,6 +29,12 @@ export function getAlmMembersUrl(key: string, url: string): string {
   return url + 'profile/members';
 }
 
+export function getUserAlmKey(user: T.CurrentUser) {
+  return isLoggedIn(user) && user.externalProvider
+    ? sanitizeAlmId(user.externalProvider)
+    : undefined;
+}
+
 export function hasAdvancedALMIntegration(user: T.CurrentUser) {
   return (
     isLoggedIn(user) && (isBitbucket(user.externalProvider) || isGithub(user.externalProvider))
