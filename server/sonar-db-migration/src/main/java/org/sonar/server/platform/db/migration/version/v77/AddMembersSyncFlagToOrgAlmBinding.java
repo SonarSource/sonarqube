@@ -21,10 +21,12 @@ package org.sonar.server.platform.db.migration.version.v77;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+@SupportsBlueGreen
 public class AddMembersSyncFlagToOrgAlmBinding extends DdlChange {
 
   public AddMembersSyncFlagToOrgAlmBinding(Database db) {
