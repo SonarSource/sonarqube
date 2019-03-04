@@ -33,7 +33,6 @@ import org.sonar.db.user.UserDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -173,21 +172,11 @@ public class OrganizationAlmBindingDaoTest {
 
     underTest.insert(db.getSession(), organization, almAppInstall, "http://myorg.com", user.getUuid(), true);
 
-    assertThat(db.selectFirst(db.getSession(),
-      "select" +
-        "   uuid as \"uuid\", organization_uuid as \"organizationUuid\", alm_app_install_uuid as \"almAppInstallUuid\", url as \"url\", alm_id as \"almId\"," +
-        " user_uuid as \"userUuid\", members_sync_enabled as \"membersSync\", created_at as \"createdAt\"" +
-        " from organization_alm_bindings" +
-        "   where organization_uuid='" + organization.getUuid() + "'"))
-          .contains(
-            entry("uuid", "ABCD"),
-            entry("organizationUuid", organization.getUuid()),
-            entry("almAppInstallUuid", almAppInstall.getUuid()),
-            entry("almId", "github"),
-            entry("url", "http://myorg.com"),
-            entry("userUuid", user.getUuid()),
-            entry("createdAt", NOW),
-            entry("membersSync", true));
+    assertThat(underTest.selectByOrganizationUuid(db.getSession(), organization.getUuid()).get())
+      .extracting(OrganizationAlmBindingDto::getUuid, OrganizationAlmBindingDto::getOrganizationUuid, OrganizationAlmBindingDto::getAlmAppInstallUuid,
+        OrganizationAlmBindingDto::getAlm,
+        OrganizationAlmBindingDto::getUrl, OrganizationAlmBindingDto::getUserUuid, OrganizationAlmBindingDto::isMembersSyncEnable, OrganizationAlmBindingDto::getCreatedAt)
+      .containsExactlyInAnyOrder("ABCD", organization.getUuid(), almAppInstall.getUuid(), GITHUB, "http://myorg.com", user.getUuid(), true, NOW);
   }
 
   @Test
