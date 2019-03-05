@@ -37,14 +37,12 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API_KEY;
-import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumFormula;
 
 /**
  * Computes comments measures on files and then aggregates them on higher components.
@@ -61,7 +59,6 @@ public class CommentMeasuresStep implements ComputationStep {
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.formulas = ImmutableList.of(
-      createIntSumFormula(COMMENTED_OUT_CODE_LINES_KEY),
       new DocumentationFormula(),
       new CommentDensityFormula());
   }

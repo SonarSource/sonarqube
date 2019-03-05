@@ -32,8 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY_KEY;
@@ -89,7 +87,6 @@ public class ReportComplexityMeasuresStepTest {
     .add(COMPLEXITY_IN_FUNCTIONS)
     .add(FUNCTION_COMPLEXITY_DISTRIBUTION)
     .add(FILE_COMPLEXITY_DISTRIBUTION)
-    .add(CLASS_COMPLEXITY_DISTRIBUTION)
     .add(FILE_COMPLEXITY)
     .add(FILES)
     .add(CLASS_COMPLEXITY)
@@ -145,11 +142,6 @@ public class ReportComplexityMeasuresStepTest {
   @Test
   public void aggregate_file_complexity_distribution() {
     verify_distribution_aggregation(FILE_COMPLEXITY_DISTRIBUTION_KEY);
-  }
-
-  @Test
-  public void aggregate_class_complexity_distribution() {
-    verify_distribution_aggregation(CLASS_COMPLEXITY_DISTRIBUTION_KEY);
   }
 
   private void verify_distribution_aggregation(String metricKey) {

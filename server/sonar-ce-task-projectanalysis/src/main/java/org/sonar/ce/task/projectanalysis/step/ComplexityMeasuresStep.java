@@ -31,7 +31,6 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES_KEY;
@@ -57,7 +56,6 @@ public class ComplexityMeasuresStep implements ComputationStep {
     createIntSumFormula(COGNITIVE_COMPLEXITY_KEY),
     new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
-    new DistributionFormula(CLASS_COMPLEXITY_DISTRIBUTION_KEY),
     AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_KEY)
       .setByMetricKey(FILES_KEY)

@@ -47,7 +47,6 @@ import org.sonar.db.measure.LiveMeasureDao;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
@@ -59,8 +58,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
    */
   private static final Set<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = unmodifiableSet(new HashSet<>(asList(
     FILE_COMPLEXITY_DISTRIBUTION_KEY,
-    FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
-    CLASS_COMPLEXITY_DISTRIBUTION_KEY)));
+    FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)));
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;

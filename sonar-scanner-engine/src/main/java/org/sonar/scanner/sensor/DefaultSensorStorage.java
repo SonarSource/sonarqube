@@ -73,7 +73,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE;
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE_KEY;
@@ -84,17 +83,6 @@ import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.DEPENDENCY_MATRIX_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_CYCLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_TANGLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_TANGLE_INDEX_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_CYCLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_EDGES_WEIGHT_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_FEEDBACK_EDGES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_TANGLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_TANGLE_INDEX_KEY;
 import static org.sonar.api.measures.CoreMetrics.IT_BRANCH_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_BY_LINE_KEY;
 import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_TO_COVER_KEY;
@@ -139,20 +127,7 @@ public class DefaultSensorStorage implements SensorStorage {
    * The metrics in this list should not be declared in {@link ScannerMetrics#ALLOWED_CORE_METRICS}.
    */
   private static final Set<String> DEPRECATED_METRICS_KEYS = unmodifiableSet(new HashSet<>(asList(
-    COMMENT_LINES_DATA_KEY,
-    DEPENDENCY_MATRIX_KEY,
-    DIRECTORY_CYCLES_KEY,
-    DIRECTORY_EDGES_WEIGHT_KEY,
-    DIRECTORY_FEEDBACK_EDGES_KEY,
-    DIRECTORY_TANGLE_INDEX_KEY,
-    DIRECTORY_TANGLES_KEY,
-    FILE_CYCLES_KEY,
-    FILE_EDGES_WEIGHT_KEY,
-    FILE_FEEDBACK_EDGES_KEY,
-    FILE_TANGLE_INDEX_KEY,
-    FILE_TANGLES_KEY,
-    // SONARPHP-621
-    COMMENTED_OUT_CODE_LINES_KEY)));
+    COMMENT_LINES_DATA_KEY)));
 
   /**
    * Metrics that were computed by analyzers and that are now computed
