@@ -19,13 +19,17 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.measure.Metric;
 
 /**
  * @since 5.2
  */
 public abstract class DefaultInputComponent implements InputComponent {
   private int id;
+  private Set<String> storedMetricKeys = new HashSet<>();
 
   public DefaultInputComponent(int scannerId) {
     this.id = scannerId;
@@ -56,5 +60,13 @@ public abstract class DefaultInputComponent implements InputComponent {
   @Override
   public String toString() {
     return "[key=" + key() + "]";
+  }
+
+  public void setHasMeasureFor(Metric metric) {
+    storedMetricKeys.add(metric.key());
+  }
+
+  public boolean hasMeasureFor(Metric metric) {
+    return storedMetricKeys.contains(metric.key());
   }
 }

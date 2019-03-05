@@ -124,7 +124,7 @@ public class ScannerReportReaderTest {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     ScannerReport.Measure.Builder measure = ScannerReport.Measure.newBuilder()
       .setStringValue(StringValue.newBuilder().setValue("value_a"));
-    writer.writeComponentMeasures(1, asList(measure.build()));
+    writer.appendComponentMeasure(1, measure.build());
 
     assertThat(underTest.readComponentMeasures(1)).hasSize(1);
   }

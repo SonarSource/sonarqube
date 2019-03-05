@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
@@ -30,8 +31,14 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -62,7 +69,10 @@ public class ReportCoverageMeasuresStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  CoverageMeasuresStep underTest = new CoverageMeasuresStep(treeRootHolder, metricRepository, measureRepository);
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  CoverageMeasuresStep underTest = new CoverageMeasuresStep(treeRootHolder, metricRepository, measureRepository, reportReader);
 
   @Before
   public void setUp() throws Exception {
@@ -79,32 +89,33 @@ public class ReportCoverageMeasuresStepTest {
   }
 
   @Test
-  public void verify_aggregates_values_for_ut_lines_and_conditions() {
-    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY);
-    verify_lines_and_conditions_aggregates_values(metricKeys);
-  }
+  public void verify_aggregates_values_for_lines_and_conditions() {
 
-  private void verify_lines_and_conditions_aggregates_values(LinesAndConditionsWithUncoveredMetricKeys metricKeys) {
-    measureRepository
-      .addRawMeasure(FILE_1_REF, metricKeys.getLines(), newMeasureBuilder().create(3000))
-      .addRawMeasure(FILE_1_REF, metricKeys.getConditions(), newMeasureBuilder().create(300))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(30))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(9))
+    reportReader.putCoverage(FILE_1_REF,
+      asList(
+        ScannerReport.LineCoverage.newBuilder().setLine(2).setHits(false).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(3).setHits(true).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(4).setHits(true).setConditions(4).setCoveredConditions(1).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(5).setConditions(8).setCoveredConditions(2).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(6).setHits(false).setConditions(3).setCoveredConditions(0).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(7).setHits(false).build()));
 
-      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
-      .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), newMeasureBuilder().create(400))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16));
+    reportReader.putCoverage(FILE_2_REF,
+      asList(
+        ScannerReport.LineCoverage.newBuilder().setLine(2).setHits(true).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(3).setHits(false).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(5).setHits(true).setConditions(5).setCoveredConditions(1).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(6).setConditions(10).setCoveredConditions(3).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(7).setHits(false).setConditions(1).setCoveredConditions(0).build(),
+        ScannerReport.LineCoverage.newBuilder().setLine(8).setHits(false).build()));
 
     underTest.execute(new TestComputationStepContext());
 
     MeasureRepoEntry[] nonFileRepoEntries = {
-      entryOf(metricKeys.getLines(), newMeasureBuilder().create(5000)),
-      entryOf(metricKeys.getConditions(), newMeasureBuilder().create(700)),
-      entryOf(metricKeys.getUncoveredLines(), newMeasureBuilder().create(230)),
-      entryOf(metricKeys.getUncoveredConditions(), newMeasureBuilder().create(25))
+      entryOf(LINES_TO_COVER_KEY, newMeasureBuilder().create(5 + 5)),
+      entryOf(CONDITIONS_TO_COVER_KEY, newMeasureBuilder().create(4 + 8 + 3 + 5 + 10 + 1)),
+      entryOf(UNCOVERED_LINES_KEY, newMeasureBuilder().create(3 + 3)),
+      entryOf(UNCOVERED_CONDITIONS_KEY, newMeasureBuilder().create(3 + 6 + 3 + 4 + 7 + 1))
     };
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(nonFileRepoEntries);
@@ -114,8 +125,8 @@ public class ReportCoverageMeasuresStepTest {
   @Test
   public void verify_aggregates_values_for_code_line_and_branch_coverage() {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
-      CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY);
+      LINES_TO_COVER_KEY, CONDITIONS_TO_COVER_KEY,
+      UNCOVERED_LINES_KEY, UNCOVERED_CONDITIONS_KEY);
     String codeCoverageKey = CoreMetrics.COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.BRANCH_COVERAGE_KEY;

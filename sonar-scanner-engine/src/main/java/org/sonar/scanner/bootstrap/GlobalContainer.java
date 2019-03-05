@@ -52,7 +52,6 @@ import org.sonar.scanner.repository.MetricsRepositoryProvider;
 import org.sonar.scanner.repository.settings.DefaultGlobalSettingsLoader;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 import org.sonar.scanner.scan.ProjectScanContainer;
-import org.sonar.scanner.storage.StoragesManager;
 
 public class GlobalContainer extends ComponentContainer {
   private static final Logger LOG = Loggers.get(GlobalContainer.class);
@@ -90,7 +89,6 @@ public class GlobalContainer extends ComponentContainer {
 
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
-      StoragesManager.class,
       new GlobalServerSettingsProvider(),
       new GlobalConfigurationProvider(),
       new ScannerWsClientProvider(),

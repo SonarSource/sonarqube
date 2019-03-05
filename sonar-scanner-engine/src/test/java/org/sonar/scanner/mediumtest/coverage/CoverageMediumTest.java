@@ -23,22 +23,18 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class CoverageMediumTest {
 
@@ -77,13 +73,6 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 2).getHits()).isTrue();
     assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
     assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(1);
-
-    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0),
-        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2),
-        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 1));
   }
 
   @Test
@@ -98,7 +87,7 @@ public class CoverageMediumTest {
     File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
     FileUtils.write(xooUtCoverageFile, "2:2:2:2\n4:0", StandardCharsets.UTF_8);
     File xooItCoverageFile = new File(srcDir, "sample.xoo.itcoverage");
-    FileUtils.write(xooItCoverageFile, "2:2:2:1\n3:1\n5:0", StandardCharsets.UTF_8);
+    FileUtils.write(xooItCoverageFile, "2:0:2:1\n3:1\n5:0", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
@@ -113,16 +102,6 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
     assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(2);
     assertThat(result.coverageFor(file, 3).getHits()).isTrue();
-
-    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value", "stringValue.value")
-      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 4, ""), // 2, 3, 4, 5
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2, ""), // 4, 5
-        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2, ""), // 2 x 2
-        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 0, ""),
-        tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "2=4;3=1;4=0;5=0"),
-        tuple(CoreMetrics.CONDITIONS_BY_LINE_KEY, 0, "2=2"),
-        tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "2=2"));
   }
 
   @Test
@@ -148,11 +127,6 @@ public class CoverageMediumTest {
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 2)).isNull();
-
-    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey")
-      .doesNotContain(CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
-        CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
   }
 
   @Test
@@ -306,13 +280,6 @@ public class CoverageMediumTest {
 
     assertThat(result.coverageFor(file, 3).getHits()).isFalse();
     assertThat(result.coverageFor(file, 4)).isNull();
-
-    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2));
-
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY);
   }
 
   // SONAR-9557
@@ -359,18 +326,6 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file2, 3)).isNull();
     assertThat(result.coverageFor(file2, 4)).isNull();
 
-    Map<String, List<org.sonar.scanner.protocol.output.ScannerReport.Measure>> allMeasures = result.allMeasures();
-
-    assertThat(allMeasures.get("com.foo.project:module1/src/sample1.xoo")).extracting("metricKey", "intValue.value")
-      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2));
-
-    assertThat(allMeasures.get("com.foo.project:module1/src/sample1.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.UNCOVERED_CONDITIONS_KEY);
-
-    assertThat(allMeasures.get("com.foo.project:module1/src/sample2.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.LINES_TO_COVER_KEY,
-      CoreMetrics.CONDITIONS_TO_COVER_KEY,
-      CoreMetrics.UNCOVERED_CONDITIONS_KEY, CoreMetrics.UNCOVERED_LINES_KEY);
   }
 
 }

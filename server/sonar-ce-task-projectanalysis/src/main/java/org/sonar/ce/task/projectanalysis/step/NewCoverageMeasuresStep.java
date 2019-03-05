@@ -23,14 +23,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -51,7 +48,14 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
+import static java.lang.Math.min;
+import static org.sonar.api.measures.CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_UNCOVERED_LINES_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 /**
@@ -70,16 +74,19 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   @Nullable
   private final NewLinesRepository newLinesRepository;
+  @Nullable
+  private final BatchReportReader reportReader;
 
   /**
    * Constructor used when processing a Report (ie. a {@link NewLinesRepository} instance is available in the container)
    */
   public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder,
-    MeasureRepository measureRepository, MetricRepository metricRepository, NewLinesRepository newLinesRepository) {
+    MeasureRepository measureRepository, MetricRepository metricRepository, NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.newLinesRepository = newLinesRepository;
+    this.reportReader = reportReader;
   }
 
   /**
@@ -90,6 +97,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.newLinesRepository = null;
+    this.reportReader = null;
   }
 
   @Override
@@ -97,8 +105,8 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
         .buildFor(
-          Iterables.concat(NewLinesAndConditionsCoverageFormula.from(newLinesRepository), FORMULAS)))
-      .visit(treeRootHolder.getRoot());
+          Iterables.concat(NewLinesAndConditionsCoverageFormula.from(newLinesRepository, reportReader), FORMULAS)))
+            .visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -106,46 +114,12 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     return "Compute new coverage";
   }
 
-  private static class NewLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {
-
-    private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
-      CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY,
-      CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY);
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
-
-    private NewLinesAndConditionsCoverageFormula(NewLinesRepository newLinesRepository) {
-      super(newLinesRepository,
-        new NewCoverageInputMetricKeys(
-          CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY),
-        OUTPUT_METRIC_KEYS);
-    }
-
-    public static Iterable<Formula<?>> from(@Nullable NewLinesRepository newLinesRepository) {
-      if (newLinesRepository == null) {
-        return VIEWS_FORMULAS;
-      }
-      return Collections.singleton(new NewLinesAndConditionsCoverageFormula(newLinesRepository));
-    }
-
-    /**
-     * Creates a List of {@link org.sonar.ce.task.projectanalysis.formula.SumFormula.IntSumFormula} for each
-     * metric key of the specified {@link NewCoverageOutputMetricKeys} instance.
-     */
-    private static Iterable<Formula<?>> variationSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
-      return ImmutableList.of(
-        new VariationSumFormula(outputMetricKeys.getNewLinesToCover()),
-        new VariationSumFormula(outputMetricKeys.getNewUncoveredLines()),
-        new VariationSumFormula(outputMetricKeys.getNewConditionsToCover()),
-        new VariationSumFormula(outputMetricKeys.getNewUncoveredConditions()));
-    }
-  }
-
   private static class NewCoverageFormula extends LinesAndConditionsWithUncoveredVariationFormula {
     public NewCoverageFormula() {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
-          CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY,
-          CoreMetrics.NEW_UNCOVERED_LINES_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY),
+          NEW_LINES_TO_COVER_KEY, NEW_CONDITIONS_TO_COVER_KEY,
+          NEW_UNCOVERED_LINES_KEY, NEW_UNCOVERED_CONDITIONS_KEY),
         CoreMetrics.NEW_COVERAGE_KEY);
     }
   }
@@ -153,7 +127,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   private static class NewBranchCoverageFormula extends SingleWithUncoveredVariationFormula {
     public NewBranchCoverageFormula() {
       super(
-        new SingleWithUncoveredMetricKeys(CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY),
+        new SingleWithUncoveredMetricKeys(NEW_CONDITIONS_TO_COVER_KEY, NEW_UNCOVERED_CONDITIONS_KEY),
         CoreMetrics.NEW_BRANCH_COVERAGE_KEY);
     }
   }
@@ -161,25 +135,39 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   private static class NewLineCoverageFormula extends SingleWithUncoveredVariationFormula {
     public NewLineCoverageFormula() {
       super(
-        new SingleWithUncoveredMetricKeys(CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY),
+        new SingleWithUncoveredMetricKeys(NEW_LINES_TO_COVER_KEY, NEW_UNCOVERED_LINES_KEY),
         CoreMetrics.NEW_LINE_COVERAGE_KEY);
     }
   }
 
-  public static class NewLinesAndConditionsFormula implements Formula<NewCoverageCounter> {
+  public static class NewLinesAndConditionsCoverageFormula implements Formula<NewCoverageCounter> {
     private final NewLinesRepository newLinesRepository;
-    private final NewCoverageInputMetricKeys inputMetricKeys;
-    private final NewCoverageOutputMetricKeys outputMetricKeys;
+    private final BatchReportReader reportReader;
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas();
 
-    public NewLinesAndConditionsFormula(NewLinesRepository newLinesRepository, NewCoverageInputMetricKeys inputMetricKeys, NewCoverageOutputMetricKeys outputMetricKeys) {
+    private NewLinesAndConditionsCoverageFormula(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
       this.newLinesRepository = newLinesRepository;
-      this.inputMetricKeys = inputMetricKeys;
-      this.outputMetricKeys = outputMetricKeys;
+      this.reportReader = reportReader;
+    }
+
+    public static Iterable<Formula<?>> from(@Nullable NewLinesRepository newLinesRepository, @Nullable BatchReportReader reportReader) {
+      if (newLinesRepository == null || reportReader == null) {
+        return VIEWS_FORMULAS;
+      }
+      return Collections.singleton(new NewLinesAndConditionsCoverageFormula(newLinesRepository, reportReader));
+    }
+
+    private static Iterable<Formula<?>> variationSumFormulas() {
+      return ImmutableList.of(
+        new VariationSumFormula(NEW_LINES_TO_COVER_KEY),
+        new VariationSumFormula(NEW_UNCOVERED_LINES_KEY),
+        new VariationSumFormula(NEW_CONDITIONS_TO_COVER_KEY),
+        new VariationSumFormula(NEW_UNCOVERED_CONDITIONS_KEY));
     }
 
     @Override
     public NewCoverageCounter createNewCounter() {
-      return new NewCoverageCounter(newLinesRepository, inputMetricKeys);
+      return new NewCoverageCounter(newLinesRepository, reportReader);
     }
 
     @Override
@@ -192,16 +180,16 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     }
 
     private int computeValueForMetric(NewCoverageCounter counter, Metric metric) {
-      if (metric.getKey().equals(outputMetricKeys.getNewLinesToCover())) {
+      if (metric.getKey().equals(NEW_LINES_TO_COVER_KEY)) {
         return counter.getNewLines();
       }
-      if (metric.getKey().equals(outputMetricKeys.getNewUncoveredLines())) {
+      if (metric.getKey().equals(NEW_UNCOVERED_LINES_KEY)) {
         return counter.getNewLines() - counter.getNewCoveredLines();
       }
-      if (metric.getKey().equals(outputMetricKeys.getNewConditionsToCover())) {
+      if (metric.getKey().equals(NEW_CONDITIONS_TO_COVER_KEY)) {
         return counter.getNewConditions();
       }
-      if (metric.getKey().equals(outputMetricKeys.getNewUncoveredConditions())) {
+      if (metric.getKey().equals(NEW_UNCOVERED_CONDITIONS_KEY)) {
         return counter.getNewConditions() - counter.getNewCoveredConditions();
       }
       throw new IllegalArgumentException("Unsupported metric " + metric.getKey());
@@ -210,10 +198,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     @Override
     public String[] getOutputMetricKeys() {
       return new String[] {
-        outputMetricKeys.getNewLinesToCover(),
-        outputMetricKeys.getNewUncoveredLines(),
-        outputMetricKeys.getNewConditionsToCover(),
-        outputMetricKeys.getNewUncoveredConditions()
+        NEW_LINES_TO_COVER_KEY,
+        NEW_UNCOVERED_LINES_KEY,
+        NEW_CONDITIONS_TO_COVER_KEY,
+        NEW_UNCOVERED_CONDITIONS_KEY
       };
     }
   }
@@ -224,11 +212,11 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private final IntValue newConditions = new IntValue();
     private final IntValue newCoveredConditions = new IntValue();
     private final NewLinesRepository newLinesRepository;
-    private final NewCoverageInputMetricKeys metricKeys;
+    private final BatchReportReader reportReader;
 
-    public NewCoverageCounter(NewLinesRepository newLinesRepository, NewCoverageInputMetricKeys metricKeys) {
+    public NewCoverageCounter(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
       this.newLinesRepository = newLinesRepository;
-      this.metricKeys = metricKeys;
+      this.reportReader = reportReader;
     }
 
     @Override
@@ -255,46 +243,25 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       newConditions.increment(0);
       newCoveredConditions.increment(0);
 
-      Optional<Measure> hitsByLineMeasure = context.getMeasure(metricKeys.getCoverageLineHitsData());
-      Map<Integer, Integer> hitsByLine = parseCountByLine(hitsByLineMeasure);
-      Map<Integer, Integer> conditionsByLine = parseCountByLine(context.getMeasure(metricKeys.getConditionsByLine()));
-      Map<Integer, Integer> coveredConditionsByLine = parseCountByLine(context.getMeasure(metricKeys.getCoveredConditionsByLine()));
-
-      for (Map.Entry<Integer, Integer> entry : hitsByLine.entrySet()) {
-        int lineId = entry.getKey();
-        int hits = entry.getValue();
-        int conditions = (Integer) ObjectUtils.defaultIfNull(conditionsByLine.get(lineId), 0);
-        int coveredConditions = (Integer) ObjectUtils.defaultIfNull(coveredConditionsByLine.get(lineId), 0);
-        if (newLinesSet.get().contains(lineId)) {
-          analyze(hits, conditions, coveredConditions);
+      try (CloseableIterator<ScannerReport.LineCoverage> lineCoverage = reportReader.readComponentCoverage(component.getReportAttributes().getRef())) {
+        while (lineCoverage.hasNext()) {
+          final ScannerReport.LineCoverage line = lineCoverage.next();
+          int lineId = line.getLine();
+          if (newLinesSet.get().contains(lineId)) {
+            if (line.getHasHitsCase() == ScannerReport.LineCoverage.HasHitsCase.HITS) {
+              newLines.increment(1);
+              if (line.getHits()) {
+                newCoveredLines.increment(1);
+              }
+            }
+            if (line.getHasCoveredConditionsCase() == ScannerReport.LineCoverage.HasCoveredConditionsCase.COVERED_CONDITIONS) {
+              newConditions.increment(line.getConditions());
+              newCoveredConditions.increment(min(line.getCoveredConditions(), line.getConditions()));
+            }
+          }
         }
       }
-    }
 
-    private static Map<Integer, Integer> parseCountByLine(Optional<Measure> measure) {
-      if (measure.isPresent() && measure.get().getValueType() != Measure.ValueType.NO_VALUE) {
-        return KeyValueFormat.parseIntInt(measure.get().getStringValue());
-      }
-      return Collections.emptyMap();
-    }
-
-    void analyze(int hits, int conditions, int coveredConditions) {
-      incrementLines(hits);
-      incrementConditions(conditions, coveredConditions);
-    }
-
-    private void incrementLines(int hits) {
-      newLines.increment(1);
-      if (hits > 0) {
-        newCoveredLines.increment(1);
-      }
-    }
-
-    private void incrementConditions(int conditions, int coveredConditions) {
-      newConditions.increment(conditions);
-      if (conditions > 0) {
-        newCoveredConditions.increment(coveredConditions);
-      }
     }
 
     boolean hasNewCode() {
@@ -318,59 +285,4 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     }
   }
 
-  @Immutable
-  public static final class NewCoverageOutputMetricKeys {
-    private final String newLinesToCover;
-    private final String newUncoveredLines;
-    private final String newConditionsToCover;
-    private final String newUncoveredConditions;
-
-    public NewCoverageOutputMetricKeys(String newLinesToCover, String newUncoveredLines, String newConditionsToCover, String newUncoveredConditions) {
-      this.newLinesToCover = newLinesToCover;
-      this.newUncoveredLines = newUncoveredLines;
-      this.newConditionsToCover = newConditionsToCover;
-      this.newUncoveredConditions = newUncoveredConditions;
-    }
-
-    public String getNewLinesToCover() {
-      return newLinesToCover;
-    }
-
-    public String getNewUncoveredLines() {
-      return newUncoveredLines;
-    }
-
-    public String getNewConditionsToCover() {
-      return newConditionsToCover;
-    }
-
-    public String getNewUncoveredConditions() {
-      return newUncoveredConditions;
-    }
-  }
-
-  @Immutable
-  public static class NewCoverageInputMetricKeys {
-    private final String coverageLineHitsData;
-    private final String conditionsByLine;
-    private final String coveredConditionsByLine;
-
-    public NewCoverageInputMetricKeys(String coverageLineHitsData, String conditionsByLine, String coveredConditionsByLine) {
-      this.coverageLineHitsData = coverageLineHitsData;
-      this.conditionsByLine = conditionsByLine;
-      this.coveredConditionsByLine = coveredConditionsByLine;
-    }
-
-    public String getCoverageLineHitsData() {
-      return coverageLineHitsData;
-    }
-
-    public String getConditionsByLine() {
-      return conditionsByLine;
-    }
-
-    public String getCoveredConditionsByLine() {
-      return coveredConditionsByLine;
-    }
-  }
 }

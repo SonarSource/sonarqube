@@ -25,24 +25,21 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.scanner.scan.measure.MeasureCache;
 
 @Immutable
 public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
   private final SensorStorage sensorStorage;
   private final MetricFinder metricFinder;
-  private final MeasureCache measureCache;
 
-  public DefaultFileLinesContextFactory(SensorStorage sensorStorage, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultFileLinesContextFactory(SensorStorage sensorStorage, MetricFinder metricFinder) {
     this.sensorStorage = sensorStorage;
     this.metricFinder = metricFinder;
-    this.measureCache = measureCache;
   }
 
   @Override
   public FileLinesContext createFor(InputFile inputFile) {
-    return new DefaultFileLinesContext(sensorStorage, inputFile, metricFinder, measureCache);
+    return new DefaultFileLinesContext(sensorStorage, inputFile, metricFinder);
   }
 
 }

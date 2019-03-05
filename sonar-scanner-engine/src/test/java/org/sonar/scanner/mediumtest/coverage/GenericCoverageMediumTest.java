@@ -26,13 +26,11 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class GenericCoverageMediumTest {
   private final List<String> logs = new ArrayList<>();
@@ -60,27 +58,11 @@ public class GenericCoverageMediumTest {
 
     assertThat(result.coverageFor(noConditions, 7).getHits()).isFalse();
 
-    assertThat(result.allMeasures().get(noConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
-      .containsOnly(
-        tuple(CoreMetrics.LINES_TO_COVER_KEY, 2, ""),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 1, ""),
-        tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "6=1;7=0"));
-
     InputFile withConditions = result.inputFile("xources/hello/WithConditions.xoo");
     assertThat(result.coverageFor(withConditions, 3).getHits()).isTrue();
     assertThat(result.coverageFor(withConditions, 3).getConditions()).isEqualTo(2);
     assertThat(result.coverageFor(withConditions, 3).getCoveredConditions()).isEqualTo(1);
 
-    assertThat(result.allMeasures().get(withConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
-      .containsOnly(
-        tuple(CoreMetrics.LINES_TO_COVER_KEY, 1, ""),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
-        tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "3=1"),
-        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2, ""),
-        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 1, ""),
-        tuple(CoreMetrics.CONDITIONS_BY_LINE_KEY, 0, "3=2"),
-        tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "3=1")
-    );
     assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
 
   }
@@ -117,28 +99,11 @@ public class GenericCoverageMediumTest {
 
     assertThat(result.coverageFor(noConditions, 7).getHits()).isTrue();
 
-    assertThat(result.allMeasures().get(noConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
-      .containsOnly(
-        tuple(CoreMetrics.LINES_TO_COVER_KEY, 2, ""),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
-        tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "6=1;7=1"));
-
     InputFile withConditions = result.inputFile("xources/hello/WithConditions.xoo");
     assertThat(result.coverageFor(withConditions, 3).getHits()).isTrue();
     assertThat(result.coverageFor(withConditions, 3).getConditions()).isEqualTo(2);
     assertThat(result.coverageFor(withConditions, 3).getCoveredConditions()).isEqualTo(2);
 
-    assertThat(result.allMeasures().get(withConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
-      .containsOnly(
-        tuple(CoreMetrics.LINES_TO_COVER_KEY, 1, ""),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
-        tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "3=2"),
-        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2, ""),
-        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 0, ""),
-        tuple(CoreMetrics.CONDITIONS_BY_LINE_KEY, 0, "3=2"),
-        tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "3=2")
-    );
-    
     assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
   }
   

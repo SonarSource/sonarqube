@@ -19,21 +19,20 @@
  */
 package org.sonar.scanner.sensor;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.Metric;
@@ -51,10 +50,12 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
@@ -67,52 +68,15 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerReportUtils;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.scanner.scan.measure.MeasureCache;
 
+import static java.lang.Math.max;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
-import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
-import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
-import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_BRANCH_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_LINES_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_LINE_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_BRANCH_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_LINES_TO_COVER_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_LINE_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
-import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
-import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
 
 public class DefaultSensorStorage implements SensorStorage {
 
@@ -140,51 +104,9 @@ public class DefaultSensorStorage implements SensorStorage {
     TEST_SUCCESS_DENSITY_KEY,
     PUBLIC_DOCUMENTED_API_DENSITY_KEY)));
 
-  private static final Set<String> COVERAGE_METRIC_KEYS = unmodifiableSet(new HashSet<>(asList(
-    UNCOVERED_LINES_KEY,
-    LINES_TO_COVER_KEY,
-    UNCOVERED_CONDITIONS_KEY,
-    CONDITIONS_TO_COVER_KEY,
-    CONDITIONS_BY_LINE_KEY,
-    COVERED_CONDITIONS_BY_LINE_KEY,
-    COVERAGE_LINE_HITS_DATA_KEY)));
-
-  private static final Set<String> COVERAGE_BY_LINE_METRIC_KEYS = unmodifiableSet(new HashSet<>(asList(
-    COVERAGE_LINE_HITS_DATA_KEY,
-    COVERED_CONDITIONS_BY_LINE_KEY,
-    CONDITIONS_BY_LINE_KEY)));
-
-  private static final Map<String, Metric> DEPRECATED_COVERAGE_METRICS_MAPPING;
-
-  static {
-    Map<String, Metric> map = new HashMap<>();
-    map.put(IT_COVERAGE_KEY, COVERAGE);
-    map.put(IT_LINE_COVERAGE_KEY, LINE_COVERAGE);
-    map.put(IT_BRANCH_COVERAGE_KEY, BRANCH_COVERAGE);
-    map.put(IT_UNCOVERED_LINES_KEY, UNCOVERED_LINES);
-    map.put(IT_LINES_TO_COVER_KEY, LINES_TO_COVER);
-    map.put(IT_UNCOVERED_CONDITIONS_KEY, UNCOVERED_CONDITIONS);
-    map.put(IT_CONDITIONS_TO_COVER_KEY, CONDITIONS_TO_COVER);
-    map.put(IT_CONDITIONS_BY_LINE_KEY, CONDITIONS_BY_LINE);
-    map.put(IT_COVERED_CONDITIONS_BY_LINE_KEY, COVERED_CONDITIONS_BY_LINE);
-    map.put(IT_COVERAGE_LINE_HITS_DATA_KEY, COVERAGE_LINE_HITS_DATA);
-    map.put(OVERALL_COVERAGE_KEY, COVERAGE);
-    map.put(OVERALL_LINE_COVERAGE_KEY, LINE_COVERAGE);
-    map.put(OVERALL_BRANCH_COVERAGE_KEY, BRANCH_COVERAGE);
-    map.put(OVERALL_UNCOVERED_LINES_KEY, UNCOVERED_LINES);
-    map.put(OVERALL_LINES_TO_COVER_KEY, LINES_TO_COVER);
-    map.put(OVERALL_UNCOVERED_CONDITIONS_KEY, UNCOVERED_CONDITIONS);
-    map.put(OVERALL_CONDITIONS_TO_COVER_KEY, CONDITIONS_TO_COVER);
-    map.put(OVERALL_CONDITIONS_BY_LINE_KEY, CONDITIONS_BY_LINE);
-    map.put(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, COVERED_CONDITIONS_BY_LINE);
-    map.put(OVERALL_COVERAGE_LINE_HITS_DATA_KEY, COVERAGE_LINE_HITS_DATA);
-    DEPRECATED_COVERAGE_METRICS_MAPPING = Collections.unmodifiableMap(map);
-  }
-
   private final MetricFinder metricFinder;
   private final IssuePublisher moduleIssues;
   private final ReportPublisher reportPublisher;
-  private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
   private final ContextPropertiesCache contextPropertiesCache;
   private final Configuration settings;
@@ -193,13 +115,12 @@ public class DefaultSensorStorage implements SensorStorage {
   private final Set<String> alreadyLogged = new HashSet<>();
 
   public DefaultSensorStorage(MetricFinder metricFinder, IssuePublisher moduleIssues, Configuration settings,
-                              ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
-                              ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
+    ReportPublisher reportPublisher, SonarCpdBlockIndex index,
+    ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.settings = settings;
     this.reportPublisher = reportPublisher;
-    this.measureCache = measureCache;
     this.index = index;
     this.contextPropertiesCache = contextPropertiesCache;
     this.scannerMetrics = scannerMetrics;
@@ -243,107 +164,48 @@ public class DefaultSensorStorage implements SensorStorage {
       return;
     }
 
-    DefaultMeasure measureToSave;
-    if (DEPRECATED_COVERAGE_METRICS_MAPPING.containsKey(metric.key())) {
-      metric = DEPRECATED_COVERAGE_METRICS_MAPPING.get(metric.key());
-      measureToSave = new DefaultMeasure<>()
-        .forMetric(metric)
-        .on(measure.inputComponent())
-        .withValue(measure.value());
-    } else {
-      measureToSave = measure;
-    }
-
     if (!scannerMetrics.getMetrics().contains(metric)) {
       throw new UnsupportedOperationException("Metric '" + metric.key() + "' should not be computed by a Sensor");
     }
 
-    if (COVERAGE_METRIC_KEYS.contains(metric.key())) {
-      logOnce(metric.key(), "Coverage measure for metric '{}' should not be saved directly by a Sensor. Plugin should be updated to use SensorContext::newCoverage instead.",
-        metric.key());
-      if (!component.isFile()) {
-        throw new UnsupportedOperationException("Saving coverage measure is only allowed on files. Attempt to save '" + metric.key() + "' on '" + component.key() + "'");
-      }
-      if (((DefaultInputFile) component).isExcludedForCoverage()) {
-        return;
-      }
-      saveCoverageMetricInternal((InputFile) component, metric, measureToSave);
-    } else {
-      if (measureCache.contains(component.key(), metric.key())) {
-        throw new UnsupportedOperationException("Can not add the same measure twice on " + component + ": " + measure);
-      }
-      measureCache.put(component.key(), metric.key(), measureToSave);
+    if (((DefaultInputComponent) component).hasMeasureFor(metric)) {
+      throw new UnsupportedOperationException("Can not add the same measure twice on " + component + ": " + measure);
     }
-  }
-
-  private void saveCoverageMetricInternal(InputFile file, Metric<?> metric, DefaultMeasure<?> measure) {
-    if (COVERAGE_BY_LINE_METRIC_KEYS.contains(metric.key())) {
-      validateCoverageMeasure((String) measure.value(), file);
-      DefaultMeasure<?> previousMeasure = measureCache.byMetric(file.key(), metric.key());
-      if (previousMeasure != null) {
-        measureCache.put(file.key(), metric.key(), new DefaultMeasure<String>()
-          .forMetric((Metric<String>) metric)
-          .withValue(mergeCoverageLineMetric(metric, (String) previousMeasure.value(), (String) measure.value())));
+    ((DefaultInputComponent) component).setHasMeasureFor(metric);
+    if (metric.key().equals(CoreMetrics.EXECUTABLE_LINES_DATA_KEY)) {
+      if (component.isFile()) {
+        ((DefaultInputFile) component).setExecutableLines(
+          KeyValueFormat.parseIntInt((String) measure.value()).entrySet().stream().filter(e -> e.getValue() > 0).map(Map.Entry::getKey).collect(Collectors.toSet()));
       } else {
-        measureCache.put(file.key(), metric.key(), measure);
+        throw new IllegalArgumentException("Executable lines can only be saved on files");
       }
     } else {
-      // Other coverage metrics are all integer values. Just erase value, it will be recomputed at the end anyway
-      measureCache.put(file.key(), metric.key(), measure);
+      reportPublisher.getWriter().appendComponentMeasure(((DefaultInputComponent) component).scannerId(), toReportMeasure(measure));
     }
   }
 
-  /**
-   * Merge the two line coverage data measures. For lines hits use the sum, and for conditions
-   * keep max value in case they both contains a value for the same line.
-   */
-  static String mergeCoverageLineMetric(Metric<?> metric, String value1, String value2) {
-    Map<Integer, Integer> data1 = KeyValueFormat.parseIntInt(value1);
-    Map<Integer, Integer> data2 = KeyValueFormat.parseIntInt(value2);
-    if (metric.key().equals(COVERAGE_LINE_HITS_DATA_KEY)) {
-      return KeyValueFormat.format(Stream.of(data1, data2)
-        .map(Map::entrySet)
-        .flatMap(Collection::stream)
-        .collect(
-          Collectors.toMap(
-            Map.Entry::getKey,
-            Map.Entry::getValue,
-            Integer::sum,
-            TreeMap::new)));
+  public static ScannerReport.Measure toReportMeasure(DefaultMeasure measureToSave) {
+    ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
+    builder.setMetricKey(measureToSave.metric().key());
+    setValueAccordingToType(builder, measureToSave);
+    return builder.build();
+  }
+
+  private static void setValueAccordingToType(ScannerReport.Measure.Builder builder, DefaultMeasure<?> measure) {
+    Serializable value = measure.value();
+    Metric<?> metric = measure.metric();
+    if (Boolean.class.equals(metric.valueType())) {
+      builder.setBooleanValue(ScannerReport.Measure.BoolValue.newBuilder().setValue((Boolean) value));
+    } else if (Integer.class.equals(metric.valueType())) {
+      builder.setIntValue(ScannerReport.Measure.IntValue.newBuilder().setValue(((Number) value).intValue()));
+    } else if (Double.class.equals(metric.valueType())) {
+      builder.setDoubleValue(ScannerReport.Measure.DoubleValue.newBuilder().setValue(((Number) value).doubleValue()));
+    } else if (String.class.equals(metric.valueType())) {
+      builder.setStringValue(ScannerReport.Measure.StringValue.newBuilder().setValue((String) value));
+    } else if (Long.class.equals(metric.valueType())) {
+      builder.setLongValue(ScannerReport.Measure.LongValue.newBuilder().setValue(((Number) value).longValue()));
     } else {
-      return KeyValueFormat.format(Stream.of(data1, data2)
-        .map(Map::entrySet)
-        .flatMap(Collection::stream)
-        .collect(
-          Collectors.toMap(
-            Map.Entry::getKey,
-            Map.Entry::getValue,
-            Integer::max,
-            TreeMap::new)));
-    }
-  }
-
-  static void validateCoverageMeasure(String value, InputFile inputFile) {
-    Map<Integer, Integer> m = KeyValueFormat.parseIntInt(value);
-    validatePositiveLine(m, inputFile.toString());
-    validateMaxLine(m, inputFile);
-  }
-
-  private static void validateMaxLine(Map<Integer, Integer> m, InputFile inputFile) {
-    int maxLine = inputFile.lines();
-
-    for (int line : m.keySet()) {
-      if (line > maxLine) {
-        throw new IllegalStateException(String.format("Can't create measure for line %d for file '%s' with %d lines", line, inputFile, maxLine));
-      }
-    }
-  }
-
-  private static void validatePositiveLine(Map<Integer, Integer> m, String filePath) {
-    for (int l : m.keySet()) {
-      if (l <= 0) {
-        throw new IllegalStateException(String.format("Measure with line %d for file '%s' must be > 0", l, filePath));
-      }
+      throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
     }
   }
 
@@ -462,22 +324,51 @@ public class DefaultSensorStorage implements SensorStorage {
   public void store(DefaultCoverage defaultCoverage) {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCoverage.inputFile();
     inputFile.setPublished(true);
-    if (defaultCoverage.linesToCover() > 0) {
-      saveCoverageMetricInternal(inputFile, LINES_TO_COVER, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(defaultCoverage.linesToCover()));
-      saveCoverageMetricInternal(inputFile, UNCOVERED_LINES,
-        new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue(defaultCoverage.linesToCover() - defaultCoverage.coveredLines()));
-      saveCoverageMetricInternal(inputFile, COVERAGE_LINE_HITS_DATA,
-        new DefaultMeasure<String>().forMetric(COVERAGE_LINE_HITS_DATA).withValue(KeyValueFormat.format(defaultCoverage.hitsByLine())));
+
+    Map<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = reloadExistingCoverage(inputFile);
+
+    int lineCount = inputFile.lines();
+    mergeLineCoverageValues(lineCount, defaultCoverage.hitsByLine(), coveragePerLine, (value, builder) -> builder.setHits(builder.getHits() || value > 0));
+    mergeLineCoverageValues(lineCount, defaultCoverage.conditionsByLine(), coveragePerLine, (value, builder) -> builder.setConditions(max(value, builder.getConditions())));
+    mergeLineCoverageValues(lineCount, defaultCoverage.coveredConditionsByLine(), coveragePerLine,
+      (value, builder) -> builder.setCoveredConditions(max(value, builder.getCoveredConditions())));
+
+    reportPublisher.getWriter().writeComponentCoverage(inputFile.scannerId(),
+      coveragePerLine.values().stream().map(ScannerReport.LineCoverage.Builder::build).collect(Collectors.toList()));
+
+  }
+
+  private Map<Integer, ScannerReport.LineCoverage.Builder> reloadExistingCoverage(DefaultInputFile inputFile) {
+    Map<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = new LinkedHashMap<>();
+    try (CloseableIterator<ScannerReport.LineCoverage> lineCoverageCloseableIterator = reportPublisher.getReader().readComponentCoverage(inputFile.scannerId())) {
+      while (lineCoverageCloseableIterator.hasNext()) {
+        final ScannerReport.LineCoverage lineCoverage = lineCoverageCloseableIterator.next();
+        coveragePerLine.put(lineCoverage.getLine(), ScannerReport.LineCoverage.newBuilder(lineCoverage));
+      }
     }
-    if (defaultCoverage.conditions() > 0) {
-      saveCoverageMetricInternal(inputFile, CONDITIONS_TO_COVER,
-        new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(defaultCoverage.conditions()));
-      saveCoverageMetricInternal(inputFile, UNCOVERED_CONDITIONS,
-        new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS).withValue(defaultCoverage.conditions() - defaultCoverage.coveredConditions()));
-      saveCoverageMetricInternal(inputFile, COVERED_CONDITIONS_BY_LINE,
-        new DefaultMeasure<String>().forMetric(COVERED_CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
-      saveCoverageMetricInternal(inputFile, CONDITIONS_BY_LINE,
-        new DefaultMeasure<String>().forMetric(CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
+    return coveragePerLine;
+  }
+
+  interface LineCoverageOperation {
+    void apply(Integer value, ScannerReport.LineCoverage.Builder builder);
+  }
+
+  private void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, Map<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
+    LineCoverageOperation op) {
+    for (Map.Entry<Integer, Integer> lineMeasure : valueByLine.entrySet()) {
+      int lineIdx = lineMeasure.getKey();
+      if (lineIdx <= lineCount) {
+        Integer value = lineMeasure.getValue();
+        op.apply(value, coveragePerLine.computeIfAbsent(lineIdx, line -> ScannerReport.LineCoverage.newBuilder().setLine(line)));
+      }
+    }
+  }
+
+  private static void validatePositiveLine(Map<Integer, Integer> m, String filePath) {
+    for (int l : m.keySet()) {
+      if (l <= 0) {
+        throw new IllegalStateException(String.format("Measure with line %d for file '%s' must be > 0", l, filePath));
+      }
     }
   }
 

@@ -31,10 +31,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.ByteOrderMark;
@@ -42,6 +44,8 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * @since 4.2
@@ -55,15 +59,17 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private final String contents;
   private final Consumer<DefaultInputFile> metadataGenerator;
 
-  private Status status;
-  private Charset charset;
-  private Metadata metadata;
   private boolean published;
   private boolean excludedForCoverage;
   private boolean excludedForDuplication;
-  private final Set<Integer> noSonarLines = new HashSet<>();
   private boolean ignoreAllIssues;
-  private Collection<int[]> ignoreIssuesOnlineRanges = new ArrayList<>();
+  // Lazy init to save memory
+  private BitSet noSonarLines;
+  private Status status;
+  private Charset charset;
+  private Metadata metadata;
+  private Collection<int[]> ignoreIssuesOnlineRanges;
+  private BitSet executableLines;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     this(indexedFile, metadataGenerator, null);
@@ -90,7 +96,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   public InputStream inputStream() throws IOException {
     return contents != null ? new ByteArrayInputStream(contents.getBytes(charset()))
       : new BOMInputStream(Files.newInputStream(path()),
-      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+        ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
   }
 
   @Override
@@ -245,16 +251,16 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   public int[] originalLineStartOffsets() {
     checkMetadata();
-    Preconditions.checkState(metadata.originalLineStartOffsets() != null, "InputFile is not properly initialized.");
-    Preconditions.checkState(metadata.originalLineStartOffsets().length == metadata.lines(),
+    checkState(metadata.originalLineStartOffsets() != null, "InputFile is not properly initialized.");
+    checkState(metadata.originalLineStartOffsets().length == metadata.lines(),
       "InputFile is not properly initialized. 'originalLineStartOffsets' property length should be equal to 'lines'");
     return metadata.originalLineStartOffsets();
   }
 
   public int[] originalLineEndOffsets() {
     checkMetadata();
-    Preconditions.checkState(metadata.originalLineEndOffsets() != null, "InputFile is not properly initialized.");
-    Preconditions.checkState(metadata.originalLineEndOffsets().length == metadata.lines(),
+    checkState(metadata.originalLineEndOffsets() != null, "InputFile is not properly initialized.");
+    checkState(metadata.originalLineEndOffsets().length == metadata.lines(),
       "InputFile is not properly initialized. 'originalLineEndOffsets' property length should be equal to 'lines'");
     return metadata.originalLineEndOffsets();
   }
@@ -383,11 +389,17 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   public void noSonarAt(Set<Integer> noSonarLines) {
-    this.noSonarLines.addAll(noSonarLines);
+    if (this.noSonarLines == null) {
+      this.noSonarLines = new BitSet(lines());
+    }
+    noSonarLines.forEach(l -> this.noSonarLines.set(l - 1));
   }
 
   public boolean hasNoSonarAt(int line) {
-    return this.noSonarLines.contains(line);
+    if (this.noSonarLines == null) {
+      return false;
+    }
+    return this.noSonarLines.get(line - 1);
   }
 
   public boolean isIgnoreAllIssues() {
@@ -399,13 +411,29 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   public void addIgnoreIssuesOnLineRanges(Collection<int[]> lineRanges) {
+    if (this.ignoreIssuesOnlineRanges == null) {
+      this.ignoreIssuesOnlineRanges = new ArrayList<>();
+    }
     this.ignoreIssuesOnlineRanges.addAll(lineRanges);
   }
 
   public boolean isIgnoreAllIssuesOnLine(@Nullable Integer line) {
-    if (line == null) {
+    if (line == null || ignoreIssuesOnlineRanges == null) {
       return false;
     }
     return ignoreIssuesOnlineRanges.stream().anyMatch(r -> r[0] <= line && line <= r[1]);
+  }
+
+  public void setExecutableLines(Set<Integer> executableLines) {
+    checkState(this.executableLines == null, "Executable lines have already been saved for file: {}", this.toString());
+    this.executableLines = new BitSet(lines());
+    executableLines.forEach(l -> this.executableLines.set(l - 1));
+  }
+
+  public Optional<Set<Integer>> getExecutableLines() {
+    if (this.executableLines == null) {
+      return Optional.empty();
+    }
+    return Optional.of(this.executableLines.stream().map(i -> i + 1).boxed().collect(Collectors.toSet()));
   }
 }

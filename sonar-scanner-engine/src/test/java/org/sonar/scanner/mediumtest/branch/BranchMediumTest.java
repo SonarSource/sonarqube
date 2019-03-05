@@ -25,13 +25,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.scan.branch.BranchType;
@@ -63,6 +65,9 @@ public class BranchMediumTest {
     Path filepath = baseDir.toPath().resolve(FILE_PATH);
     Files.write(filepath, FILE_CONTENT.getBytes());
 
+    Path xooUtCoverageFile = baseDir.toPath().resolve(FILE_PATH + ".coverage");
+    FileUtils.write(xooUtCoverageFile.toFile(), "1:2:2:1", StandardCharsets.UTF_8);
+
     String md5sum = new FileMetadata()
       .readMetadata(Files.newInputStream(filepath), StandardCharsets.UTF_8, FILE_PATH)
       .hash();
@@ -73,15 +78,18 @@ public class BranchMediumTest {
   public void should_not_skip_report_for_unchanged_files_in_short_branch() {
     // sanity check, normally report gets generated
     AnalysisResult result = getResult(tester);
-    assertThat(getResult(tester).getReportComponent(result.inputFile(FILE_PATH))).isNotNull();
-    int fileId = 2;
+    final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
+    assertThat(getResult(tester).getReportComponent(file)).isNotNull();
+    int fileId = file.scannerId();
     assertThat(result.getReportReader().readChangesets(fileId)).isNotNull();
     assertThat(result.getReportReader().hasCoverage(fileId)).isTrue();
     assertThat(result.getReportReader().readFileSource(fileId)).isNotNull();
 
     // file is not skipped for short branches (need coverage, duplications coming soon)
     AnalysisResult result2 = getResult(tester.setBranchType(BranchType.SHORT));
-    assertThat(result2.getReportComponent(result2.inputFile(FILE_PATH))).isNotNull();
+    final DefaultInputFile fileOnShortBranch = (DefaultInputFile) result2.inputFile(FILE_PATH);
+    assertThat(result2.getReportComponent(fileOnShortBranch)).isNotNull();
+    fileId = fileOnShortBranch.scannerId();
     assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
     assertThat(result2.getReportReader().hasCoverage(fileId)).isTrue();
     assertThat(result2.getReportReader().readFileSource(fileId)).isNull();
@@ -108,10 +116,8 @@ public class BranchMediumTest {
     return tester
       .newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", PROJECT_KEY)
-        .put("sonar.sources", ".")
         .put("sonar.scm.provider", "xoo")
         .build())
       .execute();

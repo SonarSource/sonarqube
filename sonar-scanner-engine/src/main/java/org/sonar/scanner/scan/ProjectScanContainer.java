@@ -69,11 +69,10 @@ import org.sonar.scanner.report.AnalysisWarningsPublisher;
 import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
-import org.sonar.scanner.report.CoveragePublisher;
-import org.sonar.scanner.report.MeasuresPublisher;
 import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
+import org.sonar.scanner.report.TestExecutionPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
@@ -107,7 +106,6 @@ import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
-import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmPublisher;
@@ -116,7 +114,6 @@ import org.sonar.scanner.sensor.ProjectSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionnary;
 import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
-import org.sonar.scanner.storage.Storages;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
@@ -155,7 +152,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectReactorValidator.class,
       MetricProvider.class,
       ProjectInfo.class,
-      Storages.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
@@ -205,9 +201,6 @@ public class ProjectScanContainer extends ComponentContainer {
       Languages.class,
       DefaultLanguagesRepository.class,
 
-      // Measures
-      MeasureCache.class,
-
       // issue exclusions
       IssueInclusionPatternInitializer.class,
       IssueExclusionPatternInitializer.class,
@@ -237,8 +230,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ActiveRulesPublisher.class,
       AnalysisWarningsPublisher.class,
       ComponentsPublisher.class,
-      MeasuresPublisher.class,
-      CoveragePublisher.class,
+      TestExecutionPublisher.class,
       SourcePublisher.class,
       ChangedLinesPublisher.class,
 

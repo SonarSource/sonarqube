@@ -45,6 +45,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -83,6 +84,7 @@ public class ReportPublisher implements Startable {
 
   private Path reportDir;
   private ScannerReportWriter writer;
+  private ScannerReportReader reader;
 
   public ReportPublisher(ScanProperties properties, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
@@ -101,6 +103,7 @@ public class ReportPublisher implements Startable {
   public void start() {
     reportDir = moduleHierarchy.root().getWorkDir().resolve("scanner-report");
     writer = new ScannerReportWriter(reportDir.toFile());
+    reader = new ScannerReportReader(reportDir.toFile());
     contextPublisher.init(writer);
 
     if (!analysisMode.isMediumTest()) {
@@ -124,6 +127,10 @@ public class ReportPublisher implements Startable {
 
   public ScannerReportWriter getWriter() {
     return writer;
+  }
+
+  public ScannerReportReader getReader() {
+    return reader;
   }
 
   public void execute() {

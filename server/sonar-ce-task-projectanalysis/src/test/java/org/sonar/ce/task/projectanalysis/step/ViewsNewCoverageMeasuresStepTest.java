@@ -28,12 +28,10 @@ import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWith
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
@@ -75,9 +73,6 @@ public class ViewsNewCoverageMeasuresStepTest {
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(CoreMetrics.COVERAGE_LINE_HITS_DATA)
-    .add(CoreMetrics.CONDITIONS_BY_LINE)
-    .add(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
     .add(CoreMetrics.NEW_LINES_TO_COVER)
     .add(CoreMetrics.NEW_UNCOVERED_LINES)
     .add(CoreMetrics.NEW_CONDITIONS_TO_COVER)

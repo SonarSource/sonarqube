@@ -19,9 +19,8 @@
  */
 package org.sonar.scanner.sensor;
 
-import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,20 +47,19 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.issue.IssuePublisher;
 import org.sonar.scanner.protocol.output.FileStructure;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -79,11 +77,12 @@ public class DefaultSensorStorageTest {
   private DefaultSensorStorage underTest;
   private MapSettings settings;
   private IssuePublisher moduleIssues;
-  private MeasureCache measureCache;
   private ScannerReportWriter reportWriter;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
   private BranchConfiguration branchConfiguration;
   private DefaultInputProject project;
+  private ScannerReportReader reportReader;
+  private ReportPublisher reportPublisher;
 
   @Before
   public void prepare() throws Exception {
@@ -94,17 +93,18 @@ public class DefaultSensorStorageTest {
 
     settings = new MapSettings();
     moduleIssues = mock(IssuePublisher.class);
-    measureCache = mock(MeasureCache.class);
 
-    ReportPublisher reportPublisher = mock(ReportPublisher.class);
-    reportWriter = new ScannerReportWriter(temp.newFolder());
+    reportPublisher = mock(ReportPublisher.class);
+    final File reportDir = temp.newFolder();
+    reportWriter = new ScannerReportWriter(reportDir);
+    reportReader = new ScannerReportReader(reportDir);
     when(reportPublisher.getWriter()).thenReturn(reportWriter);
+    when(reportPublisher.getReader()).thenReturn(reportReader);
 
     branchConfiguration = mock(BranchConfiguration.class);
 
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings.asConfig(), reportPublisher, measureCache,
-      mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics(), branchConfiguration);
+      moduleIssues, settings.asConfig(), reportPublisher, mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics(), branchConfiguration);
 
     project = new DefaultInputProject(ProjectDefinition.create()
       .setKey("foo")
@@ -132,7 +132,7 @@ public class DefaultSensorStorageTest {
       .forMetric(CoreMetrics.LINES)
       .withValue(10));
 
-    verifyNoMoreInteractions(measureCache);
+    verifyNoMoreInteractions(reportPublisher);
   }
 
   @Test
@@ -145,7 +145,7 @@ public class DefaultSensorStorageTest {
       .forMetric(CoreMetrics.LINES)
       .withValue(10));
 
-    verifyNoMoreInteractions(measureCache);
+    verifyNoMoreInteractions(reportPublisher);
   }
 
   @Test
@@ -209,35 +209,32 @@ public class DefaultSensorStorageTest {
 
   @Test
   public void should_save_file_measure() {
-    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
+      .build();
 
-    ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
-    when(measureCache.put(eq(file.key()), eq(CoreMetrics.NCLOC_KEY), argumentCaptor.capture())).thenReturn(null);
     underTest.store(new DefaultMeasure()
       .on(file)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
-    DefaultMeasure m = argumentCaptor.getValue();
-    assertThat(m.value()).isEqualTo(10);
-    assertThat(m.metric()).isEqualTo(CoreMetrics.NCLOC);
+    ScannerReport.Measure m = reportReader.readComponentMeasures(file.scannerId()).next();
+    assertThat(m.getIntValue().getValue()).isEqualTo(10);
+    assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
   }
 
   @Test
   public void should_not_skip_file_measures_on_short_lived_branch_or_pull_request_when_file_status_is_SAME() {
-    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
 
-    ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
-    when(measureCache.put(eq(file.key()), eq(CoreMetrics.LINES_TO_COVER_KEY), argumentCaptor.capture())).thenReturn(null);
     underTest.store(new DefaultMeasure()
       .on(file)
-      .forMetric(CoreMetrics.LINES_TO_COVER)
+      .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
-    DefaultMeasure m = argumentCaptor.getValue();
-    assertThat(m.value()).isEqualTo(10);
-    assertThat(m.metric()).isEqualTo(CoreMetrics.LINES_TO_COVER);
+    ScannerReport.Measure m = reportReader.readComponentMeasures(file.scannerId()).next();
+    assertThat(m.getIntValue().getValue()).isEqualTo(10);
+    assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
   }
 
   @Test
@@ -272,17 +269,14 @@ public class DefaultSensorStorageTest {
     String projectKey = "myProject";
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(projectKey).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
 
-    ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
-    when(measureCache.put(eq(module.key()), eq(CoreMetrics.NCLOC_KEY), argumentCaptor.capture())).thenReturn(null);
-
     underTest.store(new DefaultMeasure()
       .on(module)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
-    DefaultMeasure m = argumentCaptor.getValue();
-    assertThat(m.value()).isEqualTo(10);
-    assertThat(m.metric()).isEqualTo(CoreMetrics.NCLOC);
+    ScannerReport.Measure m = reportReader.readComponentMeasures(module.scannerId()).next();
+    assertThat(m.getIntValue().getValue()).isEqualTo(10);
+    assertThat(m.getMetricKey()).isEqualTo(CoreMetrics.NCLOC_KEY);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -319,38 +313,6 @@ public class DefaultSensorStorageTest {
   public void shouldStoreContextProperty() {
     underTest.storeProperty("foo", "bar");
     assertThat(contextPropertiesCache.getAll()).containsOnly(entry("foo", "bar"));
-  }
-
-  @Test
-  public void shouldValidateStrictlyPositiveLine() throws Exception {
-    InputFile file = new TestInputFileBuilder("module", "testfile").setModuleBaseDir(temp.newFolder().toPath()).build();
-    Map<Integer, Integer> map = ImmutableMap.of(0, 3);
-    String data = KeyValueFormat.format(map);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("must be > 0");
-    underTest.validateCoverageMeasure(data, file);
-  }
-
-  @Test
-  public void shouldValidateMaxLine() throws Exception {
-    InputFile file = new TestInputFileBuilder("module", "testfile").setModuleBaseDir(temp.newFolder().toPath()).build();
-    Map<Integer, Integer> map = ImmutableMap.of(11, 3);
-    String data = KeyValueFormat.format(map);
-
-    thrown.expect(IllegalStateException.class);
-    underTest.validateCoverageMeasure(data, file);
-  }
-
-  @Test
-  public void mergeCoverageLineMetrics_should_be_sorted() {
-    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=1", "1=1")).isEqualTo("1=2");
-    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=1", "2=1")).isEqualTo("1=1;2=1");
-    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERAGE_LINE_HITS_DATA, "2=1", "1=1")).isEqualTo("1=1;2=1");
-
-    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=1", "1=1")).isEqualTo("1=1");
-    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=1", "2=1")).isEqualTo("1=1;2=1");
-    assertThat(DefaultSensorStorage.mergeCoverageLineMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "2=1", "1=1")).isEqualTo("1=1;2=1");
   }
 
 }

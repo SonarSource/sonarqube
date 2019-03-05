@@ -112,10 +112,13 @@ public class ScannerReportWriter {
     }
   }
 
-  public File writeComponentMeasures(int componentRef, Iterable<ScannerReport.Measure> measures) {
+  public void appendComponentMeasure(int componentRef, ScannerReport.Measure measure) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
-    Protobuf.writeStream(measures, file, false);
-    return file;
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+      measure.writeDelimitedTo(out);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to write measure", e).addContext("file", file);
+    }
   }
 
   public File writeComponentChangesets(ScannerReport.Changesets changesets) {

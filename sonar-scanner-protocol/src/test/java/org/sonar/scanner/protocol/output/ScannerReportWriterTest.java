@@ -183,7 +183,7 @@ public class ScannerReportWriterTest {
       .setDoubleValue(DoubleValue.newBuilder().setValue(2.5d).setData("text-value"))
       .build();
 
-    underTest.writeComponentMeasures(1, asList(measure));
+    underTest.appendComponentMeasure(1, measure);
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);

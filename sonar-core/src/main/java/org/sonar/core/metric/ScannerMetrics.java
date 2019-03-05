@@ -26,10 +26,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.scanner.ScannerSide;
 
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
@@ -37,22 +37,14 @@ import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS;
-import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
-import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
 import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA;
-import static org.sonar.api.measures.CoreMetrics.FILES;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC;
-import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API;
 import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS;
@@ -61,8 +53,6 @@ import static org.sonar.api.measures.CoreMetrics.TESTS;
 import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS;
 import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
-import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
-import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
@@ -81,13 +71,10 @@ public class ScannerMetrics {
     NCLOC_DATA,
     GENERATED_NCLOC,
     COMMENT_LINES,
-    NCLOC_LANGUAGE_DISTRIBUTION,
 
     PUBLIC_API,
     PUBLIC_UNDOCUMENTED_API,
 
-    FILES,
-    DIRECTORIES,
     CLASSES,
     FUNCTIONS,
     STATEMENTS,
@@ -104,14 +91,6 @@ public class ScannerMetrics {
     TEST_ERRORS,
     TEST_FAILURES,
     TEST_EXECUTION_TIME,
-
-    LINES_TO_COVER,
-    UNCOVERED_LINES,
-    COVERAGE_LINE_HITS_DATA,
-    CONDITIONS_TO_COVER,
-    UNCOVERED_CONDITIONS,
-    COVERED_CONDITIONS_BY_LINE,
-    CONDITIONS_BY_LINE,
 
     EXECUTABLE_LINES_DATA);
 

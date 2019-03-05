@@ -99,7 +99,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void verify_readComponentMeasures_returns_measures() {
-    writer.writeComponentMeasures(COMPONENT_REF, of(MEASURE));
+    writer.appendComponentMeasure(COMPONENT_REF, MEASURE);
 
     try (CloseableIterator<ScannerReport.Measure> measures = underTest.readComponentMeasures(COMPONENT_REF)) {
       assertThat(measures.next()).isEqualTo(MEASURE);
@@ -109,7 +109,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentMeasures_is_not_cached() {
-    writer.writeComponentMeasures(COMPONENT_REF, of(MEASURE));
+    writer.appendComponentMeasure(COMPONENT_REF, MEASURE);
 
     assertThat(underTest.readComponentMeasures(COMPONENT_REF)).isNotSameAs(underTest.readComponentMeasures(COMPONENT_REF));
   }

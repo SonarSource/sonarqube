@@ -31,7 +31,7 @@ public class NoSonarFilterTest {
 
   @Test
   public void should_store_nosonar_lines_on_inputfile() {
-    DefaultInputFile f = TestInputFileBuilder.create("module1", "myfile.java").build();
+    DefaultInputFile f = TestInputFileBuilder.create("module1", "myfile.java").setLines(8).build();
     new NoSonarFilter().noSonarInFile(f, new HashSet<>(Arrays.asList(1,4)));
 
      assertThat(f.hasNoSonarAt(1)).isTrue();

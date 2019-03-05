@@ -226,9 +226,6 @@ subprojects {
       dependency 'org.reflections:reflections:0.9.9'
       dependency 'org.simpleframework:simple:4.1.21'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.22.0.1791'
-      dependency('org.sonarsource:sonar-persistit:3.3.2') {
-        exclude 'commons-logging:commons-logging'
-      }
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.18.0.487'
       dependency 'org.subethamail:subethasmtp:3.1.7'
       dependency 'xml-apis:xml-apis:1.4.01'
