@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
-import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -55,16 +54,14 @@ public class BuildComponentTreeStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final MutableTreeRootHolder treeRootHolder;
   private final MutableAnalysisMetadataHolder analysisMetadataHolder;
-  private final IssueRelocationToRoot issueRelocationToRoot;
   private final ReportModulesPath reportModulesPath;
 
   public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder,
-    MutableAnalysisMetadataHolder analysisMetadataHolder, IssueRelocationToRoot issueRelocationToRoot, ReportModulesPath reportModulesPath) {
+    MutableAnalysisMetadataHolder analysisMetadataHolder, ReportModulesPath reportModulesPath) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.issueRelocationToRoot = issueRelocationToRoot;
     this.reportModulesPath = reportModulesPath;
   }
 
@@ -95,8 +92,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),
-        createProjectAttributes(metadata, baseAnalysis.orElse(null)),
-        issueRelocationToRoot);
+        createProjectAttributes(metadata, baseAnalysis.orElse(null)));
       String relativePathFromScmRoot = metadata.getRelativePathFromScmRoot();
 
       Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);

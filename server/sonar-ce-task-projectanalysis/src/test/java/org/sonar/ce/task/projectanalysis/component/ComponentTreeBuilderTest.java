@@ -37,7 +37,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.project.Project;
@@ -47,18 +46,16 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 
 @RunWith(DataProviderRunner.class)
 public class ComponentTreeBuilderTest {
@@ -68,14 +65,13 @@ public class ComponentTreeBuilderTest {
   private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (projectKey, path) -> "public_"
     + ComponentKeys.createEffectiveKey(projectKey, path);
   private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
-  private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
+  private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, FILE);
   private static final String NO_SCM_BASE_PATH = "";
   // both no project as "" or null should be supported
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
     new Random().nextBoolean() ? null : randomAlphabetic(12),
     randomAlphabetic(20));
 
-  private IssueRelocationToRoot issueRelocationToRoot = mock(IssueRelocationToRoot.class);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -85,12 +81,13 @@ public class ComponentTreeBuilderTest {
   private Project projectInDb = Project.from(newPrivateProjectDto(newOrganizationDto(), UUID_SUPPLIER.apply("K1")).setDbKey("K1").setDescription(null));
 
   @Test
-  public void build_throws_IAE_for_all_types_except_PROJECT_MODULE_DIRECTORY_FILE() {
+  public void build_throws_IAE_for_all_types_except_PROJECT_and_FILE() {
     Arrays.stream(ScannerReport.Component.ComponentType.values())
       .filter((type) -> type != UNRECOGNIZED)
       .filter((type) -> !REPORT_TYPES.contains(type))
       .forEach(
         (type) -> {
+          scannerComponentProvider.clear();
           ScannerReport.Component project = newBuilder()
             .setType(PROJECT)
             .setKey(projectInDb.getKey())
@@ -344,16 +341,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setKey("M")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
@@ -370,20 +357,10 @@ public class ComponentTreeBuilderTest {
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
       .setRef(1)
-      .addChildRef(2)
-      .addChildRef(3)
+      .addChildRef(4)
+      .addChildRef(5)
       .addChildRef(6)
       .build();
-    scannerComponentProvider.add(newBuilder()
-      .setRef(2)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/main/xoo")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/test/xoo/org/sonar")
-      .addChildRef(5));
     scannerComponentProvider.add(newBuilder()
       .setRef(4)
       .setType(FILE)
@@ -403,11 +380,11 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
     assertThat(root.getChildren()).hasSize(2);
 
-    Component pom = root.getChildren().get(0);
+    Component pom = root.getChildren().get(1);
     assertThat(pom.getKey()).isEqualTo("public_K1:pom.xml");
     assertThat(pom.getName()).isEqualTo("pom.xml");
 
-    Component directory = root.getChildren().get(1);
+    Component directory = root.getChildren().get(0);
     assertThat(directory.getKey()).isEqualTo("public_K1:src");
     assertThat(directory.getName()).isEqualTo("src");
 
@@ -461,11 +438,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("/")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
@@ -493,12 +465,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/js")
-      .setName("")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js")
       .setName("")
@@ -575,23 +541,8 @@ public class ComponentTreeBuilderTest {
       .setType(PROJECT)
       .setKey("project 1")
       .setRef(1)
-      .addChildRef(11).addChildRef(21).addChildRef(31).build();
-    scannerComponentProvider.add(newBuilder().setRef(11).setType(MODULE).setKey("module 1").addChildRef(12).addChildRef(22).addChildRef(32));
-    scannerComponentProvider.add(newBuilder().setRef(12).setType(MODULE).setKey("module 2").addChildRef(13).addChildRef(23).addChildRef(33));
-    scannerComponentProvider.add(newBuilder().setRef(13).setType(MODULE).setKey("module 3").addChildRef(24).addChildRef(34));
-    scannerComponentProvider.add(newBuilder().setRef(21).setType(DIRECTORY).setProjectRelativePath("directory in project").addChildRef(35));
-    scannerComponentProvider.add(newBuilder().setRef(22).setType(DIRECTORY).setProjectRelativePath("directory in module 1").addChildRef(36));
-    scannerComponentProvider.add(newBuilder().setRef(23).setType(DIRECTORY).setProjectRelativePath("directory in module 2").addChildRef(37));
-    scannerComponentProvider.add(newBuilder().setRef(24).setType(DIRECTORY).setProjectRelativePath("directory in module 3").addChildRef(38));
+      .addChildRef(31).build();
     scannerComponentProvider.add(newBuilder().setRef(31).setType(FILE).setProjectRelativePath("file in project").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(32).setType(FILE).setProjectRelativePath("file in module 1").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(33).setType(FILE).setProjectRelativePath("file in module 2").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(34).setType(FILE).setProjectRelativePath("file in module 3").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(35).setType(FILE).setProjectRelativePath("file in directory in project").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(36).setType(FILE).setProjectRelativePath("file in directory in module 1").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(37).setType(FILE).setProjectRelativePath("file in directory in module 2").setLines(1));
-    scannerComponentProvider.add(newBuilder().setRef(38).setType(FILE).setProjectRelativePath("file in directory in module 3").setLines(1));
-
     Component root = call(project);
     Map<String, Component> componentsByKey = indexComponentByKey(root);
 
@@ -609,16 +560,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setKey("c2")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
@@ -641,29 +582,14 @@ public class ComponentTreeBuilderTest {
       .setRef(1)
       .addChildRef(2)
       .build();
-    ScannerReport.Component.Builder module = newBuilder()
-      .setRef(2)
-      .setType(MODULE)
-      .setKey("c2")
-      .addChildRef(3);
-    scannerComponentProvider.add(module);
-    ScannerReport.Component.Builder directory = newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/js")
-      .addChildRef(4);
-    scannerComponentProvider.add(directory);
     ScannerReport.Component.Builder file = newBuilder()
-      .setRef(4)
+      .setRef(2)
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(1);
     scannerComponentProvider.add(file);
 
     call(project);
-    verify(issueRelocationToRoot).relocate(project, module.build());
-    verify(issueRelocationToRoot).relocate(project, directory.build());
-    verifyNoMoreInteractions(issueRelocationToRoot);
   }
 
   @Test
@@ -675,15 +601,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setProjectRelativePath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(1));
@@ -707,17 +624,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(MODULE)
-      .setDescription("")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
-      .setType(DIRECTORY)
-      .setDescription("")
-      .setProjectRelativePath("src/js")
-      .addChildRef(4));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(4)
       .setType(FILE)
       .setDescription("")
       .setProjectRelativePath("src/js/Foo.js")
@@ -741,12 +647,6 @@ public class ComponentTreeBuilderTest {
       .build();
     scannerComponentProvider.add(newBuilder()
       .setRef(2)
-      .setType(DIRECTORY)
-      .setDescription("c")
-      .setProjectRelativePath("src/js")
-      .addChildRef(3));
-    scannerComponentProvider.add(newBuilder()
-      .setRef(3)
       .setType(FILE)
       .setDescription("d")
       .setProjectRelativePath("src/js/Foo.js")
@@ -886,6 +786,10 @@ public class ComponentTreeBuilderTest {
 
     @Override
     protected void before() {
+      clear();
+    }
+
+    public void clear() {
       components.clear();
     }
 
@@ -914,8 +818,7 @@ public class ComponentTreeBuilderTest {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(mainBranch);
     return new ComponentTreeBuilder(KEY_GENERATOR, PUBLIC_KEY_GENERATOR, UUID_SUPPLIER, scannerComponentProvider,
-      projectInDb, branch, projectAttributes,
-      issueRelocationToRoot);
+      projectInDb, branch, projectAttributes);
   }
 
   private static Map<String, Component> indexComponentByKey(Component root) {

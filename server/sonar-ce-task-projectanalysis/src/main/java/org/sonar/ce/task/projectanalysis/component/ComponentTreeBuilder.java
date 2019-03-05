@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.ce.task.projectanalysis.issue.IssueRelocationToRoot;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
@@ -67,7 +66,6 @@ public class ComponentTreeBuilder {
   private final Branch branch;
   @Nullable
   private final ProjectAttributes projectAttributes;
-  private final IssueRelocationToRoot issueRelocationToRoot;
 
   private ScannerReport.Component rootComponent;
   private String scmBasePath;
@@ -79,8 +77,7 @@ public class ComponentTreeBuilder {
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
     Branch branch,
-    ProjectAttributes projectAttributes,
-    IssueRelocationToRoot issueRelocationToRoot) {
+    ProjectAttributes projectAttributes) {
 
     this.keyGenerator = keyGenerator;
     this.publicKeyGenerator = publicKeyGenerator;
@@ -89,7 +86,6 @@ public class ComponentTreeBuilder {
     this.project = project;
     this.branch = branch;
     this.projectAttributes = requireNonNull(projectAttributes, "projectAttributes can't be null");
-    this.issueRelocationToRoot = issueRelocationToRoot;
   }
 
   public Component buildProject(ScannerReport.Component project, String scmBasePath) {
@@ -117,13 +113,6 @@ public class ComponentTreeBuilder {
       switch (component.getType()) {
         case FILE:
           addFile(root, component);
-          break;
-        case MODULE:
-        case DIRECTORY:
-          issueRelocationToRoot.relocate(rootComponent, component);
-          component.getChildRefList().stream()
-            .map(scannerComponentSupplier)
-            .forEach(queue::addLast);
           break;
         default:
           throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));

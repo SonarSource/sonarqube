@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -28,40 +26,17 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class ReportModulesPath implements Supplier<Map<String, String>> {
   private final BatchReportReader reader;
+  private Map<String, String> cache;
 
   public ReportModulesPath(BatchReportReader reader) {
     this.reader = reader;
   }
 
   public Map<String, String> get() {
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    Map<String, String> modulesProjectRelativePathByKey = metadata.getModulesProjectRelativePathByKeyMap();
-    if (modulesProjectRelativePathByKey.isEmpty()) {
-      return collectModulesPathFromHierarchy(metadata);
+    if (cache == null) {
+      ScannerReport.Metadata metadata = reader.readMetadata();
+      cache = metadata.getModulesProjectRelativePathByKeyMap();
     }
-    return modulesProjectRelativePathByKey;
+    return cache;
   }
-
-  /**
-   * This should only be needed if we receive a report of the previous version without the path per module explicitly set
-   * (due to blue/green deployment)
-   * Can be removed in any future version
-   */
-  private Map<String, String> collectModulesPathFromHierarchy(ScannerReport.Metadata metadata) {
-    ScannerReport.Component root = reader.readComponent(metadata.getRootComponentRef());
-    Map<String, String> modulesPathByKey = new LinkedHashMap<>();
-    LinkedList<Integer> queue = new LinkedList<>();
-    queue.addAll(root.getChildRefList());
-
-    while (!queue.isEmpty()) {
-      ScannerReport.Component component = reader.readComponent(queue.removeFirst());
-      if (component.getType() == ScannerReport.Component.ComponentType.MODULE) {
-        queue.addAll(component.getChildRefList());
-        modulesPathByKey.put(component.getKey(), component.getProjectRelativePath());
-      }
-    }
-
-    return modulesPathByKey;
-  }
-
 }
