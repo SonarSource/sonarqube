@@ -1935,7 +1935,7 @@ public final class CoreMetrics {
    */
   // TODO should be renamed to MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.WORK_DUR)
-    .setDescription("Total effort (in days) to fix all the issues on the component and therefore to comply to all the requirements.")
+    .setDescription("Total effort (in hours) to fix all the issues on the component and therefore to comply to all the requirements.")
     .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)

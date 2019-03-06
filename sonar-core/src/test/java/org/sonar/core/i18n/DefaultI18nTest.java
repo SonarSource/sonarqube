@@ -41,7 +41,7 @@ public class DefaultI18nTest {
 
   private TestSystem2 system2 = new TestSystem2();
 
-  DefaultI18n underTest;
+  private DefaultI18n underTest;
 
   @Before
   public void before() {
