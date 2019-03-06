@@ -44,6 +44,7 @@ import {
   Activation,
   getOpen
 } from '../query';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
 import FiltersHeader from '../../../components/common/FiltersHeader';
@@ -501,6 +502,11 @@ export class App extends React.PureComponent<Props, State> {
               <div className="layout-page-side" style={{ top }}>
                 <div className="layout-page-side-inner">
                   <div className="layout-page-filters">
+                    <A11ySkipTarget
+                      anchor="rules_filters"
+                      label={translate('coding_rules.skip_to_filters')}
+                      weight={10}
+                    />
                     <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
                     <SearchBox
                       className="spacer-bottom"
@@ -533,6 +539,7 @@ export class App extends React.PureComponent<Props, State> {
             <div className="layout-page-header-panel layout-page-main-header">
               <div className="layout-page-header-panel-inner layout-page-main-header-inner">
                 <div className="layout-page-main-inner">
+                  <A11ySkipTarget anchor="rules_main" />
                   {this.state.openRule ? (
                     <a className="js-back" href="#" onClick={this.handleBack}>
                       {translate('coding_rules.return_to_list')}

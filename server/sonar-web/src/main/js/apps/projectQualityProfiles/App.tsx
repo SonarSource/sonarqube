@@ -27,6 +27,7 @@ import {
   searchQualityProfiles,
   Profile
 } from '../../api/quality-profiles';
+import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
@@ -120,6 +121,8 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Suggestions suggestions="project_quality_profiles" />
         <Helmet title={translate('project_quality_profiles.page')} />
+
+        <A11ySkipTarget anchor="profiles_main" />
 
         <Header />
 

@@ -25,6 +25,7 @@ import UserCard from './UserCard';
 import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import '../account.css';
 
@@ -52,6 +53,7 @@ class Account extends React.PureComponent<Props> {
       <div id="account-page">
         <Suggestions suggestions="account" />
         <Helmet defaultTitle={title} titleTemplate={'%s - ' + title} />
+        <A11ySkipTarget anchor="account_main" />
         <header className="account-header">
           <div className="account-container clearfix">
             <UserCard user={currentUser as T.LoggedInUser} />

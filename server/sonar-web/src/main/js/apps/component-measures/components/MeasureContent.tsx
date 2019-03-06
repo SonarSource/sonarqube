@@ -25,6 +25,7 @@ import MeasureHeader from './MeasureHeader';
 import MeasureViewSelect from './MeasureViewSelect';
 import PageActions from '../../../components/ui/PageActions';
 import { complementary } from '../config/complementary';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
@@ -317,6 +318,8 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
     return (
       <div className="layout-page-main no-outline" ref={container => (this.container = container)}>
+        <A11ySkipTarget anchor="measures_main" />
+
         <div className="layout-page-header-panel layout-page-main-header">
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner">

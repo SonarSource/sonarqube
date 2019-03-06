@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import VulnerabilityList from './VulnerabilityList';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Checkbox from '../../../components/controls/Checkbox';
 import NotFound from '../../../app/components/NotFound';
@@ -148,6 +149,7 @@ export class App extends React.PureComponent<Props, State> {
         <Suggestions suggestions="security_reports" />
         <Helmet title={translate('security_reports', type, 'page')} />
         <header className="page-header">
+          <A11ySkipTarget anchor="security_main" />
           <h1 className="page-title">{translate('security_reports', type, 'page')}</h1>
           <div className="page-description">
             {translate('security_reports', type, 'description')}

@@ -21,6 +21,9 @@ exports[`renders 1`] = `
   <div
     className="layout-page-main"
   >
+    <Connect(A11ySkipTarget)
+      anchor="projects_main"
+    />
     <div
       className="layout-page-header-panel layout-page-main-header"
     >
@@ -163,6 +166,9 @@ exports[`renders 2`] = `
   <div
     className="layout-page-main"
   >
+    <Connect(A11ySkipTarget)
+      anchor="projects_main"
+    />
     <div
       className="layout-page-header-panel layout-page-main-header"
     >
@@ -271,6 +277,9 @@ exports[`renders correctly empty organization 2`] = `
   <div
     className="layout-page-main"
   >
+    <Connect(A11ySkipTarget)
+      anchor="projects_main"
+    />
     <ContextConsumer>
       <Component />
     </ContextConsumer>
@@ -299,6 +308,9 @@ exports[`renders correctly empty organization 3`] = `
   <div
     className="layout-page-main"
   >
+    <Connect(A11ySkipTarget)
+      anchor="projects_main"
+    />
     <div
       className="layout-page-header-panel layout-page-main-header"
     >

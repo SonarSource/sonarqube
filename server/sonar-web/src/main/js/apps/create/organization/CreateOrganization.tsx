@@ -40,6 +40,7 @@ import AutoOrganizationCreate from './AutoOrganizationCreate';
 import AutoPersonalOrganizationBind from './AutoPersonalOrganizationBind';
 import ManualOrganizationCreate from './ManualOrganizationCreate';
 import RemoteOrganizationChoose from './RemoteOrganizationChoose';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Tabs from '../../../components/controls/Tabs';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
@@ -456,6 +457,8 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
       <>
         <Helmet title={header} titleTemplate="%s" />
         <div className="page page-limited huge-spacer-top huge-spacer-bottom">
+          <A11ySkipTarget anchor="create_org_main" />
+
           <header className="page-header huge-spacer-bottom">
             <h1 className="page-title huge big-spacer-bottom">
               <strong>{header}</strong>

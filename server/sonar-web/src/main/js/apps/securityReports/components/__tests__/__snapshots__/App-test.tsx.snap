@@ -16,6 +16,9 @@ exports[`handle checkbox for cwe display 1`] = `
   <header
     className="page-header"
   >
+    <Connect(A11ySkipTarget)
+      anchor="security_main"
+    />
     <h1
       className="page-title"
     >
@@ -99,6 +102,9 @@ exports[`handle checkbox for cwe display 2`] = `
   <header
     className="page-header"
   >
+    <Connect(A11ySkipTarget)
+      anchor="security_main"
+    />
     <h1
       className="page-title"
     >
@@ -246,6 +252,9 @@ exports[`renders owaspTop10 1`] = `
   <header
     className="page-header"
   >
+    <Connect(A11ySkipTarget)
+      anchor="security_main"
+    />
     <h1
       className="page-title"
     >
@@ -387,6 +396,9 @@ exports[`renders sansTop25 1`] = `
   <header
     className="page-header"
   >
+    <Connect(A11ySkipTarget)
+      anchor="security_main"
+    />
     <h1
       className="page-title"
     >
@@ -470,6 +482,9 @@ exports[`renders with cwe 1`] = `
   <header
     className="page-header"
   >
+    <Connect(A11ySkipTarget)
+      anchor="security_main"
+    />
     <h1
       className="page-title"
     >

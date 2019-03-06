@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+Array [
+  <a
+    className="a11y-skip-link"
+    href="#a11y_target__link1"
+    key="link1"
+  >
+    Label 1
+  </a>,
+  <a
+    className="a11y-skip-link"
+    href="#a11y_target__link2"
+    key="link2"
+  >
+    Label 2
+  </a>,
+]
+`;

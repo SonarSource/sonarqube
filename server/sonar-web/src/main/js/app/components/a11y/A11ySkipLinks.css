@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
-import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { isSonarCloud } from '../../../helpers/system';
+.a11y-skip-link {
+  width: 0;
+  height: 0;
+  padding: var(--gridSize);
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  border: 0;
+  font-size: 1rem;
+  text-align: center;
+  z-index: 999;
+}
 
-export default function CreateProjectPage(props: WithRouterProps) {
-  return (
-    <>
-      <A11ySkipTarget anchor="create_project_main" />
-      {isSonarCloud() ? (
-        <CreateProjectPageSonarCloud {...props} />
-      ) : (
-        <CreateProjectPageSonarQube {...props} />
-      )}
-    </>
-  );
+.a11y-skip-link:focus {
+  width: auto;
+  height: auto;
+  left: 6px;
+  top: 6px;
+  color: white;
+  text-decoration: underline;
 }

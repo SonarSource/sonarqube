@@ -25,6 +25,7 @@ import ProjectActivityGraphs from './ProjectActivityGraphs';
 import { MeasureHistory, Query, ParsedAnalysis } from '../utils';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import './projectActivity.css';
 
@@ -56,6 +57,8 @@ export default function ProjectActivityApp(props: Props) {
     <div className="page page-limited" id="project-activity">
       <Suggestions suggestions="project_activity" />
       <Helmet title={translate('project_activity.page')} />
+
+      <A11ySkipTarget anchor="activity_main" />
 
       <ProjectActivityPageHeader
         category={query.category}

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import A11ySkipTarget from './a11y/A11ySkipTarget';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 interface Props {
@@ -57,6 +58,11 @@ export default class ProjectAdminContainer extends React.PureComponent<Props> {
     }
 
     const { children, ...props } = this.props;
-    return React.cloneElement(children, props);
+    return (
+      <>
+        <A11ySkipTarget anchor="admin_main" />
+        {React.cloneElement(children, props)}
+      </>
+    );
   }
 }

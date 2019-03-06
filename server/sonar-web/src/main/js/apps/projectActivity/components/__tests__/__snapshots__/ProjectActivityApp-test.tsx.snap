@@ -13,6 +13,9 @@ exports[`should render correctly 1`] = `
     encodeSpecialCharacters={true}
     title="project_activity.page"
   />
+  <Connect(A11ySkipTarget)
+    anchor="activity_main"
+  />
   <ProjectActivityPageHeader
     category=""
     project={

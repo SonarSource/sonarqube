@@ -18,21 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
-import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { isSonarCloud } from '../../../helpers/system';
+import { shallow } from 'enzyme';
+import A11ySkipLinks from '../A11ySkipLinks';
 
-export default function CreateProjectPage(props: WithRouterProps) {
-  return (
-    <>
-      <A11ySkipTarget anchor="create_project_main" />
-      {isSonarCloud() ? (
-        <CreateProjectPageSonarCloud {...props} />
-      ) : (
-        <CreateProjectPageSonarQube {...props} />
-      )}
-    </>
-  );
-}
+jest.mock('../A11yContext', () => ({
+  A11yContext: {
+    Consumer: ({ children }: any) => {
+      return children({
+        links: [{ key: 'link1', label: 'Label 1' }, { key: 'link2', label: 'Label 2' }]
+      });
+    }
+  }
+}));
+
+it('should render correctly', () => {
+  expect(shallow(<A11ySkipLinks />).dive()).toMatchSnapshot();
+});

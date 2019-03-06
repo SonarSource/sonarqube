@@ -31,6 +31,7 @@ import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
 import EntryIssueTypes from './EntryIssueTypes';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import GlobalContainer from '../../../app/components/GlobalContainer';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
@@ -123,6 +124,8 @@ class AboutApp extends React.PureComponent<Props, State> {
     return (
       <GlobalContainer location={this.props.location}>
         <div className="page page-limited about-page" id="about-page">
+          <A11ySkipTarget anchor="about_main" />
+
           <div className="about-page-entry">
             <div className="about-page-intro">
               <h1 className="big-spacer-bottom">{translate('layout.sonar.slogan')}</h1>

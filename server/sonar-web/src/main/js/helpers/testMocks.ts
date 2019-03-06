@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { InjectedRouter } from 'react-router';
+import { Store } from 'redux';
 import { Location } from 'history';
 import { ParsedAnalysis } from '../apps/projectActivity/utils';
 import { Profile } from '../apps/quality-profiles/types';
@@ -357,6 +358,16 @@ export function mockLongLivingBranch(
     isMain: false,
     name: 'master',
     type: 'LONG',
+    ...overrides
+  };
+}
+
+export function mockStore(overrides: Partial<Store> = {}): Store {
+  return {
+    dispatch: jest.fn(),
+    getState: jest.fn(),
+    subscribe: jest.fn(),
+    replaceReducer: jest.fn(),
     ...overrides
   };
 }

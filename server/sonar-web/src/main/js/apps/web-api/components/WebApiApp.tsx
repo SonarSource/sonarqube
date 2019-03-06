@@ -24,6 +24,7 @@ import { maxBy } from 'lodash';
 import Domain from './Domain';
 import Menu from './Menu';
 import Search from './Search';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchWebApi } from '../../../api/web-api';
@@ -163,6 +164,8 @@ class WebApiApp extends React.PureComponent<Props, State> {
             <div className="layout-page-side" style={{ top }}>
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
+                  <A11ySkipTarget anchor="webapi_main" />
+
                   <div className="web-api-page-header">
                     <Link to="/web_api/">
                       <h1>{translate('api_documentation.page')}</h1>

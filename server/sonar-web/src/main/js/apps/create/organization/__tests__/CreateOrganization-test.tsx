@@ -21,6 +21,7 @@ import * as React from 'react';
 import { times } from 'lodash';
 import { Location } from 'history';
 import { shallow, mount } from 'enzyme';
+import { Provider } from 'react-redux';
 import { CreateOrganization } from '../CreateOrganization';
 import {
   bindAlmOrganization,
@@ -37,7 +38,8 @@ import {
   mockOrganizationWithAlm,
   mockAlmOrganization,
   mockCurrentUser,
-  mockLocation
+  mockLocation,
+  mockStore
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
@@ -326,7 +328,9 @@ it('should bind org and redirect to org home when coming from org binding', asyn
 });
 
 function mountRender(props: Partial<CreateOrganization['props']> = {}) {
-  return mount<CreateOrganization>(createComponent(props));
+  return mount<CreateOrganization>(
+    <Provider store={mockStore()}>{createComponent(props)}</Provider>
+  );
 }
 
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {

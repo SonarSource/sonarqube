@@ -17,6 +17,9 @@ exports[`should render with auto personal organization bind page 2`] = `
   <div
     className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
+    <Connect(A11ySkipTarget)
+      anchor="create_org_main"
+    />
     <header
       className="page-header huge-spacer-bottom"
     >
@@ -95,6 +98,9 @@ exports[`should render with auto tab displayed 1`] = `
   <div
     className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
+    <Connect(A11ySkipTarget)
+      anchor="create_org_main"
+    />
     <header
       className="page-header huge-spacer-bottom"
     >
@@ -182,6 +188,9 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
   <div
     className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
+    <Connect(A11ySkipTarget)
+      anchor="create_org_main"
+    />
     <header
       className="page-header huge-spacer-bottom"
     >
@@ -306,6 +315,9 @@ exports[`should render with manual tab displayed 1`] = `
   <div
     className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
+    <Connect(A11ySkipTarget)
+      anchor="create_org_main"
+    />
     <header
       className="page-header huge-spacer-bottom"
     >
@@ -363,6 +375,9 @@ exports[`should render with organization bind page 2`] = `
   <div
     className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
+    <Connect(A11ySkipTarget)
+      anchor="create_org_main"
+    />
     <header
       className="page-header huge-spacer-bottom"
     >
@@ -488,6 +503,9 @@ exports[`should switch tabs 1`] = `
   <div
     className="page page-limited huge-spacer-top huge-spacer-bottom"
   >
+    <Connect(A11ySkipTarget)
+      anchor="create_org_main"
+    />
     <header
       className="page-header huge-spacer-bottom"
     >

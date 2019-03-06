@@ -24,6 +24,7 @@ import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import ListFooter from '../../../components/controls/ListFooter';
 import OrganizationEmpty from '../../organizations/components/OrganizationEmpty';
@@ -248,6 +249,12 @@ export class AllProjects extends React.PureComponent<Props, State> {
         <div className="layout-page-side projects-page-side" style={{ top }}>
           <div className="layout-page-side-inner">
             <div className="layout-page-filters">
+              <A11ySkipTarget
+                anchor="projects_filters"
+                label={translate('projects.skip_to_filters')}
+                weight={10}
+              />
+
               <PageSidebar
                 facets={this.state.facets}
                 onClearAll={this.handleClearAll}
@@ -355,6 +362,8 @@ export class AllProjects extends React.PureComponent<Props, State> {
             {!organizationEmpty && this.renderSide()}
 
             <div className="layout-page-main">
+              <A11ySkipTarget anchor="projects_main" />
+
               {organizationEmpty && organization ? (
                 <OnboardingContext.Consumer>
                   {openProjectOnboarding => (

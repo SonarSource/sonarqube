@@ -29,6 +29,7 @@ import Search from './Search';
 import SourceViewerWrapper from './SourceViewerWrapper';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { fetchMetrics } from '../../../store/rootActions';
@@ -250,6 +251,7 @@ export class App extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Suggestions suggestions="code" />
         <Helmet title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
+        <A11ySkipTarget anchor="code_main" />
 
         <Search
           branchLike={branchLike}

@@ -18,21 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
-import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { isSonarCloud } from '../../../helpers/system';
+import { A11yContext } from './A11yContext';
+import './A11ySkipLinks.css';
 
-export default function CreateProjectPage(props: WithRouterProps) {
+export default function A11ySkipLinks() {
   return (
-    <>
-      <A11ySkipTarget anchor="create_project_main" />
-      {isSonarCloud() ? (
-        <CreateProjectPageSonarCloud {...props} />
-      ) : (
-        <CreateProjectPageSonarQube {...props} />
-      )}
-    </>
+    <A11yContext.Consumer>
+      {({ links }) =>
+        links.map(link => (
+          <a className="a11y-skip-link" href={`#a11y_target__${link.key}`} key={link.key}>
+            {link.label}
+          </a>
+        ))
+      }
+    </A11yContext.Consumer>
   );
 }

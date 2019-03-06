@@ -52,6 +52,7 @@ import {
   STANDARDS,
   ReferencedRule
 } from '../utils';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
@@ -958,6 +959,13 @@ export class App extends React.PureComponent<Props, State> {
         {({ top }) => (
           <div className="layout-page-side" style={{ top }}>
             <div className="layout-page-side-inner">
+              <A11ySkipTarget
+                anchor="issues_sidebar"
+                label={
+                  openIssue ? translate('issues.skip_to_list') : translate('issues.skip_to_filters')
+                }
+                weight={10}
+              />
               {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}
             </div>
           </div>
@@ -1094,6 +1102,8 @@ export class App extends React.PureComponent<Props, State> {
           <div className="layout-page-header-panel layout-page-main-header issues-main-header">
             <div className="layout-page-header-panel-inner layout-page-main-header-inner">
               <div className="layout-page-main-inner">
+                <A11ySkipTarget anchor="issues_main" />
+
                 {this.renderBulkChange(openIssue)}
                 {openIssue ? (
                   <div className="pull-left width-60">

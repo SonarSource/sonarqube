@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
-import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { isSonarCloud } from '../../../helpers/system';
+import { createContext } from 'react';
 
-export default function CreateProjectPage(props: WithRouterProps) {
-  return (
-    <>
-      <A11ySkipTarget anchor="create_project_main" />
-      {isSonarCloud() ? (
-        <CreateProjectPageSonarCloud {...props} />
-      ) : (
-        <CreateProjectPageSonarQube {...props} />
-      )}
-    </>
-  );
+export interface A11yContextShape {
+  addA11ySkipLink: (link: T.A11ySkipLink) => void;
+  removeA11ySkipLink: (link: T.A11ySkipLink) => void;
+  links: T.A11ySkipLink[];
 }
+
+export const A11yContext = createContext<A11yContextShape>({
+  addA11ySkipLink: () => {},
+  removeA11ySkipLink: () => {},
+  links: []
+});

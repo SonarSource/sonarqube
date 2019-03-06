@@ -23,6 +23,8 @@ import StartupModal from './StartupModal';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
+import A11yProvider from './a11y/A11yProvider';
+import A11ySkipLinks from './a11y/A11ySkipLinks';
 import Workspace from '../../components/workspace/Workspace';
 
 interface Props {
@@ -36,20 +38,24 @@ export default function GlobalContainer(props: Props) {
   const { footer = <GlobalFooterContainer /> } = props;
   return (
     <SuggestionsProvider>
-      <StartupModal>
-        <div className="global-container">
-          <div className="page-wrapper" id="container">
-            <div className="page-container">
-              <Workspace>
-                <GlobalNav location={props.location} />
-                <GlobalMessagesContainer />
-                {props.children}
-              </Workspace>
+      <A11yProvider>
+        <StartupModal>
+          <A11ySkipLinks />
+
+          <div className="global-container">
+            <div className="page-wrapper" id="container">
+              <div className="page-container">
+                <Workspace>
+                  <GlobalNav location={props.location} />
+                  <GlobalMessagesContainer />
+                  {props.children}
+                </Workspace>
+              </div>
             </div>
+            {footer}
           </div>
-          {footer}
-        </div>
-      </StartupModal>
+        </StartupModal>
+      </A11yProvider>
     </SuggestionsProvider>
   );
 }

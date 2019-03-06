@@ -22,6 +22,12 @@ declare namespace T {
 
   // Type ordered alphabetically to prevent merge conflicts
 
+  export interface A11ySkipLink {
+    key: string;
+    label: string;
+    weight?: number;
+  }
+
   export interface AlmApplication extends IdentityProvider {
     installationUrl: string;
   }

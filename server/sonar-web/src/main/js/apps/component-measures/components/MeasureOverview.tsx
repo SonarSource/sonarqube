@@ -21,6 +21,7 @@ import * as React from 'react';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import PageActions from '../../../components/ui/PageActions';
 import BubbleChart from '../drilldown/BubbleChart';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
@@ -139,6 +140,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     return (
       <div className={this.props.className}>
         <div className="layout-page-header-panel layout-page-main-header">
+          <A11ySkipTarget anchor="measures_main" />
+
           <div className="layout-page-header-panel-inner layout-page-main-header-inner">
             <div className="layout-page-main-inner">
               <MeasureContentHeader

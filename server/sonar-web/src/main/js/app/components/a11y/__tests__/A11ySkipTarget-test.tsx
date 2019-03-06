@@ -18,21 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { WithRouterProps } from 'react-router';
-import CreateProjectPageSonarCloud from './CreateProjectPageSonarCloud';
-import CreateProjectPageSonarQube from './CreateProjectPageSonarQube';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { isSonarCloud } from '../../../helpers/system';
+import { mount } from 'enzyme';
+import { A11ySkipTargetInner } from '../A11ySkipTarget';
 
-export default function CreateProjectPage(props: WithRouterProps) {
-  return (
-    <>
-      <A11ySkipTarget anchor="create_project_main" />
-      {isSonarCloud() ? (
-        <CreateProjectPageSonarCloud {...props} />
-      ) : (
-        <CreateProjectPageSonarQube {...props} />
-      )}
-    </>
+it('should render correctly, and (un)register the link when (un)mounted', () => {
+  const link = { key: 'main', label: 'Skip to content' };
+  const addA11ySkipLink = jest.fn();
+  const removeA11ySkipLink = jest.fn();
+
+  const wrapper = mount(
+    <A11ySkipTargetInner
+      addA11ySkipLink={addA11ySkipLink}
+      anchor={link.key}
+      label={link.label}
+      removeA11ySkipLink={removeA11ySkipLink}
+    />
   );
-}
+
+  expect(wrapper).toMatchSnapshot();
+  expect(addA11ySkipLink).toBeCalledWith(link);
+  wrapper.unmount();
+  expect(removeA11ySkipLink).toBeCalledWith(link);
+});

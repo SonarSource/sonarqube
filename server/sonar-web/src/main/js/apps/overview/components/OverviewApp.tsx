@@ -27,6 +27,7 @@ import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
 import MetaContainer from '../meta/MetaContainer';
 import QualityGate from '../qualityGate/QualityGate';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { parseDate } from '../../../helpers/dates';
@@ -232,6 +233,8 @@ export class OverviewApp extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
+          <A11ySkipTarget anchor="overview_main" />
+
           {this.renderMain()}
 
           <div className="overview-sidebar page-sidebar-fixed">

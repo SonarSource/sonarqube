@@ -27,6 +27,7 @@ import {
   associateGateWithProject,
   dissociateGateWithProject
 } from '../../api/quality-gates';
+import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
@@ -129,6 +130,7 @@ export default class App extends React.PureComponent<Props> {
       <div className="page page-limited" id="project-quality-gate">
         <Suggestions suggestions="project_quality_gate" />
         <Helmet title={translate('project_quality_gate.page')} />
+        <A11ySkipTarget anchor="qg_main" />
         <Header />
         {loading ? (
           <i className="spinner" />

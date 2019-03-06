@@ -63,6 +63,7 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import SearchSelect from '../../../components/controls/SearchSelect';
 import RadioToggle from '../../../components/controls/RadioToggle';
+import A11ySkipTarget from '../a11y/A11ySkipTarget';
 import { Alert } from '../../../components/ui/Alert';
 
 const exposeLibraries = () => {
@@ -73,6 +74,7 @@ const exposeLibraries = () => {
   global.SonarMeasures = measures;
   global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
   global.SonarComponents = {
+    A11ySkipTarget,
     ActionsDropdown,
     ActionsDropdownItem,
     Alert,

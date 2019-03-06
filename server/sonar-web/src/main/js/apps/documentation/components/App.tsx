@@ -24,6 +24,7 @@ import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree
 import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTree.json';
 import Sidebar from './Sidebar';
 import getPages from '../pages';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import NotFound from '../../../app/components/NotFound';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
@@ -63,6 +64,7 @@ export default class App extends React.PureComponent<Props> {
           <Helmet title={mainTitle}>
             <meta content="noindex nofollow" name="robots" />
           </Helmet>
+          <A11ySkipTarget anchor="documentation_main" />
           <NotFound withContainer={false} />
         </>
       );
@@ -82,6 +84,12 @@ export default class App extends React.PureComponent<Props> {
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
                   <div className="documentation-page-header">
+                    <A11ySkipTarget
+                      anchor="documentation_menu"
+                      label={translate('documentation.skip_to_nav')}
+                      weight={10}
+                    />
+
                     <Link to="/documentation/">
                       <h1>{translate('documentation.page')}</h1>
                     </Link>
@@ -96,6 +104,8 @@ export default class App extends React.PureComponent<Props> {
         <div className="layout-page-main">
           <div className="layout-page-main-inner">
             <div className="boxed-group">
+              <A11ySkipTarget anchor="documentation_main" />
+
               <DocMarkdownBlock
                 className="documentation-content cut-margins boxed-group-inner"
                 content={page.content}

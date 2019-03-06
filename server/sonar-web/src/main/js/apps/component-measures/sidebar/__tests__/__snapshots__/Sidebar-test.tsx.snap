@@ -2,6 +2,11 @@
 
 exports[`should display two facets 1`] = `
 <div>
+  <Connect(A11ySkipTarget)
+    anchor="measures_filters"
+    label="component_measures.skip_to_filters"
+    weight={10}
+  />
   <ProjectOverviewFacet
     onChange={[Function]}
     selected="duplicated_lines_density"

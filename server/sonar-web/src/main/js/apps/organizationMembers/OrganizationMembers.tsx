@@ -22,6 +22,7 @@ import Helmet from 'react-helmet';
 import MembersPageHeader from './MembersPageHeader';
 import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
+import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../components/controls/ListFooter';
 import { translate } from '../../helpers/l10n';
@@ -200,6 +201,7 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
       <div className="page page-limited">
         <Helmet title={translate('organization.members.page')} />
         <Suggestions suggestions="organization_members" />
+        <A11ySkipTarget anchor="members_main" />
         <MembersPageHeader
           handleAddMember={this.handleAddMember}
           loading={loading}
