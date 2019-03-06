@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.applications;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -32,8 +33,8 @@ public class CreateBranchRequest {
 
   private String application;
   private String branch;
-  private String project;
-  private String projectBranch;
+  private List<String> projects;
+  private List<String> projectBranches;
 
   /**
    * This is a mandatory parameter.
@@ -63,25 +64,25 @@ public class CreateBranchRequest {
    * This is a mandatory parameter.
    * Example value: "project=firstProjectKey&project=secondProjectKey&project=thirdProjectKey"
    */
-  public CreateBranchRequest setProject(String project) {
-    this.project = project;
+  public CreateBranchRequest setProject(List<String> projects) {
+    this.projects = projects;
     return this;
   }
 
-  public String getProject() {
-    return project;
+  public List<String> getProject() {
+    return projects;
   }
 
   /**
    * This is a mandatory parameter.
    * Example value: "projectBranch=&projectBranch=branch-2.0&projectBranch=branch-2.1"
    */
-  public CreateBranchRequest setProjectBranch(String projectBranch) {
-    this.projectBranch = projectBranch;
+  public CreateBranchRequest setProjectBranch(List<String> projectBranches) {
+    this.projectBranches = projectBranches;
     return this;
   }
 
-  public String getProjectBranch() {
-    return projectBranch;
+  public List<String> getProjectBranch() {
+    return projectBranches;
   }
 }
