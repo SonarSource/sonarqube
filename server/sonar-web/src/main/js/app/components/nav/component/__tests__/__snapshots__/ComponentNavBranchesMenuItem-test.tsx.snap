@@ -42,13 +42,14 @@ exports[`renders main branch 1`] = `
     <div
       className="big-spacer-left note"
     >
-      <BranchStatus
+      <Connect(BranchStatus)
         branchLike={
           Object {
             "isMain": true,
             "name": "master",
           }
         }
+        component="component"
       />
     </div>
   </Link>
@@ -97,7 +98,7 @@ exports[`renders short-living branch 1`] = `
     <div
       className="big-spacer-left note"
     >
-      <BranchStatus
+      <Connect(BranchStatus)
         branchLike={
           Object {
             "isMain": false,
@@ -109,6 +110,7 @@ exports[`renders short-living branch 1`] = `
             "type": "SHORT",
           }
         }
+        component="component"
       />
     </div>
   </Link>
@@ -158,7 +160,7 @@ exports[`renders short-living orhpan branch 1`] = `
     <div
       className="big-spacer-left note"
     >
-      <BranchStatus
+      <Connect(BranchStatus)
         branchLike={
           Object {
             "isMain": false,
@@ -171,6 +173,7 @@ exports[`renders short-living orhpan branch 1`] = `
             "type": "SHORT",
           }
         }
+        component="component"
       />
     </div>
   </Link>

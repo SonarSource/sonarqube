@@ -52,7 +52,7 @@ exports[`renders meta for pull request 1`] = `
         size={12}
       />
     </a>
-    <BranchStatus
+    <Connect(BranchStatus)
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
@@ -63,6 +63,7 @@ exports[`renders meta for pull request 1`] = `
           "url": "https://example.com/pull/1234",
         }
       }
+      component="my-project"
     />
   </div>
 </div>
@@ -82,7 +83,7 @@ exports[`renders status of short-living branch 1`] = `
   <div
     className="navbar-context-meta-secondary display-inline-flex-center"
   >
-    <BranchStatus
+    <Connect(BranchStatus)
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
@@ -92,6 +93,7 @@ exports[`renders status of short-living branch 1`] = `
           "type": "SHORT",
         }
       }
+      component="my-project"
     />
   </div>
 </div>

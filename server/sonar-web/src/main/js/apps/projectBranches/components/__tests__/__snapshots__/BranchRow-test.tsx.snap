@@ -22,13 +22,14 @@ exports[`renders main branch 1`] = `
   <td
     className="thin nowrap"
   >
-    <BranchStatus
+    <Connect(BranchStatus)
       branchLike={
         Object {
           "isMain": true,
           "name": "master",
         }
       }
+      component="foo"
     />
   </td>
   <td
@@ -70,7 +71,7 @@ exports[`renders pull request 1`] = `
   <td
     className="thin nowrap"
   >
-    <BranchStatus
+    <Connect(BranchStatus)
       branchLike={
         Object {
           "base": "master",
@@ -79,6 +80,7 @@ exports[`renders pull request 1`] = `
           "title": "Feature PR",
         }
       }
+      component="foo"
     />
   </td>
   <td
@@ -122,7 +124,7 @@ exports[`renders short-living branch 1`] = `
   <td
     className="thin nowrap"
   >
-    <BranchStatus
+    <Connect(BranchStatus)
       branchLike={
         Object {
           "analysisDate": "2017-09-27T00:05:19+0000",
@@ -132,6 +134,7 @@ exports[`renders short-living branch 1`] = `
           "type": "SHORT",
         }
       }
+      component="foo"
     />
   </td>
   <td

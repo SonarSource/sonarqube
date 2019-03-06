@@ -19,18 +19,17 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import BranchStatus from '../BranchStatus';
+import { BranchStatus } from '../BranchStatus';
+import { mockLongLivingBranch } from '../../../helpers/testMocks';
 
 it('should render correctly', () => {
-  const branch: T.MainBranch = { isMain: true, name: 'foo' };
-  expect(getWrapper(branch).type()).toBeNull();
-  expect(getWrapper(branch, 'OK')).toMatchSnapshot();
-  expect(getWrapper(branch, 'ERROR')).toMatchSnapshot();
+  expect(shallowRender().type()).toBeNull();
+  expect(shallowRender('OK')).toMatchSnapshot();
+  expect(shallowRender('ERROR')).toMatchSnapshot();
 });
 
-function getWrapper(branch: T.MainBranch, qualityGateStatus?: string) {
-  if (qualityGateStatus) {
-    branch.status = { qualityGateStatus };
-  }
-  return shallow(<BranchStatus branchLike={branch} />);
+function shallowRender(status?: string) {
+  return shallow(
+    <BranchStatus branchLike={mockLongLivingBranch()} component="foo" status={status} />
+  );
 }

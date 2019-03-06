@@ -95,7 +95,7 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
                 <DetachIcon className="little-spacer-left" size={12} />
               </a>
             )}
-          <BranchStatus branchLike={branchLike} />
+          <BranchStatus branchLike={branchLike} component={component.key} />
         </div>
       )}
     </div>

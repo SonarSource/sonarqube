@@ -18,16 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import Level from '../ui/Level';
+import { Store, getBranchStatusByBranchLike } from '../../store/rootReducer';
 
 interface Props {
   branchLike: T.BranchLike;
+  component: string;
+  status?: string;
 }
 
-export default function BranchStatus({ branchLike }: Props) {
-  if (!branchLike.status) {
+export function BranchStatus({ status }: Props) {
+  if (!status) {
     return null;
   }
 
-  return <Level level={branchLike.status.qualityGateStatus} small={true} />;
+  return <Level level={status} small={true} />;
 }
+
+const mapStateToProps = (state: Store, { branchLike, component }: Props) => {
+  const status = getBranchStatusByBranchLike(state, component, branchLike);
+  return { status };
+};
+
+export default connect(mapStateToProps)(BranchStatus);

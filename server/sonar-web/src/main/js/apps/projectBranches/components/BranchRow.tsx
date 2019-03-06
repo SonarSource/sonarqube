@@ -157,7 +157,7 @@ export default class BranchRow extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { branchLike, isOrphan } = this.props;
+    const { branchLike, component, isOrphan } = this.props;
     const indented = (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && !isOrphan;
 
     return (
@@ -173,7 +173,7 @@ export default class BranchRow extends React.PureComponent<Props, State> {
           )}
         </td>
         <td className="thin nowrap">
-          <BranchStatus branchLike={branchLike} />
+          <BranchStatus branchLike={branchLike} component={component} />
         </td>
         <td className="thin nowrap text-right big-spacer-left">
           {branchLike.analysisDate && <DateFromNow date={branchLike.analysisDate} />}
