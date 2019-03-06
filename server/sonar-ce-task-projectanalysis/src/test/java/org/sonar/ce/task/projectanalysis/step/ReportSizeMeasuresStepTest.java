@@ -36,7 +36,6 @@ import static com.google.common.collect.Iterables.concat;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
@@ -221,8 +220,7 @@ public class ReportSizeMeasuresStepTest {
     MeasureRepoEntry[] measureRepoEntries = concatIntoArray(
       otherMeasures,
       linesCount == null ? null : entryOf(LINES_KEY, newMeasureBuilder().create(linesCount)),
-      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)),
-      directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount)));
+      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
       .containsOnly(measureRepoEntries);
   }

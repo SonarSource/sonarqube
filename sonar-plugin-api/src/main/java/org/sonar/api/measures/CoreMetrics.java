@@ -166,10 +166,16 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .create();
 
-  public static final String DIRECTORIES_KEY = "directories";
   /**
-   * Computed by the platform.
+   * @deprecated since 7.7 - no longer computed
    */
+  @Deprecated
+  public static final String DIRECTORIES_KEY = "directories";
+
+  /**
+   * @deprecated since 7.7 - no longer computed
+   */
+  @Deprecated
   public static final Metric<Integer> DIRECTORIES = new Metric.Builder(DIRECTORIES_KEY, "Directories", Metric.ValueType.INT)
     .setDescription("Directories")
     .setDirection(Metric.DIRECTION_WORST)
@@ -177,6 +183,9 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .create();
 
+  /**
+   * Computed by the platform.
+   */
   public static final String FUNCTIONS_KEY = "functions";
   public static final Metric<Integer> FUNCTIONS = new Metric.Builder(FUNCTIONS_KEY, "Functions", Metric.ValueType.INT)
     .setDescription("Functions")

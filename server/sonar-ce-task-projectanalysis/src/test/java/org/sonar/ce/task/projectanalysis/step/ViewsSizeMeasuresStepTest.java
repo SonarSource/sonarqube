@@ -36,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILES;
 import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
@@ -118,12 +117,8 @@ public class ViewsSizeMeasuresStepTest {
     .addRawMeasure(PROJECTVIEW_2_REF, FILES_KEY, newMeasureBuilder().create(2))
     .addRawMeasure(PROJECTVIEW_3_REF, FILES_KEY, newMeasureBuilder().create(3))
     // PROJECTVIEW_4_REF has no file metric
-    .addRawMeasure(PROJECTVIEW_5_REF, FILES_KEY, newMeasureBuilder().create(5))
-    .addRawMeasure(PROJECTVIEW_1_REF, DIRECTORIES_KEY, newMeasureBuilder().create(1))
-    .addRawMeasure(PROJECTVIEW_2_REF, DIRECTORIES_KEY, newMeasureBuilder().create(2))
-    // PROJECTVIEW_3_REF has no directory metric
-    .addRawMeasure(PROJECTVIEW_4_REF, DIRECTORIES_KEY, newMeasureBuilder().create(4))
-    .addRawMeasure(PROJECTVIEW_5_REF, DIRECTORIES_KEY, newMeasureBuilder().create(5));
+    .addRawMeasure(PROJECTVIEW_5_REF, FILES_KEY, newMeasureBuilder().create(5));
+  // PROJECTVIEW_3_REF has no directory metric
 
   private SizeMeasuresStep underTest = new SizeMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
@@ -225,8 +220,7 @@ public class ViewsSizeMeasuresStepTest {
   private static MeasureRepoEntry[] createFileAndDirectoryEntries(@Nullable Integer linesCount, @Nullable Integer fileCount, @Nullable Integer directoryCount) {
     return new MeasureRepoEntry[] {
       linesCount == null ? null : entryOf(LINES_KEY, newMeasureBuilder().create(linesCount)),
-      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)),
-      directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount))
+      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount))
     };
   }
 
@@ -234,7 +228,7 @@ public class ViewsSizeMeasuresStepTest {
     return from(concat(
       asList(otherMeasures),
       from(asList(measureRepoEntries)).filter(notNull())))
-        .toArray(MeasureRepoEntry.class);
+      .toArray(MeasureRepoEntry.class);
   }
 
   private void verifyNoMeasure(int componentRef) {

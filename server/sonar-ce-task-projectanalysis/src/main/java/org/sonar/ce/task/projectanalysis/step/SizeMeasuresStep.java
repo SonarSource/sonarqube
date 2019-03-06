@@ -37,7 +37,6 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
@@ -75,7 +74,6 @@ public class SizeMeasuresStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     new PathAwareCrawler<>(new FileAndDirectoryMeasureVisitor(
-      metricRepository.getByKey(DIRECTORIES_KEY),
       metricRepository.getByKey(FILES_KEY),
       metricRepository.getByKey(LINES_KEY)))
       .visit(treeRootHolder.getRoot());
@@ -90,13 +88,11 @@ public class SizeMeasuresStep implements ComputationStep {
   }
 
   private class FileAndDirectoryMeasureVisitor extends PathAwareVisitorAdapter<Counter> {
-    private final Metric directoryMetric;
     private final Metric fileMetric;
     private final Metric linesMetric;
 
-    public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric, Metric linesMetric) {
+    public FileAndDirectoryMeasureVisitor(Metric fileMetric, Metric linesMetric) {
       super(CrawlerDepthLimit.LEAVES, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
-      this.directoryMetric = directoryMetric;
       this.fileMetric = fileMetric;
       this.linesMetric = linesMetric;
     }
@@ -109,25 +105,16 @@ public class SizeMeasuresStep implements ComputationStep {
     @Override
     public void visitDirectory(Component directory, Path<Counter> path) {
       int mainfileCount = path.current().files;
-      path.parent().directories += path.current().directories;
-      if (mainfileCount > 0 || path.current().directories > 0) {
-        path.parent().directories += 1;
-      }
       if (mainfileCount > 0) {
         measureRepository.add(directory, fileMetric, newMeasureBuilder().create(mainfileCount));
         measureRepository.add(directory, linesMetric, newMeasureBuilder().create(path.current().lines));
         path.parent().files += mainfileCount;
         path.parent().lines += path.current().lines;
       }
-      int mainDirectoryCount = path.current().directories;
-      if (mainDirectoryCount > 0) {
-        measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(mainDirectoryCount));
-      }
     }
 
     private void createMeasures(Component directory, Counter counter) {
       if (counter.files > 0) {
-        measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(counter.directories));
         measureRepository.add(directory, fileMetric, newMeasureBuilder().create(counter.files));
         measureRepository.add(directory, linesMetric, newMeasureBuilder().create(counter.lines));
       }
@@ -158,7 +145,6 @@ public class SizeMeasuresStep implements ComputationStep {
 
     @Override
     public void visitProjectView(Component projectView, Path<Counter> path) {
-      path.parent().directories += getIntValue(projectView, this.directoryMetric);
       path.parent().files += getIntValue(projectView, this.fileMetric);
       path.parent().lines += getIntValue(projectView, this.linesMetric);
     }
@@ -172,10 +158,8 @@ public class SizeMeasuresStep implements ComputationStep {
   private static class Counter {
     private int lines = 0;
     private int files = 0;
-    private int directories = 0;
 
     void aggregate(Counter counter) {
-      directories += counter.directories;
       files += counter.files;
       lines += counter.lines;
     }
