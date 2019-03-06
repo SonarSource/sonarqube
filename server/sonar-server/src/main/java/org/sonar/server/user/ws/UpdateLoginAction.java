@@ -55,8 +55,7 @@ public class UpdateLoginAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("update_login")
-      .setDescription("Update a user login. A login can be updated many times,<br/>" +
-        "Updating the login of a user will invalidate his browser session, he will be required to login again.<br/>" +
+      .setDescription("Update a user login. A login can be updated many times.<br/>" +
         "Requires Administer System permission")
       .setSince("7.6")
       .setPost(true)
