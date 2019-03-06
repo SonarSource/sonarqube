@@ -35,7 +35,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -50,6 +49,7 @@ import org.sonarqube.ws.Ce;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
+import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_BRANCH;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_PULL_REQUEST;
@@ -164,7 +164,7 @@ public class AnalysisStatusActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
     createTaskMessage(activity, WARNING_IN_MAIN);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
@@ -174,7 +174,8 @@ public class AnalysisStatusActionTest {
     assertThat(response.getComponent().getWarningsList()).containsExactly(WARNING_IN_MAIN);
 
     SnapshotDto analysis2 = db.components().insertSnapshot(project);
-    insertActivity("task-uuid" + counter++, project, SUCCESS, analysis2);
+    insertActivity("task-uuid" + counter++, project, SUCCESS, analysis2, REPORT);
+    insertActivity("task-uuid" + counter++, project, SUCCESS, null, "PROJECT_EXPORT");
 
     Ce.AnalysisStatusWsResponse response2 = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -190,7 +191,7 @@ public class AnalysisStatusActionTest {
 
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, branch, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, branch, SUCCESS, analysis, REPORT);
     createTaskMessage(activity, WARNING_IN_BRANCH);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
@@ -201,7 +202,8 @@ public class AnalysisStatusActionTest {
     assertThat(response.getComponent().getWarningsList()).containsExactly(WARNING_IN_BRANCH);
 
     SnapshotDto analysis2 = db.components().insertSnapshot(branch);
-    insertActivity("task-uuid" + counter++, branch, SUCCESS, analysis2);
+    insertActivity("task-uuid" + counter++, branch, SUCCESS, analysis2, REPORT);
+    insertActivity("task-uuid" + counter++, branch, SUCCESS, null, "PROJECT_EXPORT");
 
     Ce.AnalysisStatusWsResponse response2 = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -221,7 +223,7 @@ public class AnalysisStatusActionTest {
       b.setKey(PULL_REQUEST);
     });
     SnapshotDto analysis = db.components().insertSnapshot(pullRequest);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, analysis, REPORT);
     createTaskMessage(activity, WARNING_IN_PR);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
@@ -232,7 +234,8 @@ public class AnalysisStatusActionTest {
     assertThat(response.getComponent().getWarningsList()).containsExactly(WARNING_IN_PR);
 
     SnapshotDto analysis2 = db.components().insertSnapshot(pullRequest);
-    insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, analysis2);
+    insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, analysis2, REPORT);
+    insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, null, "PROJECT_EXPORT");
 
     Ce.AnalysisStatusWsResponse response2 = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -248,24 +251,24 @@ public class AnalysisStatusActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
-    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
     createTaskMessage(activity, WARNING_IN_MAIN);
 
     ComponentDto branchWithWarning = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
     SnapshotDto branchAnalysis = db.components().insertSnapshot(branchWithWarning);
-    CeActivityDto branchActivity = insertActivity("task-uuid" + counter++, branchWithWarning, SUCCESS, branchAnalysis);
+    CeActivityDto branchActivity = insertActivity("task-uuid" + counter++, branchWithWarning, SUCCESS, branchAnalysis, REPORT);
     createTaskMessage(branchActivity, WARNING_IN_BRANCH);
 
     ComponentDto branchWithoutWarning = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
     SnapshotDto branchWithoutWarningAnalysis = db.components().insertSnapshot(branchWithoutWarning);
-    insertActivity("task-uuid" + counter++, branchWithoutWarning, SUCCESS, branchWithoutWarningAnalysis);
+    insertActivity("task-uuid" + counter++, branchWithoutWarning, SUCCESS, branchWithoutWarningAnalysis, REPORT);
 
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> {
       b.setBranchType(BranchType.PULL_REQUEST);
       b.setKey(PULL_REQUEST);
     });
     SnapshotDto prAnalysis = db.components().insertSnapshot(pullRequest);
-    CeActivityDto prActivity = insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, prAnalysis);
+    CeActivityDto prActivity = insertActivity("task-uuid" + counter++, pullRequest, SUCCESS, prAnalysis, REPORT);
     createTaskMessage(prActivity, WARNING_IN_PR);
 
     Ce.AnalysisStatusWsResponse responseForMain = ws.newRequest()
@@ -341,9 +344,10 @@ public class AnalysisStatusActionTest {
     db.commit();
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis) {
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status,
+    @Nullable SnapshotDto analysis, String taskType) {
     CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType(CeTaskTypes.REPORT);
+    queueDto.setTaskType(taskType);
     queueDto.setComponent(component);
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
@@ -351,6 +355,8 @@ public class AnalysisStatusActionTest {
     activityDto.setExecutionTimeMs(500L);
     activityDto.setAnalysisUuid(analysis == null ? null : analysis.getUuid());
     activityDto.setExecutedAt((long) counter++);
+    activityDto.setTaskType(taskType);
+    activityDto.setComponentUuid(component.uuid());
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.getSession().commit();
     return activityDto;

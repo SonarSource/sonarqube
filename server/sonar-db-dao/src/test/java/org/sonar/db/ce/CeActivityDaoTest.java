@@ -671,6 +671,29 @@ public class CeActivityDaoTest {
     assertThat(underTest.countLastByStatusAndMainComponentUuid(dbSession, SUCCESS, null)).isEqualTo(2);
   }
 
+  @Test
+  public void selectLastByComponentUuidAndTaskType_returns_task_of_given_type() {
+    insert("TASK_1", "VIEW_REFRESH", MAINCOMPONENT_1, MAINCOMPONENT_1, SUCCESS);
+    insert("TASK_2", CeTaskTypes.REPORT, MAINCOMPONENT_1, MAINCOMPONENT_1, SUCCESS);
+    insert("TASK_3", "PROJECT_EXPORT", MAINCOMPONENT_1, MAINCOMPONENT_1, SUCCESS);
+    insert("TASK_4", "PROJECT_IMPORT", MAINCOMPONENT_1, MAINCOMPONENT_1, SUCCESS);
+    db.commit();
+
+    Optional<CeActivityDto> result = underTest.selectLastByComponentUuidAndTaskType(db.getSession(), MAINCOMPONENT_1, "PROJECT_EXPORT");
+
+    assertThat(result).hasValueSatisfying(value -> assertThat(value.getUuid()).isEqualTo("TASK_3"));
+  }
+
+  @Test
+  public void selectLastByComponentUuidAndTaskType_returns_empty_if_task_of_given_type_does_not_exist() {
+    insert("TASK_1", CeTaskTypes.REPORT, MAINCOMPONENT_1, SUCCESS);
+    db.commit();
+
+    Optional<CeActivityDto> result = underTest.selectLastByComponentUuidAndTaskType(db.getSession(), MAINCOMPONENT_1, "PROJECT_EXPORT");
+
+    assertThat(result).isEmpty();
+  }
+
   private CeActivityDto insert(String uuid, String type, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
     return insert(uuid, type, mainComponentUuid, mainComponentUuid, status);
   }

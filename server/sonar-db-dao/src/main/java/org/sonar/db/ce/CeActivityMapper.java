@@ -45,8 +45,5 @@ public interface CeActivityMapper {
   void deleteByUuids(@Param("uuids") List<String> uuids);
 
   @CheckForNull
-  CeActivityDto selectLastByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  @CheckForNull
-  CeActivityDto selectLastByMainComponentUuid(@Param("mainComponentUuid") String mainComponentUuid);
+  CeActivityDto selectLastByComponentUuidAndTaskType(@Param("componentUuid") String componentUuid, @Param("taskType") String taskType);
 }

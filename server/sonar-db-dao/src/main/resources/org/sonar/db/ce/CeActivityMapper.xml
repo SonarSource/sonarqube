@@ -233,7 +233,7 @@
       </foreach>
   </delete>
 
-  <select id="selectLastByComponentUuid" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+  <select id="selectLastByComponentUuidAndTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
     select
       <include refid="columns"/>
     from ce_activity ca
@@ -241,18 +241,8 @@
       ca.uuid = csc.task_uuid
     where
       ca.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and ca.task_type = #{taskType,jdbcType=VARCHAR}
       and ca.is_last = ${_true}
-  </select>
-
-  <select id="selectLastByMainComponentUuid" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
-    select
-      <include refid="columns"/>
-    from ce_activity ca
-    left outer join ce_scanner_context csc on
-      ca.uuid = csc.task_uuid
-    where
-      ca.main_component_uuid = #{mainComponentUuid,jdbcType=VARCHAR}
-      and ca.main_is_last = ${_true}
   </select>
 
 </mapper>

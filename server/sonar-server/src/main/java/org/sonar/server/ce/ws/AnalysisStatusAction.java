@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -101,7 +102,8 @@ public class AnalysisStatusAction implements CeWsAction {
       checkRequest(isProject(component), "Component '%s' must be a project.", componentKey);
 
       AnalysisStatusWsResponse.Builder responseBuilder = AnalysisStatusWsResponse.newBuilder();
-      CeActivityDto lastActivity = dbClient.ceActivityDao().selectLastByComponentUuid(dbSession, component.uuid()).orElse(null);
+      CeActivityDto lastActivity = dbClient.ceActivityDao()
+        .selectLastByComponentUuidAndTaskType(dbSession, component.uuid(), CeTaskTypes.REPORT).orElse(null);
       responseBuilder.setComponent(formatComponent(dbSession, component, lastActivity, branchKey, pullRequestKey));
 
       writeProtobuf(responseBuilder.build(), request, response);
