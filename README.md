@@ -14,7 +14,7 @@ Links
 * [Twitter](https://twitter.com/SonarQube)
 * [SonarSource](https://www.sonarsource.com), editor of SonarQube
 * [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
-* [Demo](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube) of the next version to be released
+* [Demo](https://next.sonarqube.com/sonarqube) of the next version to be released
 
 Have Question or Feedback?
 --------------------------
