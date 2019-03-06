@@ -108,7 +108,7 @@ declare namespace T {
     analysisDate?: string;
     isMain: boolean;
     name: string;
-    status?: { qualityGateStatus: string };
+    status?: { qualityGateStatus: Status };
   }
 
   export type BranchLike = Branch | PullRequest;
@@ -624,7 +624,7 @@ declare namespace T {
     branch: string;
     key: string;
     isOrphan?: true;
-    status?: { qualityGateStatus: string };
+    status?: { qualityGateStatus: Status };
     title: string;
     url?: string;
   }
@@ -646,7 +646,7 @@ declare namespace T {
   }
 
   export interface QualityGateProjectStatusCondition {
-    status: 'ERROR' | 'OK';
+    status: Status;
     metricKey: string;
     comparator: string;
     periodIndex: number;
@@ -658,7 +658,7 @@ declare namespace T {
     projectStatus: {
       conditions?: QualityGateProjectStatusCondition[];
       ignoredConditions: boolean;
-      status: string;
+      status: Status;
     };
   }
 
@@ -735,6 +735,8 @@ declare namespace T {
   export type RuleScope = 'MAIN' | 'TEST' | 'ALL';
 
   export type RuleType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT' | 'UNKNOWN';
+
+  export type Status = 'ERROR' | 'OK';
 
   export type Setting = SettingValue & { definition: SettingDefinition };
 

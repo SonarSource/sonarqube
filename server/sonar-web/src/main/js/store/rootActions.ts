@@ -20,6 +20,7 @@
 import { Dispatch } from 'redux';
 import { InjectedRouter } from 'react-router';
 import { requireAuthorization as requireAuthorizationAction } from './appState';
+import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
 import { receiveLanguages } from './languages';
 import { receiveMetrics } from './metrics';
@@ -91,4 +92,14 @@ export function requireAuthorization(router: Pick<InjectedRouter, 'replace'>) {
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
   router.replace({ pathname: '/sessions/new', query: { return_to: returnTo } });
   return requireAuthorizationAction();
+}
+
+export function registerBranchStatus(
+  branchLike: T.BranchLike,
+  component: string,
+  status: T.Status
+) {
+  return (dispatch: Dispatch) => {
+    dispatch(registerBranchStatusAction(branchLike, component, status));
+  };
 }

@@ -19,6 +19,7 @@
  */
 import { combineReducers } from 'redux';
 import appState from './appState';
+import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
 import languages, * as fromLanguages from './languages';
 import metrics, * as fromMetrics from './metrics';
@@ -28,6 +29,7 @@ import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReduce
 
 export type Store = {
   appState: T.AppState;
+  branches: fromBranches.State;
   globalMessages: fromGlobalMessages.State;
   languages: T.Languages;
   metrics: fromMetrics.State;
@@ -40,6 +42,7 @@ export type Store = {
 
 export default combineReducers<Store>({
   appState,
+  branches,
   globalMessages,
   languages,
   metrics,
@@ -124,4 +127,12 @@ export function isSettingsAppLoading(state: Store, key: string) {
 
 export function getSettingsAppValidationMessage(state: Store, key: string) {
   return fromSettingsApp.getValidationMessage(state.settingsApp, key);
+}
+
+export function getBranchStatusByBranchLike(
+  state: Store,
+  component: string,
+  branchLike: T.BranchLike
+) {
+  return fromBranches.getBranchStatusByBranchLike(state.branches, component, branchLike);
 }
