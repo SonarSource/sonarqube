@@ -40,7 +40,13 @@ public final class Measure {
 
   public enum Level {
     OK("Green"),
-    ERROR("Red");
+    ERROR("Red"),
+
+    /**
+     * @deprecated since 7.6, warning quality gates doesn't exist anymore on new analysis
+     */
+    @Deprecated
+    WARN("Orange");
 
     private final String colorName;
 
