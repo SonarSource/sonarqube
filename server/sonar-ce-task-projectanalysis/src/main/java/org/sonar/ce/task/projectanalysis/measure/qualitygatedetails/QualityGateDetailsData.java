@@ -22,11 +22,13 @@ package org.sonar.ce.task.projectanalysis.measure.qualitygatedetails;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
+import org.sonar.server.qualitygate.ConditionComparator;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
@@ -40,7 +42,9 @@ public class QualityGateDetailsData {
 
   public QualityGateDetailsData(Measure.Level level, Iterable<EvaluatedCondition> conditions, boolean ignoredConditions) {
     this.level = requireNonNull(level);
-    this.conditions = from(conditions).toList();
+    this.conditions = StreamSupport.stream(conditions.spliterator(), false)
+      .sorted(new ConditionComparator<>(c -> c.getCondition().getMetric().getKey()))
+      .collect(Collectors.toList());
     this.ignoredConditions = ignoredConditions;
   }
 
