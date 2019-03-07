@@ -67,7 +67,6 @@ public class SetBaselineAction implements ProjectAnalysesWsAction {
         "  <li>'Administer' rights on the specified project</li>" +
         "</ul>")
       .setSince("7.7")
-      .setInternal(true)
       .setPost(true)
       .setHandler(this);
 

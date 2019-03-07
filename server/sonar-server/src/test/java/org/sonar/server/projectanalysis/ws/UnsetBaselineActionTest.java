@@ -256,7 +256,7 @@ public class UnsetBaselineActionTest {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.key()).isEqualTo("unset_baseline");
     assertThat(definition.since()).isEqualTo("7.7");
-    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.isInternal()).isFalse();
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {
