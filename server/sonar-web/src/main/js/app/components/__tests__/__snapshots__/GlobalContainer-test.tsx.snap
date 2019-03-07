@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<SuggestionsProvider>
+  <A11yProvider>
+    <Connect(withRouter(StartupModal))>
+      <A11ySkipLinks />
+      <div
+        className="global-container"
+      >
+        <div
+          className="page-wrapper"
+          id="container"
+        >
+          <div
+            className="page-container"
+          >
+            <Workspace>
+              <Connect(GlobalNav)
+                location={
+                  Object {
+                    "action": "PUSH",
+                    "key": "key",
+                    "pathname": "/path",
+                    "query": Object {},
+                    "search": "",
+                    "state": Object {},
+                  }
+                }
+              />
+              <Connect(GlobalMessages) />
+              <ChildComponent />
+            </Workspace>
+          </div>
+        </div>
+        <Connect(GlobalFooter) />
+      </div>
+    </Connect(withRouter(StartupModal))>
+  </A11yProvider>
+</SuggestionsProvider>
+`;

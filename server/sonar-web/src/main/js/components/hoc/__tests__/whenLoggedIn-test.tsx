@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
-import { createStore } from 'redux';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import { whenLoggedIn } from '../whenLoggedIn';
+import { mockStore } from '../../../helpers/testMocks';
 
 jest.mock('../../../app/utils/handleRequiredAuthentication', () => ({
   default: jest.fn()
@@ -36,14 +36,11 @@ class X extends React.Component {
 const UnderTest = whenLoggedIn(X);
 
 it('should render for logged in user', () => {
-  const store = createStore(state => state, { users: { currentUser: { isLoggedIn: true } } });
-  const wrapper = shallow(<UnderTest />, { context: { store } });
-  expect(getRenderedType(wrapper)).toBe(X);
+  expect(getRenderedType(shallowRender())).toBe(X);
 });
 
 it('should not render for anonymous user', () => {
-  const store = createStore(state => state, { users: { currentUser: { isLoggedIn: false } } });
-  const wrapper = shallow(<UnderTest />, { context: { store } });
+  const wrapper = shallowRender(false);
   expect(getRenderedType(wrapper)).toBe(null);
   expect(handleRequiredAuthentication).toBeCalled();
 });
@@ -53,4 +50,10 @@ function getRenderedType(wrapper: ShallowWrapper) {
     .dive()
     .dive()
     .type();
+}
+
+function shallowRender(isLoggedIn = true) {
+  return shallow(<UnderTest />, {
+    context: { store: mockStore({ users: { currentUser: { isLoggedIn } } }) }
+  });
 }

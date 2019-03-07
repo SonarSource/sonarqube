@@ -1,0 +1,1253 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<AboutApp
+  appState={
+    Object {
+      "defaultOrganization": "foo",
+      "edition": "community",
+      "productionDatabase": true,
+      "qualifiers": Array [
+        "TRK",
+      ],
+      "settings": Object {},
+      "version": "1.0",
+    }
+  }
+  currentUser={
+    Object {
+      "isLoggedIn": false,
+    }
+  }
+  customText="Lorem ipsum"
+  fetchAboutPageSettings={
+    [MockFunction] {
+      "calls": Array [
+        Array [],
+      ],
+      "results": Array [
+        Object {
+          "isThrow": false,
+          "value": undefined,
+        },
+      ],
+    }
+  }
+  location={
+    Object {
+      "action": "PUSH",
+      "key": "key",
+      "pathname": "/path",
+      "query": Object {},
+      "search": "",
+      "state": Object {},
+    }
+  }
+>
+  <GlobalContainer
+    location={
+      Object {
+        "action": "PUSH",
+        "key": "key",
+        "pathname": "/path",
+        "query": Object {},
+        "search": "",
+        "state": Object {},
+      }
+    }
+  >
+    <div
+      className="page page-limited about-page"
+      id="about-page"
+    >
+      <A11ySkipTarget
+        anchor="about_main"
+      >
+        <A11ySkipTargetInner
+          addA11ySkipLink={[Function]}
+          anchor="about_main"
+          removeA11ySkipLink={[Function]}
+        >
+          <span
+            id="a11y_target__about_main"
+          />
+        </A11ySkipTargetInner>
+      </A11ySkipTarget>
+      <div
+        className="about-page-entry"
+      >
+        <div
+          className="about-page-intro"
+        >
+          <h1
+            className="big-spacer-bottom"
+          >
+            layout.sonar.slogan
+          </h1>
+          <Link
+            className="button button-active big-spacer-right"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/sessions/new"
+          >
+            <a
+              className="button button-active big-spacer-right"
+              onClick={[Function]}
+              style={Object {}}
+            >
+              layout.login
+            </a>
+          </Link>
+          <a
+            className="button"
+            href="https://redirect.sonarsource.com/doc/home.html"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            about_page.read_documentation
+          </a>
+        </div>
+        <div
+          className="about-page-instance"
+        >
+          <AboutProjects
+            count={0}
+            loading={false}
+          >
+            <div
+              className="about-page-projects"
+            >
+              <div>
+                <div>
+                  <Link
+                    className="about-page-projects-link"
+                    onlyActiveOnIndex={false}
+                    style={Object {}}
+                    to="/projects"
+                  >
+                    <a
+                      className="about-page-projects-link"
+                      onClick={[Function]}
+                      style={Object {}}
+                    >
+                      0
+                    </a>
+                  </Link>
+                </div>
+                <div>
+                  about_page.projects_analyzed
+                </div>
+              </div>
+            </div>
+          </AboutProjects>
+          <EntryIssueTypes
+            loading={false}
+          >
+            <div
+              className="about-page-projects"
+            >
+              <table
+                className="about-page-issue-types"
+              >
+                <tbody>
+                  <tr>
+                    <td
+                      className="about-page-issue-type-number"
+                    >
+                      <Link
+                        className="about-page-issue-type-link"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/issues",
+                            "query": Object {
+                              "resolved": "false",
+                              "s": "CREATION_DATE",
+                              "types": "BUG",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="about-page-issue-type-link"
+                          onClick={[Function]}
+                          style={Object {}}
+                        />
+                      </Link>
+                    </td>
+                    <td>
+                      <span
+                        className="little-spacer-right"
+                      >
+                        <BugIcon>
+                          <Icon>
+                            <svg
+                              height={16}
+                              style={
+                                Object {
+                                  "clipRule": "evenodd",
+                                  "fillRule": "evenodd",
+                                  "strokeLinejoin": "round",
+                                  "strokeMiterlimit": 1.41421,
+                                }
+                              }
+                              version="1.1"
+                              viewBox="0 0 16 16"
+                              width={16}
+                              xmlSpace="preserve"
+                              xmlnsXlink="http://www.w3.org/1999/xlink"
+                            >
+                              <path
+                                d="M11 9h1.3l.5.8.8-.5-.8-1.3H11v-.3l2-2.3V3h-1v2l-1 1.2V5c-.1-.8-.7-1.5-1.4-1.9L11 1.8l-.7-.7-1.8 1.6-1.8-1.6-.7.7 1.5 1.3C6.7 3.5 6.1 4.2 6 5v1.1L5 5V3H4v2.3l2 2.3V8H4.2l-.7 1.2.8.5.4-.7H6v.3l-2 1.9V14h1v-2.4l1-1C6 12 7.1 13 8.4 13h.8c.7 0 1.4-.3 1.8-.9.3-.4.3-.9.2-1.4l.9.9V14h1v-2.8l-2-1.9V9zm-2 2H8V6h1v5z"
+                                style={
+                                  Object {
+                                    "fill": "currentColor",
+                                  }
+                                }
+                              />
+                            </svg>
+                          </Icon>
+                        </BugIcon>
+                      </span>
+                      issue.type.BUG.plural
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      className="about-page-issue-type-number"
+                    >
+                      <Link
+                        className="about-page-issue-type-link"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/issues",
+                            "query": Object {
+                              "resolved": "false",
+                              "s": "CREATION_DATE",
+                              "types": "VULNERABILITY",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="about-page-issue-type-link"
+                          onClick={[Function]}
+                          style={Object {}}
+                        />
+                      </Link>
+                    </td>
+                    <td>
+                      <span
+                        className="little-spacer-right"
+                      >
+                        <VulnerabilityIcon>
+                          <Icon>
+                            <svg
+                              height={16}
+                              style={
+                                Object {
+                                  "clipRule": "evenodd",
+                                  "fillRule": "evenodd",
+                                  "strokeLinejoin": "round",
+                                  "strokeMiterlimit": 1.41421,
+                                }
+                              }
+                              version="1.1"
+                              viewBox="0 0 16 16"
+                              width={16}
+                              xmlSpace="preserve"
+                              xmlnsXlink="http://www.w3.org/1999/xlink"
+                            >
+                              <path
+                                d="M10.8 5H6V3.9a2.28 2.28 0 0 1 2-2.5 2.22 2.22 0 0 1 1.8 1.2.48.48 0 0 0 .7.2.48.48 0 0 0 .2-.7A3 3 0 0 0 8 .4a3.34 3.34 0 0 0-3 3.5v1.2a2.16 2.16 0 0 0-2 2.1v4.4a2.22 2.22 0 0 0 2.2 2.2h5.6a2.22 2.22 0 0 0 2.2-2.2V7.2A2.22 2.22 0 0 0 10.8 5zm-2.2 5.5v1.2H7.4v-1.2a1.66 1.66 0 0 1-1.1-1.6A1.75 1.75 0 0 1 8 7.2a1.71 1.71 0 0 1 .6 3.3z"
+                                style={
+                                  Object {
+                                    "fill": "currentColor",
+                                  }
+                                }
+                              />
+                            </svg>
+                          </Icon>
+                        </VulnerabilityIcon>
+                      </span>
+                      issue.type.VULNERABILITY.plural
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      className="about-page-issue-type-number"
+                    >
+                      <Link
+                        className="about-page-issue-type-link"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/issues",
+                            "query": Object {
+                              "resolved": "false",
+                              "s": "CREATION_DATE",
+                              "types": "CODE_SMELL",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="about-page-issue-type-link"
+                          onClick={[Function]}
+                          style={Object {}}
+                        />
+                      </Link>
+                    </td>
+                    <td>
+                      <span
+                        className="little-spacer-right"
+                      >
+                        <CodeSmellIcon>
+                          <Icon>
+                            <svg
+                              height={16}
+                              style={
+                                Object {
+                                  "clipRule": "evenodd",
+                                  "fillRule": "evenodd",
+                                  "strokeLinejoin": "round",
+                                  "strokeMiterlimit": 1.41421,
+                                }
+                              }
+                              version="1.1"
+                              viewBox="0 0 16 16"
+                              width={16}
+                              xmlSpace="preserve"
+                              xmlnsXlink="http://www.w3.org/1999/xlink"
+                            >
+                              <path
+                                d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm-.5 5.5h.9v.9h-.9v-.9zm-3.8.2c-.1 0-.2-.1-.2-.2 0-.4.1-1.2.6-2S5.3 4.2 5.6 4c.2 0 .3 0 .3.1l1.3 2.3c0 .1 0 .2-.1.2-.1.2-.2.3-.3.5-.1.2-.2.4-.2.5 0 .1-.1.2-.2.2l-2.7-.1zM9.9 12c-.3.2-1.1.5-2 .5-.9 0-1.7-.3-2-.5-.1 0-.1-.2-.1-.3l1.3-2.3c0-.1.1-.1.2-.1.2.1.3.1.5.1s.4 0 .5-.1c.1 0 .2 0 .2.1l1.3 2.3c.2.2.2.3.1.3zm2.5-4.1L9.7 8c-.1 0-.2-.1-.2-.2 0-.2-.1-.4-.2-.5 0-.1-.2-.3-.3-.4-.1 0-.1-.1-.1-.2l1.3-2.3c.1-.1.2-.1.3-.1.3.2 1 .7 1.5 1.5s.6 1.6.6 2c0 0-.1.1-.2.1z"
+                                style={
+                                  Object {
+                                    "fill": "currentColor",
+                                  }
+                                }
+                              />
+                            </svg>
+                          </Icon>
+                        </CodeSmellIcon>
+                      </span>
+                      issue.type.CODE_SMELL.plural
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </EntryIssueTypes>
+        </div>
+      </div>
+      <div
+        className="about-page-section"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "Lorem ipsum",
+          }
+        }
+      />
+      <AboutLanguages>
+        <div
+          className="boxed-group"
+        >
+          <h2>
+            about_page.languages
+          </h2>
+          <div
+            className="boxed-group-inner"
+          >
+            <p
+              className="about-page-text"
+            >
+              about_page.languages.text
+            </p>
+            <ul
+              className="about-page-languages"
+            >
+              <li
+                key="0"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/java.html"
+                >
+                  Java
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/vbnet.html"
+                >
+                  VB.NET
+                </a>
+              </li>
+              <li
+                key="1"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/cpp.html"
+                >
+                  C/C++
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/plsql.html"
+                >
+                  PL/SQL
+                </a>
+              </li>
+              <li
+                key="2"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/csharp.html"
+                >
+                  C#
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/tsql.html"
+                >
+                  T-SQL
+                </a>
+              </li>
+              <li
+                key="3"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/cobol.html"
+                >
+                  COBOL
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/flex.html"
+                >
+                  Flex
+                </a>
+              </li>
+              <li
+                key="4"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/abap.html"
+                >
+                  ABAP
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/python.html"
+                >
+                  Python
+                </a>
+              </li>
+              <li
+                key="5"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/web.html"
+                >
+                  HTML
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/groovy.html"
+                >
+                  Groovy
+                </a>
+              </li>
+              <li
+                key="6"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/rpg.html"
+                >
+                  RPG
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/php.html"
+                >
+                  PHP
+                </a>
+              </li>
+              <li
+                key="7"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/javascript.html"
+                >
+                  JavaScript
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/swift.html"
+                >
+                  Swift
+                </a>
+              </li>
+              <li
+                key="8"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/typescript.html"
+                >
+                  TypeScript
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/vb.html"
+                >
+                  Visual Basic
+                </a>
+              </li>
+              <li
+                key="9"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/objectivec.html"
+                >
+                  Objective C
+                </a>
+                <br />
+                <a
+                  href="https://redirect.sonarsource.com/plugins/pli.html"
+                >
+                  PL/I
+                </a>
+              </li>
+              <li
+                key="10"
+              >
+                <a
+                  href="https://redirect.sonarsource.com/plugins/xml.html"
+                >
+                  XML
+                </a>
+                <br />
+              </li>
+            </ul>
+          </div>
+        </div>
+      </AboutLanguages>
+      <AboutQualityModel>
+        <div
+          className="boxed-group about-quality-model"
+        >
+          <h2>
+            about_page.quality_model
+          </h2>
+          <div
+            className="boxed-group-inner clearfix"
+          >
+            <div
+              className="flex-columns"
+            >
+              <div
+                className="flex-column flex-column-third"
+              >
+                <div
+                  className="pull-left little-spacer-right"
+                >
+                  <BugIcon>
+                    <Icon>
+                      <svg
+                        height={16}
+                        style={
+                          Object {
+                            "clipRule": "evenodd",
+                            "fillRule": "evenodd",
+                            "strokeLinejoin": "round",
+                            "strokeMiterlimit": 1.41421,
+                          }
+                        }
+                        version="1.1"
+                        viewBox="0 0 16 16"
+                        width={16}
+                        xmlSpace="preserve"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                      >
+                        <path
+                          d="M11 9h1.3l.5.8.8-.5-.8-1.3H11v-.3l2-2.3V3h-1v2l-1 1.2V5c-.1-.8-.7-1.5-1.4-1.9L11 1.8l-.7-.7-1.8 1.6-1.8-1.6-.7.7 1.5 1.3C6.7 3.5 6.1 4.2 6 5v1.1L5 5V3H4v2.3l2 2.3V8H4.2l-.7 1.2.8.5.4-.7H6v.3l-2 1.9V14h1v-2.4l1-1C6 12 7.1 13 8.4 13h.8c.7 0 1.4-.3 1.8-.9.3-.4.3-.9.2-1.4l.9.9V14h1v-2.8l-2-1.9V9zm-2 2H8V6h1v5z"
+                          style={
+                            Object {
+                              "fill": "currentColor",
+                            }
+                          }
+                        />
+                      </svg>
+                    </Icon>
+                  </BugIcon>
+                </div>
+                <p
+                  className="about-page-text overflow-hidden"
+                >
+                  <strong>
+                    issue.type.BUG.plural
+                  </strong>
+                   
+                  about_page.quality_model.bugs
+                </p>
+              </div>
+              <div
+                className="flex-column flex-column-third"
+              >
+                <div
+                  className="pull-left little-spacer-right"
+                >
+                  <VulnerabilityIcon>
+                    <Icon>
+                      <svg
+                        height={16}
+                        style={
+                          Object {
+                            "clipRule": "evenodd",
+                            "fillRule": "evenodd",
+                            "strokeLinejoin": "round",
+                            "strokeMiterlimit": 1.41421,
+                          }
+                        }
+                        version="1.1"
+                        viewBox="0 0 16 16"
+                        width={16}
+                        xmlSpace="preserve"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                      >
+                        <path
+                          d="M10.8 5H6V3.9a2.28 2.28 0 0 1 2-2.5 2.22 2.22 0 0 1 1.8 1.2.48.48 0 0 0 .7.2.48.48 0 0 0 .2-.7A3 3 0 0 0 8 .4a3.34 3.34 0 0 0-3 3.5v1.2a2.16 2.16 0 0 0-2 2.1v4.4a2.22 2.22 0 0 0 2.2 2.2h5.6a2.22 2.22 0 0 0 2.2-2.2V7.2A2.22 2.22 0 0 0 10.8 5zm-2.2 5.5v1.2H7.4v-1.2a1.66 1.66 0 0 1-1.1-1.6A1.75 1.75 0 0 1 8 7.2a1.71 1.71 0 0 1 .6 3.3z"
+                          style={
+                            Object {
+                              "fill": "currentColor",
+                            }
+                          }
+                        />
+                      </svg>
+                    </Icon>
+                  </VulnerabilityIcon>
+                </div>
+                <p
+                  className="about-page-text overflow-hidden"
+                >
+                  <strong>
+                    issue.type.VULNERABILITY.plural
+                  </strong>
+                   
+                  about_page.quality_model.vulnerabilities
+                </p>
+              </div>
+              <div
+                className="flex-column flex-column-third"
+              >
+                <div
+                  className="pull-left little-spacer-right"
+                >
+                  <CodeSmellIcon>
+                    <Icon>
+                      <svg
+                        height={16}
+                        style={
+                          Object {
+                            "clipRule": "evenodd",
+                            "fillRule": "evenodd",
+                            "strokeLinejoin": "round",
+                            "strokeMiterlimit": 1.41421,
+                          }
+                        }
+                        version="1.1"
+                        viewBox="0 0 16 16"
+                        width={16}
+                        xmlSpace="preserve"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                      >
+                        <path
+                          d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm-.5 5.5h.9v.9h-.9v-.9zm-3.8.2c-.1 0-.2-.1-.2-.2 0-.4.1-1.2.6-2S5.3 4.2 5.6 4c.2 0 .3 0 .3.1l1.3 2.3c0 .1 0 .2-.1.2-.1.2-.2.3-.3.5-.1.2-.2.4-.2.5 0 .1-.1.2-.2.2l-2.7-.1zM9.9 12c-.3.2-1.1.5-2 .5-.9 0-1.7-.3-2-.5-.1 0-.1-.2-.1-.3l1.3-2.3c0-.1.1-.1.2-.1.2.1.3.1.5.1s.4 0 .5-.1c.1 0 .2 0 .2.1l1.3 2.3c.2.2.2.3.1.3zm2.5-4.1L9.7 8c-.1 0-.2-.1-.2-.2 0-.2-.1-.4-.2-.5 0-.1-.2-.3-.3-.4-.1 0-.1-.1-.1-.2l1.3-2.3c.1-.1.2-.1.3-.1.3.2 1 .7 1.5 1.5s.6 1.6.6 2c0 0-.1.1-.2.1z"
+                          style={
+                            Object {
+                              "fill": "currentColor",
+                            }
+                          }
+                        />
+                      </svg>
+                    </Icon>
+                  </CodeSmellIcon>
+                </div>
+                <p
+                  className="about-page-text overflow-hidden"
+                >
+                  <strong>
+                    issue.type.CODE_SMELL.plural
+                  </strong>
+                   
+                  about_page.quality_model.code_smells
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AboutQualityModel>
+      <div
+        className="flex-columns"
+      >
+        <div
+          className="flex-column flex-column-half about-page-group-boxes"
+        >
+          <AboutCleanCode>
+            <div
+              className="boxed-group"
+            >
+              <h2>
+                about_page.clean_code
+              </h2>
+              <div
+                className="boxed-group-inner"
+              >
+                <p
+                  className="about-page-text"
+                >
+                  about_page.clean_code.text
+                </p>
+                <ReadMore
+                  link="https://redirect.sonarsource.com/doc/issues.html"
+                >
+                  <div
+                    className="big-spacer-top"
+                  >
+                    <a
+                      className="about-page-link-more"
+                      href="https://redirect.sonarsource.com/doc/issues.html"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <span>
+                        about_page.read_more
+                      </span>
+                    </a>
+                  </div>
+                </ReadMore>
+              </div>
+            </div>
+          </AboutCleanCode>
+        </div>
+        <div
+          className="flex-column flex-column-half about-page-group-boxes"
+        >
+          <AboutLeakPeriod>
+            <div
+              className="boxed-group"
+            >
+              <h2>
+                about_page.fix_the_leak
+              </h2>
+              <div
+                className="boxed-group-inner"
+              >
+                <p
+                  className="about-page-text"
+                >
+                  about_page.fix_the_leak_on_new_code.text
+                </p>
+                <ReadMore
+                  link="https://redirect.sonarsource.com/doc/fix-the-leak.html"
+                >
+                  <div
+                    className="big-spacer-top"
+                  >
+                    <a
+                      className="about-page-link-more"
+                      href="https://redirect.sonarsource.com/doc/fix-the-leak.html"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <span>
+                        about_page.read_more
+                      </span>
+                    </a>
+                  </div>
+                </ReadMore>
+              </div>
+            </div>
+          </AboutLeakPeriod>
+        </div>
+      </div>
+      <div
+        className="flex-columns"
+      >
+        <div
+          className="flex-column flex-column-half about-page-group-boxes"
+        >
+          <AboutQualityGates>
+            <div
+              className="boxed-group"
+            >
+              <h2>
+                about_page.quality_gates
+              </h2>
+              <div
+                className="boxed-group-inner"
+              >
+                <p
+                  className="about-page-text"
+                >
+                  about_page.quality_gates.text
+                </p>
+                <ReadMore
+                  link="https://redirect.sonarsource.com/doc/quality-gates.html"
+                >
+                  <div
+                    className="big-spacer-top"
+                  >
+                    <a
+                      className="about-page-link-more"
+                      href="https://redirect.sonarsource.com/doc/quality-gates.html"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <span>
+                        about_page.read_more
+                      </span>
+                    </a>
+                  </div>
+                </ReadMore>
+              </div>
+            </div>
+          </AboutQualityGates>
+        </div>
+        <div
+          className="flex-column flex-column-half about-page-group-boxes"
+        >
+          <AboutStandards
+            appState={
+              Object {
+                "defaultOrganization": "foo",
+                "edition": "community",
+                "productionDatabase": true,
+                "qualifiers": Array [
+                  "TRK",
+                ],
+                "settings": Object {},
+                "version": "1.0",
+              }
+            }
+          >
+            <div
+              className="boxed-group"
+            >
+              <h2>
+                about_page.standards
+              </h2>
+              <div
+                className="boxed-group-inner"
+              >
+                <p
+                  className="about-page-text"
+                >
+                  about_page.standards.text
+                </p>
+                <div
+                  className="spacer-top"
+                >
+                  <ul
+                    className="list-inline"
+                  >
+                    <li>
+                      <Link
+                        className="link-with-icon"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/coding_rules",
+                            "query": Object {
+                              "tags": "misra",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="link-with-icon"
+                          onClick={[Function]}
+                          style={Object {}}
+                        >
+                          <TagsIcon>
+                            <Icon>
+                              <svg
+                                height={16}
+                                style={
+                                  Object {
+                                    "clipRule": "evenodd",
+                                    "fillRule": "evenodd",
+                                    "strokeLinejoin": "round",
+                                    "strokeMiterlimit": 1.41421,
+                                  }
+                                }
+                                version="1.1"
+                                viewBox="0 0 16 16"
+                                width={16}
+                                xmlSpace="preserve"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                              >
+                                <path
+                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
+                                  style={
+                                    Object {
+                                      "fill": "currentColor",
+                                    }
+                                  }
+                                />
+                              </svg>
+                            </Icon>
+                          </TagsIcon>
+                          <span
+                            className="little-spacer-left"
+                          >
+                            MISRA
+                          </span>
+                        </a>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="link-with-icon"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/coding_rules",
+                            "query": Object {
+                              "tags": "cert",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="link-with-icon"
+                          onClick={[Function]}
+                          style={Object {}}
+                        >
+                          <TagsIcon>
+                            <Icon>
+                              <svg
+                                height={16}
+                                style={
+                                  Object {
+                                    "clipRule": "evenodd",
+                                    "fillRule": "evenodd",
+                                    "strokeLinejoin": "round",
+                                    "strokeMiterlimit": 1.41421,
+                                  }
+                                }
+                                version="1.1"
+                                viewBox="0 0 16 16"
+                                width={16}
+                                xmlSpace="preserve"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                              >
+                                <path
+                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
+                                  style={
+                                    Object {
+                                      "fill": "currentColor",
+                                    }
+                                  }
+                                />
+                              </svg>
+                            </Icon>
+                          </TagsIcon>
+                          <span
+                            className="little-spacer-left"
+                          >
+                            CERT
+                          </span>
+                        </a>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="link-with-icon"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/coding_rules",
+                            "query": Object {
+                              "tags": "cwe",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="link-with-icon"
+                          onClick={[Function]}
+                          style={Object {}}
+                        >
+                          <TagsIcon>
+                            <Icon>
+                              <svg
+                                height={16}
+                                style={
+                                  Object {
+                                    "clipRule": "evenodd",
+                                    "fillRule": "evenodd",
+                                    "strokeLinejoin": "round",
+                                    "strokeMiterlimit": 1.41421,
+                                  }
+                                }
+                                version="1.1"
+                                viewBox="0 0 16 16"
+                                width={16}
+                                xmlSpace="preserve"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                              >
+                                <path
+                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
+                                  style={
+                                    Object {
+                                      "fill": "currentColor",
+                                    }
+                                  }
+                                />
+                              </svg>
+                            </Icon>
+                          </TagsIcon>
+                          <span
+                            className="little-spacer-left"
+                          >
+                            CWE
+                          </span>
+                        </a>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="link-with-icon"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/coding_rules",
+                            "query": Object {
+                              "tags": "owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="link-with-icon"
+                          onClick={[Function]}
+                          style={Object {}}
+                        >
+                          <TagsIcon>
+                            <Icon>
+                              <svg
+                                height={16}
+                                style={
+                                  Object {
+                                    "clipRule": "evenodd",
+                                    "fillRule": "evenodd",
+                                    "strokeLinejoin": "round",
+                                    "strokeMiterlimit": 1.41421,
+                                  }
+                                }
+                                version="1.1"
+                                viewBox="0 0 16 16"
+                                width={16}
+                                xmlSpace="preserve"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                              >
+                                <path
+                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
+                                  style={
+                                    Object {
+                                      "fill": "currentColor",
+                                    }
+                                  }
+                                />
+                              </svg>
+                            </Icon>
+                          </TagsIcon>
+                          <span
+                            className="little-spacer-left"
+                          >
+                            OWASP Top 10
+                          </span>
+                        </a>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="link-with-icon"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/coding_rules",
+                            "query": Object {
+                              "tags": "sans-top25-porous,sans-top25-risky,sans-top25-insecure",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="link-with-icon"
+                          onClick={[Function]}
+                          style={Object {}}
+                        >
+                          <TagsIcon>
+                            <Icon>
+                              <svg
+                                height={16}
+                                style={
+                                  Object {
+                                    "clipRule": "evenodd",
+                                    "fillRule": "evenodd",
+                                    "strokeLinejoin": "round",
+                                    "strokeMiterlimit": 1.41421,
+                                  }
+                                }
+                                version="1.1"
+                                viewBox="0 0 16 16"
+                                width={16}
+                                xmlSpace="preserve"
+                                xmlnsXlink="http://www.w3.org/1999/xlink"
+                              >
+                                <path
+                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
+                                  style={
+                                    Object {
+                                      "fill": "currentColor",
+                                    }
+                                  }
+                                />
+                              </svg>
+                            </Icon>
+                          </TagsIcon>
+                          <span
+                            className="little-spacer-left"
+                          >
+                            SANS Top 25
+                          </span>
+                        </a>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <ReadMore
+                  link="https://redirect.sonarsource.com/doc/rules.html"
+                >
+                  <div
+                    className="big-spacer-top"
+                  >
+                    <a
+                      className="about-page-link-more"
+                      href="https://redirect.sonarsource.com/doc/rules.html"
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <span>
+                        about_page.read_more
+                      </span>
+                    </a>
+                  </div>
+                </ReadMore>
+              </div>
+            </div>
+          </AboutStandards>
+        </div>
+      </div>
+      <AboutScanners>
+        <div
+          className="boxed-group"
+        >
+          <h2>
+            about_page.scanners
+          </h2>
+          <div
+            className="boxed-group-inner"
+          >
+            <p
+              className="about-page-text"
+            >
+              about_page.scanners.text
+            </p>
+            <div
+              className="about-page-analyzers"
+            >
+              <a
+                className="about-page-analyzer-box"
+                href="https://redirect.sonarsource.com/doc/install-configure-scanner.html"
+                key="sonarqube"
+              >
+                <img
+                  alt="about_page.scanners.sonarqube"
+                  height={60}
+                  src="/images/scanner-logos/sonarqube.svg"
+                />
+              </a>
+              <a
+                className="about-page-analyzer-box"
+                href="https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
+                key="msbuild"
+              >
+                <img
+                  alt="about_page.scanners.msbuild"
+                  height={60}
+                  src="/images/scanner-logos/msbuild.svg"
+                />
+              </a>
+              <a
+                className="about-page-analyzer-box"
+                href="https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
+                key="maven"
+              >
+                <img
+                  alt="about_page.scanners.maven"
+                  height={60}
+                  src="/images/scanner-logos/maven.svg"
+                />
+              </a>
+              <a
+                className="about-page-analyzer-box"
+                href="https://redirect.sonarsource.com/doc/gradle.html"
+                key="gradle"
+              >
+                <img
+                  alt="about_page.scanners.gradle"
+                  height={60}
+                  src="/images/scanner-logos/gradle.svg"
+                />
+              </a>
+              <a
+                className="about-page-analyzer-box"
+                href="https://redirect.sonarsource.com/plugins/jenkins.html"
+                key="jenkins"
+              >
+                <img
+                  alt="about_page.scanners.jenkins"
+                  height={60}
+                  src="/images/scanner-logos/jenkins.svg"
+                />
+              </a>
+              <a
+                className="about-page-analyzer-box"
+                href="https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html"
+                key="ant"
+              >
+                <img
+                  alt="about_page.scanners.ant"
+                  height={60}
+                  src="/images/scanner-logos/ant.svg"
+                />
+              </a>
+            </div>
+          </div>
+        </div>
+      </AboutScanners>
+    </div>
+  </GlobalContainer>
+</AboutApp>
+`;

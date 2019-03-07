@@ -2,7 +2,7 @@
 
 exports[`should display two facets 1`] = `
 <div>
-  <Connect(A11ySkipTarget)
+  <A11ySkipTarget
     anchor="measures_filters"
     label="component_measures.skip_to_filters"
     weight={10}

@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for SonarCloud 1`] = `
+<Fragment>
+  <A11ySkipTarget
+    anchor="create_project_main"
+  />
+  <Connect(withCurrentUser(whenLoggedIn(Connect(withUserOrganizations(Connect(CreateProjectPageSonarCloud))))))
+    location={
+      Object {
+        "action": "PUSH",
+        "key": "key",
+        "pathname": "/path",
+        "query": Object {},
+        "search": "",
+        "state": Object {},
+      }
+    }
+    params={Object {}}
+    router={
+      Object {
+        "createHref": [MockFunction],
+        "createPath": [MockFunction],
+        "go": [MockFunction],
+        "goBack": [MockFunction],
+        "goForward": [MockFunction],
+        "isActive": [MockFunction],
+        "push": [MockFunction],
+        "replace": [MockFunction],
+        "setRouteLeaveHook": [MockFunction],
+      }
+    }
+    routes={Array []}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly for SonarQube 1`] = `
+<Fragment>
+  <A11ySkipTarget
+    anchor="create_project_main"
+  />
+  <Connect(withCurrentUser(whenLoggedIn(CreateProjectPageSonarQube)))
+    location={
+      Object {
+        "action": "PUSH",
+        "key": "key",
+        "pathname": "/path",
+        "query": Object {},
+        "search": "",
+        "state": Object {},
+      }
+    }
+    params={Object {}}
+    router={
+      Object {
+        "createHref": [MockFunction],
+        "createPath": [MockFunction],
+        "go": [MockFunction],
+        "goBack": [MockFunction],
+        "goForward": [MockFunction],
+        "isActive": [MockFunction],
+        "push": [MockFunction],
+        "replace": [MockFunction],
+        "setRouteLeaveHook": [MockFunction],
+      }
+    }
+    routes={Array []}
+  />
+</Fragment>
+`;

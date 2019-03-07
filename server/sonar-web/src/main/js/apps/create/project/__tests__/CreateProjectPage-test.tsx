@@ -19,22 +19,33 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { withCurrentUser } from '../withCurrentUser';
-import { mockStore } from '../../../helpers/testMocks';
+import CreateProjectPage from '../CreateProjectPage';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { isSonarCloud } from '../../../../helpers/system';
 
-class X extends React.Component<{ currentUser: T.CurrentUser }> {
-  render() {
-    return <div />;
-  }
-}
+jest.mock('../../../../helpers/system', () => ({
+  isSonarCloud: jest.fn().mockReturnValue(false)
+}));
 
-const UnderTest = withCurrentUser(X);
-
-it('should pass logged in user', () => {
-  const currentUser = { isLoggedIn: false };
-  const wrapper = shallow(<UnderTest />, {
-    context: { store: mockStore({ users: { currentUser } }) }
-  });
-  expect(wrapper.dive().type()).toBe(X);
-  expect(wrapper.dive().prop('currentUser')).toBe(currentUser);
+it('should render correctly for SonarQube', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
+
+it('should render correctly for SonarCloud', () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
+
+function shallowRender(props = {}) {
+  return shallow(
+    <CreateProjectPage
+      location={mockLocation()}
+      params={{}}
+      router={mockRouter()}
+      routes={[]}
+      {...props}
+    />
+  );
+}

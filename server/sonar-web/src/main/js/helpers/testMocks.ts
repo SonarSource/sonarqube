@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { InjectedRouter } from 'react-router';
-import { Store } from 'redux';
+import { Store, createStore } from 'redux';
 import { Location } from 'history';
 import { ParsedAnalysis } from '../apps/projectActivity/utils';
 import { Profile } from '../apps/quality-profiles/types';
+import { DocumentationEntry } from '../apps/documentation/utils';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
@@ -369,12 +370,20 @@ export function mockLongLivingBranch(
   };
 }
 
-export function mockStore(overrides: Partial<Store> = {}): Store {
+export function mockStore(state: any = {}, reducer = (state: any) => state): Store {
+  return createStore(reducer, state);
+}
+
+export function mockDocumentationEntry(
+  overrides: Partial<DocumentationEntry> = {}
+): DocumentationEntry {
   return {
-    dispatch: jest.fn(),
-    getState: jest.fn(),
-    subscribe: jest.fn(),
-    replaceReducer: jest.fn(),
+    content: 'Lorem ipsum dolor sit amet fredum',
+    relativeName: 'Lorem',
+    navTitle: undefined,
+    text: 'Lorem ipsum dolor sit amet fredum',
+    title: 'Lorem',
+    url: '/lorem/ipsum',
     ...overrides
   };
 }

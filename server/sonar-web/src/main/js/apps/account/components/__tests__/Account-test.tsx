@@ -19,22 +19,25 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { withCurrentUser } from '../withCurrentUser';
-import { mockStore } from '../../../helpers/testMocks';
+import { Account } from '../Account';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
+import handleRequiredAuthentication from '../../../../app/utils/handleRequiredAuthentication';
 
-class X extends React.Component<{ currentUser: T.CurrentUser }> {
-  render() {
-    return <div />;
-  }
-}
+jest.mock('../../../../app/utils/handleRequiredAuthentication', () => ({
+  default: jest.fn()
+}));
 
-const UnderTest = withCurrentUser(X);
-
-it('should pass logged in user', () => {
-  const currentUser = { isLoggedIn: false };
-  const wrapper = shallow(<UnderTest />, {
-    context: { store: mockStore({ users: { currentUser } }) }
-  });
-  expect(wrapper.dive().type()).toBe(X);
-  expect(wrapper.dive().prop('currentUser')).toBe(currentUser);
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
+
+it('should not render for anonymous user', () => {
+  const wrapper = shallowRender({ currentUser: mockCurrentUser({ isLoggedIn: false }) });
+  expect(wrapper.type()).toBe(null);
+  expect(handleRequiredAuthentication).toBeCalled();
+});
+
+function shallowRender(props: Partial<Account['props']> = {}) {
+  return shallow(<Account currentUser={mockCurrentUser({ isLoggedIn: true })} {...props} />);
+}

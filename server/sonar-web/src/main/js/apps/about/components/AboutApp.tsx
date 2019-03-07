@@ -60,7 +60,7 @@ interface State {
   projectsCount: number;
 }
 
-class AboutApp extends React.PureComponent<Props, State> {
+export class AboutApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   state: State = {

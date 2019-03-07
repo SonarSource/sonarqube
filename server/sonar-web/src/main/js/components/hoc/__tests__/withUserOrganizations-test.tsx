@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { createStore } from 'redux';
 import { withUserOrganizations } from '../withUserOrganizations';
+import { mockStore } from '../../../helpers/testMocks';
 
 jest.mock('../../../api/organizations', () => ({ getOrganizations: jest.fn() }));
 
@@ -37,10 +37,14 @@ const UnderTest = withUserOrganizations(X);
 
 it('should pass user organizations and logged in user', () => {
   const org = { key: 'my-org', name: 'My Organization' };
-  const store = createStore(state => state, {
-    organizations: { byKey: { 'my-org': org }, my: ['my-org'] }
+  const wrapper = shallow(<UnderTest />, {
+    context: {
+      store: mockStore({
+        organizations: { byKey: { 'my-org': org }, my: ['my-org'] }
+      })
+    },
+    disableLifecycleMethods: true
   });
-  const wrapper = shallow(<UnderTest />, { context: { store }, disableLifecycleMethods: true });
   const wrappedComponent = wrapper.dive();
   expect(wrappedComponent.type()).toBe(X);
   expect(wrappedComponent.prop('userOrganizations')).toEqual([org]);

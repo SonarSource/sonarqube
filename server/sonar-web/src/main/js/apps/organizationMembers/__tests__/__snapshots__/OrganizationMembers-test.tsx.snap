@@ -12,7 +12,7 @@ exports[`should fetch members and render for non-admin 1`] = `
   <Suggestions
     suggestions="organization_members"
   />
-  <Connect(A11ySkipTarget)
+  <A11ySkipTarget
     anchor="members_main"
   />
   <MembersPageHeader
@@ -41,7 +41,7 @@ exports[`should fetch members and render for non-admin 2`] = `
   <Suggestions
     suggestions="organization_members"
   />
-  <Connect(A11ySkipTarget)
+  <A11ySkipTarget
     anchor="members_main"
   />
   <MembersPageHeader

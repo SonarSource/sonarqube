@@ -21,7 +21,6 @@ import * as React from 'react';
 import { times } from 'lodash';
 import { Location } from 'history';
 import { shallow, mount } from 'enzyme';
-import { Provider } from 'react-redux';
 import { CreateOrganization } from '../CreateOrganization';
 import {
   bindAlmOrganization,
@@ -37,9 +36,8 @@ import {
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm,
   mockAlmOrganization,
-  mockCurrentUser,
-  mockLocation,
-  mockStore
+  mockLoggedInUser,
+  mockLocation
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
@@ -84,7 +82,7 @@ jest.mock('../../../../helpers/storage', () => ({
   remove: jest.fn()
 }));
 
-const user = mockCurrentUser();
+const user = mockLoggedInUser();
 const fooAlmOrganization = mockAlmOrganization({ personal: true });
 const fooBarAlmOrganization = mockAlmOrganization({
   avatar: 'https://avatars3.githubusercontent.com/u/37629810?v=4',
@@ -314,7 +312,7 @@ it('should bind org and redirect to org home when coming from org binding', asyn
     .mockReturnValueOnce(orgKey); // For BIND_ORGANIZATION_KEY
 
   const wrapper = mountRender({
-    currentUser: mockCurrentUser({ ...user, externalProvider: 'github' }),
+    currentUser: mockLoggedInUser({ ...user, externalProvider: 'github' }),
     location: mockLocation({ query: { installation_id } }),
     router: mockRouter({ push })
   });
@@ -328,9 +326,7 @@ it('should bind org and redirect to org home when coming from org binding', asyn
 });
 
 function mountRender(props: Partial<CreateOrganization['props']> = {}) {
-  return mount<CreateOrganization>(
-    <Provider store={mockStore()}>{createComponent(props)}</Provider>
-  );
+  return mount<CreateOrganization>(createComponent(props));
 }
 
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {

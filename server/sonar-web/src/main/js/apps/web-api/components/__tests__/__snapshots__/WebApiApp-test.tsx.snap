@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="layout-page"
+>
+  <Suggestions
+    suggestions="api_documentation"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="api_documentation.page"
+  />
+  <ScreenPositionHelper
+    className="layout-page-side-outer"
+  >
+    <Component />
+  </ScreenPositionHelper>
+  <div
+    className="layout-page-main"
+  >
+    <div
+      className="layout-page-main-inner"
+    >
+      <Domain
+        domain={
+          Object {
+            "actions": Array [],
+            "deprecatedSince": undefined,
+            "description": "foo",
+            "internal": true,
+            "path": "foo/bar",
+            "since": "1.0",
+          }
+        }
+        key="foo/bar"
+        query={
+          Object {
+            "deprecated": false,
+            "internal": false,
+            "search": "",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="layout-page-side"
+  style={
+    Object {
+      "top": 0,
+    }
+  }
+>
+  <div
+    className="layout-page-side-inner"
+  >
+    <div
+      className="layout-page-filters"
+    >
+      <A11ySkipTarget
+        anchor="webapi_main"
+      />
+      <div
+        className="web-api-page-header"
+      >
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/web_api/"
+        >
+          <h1>
+            api_documentation.page
+          </h1>
+        </Link>
+      </div>
+      <Search
+        onSearch={[Function]}
+        onToggleDeprecated={[Function]}
+        onToggleInternal={[Function]}
+        query={
+          Object {
+            "deprecated": false,
+            "internal": false,
+            "search": "",
+          }
+        }
+      />
+      <Menu
+        domains={
+          Array [
+            Object {
+              "actions": Array [],
+              "deprecatedSince": undefined,
+              "description": "foo",
+              "internal": true,
+              "path": "foo/bar",
+              "since": "1.0",
+            },
+          ]
+        }
+        query={
+          Object {
+            "deprecated": false,
+            "internal": false,
+            "search": "",
+          }
+        }
+        splat="foo/bar"
+      />
+    </div>
+  </div>
+</div>
+`;

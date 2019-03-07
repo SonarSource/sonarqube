@@ -27,7 +27,7 @@ import A11yProvider from './a11y/A11yProvider';
 import A11ySkipLinks from './a11y/A11ySkipLinks';
 import Workspace from '../../components/workspace/Workspace';
 
-interface Props {
+export interface Props {
   children: React.ReactNode;
   footer?: React.ReactNode;
   location: { pathname: string };

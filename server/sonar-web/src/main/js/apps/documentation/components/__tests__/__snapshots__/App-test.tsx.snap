@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="layout-page"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="Lorem | documentation.page_title"
+  >
+    <meta
+      content="noindex nofollow"
+      name="robots"
+    />
+  </HelmetWrapper>
+  <ScreenPositionHelper
+    className="layout-page-side-outer"
+  >
+    <Component />
+  </ScreenPositionHelper>
+  <div
+    className="layout-page-main"
+  >
+    <div
+      className="layout-page-main-inner"
+    >
+      <div
+        className="boxed-group"
+      >
+        <A11ySkipTarget
+          anchor="documentation_main"
+        />
+        <DocMarkdownBlock
+          className="documentation-content cut-margins boxed-group-inner"
+          content="Lorem ipsum dolor sit amet fredum"
+          displayH1={true}
+          stickyToc={true}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="layout-page-side"
+  style={
+    Object {
+      "top": 0,
+    }
+  }
+>
+  <div
+    className="layout-page-side-inner"
+  >
+    <div
+      className="layout-page-filters"
+    >
+      <div
+        className="documentation-page-header"
+      >
+        <A11ySkipTarget
+          anchor="documentation_menu"
+          label="documentation.skip_to_nav"
+          weight={10}
+        />
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/documentation/"
+        >
+          <h1>
+            documentation.page
+          </h1>
+        </Link>
+      </div>
+      <Sidebar
+        pages={
+          Array [
+            Object {
+              "content": "Lorem ipsum dolor sit amet fredum",
+              "navTitle": undefined,
+              "relativeName": "Lorem",
+              "text": "Lorem ipsum dolor sit amet fredum",
+              "title": "Lorem",
+              "url": "/lorem/ipsum",
+            },
+          ]
+        }
+        splat="lorem/ipsum"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should show a 404 if the page doesn't exist 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="documentation.page_title"
+  >
+    <meta
+      content="noindex nofollow"
+      name="robots"
+    />
+  </HelmetWrapper>
+  <A11ySkipTarget
+    anchor="documentation_main"
+  />
+  <NotFound
+    withContainer={false}
+  />
+</Fragment>
+`;

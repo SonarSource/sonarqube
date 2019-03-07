@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  id="account-page"
+>
+  <Suggestions
+    suggestions="account"
+  />
+  <HelmetWrapper
+    defaultTitle="my_account.page"
+    defer={true}
+    encodeSpecialCharacters={true}
+    titleTemplate="%s - my_account.page"
+  />
+  <A11ySkipTarget
+    anchor="account_main"
+  />
+  <header
+    className="account-header"
+  >
+    <div
+      className="account-container clearfix"
+    >
+      <UserCard
+        user={
+          Object {
+            "isLoggedIn": true,
+          }
+        }
+      />
+      <Nav />
+    </div>
+  </header>
+</div>
+`;

@@ -47,7 +47,7 @@ interface State {
   domains: T.WebApi.Domain[];
 }
 
-class WebApiApp extends React.PureComponent<Props, State> {
+export class WebApiApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { domains: [] };
 

@@ -23,16 +23,17 @@ import { A11yContextShape } from '../A11yContext';
 import A11yProvider from '../A11yProvider';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
-const link1 = { key: 'link1', label: 'Link 1' };
+const link1 = { key: 'link1', label: 'Link 1', weight: 0 };
 const link2 = { key: 'link2', label: 'Link 2', weight: -10 };
-const link3 = { key: 'link3', label: 'Link 3' };
+const link3 = { key: 'link3', label: 'Link 3', weight: 0 };
 
 it('should allow to register new skip links', () => {
   const wrapper = shallowRender();
   const instance = wrapper.instance();
   expect(wrapper.state('links')).toEqual([]);
 
-  instance.addA11ySkipLink(link1);
+  // Check that an absence of weight is treated as "0".
+  instance.addA11ySkipLink({ ...link1, weight: undefined });
   expect(wrapper.state('links')).toEqual([link1]);
 
   instance.addA11ySkipLink(link2);

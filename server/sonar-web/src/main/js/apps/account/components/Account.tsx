@@ -34,7 +34,7 @@ interface Props {
   customOrganizations?: boolean;
 }
 
-class Account extends React.PureComponent<Props> {
+export class Account extends React.PureComponent<Props> {
   componentDidMount() {
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
