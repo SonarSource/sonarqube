@@ -33,7 +33,6 @@ The following languages are currently supported:
 * JS
 * Kotlin
 * PHP
-* PL/SQL
 * Python
 * Ruby
 * Scala
