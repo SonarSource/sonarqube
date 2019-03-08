@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ReviewApp from '../ReviewApp';
+import { ReviewApp } from '../ReviewApp';
 import { getMeasures } from '../../../../api/measures';
 import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import { mockComponent, mockPullRequest } from '../../../../helpers/testMocks';
@@ -49,8 +49,9 @@ beforeEach(() => {
 it('should render correctly for a passed QG', async () => {
   const { mockQualityGateProjectStatus } = getMockHelpers();
   (getQualityGateProjectStatus as jest.Mock).mockResolvedValue(mockQualityGateProjectStatus());
+  const registerBranchStatus = jest.fn();
+  const wrapper = shallowRender({ registerBranchStatus });
 
-  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
@@ -58,6 +59,7 @@ it('should render correctly for a passed QG', async () => {
 
   expect(getMeasures).toBeCalled();
   expect(getQualityGateProjectStatus).toBeCalled();
+  expect(registerBranchStatus).toBeCalled();
 });
 
 it('should render correctly for a failed QG', async () => {
@@ -93,6 +95,33 @@ it('should render correctly for a failed QG', async () => {
   expect(wrapper.find('QualityGateConditions').exists()).toBe(true);
 });
 
+it('should correctly refresh data if certain props change', () => {
+  const wrapper = shallowRender();
+
+  jest.clearAllMocks();
+  wrapper.setProps({
+    component: mockComponent({ key: 'foo' })
+  });
+  expect(getMeasures).toBeCalled();
+  expect(getQualityGateProjectStatus).toBeCalled();
+
+  jest.clearAllMocks();
+  wrapper.setProps({
+    branchLike: mockPullRequest({ key: '1002' })
+  });
+  expect(getMeasures).toBeCalled();
+  expect(getQualityGateProjectStatus).toBeCalled();
+});
+
+it('should correctly handle a WS failure', async () => {
+  (getMeasures as jest.Mock).mockRejectedValue({});
+  (getQualityGateProjectStatus as jest.Mock).mockRejectedValue({});
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
 function getMockHelpers() {
   // We use this little "force-requiring" instead of an import statement in
   // order to prevent a hoisting race condition while mocking. If we want to use
@@ -104,6 +133,11 @@ function getMockHelpers() {
 
 function shallowRender(props: Partial<ReviewApp['props']> = {}) {
   return shallow(
-    <ReviewApp branchLike={mockPullRequest()} component={mockComponent()} {...props} />
+    <ReviewApp
+      branchLike={mockPullRequest()}
+      component={mockComponent()}
+      registerBranchStatus={jest.fn()}
+      {...props}
+    />
   );
 }

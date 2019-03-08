@@ -30,11 +30,11 @@ import { transparentWhite } from '../../../app/theme';
 
 interface Props {
   component: T.Component;
-  level?: string;
+  level?: T.Status;
 }
 
 export default function LargeQualityGateBadge({ component, level }: Props) {
-  const success = level !== 'ERROR';
+  const success = level === 'OK';
 
   let path;
   if (isSonarCloud()) {

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { connect } from 'react-redux';
 import AfterMergeEstimate from './AfterMergeEstimate';
 import LargeQualityGateBadge from './LargeQualityGateBadge';
 import IssueLabel from './IssueLabel';
@@ -31,23 +32,25 @@ import { getMeasures } from '../../../api/measures';
 import { getQualityGateProjectStatus } from '../../../api/quality-gates';
 import { PR_METRICS, IssueType, MeasurementType } from '../utils';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
-import { translate } from '../../../helpers/l10n';
 import { extractStatusConditionsFromProjectStatus } from '../../../helpers/qualityGates';
+import { registerBranchStatus } from '../../../store/rootActions';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 interface Props {
-  branchLike?: T.PullRequest | T.ShortLivingBranch;
+  branchLike: T.PullRequest | T.ShortLivingBranch;
   component: T.Component;
+  registerBranchStatus: (branchLike: T.BranchLike, component: string, status: T.Status) => void;
 }
 
 interface State {
   conditions: T.QualityGateStatusCondition[];
   loading: boolean;
   measures: T.Measure[];
-  status?: string;
+  status?: T.Status;
 }
 
-export default class ReviewApp extends React.Component<Props, State> {
+export class ReviewApp extends React.Component<Props, State> {
   mounted = false;
 
   state: State = {
@@ -89,14 +92,17 @@ export default class ReviewApp extends React.Component<Props, State> {
       }),
       getQualityGateProjectStatus(data)
     ]).then(
-      ([measures, status]) => {
-        if (this.mounted && measures && status) {
+      ([measures, qualityGateStatus]) => {
+        if (this.mounted && measures && qualityGateStatus) {
+          const { status } = qualityGateStatus.projectStatus;
           this.setState({
-            conditions: extractStatusConditionsFromProjectStatus(status),
+            conditions: extractStatusConditionsFromProjectStatus(qualityGateStatus),
             loading: false,
             measures,
-            status: status.projectStatus.status
+            status
           });
+
+          this.props.registerBranchStatus(branchLike, component.key, status);
         }
       },
       () => {
@@ -109,7 +115,7 @@ export default class ReviewApp extends React.Component<Props, State> {
 
   render() {
     const { branchLike, component } = this.props;
-    const { loading, measures, conditions, status } = this.state;
+    const { conditions = [], loading, measures, status } = this.state;
     const erroredConditions = conditions.filter(condition => condition.level === 'ERROR');
 
     return (
@@ -192,3 +198,10 @@ export default class ReviewApp extends React.Component<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps = { registerBranchStatus };
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(ReviewApp);
