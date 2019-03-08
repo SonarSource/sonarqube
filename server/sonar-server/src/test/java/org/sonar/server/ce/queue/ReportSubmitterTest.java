@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
@@ -112,8 +111,7 @@ public class ReportSubmitterTest {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     mockSuccessfulPrepareSubmitCall();
     when(componentUpdater.create(any(), any(), any())).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY),
-      eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
     Map<String, String> nonEmptyCharacteristics = IntStream.range(0, 1 + new Random().nextInt(5))
       .boxed()
@@ -135,9 +133,8 @@ public class ReportSubmitterTest {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     mockSuccessfulPrepareSubmitCall();
     when(componentUpdater.createWithoutCommit(any(), any(), any())).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY),
-      eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+      .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
@@ -174,9 +171,9 @@ public class ReportSubmitterTest {
     ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.createWithoutCommit(any(), any(), isNull())).thenReturn(createdProject);
     when(
-      permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(organization.getUuid()), any(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+      permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY)))
         .thenReturn(true);
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(), eq(organization.getUuid()), any())).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 
@@ -195,10 +192,9 @@ public class ReportSubmitterTest {
 
     ComponentDto createdProject = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     when(componentUpdater.createWithoutCommit(any(), any(), isNull())).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(),
-      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(), eq(defaultOrganizationUuid), any())).thenReturn(false);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+      .thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(false);
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -216,9 +212,8 @@ public class ReportSubmitterTest {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     mockSuccessfulPrepareSubmitCall();
     when(componentUpdater.createWithoutCommit(any(), any(), any())).thenReturn(project);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(),
-      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-        .thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+      .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 

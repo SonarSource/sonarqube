@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
@@ -208,8 +207,7 @@ public class BranchReportSubmitterTest {
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertMainBranch(nonExistingProject));
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(organization), eq(nonExistingProject), any()))
       .thenReturn(createdBranch);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(organization.getUuid()), any(),
-      eq(nonExistingProject.getKey()), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(nonExistingProject.getKey())))
       .thenReturn(true);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);

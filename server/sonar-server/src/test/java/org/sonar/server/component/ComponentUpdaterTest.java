@@ -203,7 +203,7 @@ public class ComponentUpdaterTest {
       .build();
     ComponentDto dto = underTest.create(db.getSession(), project, userId);
 
-    verify(permissionTemplateService).applyDefault(db.getSession(), dto.getOrganizationUuid(), dto, userId);
+    verify(permissionTemplateService).applyDefault(db.getSession(), dto, userId);
   }
 
   @Test
@@ -214,7 +214,7 @@ public class ComponentUpdaterTest {
       .setName(DEFAULT_PROJECT_NAME)
       .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), eq(project.getOrganizationUuid()), any(ComponentDto.class)))
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ComponentDto.class)))
       .thenReturn(true);
 
     ComponentDto dto = underTest.create(db.getSession(),

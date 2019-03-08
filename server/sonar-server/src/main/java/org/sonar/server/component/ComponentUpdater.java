@@ -91,7 +91,7 @@ public class ComponentUpdater {
       createMainBranch(dbSession, componentDto.uuid());
     }
     removeDuplicatedProjects(dbSession, componentDto.getDbKey());
-    handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
+    handlePermissionTemplate(dbSession, componentDto, userId);
     return componentDto;
   }
 
@@ -156,10 +156,10 @@ public class ComponentUpdater {
     }
   }
 
-  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, String organizationUuid, @Nullable Integer userId) {
-    permissionTemplateService.applyDefault(dbSession, organizationUuid, componentDto, userId);
+  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable Integer userId) {
+    permissionTemplateService.applyDefault(dbSession, componentDto, userId);
     if (componentDto.qualifier().equals(PROJECT)
-      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, componentDto)) {
+      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
       favoriteUpdater.add(dbSession, componentDto, userId);
     }
   }
