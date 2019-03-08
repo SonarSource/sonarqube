@@ -36,6 +36,9 @@ public class DbVersion77 implements DbVersion {
       .add(2606, "Drop DATA_TYPE column from FILE_SOURCES table", DropDataTypeFromFileSources.class)
       .add(2607, "Add MEMBERS_SYNC_ENABLED column to ORGANIZATIONS_ALM_BINDING table", AddMembersSyncFlagToOrgAlmBinding.class)
       .add(2608, "Delete favorites on not supported components", DeleteFavouritesOnNotSupportedComponentQualifiers.class)
-      .add(2609, "Delete exceeding favorites when there are more than 100 for a user", DeleteFavoritesExceedingOneHundred.class);
+      .add(2609, "Delete exceeding favorites when there are more than 100 for a user", DeleteFavoritesExceedingOneHundred.class)
+      .add(2610, "Truncate ES_QUEUE table content", TruncateEsQueue.class)
+
+    ;
   }
 }

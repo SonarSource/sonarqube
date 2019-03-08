@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v77;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion77Test {
-
-  private DbVersion77 underTest = new DbVersion77();
-
-  @Test
-  public void migrationNumber_starts_at_2600() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+/**
+ * This DB migration comes with the change of ES indices structures and must not be flagged as compatible with BlueGreen
+ * deployment because ES indices must be recreated and this is not compatible with BlueGreen.
+ */
+public class TruncateEsQueue extends DataChange {
+  public TruncateEsQueue(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 11);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("truncate table es_queue").execute().commit();
   }
-
 }
