@@ -255,10 +255,10 @@ function PricingFAQ({ getReference }: PricingFAQProps) {
               and you will be first billed on January 15th for your upcoming month, e.g. January
               15th to February 15th.
             </p>
-            <div className="faq-title">Can I stop using the service?</div>
+            <div className="faq-title">Can I cancel my subscription?</div>
             <p>
-              Yes, you can stop using SonarCloud anytime you want. You simply need to downgrade your
-              organization to the free plan.
+              Of course! There's no commitment. You can delete your paid organization whenever you wish, 
+              or simply downgrade to the free tier if you wish to keep on analysing some public projects.
             </p>
             <div className="faq-title">Still have more questions?</div>
             <p>
