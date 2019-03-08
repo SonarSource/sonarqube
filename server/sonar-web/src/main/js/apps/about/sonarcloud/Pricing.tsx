@@ -257,8 +257,9 @@ function PricingFAQ({ getReference }: PricingFAQProps) {
             </p>
             <div className="faq-title">Can I cancel my subscription?</div>
             <p>
-              Of course! There's no commitment. You can delete your paid organization whenever you wish, 
-              or simply downgrade to the free tier if you wish to keep on analysing some public projects.
+              Of course! There&apos;s no commitment. You can delete your paid organization whenever
+              you wish, or simply downgrade to the free tier if you wish to keep on analysing some
+              public projects.
             </p>
             <div className="faq-title">Still have more questions?</div>
             <p>
