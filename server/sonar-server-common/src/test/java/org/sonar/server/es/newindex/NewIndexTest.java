@@ -63,6 +63,15 @@ public class NewIndexTest {
 
   @Test
   @UseDataProvider("indexWithAndWithoutRelations")
+  public void does_not_enable_all_field(Index index) {
+    SimplestNewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration);
+
+    // _all field is deprecated in 6.X and will be removed in 7.x and should not be used
+    assertThat(newIndex.getAttributes().get("_all")).isNull();
+  }
+
+  @Test
+  @UseDataProvider("indexWithAndWithoutRelations")
   public void verify_default_index_settings_in_standalone(Index index) {
     Settings underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration)
       .getSettings().build();
@@ -83,9 +92,9 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     Settings underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration).getSettings().build();
 
+    // _all field is deprecated in ES 6.X and will be removed in 7.X
+    assertThat(underTest.get("_all")).isNull();
     assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
-    // index.mapper.dynamic is deprecated and should not be set anymore
-    assertThat(underTest.get("index.mapper.dynamic")).isNull();
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
     // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
     assertThat(underTest.get("mapping.single_type")).isNull();

@@ -19,12 +19,13 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.Sets;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 public class MigrationEsClientImpl implements MigrationEsClient {
@@ -36,8 +37,8 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   @Override
   public void deleteIndexes(String name, String... otherNames) {
-    GetMappingsResponse mappings = client.nativeClient().admin().indices().prepareGetMappings("_all").get();
-    Set<String> existingIndices = Sets.newHashSet(mappings.mappings().keysIt());
+    Map<String, IndexStats> indices = client.nativeClient().admin().indices().prepareStats().get().getIndices();
+    Set<String> existingIndices = indices.values().stream().map(IndexStats::getIndex).collect(MoreCollectors.toSet());
     Stream.concat(Stream.of(name), Arrays.stream(otherNames))
       .distinct()
       .filter(existingIndices::contains)

@@ -69,7 +69,6 @@ public abstract class NewIndex<T extends NewIndex<T>> {
 
   private void configureDefaultAttributes() {
     attributes.put("dynamic", valueOf(false));
-    attributes.put("_all", ImmutableSortedMap.of(ENABLED, false));
     attributes.put("_source", ImmutableSortedMap.of(ENABLED, true));
   }
 
