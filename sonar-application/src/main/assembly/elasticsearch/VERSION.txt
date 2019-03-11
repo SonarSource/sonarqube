@@ -1,2 +1,0 @@
-Elasticsearch 5.6.3
-https://www.elastic.co/downloads/past-releases/elasticsearch-5-6-3
