@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
@@ -39,6 +38,7 @@ import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsConnectorImpl;
 import org.sonar.application.es.EsInstallation;
+import org.sonar.process.FileUtils2;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
@@ -125,7 +125,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       if (outdatedDir.exists()) {
         LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
         try {
-          FileUtils.deleteDirectory(outdatedDir);
+          FileUtils2.deleteDirectory(outdatedDir);
         } catch (IOException e) {
           LOG.info("Failed to delete outdated search index data directory {}", outdatedDir.getAbsolutePath(), e);
         }
