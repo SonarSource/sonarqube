@@ -84,6 +84,7 @@ public class NewIndexTest {
     assertThat(underTest.get("mapping.single_type")).isNull();
     assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
     assertThat(underTest.get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(underTest.get("index.max_ngram_diff")).isEqualTo("13");
   }
 
   @Test
@@ -100,6 +101,7 @@ public class NewIndexTest {
     assertThat(underTest.get("mapping.single_type")).isNull();
     assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
     assertThat(underTest.get("index.number_of_replicas")).isEqualTo("1");
+    assertThat(underTest.get("index.max_ngram_diff")).isEqualTo("13");
   }
 
   @Test

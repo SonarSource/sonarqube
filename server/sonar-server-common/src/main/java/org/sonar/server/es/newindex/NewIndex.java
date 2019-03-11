@@ -65,6 +65,7 @@ public abstract class NewIndex<T extends NewIndex<T>> {
 
     settings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
     settings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
+    settings.put("index.max_ngram_diff", DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH - DefaultIndexSettings.MINIMUM_NGRAM_LENGTH);
   }
 
   private void configureDefaultAttributes() {
