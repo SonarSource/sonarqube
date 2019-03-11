@@ -19,6 +19,7 @@
  */
 package org.sonar.db.measure;
 
+import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -119,8 +120,15 @@ public class LiveMeasureDao implements Dao {
    * <p>
    * <strong>This method should not be called unless {@link Dialect#supportsUpsert()} is true</strong>
    */
-  public int upsert(DbSession dbSession, LiveMeasureDto dto) {
-    return mapper(dbSession).upsert(dto, Uuids.create(), system2.now());
+  public int upsert(DbSession dbSession, Iterable<LiveMeasureDto> dtos) {
+    for (LiveMeasureDto dto : dtos) {
+      dto.setUuidForUpsert(Uuids.create());
+    }
+    int updated = 0;
+    for (List<LiveMeasureDto> chunk : Iterables.partition(dtos, 100)) {
+      updated += mapper(dbSession).upsert(chunk, system2.now());
+    }
+    return updated;
   }
 
   public int deleteByComponentUuidExcludingMetricIds(DbSession dbSession, String componentUuid, List<Integer> excludedMetricIds) {

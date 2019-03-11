@@ -63,10 +63,9 @@ public interface LiveMeasureMapper {
   int update(
     @Param("dto") LiveMeasureDto dto,
     @Param("now") long now);
-
+  
   int upsert(
-    @Param("dto") LiveMeasureDto dto,
-    @Param("uuid") String uuid,
+    @Param("dtos") List<LiveMeasureDto> dtos,
     @Param("now") long now);
 
   int deleteByComponentUuidExcludingMetricIds(

@@ -28,6 +28,13 @@ public class LiveMeasureDto {
 
   private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
+  /**
+   * UUID generated only for UPSERT statements in PostgreSQL. It's never used
+   * in SELECT or regular INSERT/UPDATE.
+   */
+  @Nullable
+  private String uuidForUpsert;
+
   private String componentUuid;
   private String projectUuid;
   private int metricId;
@@ -39,6 +46,10 @@ public class LiveMeasureDto {
   private byte[] data;
   @Nullable
   private Double variation;
+
+  void setUuidForUpsert(@Nullable String s) {
+    this.uuidForUpsert = s;
+  }
 
   public String getComponentUuid() {
     return componentUuid;

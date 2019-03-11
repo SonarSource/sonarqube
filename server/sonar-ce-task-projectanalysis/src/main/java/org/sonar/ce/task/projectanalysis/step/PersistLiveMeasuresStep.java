@@ -43,7 +43,7 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.LiveMeasureComparator;
-import org.sonar.db.measure.LiveMeasureDao;
+import org.sonar.db.measure.LiveMeasureDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
@@ -83,12 +83,13 @@ public class PersistLiveMeasuresStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     boolean supportUpsert = dbClient.getDatabase().getDialect().supportsUpsert();
-    try (DbSession dbSession = dbClient.openSession(supportUpsert)) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Component root = treeRootHolder.getRoot();
       MeasureVisitor visitor = new MeasureVisitor(dbSession, supportUpsert);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
-      context.getStatistics().add("insertsOrUpdates", visitor.insertsOrUpdates);
+      context.getStatistics()
+        .add("insertsOrUpdates", visitor.insertsOrUpdates);
     }
   }
 
@@ -105,9 +106,9 @@ public class PersistLiveMeasuresStep implements ComputationStep {
 
     @Override
     public void visitAny(Component component) {
-      LiveMeasureDao dao = dbClient.liveMeasureDao();
       List<Integer> metricIds = new ArrayList<>();
       Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
+      List<LiveMeasureDto> dtos = new ArrayList<>();
       for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
         String metricKey = measuresByMetricKey.getKey();
         if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Component.Type.FILE) {
@@ -122,19 +123,23 @@ public class PersistLiveMeasuresStep implements ComputationStep {
           // To prevent deadlock, live measures are ordered the same way as in LiveMeasureComputerImpl#refreshComponentsOnSameProject
           .sorted(LiveMeasureComparator.INSTANCE)
           .forEach(lm -> {
-            if (supportUpsert) {
-              dao.upsert(dbSession, lm);
-            } else {
-              dao.insertOrUpdate(dbSession, lm);
-            }
+            dtos.add(lm);
             metricIds.add(metric.getId());
-            insertsOrUpdates++;
           });
       }
+      if (supportUpsert) {
+        dbClient.liveMeasureDao().upsert(dbSession, dtos);
+      } else {
+        for (LiveMeasureDto dto : dtos) {
+          dbClient.liveMeasureDao().insertOrUpdate(dbSession, dto);
+        }
+      }
+      insertsOrUpdates += dtos.size();
+
       // The measures that no longer exist on the component must be deleted, for example
       // when the coverage on a file goes to the "best value" 100%.
       // The measures on deleted components are deleted by the step PurgeDatastoresStep
-      dao.deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
+      dbClient.liveMeasureDao().deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
       dbSession.commit();
     }
   }
@@ -147,6 +152,4 @@ public class PersistLiveMeasuresStep implements ComputationStep {
       return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariation() || input.getData() != null;
     }
   }
-
-
 }
