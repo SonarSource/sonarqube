@@ -55,7 +55,6 @@ public abstract class NewIndex<T extends NewIndex<T>> {
   }
 
   private void applySettingsConfiguration(SettingsConfiguration settingsConfiguration) {
-    settings.put("index.mapper.dynamic", valueOf(false));
     settings.put("index.refresh_interval", refreshInterval(settingsConfiguration));
 
     Configuration config = settingsConfiguration.getConfiguration();

@@ -83,8 +83,7 @@ public class DefaultIndexSettings {
   public static Settings.Builder defaults() {
     Settings.Builder builder = Settings.builder()
       .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
-      .put("index.refresh_interval", "30s")
-      .put("index.mapper.dynamic", false);
+      .put("index.refresh_interval", "30s");
 
     Arrays.stream(DefaultIndexSettingsElement.values())
       .map(DefaultIndexSettingsElement::settings)

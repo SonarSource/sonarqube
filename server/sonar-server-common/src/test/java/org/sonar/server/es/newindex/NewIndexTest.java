@@ -68,7 +68,8 @@ public class NewIndexTest {
       .getSettings().build();
 
     assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
-    assertThat(underTest.get("index.mapper.dynamic")).isEqualTo("false");
+    // index.mapper.dynamic is deprecated and should not be set anymore
+    assertThat(underTest.get("index.mapper.dynamic")).isNull();
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
     // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
     assertThat(underTest.get("mapping.single_type")).isNull();
@@ -83,7 +84,8 @@ public class NewIndexTest {
     Settings underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration).getSettings().build();
 
     assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
-    assertThat(underTest.get("index.mapper.dynamic")).isEqualTo("false");
+    // index.mapper.dynamic is deprecated and should not be set anymore
+    assertThat(underTest.get("index.mapper.dynamic")).isNull();
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
     // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
     assertThat(underTest.get("mapping.single_type")).isNull();
