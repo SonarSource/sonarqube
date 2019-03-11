@@ -36,22 +36,20 @@ This means that your SonarCloud organization is not bound to GitHub or Bitbucket
 
 **For GitHub:**
 
-1. Click on the top right menu "+ > Create new organization".
-2. Click on "Choose an organization on GitHub".
-3. On GitHub page, you should see a list of organization you are admin of. The organization you want to bind is marked as already configured. Click on it.
-4. Click on "Uninstall" at the bottom of the page.
-5. Go back on SonarCloud, and do again "Create new organization > Choose an organization on GitHub": the organization you want to bind should not be marked as configured anymore. Click on it, and then on "Install".
-6. When you are redirected to SonarCloud, select "Bind to an existing SonarCloud organization".
-7. Select your existing SonarCloud organization and click "Bind Organization".
-8. You are all set! You should see a GitHub icon close to the name of your organization at the top of the page.
+1. Click your profile picture in the top right menu and select the organization.
+2. In the organization menu, click "Administration > Organization settings"
+3. Click on "Choose an organization on GitHub".
+4. On GitHub page, you should see a list of organization you are admin of. The organization you want to bind is marked as already configured. Click on it.
+5. Click on "Uninstall" at the bottom of the page.
+6. Go back to SonarCloud, to the settings page of your organization, and click on "Choose an organization on GitHub" again. The organization you want to bind should not be marked as configured anymore. Click on it, and then on "Install". After the installation, you will be redirected to SonarCloud.
+7. You are all set! You should see a GitHub icon close to the name of your organization at the top of the page.
 
 **For Bitbucket Cloud:**
 
-1. Click on the top right menu "+ > Create new organization".
-2. Click on "Choose a team on Bitbucket".
-3. On Bitbucket Cloud page, select the name of the team you want to bind and click on "Grant access". 
-[[warning]]
-| If you get a 405 error page from Bitbucket Cloud at this stage, this means that you did not approve a recent scope change - for which you should have received an email from Bitbucket Cloud. The easiest way to get around this is to uninstall the SonarCloud application in your Bitbucket Cloud "Install apps" settings, and reinstall it.
-6. When you are redirected to SonarCloud, select "Bind to an existing SonarCloud organization".
-7. Select your existing SonarCloud organization and click "Bind Organization".
-8. You are all set! You should see a Bitbucket Cloud icon close to the name of your organization at the top of the page.
+1. Click your profile picture in the top right menu and select the organization.
+2. In the organization menu, click "Administration > Organization settings"
+3. Click on "Choose a team on Bitbucket".
+4. On Bitbucket Cloud page, select the name of the team you want to bind and click on "Grant access". You will then be redirected to SonarCloud.
+   [[warning]]
+   | If you get a 405 error page from Bitbucket Cloud at this stage, this means that you did not approve a recent scope change - for which you should have received an email from Bitbucket Cloud. The easiest way to get around this is to uninstall the SonarCloud application in your Bitbucket Cloud "Install apps" settings, and reinstall it.
+5. You are all set! You should see a Bitbucket Cloud icon close to the name of your organization at the top of the page.
