@@ -179,9 +179,8 @@ public class DefaultSensorStorage implements SensorStorage {
       } else {
         throw new IllegalArgumentException("Executable lines can only be saved on files");
       }
-    } else {
-      reportPublisher.getWriter().appendComponentMeasure(((DefaultInputComponent) component).scannerId(), toReportMeasure(measure));
     }
+    reportPublisher.getWriter().appendComponentMeasure(((DefaultInputComponent) component).scannerId(), toReportMeasure(measure));
   }
 
   public static ScannerReport.Measure toReportMeasure(DefaultMeasure measureToSave) {

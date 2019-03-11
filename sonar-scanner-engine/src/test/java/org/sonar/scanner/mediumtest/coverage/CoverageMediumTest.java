@@ -32,9 +32,11 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class CoverageMediumTest {
 
@@ -280,6 +282,10 @@ public class CoverageMediumTest {
 
     assertThat(result.coverageFor(file, 3).getHits()).isFalse();
     assertThat(result.coverageFor(file, 4)).isNull();
+
+    assertThat(result.allMeasures().get(file.key()))
+      .extracting(ScannerReport.Measure::getMetricKey, m -> m.getStringValue().getValue())
+      .contains(tuple("executable_lines_data", "2=1;3=1;4=0"));
   }
 
   // SONAR-11641
@@ -294,7 +300,8 @@ public class CoverageMediumTest {
     File measuresFile = new File(srcDir, "sample.xoo.measures");
     File coverageFile = new File(srcDir, "sample.xoo.coverage");
     FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}", StandardCharsets.UTF_8);
-    FileUtils.write(measuresFile, "# The code analyzer disagree with the coverage tool and consider some lines to be executable\nexecutable_lines_data:2=1;3=1;4=0", StandardCharsets.UTF_8);
+    FileUtils.write(measuresFile, "# The code analyzer disagree with the coverage tool and consider some lines to be executable\nexecutable_lines_data:2=1;3=1;4=0",
+      StandardCharsets.UTF_8);
     FileUtils.write(coverageFile, "# No lines to cover in this file according to the coverage tool", StandardCharsets.UTF_8);
 
     AnalysisResult result = tester.newAnalysis()
