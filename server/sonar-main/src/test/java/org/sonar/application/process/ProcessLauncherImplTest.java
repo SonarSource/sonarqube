@@ -202,16 +202,17 @@ public class ProcessLauncherImplTest {
   }
 
   private EsInstallation createEsInstallation() throws IOException {
+    File tempFolder = this.temp.newFolder("temp");
     return new EsInstallation(new Props(new Properties())
-      .set("sonar.path.home", temp.newFolder("home").getAbsolutePath())
-      .set("sonar.path.data", temp.newFolder("data").getAbsolutePath())
-      .set("sonar.path.temp", temp.newFolder("temp").getAbsolutePath())
-      .set("sonar.path.logs", temp.newFolder("logs").getAbsolutePath()))
+      .set("sonar.path.home", this.temp.newFolder("home").getAbsolutePath())
+      .set("sonar.path.data", this.temp.newFolder("data").getAbsolutePath())
+      .set("sonar.path.temp", tempFolder.getAbsolutePath())
+      .set("sonar.path.logs", this.temp.newFolder("logs").getAbsolutePath()))
       .setClusterName("cluster")
       .setPort(9001)
       .setHost("localhost")
       .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
-      .setEsJvmOptions(new EsJvmOptions())
+      .setEsJvmOptions(new EsJvmOptions(tempFolder))
       .setLog4j2Properties(new Properties());
   }
 

@@ -85,7 +85,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     if (command instanceof EsScriptCommand) {
       process = launchExternal((EsScriptCommand) command);
     } else if (command instanceof JavaCommand) {
-      process = launchJava((JavaCommand) command);
+      process = launchJava((JavaCommand<?>) command);
     } else {
       throw new IllegalStateException("Unexpected type of command: " + command.getClass());
     }

@@ -36,8 +36,9 @@ public class EsJvmOptionsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void constructor_sets_mandatory_JVM_options() {
-    EsJvmOptions underTest = new EsJvmOptions();
+  public void constructor_sets_mandatory_JVM_options() throws IOException {
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(tmpDir);
 
     assertThat(underTest.getAll()).containsExactly(
       "-XX:+UseConcMarkSweepGC",
@@ -46,6 +47,7 @@ public class EsJvmOptionsTest {
       "-XX:+AlwaysPreTouch",
       "-Xss1m",
       "-Djava.awt.headless=true",
+      "-Djava.io.tmpdir="+ tmpDir.getAbsolutePath(),
       "-Dfile.encoding=UTF-8",
       "-Djna.nosys=true",
       "-Djdk.io.permissionsUseCanonicalPath=true",
@@ -59,8 +61,9 @@ public class EsJvmOptionsTest {
 
   @Test
   public void writeToJvmOptionFile_writes_all_JVM_options_to_file_with_warning_header() throws IOException {
+    File tmpDir = temporaryFolder.newFolder("with space");
     File file = temporaryFolder.newFile();
-    EsJvmOptions underTest = new EsJvmOptions()
+    EsJvmOptions underTest = new EsJvmOptions(tmpDir)
       .add("-foo")
       .add("-bar");
 
@@ -78,6 +81,7 @@ public class EsJvmOptionsTest {
         "-XX:+AlwaysPreTouch\n" +
         "-Xss1m\n" +
         "-Djava.awt.headless=true\n" +
+        "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
         "-Dfile.encoding=UTF-8\n" +
         "-Djna.nosys=true\n" +
         "-Djdk.io.permissionsUseCanonicalPath=true\n" +
@@ -95,7 +99,7 @@ public class EsJvmOptionsTest {
   @Test
   public void writeToJvmOptionFile_throws_ISE_in_case_of_IOException() throws IOException {
     File notAFile = temporaryFolder.newFolder();
-    EsJvmOptions underTest = new EsJvmOptions();
+    EsJvmOptions underTest = new EsJvmOptions(temporaryFolder.newFolder());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot write Elasticsearch jvm options file");

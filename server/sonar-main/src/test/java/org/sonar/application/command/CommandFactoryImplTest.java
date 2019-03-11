@@ -150,6 +150,9 @@ public class CommandFactoryImplTest {
       .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
       .containsKey("JAVA_HOME");
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
+
+    assertThat(esConfig.getEsJvmOptions().getAll())
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
   }
 
   @Test
@@ -186,6 +189,8 @@ public class CommandFactoryImplTest {
       .containsKey("JAVA_HOME");
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
 
+    assertThat(esConfig.getEsJvmOptions().getAll())
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
     assertThat(esCommand.getJvmOptions().getAll())
       .containsAll(esConfig.getEsJvmOptions().getAll())
       .contains("-Delasticsearch")
@@ -210,7 +215,8 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getPort()).isEqualTo(1234);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
-      .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
+      .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath())
       // user settings
       .contains("-Xms10G", "-Xmx10G")
       // default values disabled
