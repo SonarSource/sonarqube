@@ -102,7 +102,7 @@ public class EsInstallationTest {
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es5"));
+    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es6"));
   }
 
   @Test
@@ -118,6 +118,23 @@ public class EsInstallationTest {
     EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getLogDirectory()).isEqualTo(logDir);
+  }
+
+  @Test
+  public void getOutdatedSearchDirectories_returns_all_previously_used_es_data_directory_names() throws IOException {
+    File sqHomeDir = temp.newFolder();
+    File logDir = temp.newFolder();
+    Props props = new Props(new Properties());
+    props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_HOME.getKey(), sqHomeDir.getAbsolutePath());
+    props.set(PATH_TEMP.getKey(), temp.newFolder().getAbsolutePath());
+    props.set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
+
+    EsInstallation underTest = new EsInstallation(props);
+
+    assertThat(underTest.getOutdatedSearchDirectories())
+      .extracting(t -> t.getName())
+      .containsOnly("es", "es5");
   }
 
   @Test

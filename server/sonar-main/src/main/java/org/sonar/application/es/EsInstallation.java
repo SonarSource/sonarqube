@@ -20,6 +20,7 @@
 package org.sonar.application.es;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -64,12 +65,12 @@ public class EsInstallation {
 
   private static List<File> buildOutdatedSearchDirs(Props props) {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
-    return Collections.singletonList(new File(dataPath, "es"));
+    return Arrays.asList(new File(dataPath, "es"), new File(dataPath, "es5"));
   }
 
   private static File buildDataDir(Props props) {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
-    return new File(dataPath, "es5");
+    return new File(dataPath, "es6");
   }
 
   private static File buildLogPath(Props props) {
