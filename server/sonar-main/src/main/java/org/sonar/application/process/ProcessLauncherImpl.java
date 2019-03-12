@@ -75,10 +75,10 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   }
 
   public ProcessMonitor launch(AbstractCommand command) {
-    EsInstallation fileSystem = command.getEsInstallation();
-    if (fileSystem != null) {
-      cleanupOutdatedEsData(fileSystem);
-      writeConfFiles(fileSystem);
+    EsInstallation esInstallation = command.getEsInstallation();
+    if (esInstallation != null) {
+      cleanupOutdatedEsData(esInstallation);
+      writeConfFiles(esInstallation);
     }
 
     Process process;
@@ -93,7 +93,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     ProcessId processId = command.getProcessId();
     try {
       if (processId == ProcessId.ELASTICSEARCH) {
-        EsInstallation esInstallation = command.getEsInstallation();
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
         EsConnectorImpl esConnector = new EsConnectorImpl(esInstallation.getClusterName(), singleton(HostAndPort.fromParts(esInstallation.getHost(), esInstallation.getPort())));
         return new EsProcessMonitor(process, processId, esConnector);
@@ -121,16 +120,17 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   }
 
   private static void cleanupOutdatedEsData(EsInstallation esInstallation) {
-    esInstallation.getOutdatedSearchDirectories().forEach(outdatedDir -> {
-      if (outdatedDir.exists()) {
-        LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
-        try {
-          FileUtils2.deleteDirectory(outdatedDir);
-        } catch (IOException e) {
-          LOG.info("Failed to delete outdated search index data directory {}", outdatedDir.getAbsolutePath(), e);
+    esInstallation.getOutdatedSearchDirectories()
+      .forEach(outdatedDir -> {
+        if (outdatedDir.exists()) {
+          LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
+          try {
+            FileUtils2.deleteDirectory(outdatedDir);
+          } catch (IOException e) {
+            LOG.info("Failed to delete outdated search index data directory {}", outdatedDir.getAbsolutePath(), e);
+          }
         }
-      }
-    });
+      });
   }
 
   private static void writeConfFiles(EsInstallation esInstallation) {
@@ -199,13 +199,13 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     return create(javaCommand, commands);
   }
 
-  private ProcessBuilder create(AbstractCommand<?> javaCommand, List<String> commands) {
+  private ProcessBuilder create(AbstractCommand<?> command, List<String> commands) {
     ProcessBuilder processBuilder = processBuilderSupplier.get();
     processBuilder.command(commands);
-    processBuilder.directory(javaCommand.getWorkDir());
+    processBuilder.directory(command.getWorkDir());
     Map<String, String> environment = processBuilder.environment();
-    environment.putAll(javaCommand.getEnvVariables());
-    javaCommand.getSuppressedEnvVariables().forEach(environment::remove);
+    environment.putAll(command.getEnvVariables());
+    command.getSuppressedEnvVariables().forEach(environment::remove);
     processBuilder.redirectErrorStream(true);
     return processBuilder;
   }

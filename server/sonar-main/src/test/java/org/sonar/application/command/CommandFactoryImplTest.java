@@ -215,7 +215,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getPort()).isEqualTo(1234);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
-      .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
+      .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
       .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath())
       // user settings
       .contains("-Xms10G", "-Xmx10G")
