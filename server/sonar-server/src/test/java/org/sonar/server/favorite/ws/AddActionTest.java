@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,14 +48,12 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class AddActionTest {
-  private static final String PROJECT_KEY = "project-key";
-  private static final String PROJECT_UUID = "project-uuid";
-  private static final int USER_ID = 123;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -71,50 +70,52 @@ public class AddActionTest {
 
   @Test
   public void add_a_project() {
-    ComponentDto project = insertProjectAndPermissions();
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
 
-    TestResponse result = call(PROJECT_KEY);
+    TestResponse result = call(project.getKey());
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
     List<PropertyDto> favorites = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(USER_ID)
+      .setUserId(user.getId())
       .setKey("favourite")
       .build(), dbSession);
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
       .extracting(PropertyDto::getResourceId, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(project.getId(), USER_ID, "favourite");
+      .containsOnly(project.getId(), user.getId(), "favourite");
   }
 
   @Test
   public void add_a_file() {
-    ComponentDto project = insertProjectAndPermissions();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    userSession.addProjectPermission(UserRole.USER, project, file);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
 
-    call(file.getDbKey());
+    call(file.getKey());
 
     List<PropertyDto> favorites = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(USER_ID)
+      .setUserId(user.getId())
       .setKey("favourite")
       .build(), dbSession);
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
       .extracting(PropertyDto::getResourceId, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(file.getId(), USER_ID, "favourite");
+      .containsOnly(file.getId(), user.getId(), "favourite");
   }
 
   @Test
   public void fail_when_no_browse_permission_on_the_project() {
-    ComponentDto project = insertProject();
-    userSession.logIn();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(ForbiddenException.class);
 
-    call(PROJECT_KEY);
+    call(project.getKey());
   }
 
   @Test
@@ -128,24 +129,38 @@ public class AddActionTest {
 
   @Test
   public void fail_when_user_is_not_authenticated() {
-    insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(UnauthorizedException.class);
 
-    call(PROJECT_KEY);
+    call(project.getKey());
   }
 
   @Test
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
     call(branch.getDbKey());
+  }
+
+  @Test
+  public void fail_on_directory() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only components with qualifiers TRK, VW, APP, SVW, FIL are supported");
+
+    call(directory.getKey());
   }
 
   @Test
@@ -155,20 +170,6 @@ public class AddActionTest {
     assertThat(definition.key()).isEqualTo("add");
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.param("component").isRequired()).isTrue();
-  }
-
-  private ComponentDto insertProject() {
-    return db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID).setDbKey(PROJECT_KEY));
-  }
-
-  private ComponentDto insertProjectAndPermissions() {
-    ComponentDto project = insertProject();
-    userSession
-      .logIn()
-      .setUserId(USER_ID)
-      .addProjectPermission(UserRole.USER, project);
-
-    return project;
   }
 
   private TestResponse call(@Nullable String componentKey) {
