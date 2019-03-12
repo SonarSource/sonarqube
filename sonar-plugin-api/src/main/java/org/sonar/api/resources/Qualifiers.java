@@ -56,7 +56,7 @@ public final class Qualifiers {
   public static final String LIBRARY = "LIB";
 
   /**
-   * Single project or root of multi-modules projects
+   * Project
    * Scope is Scopes.PROJECT
    */
   public static final String PROJECT = "TRK";
@@ -64,7 +64,10 @@ public final class Qualifiers {
   /**
    * Module of a multi-modules project. It's sometimes called "sub-project".
    * Scope of modules is Scopes.PROJECT
+   *
+   * @deprecated since 7.7 as modules doesn't exist anymore
    */
+  @Deprecated
   public static final String MODULE = "BRC";
 
   public static final String DIRECTORY = "DIR";
