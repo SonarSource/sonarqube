@@ -44,7 +44,6 @@ public class EsJvmOptionsTest {
       "-XX:CMSInitiatingOccupancyFraction=75",
       "-XX:+UseCMSInitiatingOccupancyOnly",
       "-XX:+AlwaysPreTouch",
-      "-server",
       "-Xss1m",
       "-Djava.awt.headless=true",
       "-Dfile.encoding=UTF-8",
@@ -77,7 +76,6 @@ public class EsJvmOptionsTest {
         "-XX:CMSInitiatingOccupancyFraction=75\n" +
         "-XX:+UseCMSInitiatingOccupancyOnly\n" +
         "-XX:+AlwaysPreTouch\n" +
-        "-server\n" +
         "-Xss1m\n" +
         "-Djava.awt.headless=true\n" +
         "-Dfile.encoding=UTF-8\n" +

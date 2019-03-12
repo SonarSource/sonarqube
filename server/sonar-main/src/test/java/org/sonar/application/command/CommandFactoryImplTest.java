@@ -136,7 +136,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getPort()).isEqualTo(9001);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
-      .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
+      .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
     File esConfDir = new File(tempDir, "conf/es");
@@ -169,7 +169,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getPort()).isEqualTo(9001);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
-      .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
+      .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
     File esConfDir = new File(tempDir, "conf/es");
@@ -201,7 +201,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getPort()).isEqualTo(1234);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
-      .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
+      .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
       // user settings
       .contains("-Xms10G", "-Xmx10G")
       // default values disabled

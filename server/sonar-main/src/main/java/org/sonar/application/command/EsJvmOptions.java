@@ -44,7 +44,6 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     res.put("-XX:CMSInitiatingOccupancyFraction=", "75");
     res.put("-XX:+UseCMSInitiatingOccupancyOnly", "");
     res.put("-XX:+AlwaysPreTouch", "");
-    res.put("-server", "");
     res.put("-Xss", "1m");
     res.put("-Djava.awt.headless=", "true");
     res.put("-Dfile.encoding=", "UTF-8");
