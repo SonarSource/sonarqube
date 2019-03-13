@@ -38,6 +38,8 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectByKeysAndComponentIds(@Param("keys") List<String> keys, @Param("componentIds") List<Long> componentIds);
 
+  List<PropertyDto> selectByKeyAndUserIdAndComponentQualifier(@Param("key") String key, @Param("userId") int userId, @Param("qualifier") String qualifier);
+
   List<PropertyDto> selectByComponentIds(@Param("componentIds") List<Long> componentIds);
 
   List<PropertyDto> selectByQuery(@Param("query") PropertyQuery query);

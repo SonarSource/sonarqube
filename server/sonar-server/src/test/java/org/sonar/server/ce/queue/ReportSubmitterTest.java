@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
@@ -43,7 +44,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.component.NewComponent;
+import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -54,13 +55,13 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.IntStream.rangeClosed;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -68,7 +69,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
@@ -84,14 +84,16 @@ public class ReportSubmitterTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
 
   private String defaultOrganizationKey;
   private String defaultOrganizationUuid;
+
   private CeQueue queue = mock(CeQueueImpl.class);
-  private ComponentUpdater componentUpdater = mock(ComponentUpdater.class);
+  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-  private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
+  private ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
+    new FavoriteUpdater(db.getDbClient()), projectIndexers);
   private BranchSupport ossEditionBranchSupport = new BranchSupport();
 
   private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport);
@@ -107,10 +109,7 @@ public class ReportSubmitterTest {
     userSession
       .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.create(any(), any(), any())).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
     Map<String, String> nonEmptyCharacteristics = IntStream.range(0, 1 + new Random().nextInt(5))
@@ -129,17 +128,13 @@ public class ReportSubmitterTest {
     userSession
       .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.createWithoutCommit(any(), any(), any())).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verifyReportIsPersisted(TASK_UUID);
-    verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(project));
   }
 
   @Test
@@ -153,7 +148,6 @@ public class ReportSubmitterTest {
 
     verifyReportIsPersisted(TASK_UUID);
     verifyZeroInteractions(permissionTemplateService);
-    verifyZeroInteractions(favoriteUpdater);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
       && submit.getComponent().filter(cpt -> cpt.getUuid().equals(project.uuid()) && cpt.getMainComponentUuid().equals(project.uuid())).isPresent()
       && submit.getSubmitterUuid().equals(user.getUuid())
@@ -166,32 +160,42 @@ public class ReportSubmitterTest {
     userSession
       .addPermission(OrganizationPermission.SCAN, organization.getUuid())
       .addPermission(PROVISION_PROJECTS, organization);
-
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto createdProject = newPrivateProjectDto(organization, PROJECT_UUID).setDbKey(PROJECT_KEY);
-    when(componentUpdater.createWithoutCommit(any(), any(), isNull())).thenReturn(createdProject);
-    when(
-      permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY)))
-        .thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 
+    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(PROJECT_UUID) && cpt.getMainComponentUuid().equals(PROJECT_UUID)).isPresent()
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getMainComponentUuid().equals(createdProject.uuid())).isPresent()
       && submit.getUuid().equals(TASK_UUID)));
-    verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(createdProject));
   }
 
   @Test
-  public void no_favorite_when_no_project_creator_permission_on_permission_template() {
+  public void add_project_as_favorite_when_project_creator_permission_on_permission_template() {
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization = db.organizations().insert();
+    userSession
+      .logIn(user)
+      .addPermission(OrganizationPermission.SCAN, organization.getUuid())
+      .addPermission(PROVISION_PROJECTS, organization);
+    mockSuccessfulPrepareSubmitCall();
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY))).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
+
+    underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
+
+    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    assertThat(db.favorites().hasFavorite(createdProject, user.getId())).isTrue();
+  }
+
+  @Test
+  public void do_no_add_favorite_when_no_project_creator_permission_on_permission_template() {
     userSession
       .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    ComponentDto createdProject = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
-    when(componentUpdater.createWithoutCommit(any(), any(), isNull())).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(false);
@@ -199,8 +203,27 @@ public class ReportSubmitterTest {
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 
-    verifyZeroInteractions(favoriteUpdater);
-    verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(createdProject));
+    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    assertThat(db.favorites().hasNoFavorite(createdProject)).isTrue();
+  }
+
+  @Test
+  public void do_no_add_favorite_when_already_100_favorite_projects_and_no_project_creator_permission_on_permission_template() {
+    UserDto user = db.users().insertUser();
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    OrganizationDto organization = db.organizations().insert();
+    userSession
+      .logIn(user)
+      .addPermission(OrganizationPermission.SCAN, organization.getUuid())
+      .addPermission(PROVISION_PROJECTS, organization);
+    mockSuccessfulPrepareSubmitCall();
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY))).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
+
+    underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
+
+    ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    assertThat(db.favorites().hasNoFavorite(createdProject)).isTrue();
   }
 
   @Test
@@ -208,17 +231,13 @@ public class ReportSubmitterTest {
     userSession
       .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
       .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.createWithoutCommit(any(), any(), any())).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
-    verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(project));
   }
 
   @Test
@@ -250,10 +269,8 @@ public class ReportSubmitterTest {
   @Test
   public void project_branch_must_not_benefit_from_the_scan_permission_on_main_project() {
     String branchName = "branchFoo";
-
     ComponentDto mainProject = db.components().insertPrivateProject();
     userSession.addProjectPermission(GlobalPermissions.SCAN_EXECUTION, mainProject);
-
     // user does not have the "scan" permission on the branch, so it can't scan it
     ComponentDto branchProject = db.components().insertPrivateProject(p -> p.setDbKey(mainProject.getDbKey() + ":" + branchName));
 
@@ -321,7 +338,6 @@ public class ReportSubmitterTest {
     ComponentDto component = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     userSession.addProjectPermission(SCAN_EXECUTION, component);
     mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
 
     expectedException.expect(ForbiddenException.class);
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));

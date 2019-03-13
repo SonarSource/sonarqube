@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -39,6 +40,7 @@ import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 
+import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -214,14 +216,31 @@ public class ComponentUpdaterTest {
       .setName(DEFAULT_PROJECT_NAME)
       .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .build();
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class)))
+      .thenReturn(true);
+
+    ComponentDto dto = underTest.create(db.getSession(), project, userDto.getId());
+
+    assertThat(db.favorites().hasFavorite(dto, userDto.getId())).isTrue();
+  }
+
+  @Test
+  public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
+    UserDto user = db.users().insertUser();
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ComponentDto.class)))
       .thenReturn(true);
 
     ComponentDto dto = underTest.create(db.getSession(),
       project,
-      userDto.getId());
+      user.getId());
 
-    assertThat(db.favorites().hasFavorite(dto, userDto.getId())).isTrue();
+    assertThat(db.favorites().hasFavorite(dto, user.getId())).isFalse();
   }
 
   @Test

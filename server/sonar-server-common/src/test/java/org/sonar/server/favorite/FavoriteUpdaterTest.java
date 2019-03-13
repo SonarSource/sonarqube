@@ -19,32 +19,25 @@
  */
 package org.sonar.server.favorite;
 
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FavoriteUpdaterTest {
-  private static final long COMPONENT_ID = 23L;
-  private static final String COMPONENT_KEY = "K1";
-  private static final ComponentDto COMPONENT = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto())
-    .setId(COMPONENT_ID)
-    .setDbKey(COMPONENT_KEY);
-  private static final int USER_ID = 42;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -53,42 +46,94 @@ public class FavoriteUpdaterTest {
 
   @Test
   public void put_favorite() {
-    assertNoFavorite();
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    assertNoFavorite(project, user);
 
-    underTest.add(dbSession, COMPONENT, USER_ID);
+    underTest.add(dbSession, project, user.getId(), true);
 
-    assertFavorite();
+    assertFavorite(project, user);
   }
 
   @Test
   public void do_nothing_when_no_user() {
-    underTest.add(dbSession, COMPONENT, null);
+    ComponentDto project = db.components().insertPrivateProject();
 
-    assertNoFavorite();
+    underTest.add(dbSession, project, null, true);
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setComponentId(project.getId())
+      .build(), dbSession)).isEmpty();
+  }
+
+  @Test
+  public void do_not_add_favorite_when_already_100_favorite_projects() {
+    UserDto user = db.users().insertUser();
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setUserId(user.getId())
+      .build(), dbSession)).hasSize(100);
+    ComponentDto project = db.components().insertPrivateProject();
+
+    underTest.add(dbSession, project, user.getId(), false);
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setUserId(user.getId())
+      .build(), dbSession)).hasSize(100);
+  }
+
+  @Test
+  public void do_not_add_favorite_when_already_100_favorite_portfolios() {
+    UserDto user = db.users().insertUser();
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setUserId(user.getId())
+      .build(), dbSession)).hasSize(100);
+    ComponentDto project = db.components().insertPrivateProject();
+
+    underTest.add(dbSession, project, user.getId(), false);
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setUserId(user.getId())
+      .build(), dbSession)).hasSize(100);
+  }
+
+  @Test
+  public void fail_when_more_than_100_projects_favorites() {
+    UserDto user = db.users().insertUser();
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    ComponentDto project = db.components().insertPrivateProject();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("You cannot have more than 100 favorites on components with qualifier 'TRK'");
+
+    underTest.add(dbSession, project, user.getId(), true);
   }
 
   @Test
   public void fail_when_adding_existing_favorite() {
-    underTest.add(dbSession, COMPONENT, USER_ID);
-    assertFavorite();
+    ComponentDto project = db.components().insertPrivateProject();
+    UserDto user = db.users().insertUser();
+    underTest.add(dbSession, project, user.getId(), true);
+    assertFavorite(project, user);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component 'K1' is already a favorite");
+    expectedException.expectMessage(String.format("Component '%s' is already a favorite", project.getKey()));
 
-    underTest.add(dbSession, COMPONENT, USER_ID);
+    underTest.add(dbSession, project, user.getId(), true);
   }
 
-  private void assertFavorite() {
+  private void assertFavorite(ComponentDto project, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(USER_ID)
-      .setComponentId(COMPONENT_ID)
+      .setUserId(user.getId())
+      .setComponentId(project.getId())
       .build(), dbSession)).hasSize(1);
   }
 
-  private void assertNoFavorite() {
+  private void assertNoFavorite(ComponentDto project, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(USER_ID)
-      .setComponentId(COMPONENT_ID)
+      .setUserId(user.getId())
+      .setComponentId(project.getId())
       .build(), dbSession)).isEmpty();
   }
 }

@@ -40,6 +40,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
@@ -52,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
+import static org.sonar.db.property.PropertyTesting.newPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
 @RunWith(DataProviderRunner.class)
@@ -401,12 +403,33 @@ public class PropertiesDaoTest {
       newComponentPropertyDto("another key", "value", project1));
 
     assertThat(underTest.selectByKeyAndMatchingValue(db.getSession(), "key", "value"))
-    .extracting(PropertyDto::getValue, PropertyDto::getResourceId)
-    .containsExactlyInAnyOrder(
-      tuple("value", project1.getId()),
-      tuple("value", project2.getId()),
-      tuple("value", null)
-    );
+      .extracting(PropertyDto::getValue, PropertyDto::getResourceId)
+      .containsExactlyInAnyOrder(
+        tuple("value", project1.getId()),
+        tuple("value", project2.getId()),
+        tuple("value", null));
+  }
+
+  @Test
+  public void selectByKeyAndUserIdAndComponentQualifier() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto file1 = db.components().insertComponent(ComponentTesting.newFileDto(project1));
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.properties().insertProperties(
+      newPropertyDto("key", "1", project1, user1),
+      newPropertyDto("key", "2", project2, user1),
+      newPropertyDto("key", "3", file1, user1),
+      newPropertyDto("another key", "4", project1, user1),
+      newPropertyDto("key", "5", project1, user2),
+      newGlobalPropertyDto("key", "global"));
+
+    assertThat(underTest.selectByKeyAndUserIdAndComponentQualifier(db.getSession(), "key", user1.getId(), "TRK"))
+      .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("1", "2");
+    assertThat(underTest.selectByKeyAndUserIdAndComponentQualifier(db.getSession(), "key", user1.getId(), "FIL"))
+      .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("3");
+    assertThat(underTest.selectByKeyAndUserIdAndComponentQualifier(db.getSession(), "key", user2.getId(), "FIL")).isEmpty();
   }
 
   @Test

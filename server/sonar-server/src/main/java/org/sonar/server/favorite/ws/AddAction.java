@@ -61,10 +61,12 @@ public class AddAction implements FavoritesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("add")
       .setDescription("Add a component (project, file etc.) as favorite for the authenticated user.<br>" +
+        "Only 100 components by qualifier can be added as favorite.<br>" +
         "Requires authentication and the following permission: 'Browse' on the project of the specified component.")
       .setSince("6.3")
       .setChangelog(
-        new Change("7.7", "It's no more possible to set a directory as favorite"),
+        new Change("7.7", "It's no longer possible to have more than 100 favorites by qualifier"),
+        new Change("7.7", "It's no longer possible to set a directory as favorite"),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setPost(true)
       .setHandler(this);
@@ -89,7 +91,7 @@ public class AddAction implements FavoritesWsAction {
         userSession
           .checkLoggedIn()
           .checkComponentPermission(USER, componentDto);
-        favoriteUpdater.add(dbSession, componentDto, userSession.isLoggedIn() ? userSession.getUserId() : null);
+        favoriteUpdater.add(dbSession, componentDto, userSession.isLoggedIn() ? userSession.getUserId() : null, true);
         dbSession.commit();
       }
     };

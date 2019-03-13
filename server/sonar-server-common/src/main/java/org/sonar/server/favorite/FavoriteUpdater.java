@@ -41,7 +41,7 @@ public class FavoriteUpdater {
   /**
    * Set favorite to the logged in user. If no user, no action is done
    */
-  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable Integer userId) {
+  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable Integer userId, boolean failIfTooManyFavorites) {
     if (userId == null) {
       return;
     }
@@ -52,6 +52,12 @@ public class FavoriteUpdater {
       .setComponentId(componentDto.getId())
       .build(), dbSession);
     checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getDbKey());
+
+    List<PropertyDto> existingFavorites = dbClient.propertiesDao().selectByKeyAndUserIdAndComponentQualifier(dbSession, PROP_FAVORITE_KEY, userId, componentDto.qualifier());
+    if (existingFavorites.size() >= 100) {
+      checkArgument(!failIfTooManyFavorites, "You cannot have more than 100 favorites on components with qualifier '%s'", componentDto.qualifier());
+      return;
+    }
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(componentDto.getId())

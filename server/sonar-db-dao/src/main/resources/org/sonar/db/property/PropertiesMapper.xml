@@ -128,6 +128,17 @@
       and p.user_id is null
   </select>
 
+  <select id="selectByKeyAndUserIdAndComponentQualifier" parameterType="map" resultType="ScrapProperty">
+    select
+    <include refid="columnsToScrapPropertyDto"/>
+    from
+    properties p
+      inner join projects prj on prj.id=p.resource_id and prj.qualifier = #{qualifier, jdbcType=VARCHAR}
+    where
+      p.prop_key = #{key, jdbcType=VARCHAR}
+      and p.user_id = #{userId, jdbcType=INTEGER}
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>

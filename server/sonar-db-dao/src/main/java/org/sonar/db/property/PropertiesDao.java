@@ -160,6 +160,10 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectByKeyAndMatchingValue(key, value);
   }
 
+  public List<PropertyDto> selectByKeyAndUserIdAndComponentQualifier(DbSession session, String key, int userId, String qualifier) {
+    return getMapper(session).selectByKeyAndUserIdAndComponentQualifier(key, userId, qualifier);
+  }
+
   /**
    * Saves the specified property and its value.
    * <p>

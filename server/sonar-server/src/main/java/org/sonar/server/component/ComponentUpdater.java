@@ -72,7 +72,7 @@ public class ComponentUpdater {
    * - Create component
    * - Apply default permission template
    * - Add component to favorite if the component has the 'Project Creators' permission
-   * - Index component if es indexes
+   * - Index component in es indexes
    */
   public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable Integer userId) {
     ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userId);
@@ -131,16 +131,14 @@ public class ComponentUpdater {
       && MAIN_BRANCH_QUALIFIERS.contains(componentDto.qualifier());
   }
 
-  private BranchDto createMainBranch(DbSession session, String componentUuid) {
+  private void createMainBranch(DbSession session, String componentUuid) {
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.LONG)
       .setUuid(componentUuid)
       .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
       .setMergeBranchUuid(null)
       .setProjectUuid(componentUuid);
-
     dbClient.branchDao().upsert(session, branch);
-    return branch;
   }
 
   /**
@@ -160,7 +158,7 @@ public class ComponentUpdater {
     permissionTemplateService.applyDefault(dbSession, componentDto, userId);
     if (componentDto.qualifier().equals(PROJECT)
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, componentDto)) {
-      favoriteUpdater.add(dbSession, componentDto, userId);
+      favoriteUpdater.add(dbSession, componentDto, userId, false);
     }
   }
 
