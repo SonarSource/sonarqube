@@ -31,6 +31,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
+import static org.sonar.api.CoreProperties.BUILD_STRING_PROPERTY;
 import static org.sonar.api.CoreProperties.CODE_PERIOD_VERSION_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_VERSION_PROPERTY;
 
@@ -46,6 +47,7 @@ public class ProjectInfo implements Startable {
   private Date analysisDate;
   private String projectVersion;
   private String codePeriodVersion;
+  private String buildString;
 
   public ProjectInfo(Configuration settings, Clock clock) {
     this.settings = settings;
@@ -62,6 +64,10 @@ public class ProjectInfo implements Startable {
 
   public Optional<String> getCodePeriodVersion() {
     return Optional.ofNullable(codePeriodVersion);
+  }
+
+  public Optional<String> getBuildString() {
+    return Optional.ofNullable(buildString);
   }
 
   private Date loadAnalysisDate() {
@@ -88,19 +94,23 @@ public class ProjectInfo implements Startable {
     this.analysisDate = loadAnalysisDate();
     this.projectVersion = settings.get(PROJECT_VERSION_PROPERTY)
       .map(StringUtils::trimToNull)
-      .filter(validateVersion("project"))
+      .filter(validateLengthLimit("project version"))
       .orElse(null);
     this.codePeriodVersion = settings.get(CODE_PERIOD_VERSION_PROPERTY)
       .map(StringUtils::trimToNull)
-      .filter(validateVersion("codePeriod"))
+      .filter(validateLengthLimit("codePeriod version"))
       .orElse(projectVersion);
+    this.buildString = settings.get(BUILD_STRING_PROPERTY)
+      .map(StringUtils::trimToNull)
+      .filter(validateLengthLimit("buildString"))
+      .orElse(null);
   }
 
-  private static Predicate<String> validateVersion(String versionLabel) {
-    return version -> {
-      if (version.length() > 100) {
-        throw MessageException.of(format("\"%s\" is not a valid %s version. " +
-          "The maximum length is 100 characters.", version, versionLabel));
+  private static Predicate<String> validateLengthLimit(String label) {
+    return value -> {
+      if (value.length() > 100) {
+        throw MessageException.of(format("\"%s\" is not a valid %s. " +
+          "The maximum length is 100 characters.", value, label));
       }
       return true;
     };

@@ -243,6 +243,33 @@ public class MetadataPublisherTest {
   }
 
   @Test
+  @UseDataProvider("buildStrings")
+  public void write_buildString(@Nullable String buildString, String expected) throws Exception {
+    when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(buildString));
+    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
+
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    underTest.publish(writer);
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getBuildString()).isEqualTo(expected);
+  }
+
+  @DataProvider
+  public static Object[][] buildStrings() {
+    String randomBuildString = randomAlphabetic(15);
+    return new Object[][] {
+      {null, ""},
+      {"", ""},
+      {"5.6.3", "5.6.3"},
+      {randomBuildString, randomBuildString}
+    };
+  }
+
+  @Test
   public void write_long_lived_branch_info() throws Exception {
     String branchName = "long-lived";
     when(branches.branchName()).thenReturn(branchName);

@@ -90,6 +90,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setRootComponentRef(rootProject.scannerId());
     projectInfo.getProjectVersion().ifPresent(builder::setProjectVersion);
     projectInfo.getCodePeriodVersion().ifPresent(builder::setCodePeriodVersion);
+    projectInfo.getBuildString().ifPresent(builder::setBuildString);
 
     properties.organizationKey().ifPresent(builder::setOrganizationKey);
 

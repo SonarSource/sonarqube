@@ -51,6 +51,7 @@ message Metadata {
 
   string projectVersion = 16;
   string codePeriodVersion = 17;
+  string buildString = 18;
 
   message QProfile {
     string key = 1;

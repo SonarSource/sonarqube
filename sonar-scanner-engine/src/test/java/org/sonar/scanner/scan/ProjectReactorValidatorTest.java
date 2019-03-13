@@ -248,6 +248,24 @@ public class ProjectReactorValidatorTest {
     };
   }
 
+  @Test
+  @UseDataProvider("validBuildStrings")
+  public void not_fail_with_valid_buildString(String validBuildString) {
+    when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(validBuildString));
+
+    underTest.validate(createProjectReactor("foo"));
+  }
+
+  @DataProvider
+  public static Object[][] validBuildStrings() {
+    return new Object[][] {
+      {null},
+      {"1.0"},
+      {"2017-10-16"},
+      {randomAscii(100)}
+    };
+  }
+
   private ProjectReactor createProjectReactor(String projectKey, String branch) {
     return createProjectReactor(projectKey, def -> def
       .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch));

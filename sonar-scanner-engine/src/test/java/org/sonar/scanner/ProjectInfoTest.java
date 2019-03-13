@@ -99,6 +99,19 @@ public class ProjectInfoTest {
   }
 
   @Test
+  public void fail_with_too_long_buildString() {
+    String buildString = randomAlphabetic(101);
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("\"" + buildString + "\" is not a valid buildString. " +
+      "The maximum length is 100 characters.");
+
+    underTest.start();
+  }
+
+  @Test
   @UseDataProvider("projectVersions")
   public void getCodePeriodVersion_has_value_of_projectVersion_if_property_is_unset(@Nullable String projectVersion) {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
