@@ -11,6 +11,7 @@ Here is the list of all the languages currently supported in SonarCloud :
 * [C++](https://redirect.sonarsource.com/plugins/cpp.html)
 * [C#](https://redirect.sonarsource.com/plugins/csharp.html)
 * [Objective-C](https://redirect.sonarsource.com/plugins/objectivec.html)
+* [COBOL](https://redirect.sonarsource.com/plugins/cobol.html)
 * [CSS](https://redirect.sonarsource.com/plugins/css.html)
 * [Flex](https://redirect.sonarsource.com/plugins/flex.html)
 * [Go](https://redirect.sonarsource.com/plugins/go.html)
