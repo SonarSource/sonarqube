@@ -19,9 +19,9 @@
  */
 package org.sonarqube.tests.issue;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
@@ -32,6 +32,7 @@ import util.ItUtils;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.formatDate;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.toDate;
@@ -40,9 +41,8 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
   private static final String SAMPLE_PROJECT_KEY = "sample";
 
-  private static final String OLD_DATE = "2014-03-01";
-  private static final Date NEW_DATE = new Date();
-  private static final String NEW_DATE_STR = new SimpleDateFormat("yyyy-MM-dd").format(NEW_DATE);
+  private static final String OLD_DATE = formatDate(DateUtils.addDays(new Date(), -30));
+  private static final String NOW = formatDate(new Date());
 
   private static WsClient adminClient;
 
@@ -68,7 +68,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
     // version 2
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
-      "sonar.projectDate", NEW_DATE_STR,
+      "sonar.projectDate", NOW,
       "sonar.exclusions", "**/*.xoo");
 
     issues = searchIssues(new SearchWsRequest().setProjectKeys(singletonList("sample"))).getIssuesList();
@@ -95,7 +95,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
     // version 2
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v2",
-      "sonar.projectDate", NEW_DATE_STR);
+      "sonar.projectDate", NOW);
 
     issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
     assertThat(issues).hasSize(3);
@@ -179,7 +179,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
     // version 2
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v3",
-      "sonar.projectDate", NEW_DATE_STR);
+      "sonar.projectDate", NOW);
 
     assertThat(searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo")).isEmpty();
 
