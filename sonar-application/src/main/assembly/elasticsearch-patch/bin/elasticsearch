@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# CONTROLLING STARTUP:
+#
+# This script relies on a few environment variables to determine startup
+# behavior, those variables are:
+#
+#   ES_PATH_CONF -- Path to config directory
+#   ES_JAVA_OPTS -- External Java Opts on top of the defaults set
+#
+# Optionally, exact memory values can be set using the `ES_JAVA_OPTS`. Note that
+# the Xms and Xmx lines in the JVM options file must be commented out. Example
+# values are "512m", and "10g".
+#
+#   ES_JAVA_OPTS="-Xms8g -Xmx8g" ./bin/elasticsearch
+
+source "`dirname "$0"`"/elasticsearch-env
+
+ES_JVM_OPTIONS="$ES_PATH_CONF"/jvm.options
+#### SQ WORKAROUND https://github.com/elastic/elasticsearch/issues/39965 ####
+# ES relies on JvmOptionsParser to apply Java version specific options. SQ does not need that because it generates
+# the content of the jvm.options file depending on Java version already.
+#
+# Also, ES accepts extra JVM options specified with ES_JAVA_OPTS env variable. SQ silences this env variable to enforce
+# end users specify ES JVM options with "sonar.search.javaOpts" and "sonar.search.javaAdditionalOpt". Workaround drops
+# supports for ES_JAVA_OPTS as it just make things simpler.
+#
+# Below we read content of file "$ES_JVM_OPTIONS" directly in bash, ignoring comments and empty lines and build
+# a JVM_OPTIONS array. We later use "${JVM_OPTIONS[@]}" instead of $ES_JAVA_OPTS to benefit from built-in escaping of
+# each array value when building the Java command line.
+#
+# Note: "|| [[ "$line" ]]" below is required to support jvm.options file not ending with an empty line
+JVM_OPTIONS=()
+while read -r line || [[ "$line" ]]; do
+  # ignore empty or comment lines
+  if [[ -z "$line" ]] || [[ $line =~ ^#.* ]]; then
+    continue
+  fi
+  JVM_OPTIONS+=("$line")
+done < "$ES_JVM_OPTIONS"
+
+cd "$ES_HOME"
+# manual parsing to find out, if process should be detached
+if ! echo $* | grep -E '(^-d |-d$| -d |--daemonize$|--daemonize )' > /dev/null; then
+  exec \
+    "$JAVA" \
+    "${JVM_OPTIONS[@]}" \
+    -Des.path.home="$ES_HOME" \
+    -Des.path.conf="$ES_PATH_CONF" \
+    -Des.distribution.flavor="$ES_DISTRIBUTION_FLAVOR" \
+    -Des.distribution.type="$ES_DISTRIBUTION_TYPE" \
+    -cp "$ES_CLASSPATH" \
+    org.elasticsearch.bootstrap.Elasticsearch \
+    "$@"
+else
+  exec \
+    "$JAVA" \
+    "${JVM_OPTIONS[@]}" \
+    -Des.path.home="$ES_HOME" \
+    -Des.path.conf="$ES_PATH_CONF" \
+    -Des.distribution.flavor="$ES_DISTRIBUTION_FLAVOR" \
+    -Des.distribution.type="$ES_DISTRIBUTION_TYPE" \
+    -cp "$ES_CLASSPATH" \
+    org.elasticsearch.bootstrap.Elasticsearch \
+    "$@" \
+    <&- &
+  retval=$?
+  pid=$!
+  [ $retval -eq 0 ] || exit $retval
+  if [ ! -z "$ES_STARTUP_SLEEP_TIME" ]; then
+    sleep $ES_STARTUP_SLEEP_TIME
+  fi
+  if ! ps -p $pid > /dev/null ; then
+    exit 1
+  fi
+  exit 0
+fi
+
+exit $?

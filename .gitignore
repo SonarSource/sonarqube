@@ -22,6 +22,7 @@ out/
 # Directories generated on build on Windows
 bin/
 !sonar-application/src/main/assembly/elasticsearch/**/bin/
+!sonar-application/src/main/assembly/elasticsearch-patch/**/bin/
 
 # npm logs
 npm-debug.log*

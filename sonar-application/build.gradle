@@ -92,7 +92,9 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
 
   into("${archiveDir}/") {
     from file('src/main/assembly')
-      // no windows related binaries are packaged since we start ES on windows directly with java -jar
+      exclude 'elasticsearch-patch'
+      // elasticsearch script will be replaced by patched version below
+      exclude 'elasticsearch/bin/elasticsearch'
       exclude 'elasticsearch/bin/elasticsearch.bat'
       exclude 'elasticsearch/bin/elasticsearch-env.bat'
       exclude 'elasticsearch/bin/elasticsearch-service.bat'
@@ -122,6 +124,10 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
       exclude 'elasticsearch/modules/rank-eval/**'
       exclude 'elasticsearch/modules/tribe/**'
       exclude 'elasticsearch/modules/x-pack-*/**'
+  }
+  into("${archiveDir}/elasticsearch/") {
+    from file('src/main/assembly/elasticsearch-patch')
+      include 'bin/elasticsearch'
   }
   // Create the empty dir (plugins) required by elasticsearch
   into("${archiveDir}/elasticsearch/") {
