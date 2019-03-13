@@ -35,6 +35,7 @@ import { isDiffMetric, getPeriodValue } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { getProjectUrl } from '../../../helpers/urls';
 import { getMeasures } from '../../../api/measures';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branchLike?: T.BranchLike;
@@ -335,8 +336,9 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                     {!isFile &&
                       metric && (
                         <>
+                          <div>{translate('component_measures.view_as')}</div>
                           <MeasureViewSelect
-                            className="measure-view-select big-spacer-right"
+                            className="measure-view-select spacer-left big-spacer-right"
                             handleViewChange={this.updateView}
                             metric={metric}
                             view={view}

@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/component_measures",
+      "query": Object {
+        "id": "project123",
+        "metric": "other",
+        "view": "list",
+      },
+    }
+  }
+>
+  label
+</Link>
+`;
+
+exports[`should render issuesLink correctly 1`] = `
+<Link
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "project123",
+        "resolved": "false",
+      },
+    }
+  }
+>
+  label
+</Link>
+`;

@@ -114,11 +114,15 @@ export function getComponentDrilldownUrl(options: {
   branchLike?: T.BranchLike;
   selectionKey?: string;
   treemapView?: boolean;
+  listView?: boolean;
 }): Location {
-  const { componentKey, metric, branchLike, selectionKey, treemapView } = options;
+  const { componentKey, metric, branchLike, selectionKey, treemapView, listView } = options;
   const query: Query = { id: componentKey, metric, ...getBranchLikeQuery(branchLike) };
   if (treemapView) {
     query.view = 'treemap';
+  }
+  if (listView) {
+    query.view = 'list';
   }
   if (selectionKey) {
     query.selected = selectionKey;

@@ -47,6 +47,29 @@ const ISSUE_MEASURES = [
   'new_vulnerabilities'
 ];
 
+const issueParamsPerMetric: { [key: string]: { [key: string]: string } } = {
+  blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
+  new_blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
+  critical_violations: { resolved: 'false', severities: 'CRITICAL' },
+  new_critical_violations: { resolved: 'false', severities: 'CRITICAL' },
+  major_violations: { resolved: 'false', severities: 'MAJOR' },
+  new_major_violations: { resolved: 'false', severities: 'MAJOR' },
+  minor_violations: { resolved: 'false', severities: 'MINOR' },
+  new_minor_violations: { resolved: 'false', severities: 'MINOR' },
+  info_violations: { resolved: 'false', severities: 'INFO' },
+  new_info_violations: { resolved: 'false', severities: 'INFO' },
+  open_issues: { resolved: 'false', statuses: 'OPEN' },
+  reopened_issues: { resolved: 'false', statuses: 'REOPENED' },
+  confirmed_issues: { resolved: 'false', statuses: 'CONFIRMED' },
+  false_positive_issues: { resolutions: 'FALSE-POSITIVE' },
+  code_smells: { resolved: 'false', types: 'CODE_SMELL' },
+  new_code_smells: { resolved: 'false', types: 'CODE_SMELL' },
+  bugs: { resolved: 'false', types: 'BUG' },
+  new_bugs: { resolved: 'false', types: 'BUG' },
+  vulnerabilities: { resolved: 'false', types: 'VULNERABILITY' },
+  new_vulnerabilities: { resolved: 'false', types: 'VULNERABILITY' }
+};
+
 interface Props {
   branchLike?: T.BranchLike;
   children?: React.ReactNode;
@@ -62,60 +85,14 @@ export default class DrilldownLink extends React.PureComponent<Props> {
   };
 
   propsToIssueParams = () => {
-    const params: { [key: string]: string | boolean } = {};
+    const params: { [key: string]: string | boolean } = {
+      ...(issueParamsPerMetric[this.props.metric] || { resolved: 'false' })
+    };
 
     if (this.props.sinceLeakPeriod) {
       params.sinceLeakPeriod = true;
     }
 
-    switch (this.props.metric) {
-      case 'blocker_violations':
-      case 'new_blocker_violations':
-        Object.assign(params, { resolved: 'false', severities: 'BLOCKER' });
-        break;
-      case 'critical_violations':
-      case 'new_critical_violations':
-        Object.assign(params, { resolved: 'false', severities: 'CRITICAL' });
-        break;
-      case 'major_violations':
-      case 'new_major_violations':
-        Object.assign(params, { resolved: 'false', severities: 'MAJOR' });
-        break;
-      case 'minor_violations':
-      case 'new_minor_violations':
-        Object.assign(params, { resolved: 'false', severities: 'MINOR' });
-        break;
-      case 'info_violations':
-      case 'new_info_violations':
-        Object.assign(params, { resolved: 'false', severities: 'INFO' });
-        break;
-      case 'open_issues':
-        Object.assign(params, { resolved: 'false', statuses: 'OPEN' });
-        break;
-      case 'reopened_issues':
-        Object.assign(params, { resolved: 'false', statuses: 'REOPENED' });
-        break;
-      case 'confirmed_issues':
-        Object.assign(params, { resolved: 'false', statuses: 'CONFIRMED' });
-        break;
-      case 'false_positive_issues':
-        Object.assign(params, { resolutions: 'FALSE-POSITIVE' });
-        break;
-      case 'code_smells':
-      case 'new_code_smells':
-        Object.assign(params, { resolved: 'false', types: 'CODE_SMELL' });
-        break;
-      case 'bugs':
-      case 'new_bugs':
-        Object.assign(params, { resolved: 'false', types: 'BUG' });
-        break;
-      case 'vulnerabilities':
-      case 'new_vulnerabilities':
-        Object.assign(params, { resolved: 'false', types: 'VULNERABILITY' });
-        break;
-      default:
-        Object.assign(params, { resolved: 'false' });
-    }
     return params;
   };
 
@@ -140,7 +117,8 @@ export default class DrilldownLink extends React.PureComponent<Props> {
     const url = getComponentDrilldownUrl({
       componentKey: this.props.component,
       metric: this.props.metric,
-      branchLike: this.props.branchLike
+      branchLike: this.props.branchLike,
+      listView: true
     });
     return (
       <Link className={this.props.className} to={url}>

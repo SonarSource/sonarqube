@@ -73,10 +73,6 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
     );
   };
 
-  renderValue = (value: { icon: JSX.Element }) => {
-    return value.icon;
-  };
-
   render() {
     return (
       <Select
@@ -88,7 +84,7 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
         options={this.getOptions()}
         searchable={false}
         value={this.props.view}
-        valueRenderer={this.renderValue}
+        valueRenderer={this.renderOption}
       />
     );
   }
