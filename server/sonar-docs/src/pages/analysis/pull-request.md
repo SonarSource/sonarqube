@@ -43,33 +43,29 @@ These parameters enable PR analysis:
 ### Pull Request Decoration
 To activate PR decoration, you need to:
 
-* declare an Authentication Token
-* specify the Pull Request provider
-* feed some provider-specific parameters
+* (For GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube -->) Specify your pull request provider<!-- sonarqube -->, create a GitHub App and configure your SonarQube instance,<!-- /sonarqube --> and set your GitHub parameters.
+* (For Azure DevOps and Bitbucket) Specify your pull request provider and set an authentication token/personal access token.
 
-#### Authentication Token
-<!-- sonarqube -->
-The first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests**. The field to configure depends on the provider.
-For GitHub Enterprise or GitHub.com, you need to configure the **Authentication token** field. For Azure DevOps or Bitbucket Server, this is the **Personal access token**.
-<!-- /sonarqube -->
-<!-- sonarcloud -->
-If you are using Azure DevOps, the first thing to configure is the authentication token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests > VSTS > Personal access token**.
-<!-- /sonarcloud -->
-
-#### Pull Request Provider
+#### Specifying Your Pull Request Provider
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
-| `sonar.pullrequest.provider` | `github`, `vsts` <!-- sonarcloud -->or `bitbucketcloud`<!-- /sonarcloud --><!-- sonarqube -->or `bitbucketserver`<!-- /sonarqube -->. This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". <!-- sonarcloud -->Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->|
+| `sonar.pullrequest.provider` | `github` or `vsts` <!-- sonarcloud -->or `bitbucketcloud`<!-- /sonarcloud -->. This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". <!-- sonarcloud -->Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->|
 
-#### GitHub Parameters
+Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
+
+<!-- sonarqube -->
+#### Creating Your GitHub App
+To add PR decoration to Checks in GitHub Enterprise, an instance administrator needs to create a GitHub App and configure your SonarQube instance. See [GitHub Enterprise Integration](/instance-administration/github-application/) for more information.
+<!-- /sonarqube -->
+
+#### Setting Your GitHub Parameters
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
 | `sonar.pullrequest.github.repository` | SLUG of the GitHub Repo |
-<!-- sonarqube -->
-| `sonar.pullrequest.github.endpoint` | The API URL for your GitHub instance.<br/> Ex.: `https://api.github.com/` or `https://github.company.com/api/v3/` |
-<!-- /sonarqube -->
 
-Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
+#### Setting Your Authentication Token/Personal Access Token
+
+If you are using Azure DevOps or Bitbucket, you need to configure the authentication token/personal access token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests > VSTS > Personal access token**.
 
 <!-- sonarcloud -->
 #### Bitbucket Cloud Parameters
