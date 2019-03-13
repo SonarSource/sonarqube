@@ -103,14 +103,7 @@ public class EsInstallation {
   }
 
   public File getExecutable() {
-    return new File(homeDirectory, "bin/" + getExecutableName());
-  }
-
-  private static String getExecutableName() {
-    if (System.getProperty("os.name").startsWith("Windows")) {
-      return "elasticsearch.bat";
-    }
-    return "elasticsearch";
+    return new File(homeDirectory, "bin/elasticsearch");
   }
 
   public File getLog4j2PropertiesLocation() {
