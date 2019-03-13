@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
+<withRouter(Connect(SQPageContainer))>
+  <Component />
+</withRouter(Connect(SQPageContainer))>
+`;

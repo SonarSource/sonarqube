@@ -90,7 +90,7 @@ export default function BranchAnalysis() {
               <img
                 alt=""
                 className="sc-branch-feature-left flex-0"
-                height="390"
+                height="432"
                 src={`${getBaseUrl()}/images/sonarcloud/branch-02.png`}
                 srcSet={`${getBaseUrl()}/images/sonarcloud/branch-02.png 1x, ${getBaseUrl()}/images/sonarcloud/branch-02@2x.png 2x`}
                 width="471"
