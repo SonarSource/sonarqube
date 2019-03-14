@@ -49,14 +49,15 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.NestedSortBuilder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.es.newindex.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
+import org.sonar.server.es.newindex.DefaultIndexSettingsElement;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
@@ -250,8 +251,9 @@ public class ProjectMeasuresIndex {
   private static void addMetricSort(ProjectMeasuresQuery query, SearchRequestBuilder requestBuilder, String sort) {
     requestBuilder.addSort(
       new FieldSortBuilder(FIELD_MEASURES_VALUE)
-        .setNestedPath(FIELD_MEASURES)
-        .setNestedFilter(termQuery(FIELD_MEASURES_KEY, sort))
+        .setNestedSort(
+          new NestedSortBuilder(FIELD_MEASURES)
+            .setFilter(termQuery(FIELD_MEASURES_KEY, sort)))
         .order(query.isAsc() ? ASC : DESC));
   }
 
