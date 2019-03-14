@@ -34,7 +34,6 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 @Immutable
 public class QualityProfiles {
 
-  public static final String SONAR_PROFILE_PROP = "sonar.profile";
   private final Map<String, QProfile> byLanguage;
 
   public QualityProfiles(Collection<QualityProfile> profiles) {

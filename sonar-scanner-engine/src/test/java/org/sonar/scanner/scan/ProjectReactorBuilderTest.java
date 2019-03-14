@@ -282,7 +282,6 @@ public class ProjectReactorBuilderTest {
     ProjectDefinition projectDefinition = loadProjectDefinition("big-multi-module-definitions-all-in-root");
 
     assertThat(projectDefinition.properties().get("module11.property")).isNull();
-    assertThat(projectDefinition.properties().get("sonar.profile")).isEqualTo("Foo");
     ProjectDefinition module1 = null;
     ProjectDefinition module2 = null;
     for (ProjectDefinition prj : projectDefinition.getSubProjects()) {
@@ -294,10 +293,8 @@ public class ProjectReactorBuilderTest {
     }
     assertThat(module1.properties().get("module11.property")).isNull();
     assertThat(module1.properties().get("property")).isNull();
-    assertThat(module1.properties().get("sonar.profile")).isEqualTo("Foo");
     assertThat(module2.properties().get("module11.property")).isNull();
     assertThat(module2.properties().get("property")).isNull();
-    assertThat(module2.properties().get("sonar.profile")).isEqualTo("Foo");
 
     ProjectDefinition module11 = null;
     ProjectDefinition module12 = null;
@@ -311,10 +308,8 @@ public class ProjectReactorBuilderTest {
     assertThat(module11.properties().get("module1.module11.property")).isNull();
     assertThat(module11.properties().get("module11.property")).isNull();
     assertThat(module11.properties().get("property")).isEqualTo("My module11 property");
-    assertThat(module11.properties().get("sonar.profile")).isEqualTo("Foo");
     assertThat(module12.properties().get("module11.property")).isNull();
     assertThat(module12.properties().get("property")).isNull();
-    assertThat(module12.properties().get("sonar.profile")).isEqualTo("Foo");
   }
 
   @Test

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.scan.ScanProperties;
@@ -52,20 +51,20 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   }
 
   @Override
-  public List<QualityProfile> loadDefault(@Nullable String profileName) {
+  public List<QualityProfile> loadDefault() {
     StringBuilder url = new StringBuilder(WS_URL + "?defaults=true");
-    return handleErrors(profileName, url, () -> "Failed to load the default quality profiles");
+    return handleErrors(url, () -> "Failed to load the default quality profiles");
   }
 
   @Override
-  public List<QualityProfile> load(String projectKey, @Nullable String profileName) {
+  public List<QualityProfile> load(String projectKey) {
     StringBuilder url = new StringBuilder(WS_URL + "?projectKey=").append(encodeForUrl(projectKey));
-    return handleErrors(profileName, url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey));
+    return handleErrors(url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey));
   }
 
-  private List<QualityProfile> handleErrors(@Nullable String profileName, StringBuilder url, Supplier<String> errorMsg) {
+  private List<QualityProfile> handleErrors(StringBuilder url, Supplier<String> errorMsg) {
     try {
-      return loadAndOverrideIfNeeded(profileName, url);
+      return doLoad(url);
     } catch (HttpException e) {
       if (e.code() == 404) {
         throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
@@ -78,16 +77,10 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     }
   }
 
-  private List<QualityProfile> loadAndOverrideIfNeeded(@Nullable String profileName, StringBuilder url) throws IOException {
+  private List<QualityProfile> doLoad(StringBuilder url) throws IOException {
     properties.organizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
     Map<String, QualityProfile> result = call(url.toString());
 
-    if (profileName != null) {
-      StringBuilder urlForName = new StringBuilder(WS_URL + "?profileName=");
-      urlForName.append(encodeForUrl(profileName));
-      properties.organizationKey().ifPresent(k -> urlForName.append("&organization=").append(encodeForUrl(k)));
-      result.putAll(call(urlForName.toString()));
-    }
     if (result.isEmpty()) {
       throw MessageException.of("No quality profiles have been found, you probably don't have any language plugin installed.");
     }

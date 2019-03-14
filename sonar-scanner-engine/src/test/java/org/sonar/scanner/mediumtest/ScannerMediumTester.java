@@ -446,12 +446,12 @@ public class ScannerMediumTester extends ExternalResource {
     }
 
     @Override
-    public List<QualityProfile> load(String projectKey, String profileName) {
+    public List<QualityProfile> load(String projectKey) {
       return qualityProfiles;
     }
 
     @Override
-    public List<QualityProfile> loadDefault(String profileName) {
+    public List<QualityProfile> loadDefault() {
       return qualityProfiles;
     }
   }

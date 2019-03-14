@@ -20,7 +20,6 @@
 package org.sonar.scanner.repository;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -39,25 +38,15 @@ public class QualityProfilesProvider extends ProviderAdapter {
       List<QualityProfile> profileList;
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       if (!projectRepositories.exists()) {
-        profileList = loader.loadDefault(getSonarProfile(props));
+        profileList = loader.loadDefault();
       } else {
-        profileList = loader.load(props.getKeyWithBranch(), getSonarProfile(props));
+        profileList = loader.load(props.getKeyWithBranch());
       }
       profiler.stopInfo();
       profiles = new QualityProfiles(profileList);
     }
 
     return profiles;
-  }
-
-  @CheckForNull
-  private static String getSonarProfile(ProcessedScannerProperties props) {
-    String profile = props.property(QualityProfiles.SONAR_PROFILE_PROP);
-    if (profile != null) {
-      LOG.warn("Ability to set quality profile from command line using '" + QualityProfiles.SONAR_PROFILE_PROP
-        + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
-    }
-    return profile;
   }
 
 }

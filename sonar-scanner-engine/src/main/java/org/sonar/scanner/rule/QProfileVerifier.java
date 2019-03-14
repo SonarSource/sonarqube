@@ -20,25 +20,18 @@
 package org.sonar.scanner.rule;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
-
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class QProfileVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(QProfileVerifier.class);
 
-  private final Configuration config;
   private final InputComponentStore store;
   private final QualityProfiles profiles;
 
-  public QProfileVerifier(Configuration config, InputComponentStore store, QualityProfiles profiles) {
-    this.config = config;
+  public QProfileVerifier(InputComponentStore store, QualityProfiles profiles) {
     this.store = store;
     this.profiles = profiles;
   }
@@ -49,21 +42,13 @@ public class QProfileVerifier {
 
   @VisibleForTesting
   void execute(Logger logger) {
-    String defaultName = config.get(QualityProfiles.SONAR_PROFILE_PROP).orElse(null);
-    boolean defaultNameUsed = StringUtils.isBlank(defaultName);
     for (String lang : store.languages()) {
       QProfile profile = profiles.findByLanguage(lang);
       if (profile == null) {
         logger.warn("No Quality profile found for language {}", lang);
       } else {
         logger.info("Quality profile for {}: {}", lang, profile.getName());
-        if (isNotEmpty(defaultName) && defaultName.equals(profile.getName())) {
-          defaultNameUsed = true;
-        }
       }
-    }
-    if (!defaultNameUsed && !store.languages().isEmpty()) {
-      throw MessageException.of("sonar.profile was set to '" + defaultName + "' but didn't match any profile for any language. Please check your configuration.");
     }
   }
 }

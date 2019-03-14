@@ -41,7 +41,6 @@ public class QProfileVerifierTest {
 
   private InputComponentStore store;
   private QualityProfiles profiles;
-  private MapSettings settings = new MapSettings();
 
   @Before
   public void before() throws Exception {
@@ -58,7 +57,7 @@ public class QProfileVerifierTest {
     store.put("foo", new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
     store.put("foo", new TestInputFileBuilder("foo", "src/Baz.cbl").setLanguage("cobol").build());
 
-    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), store, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(store, profiles);
     Logger logger = mock(Logger.class);
     profileLogger.execute(logger);
 
@@ -67,36 +66,17 @@ public class QProfileVerifierTest {
   }
 
   @Test
-  public void should_fail_if_default_profile_not_used() {
-    store.put("foo", new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
-
-    settings.setProperty("sonar.profile", "Unknown");
-
-    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), store, profiles);
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("sonar.profile was set to 'Unknown' but didn't match any profile for any language. Please check your configuration.");
-
-    profileLogger.execute();
-  }
-
-  @Test
   public void should_not_fail_if_no_language_on_project() {
-    settings.setProperty("sonar.profile", "Unknown");
-
-    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), store, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(store, profiles);
 
     profileLogger.execute();
-
   }
 
   @Test
   public void should_not_fail_if_default_profile_used_at_least_once() {
     store.put("foo", new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
 
-    settings.setProperty("sonar.profile", "My Java profile");
-
-    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), store, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(store, profiles);
 
     profileLogger.execute();
   }
