@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -36,7 +35,6 @@ import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.ce.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.ce.task.projectanalysis.formula.Formula;
 import org.sonar.ce.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.ce.task.projectanalysis.formula.VariationSumFormula;
 import org.sonar.ce.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.ce.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredVariationFormula;
@@ -72,14 +70,9 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
-  @Nullable
   private final NewLinesRepository newLinesRepository;
-  @Nullable
   private final BatchReportReader reportReader;
 
-  /**
-   * Constructor used when processing a Report (ie. a {@link NewLinesRepository} instance is available in the container)
-   */
   public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder,
     MeasureRepository measureRepository, MetricRepository metricRepository, NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
     this.treeRootHolder = treeRootHolder;
@@ -87,17 +80,6 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     this.measureRepository = measureRepository;
     this.newLinesRepository = newLinesRepository;
     this.reportReader = reportReader;
-  }
-
-  /**
-   * Constructor used when processing Views (ie. no {@link NewLinesRepository} instance is available in the container)
-   */
-  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, MeasureRepository measureRepository, MetricRepository metricRepository) {
-    this.treeRootHolder = treeRootHolder;
-    this.metricRepository = metricRepository;
-    this.measureRepository = measureRepository;
-    this.newLinesRepository = null;
-    this.reportReader = null;
   }
 
   @Override
@@ -115,7 +97,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   private static class NewCoverageFormula extends LinesAndConditionsWithUncoveredVariationFormula {
-    public NewCoverageFormula() {
+    NewCoverageFormula() {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
           NEW_LINES_TO_COVER_KEY, NEW_CONDITIONS_TO_COVER_KEY,
@@ -125,7 +107,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   private static class NewBranchCoverageFormula extends SingleWithUncoveredVariationFormula {
-    public NewBranchCoverageFormula() {
+    NewBranchCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(NEW_CONDITIONS_TO_COVER_KEY, NEW_UNCOVERED_CONDITIONS_KEY),
         CoreMetrics.NEW_BRANCH_COVERAGE_KEY);
@@ -133,7 +115,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   private static class NewLineCoverageFormula extends SingleWithUncoveredVariationFormula {
-    public NewLineCoverageFormula() {
+    NewLineCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(NEW_LINES_TO_COVER_KEY, NEW_UNCOVERED_LINES_KEY),
         CoreMetrics.NEW_LINE_COVERAGE_KEY);
@@ -143,26 +125,14 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   public static class NewLinesAndConditionsCoverageFormula implements Formula<NewCoverageCounter> {
     private final NewLinesRepository newLinesRepository;
     private final BatchReportReader reportReader;
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas();
 
     private NewLinesAndConditionsCoverageFormula(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
       this.newLinesRepository = newLinesRepository;
       this.reportReader = reportReader;
     }
 
-    public static Iterable<Formula<?>> from(@Nullable NewLinesRepository newLinesRepository, @Nullable BatchReportReader reportReader) {
-      if (newLinesRepository == null || reportReader == null) {
-        return VIEWS_FORMULAS;
-      }
+    public static Iterable<Formula<NewCoverageCounter>> from(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
       return Collections.singleton(new NewLinesAndConditionsCoverageFormula(newLinesRepository, reportReader));
-    }
-
-    private static Iterable<Formula<?>> variationSumFormulas() {
-      return ImmutableList.of(
-        new VariationSumFormula(NEW_LINES_TO_COVER_KEY),
-        new VariationSumFormula(NEW_UNCOVERED_LINES_KEY),
-        new VariationSumFormula(NEW_CONDITIONS_TO_COVER_KEY),
-        new VariationSumFormula(NEW_UNCOVERED_CONDITIONS_KEY));
     }
 
     @Override
@@ -179,7 +149,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       return Optional.empty();
     }
 
-    private int computeValueForMetric(NewCoverageCounter counter, Metric metric) {
+    private static int computeValueForMetric(NewCoverageCounter counter, Metric metric) {
       if (metric.getKey().equals(NEW_LINES_TO_COVER_KEY)) {
         return counter.getNewLines();
       }
@@ -214,7 +184,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private final NewLinesRepository newLinesRepository;
     private final BatchReportReader reportReader;
 
-    public NewCoverageCounter(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
+    NewCoverageCounter(NewLinesRepository newLinesRepository, BatchReportReader reportReader) {
       this.newLinesRepository = newLinesRepository;
       this.reportReader = reportReader;
     }

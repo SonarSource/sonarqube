@@ -57,7 +57,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
 
-public class ReportNewCoverageMeasuresStepTest {
+public class NewCoverageMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
   private static final int DIRECTORY_1_REF = 1111;
