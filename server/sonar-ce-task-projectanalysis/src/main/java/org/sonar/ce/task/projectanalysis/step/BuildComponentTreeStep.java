@@ -113,7 +113,8 @@ public class BuildComponentTreeStep implements ComputationStep {
   private static ProjectAttributes createProjectAttributes(ScannerReport.Metadata metadata, @Nullable SnapshotDto baseAnalysis) {
     String projectVersion = trimToNull(metadata.getProjectVersion());
     String codePeriodVersion = computeCodePeriodVersion(metadata.getCodePeriodVersion(), projectVersion, baseAnalysis);
-    return new ProjectAttributes(projectVersion, codePeriodVersion);
+    String buildString = trimToNull(metadata.getBuildString());
+    return new ProjectAttributes(projectVersion, codePeriodVersion, buildString);
   }
 
   private static String computeCodePeriodVersion(String rawCodePeriodVersion, @Nullable String projectVersion, @Nullable SnapshotDto baseAnalysis) {

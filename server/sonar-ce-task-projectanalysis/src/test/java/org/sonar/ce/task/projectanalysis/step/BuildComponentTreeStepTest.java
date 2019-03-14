@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -469,6 +470,20 @@ public class BuildComponentTreeStepTest {
     assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).contains(projectVersion);
   }
 
+  @Test
+  @UseDataProvider("oneParameterNullNonNullCombinations")
+  public void set_buildString(@Nullable String buildString) {
+    String projectVersion = randomAlphabetic(7);
+    String codePeriodVersion = randomAlphabetic(8);
+    setAnalysisMetadataHolder();
+    reportReader.setMetadata(createReportMetadata(projectVersion, codePeriodVersion, buildString));
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getBuildString()).isEqualTo(Optional.ofNullable(buildString));
+  }
+
   @DataProvider
   public static Object[][] oneParameterNullNonNullCombinations() {
     return new Object[][] {
@@ -608,11 +623,16 @@ public class BuildComponentTreeStepTest {
   }
 
   public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String scannerCodePeriodVersion) {
+    return createReportMetadata(projectVersion, scannerCodePeriodVersion, null);
+  }
+
+  public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String scannerCodePeriodVersion, @Nullable String buildString) {
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
       .setProjectKey(REPORT_PROJECT_KEY)
       .setRootComponentRef(ROOT_REF);
     ofNullable(scannerCodePeriodVersion).ifPresent(builder::setCodePeriodVersion);
     ofNullable(projectVersion).ifPresent(builder::setProjectVersion);
+    ofNullable(buildString).ifPresent(builder::setBuildString);
     return builder.build();
   }
 

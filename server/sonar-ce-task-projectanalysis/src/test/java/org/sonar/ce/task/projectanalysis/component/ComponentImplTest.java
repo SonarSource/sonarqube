@@ -21,12 +21,14 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
 import java.util.Collections;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component.Status;
 
 import static com.google.common.base.Strings.repeat;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -246,7 +248,8 @@ public class ComponentImplTest {
       .setUuid("uuid_" + dbKey)
       .setReportAttributes(ReportAttributes.newBuilder(dbKey.hashCode()).build());
     if (type == PROJECT) {
-      builder.setProjectAttributes(new ProjectAttributes(null, "version_1"));
+      String buildString = randomAlphabetic(15);
+      builder.setProjectAttributes(new ProjectAttributes(null, "version_1", buildString));
     }
     return builder;
   }

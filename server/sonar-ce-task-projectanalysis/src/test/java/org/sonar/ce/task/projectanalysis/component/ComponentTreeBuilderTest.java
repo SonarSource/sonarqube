@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -70,7 +71,7 @@ public class ComponentTreeBuilderTest {
   // both no project as "" or null should be supported
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
     new Random().nextBoolean() ? null : randomAlphabetic(12),
-    randomAlphabetic(20));
+    randomAlphabetic(20), randomAlphabetic(21));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -131,13 +132,14 @@ public class ComponentTreeBuilderTest {
   public void by_default_project_fields_are_loaded_from_report(@Nullable String projectVersion) {
     String nameInReport = "the name";
     String descriptionInReport = "the desc";
+    String buildString = randomAlphabetic(21);
     Component root = call(newBuilder()
       .setType(PROJECT)
       .setKey(projectInDb.getKey())
       .setRef(42)
       .setName(nameInReport)
       .setDescription(descriptionInReport)
-      .build(), NO_SCM_BASE_PATH, new ProjectAttributes(projectVersion, "6.5"));
+      .build(), NO_SCM_BASE_PATH, new ProjectAttributes(projectVersion, "6.5", buildString));
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
     assertThat(root.getDbKey()).isEqualTo("generated_K1");
@@ -153,6 +155,7 @@ public class ComponentTreeBuilderTest {
       assertThat(root.getProjectAttributes().getProjectVersion()).contains(projectVersion);
     }
     assertThat(root.getProjectAttributes().getCodePeriodVersion()).isEqualTo("6.5");
+    assertThat(root.getProjectAttributes().getBuildString()).isEqualTo(Optional.of(buildString));
     assertThatFileAttributesAreNotSet(root);
   }
 

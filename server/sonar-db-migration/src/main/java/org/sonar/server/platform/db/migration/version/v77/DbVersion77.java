@@ -38,7 +38,7 @@ public class DbVersion77 implements DbVersion {
       .add(2608, "Delete favorites on not supported components", DeleteFavouritesOnNotSupportedComponentQualifiers.class)
       .add(2609, "Delete exceeding favorites when there are more than 100 for a user", DeleteFavoritesExceedingOneHundred.class)
       .add(2610, "Truncate ES_QUEUE table content", TruncateEsQueue.class)
-
+      .add(2611, "Add SNAPSHOTS.BUILD_STRING", AddBuildStringToSnapshot.class)
     ;
   }
 }

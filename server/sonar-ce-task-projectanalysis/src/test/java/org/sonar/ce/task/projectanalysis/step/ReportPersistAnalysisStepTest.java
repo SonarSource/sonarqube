@@ -23,6 +23,8 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -100,7 +102,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   @UseDataProvider("projectVersionOrNull")
-  public void persist_analysis(String projectVersion) {
+  public void persist_analysis(@Nullable String projectVersion) {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
@@ -114,11 +116,13 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
+    String buildString = Optional.ofNullable(projectVersion).map(v -> randomAlphabetic(7)).orElse(null);
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1)
       .setUuid("ABCD")
       .setKey(PROJECT_KEY)
       .setCodePeriodVersion("1.0")
       .setProjectVersion(projectVersion)
+      .setBuildString(buildString)
       .addChildren(directory)
       .build();
     treeRootHolder.setRoot(project);
@@ -136,6 +140,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getCodePeriodVersion()).isEqualTo("1.0");
     assertThat(projectSnapshot.getProjectVersion()).isEqualTo(projectVersion);
+    assertThat(projectSnapshot.getBuildString()).isEqualTo(buildString);
     assertThat(projectSnapshot.getLast()).isFalse();
     assertThat(projectSnapshot.getStatus()).isEqualTo("U");
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);

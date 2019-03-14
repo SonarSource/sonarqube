@@ -12,6 +12,7 @@
     s.islast as last,
     s.version as rawCodePeriodVersion,
     s.project_version as rawProjectVersion,
+    s.build_string as buildString,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
     s.period1_date as periodDate
@@ -166,6 +167,7 @@
       islast,
       version,
       project_version,
+      build_string,
       period1_mode,
       period1_param,
       period1_date
@@ -179,6 +181,7 @@
       #{last, jdbcType=BOOLEAN},
       #{codePeriodVersion, jdbcType=VARCHAR},
       #{projectVersion, jdbcType=VARCHAR},
+      #{buildString, jdbcType=VARCHAR},
       #{periodMode, jdbcType=VARCHAR},
       #{periodParam, jdbcType=VARCHAR},
       #{periodDate, jdbcType=BIGINT}

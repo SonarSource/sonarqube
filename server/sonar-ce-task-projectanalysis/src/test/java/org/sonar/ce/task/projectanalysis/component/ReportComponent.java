@@ -70,7 +70,7 @@ public class ReportComponent implements Component {
     this.description = builder.description;
     this.uuid = builder.uuid;
     this.projectAttributes = Optional.ofNullable(builder.codePeriodVersion)
-      .map(t -> new ProjectAttributes(builder.projectVersion, t))
+      .map(t -> new ProjectAttributes(builder.projectVersion, t, builder.buildString))
       .orElse(null);
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
       .build();
@@ -207,6 +207,7 @@ public class ReportComponent implements Component {
     private String shortName;
     private String codePeriodVersion;
     private String projectVersion;
+    private String buildString;
     private String description;
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
@@ -251,13 +252,18 @@ public class ReportComponent implements Component {
     }
 
     public Builder setCodePeriodVersion(String s) {
-      checkCodePeriodVersion(s);
+      checkArgument(type != Type.PROJECT ^ s != null, "CodePeriod version must and can only be set on Project");
       this.codePeriodVersion = s;
       return this;
     }
 
     public Builder setProjectVersion(@Nullable String projectVersion) {
       this.projectVersion = projectVersion;
+      return this;
+    }
+
+    public Builder setBuildString(@Nullable String buildString) {
+      this.buildString = buildString;
       return this;
     }
 
@@ -281,13 +287,9 @@ public class ReportComponent implements Component {
     }
 
     public ReportComponent build() {
-      checkCodePeriodVersion(this.codePeriodVersion);
+      checkArgument(type != Type.PROJECT ^ this.codePeriodVersion != null, "CodePeriod version must and can only be set on Project");
+      checkArgument(type == Type.PROJECT || this.buildString == null, "BuildString can only be set on Project");
       return new ReportComponent(this);
     }
-
-    private void checkCodePeriodVersion(@Nullable String s) {
-      checkArgument(type != Type.PROJECT ^ s != null, "CodePeriod version must and can only be set on Project");
-    }
   }
-
 }

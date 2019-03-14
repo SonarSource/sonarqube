@@ -43,6 +43,7 @@ public final class SnapshotDto {
   private Boolean last;
   private String codePeriodVersion;
   private String projectVersion;
+  private String buildString;
   private String periodMode;
   private String periodParam;
   private Long periodDate;
@@ -145,6 +146,16 @@ public final class SnapshotDto {
    */
   private void setRawProjectVersion(@Nullable String projectVersion) {
     this.projectVersion = projectVersion;
+  }
+
+  @CheckForNull
+  public String getBuildString() {
+    return buildString;
+  }
+
+  public SnapshotDto setBuildString(@Nullable String buildString) {
+    this.buildString = buildString;
+    return this;
   }
 
   public SnapshotDto setPeriodMode(@Nullable String p) {
