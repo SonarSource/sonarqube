@@ -10,15 +10,15 @@ url: /setup/operate-server/
 ### Install/uninstall NT service (may have to run these files via Run As Administrator):
 
 ```
-%SONARQUBE_HOME%/bin/windows-x86-32/InstallNTService.bat
-%SONARQUBE_HOME%/bin/windows-x86-32/UninstallNTService.bat
+%SONARQUBE_HOME%/bin/windows-x86-64/InstallNTService.bat
+%SONARQUBE_HOME%/bin/windows-x86-64/UninstallNTService.bat
 ```
 
 ### Start/stop the service:
 
 ```
-%SONARQUBE_HOME%/bin/windows-x86-32/StartNTService.bat
-%SONARQUBE_HOME%/bin/windows-x86-32/StopNTService.bat
+%SONARQUBE_HOME%/bin/windows-x86-64/StartNTService.bat
+%SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat
 ```
 
 ## Running SonarQube as a Service on Linux with SystemD
@@ -88,14 +88,6 @@ Create the file /etc/init.d/sonar with this content:
 ### END INIT INFO
  
 /usr/bin/sonar $*
-```
-
-Register SonarQube at boot time (Ubuntu, 32 bit):
-
-```
-sudo ln -s $SONAR_HOME/bin/linux-x86-32/sonar.sh /usr/bin/sonar
-sudo chmod 755 /etc/init.d/sonar
-sudo update-rc.d sonar defaults
 ```
 
 Register SonarQube at boot time (RedHat, CentOS, 64 bit):
