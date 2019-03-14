@@ -239,7 +239,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, STANDARD);
-      setList(FILTER, STANDARD, "word_filter", LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setList(FILTER, "word_filter", LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
     }
   },
   SEARCH_WORDS_ANALYZER(ANALYZER) {
@@ -247,7 +247,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, STANDARD);
-      setList(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setList(FILTER, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
     }
 
     @Override
@@ -264,7 +264,7 @@ public enum DefaultIndexSettingsElement {
     @Override
     protected void setup() {
       set(TOKENIZER, STANDARD);
-      setList(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setList(FILTER, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
       setList(CHAR_FILTER, HTML_STRIP);
     }
 
