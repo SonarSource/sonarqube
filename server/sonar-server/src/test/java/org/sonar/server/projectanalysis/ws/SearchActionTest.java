@@ -125,15 +125,15 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
-      .setCodePeriodVersion("1.2").setProjectVersion("1.2.0.322")
+      .setProjectVersion("1.2").setBuildString("1.2.0.322")
     );
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("A2").setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
-      .setCodePeriodVersion("1.2.1").setProjectVersion("1.2.1.423")
+      .setProjectVersion("1.2.1").setBuildString("1.2.1.423")
     );
     SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project)
       .setUuid("P1").setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
-      .setCodePeriodVersion("1.2").setProjectVersion("1.2.0.321"));
+      .setProjectVersion("1.2").setBuildString("1.2.0.321"));
     db.getDbClient().branchDao().insert(db.getSession(), newBranchDto(project, LONG)
       .setManualBaseline(a1.getUuid()));
     db.commit();
@@ -621,20 +621,20 @@ public class SearchActionTest {
   }
 
   @Test
-  public void populates_projectVersion_and_codePeriodVersion() {
+  public void populates_projectVersion_and_buildString() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto[] analyses = new SnapshotDto[] {
-      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion(null).setProjectVersion(null)),
-      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion("a").setProjectVersion(null)),
-      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion(null).setProjectVersion("b")),
-      db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion("c").setProjectVersion("d"))
+      db.components().insertSnapshot(newAnalysis(project).setProjectVersion(null).setBuildString(null)),
+      db.components().insertSnapshot(newAnalysis(project).setProjectVersion("a").setBuildString(null)),
+      db.components().insertSnapshot(newAnalysis(project).setProjectVersion(null).setBuildString("b")),
+      db.components().insertSnapshot(newAnalysis(project).setProjectVersion("c").setBuildString("d"))
     };
 
     SearchResponse result = call(project.getDbKey());
 
     assertThat(result.getAnalysesList())
-      .extracting(Analysis::getKey, Analysis::getCodePeriodVersion, Analysis::getProjectVersion)
+      .extracting(Analysis::getKey, Analysis::getProjectVersion, Analysis::getBuildString)
       .containsOnly(
         tuple(analyses[0].getUuid(), "", ""),
         tuple(analyses[1].getUuid(), "a", ""),
