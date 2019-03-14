@@ -118,11 +118,8 @@ public class FileIndexer {
       exclusionCounter.increaseByPatternsCount();
       return;
     }
+
     String language = langDetection.language(realAbsoluteFile, projectRelativePath);
-    if (language == null && langDetection.getForcedLanguage() != null) {
-      LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", realAbsoluteFile.toAbsolutePath(), langDetection.getForcedLanguage());
-      return;
-    }
 
     if (ignoreCommand != null && ignoreCommand.isIgnored(realAbsoluteFile)) {
       LOG.debug("File '{}' is excluded by the scm ignore settings.", realAbsoluteFile);

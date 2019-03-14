@@ -789,6 +789,8 @@ public class FileSystemMediumTest {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-symlink");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.exclusions", "**/*.xoo.measures,**/*.xoo.scm")
+      .property("sonar.test.exclusions", "**/*.xoo.measures,**/*.xoo.scm")
       .execute();
 
     assertThat(result.inputFiles()).hasSize(3);
@@ -1071,9 +1073,10 @@ public class FileSystemMediumTest {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-ignored-file");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.exclusions", "**/*.xoo.ignore")
+      .property("sonar.test.exclusions", "**/*.xoo.ignore")
       .execute();
 
-    assertThat(result.inputFiles()).hasSize(2);
     assertThat(result.inputFile("xources/hello/ClassTwo.xoo")).isNull();
     assertThat(result.inputFile("testx/ClassTwoTest.xoo")).isNull();
 
@@ -1087,6 +1090,8 @@ public class FileSystemMediumTest {
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.scm.exclusions.disabled", "true")
+      .property("sonar.exclusions", "**/*.xoo.ignore")
+      .property("sonar.test.exclusions", "**/*.xoo.ignore")
       .execute();
 
     assertThat(result.inputFiles()).hasSize(4);

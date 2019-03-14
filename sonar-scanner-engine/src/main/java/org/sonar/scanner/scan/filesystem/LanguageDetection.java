@@ -32,7 +32,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
@@ -52,7 +51,6 @@ public class LanguageDetection {
    */
   private final Map<String, PathPattern[]> patternsByLanguage;
   private final List<String> languagesToConsider;
-  private final String forcedLanguage;
 
   public LanguageDetection(Configuration settings, LanguagesRepository languages) {
     Map<String, PathPattern[]> patternsByLanguageBuilder = new LinkedHashMap<>();
@@ -75,27 +73,8 @@ public class LanguageDetection {
       }
     }
 
-    forcedLanguage = StringUtils.defaultIfBlank(settings.get(CoreProperties.PROJECT_LANGUAGE_PROPERTY).orElse(null), null);
-    // First try with lang patterns
-    if (forcedLanguage != null) {
-      if (!patternsByLanguageBuilder.containsKey(forcedLanguage)) {
-        throw MessageException.of("You must install a plugin that supports the language '" + forcedLanguage + "'");
-      }
-      LOG.info("Language is forced to {}", forcedLanguage);
-      languagesToConsider = Collections.singletonList(forcedLanguage);
-    } else {
-      languagesToConsider = Collections.unmodifiableList(new ArrayList<>(patternsByLanguageBuilder.keySet()));
-    }
-
+    languagesToConsider = Collections.unmodifiableList(new ArrayList<>(patternsByLanguageBuilder.keySet()));
     patternsByLanguage = Collections.unmodifiableMap(patternsByLanguageBuilder);
-  }
-
-  public String getForcedLanguage() {
-    return forcedLanguage;
-  }
-
-  Map<String, PathPattern[]> patternsByLanguage() {
-    return patternsByLanguage;
   }
 
   @CheckForNull
@@ -112,16 +91,8 @@ public class LanguageDetection {
         }
       }
     }
-    if (detectedLanguage != null) {
-      return detectedLanguage;
-    }
 
-    // Check if deprecated sonar.language is used and we are on a language without declared extensions.
-    // Languages without declared suffixes match everything.
-    if (forcedLanguage != null && patternsByLanguage.get(forcedLanguage).length == 0) {
-      return forcedLanguage;
-    }
-    return null;
+    return detectedLanguage;
   }
 
   private boolean isCandidateForLanguage(Path absolutePath, Path relativePath, String languageKey) {

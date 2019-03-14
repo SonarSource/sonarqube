@@ -180,12 +180,6 @@ public interface CoreProperties {
    */
   String LONG_LIVED_BRANCHES_REGEX = "sonar.branch.longLivedBranches.regex";
 
-  /**
-   * @deprecated since 4.2 projects are now multi-language
-   */
-  @Deprecated
-  String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
-
   /* Exclusions */
   String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
