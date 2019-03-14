@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.es.EsInstallation;
+import org.sonar.application.es.EsInstallationImpl;
 import org.sonar.application.es.EsLogging;
 import org.sonar.application.es.EsSettings;
 import org.sonar.application.es.EsYmlSettings;
@@ -112,7 +113,7 @@ public class CommandFactoryImpl implements CommandFactory {
     return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setEsInstallation(esInstallation)
       .setReadsArgumentsFromFile(false)
-      .setJvmOptions(new EsJvmOptions(tempDir)
+      .setJvmOptions(new EsJvmOptions(esInstallation)
         .addFromMandatoryProperty(props, SEARCH_JAVA_OPTS.getKey())
         .addFromMandatoryProperty(props, SEARCH_JAVA_ADDITIONAL_OPTS.getKey())
         .add("-Delasticsearch")
@@ -127,7 +128,7 @@ public class CommandFactoryImpl implements CommandFactory {
   }
 
   private EsInstallation createEsInstallation() {
-    EsInstallation esInstallation = new EsInstallation(props);
+    EsInstallationImpl esInstallation = new EsInstallationImpl(props);
     if (!esInstallation.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
@@ -135,7 +136,7 @@ public class CommandFactoryImpl implements CommandFactory {
 
     esInstallation
       .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
-      .setEsJvmOptions(new EsJvmOptions(tempDir)
+      .setEsJvmOptions(new EsJvmOptions(esInstallation)
         .addFromMandatoryProperty(props, SEARCH_JAVA_OPTS.getKey())
         .addFromMandatoryProperty(props, SEARCH_JAVA_ADDITIONAL_OPTS.getKey()))
       .setEsYmlSettings(new EsYmlSettings(settingsMap))

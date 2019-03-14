@@ -35,6 +35,7 @@ import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsInstallation;
+import org.sonar.application.es.EsInstallationImpl;
 import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
@@ -191,7 +192,7 @@ public class ProcessLauncherImplTest {
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
-    command.setEsInstallation(new EsInstallation(props)
+    command.setEsInstallation(new EsInstallationImpl(props)
       .setEsYmlSettings(mock(EsYmlSettings.class))
       .setEsJvmOptions(mock(EsJvmOptions.class))
       .setLog4j2Properties(new Properties())
@@ -203,7 +204,10 @@ public class ProcessLauncherImplTest {
 
   private EsInstallation createEsInstallation() throws IOException {
     File tempFolder = this.temp.newFolder("temp");
-    return new EsInstallation(new Props(new Properties())
+    EsInstallation esInstallation = mock(EsInstallation.class);
+    when(esInstallation.getTmpDirectory()).thenReturn(temp.newFolder());
+    when(esInstallation.getLogDirectory()).thenReturn(temp.newFolder());
+    return new EsInstallationImpl(new Props(new Properties())
       .set("sonar.path.home", this.temp.newFolder("home").getAbsolutePath())
       .set("sonar.path.data", this.temp.newFolder("data").getAbsolutePath())
       .set("sonar.path.temp", tempFolder.getAbsolutePath())
@@ -212,7 +216,7 @@ public class ProcessLauncherImplTest {
       .setPort(9001)
       .setHost("localhost")
       .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
-      .setEsJvmOptions(new EsJvmOptions(tempFolder))
+      .setEsJvmOptions(new EsJvmOptions(esInstallation))
       .setLog4j2Properties(new Properties());
   }
 
