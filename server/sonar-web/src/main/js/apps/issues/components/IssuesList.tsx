@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import ListItem from './ListItem';
-import { Query } from '../utils';
+import { Query, scrollToIssue } from '../utils';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
@@ -36,9 +36,38 @@ interface Props {
   selectedIssue: T.Issue | undefined;
 }
 
-export default class IssuesList extends React.PureComponent<Props> {
+interface State {
+  prerender: boolean;
+}
+
+export default class IssuesList extends React.PureComponent<Props, State> {
+  state: State = {
+    prerender: true
+  };
+
+  componentDidMount() {
+    // ! \\ This prerender state variable is to enable the page to be displayed
+    //      immediately, displaying a loader before attempting to render the
+    //      list of issues. See https://jira.sonarsource.com/browse/SONAR-11681
+    setTimeout(() => {
+      this.setState({ prerender: false });
+      if (this.props.selectedIssue) {
+        scrollToIssue(this.props.selectedIssue.key, false);
+      }
+    }, 42);
+  }
+
   render() {
     const { branchLike, checked, component, issues, openPopup, selectedIssue } = this.props;
+    const { prerender } = this.state;
+
+    if (prerender) {
+      return (
+        <div>
+          <i className="spinner" />
+        </div>
+      );
+    }
 
     return (
       <div>

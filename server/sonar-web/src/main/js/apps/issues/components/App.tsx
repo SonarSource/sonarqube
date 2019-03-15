@@ -50,7 +50,8 @@ import {
   saveMyIssues,
   serializeQuery,
   STANDARDS,
-  ReferencedRule
+  ReferencedRule,
+  scrollToIssue
 } from '../utils';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { Alert } from '../../../components/ui/Alert';
@@ -78,7 +79,6 @@ import {
   removeSideBarClass,
   removeWhitePageClass
 } from '../../../helpers/pages';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { isSonarCloud } from '../../../helpers/system';
 import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
@@ -381,7 +381,6 @@ export class App extends React.PureComponent<Props, State> {
           open: undefined
         }
       });
-      this.scrollToSelectedIssue(false);
     }
   };
 
@@ -395,10 +394,7 @@ export class App extends React.PureComponent<Props, State> {
   scrollToSelectedIssue = (smooth = true) => {
     const { selected } = this.state;
     if (selected) {
-      const element = document.querySelector(`[data-issue="${selected}"]`);
-      if (element) {
-        scrollToElement(element, { topOffset: 250, bottomOffset: 100, smooth });
-      }
+      scrollToIssue(selected, smooth);
     }
   };
 

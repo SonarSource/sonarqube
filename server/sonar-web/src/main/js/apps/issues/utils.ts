@@ -33,6 +33,7 @@ import {
   serializeDateShort,
   RawQuery
 } from '../../helpers/query';
+import { scrollToElement } from '../../helpers/scrolling';
 
 export interface Query {
   assigned: boolean;
@@ -266,4 +267,11 @@ export function allLocationsEmpty(
   selectedFlowIndex: number | undefined
 ) {
   return getLocations(issue, selectedFlowIndex).every(location => !location.msg);
+}
+
+export function scrollToIssue(issue: string, smooth = true) {
+  const element = document.querySelector(`[data-issue="${issue}"]`);
+  if (element) {
+    scrollToElement(element, { topOffset: 250, bottomOffset: 100, smooth });
+  }
 }
