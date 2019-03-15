@@ -88,6 +88,8 @@ public class ComponentIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
     mapping.textFieldBuilder(FIELD_NAME)
       .withFieldData()
+      // required by highlighting
+      .store()
       .termVectorWithPositionOffsets()
       .addSubFields(NAME_ANALYZERS)
       .build();
