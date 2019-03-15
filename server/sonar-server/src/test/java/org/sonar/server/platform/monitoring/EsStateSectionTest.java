@@ -56,6 +56,7 @@ public class EsStateSectionTest {
     assertThat(attribute(section, "CPU Usage (%)")).isNotNull();
     assertThat(attribute(section, "Disk Available")).isNotNull();
     assertThat(attribute(section, "Store Size")).isNotNull();
+    assertThat(attribute(section, "Translog Size")).isNotNull();
   }
 
   @Test
