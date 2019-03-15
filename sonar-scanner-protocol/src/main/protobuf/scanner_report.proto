@@ -111,8 +111,6 @@ message Component {
   string language = 6;
   repeated int32 child_ref = 7 [packed = true];
   repeated ComponentLink link = 8;
-  // FIXME SONAR-11631 delete this property after deployment on SC of metadata.projectVersion
-  string version = 9;
   // Only available on PROJECT and MODULE types
   // TODO rename this property -> moduleKey ?
   string key = 10;
