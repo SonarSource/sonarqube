@@ -39,7 +39,8 @@ public class SnapshotDtoTest {
       .setBuildDate(parseDate("2014-07-02").getTime())
       .setComponentUuid("uuid_21")
       .setLast(true)
-      .setCodePeriodVersion("1.0")
+      .setProjectVersion("1.0")
+      .setBuildString("1.0.1.123")
       .setPeriodMode("mode1")
       .setPeriodParam("param1")
       .setPeriodDate(parseDate("2014-06-01").getTime());
@@ -48,24 +49,40 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
     assertThat(snapshotDto.getComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();
-    assertThat(snapshotDto.getCodePeriodVersion()).isEqualTo("1.0");
+    assertThat(snapshotDto.getProjectVersion()).isEqualTo("1.0");
+    assertThat(snapshotDto.getBuildString()).isEqualTo("1.0.1.123");
     assertThat(snapshotDto.getPeriodMode()).isEqualTo("mode1");
     assertThat(snapshotDto.getPeriodModeParameter()).isEqualTo("param1");
     assertThat(snapshotDto.getPeriodDate()).isEqualTo(parseDate("2014-06-01").getTime());
   }
 
   @Test
-  public void fail_if_version_name_is_longer_then_100_characters() {
+  public void fail_if_projectVersion_is_longer_then_100_characters() {
     SnapshotDto snapshotDto = new SnapshotDto();
-    snapshotDto.setCodePeriodVersion(null);
-    snapshotDto.setCodePeriodVersion("1.0");
-    snapshotDto.setCodePeriodVersion(repeat("a", 100));
+    snapshotDto.setProjectVersion(null);
+    snapshotDto.setProjectVersion("1.0");
+    snapshotDto.setProjectVersion(repeat("a", 100));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("codePeriodVersion" +
+    expectedException.expectMessage("projectVersion" +
       " length (101) is longer than the maximum authorized (100). " +
       "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
 
-    snapshotDto.setCodePeriodVersion(repeat("a", 101));
+    snapshotDto.setProjectVersion(repeat("a", 101));
+  }
+
+  @Test
+  public void fail_if_buildString_is_longer_then_100_characters() {
+    SnapshotDto snapshotDto = new SnapshotDto();
+    snapshotDto.setBuildString(null);
+    snapshotDto.setBuildString("1.0");
+    snapshotDto.setBuildString(repeat("a", 100));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("buildString" +
+      " length (101) is longer than the maximum authorized (100). " +
+      "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
+
+    snapshotDto.setBuildString(repeat("a", 101));
   }
 }

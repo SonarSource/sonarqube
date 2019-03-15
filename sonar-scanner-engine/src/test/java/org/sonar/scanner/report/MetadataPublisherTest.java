@@ -216,33 +216,6 @@ public class MetadataPublisherTest {
   }
 
   @Test
-  @UseDataProvider("codePeriodVersions")
-  public void write_codePeriod_version(@Nullable String codePeriodVersion, String expected) throws Exception {
-    when(projectInfo.getCodePeriodVersion()).thenReturn(Optional.ofNullable(codePeriodVersion));
-    when(properties.organizationKey()).thenReturn(Optional.of("SonarSource"));
-
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
-
-    underTest.publish(writer);
-
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
-    ScannerReport.Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getCodePeriodVersion()).isEqualTo(expected);
-  }
-
-  @DataProvider
-  public static Object[][] codePeriodVersions() {
-    String randomVersion = randomAlphabetic(15);
-    return new Object[][] {
-      {null, ""},
-      {"", ""},
-      {"5.6.3", "5.6.3"},
-      {randomVersion, randomVersion}
-    };
-  }
-
-  @Test
   @UseDataProvider("buildStrings")
   public void write_buildString(@Nullable String buildString, String expected) throws Exception {
     when(projectInfo.getBuildString()).thenReturn(Optional.ofNullable(buildString));

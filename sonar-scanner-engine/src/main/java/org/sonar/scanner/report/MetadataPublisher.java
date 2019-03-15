@@ -89,7 +89,6 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.scannerId());
     projectInfo.getProjectVersion().ifPresent(builder::setProjectVersion);
-    projectInfo.getCodePeriodVersion().ifPresent(builder::setCodePeriodVersion);
     projectInfo.getBuildString().ifPresent(builder::setBuildString);
 
     properties.organizationKey().ifPresent(builder::setOrganizationKey);

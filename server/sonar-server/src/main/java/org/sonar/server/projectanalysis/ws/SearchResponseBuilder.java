@@ -83,7 +83,6 @@ class SearchResponseBuilder {
       .setKey(dbAnalysis.getUuid())
       .setDate(formatDateTime(dbAnalysis.getCreatedAt()))
       .setManualNewCodePeriodBaseline(searchData.getManualBaseline().filter(dbAnalysis.getUuid()::equals).isPresent());
-    ofNullable(dbAnalysis.getCodePeriodVersion()).ifPresent(builder::setCodePeriodVersion);
     ofNullable(dbAnalysis.getProjectVersion()).ifPresent(builder::setProjectVersion);
     ofNullable(dbAnalysis.getBuildString()).ifPresent(builder::setBuildString);
 

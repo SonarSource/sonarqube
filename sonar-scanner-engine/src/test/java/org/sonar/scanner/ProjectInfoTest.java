@@ -112,54 +112,54 @@ public class ProjectInfoTest {
   }
 
   @Test
-  @UseDataProvider("projectVersions")
-  public void getCodePeriodVersion_has_value_of_projectVersion_if_property_is_unset(@Nullable String projectVersion) {
+  @UseDataProvider("emptyOrNullString")
+  public void getProjectVersion_is_empty_if_property_is_empty_or_null(@Nullable String projectVersion) {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
 
     underTest.start();
 
-    if (projectVersion == null) {
-      assertThat(underTest.getCodePeriodVersion()).isEmpty();
-    } else {
-      assertThat(underTest.getCodePeriodVersion()).contains(projectVersion);
-    }
+    assertThat(underTest.getProjectVersion()).isEmpty();
   }
 
   @Test
-  @UseDataProvider("projectVersions")
-  public void getCodePeriodVersion_is_empty_if_property_is_empty(@Nullable String projectVersion) {
+  public void getProjectVersion_contains_value_of_property() {
+    String value = RandomStringUtils.randomAlphabetic(10);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
-    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
-    settings.setProperty(CoreProperties.CODE_PERIOD_VERSION_PROPERTY, "");
+    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, value);
 
     underTest.start();
 
-    if (projectVersion == null) {
-      assertThat(underTest.getCodePeriodVersion()).isEmpty();
-    } else {
-      assertThat(underTest.getCodePeriodVersion()).contains(projectVersion);
-    }
+    assertThat(underTest.getProjectVersion()).contains(value);
   }
 
   @Test
-  @UseDataProvider("projectVersions")
-  public void getCodePeriodVersion_contains_value_of_property(@Nullable String projectVersion) {
-    String version = RandomStringUtils.randomAlphabetic(10);
+  @UseDataProvider("emptyOrNullString")
+  public void getBuildString_is_empty_if_property_is_empty_or_null(@Nullable String buildString) {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
-    settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
-    settings.setProperty(CoreProperties.CODE_PERIOD_VERSION_PROPERTY, version);
+    settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
 
     underTest.start();
 
-    assertThat(underTest.getCodePeriodVersion()).contains(version);
+    assertThat(underTest.getBuildString()).isEmpty();
+  }
+
+  @Test
+  public void getBuildString_contains_value_of_property() {
+    String value = RandomStringUtils.randomAlphabetic(10);
+    settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
+    settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, value);
+
+    underTest.start();
+
+    assertThat(underTest.getBuildString()).contains(value);
   }
 
   @DataProvider
-  public static Object[][] projectVersions() {
+  public static Object[][] emptyOrNullString() {
     return new Object[][] {
+      {""},
       {null},
-      {randomAlphabetic(12)}
     };
   }
 }

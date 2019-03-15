@@ -51,7 +51,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   static final String FIELD_PROJECT_NAME = "projectName";
   static final String FIELD_PROJECT_KEY = "projectKey";
   static final String FIELD_PROJECT_DATE = "projectDate";
-  static final String FIELD_CODE_PERIOD_VERSION = "codePeriodVersion";
+  static final String FIELD_PROJECT_VERSION = "projectVersion";
   static final String FIELD_ASSIGNEE = "assignee";
   static final String FIELD_BRANCH = "branch";
   static final String FIELD_PULL_REQUEST = "pullRequest";
@@ -89,7 +89,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     if (pullRequest!= null) {
       message.append("Pull request: ").append(pullRequest).append(NEW_LINE);
     }
-    String version = notification.getFieldValue(FIELD_CODE_PERIOD_VERSION);
+    String version = notification.getFieldValue(FIELD_PROJECT_VERSION);
     if (version != null) {
       message.append("Version: ").append(version).append(NEW_LINE);
     }

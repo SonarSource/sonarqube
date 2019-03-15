@@ -157,7 +157,7 @@ public class ComponentActionTest {
     ComponentDto project = insertOrganizationAndProject();
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setCreatedAt(parseDateTime("2015-04-22T11:44:00+0200").getTime())
-      .setCodePeriodVersion("3.14"));
+      .setProjectVersion("3.14"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
@@ -530,7 +530,7 @@ public class ComponentActionTest {
     componentDbTester.insertComponent(project);
     SnapshotDto analysis = newAnalysis(project)
       .setCreatedAt(parseDateTime("2016-12-06T11:44:00+0200").getTime())
-      .setCodePeriodVersion("6.3")
+      .setProjectVersion("6.3")
       .setLast(true);
     componentDbTester.insertSnapshot(analysis);
     when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());

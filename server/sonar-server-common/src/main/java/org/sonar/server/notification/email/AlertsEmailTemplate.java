@@ -50,7 +50,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
     String projectId = notification.getFieldValue("projectId");
     String projectKey = notification.getFieldValue("projectKey");
     String projectName = notification.getFieldValue("projectName");
-    String projectVersion = notification.getFieldValue("codePeriodVersion");
+    String projectVersion = notification.getFieldValue("projectVersion");
     String branchName = notification.getFieldValue("branch");
     String alertName = notification.getFieldValue("alertName");
     String alertText = notification.getFieldValue("alertText");

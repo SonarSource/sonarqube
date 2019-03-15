@@ -43,7 +43,7 @@ public class ReportComponent implements Component {
     .setPublicKey("PUBLIC_PROJECT_KEY")
     .setUuid("PROJECT_UUID")
     .setName("Project Name")
-    .setCodePeriodVersion("1.0-SNAPSHOT")
+    .setProjectVersion("1.0-SNAPSHOT")
     .build();
 
   private final Type type;
@@ -69,8 +69,8 @@ public class ReportComponent implements Component {
     this.shortName = builder.shortName == null ? this.name : builder.shortName;
     this.description = builder.description;
     this.uuid = builder.uuid;
-    this.projectAttributes = Optional.ofNullable(builder.codePeriodVersion)
-      .map(t -> new ProjectAttributes(builder.projectVersion, t, builder.buildString))
+    this.projectAttributes = Optional.ofNullable(builder.projectVersion)
+      .map(v -> new ProjectAttributes(v, builder.buildString))
       .orElse(null);
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
       .build();
@@ -205,7 +205,6 @@ public class ReportComponent implements Component {
     private String publicKey;
     private String name;
     private String shortName;
-    private String codePeriodVersion;
     private String projectVersion;
     private String buildString;
     private String description;
@@ -217,7 +216,7 @@ public class ReportComponent implements Component {
       this.type = type;
       this.ref = ref;
       if (type == Type.PROJECT) {
-        this.codePeriodVersion = "toBeDefined";
+        this.projectVersion = "toBeDefined";
       }
     }
 
@@ -251,18 +250,14 @@ public class ReportComponent implements Component {
       return this;
     }
 
-    public Builder setCodePeriodVersion(String s) {
-      checkArgument(type != Type.PROJECT ^ s != null, "CodePeriod version must and can only be set on Project");
-      this.codePeriodVersion = s;
-      return this;
-    }
-
-    public Builder setProjectVersion(@Nullable String projectVersion) {
-      this.projectVersion = projectVersion;
+    public Builder setProjectVersion(@Nullable String s) {
+      checkProjectVersion(s);
+      this.projectVersion = s;
       return this;
     }
 
     public Builder setBuildString(@Nullable String buildString) {
+      checkBuildString(buildString);
       this.buildString = buildString;
       return this;
     }
@@ -287,9 +282,17 @@ public class ReportComponent implements Component {
     }
 
     public ReportComponent build() {
-      checkArgument(type != Type.PROJECT ^ this.codePeriodVersion != null, "CodePeriod version must and can only be set on Project");
-      checkArgument(type == Type.PROJECT || this.buildString == null, "BuildString can only be set on Project");
+      checkProjectVersion(this.projectVersion);
+      checkBuildString(this.buildString);
       return new ReportComponent(this);
+    }
+
+    private void checkProjectVersion(@Nullable String s) {
+      checkArgument(type != Type.PROJECT ^ s != null, "Project version must and can only be set on Project");
+    }
+
+    private void checkBuildString(@Nullable String s) {
+      checkArgument(type == Type.PROJECT || s == null, "BuildString can only be set on Project");
     }
   }
 }

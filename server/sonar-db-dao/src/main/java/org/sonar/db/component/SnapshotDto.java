@@ -24,6 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public final class SnapshotDto {
 
@@ -33,6 +34,7 @@ public final class SnapshotDto {
   public static final String STATUS_UNPROCESSED = "U";
   public static final String STATUS_PROCESSED = "P";
   public static final int MAX_VERSION_LENGTH = 100;
+  public static final int MAX_BUILD_STRING_LENGTH = 100;
 
   private Long id;
   private String uuid;
@@ -41,7 +43,7 @@ public final class SnapshotDto {
   private Long buildDate;
   private String status = STATUS_UNPROCESSED;
   private Boolean last;
-  private String codePeriodVersion;
+  // maps to "version" column in the table
   private String projectVersion;
   private String buildString;
   private String periodMode;
@@ -102,36 +104,15 @@ public final class SnapshotDto {
     return this;
   }
 
-  /**
-   * Version is only available on projects and modules
-   */
-  @CheckForNull
-  public String getCodePeriodVersion() {
-    return codePeriodVersion;
-  }
-
-  public SnapshotDto setCodePeriodVersion(@Nullable String codePeriodVersion) {
-    checkVersion(codePeriodVersion, "codePeriodVersion");
-    this.codePeriodVersion = codePeriodVersion;
-    return this;
-  }
-
-  private static void checkVersion(@Nullable String version, String versionLabel) {
-    if (version != null) {
-      checkArgument(version.length() <= MAX_VERSION_LENGTH,
-        "%s length (%s) is longer than the maximum authorized (%s). '%s' was provided.", versionLabel, version.length(), MAX_VERSION_LENGTH, version);
+  private static void checkLength(int maxLength, @Nullable String s, String label) {
+    if (s != null) {
+      checkArgument(s.length() <= maxLength,
+        "%s length (%s) is longer than the maximum authorized (%s). '%s' was provided.", label, s.length(), maxLength, s);
     }
   }
 
-  /**
-   * Used by MyBatis
-   */
-  private void setRawCodePeriodVersion(@Nullable String codePeriodVersion) {
-    this.codePeriodVersion = codePeriodVersion;
-  }
-
   public SnapshotDto setProjectVersion(@Nullable String projectVersion) {
-    checkVersion(projectVersion, "projectVersion");
+    checkLength(MAX_VERSION_LENGTH, projectVersion, "projectVersion");
     this.projectVersion = projectVersion;
     return this;
   }
@@ -145,7 +126,7 @@ public final class SnapshotDto {
    * Used by MyBatis
    */
   private void setRawProjectVersion(@Nullable String projectVersion) {
-    this.projectVersion = projectVersion;
+    this.projectVersion = trimToNull(projectVersion);
   }
 
   @CheckForNull
@@ -154,8 +135,16 @@ public final class SnapshotDto {
   }
 
   public SnapshotDto setBuildString(@Nullable String buildString) {
+    checkLength(MAX_BUILD_STRING_LENGTH, buildString, "buildString");
     this.buildString = buildString;
     return this;
+  }
+
+  /**
+   * Used by MyBatis
+   */
+  private void setRawBuildString(@Nullable String buildString) {
+    this.buildString = trimToNull(buildString);
   }
 
   public SnapshotDto setPeriodMode(@Nullable String p) {
@@ -216,8 +205,8 @@ public final class SnapshotDto {
       Objects.equals(buildDate, that.buildDate) &&
       Objects.equals(status, that.status) &&
       Objects.equals(last, that.last) &&
-      Objects.equals(codePeriodVersion, that.codePeriodVersion) &&
       Objects.equals(projectVersion, that.projectVersion) &&
+      Objects.equals(buildString, that.buildString) &&
       Objects.equals(periodMode, that.periodMode) &&
       Objects.equals(periodParam, that.periodParam) &&
       Objects.equals(periodDate, that.periodDate);
@@ -225,7 +214,7 @@ public final class SnapshotDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, last, codePeriodVersion, projectVersion, periodMode, periodParam, periodDate);
+    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
   }
 
   @Override
@@ -238,8 +227,8 @@ public final class SnapshotDto {
       ", buildDate=" + buildDate +
       ", status='" + status + '\'' +
       ", last=" + last +
-      ", codePeriodVersion='" + codePeriodVersion + '\'' +
       ", projectVersion='" + projectVersion + '\'' +
+      ", buildString='" + buildString + '\'' +
       ", periodMode='" + periodMode + '\'' +
       ", periodParam='" + periodParam + '\'' +
       ", periodDate=" + periodDate +

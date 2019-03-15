@@ -47,7 +47,7 @@ import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
-import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_CODE_PERIOD_VERSION;
+import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_VERSION;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
@@ -92,9 +92,9 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  public NewIssuesNotification setCodePeriodVersion(@Nullable String version) {
+  public NewIssuesNotification setProjectVersion(@Nullable String version) {
     if (version != null) {
-      setFieldValue(FIELD_CODE_PERIOD_VERSION, version);
+      setFieldValue(FIELD_PROJECT_VERSION, version);
     }
     return this;
   }

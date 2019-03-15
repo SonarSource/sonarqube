@@ -109,7 +109,7 @@ public class LoadPeriodsStep implements ComputationStep {
   }
 
   private Optional<Period> resolvePeriod(Component projectOrView) {
-    String currentVersion = projectOrView.getProjectAttributes().getCodePeriodVersion();
+    String currentVersion = projectOrView.getProjectAttributes().getProjectVersion();
     Optional<String> propertyValue = configRepository.getConfiguration().get(LEAK_PERIOD)
       .filter(t -> !t.isEmpty());
     checkPeriodProperty(propertyValue.isPresent(), "", "property is undefined or value is empty");

@@ -96,7 +96,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private static final Component FILE = builder(Type.FILE, 11).build();
   private static final Component PROJECT = builder(Type.PROJECT, 1)
-    .setCodePeriodVersion(randomAlphanumeric(10))
+    .setProjectVersion(randomAlphanumeric(10))
     .addChildren(FILE).build();
 
   @Rule
@@ -509,7 +509,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private NewIssuesNotification createNewIssuesNotificationMock() {
     NewIssuesNotification notification = mock(NewIssuesNotification.class);
     when(notification.setProject(any(), any(), any(), any())).thenReturn(notification);
-    when(notification.setCodePeriodVersion(any())).thenReturn(notification);
+    when(notification.setProjectVersion(any())).thenReturn(notification);
     when(notification.setAnalysisDate(any())).thenReturn(notification);
     when(notification.setStatistics(any(), any())).thenReturn(notification);
     when(notification.setDebt(any())).thenReturn(notification);
@@ -520,7 +520,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     MyNewIssuesNotification notification = mock(MyNewIssuesNotification.class);
     when(notification.setAssignee(any(UserDto.class))).thenReturn(notification);
     when(notification.setProject(any(), any(), any(), any())).thenReturn(notification);
-    when(notification.setCodePeriodVersion(any())).thenReturn(notification);
+    when(notification.setProjectVersion(any())).thenReturn(notification);
     when(notification.setAnalysisDate(any())).thenReturn(notification);
     when(notification.setStatistics(any(), any())).thenReturn(notification);
     when(notification.setDebt(any())).thenReturn(notification);

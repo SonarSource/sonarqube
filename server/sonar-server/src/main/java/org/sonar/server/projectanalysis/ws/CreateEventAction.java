@@ -127,7 +127,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   private EventDto insertDbEvent(DbSession dbSession, CreateEventRequest request, SnapshotDto analysis) {
     EventDto dbEvent = dbClient.eventDao().insert(dbSession, toDbEvent(request, analysis));
     if (VERSION.equals(request.getCategory())) {
-      analysis.setCodePeriodVersion(request.getName());
+      analysis.setProjectVersion(request.getName());
       dbClient.snapshotDao().update(dbSession, analysis);
     }
     dbSession.commit();

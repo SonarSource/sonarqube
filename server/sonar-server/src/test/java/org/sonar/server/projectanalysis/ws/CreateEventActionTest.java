@@ -144,7 +144,7 @@ public class CreateEventActionTest {
     call(VERSION.name(), "5.6.3", analysis.getUuid());
 
     Optional<SnapshotDto> newAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid());
-    assertThat(newAnalysis.get().getCodePeriodVersion()).isEqualTo("5.6.3");
+    assertThat(newAnalysis.get().getProjectVersion()).isEqualTo("5.6.3");
   }
 
   @Test
@@ -156,7 +156,7 @@ public class CreateEventActionTest {
     CreateEventResponse result = call(OTHER.name(), "Project Import", analysis.getUuid());
 
     SnapshotDto newAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
-    assertThat(analysis.getCodePeriodVersion()).isEqualTo(newAnalysis.getCodePeriodVersion());
+    assertThat(analysis.getProjectVersion()).isEqualTo(newAnalysis.getProjectVersion());
     ProjectAnalyses.Event wsEvent = result.getEvent();
     assertThat(wsEvent.getKey()).isNotEmpty();
     assertThat(wsEvent.getCategory()).isEqualTo(OTHER.name());

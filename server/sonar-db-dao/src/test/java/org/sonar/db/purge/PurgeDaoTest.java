@@ -399,7 +399,7 @@ public class PurgeDaoTest {
         .setComponentUuid(PROJECT_UUID)
         .setStatus(STATUS_PROCESSED)
         .setLast(false)
-        .setCodePeriodVersion("V5")
+        .setProjectVersion("V5")
     };
     db.components().insertSnapshots(analyses);
     db.events().insertEvent(EventTesting.newEvent(analyses[4])

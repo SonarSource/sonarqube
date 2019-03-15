@@ -50,8 +50,7 @@ message Metadata {
   map<string, string> modules_project_relative_path_by_key = 15;
 
   string projectVersion = 16;
-  string codePeriodVersion = 17;
-  string buildString = 18;
+  string buildString = 17;
 
   message QProfile {
     string key = 1;

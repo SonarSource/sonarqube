@@ -111,23 +111,17 @@ public class BuildComponentTreeStep implements ComputationStep {
   }
 
   private static ProjectAttributes createProjectAttributes(ScannerReport.Metadata metadata, @Nullable SnapshotDto baseAnalysis) {
-    String projectVersion = trimToNull(metadata.getProjectVersion());
-    String codePeriodVersion = computeCodePeriodVersion(metadata.getCodePeriodVersion(), projectVersion, baseAnalysis);
+    String projectVersion = computeProjectVersion(trimToNull(metadata.getProjectVersion()), baseAnalysis);
     String buildString = trimToNull(metadata.getBuildString());
-    return new ProjectAttributes(projectVersion, codePeriodVersion, buildString);
+    return new ProjectAttributes(projectVersion, buildString);
   }
 
-  private static String computeCodePeriodVersion(String rawCodePeriodVersion, @Nullable String projectVersion, @Nullable SnapshotDto baseAnalysis) {
-    String codePeriodVersion = trimToNull(rawCodePeriodVersion);
-    if (codePeriodVersion != null) {
-      return codePeriodVersion;
-    }
-    // support case (legacy but not forbidden) where only projectVersion is set
+  private static String computeProjectVersion(@Nullable String projectVersion, @Nullable SnapshotDto baseAnalysis) {
     if (projectVersion != null) {
       return projectVersion;
     }
     if (baseAnalysis != null) {
-      return firstNonNull(baseAnalysis.getCodePeriodVersion(), DEFAULT_PROJECT_VERSION);
+      return firstNonNull(baseAnalysis.getProjectVersion(), DEFAULT_PROJECT_VERSION);
     }
     return DEFAULT_PROJECT_VERSION;
   }

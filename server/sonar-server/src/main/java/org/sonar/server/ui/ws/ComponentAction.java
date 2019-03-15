@@ -229,7 +229,7 @@ public class ComponentAction implements NavigationWsAction {
     List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
     writeExtensions(json, component, pages);
     if (analysis != null) {
-      json.prop("version", analysis.getCodePeriodVersion())
+      json.prop("version", analysis.getProjectVersion())
         .prop("analysisDate", formatDateTime(new Date(analysis.getCreatedAt())));
     }
   }

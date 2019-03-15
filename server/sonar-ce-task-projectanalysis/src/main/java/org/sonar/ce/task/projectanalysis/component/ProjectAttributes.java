@@ -26,27 +26,22 @@ import static java.util.Objects.requireNonNull;
 
 public class ProjectAttributes {
   private final String projectVersion;
-  private final String codePeriodVersion;
+
+  @Nullable
   private final String buildString;
 
-  public ProjectAttributes(@Nullable String projectVersion, String codePeriodVersion, String buildString) {
-    this.projectVersion = projectVersion;
-    this.codePeriodVersion = requireNonNull(codePeriodVersion, "codePeriod version can't be null");
+  public ProjectAttributes(String projectVersion, @Nullable String buildString) {
+    this.projectVersion = requireNonNull(projectVersion, "project version can't be null");
     this.buildString = buildString;
   }
 
   public ProjectAttributes(ProjectAttributes projectAttributes) {
     this.projectVersion = projectAttributes.projectVersion;
-    this.codePeriodVersion = projectAttributes.codePeriodVersion;
     this.buildString = projectAttributes.buildString;
   }
 
-  public Optional<String> getProjectVersion() {
-    return Optional.ofNullable(projectVersion);
-  }
-
-  public String getCodePeriodVersion() {
-    return codePeriodVersion;
+  public String getProjectVersion() {
+    return projectVersion;
   }
 
   public Optional<String> getBuildString() {
@@ -57,7 +52,6 @@ public class ProjectAttributes {
   public String toString() {
     return "ProjectAttributes{" +
       "projectVersion='" + projectVersion + '\'' +
-      "codePeriodVersion='" + codePeriodVersion + '\'' +
       "buildString='" + buildString + '\'' +
       '}';
   }

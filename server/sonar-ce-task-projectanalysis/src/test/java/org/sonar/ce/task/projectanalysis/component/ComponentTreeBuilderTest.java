@@ -19,9 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -31,12 +28,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -58,7 +53,6 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.Componen
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
 
-@RunWith(DataProviderRunner.class)
 public class ComponentTreeBuilderTest {
 
   private static final ComponentKeyGenerator KEY_GENERATOR = (projectKey, path) -> "generated_"
@@ -70,8 +64,7 @@ public class ComponentTreeBuilderTest {
   private static final String NO_SCM_BASE_PATH = "";
   // both no project as "" or null should be supported
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
-    new Random().nextBoolean() ? null : randomAlphabetic(12),
-    randomAlphabetic(20), randomAlphabetic(21));
+    randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -128,8 +121,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  @UseDataProvider("projectVersionOrNull")
-  public void by_default_project_fields_are_loaded_from_report(@Nullable String projectVersion) {
+  public void by_default_project_fields_are_loaded_from_report() {
     String nameInReport = "the name";
     String descriptionInReport = "the desc";
     String buildString = randomAlphabetic(21);
@@ -139,7 +131,7 @@ public class ComponentTreeBuilderTest {
       .setRef(42)
       .setName(nameInReport)
       .setDescription(descriptionInReport)
-      .build(), NO_SCM_BASE_PATH, new ProjectAttributes(projectVersion, "6.5", buildString));
+      .build(), NO_SCM_BASE_PATH, new ProjectAttributes("6.5", buildString));
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
     assertThat(root.getDbKey()).isEqualTo("generated_K1");
@@ -149,22 +141,9 @@ public class ComponentTreeBuilderTest {
     assertThat(root.getShortName()).isEqualTo(nameInReport);
     assertThat(root.getDescription()).isEqualTo(descriptionInReport);
     assertThat(root.getReportAttributes().getRef()).isEqualTo(42);
-    if (projectVersion == null) {
-      assertThat(root.getProjectAttributes().getProjectVersion()).isEmpty();
-    } else {
-      assertThat(root.getProjectAttributes().getProjectVersion()).contains(projectVersion);
-    }
-    assertThat(root.getProjectAttributes().getCodePeriodVersion()).isEqualTo("6.5");
+    assertThat(root.getProjectAttributes().getProjectVersion()).contains("6.5");
     assertThat(root.getProjectAttributes().getBuildString()).isEqualTo(Optional.of(buildString));
     assertThatFileAttributesAreNotSet(root);
-  }
-
-  @DataProvider
-  public static Object[][] projectVersionOrNull() {
-    return new Object[][] {
-      {null},
-      {randomAlphabetic(15)}
-    };
   }
 
   @Test

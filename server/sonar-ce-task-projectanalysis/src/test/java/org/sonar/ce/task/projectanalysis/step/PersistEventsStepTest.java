@@ -58,7 +58,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   private static final long NOW = 1225630680000L;
   private static final ReportComponent ROOT = builder(PROJECT, 1)
     .setUuid("ABCD")
-    .setCodePeriodVersion("version_1")
+    .setProjectVersion("version_1")
     .addChildren(
       builder(DIRECTORY, 2)
         .setUuid("BCDE")
@@ -107,7 +107,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     Component project = builder(PROJECT, 1)
       .setUuid("ABCD")
-      .setCodePeriodVersion("1.0")
+      .setProjectVersion("1.0")
       .addChildren(
         builder(DIRECTORY, 2)
           .setUuid("BCDE")
@@ -197,7 +197,7 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     Component project = builder(PROJECT, 1)
       .setUuid(projectDto.uuid())
-      .setCodePeriodVersion("1.5-SNAPSHOT")
+      .setProjectVersion("1.5-SNAPSHOT")
       .addChildren(
         builder(DIRECTORY, 2)
           .setUuid("BCDE")

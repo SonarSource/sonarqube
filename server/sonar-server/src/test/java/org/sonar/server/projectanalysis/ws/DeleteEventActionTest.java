@@ -76,20 +76,20 @@ public class DeleteEventActionTest {
   @Test
   public void delete_version_event() {
     ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion("5.6.3").setLast(false));
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion("5.6.3").setLast(false));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
 
     call("E1");
 
     SnapshotDto newAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
-    assertThat(newAnalysis.getCodePeriodVersion()).isNull();
+    assertThat(newAnalysis.getProjectVersion()).isNull();
   }
 
   @Test
   public void fail_if_version_for_last_analysis() {
     ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion("5.6.3").setLast(true));
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion("5.6.3").setLast(true));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
 

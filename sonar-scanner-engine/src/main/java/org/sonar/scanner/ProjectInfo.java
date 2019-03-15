@@ -32,7 +32,6 @@ import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.BUILD_STRING_PROPERTY;
-import static org.sonar.api.CoreProperties.CODE_PERIOD_VERSION_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_VERSION_PROPERTY;
 
 /**
@@ -46,7 +45,6 @@ public class ProjectInfo implements Startable {
 
   private Date analysisDate;
   private String projectVersion;
-  private String codePeriodVersion;
   private String buildString;
 
   public ProjectInfo(Configuration settings, Clock clock) {
@@ -60,10 +58,6 @@ public class ProjectInfo implements Startable {
 
   public Optional<String> getProjectVersion() {
     return Optional.ofNullable(projectVersion);
-  }
-
-  public Optional<String> getCodePeriodVersion() {
-    return Optional.ofNullable(codePeriodVersion);
   }
 
   public Optional<String> getBuildString() {
@@ -96,10 +90,6 @@ public class ProjectInfo implements Startable {
       .map(StringUtils::trimToNull)
       .filter(validateLengthLimit("project version"))
       .orElse(null);
-    this.codePeriodVersion = settings.get(CODE_PERIOD_VERSION_PROPERTY)
-      .map(StringUtils::trimToNull)
-      .filter(validateLengthLimit("codePeriod version"))
-      .orElse(projectVersion);
     this.buildString = settings.get(BUILD_STRING_PROPERTY)
       .map(StringUtils::trimToNull)
       .filter(validateLengthLimit("buildString"))

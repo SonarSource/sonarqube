@@ -66,7 +66,7 @@ import static org.sonar.scanner.protocol.output.ScannerReport.Component.Componen
 @RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
   private static final String NO_SCANNER_PROJECT_VERSION = null;
-  private static final String NO_SCANNER_CODE_PERIOD_VERSION = null;
+  private static final String NO_SCANNER_BUILD_STRING = null;
 
   private static final int ROOT_REF = 1;
   private static final int FILE_1_REF = 4;
@@ -91,7 +91,7 @@ public class BuildComponentTreeStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule().setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, NO_SCANNER_CODE_PERIOD_VERSION));
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule().setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, NO_SCANNER_BUILD_STRING));
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   @Rule
@@ -322,161 +322,70 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_codePeriodVersion_to_not_provided_when_both_codePeriod_and_project_version_are_not_set_on_first_analysis() {
+  public void set_projectVersion_to_not_provided_when_not_set_on_first_analysis() {
     setAnalysisMetadataHolder();
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion()).isEqualTo("not provided");
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).isEqualTo("not provided");
   }
 
   @Test
   @UseDataProvider("oneParameterNullNonNullCombinations")
-  public void set_codePeriodVersion_to_previous_analysis_codePeriodVersion_when_both_codePeriod_and_project_version_are_not_set(
-    @Nullable String previousAnalysisCodePeriodVersion) {
+  public void set_projectVersion_to_previous_analysis_when_not_set(@Nullable String previousAnalysisProjectVersion) {
     setAnalysisMetadataHolder();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
     underTest.execute(new TestComputationStepContext());
 
-    String codePeriodVersion = treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion();
-    if (previousAnalysisCodePeriodVersion == null) {
-      assertThat(codePeriodVersion).isEqualTo("not provided");
+    String projectVersion = treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion();
+    if (previousAnalysisProjectVersion == null) {
+      assertThat(projectVersion).isEqualTo("not provided");
     } else {
-      assertThat(codePeriodVersion).isEqualTo(previousAnalysisCodePeriodVersion);
+      assertThat(projectVersion).isEqualTo(previousAnalysisProjectVersion);
     }
   }
 
   @Test
-  public void set_codePeriodVersion_to_projectVersion_when_codePeriodVersion_is_unset_and_projectVersion_is_set_on_first_analysis() {
+  public void set_projectVersion_when_it_is_set_on_first_analysis() {
     String scannerProjectVersion = randomAlphabetic(12);
     setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_CODE_PERIOD_VERSION));
+    reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_BUILD_STRING));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion())
       .isEqualTo(scannerProjectVersion);
   }
 
   @Test
   @UseDataProvider("oneParameterNullNonNullCombinations")
-  public void set_codePeriodVersion_to_projectVersion_when_codePeriodVersion_is_unset_and_projectVersion_is_set_on_later_analysis(
-    @Nullable String previousAnalysisCodePeriodVersion) {
+  public void set_projectVersion_when_it_is_set_on_later_analysis(@Nullable String previousAnalysisProjectVersion) {
     String scannerProjectVersion = randomAlphabetic(12);
     setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_CODE_PERIOD_VERSION));
+    reportReader.setMetadata(createReportMetadata(scannerProjectVersion, NO_SCANNER_BUILD_STRING));
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
+    insertSnapshot(newAnalysis(project).setProjectVersion(previousAnalysisProjectVersion).setLast(true));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
+    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion())
       .isEqualTo(scannerProjectVersion);
-  }
-
-  @Test
-  @UseDataProvider("oneParameterNullNonNullCombinations")
-  public void set_codePeriodVersion_to_codePeriodVersion_when_it_is_set_on_first_analysis(@Nullable String projectVersion) {
-    String scannerCodePeriodVersion = randomAlphabetic(12);
-    setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(projectVersion, scannerCodePeriodVersion));
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
-      .isEqualTo(scannerCodePeriodVersion);
-  }
-
-  @Test
-  @UseDataProvider("twoParametersNullNonNullCombinations")
-  public void set_codePeriodVersion_to_codePeriodVersion_when_it_is_set_on_later_analysis(@Nullable String projectVersion, @Nullable String previousAnalysisCodePeriodVersion) {
-    String scannerCodePeriodVersion = randomAlphabetic(12);
-    setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(projectVersion, scannerCodePeriodVersion));
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getCodePeriodVersion())
-      .isEqualTo(scannerCodePeriodVersion);
-  }
-
-  @Test
-  @UseDataProvider("oneParameterNullNonNullCombinations")
-  public void set_projectVersion_to_null_when_projectVersion_is_unset_on_first_analysis(@Nullable String codePeriodVersion) {
-    setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, codePeriodVersion));
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).isEmpty();
-  }
-
-  @Test
-  @UseDataProvider("twoParametersNullNonNullCombinations")
-  public void set_projectVersion_to_null_when_projectVersion_is_unset_on_later_analysis(@Nullable String codePeriodVersion, @Nullable String previousAnalysisCodePeriodVersion) {
-    setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(NO_SCANNER_PROJECT_VERSION, codePeriodVersion));
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).isEmpty();
-  }
-
-  @Test
-  @UseDataProvider("oneParameterNullNonNullCombinations")
-  public void set_projectVersion_to_projectVersion_when_projectVersion_is_set_on_first_analysis(@Nullable String codePeriodVersion) {
-    String projectVersion = randomAlphabetic(7);
-    setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(projectVersion, codePeriodVersion));
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).contains(projectVersion);
-  }
-
-  @Test
-  @UseDataProvider("twoParametersNullNonNullCombinations")
-  public void set_projectVersion_to_projectVersion_when_projectVersion_is_set_on_later_analysis(@Nullable String codePeriodVersion,
-    @Nullable String previousAnalysisCodePeriodVersion) {
-    String projectVersion = randomAlphabetic(7);
-    setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(projectVersion, codePeriodVersion));
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = insertComponent(newPrivateProjectDto(organizationDto, "ABCD").setDbKey(REPORT_PROJECT_KEY));
-    insertSnapshot(newAnalysis(project).setCodePeriodVersion(previousAnalysisCodePeriodVersion).setLast(true));
-    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(treeRootHolder.getReportTreeRoot().getProjectAttributes().getProjectVersion()).contains(projectVersion);
   }
 
   @Test
   @UseDataProvider("oneParameterNullNonNullCombinations")
   public void set_buildString(@Nullable String buildString) {
     String projectVersion = randomAlphabetic(7);
-    String codePeriodVersion = randomAlphabetic(8);
     setAnalysisMetadataHolder();
-    reportReader.setMetadata(createReportMetadata(projectVersion, codePeriodVersion, buildString));
+    reportReader.setMetadata(createReportMetadata(projectVersion, buildString));
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
 
     underTest.execute(new TestComputationStepContext());
@@ -489,16 +398,6 @@ public class BuildComponentTreeStepTest {
     return new Object[][] {
       {null},
       {randomAlphabetic(7)}
-    };
-  }
-
-  @DataProvider
-  public static Object[][] twoParametersNullNonNullCombinations() {
-    return new Object[][] {
-      {null, null},
-      {randomAlphabetic(7), null},
-      {null, randomAlphabetic(8)},
-      {randomAlphabetic(9), randomAlphabetic(10)}
     };
   }
 
@@ -622,15 +521,10 @@ public class BuildComponentTreeStepTest {
       .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)));
   }
 
-  public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String scannerCodePeriodVersion) {
-    return createReportMetadata(projectVersion, scannerCodePeriodVersion, null);
-  }
-
-  public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String scannerCodePeriodVersion, @Nullable String buildString) {
+  public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String buildString) {
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
       .setProjectKey(REPORT_PROJECT_KEY)
       .setRootComponentRef(ROOT_REF);
-    ofNullable(scannerCodePeriodVersion).ifPresent(builder::setCodePeriodVersion);
     ofNullable(projectVersion).ifPresent(builder::setProjectVersion);
     ofNullable(buildString).ifPresent(builder::setBuildString);
     return builder.build();

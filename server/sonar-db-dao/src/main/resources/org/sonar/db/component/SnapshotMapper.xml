@@ -10,8 +10,7 @@
     s.build_date as buildDate,
     s.status as status,
     s.islast as last,
-    s.version as rawCodePeriodVersion,
-    s.project_version as rawProjectVersion,
+    s.version as rawProjectVersion,
     s.build_string as buildString,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
@@ -73,8 +72,8 @@
       <if test="query.status != null">
         AND s.status=#{query.status,jdbcType=VARCHAR}
       </if>
-      <if test="query.codePeriodVersion != null">
-        AND s.version=#{query.codePeriodVersion,jdbcType=VARCHAR}
+      <if test="query.projectVersion != null">
+        AND s.version=#{query.projectVersion,jdbcType=VARCHAR}
       </if>
       <if test="query.isLast != null">
         AND s.islast=#{query.isLast}
@@ -152,7 +151,7 @@
 
   <update id="update" parameterType="Snapshot">
     update snapshots
-    set version = #{codePeriodVersion, jdbcType=VARCHAR},
+    set version = #{projectVersion, jdbcType=VARCHAR},
         status = #{status, jdbcType=VARCHAR}
     where uuid = #{uuid,jdbcType=VARCHAR}
   </update>
@@ -166,7 +165,6 @@
       status,
       islast,
       version,
-      project_version,
       build_string,
       period1_mode,
       period1_param,
@@ -179,7 +177,6 @@
       #{buildDate, jdbcType=BIGINT},
       #{status, jdbcType=VARCHAR},
       #{last, jdbcType=BOOLEAN},
-      #{codePeriodVersion, jdbcType=VARCHAR},
       #{projectVersion, jdbcType=VARCHAR},
       #{buildString, jdbcType=VARCHAR},
       #{periodMode, jdbcType=VARCHAR},

@@ -56,10 +56,9 @@ message Analysis {
   optional string key = 1;
   optional string date = 2;
   repeated Event events = 3;
-  optional string codePeriodVersion = 4;
-  optional string projectVersion = 5;
+  optional string projectVersion = 4;
+  optional string buildString = 5;
   optional bool manualNewCodePeriodBaseline = 6;
-  optional string buildString = 7;
 }
 
 message QualityGate {

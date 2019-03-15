@@ -92,7 +92,7 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
       SnapshotDto analysis = dbClient.snapshotDao().selectByUuid(dbSession, dbEvent.getAnalysisUuid())
         .orElseThrow(() -> new IllegalStateException(format("Analysis '%s' not found", dbEvent.getAnalysisUuid())));
       checkArgument(!analysis.getLast(), "Cannot delete the version event of last analysis");
-      analysis.setCodePeriodVersion(null);
+      analysis.setProjectVersion(null);
       dbClient.snapshotDao().update(dbSession, analysis);
     }
     dbClient.eventDao().delete(dbSession, dbEvent.getUuid());

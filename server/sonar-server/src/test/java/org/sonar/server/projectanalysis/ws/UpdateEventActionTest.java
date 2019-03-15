@@ -121,7 +121,7 @@ public class UpdateEventActionTest {
     call("E1", "6.3");
 
     SnapshotDto updatedAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
-    assertThat(updatedAnalysis.getCodePeriodVersion()).isEqualTo("6.3");
+    assertThat(updatedAnalysis.getProjectVersion()).isEqualTo("6.3");
   }
 
   @Test
@@ -132,7 +132,7 @@ public class UpdateEventActionTest {
     call("E1", "6.3");
 
     SnapshotDto updatedAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
-    assertThat(updatedAnalysis.getCodePeriodVersion()).isEqualTo("5.6");
+    assertThat(updatedAnalysis.getProjectVersion()).isEqualTo("5.6");
   }
 
   @Test
@@ -256,7 +256,7 @@ public class UpdateEventActionTest {
 
   private SnapshotDto createAnalysisAndLogInAsProjectAdministrator(String version) {
     ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setCodePeriodVersion(version));
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion(version));
     logInAsProjectAdministrator(project);
     return analysis;
   }
