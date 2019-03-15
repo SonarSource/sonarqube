@@ -71,8 +71,8 @@ Key | Description | Default
 `sonar.scm.provider` | This property can be used to explicitly tell {instance} which SCM plugin should be used to grab SCM data on the project (in case auto-detection does not work). The value of this property is always lowercase and depends on the plugin (ex. "tfvc" for the TFVC plugin). Check the documentation page of each plugin for more. |  
 `sonar.scm.forceReloadAll` | By default, blame information is only retrieved for changed files. Set this property to `true` to load blame information for all files. This can be useful is you feel that some SCM data is outdated but {instance} does not get the latest information from the SCM engine. | 
 `sonar.scm.exclusions.disabled`| For supported engines, files ignored by the SCM, i.e. files listed in `.gitignore`, will automatically be ignored by analysis too. Set this property to `true` to disable that feature.|
-`sonar.analysis.[yourKey]`| This property stub allows you to insert custom key/value pairs into the analysis context, which will also be passed forward to [webhooks](/project-administration/webhooks/). | |
 `sonar.buildString`| The string passed with this property will be stored with the analysis and available in the results of `api/project_analyses/search`, thus allowing you to later identify a specific analysis and obtain its ID for use with `api/project_analyses/set_baseline`. | |
+`sonar.analysis.[yourKey]`| This property stub allows you to insert custom key/value pairs into the analysis context, which will also be passed forward to [webhooks](/project-administration/webhooks/). | |
 
 
 ### Duplications
