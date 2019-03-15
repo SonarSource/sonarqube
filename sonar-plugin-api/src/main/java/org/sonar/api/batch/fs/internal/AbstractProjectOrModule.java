@@ -95,6 +95,7 @@ public abstract class AbstractProjectOrModule extends DefaultInputComponent {
     Path workingDir = workingDirAsFile.getAbsoluteFile().toPath().normalize();
     if (SystemUtils.IS_OS_WINDOWS) {
       try {
+        Files.createDirectories(workingDir);
         Files.setAttribute(workingDir, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
       } catch (IOException e) {
         LOGGER.warn("Failed to set working directory hidden: {}", e.getMessage());
