@@ -85,6 +85,6 @@ Execute from project base directory:
 License
 -------
 
-Copyright 2008-2018 SonarSource.
+Copyright 2008-2019 SonarSource.
 
 Licensed under the [GNU Lesser General Public License, Version 3.0](https://www.gnu.org/licenses/lgpl.txt)
