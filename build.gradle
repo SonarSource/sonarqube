@@ -6,15 +6,16 @@ buildscript {
   }
   dependencies {
     // Ordered alphabeticly to avoid duplication
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
     classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.6'
     classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
-    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+    classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0'
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
     classpath 'net.rdrei.android.buildtimetracker:gradle-plugin:0.11.0'
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.7.5'
-    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
+    classpath "org.owasp:dependency-check-gradle:4.0.2"
+    classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7'
   }
 }
 
@@ -43,7 +44,6 @@ sonarqube {
 }
 
 allprojects {
-  apply plugin: 'com.github.ben-manes.versions'
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
 
@@ -75,18 +75,15 @@ allprojects {
       }
     }
   }
-
-  task printDependencies {
-    dependsOn 'dependencies'
-  }
 }
 
 subprojects {
-  apply plugin: "com.github.hierynomus.license"
+  apply plugin: 'com.github.hierynomus.license'
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'java'
   apply plugin: 'jacoco'
   apply plugin: 'idea'
+  apply plugin: 'org.owasp.dependencycheck'
 
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true
@@ -420,4 +417,24 @@ artifactory {
       "com.sonarsource.sonarqube:sonarqube-enterprise:zip")
   // The name of this variable is important because it's used by the delivery process when extracting version from Artifactory build info.
   clientConfig.info.addEnvironmentProperty('PROJECT_VERSION', "${version}")
+}
+
+// https://github.com/ben-manes/gradle-versions-plugin
+apply plugin: 'com.github.ben-manes.versions'
+// Exclude dev versions from the list of dependency upgrades, for
+// example to replace:
+//   org.slf4j:log4j-over-slf4j [1.7.25 -> 1.8.0-beta4]
+// by
+//   org.slf4j:log4j-over-slf4j [1.7.25 -> 1.7.26]
+dependencyUpdates.resolutionStrategy {
+  componentSelection { rules ->
+    rules.all { ComponentSelection selection ->
+      boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
+        selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+      }
+      if (rejected) {
+        selection.reject('Development version')
+      }
+    }
+  }
 }

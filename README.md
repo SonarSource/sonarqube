@@ -61,26 +61,17 @@ If the project has never been built, then build it as usual (see previous sectio
 
     ./gradlew ide
     
-Then simply open the root file `build.gradle` as a project in Intellij or Eclipse.
+Then open the root file `build.gradle` as a project in Intellij or Eclipse.
 
-### Find available updates of dependencies
+### Gradle Hints
 
-Execute from project base directory:
-
-    ./gradlew dependencyUpdates
-
-### Update the files missing the license header
-
-Execute from project base directory:
-
-    ./gradlew licenseFormat --rerun-tasks
-    
-### List all dependencies
-
-Execute from project base directory:
-
-    ./gradlew printDependencies
-    
+| ./gradlew command | Description |
+|---|---|
+| `dependencies`| list dependencies |
+| `dependencyCheckAnalyze` | list vulnerable dependencies |
+| `dependencyUpdates` | list the dependencies that could be updated |
+| `licenseFormat --rerun-tasks` | fix source headers by applying HEADER.txt |
+| `wrapper --gradle-version 5.2.1` | upgrade wrapper |
 
 License
 -------
