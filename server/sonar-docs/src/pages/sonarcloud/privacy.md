@@ -7,7 +7,7 @@ The privacy policy specifies how data collected on this website is used. Thank y
 
 ## PERSONAL DATA
 
-Personal information is information about personal or material circumstances of an identified or identifiable natural person. This includes information such as your first and last name, your postal or residential address, telephone numbers and date of birth. Information that can not be directly related to your real identity – such as your favorite websites or the number of users of a page – are not considered as personal data.
+Personal information is data about personal or material circumstances of an identified or identifiable natural person. This includes information such as your first and last name, your postal or residential address, telephone numbers and date of birth. Information that can not be directly related to your real identity – such as your favorite websites or the number of users of a page – are not considered as personal data.
 
 ## COLLECTION AND PROCESSING OF PERSONAL DATA
 
