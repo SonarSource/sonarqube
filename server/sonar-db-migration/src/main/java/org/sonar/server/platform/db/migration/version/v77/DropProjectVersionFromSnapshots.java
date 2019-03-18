@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v77;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropProjectVersionFromSnapshots extends DdlChange {
 
-public class DbVersion77Test {
+  private static final String TABLE_NAME = "snapshots";
 
-  private DbVersion77 underTest = new DbVersion77();
-
-  @Test
-  public void migrationNumber_starts_at_2600() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public DropProjectVersionFromSnapshots(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "project_version")
+      .build());
   }
-
 }

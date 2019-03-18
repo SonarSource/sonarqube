@@ -66,7 +66,6 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             project_version="[null]"
              build_string="[null]"
   />
 
@@ -96,7 +95,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             project_version="[null]"
+             build_string="[null]"
   />
 
   <!-- snapshot to be purged -->
@@ -124,7 +123,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             project_version="[null]"
+             build_string="[null]"
   />
 
 </dataset>

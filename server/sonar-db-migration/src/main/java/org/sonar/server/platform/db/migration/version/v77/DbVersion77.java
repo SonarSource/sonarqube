@@ -39,6 +39,8 @@ public class DbVersion77 implements DbVersion {
       .add(2609, "Delete exceeding favorites when there are more than 100 for a user", DeleteFavoritesExceedingOneHundred.class)
       .add(2610, "Truncate ES_QUEUE table content", TruncateEsQueue.class)
       .add(2611, "Add SNAPSHOTS.BUILD_STRING", AddBuildStringToSnapshot.class)
+      // FIXME after deployment on SonarCloud, drop this and "Add SNAPSHOTS.PROJECT_VERSION" above as they cancel out each other
+      .add(2612, "Drop SNAPSHOTS.PROJECT_VERSION", DropProjectVersionFromSnapshots.class)
     ;
   }
 }

@@ -20,23 +20,37 @@
 
 package org.sonar.server.platform.db.migration.version.v77;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropProjectVersionFromSnapshotsTest {
 
-public class DbVersion77Test {
+  private static final String TABLE = "snapshots";
 
-  private DbVersion77 underTest = new DbVersion77();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropProjectVersionFromSnapshotsTest.class, "snapshots.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DropProjectVersionFromSnapshots underTest = new DropProjectVersionFromSnapshots(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2600() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public void drop_column_and_recreate_index() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist(TABLE, "project_version");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }

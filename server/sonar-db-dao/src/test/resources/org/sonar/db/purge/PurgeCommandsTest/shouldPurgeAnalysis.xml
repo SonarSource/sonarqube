@@ -24,7 +24,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             project_version="[null]"
+             build_string="[null]"
   />
 
   <analysis_properties uuid="u1"
@@ -98,7 +98,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-             project_version="[null]"
+             build_string="[null]"
   />
 
   <analysis_properties uuid="u2"
