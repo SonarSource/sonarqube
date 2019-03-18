@@ -92,7 +92,7 @@ subprojects {
   artifactoryPublish.skip = true
 
   ext {
-    protobufVersion = '3.5.1'
+    protobufVersion = '3.7.0'
   }
 
   sonarqube {
