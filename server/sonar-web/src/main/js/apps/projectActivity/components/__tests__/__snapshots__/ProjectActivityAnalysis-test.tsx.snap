@@ -1,0 +1,540 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not allow the first item to be deleted 1`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <div
+      className="project-activity-analysis-actions big-spacer-right"
+    >
+      <ActionsDropdown
+        small={true}
+        toggleClassName="js-analysis-actions"
+      >
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_version
+        </ActionsDropdownItem>
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_custom_event
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+    </div>
+  </li>
+</Tooltip>
+`;
+
+exports[`should render correctly 1`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+  </li>
+</Tooltip>
+`;
+
+exports[`should render correctly 2`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <Events
+      analysis="foo"
+      changeEvent={[MockFunction]}
+      deleteEvent={[MockFunction]}
+      events={
+        Array [
+          Object {
+            "category": "QUALITY_GATE",
+            "description": "Lorem ipsum dolor sit amet",
+            "key": "E11",
+            "name": "Lorem ipsum",
+            "qualityGate": Object {
+              "failing": Array [
+                Object {
+                  "branch": "master",
+                  "key": "foo",
+                  "name": "Foo",
+                },
+                Object {
+                  "branch": "feature/bar",
+                  "key": "bar",
+                  "name": "Bar",
+                },
+              ],
+              "status": "ERROR",
+              "stillFailing": true,
+            },
+          },
+        ]
+      }
+      isFirst={false}
+    />
+  </li>
+</Tooltip>
+`;
+
+exports[`should render correctly 3`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <React.Fragment>
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={true}
+      />
+      <br />
+      project_activity.analysis_build_string_X.1.0.234
+    </React.Fragment>
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+  </li>
+</Tooltip>
+`;
+
+exports[`should show the correct admin options 1`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <div
+      className="project-activity-analysis-actions big-spacer-right"
+    >
+      <ActionsDropdown
+        small={true}
+        toggleClassName="js-analysis-actions"
+      >
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_version
+        </ActionsDropdownItem>
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_custom_event
+        </ActionsDropdownItem>
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          className="js-delete-analysis"
+          destructive={true}
+          onClick={[Function]}
+        >
+          project_activity.delete_analysis
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+    </div>
+  </li>
+</Tooltip>
+`;
+
+exports[`should show the correct admin options 2`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <div
+      className="project-activity-analysis-actions big-spacer-right"
+    >
+      <ActionsDropdown
+        small={true}
+        toggleClassName="js-analysis-actions"
+      >
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_version
+        </ActionsDropdownItem>
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_custom_event
+        </ActionsDropdownItem>
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          className="js-delete-analysis"
+          destructive={true}
+          onClick={[Function]}
+        >
+          project_activity.delete_analysis
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+      <AddEventForm
+        addEvent={[MockFunction]}
+        addEventButtonText="project_activity.add_custom_event"
+        analysis={
+          Object {
+            "date": 2017-03-01T08:36:01.000Z,
+            "events": Array [],
+            "key": "foo",
+            "projectVersion": "1.0",
+          }
+        }
+        onClose={[Function]}
+      />
+    </div>
+  </li>
+</Tooltip>
+`;
+
+exports[`should show the correct admin options 3`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <div
+      className="project-activity-analysis-actions big-spacer-right"
+    >
+      <ActionsDropdown
+        small={true}
+        toggleClassName="js-analysis-actions"
+      >
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_version
+        </ActionsDropdownItem>
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_custom_event
+        </ActionsDropdownItem>
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          className="js-delete-analysis"
+          destructive={true}
+          onClick={[Function]}
+        >
+          project_activity.delete_analysis
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+      <RemoveAnalysisForm
+        analysis={
+          Object {
+            "date": 2017-03-01T08:36:01.000Z,
+            "events": Array [],
+            "key": "foo",
+            "projectVersion": "1.0",
+          }
+        }
+        deleteAnalysis={[MockFunction]}
+        onClose={[Function]}
+      />
+    </div>
+  </li>
+</Tooltip>
+`;
+
+exports[`should show the correct admin options 4`] = `
+<Tooltip
+  mouseEnterDelay={0.5}
+  overlay={
+    <TimeFormatter
+      date={
+        Object {
+          "toISOString": [Function],
+          "valueOf": [Function],
+        }
+      }
+      long={true}
+    />
+  }
+  placement="left"
+>
+  <li
+    className="project-activity-analysis"
+    data-date={1546333200000}
+    onClick={[Function]}
+    tabIndex={0}
+  >
+    <div
+      className="project-activity-time spacer-right"
+    >
+      <TimeFormatter
+        date={
+          Object {
+            "toISOString": [Function],
+            "valueOf": [Function],
+          }
+        }
+        long={false}
+      >
+        <Component />
+      </TimeFormatter>
+    </div>
+    <div
+      className="project-activity-analysis-actions big-spacer-right"
+    >
+      <ActionsDropdown
+        small={true}
+        toggleClassName="js-analysis-actions"
+      >
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_version
+        </ActionsDropdownItem>
+        <ActionsDropdownItem
+          className="js-add-event"
+          onClick={[Function]}
+        >
+          project_activity.add_custom_event
+        </ActionsDropdownItem>
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          className="js-delete-analysis"
+          destructive={true}
+          onClick={[Function]}
+        >
+          project_activity.delete_analysis
+        </ActionsDropdownItem>
+      </ActionsDropdown>
+      <AddEventForm
+        addEvent={[MockFunction]}
+        addEventButtonText="project_activity.add_version"
+        analysis={
+          Object {
+            "date": 2017-03-01T08:36:01.000Z,
+            "events": Array [],
+            "key": "foo",
+            "projectVersion": "1.0",
+          }
+        }
+        onClose={[Function]}
+      />
+    </div>
+  </li>
+</Tooltip>
+`;
