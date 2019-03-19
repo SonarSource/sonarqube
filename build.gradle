@@ -40,6 +40,7 @@ sonarqube {
   properties {
     property 'sonar.projectName', projectTitle
     property 'sonar.projectVersion', versionInSources
+    property 'sonar.buildString', version
   }
 }
 
