@@ -214,6 +214,7 @@ export function loadMoreChildren(
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
     p: page,
+    s: 'qualifier,name',
     ...getBranchLikeQuery(branchLike)
   })
     .then(prepareChildren)
