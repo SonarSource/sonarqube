@@ -41,7 +41,7 @@ BUILD)
   -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
   -Dsonar.organization=sonarsource \
   -Dsonar.host.url=https://sonarcloud.io \
-  -Dsonar.login=$SONAR_TOKEN
+  -Dsonar.login="$SONAR_TOKEN"
   ;;
 
 WEB_TESTS)

@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
-pushd $SCRIPTPATH/..
+pushd "$SCRIPTPATH"/..
 pwd
 ./gradlew :sonar-ws-generator:build :sonar-ws-generator:fatJar
 popd
