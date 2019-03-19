@@ -27,8 +27,8 @@ configurations {
 }
 
 ext {
-  slangVersion = '1.4.0.155'
-  dotnetVersion = '7.10.0.7896'
+  slangVersion = '1.5.0.315'
+  dotnetVersion = '7.11.0.8083'
 }
 
 dependencies {
@@ -58,15 +58,15 @@ dependencies {
   bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin:2.4.0.1222@jar'
   bundledPlugin 'org.sonarsource.go:sonar-go-plugin:1.1.0.1612@jar'
   bundledPlugin 'org.sonarsource.html:sonar-html-plugin:3.1.0.1615@jar'
-  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.10.1.16922@jar'
+  bundledPlugin 'org.sonarsource.java:sonar-java-plugin:5.11.0.17289@jar'
   bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.1.143@jar'
-  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.0.0.6962@jar'
+  bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin:5.1.1.7506@jar'
   bundledPlugin 'org.sonarsource.ldap:sonar-ldap-plugin:2.2.0.608@jar'
-  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:2.16.0.4355@jar'
-  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.11.0.2473@jar'
+  bundledPlugin 'org.sonarsource.php:sonar-php-plugin:3.0.0.4537@jar'
+  bundledPlugin 'org.sonarsource.python:sonar-python-plugin:1.13.0.2922@jar'
   bundledPlugin "org.sonarsource.slang:sonar-kotlin-plugin:${slangVersion}@jar"
   bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin:${slangVersion}@jar"
-  bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.7.0.1491@jar'
+  bundledPlugin 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.8.0.1574@jar'
   bundledPlugin 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295@jar'
   bundledPlugin "org.sonarsource.slang:sonar-scala-plugin:${slangVersion}@jar"
   bundledPlugin 'org.sonarsource.typescript:sonar-typescript-plugin:1.9.0.3766@jar'
@@ -175,8 +175,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 185000000
-  def maxLength = 193000000
+  def minLength = 190000000
+  def maxLength = 197000000
   def length = new File(distsDir, archiveName).length()
   if (length < minLength)
     throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
