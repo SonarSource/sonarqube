@@ -31,7 +31,7 @@ it('should render correctly', () => {
           key: '1',
           date: new Date('2019-01-14T15:44:51.000Z'),
           events: [{ key: '2', category: 'VERSION', name: '1.0' }],
-          codePeriodVersion: '1.0',
+          projectVersion: '1.0',
           manualNewCodePeriodBaseline: false
         }}
         onClose={jest.fn()}

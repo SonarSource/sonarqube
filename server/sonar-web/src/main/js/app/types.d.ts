@@ -49,7 +49,7 @@ declare namespace T {
   }
 
   export interface Analysis {
-    codePeriodVersion?: string;
+    buildString?: string;
     date: string;
     events: AnalysisEvent[];
     key: string;

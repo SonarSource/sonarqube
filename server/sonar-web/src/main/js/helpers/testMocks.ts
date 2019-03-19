@@ -19,6 +19,7 @@
  */
 import { InjectedRouter } from 'react-router';
 import { Location } from 'history';
+import { ParsedAnalysis } from '../apps/projectActivity/utils';
 import { Profile } from '../apps/quality-profiles/types';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
@@ -43,6 +44,42 @@ export function mockAlmOrganization(overrides: Partial<T.AlmOrganization> = {}):
     privateRepos: 0,
     publicRepos: 3,
     url: 'http://example.com/foo',
+    ...overrides
+  };
+}
+
+export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): ParsedAnalysis {
+  return {
+    date: new Date('2017-03-01T09:36:01+0100'),
+    events: [],
+    key: 'foo',
+    projectVersion: '1.0',
+    ...overrides
+  };
+}
+
+export function mockAnalysisEvent(overrides: Partial<T.AnalysisEvent> = {}): T.AnalysisEvent {
+  return {
+    category: 'QUALITY_GATE',
+    key: 'E11',
+    description: 'Lorem ipsum dolor sit amet',
+    name: 'Lorem ipsum',
+    qualityGate: {
+      status: 'ERROR',
+      stillFailing: true,
+      failing: [
+        {
+          key: 'foo',
+          name: 'Foo',
+          branch: 'master'
+        },
+        {
+          key: 'bar',
+          name: 'Bar',
+          branch: 'feature/bar'
+        }
+      ]
+    },
     ...overrides
   };
 }

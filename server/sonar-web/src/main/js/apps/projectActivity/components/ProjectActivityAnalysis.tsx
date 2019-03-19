@@ -117,27 +117,25 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
   };
 
   render() {
-    const { analysis, isFirst, canAdmin } = this.props;
+    const { analysis, isFirst, canAdmin, canCreateVersion } = this.props;
     const { date, events } = analysis;
     const parsedDate = parseDate(date);
     const hasVersion = events.find(event => event.category === 'VERSION') != null;
 
-    const canAddVersion = canAdmin && !hasVersion && this.props.canCreateVersion;
+    const canAddVersion = canAdmin && !hasVersion && canCreateVersion;
     const canAddEvent = canAdmin;
     const canDeleteAnalyses =
       this.props.canDeleteAnalyses && !isFirst && !analysis.manualNewCodePeriodBaseline;
 
     let tooltipContent = <TimeFormatter date={parsedDate} long={true} />;
-    // If projectVersion AND codePeriodVersion are set, add the projectVersion
-    // to the tooltip content.
-    if (analysis.projectVersion && analysis.codePeriodVersion) {
+    if (analysis.buildString) {
       tooltipContent = (
         <>
           {tooltipContent}
           <br />
           {translateWithParameters(
-            'project_activity.analysis_project_version_X',
-            analysis.projectVersion
+            'project_activity.analysis_build_string_X',
+            analysis.buildString
           )}
         </>
       );
@@ -147,7 +145,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent<Props, 
       <Tooltip mouseEnterDelay={0.5} overlay={tooltipContent} placement="left">
         <li
           className={classNames('project-activity-analysis', { selected: this.props.selected })}
-          data-date={date.valueOf()}
+          data-date={parsedDate.valueOf()}
           onClick={this.handleClick}
           tabIndex={0}>
           <div className="project-activity-time spacer-right">
