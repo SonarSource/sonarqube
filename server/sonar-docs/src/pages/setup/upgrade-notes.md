@@ -3,7 +3,18 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
-## Release 7.7 Upgrade Notes
+## Release 7.7 Upgrade Notes  
+**PR decoration below GitHub Enterprise 2.14 swapped for GitHub checks**  
+This version adds support for GitHub Enterprise (GHE) checks, which were introduced in GHE 2.14, and drops support for PR decoration in GHE versions prior to 2.14. To use the new checks implementation, an application will need to be created in GHE, and further configuration will be required via the SonarQube UI. ([Details in the docs.](/instance-administration/github-application/).)
+
+**ElasticSearch update requires index rebuild, potentially more filespace**
+While it is generally possible to keep ElasticSearch indices in an upgrade (see [Configuring the Elasticsearch storage path](/setup/install-server/)), this version's upgrade of ElasticSearch will force all indices to be rebuilt. Additionally, more filespace may be required for this version's data ([SONAR-11826](https://jira.sonarsource.com/browse/SONAR-11826)).
+
+**32-bit architecture support dropped**  
+Support for 32-bit architectures has been dropped as part of this version's upgrade of ElasticSearch, and those scripts removed from the distributions. 
+
+**Deprecated metrics dropped**  
+Several deprecated ([SONAR-1794](https://jira.sonarsource.com/browse/SONAR-11794)) or obsolete ([SONAR-11664](https://jira.sonarsource.com/browse/SONAR-11664)) metrics have been dropped from the platform.
 
 [Full Release Notes](https://jira.sonarsource.com/jira/secure/ReleaseNote.jspa?projectId=10930&version=14848)
 
