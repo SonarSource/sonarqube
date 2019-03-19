@@ -43,7 +43,7 @@ public class DeleteFavoritesExceedingOneHundred extends DataChange {
 
   private static final String FAVOURITE_PROPERTY = "favourite";
 
-  private static final List<String> SORTED_QUALIFIERS = asList("TRK", "VW", "APP", "SVW", "FIL");
+  private static final List<String> SORTED_QUALIFIERS = asList("TRK", "VW", "APP", "SVW", "FIL", "UTS");
 
   public DeleteFavoritesExceedingOneHundred(Database db) {
     super(db);

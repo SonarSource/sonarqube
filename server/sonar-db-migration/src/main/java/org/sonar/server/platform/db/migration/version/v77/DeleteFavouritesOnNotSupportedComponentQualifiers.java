@@ -36,7 +36,7 @@ public class DeleteFavouritesOnNotSupportedComponentQualifiers extends DataChang
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate().rowPluralName("favourites");
     massUpdate.select("SELECT prop.id FROM properties prop " +
-      "INNER JOIN projects p ON p.id=prop.resource_id AND p.qualifier NOT IN ('TRK', 'FIL', 'VW', 'SVW', 'APP') " +
+      "INNER JOIN projects p ON p.id=prop.resource_id AND p.qualifier NOT IN ('TRK', 'FIL', 'VW', 'SVW', 'APP', 'UTS') " +
       "WHERE prop_key=? AND user_id IS NOT NULL")
       .setString(1, "favourite");
     massUpdate.update("DELETE FROM properties WHERE id=?");

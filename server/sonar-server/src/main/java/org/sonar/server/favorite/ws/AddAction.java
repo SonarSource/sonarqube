@@ -37,12 +37,18 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class AddAction implements FavoritesWsAction {
 
-  private static final List<String> SUPPORTED_QUALIFIERS = asList("TRK", "VW", "APP", "SVW", "FIL");
+  private static final List<String> SUPPORTED_QUALIFIERS = asList(PROJECT, VIEW, SUBVIEW, APP, FILE, UNIT_TEST_FILE);
   private static final String SUPPORTED_QUALIFIERS_AS_STRING = join(", ", SUPPORTED_QUALIFIERS);
 
   private final UserSession userSession;

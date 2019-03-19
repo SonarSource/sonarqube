@@ -158,7 +158,7 @@ public class AddActionTest {
     userSession.logIn(user).addProjectPermission(USER, project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only components with qualifiers TRK, VW, APP, SVW, FIL are supported");
+    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP, FIL, UTS are supported");
 
     call(directory.getKey());
   }

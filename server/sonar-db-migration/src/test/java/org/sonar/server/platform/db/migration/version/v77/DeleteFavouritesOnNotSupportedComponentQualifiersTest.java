@@ -64,10 +64,12 @@ public class DeleteFavouritesOnNotSupportedComponentQualifiersTest {
     int prop4 = insertProperty(FAVOURITE_PROPERTY, subPortfolioId);
     int applicationId = insertComponent("APP");
     int prop5 = insertProperty(FAVOURITE_PROPERTY, applicationId);
+    int unitTestId = insertComponent("UTS");
+    int prop6 = insertProperty(FAVOURITE_PROPERTY, unitTestId);
 
     underTest.execute();
 
-    assertProperties(prop1, prop2, prop3, prop4, prop5);
+    assertProperties(prop1, prop2, prop3, prop4, prop5, prop6);
   }
 
   @Test
