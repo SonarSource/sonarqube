@@ -24,7 +24,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
-import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
+import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
@@ -37,7 +37,7 @@ public class DispatchersImplTest {
 
   private NotificationCenter notificationCenter = new NotificationCenter(
     new NotificationDispatcherMetadata[] {
-      NotificationDispatcherMetadata.create(MyNewIssuesNotificationDispatcher.KEY)
+      NotificationDispatcherMetadata.create(MyNewIssuesNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
       NotificationDispatcherMetadata.create(NewIssuesNotificationDispatcher.KEY)
@@ -60,7 +60,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getGlobalDispatchers()).containsExactly(
-      NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, NewIssuesNotificationDispatcher.KEY, MyNewIssuesNotificationDispatcher.KEY);
+      NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, NewIssuesNotificationDispatcher.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class DispatchersImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getGlobalDispatchers()).containsOnly(MyNewIssuesNotificationDispatcher.KEY);
+    assertThat(underTest.getGlobalDispatchers()).containsOnly(MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsExactly(
-      NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, MyNewIssuesNotificationDispatcher.KEY);
+      NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
@@ -87,6 +87,6 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsOnly(
-      MyNewIssuesNotificationDispatcher.KEY, NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY);
+      MyNewIssuesNotificationHandler.KEY, NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY);
   }
 }

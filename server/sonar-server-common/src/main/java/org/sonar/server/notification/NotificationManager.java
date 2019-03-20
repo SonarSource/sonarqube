@@ -21,6 +21,8 @@ package org.sonar.server.notification;
 
 import com.google.common.collect.Multimap;
 import java.util.Objects;
+import java.util.Set;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.web.UserRole;
@@ -53,13 +55,56 @@ public interface NotificationManager {
    * </p>
    *
    * @param dispatcher the dispatcher for which this list of users is requested
-   * @param projectUuid UUID of the project
+   * @param projectKey key of the project
    * @param subscriberPermissionsOnProject the required permission for global and project subscribers
    *
    * @return the list of user login along with the subscribed channels
    */
-  Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectUuid,
+  Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectKey,
     SubscriberPermissionsOnProject subscriberPermissionsOnProject);
+
+  @Immutable
+  final class EmailRecipient {
+    private final String login;
+    private final String email;
+
+    public EmailRecipient(String login, String email) {
+      this.login = requireNonNull(login, "login can't be null");
+      this.email = requireNonNull(email, "email can't be null");
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    public String getEmail() {
+      return email;
+    }
+
+    @Override
+    public String toString() {
+      return "EmailRecipient{" + "'" + login + '\'' + ":'" + email + '\'' + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EmailRecipient that = (EmailRecipient) o;
+      return login.equals(that.login) && email.equals(that.email);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(login, email);
+    }
+  }
+
+  Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, SubscriberPermissionsOnProject subscriberPermissionsOnProject);
 
   final class SubscriberPermissionsOnProject {
     public static final SubscriberPermissionsOnProject ALL_MUST_HAVE_ROLE_USER = new SubscriberPermissionsOnProject(UserRole.USER);

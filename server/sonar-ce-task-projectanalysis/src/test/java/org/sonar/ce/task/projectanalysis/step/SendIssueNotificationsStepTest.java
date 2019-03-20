@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
@@ -66,6 +68,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -141,7 +144,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any());
+    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliverEmails(anyCollection());
     verifyStatistics(context, 0, 0, 0);
   }
 
@@ -209,7 +213,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any());
+    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliverEmails(anyCollection());
     verifyStatistics(context, 0, 0, 0);
   }
 
@@ -263,7 +268,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any());
+    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliverEmails(anyCollection());
     verifyStatistics(context, 0, 0, 0);
   }
 
@@ -281,6 +287,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
+    verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock));
+    // old API compatibility call
     verify(notificationService).deliver(myNewIssuesNotificationMock);
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
     verify(myNewIssuesNotificationMock).setProject(PROJECT.getKey(), PROJECT.getName(), null, null);
@@ -327,13 +335,16 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder, newIssuesNotificationFactory, db.getDbClient())
       .execute(context);
 
+    verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock1, myNewIssuesNotificationMock2));
+    // old API compatibility
     verify(notificationService).deliver(myNewIssuesNotificationMock1);
+    verify(notificationService).deliver(myNewIssuesNotificationMock2);
+
     Map<String, MyNewIssuesNotification> myNewIssuesNotificationMocksByUsersName = new HashMap<>();
     ArgumentCaptor<UserDto> userCaptor1 = forClass(UserDto.class);
     verify(myNewIssuesNotificationMock1).setAssignee(userCaptor1.capture());
     myNewIssuesNotificationMocksByUsersName.put(userCaptor1.getValue().getLogin(), myNewIssuesNotificationMock1);
 
-    verify(notificationService).deliver(myNewIssuesNotificationMock2);
     ArgumentCaptor<UserDto> userCaptor2 = forClass(UserDto.class);
     verify(myNewIssuesNotificationMock2).setAssignee(userCaptor2.capture());
     myNewIssuesNotificationMocksByUsersName.put(userCaptor2.getValue().getLogin(), myNewIssuesNotificationMock2);
@@ -378,7 +389,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute(context);
 
     verify(notificationService).deliver(newIssuesNotificationMock);
+    verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock));
+    // old API compatibility
     verify(notificationService).deliver(myNewIssuesNotificationMock);
+
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), statsCaptor.capture());
@@ -405,7 +419,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any());
+    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliverEmails(anyCollection());
     verifyStatistics(context, 0, 0, 0);
   }
 
@@ -425,7 +440,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService, never()).deliver(any());
+    verify(notificationService, never()).deliver(any(Notification.class));
+    verify(notificationService, never()).deliverEmails(anyCollection());
     verifyStatistics(context, 0, 0, 0);
   }
 

@@ -69,6 +69,11 @@ public class PropertiesDao implements Dao {
     }
   }
 
+  public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
+                                                                     @Nullable String projectKey) {
+    return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey);
+  }
+
   public boolean hasProjectNotificationSubscribersForDispatchers(String projectUuid, Collection<String> dispatcherKeys) {
     try (DbSession session = mybatis.openSession(false);
       Connection connection = session.getConnection();

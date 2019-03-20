@@ -33,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
+import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationUpdater;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -100,7 +100,7 @@ public class AddAction implements NotificationsWsAction {
         String.join(", ", dispatchers.getGlobalDispatchers()),
         String.join(", ", dispatchers.getProjectDispatchers()))
       .setRequired(true)
-      .setExampleValue(MyNewIssuesNotificationDispatcher.KEY);
+      .setExampleValue(MyNewIssuesNotificationHandler.KEY);
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")

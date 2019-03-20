@@ -38,11 +38,15 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.notification.NotificationQueueDto;
+import org.sonar.db.property.EmailSubscriberDto;
 import org.sonar.db.property.Subscriber;
+import org.sonar.server.notification.email.EmailNotificationChannel;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
@@ -120,7 +124,7 @@ public class DefaultNotificationManager implements NotificationManager {
   @Override
   public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher,
     String projectKey, SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
-    requireNonNull(projectKey, "projectKey is mandatory");
+    verifyProjectKey(projectKey);
     String dispatcherKey = dispatcher.getKey();
 
     Set<SubscriberAndChannel> subscriberAndChannels = Arrays.stream(notificationChannels)
@@ -139,6 +143,10 @@ public class DefaultNotificationManager implements NotificationManager {
         .forEach(subscriberAndChannel -> builder.put(subscriberAndChannel.getSubscriber().getLogin(), subscriberAndChannel.getChannel()));
     }
     return builder.build();
+  }
+
+  private static void verifyProjectKey(String projectKey) {
+    requireNonNull(projectKey, "projectKey is mandatory");
   }
 
   private Stream<SubscriberAndChannel> toSubscriberAndChannels(String dispatcherKey, String projectKey, NotificationChannel notificationChannel) {
@@ -171,6 +179,51 @@ public class DefaultNotificationManager implements NotificationManager {
       return Collections.emptySet();
     }
     return dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, permission);
+  }
+
+  @Override
+  public Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
+    verifyProjectKey(projectKey);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
+        dbSession, dispatcherKey, EmailNotificationChannel.class.getSimpleName(), projectKey);
+      if (emailSubscribers.isEmpty()) {
+        return emptySet();
+      }
+
+      return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, subscriberPermissionsOnProject)
+        .map(emailSubscriber -> new EmailRecipient(emailSubscriber.getLogin(), emailSubscriber.getEmail()))
+        .collect(MoreCollectors.toSet());
+    }
+  }
+
+  private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,
+                                                                    SubscriberPermissionsOnProject requiredPermissions) {
+    if (requiredPermissions.getGlobalSubscribers().equals(requiredPermissions.getProjectSubscribers())) {
+      return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, null, requiredPermissions.getGlobalSubscribers());
+    } else {
+      return Stream.concat(
+        keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, true, requiredPermissions.getGlobalSubscribers()),
+        keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, false, requiredPermissions.getProjectSubscribers()));
+    }
+  }
+
+  private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,
+                                                                    @Nullable Boolean global, String permission) {
+    Set<EmailSubscriberDto> subscribers = emailSubscribers.stream()
+      .filter(s -> global == null || s.isGlobal() == global)
+      .collect(Collectors.toSet());
+    if (subscribers.isEmpty()) {
+      return Stream.empty();
+    }
+
+    Set<String> logins = subscribers.stream()
+      .map(EmailSubscriberDto::getLogin)
+      .collect(Collectors.toSet());
+    Set<String> authorizedLogins = dbClient.authorizationDao().keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, permission);
+    return subscribers.stream()
+      .filter(s -> authorizedLogins.contains(s.getLogin()));
   }
 
   private static final class SubscriberAndChannel {

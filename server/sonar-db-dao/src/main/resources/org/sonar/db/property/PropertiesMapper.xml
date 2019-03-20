@@ -15,19 +15,57 @@
       AND p.text_value = 'true'
       AND p.resource_id IS NULL
 
-    UNION
+    <if test="projectKey != null">
+      UNION
 
+      SELECT
+        u.login as "login",
+        ${_false} as "global"
+      FROM
+        users u
+      INNER JOIN projects c on c.kee = #{projectKey,jdbcType=VARCHAR}
+      INNER JOIN properties p ON p.user_id = u.id
+      WHERE
+        p.prop_key = #{notifKey,jdbcType=VARCHAR}
+        AND p.text_value = 'true'
+        AND p.resource_id = c.id
+    </if>
+  </select>
+
+  <select id="findEmailRecipientsForNotification" parameterType="map" resultType="org.sonar.db.property.EmailSubscriberDto">
     SELECT
       u.login as "login",
-      ${_false} as "global"
+      ${_true} as "global",
+      u.email as "email"
     FROM
       users u
-    INNER JOIN projects c on c.kee = #{projectKey,jdbcType=VARCHAR}
-    INNER JOIN properties p ON p.user_id = u.id
+    INNER JOIN properties p ON
+      p.user_id = u.id
+      and p.prop_key = #{notifKey,jdbcType=VARCHAR}
+      and p.text_value = 'true'
+      and p.resource_id IS NULL
     WHERE
-      p.prop_key = #{notifKey,jdbcType=VARCHAR}
-      AND p.text_value = 'true'
-      AND p.resource_id = c.id
+      u.email is not null
+
+    <if test="projectKey != null">
+      UNION
+
+      SELECT
+        u.login as "login",
+        ${_false} as "global",
+        u.email as "email"
+      FROM
+        users u
+      INNER JOIN projects c on
+        c.kee = #{projectKey,jdbcType=VARCHAR}
+      INNER JOIN properties p ON
+        p.user_id = u.id
+        and p.prop_key = #{notifKey,jdbcType=VARCHAR}
+        and p.text_value = 'true'
+        and p.resource_id = c.id
+      WHERE
+        u.email is not null
+    </if>
 
   </select>
 

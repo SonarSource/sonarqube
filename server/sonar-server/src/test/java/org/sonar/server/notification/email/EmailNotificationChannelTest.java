@@ -33,6 +33,7 @@ import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import static junit.framework.Assert.fail;
+import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,6 +59,27 @@ public class EmailNotificationChannelTest {
   @After
   public void tearDown() {
     smtpServer.stop();
+  }
+
+  @Test
+  public void isActivated_returns_true_if_smpt_host_is_not_empty() {
+    when(configuration.getSmtpHost()).thenReturn(random(5));
+
+    assertThat(underTest.isActivated()).isTrue();
+  }
+
+  @Test
+  public void isActivated_returns_false_if_smpt_host_is_null() {
+    when(configuration.getSmtpHost()).thenReturn(null);
+
+    assertThat(underTest.isActivated()).isFalse();
+  }
+
+  @Test
+  public void isActivated_returns_false_if_smpt_host_is_empty() {
+    when(configuration.getSmtpHost()).thenReturn("");
+
+    assertThat(underTest.isActivated()).isFalse();
   }
 
   @Test

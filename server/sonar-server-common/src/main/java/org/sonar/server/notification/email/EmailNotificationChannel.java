@@ -21,7 +21,10 @@ package org.sonar.server.notification.email;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
+import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
@@ -37,6 +40,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * References:
@@ -83,6 +88,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final String REFERENCES_HEADER = "References";
 
   private static final String SUBJECT_DEFAULT = "Notification";
+  private static final String SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG = "SMTP host was not configured - email will not be sent";
 
   private final EmailSettings configuration;
   private final EmailTemplate[] templates;
@@ -94,10 +100,14 @@ public class EmailNotificationChannel extends NotificationChannel {
     this.dbClient = dbClient;
   }
 
+  public boolean isActivated() {
+    return !StringUtils.isBlank(configuration.getSmtpHost());
+  }
+
   @Override
   public boolean deliver(Notification notification, String username) {
-    if (StringUtils.isBlank(configuration.getSmtpHost())) {
-      LOG.debug("SMTP host was not configured - email will not be sent");
+    if (!isActivated()) {
+      LOG.debug(SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG);
       return false;
     }
 
@@ -113,6 +123,67 @@ public class EmailNotificationChannel extends NotificationChannel {
       return deliver(emailMessage);
     }
     return false;
+  }
+
+  @Immutable
+  public static final class EmailDeliveryRequest {
+    private final String recipientEmail;
+    private final Notification notification;
+
+    public EmailDeliveryRequest(String recipientEmail, Notification notification) {
+      this.recipientEmail = requireNonNull(recipientEmail, "recipientEmail can't be null");
+      this.notification = requireNonNull(notification, "notification can't be null");
+    }
+
+    public String getRecipientEmail() {
+      return recipientEmail;
+    }
+
+    public Notification getNotification() {
+      return notification;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EmailDeliveryRequest that = (EmailDeliveryRequest) o;
+      return Objects.equals(recipientEmail, that.recipientEmail) &&
+        Objects.equals(notification, that.notification);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(recipientEmail, notification);
+    }
+
+    @Override
+    public String toString() {
+      return "EmailDeliveryRequest{" + "'" + recipientEmail + '\'' + " : " + notification + '}';
+    }
+  }
+
+  public int deliver(Set<EmailDeliveryRequest> deliveries) {
+    if (!isActivated()) {
+      LOG.debug(SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG);
+      return 0;
+    }
+
+    return (int) deliveries.stream()
+      .map(t -> {
+        EmailMessage emailMessage = format(t.getNotification());
+        if (emailMessage != null) {
+          emailMessage.setTo(t.getRecipientEmail());
+          return deliver(emailMessage);
+        }
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .count();
   }
 
   @CheckForNull
@@ -135,8 +206,8 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   boolean deliver(EmailMessage emailMessage) {
-    if (StringUtils.isBlank(configuration.getSmtpHost())) {
-      LOG.debug("SMTP host was not configured - email will not be sent");
+    if (!isActivated()) {
+      LOG.debug(SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG);
       return false;
     }
     try {

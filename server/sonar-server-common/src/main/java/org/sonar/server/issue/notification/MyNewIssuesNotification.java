@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.notification;
 
+import javax.annotation.CheckForNull;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
@@ -41,6 +42,16 @@ public class MyNewIssuesNotification extends NewIssuesNotification {
     }
     setFieldValue(FIELD_ASSIGNEE, assignee.getLogin());
     return this;
+  }
+
+  @CheckForNull
+  public String getProjectKey() {
+    return getFieldValue("projectKey");
+  }
+
+  @CheckForNull
+  public String getAssignee() {
+    return getFieldValue(FIELD_ASSIGNEE);
   }
 
   @Override

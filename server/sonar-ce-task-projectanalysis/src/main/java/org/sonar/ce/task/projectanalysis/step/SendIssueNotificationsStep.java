@@ -46,6 +46,7 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -99,9 +100,10 @@ public class SendIssueNotificationsStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     Component project = treeRootHolder.getRoot();
     NotificationStatistics notificationStatistics = new NotificationStatistics();
-    if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
+    // FIXME do we still need this fail fast?
+//    if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
       doExecute(notificationStatistics, project);
-    }
+//    }
     notificationStatistics.dumpTo(context);
   }
 
@@ -175,10 +177,10 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private void sendMyNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate, NotificationStatistics notificationStatistics) {
     Map<String, UserDto> userDtoByUuid = loadUserDtoByUuid(statistics);
-    statistics.getAssigneesStatistics().entrySet()
+    Set<MyNewIssuesNotification> myNewIssuesNotifications = statistics.getAssigneesStatistics().entrySet()
       .stream()
       .filter(e -> e.getValue().hasIssuesOnLeak())
-      .forEach(e -> {
+      .map(e -> {
         String assigneeUuid = e.getKey();
         NewIssuesStatistics.Stats assigneeStatistics = e.getValue();
         MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
@@ -191,9 +193,16 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setStatistics(project.getName(), assigneeStatistics)
           .setDebt(Duration.create(assigneeStatistics.effort().getOnLeak()));
 
-        notificationStatistics.myNewIssuesDeliveries += service.deliver(myNewIssuesNotification);
-        notificationStatistics.myNewIssues++;
-      });
+        return myNewIssuesNotification;
+      })
+      .collect(MoreCollectors.toSet(statistics.getAssigneesStatistics().size()));
+
+    notificationStatistics.myNewIssuesDeliveries += service.deliverEmails(myNewIssuesNotifications);
+    notificationStatistics.myNewIssues += myNewIssuesNotifications.size();
+
+    // compatibility with old API
+    myNewIssuesNotifications
+      .forEach(e -> notificationStatistics.myNewIssuesDeliveries += service.deliver(e));
   }
 
   private Map<String, UserDto> loadUserDtoByUuid(NewIssuesStatistics statistics) {

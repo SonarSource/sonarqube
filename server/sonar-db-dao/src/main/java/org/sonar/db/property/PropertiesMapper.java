@@ -28,6 +28,8 @@ public interface PropertiesMapper {
 
   Set<Subscriber> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectKey") String projectKey);
 
+  Set<EmailSubscriberDto> findEmailRecipientsForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectKey") String projectKey);
+
   List<PropertyDto> selectGlobalProperties();
 
   List<PropertyDto> selectProjectProperties(String resourceKey);

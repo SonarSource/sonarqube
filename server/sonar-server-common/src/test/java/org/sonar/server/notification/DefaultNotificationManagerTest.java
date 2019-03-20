@@ -19,15 +19,22 @@
  */
 package org.sonar.server.notification;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.RandomStringUtils;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -37,11 +44,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.permission.AuthorizationDao;
+import org.sonar.db.property.EmailSubscriberDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.Subscriber;
+import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -55,8 +66,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
 public class DefaultNotificationManagerTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DefaultNotificationManager underTest;
 
@@ -135,21 +150,22 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void shouldFindSubscribedRecipientForGivenResource() {
-    String projectUuid = "uuid_45";
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectUuid))
+    String projectKey = randomAlphabetic(6);
+    String otherProjectKey = randomAlphabetic(7);
+    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
       .thenReturn(newHashSet(new Subscriber("user1", false), new Subscriber("user3", false), new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", "uuid_56"))
+    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", otherProjectKey))
       .thenReturn(newHashSet(new Subscriber("user2", false)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectUuid))
+    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
       .thenReturn(newHashSet(new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", projectUuid))
+    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", projectKey))
       .thenReturn(newHashSet(new Subscriber("user4", false)));
 
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectUuid, "user"))
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, "user"))
       .thenReturn(newHashSet("user1", "user3"));
 
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectUuid,
-      SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER);
+    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
+      ALL_MUST_HAVE_ROLE_USER);
     assertThat(multiMap.entries()).hasSize(3);
 
     Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
@@ -164,24 +180,25 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void should_apply_distinct_permission_filtering_global_or_project_subscribers() {
-    String globalPermission = RandomStringUtils.randomAlphanumeric(4);
-    String projectPermission = RandomStringUtils.randomAlphanumeric(5);
-    String projectUuid = "uuid_45";
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectUuid))
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    String otherProjectKey = randomAlphabetic(7);
+    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
       .thenReturn(newHashSet(new Subscriber("user1", false), new Subscriber("user3", false), new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", "uuid_56"))
+    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", otherProjectKey))
       .thenReturn(newHashSet(new Subscriber("user2", false)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectUuid))
+    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
       .thenReturn(newHashSet(new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", projectUuid))
+    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", projectKey))
       .thenReturn(newHashSet(new Subscriber("user4", false)));
 
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectUuid, globalPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectUuid, projectPermission))
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
       .thenReturn(newHashSet("user1", "user3"));
 
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectUuid,
+    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
       new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     assertThat(multiMap.entries()).hasSize(3);
 
@@ -198,19 +215,19 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void do_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
-    String globalPermission = RandomStringUtils.randomAlphanumeric(4);
-    String projectPermission = RandomStringUtils.randomAlphanumeric(5);
-    String projectUuid = "uuid_45";
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectUuid))
-        .thenReturn(newHashSet(new Subscriber("user3", true)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectUuid))
-        .thenReturn(newHashSet(new Subscriber("user3", true)));
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
+      .thenReturn(newHashSet(new Subscriber("user3", true)));
+    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
+      .thenReturn(newHashSet(new Subscriber("user3", true)));
 
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3"), projectUuid, globalPermission))
-        .thenReturn(newHashSet("user3"));
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3"), projectKey, globalPermission))
+      .thenReturn(newHashSet("user3"));
 
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectUuid,
-        new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     assertThat(multiMap.entries()).hasSize(2);
 
     Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
@@ -222,23 +239,129 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void do_not_call_db_for_project_permission_filtering_if_there_is_no_global_subscriber() {
-    String globalPermission = RandomStringUtils.randomAlphanumeric(4);
-    String projectPermission = RandomStringUtils.randomAlphanumeric(5);
-    String projectUuid = "uuid_45";
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectUuid))
-        .thenReturn(newHashSet(new Subscriber("user3", false)));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectUuid))
-        .thenReturn(newHashSet(new Subscriber("user3", false)));
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    when(propertiesDao.findUsersForNotification("NewViolations", "Email", projectKey))
+      .thenReturn(newHashSet(new Subscriber("user3", false)));
+    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", projectKey))
+      .thenReturn(newHashSet(new Subscriber("user3", false)));
 
-    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3"), projectUuid, projectPermission))
-        .thenReturn(newHashSet("user3"));
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3"), projectKey, projectPermission))
+      .thenReturn(newHashSet("user3"));
 
-    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectUuid,
-        new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    Multimap<String, NotificationChannel> multiMap = underTest.findSubscribedRecipientsForDispatcher(dispatcher, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     assertThat(multiMap.entries()).hasSize(2);
 
     Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
     assertThat(map.get("user3")).containsOnly(emailChannel, twitterChannel);
+
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_fails_with_NPE_if_projectKey_is_null() {
+    String dispatcherKey = randomAlphabetic(12);
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("projectKey is mandatory");
+
+    underTest.findSubscribedEmailRecipients(dispatcherKey, null, ALL_MUST_HAVE_ROLE_USER);
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_returns_empty_if_no_email_recipients_in_project_for_dispatcher_key() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
+      .thenReturn(Collections.emptySet());
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    assertThat(emailRecipients).isEmpty();
+
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(any(DbSession.class), anySet(), anyString(), anyString());
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_applies_distinct_permission_filtering_global_or_project_subscribers() {
+    String dispatcherKey = randomAlphabetic(12);
+    String otherDispatcherKey = randomAlphabetic(13);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    String otherProjectKey = randomAlphabetic(7);
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
+      .thenReturn(newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", otherProjectKey))
+      .thenReturn(newHashSet(new EmailSubscriberDto("user2", false, "user2@foo")));
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, otherDispatcherKey, "EmailNotificationChannel", projectKey))
+      .thenReturn(newHashSet(new EmailSubscriberDto("user4", true, "user4@foo")));
+
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
+      .thenReturn(newHashSet("user3"));
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
+      .thenReturn(newHashSet("user1", "user3"));
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    assertThat(emailRecipients)
+      .isEqualTo(ImmutableSet.of(new EmailRecipient("user1", "user1@foo"), new EmailRecipient("user3", "user3@foo")));
+
+    // code is optimized to perform only 2 SQL requests for all channels
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_do_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> new EmailSubscriberDto("user" + i, true, "user" + i + "@sonarsource.com"))
+      .collect(Collectors.toSet());
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
+      .thenReturn(subscribers);
+    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, globalPermission))
+      .thenReturn(logins);
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    Set<EmailRecipient> expected = subscribers.stream().map(i -> new EmailRecipient(i.getLogin(), i.getEmail())).collect(Collectors.toSet());
+    assertThat(emailRecipients)
+      .isEqualTo(expected);
+
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_does_not_call_DB_for_project_permission_filtering_if_there_is_no_global_subscriber() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> new EmailSubscriberDto("user" + i, false, "user" + i + "@sonarsource.com"))
+      .collect(Collectors.toSet());
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
+      .thenReturn(subscribers);
+    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, projectPermission))
+      .thenReturn(logins);
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    Set<EmailRecipient> expected = subscribers.stream().map(i -> new EmailRecipient(i.getLogin(), i.getEmail())).collect(Collectors.toSet());
+    assertThat(emailRecipients)
+      .isEqualTo(expected);
 
     verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
     verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
