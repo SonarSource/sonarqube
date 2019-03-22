@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import Form from '../Form';
+import { Form } from '../Form';
 import { deleteProject, deletePortfolio } from '../../../api/components';
+import { mockRouter } from '../../../helpers/testMocks';
 
 jest.mock('../../../api/components', () => ({
   deleteProject: jest.fn().mockResolvedValue(undefined),
@@ -28,21 +29,20 @@ jest.mock('../../../api/components', () => ({
 }));
 
 beforeEach(() => {
-  (deleteProject as jest.Mock).mockClear();
-  (deletePortfolio as jest.Mock).mockClear();
+  jest.clearAllMocks();
 });
 
 it('should render', () => {
   const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
-  const form = shallow(<Form component={component} />).dive();
+  const form = shallow(<Form component={component} router={mockRouter()} />);
   expect(form).toMatchSnapshot();
   expect(form.prop<Function>('children')({ onClick: jest.fn() })).toMatchSnapshot();
 });
 
 it('should delete project', async () => {
   const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
-  const router = getMockedRouter();
-  const form = shallow(<Form component={component} router={router} />).dive();
+  const router = mockRouter();
+  const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
   expect(deleteProject).toBeCalledWith('foo');
   await new Promise(setImmediate);
@@ -51,24 +51,11 @@ it('should delete project', async () => {
 
 it('should delete portfolio', async () => {
   const component = { key: 'foo', name: 'Foo', qualifier: 'VW' };
-  const router = getMockedRouter();
-  const form = shallow(<Form component={component} router={router} />).dive();
+  const router = mockRouter();
+  const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
   expect(deletePortfolio).toBeCalledWith('foo');
   expect(deleteProject).not.toBeCalled();
   await new Promise(setImmediate);
   expect(router.replace).toBeCalledWith('/portfolios');
-});
-
-// have to mock all properties to pass the prop types check
-const getMockedRouter = () => ({
-  createHref: jest.fn(),
-  createPath: jest.fn(),
-  go: jest.fn(),
-  goBack: jest.fn(),
-  goForward: jest.fn(),
-  isActive: jest.fn(),
-  push: jest.fn(),
-  replace: jest.fn(),
-  setRouteLeaveHook: jest.fn()
 });

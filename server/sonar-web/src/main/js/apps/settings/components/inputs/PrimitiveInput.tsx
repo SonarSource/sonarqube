@@ -32,9 +32,7 @@ import {
 } from '../../utils';
 
 const typeMapping: {
-  [type in T.SettingType]?:
-    | React.ComponentClass<DefaultSpecializedInputProps>
-    | React.StatelessComponent<DefaultSpecializedInputProps>
+  [type in T.SettingType]?: React.ComponentType<DefaultSpecializedInputProps>
 } = {
   STRING: InputForString,
   TEXT: InputForText,

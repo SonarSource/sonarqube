@@ -18,14 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Location } from 'history';
 import Home from './Home';
 import Template from './Template';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { getPermissionTemplates } from '../../../api/permissions';
 import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
+import { getPermissionTemplates } from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
+import { getAppState, Store } from '../../../store/rootReducer';
 import '../../permissions/styles.css';
 
 interface Props {
@@ -40,7 +42,7 @@ interface State {
   permissionTemplates: T.PermissionTemplate[];
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     ready: false,
@@ -123,3 +125,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: Store) => ({ topQualifiers: getAppState(state).qualifiers });
+
+export default connect(mapStateToProps)(App);

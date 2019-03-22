@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default class SelectListItem extends React.PureComponent<Props> {
-  handleSelect = (event: React.MouseEvent) => {
+  handleSelect = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (this.props.onSelect) {
       this.props.onSelect(this.props.item);

@@ -87,7 +87,7 @@ const routes = [
           },
           {
             path: 'permission_templates',
-            component: lazyLoad(() => import('../permission-templates/components/AppContainer'))
+            component: lazyLoad(() => import('../permission-templates/components/App'))
           },
           {
             path: 'projects_management',

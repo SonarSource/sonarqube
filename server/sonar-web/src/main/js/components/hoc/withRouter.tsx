@@ -28,8 +28,8 @@ interface InjectedProps {
   router?: Partial<Router>;
 }
 
-export function withRouter<P extends InjectedProps, S>(
-  WrappedComponent: React.ComponentClass<P & InjectedProps>
-): React.ComponentClass<T.Omit<P, keyof InjectedProps>, S> {
+export function withRouter<P extends InjectedProps>(
+  WrappedComponent: React.ComponentType<P & InjectedProps>
+): React.ComponentType<T.Omit<P, keyof InjectedProps>> {
   return originalWithRouter(WrappedComponent as any);
 }

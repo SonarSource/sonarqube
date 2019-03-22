@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <Suggestions
+    suggestions="user_groups"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="user_groups.page"
+  />
+  <div
+    className="page page-limited"
+    id="groups-page"
+  >
+    <Header
+      loading={true}
+      onCreate={[Function]}
+    />
+    <SearchBox
+      className="big-spacer-bottom"
+      id="groups-search"
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search.search_by_name"
+      value=""
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <Suggestions
+    suggestions="user_groups"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="user_groups.page"
+  />
+  <div
+    className="page page-limited"
+    id="groups-page"
+  >
+    <Header
+      loading={false}
+      onCreate={[Function]}
+    />
+    <SearchBox
+      className="big-spacer-bottom"
+      id="groups-search"
+      minLength={2}
+      onChange={[Function]}
+      placeholder="search.search_by_name"
+      value=""
+    />
+    <List
+      groups={
+        Array [
+          Object {
+            "default": false,
+            "description": "Owners of organization foo",
+            "id": 1,
+            "membersCount": 1,
+            "name": "Owners",
+          },
+          Object {
+            "default": true,
+            "description": "Members of organization foo",
+            "id": 2,
+            "membersCount": 2,
+            "name": "Members",
+          },
+        ]
+      }
+      onDelete={[Function]}
+      onEdit={[Function]}
+      onEditMembers={[Function]}
+      organization="foo"
+      showAnyone={false}
+    />
+    <div
+      id="groups-list-footer"
+    >
+      <ListFooter
+        count={2}
+        loadMore={[Function]}
+        ready={true}
+        total={2}
+      />
+    </div>
+  </div>
+</Fragment>
+`;

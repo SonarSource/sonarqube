@@ -26,24 +26,24 @@ jest.mock('../../../helpers/system', () => ({ getInstance: jest.fn() }));
 
 it('should replace {instance} with "SonarQube"', () => {
   const childFunc = jest.fn();
-  getWrapper(childFunc, 'foo {instance} bar');
+  shallowRender(childFunc, 'foo {instance} bar');
   expect(childFunc).toHaveBeenCalledWith('foo SonarQube bar');
 });
 
 it('should replace {instance} with "SonarCloud"', () => {
   const childFunc = jest.fn();
-  getWrapper(childFunc, 'foo {instance} bar', true);
+  shallowRender(childFunc, 'foo {instance} bar', true);
   expect(childFunc).toHaveBeenCalledWith('foo SonarCloud bar');
 });
 
 it('should return the same message', () => {
   const childFunc = jest.fn();
-  getWrapper(childFunc, 'no instance to replace');
+  shallowRender(childFunc, 'no instance to replace');
   expect(childFunc).toHaveBeenCalledWith('no instance to replace');
 });
 
-function getWrapper(
-  children: (msg: string) => React.ReactNode,
+function shallowRender(
+  children: (msg: string) => React.ReactChild,
   message: string,
   onSonarCloud = false
 ) {

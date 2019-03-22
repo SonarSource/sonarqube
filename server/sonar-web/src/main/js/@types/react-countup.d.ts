@@ -19,6 +19,7 @@
  */
 declare module 'react-countup' {
   interface Props {
+    children: (data: { countUpRef?: React.RefObject<any> }) => JSX.Element;
     decimal?: string;
     decimals?: number;
     delay?: number;

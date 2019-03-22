@@ -37,7 +37,7 @@ export default class Pricing extends React.PureComponent {
     removeWhitePageClass();
   }
 
-  handleClick = (event: React.MouseEvent) => {
+  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     if (this.container) {
@@ -85,7 +85,7 @@ function PageBackgroundHeader() {
 }
 
 interface ForEveryoneBlockProps {
-  onClick: (event: React.MouseEvent) => void;
+  onClick: (event: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 function ForEveryoneBlock({ onClick }: ForEveryoneBlockProps) {

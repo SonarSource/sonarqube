@@ -68,7 +68,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     return Promise.resolve();
   };
 
-  handleNameClick = (event: React.MouseEvent) => {
+  handleNameClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // cmd(ctrl) + click should open a rule permalink in a new tab
     const isLeftClickEvent = event.button === 0;
     const isModifiedEvent = !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);

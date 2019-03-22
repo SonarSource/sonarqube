@@ -25,7 +25,6 @@ import AllHoldersList from './AllHoldersList';
 import * as api from '../../../../api/permissions';
 import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
-import forSingleOrganization from '../../../organizations/forSingleOrganization';
 import '../../styles.css';
 
 interface Props {
@@ -42,7 +41,7 @@ interface State {
   usersPaging?: T.Paging;
 }
 
-export class App extends React.PureComponent<Props, State> {
+export default class App extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -301,5 +300,3 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 }
-
-export default forSingleOrganization(App);

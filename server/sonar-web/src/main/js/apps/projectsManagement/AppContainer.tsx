@@ -20,11 +20,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import App from './App';
-import forSingleOrganization from '../organizations/forSingleOrganization';
-import { getAppState, getOrganizationByKey, getCurrentUser, Store } from '../../store/rootReducer';
-import { receiveOrganizations } from '../../store/organizations';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
+import { getAppState, getOrganizationByKey, getCurrentUser, Store } from '../../store/rootReducer';
 import { fetchOrganization } from '../../store/rootActions';
+import { receiveOrganizations } from '../../store/organizations';
 
 interface StateProps {
   appState: { defaultOrganization: string; qualifiers: string[] };
@@ -107,9 +106,7 @@ const mapDispatchToProps = (dispatch: Function) => ({
     dispatch(onVisibilityChange(organization, visibility))
 });
 
-export default forSingleOrganization(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(AppContainer)
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AppContainer);

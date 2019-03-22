@@ -209,6 +209,7 @@ export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {
 export function mockLocation(overrides: Partial<Location> = {}): Location {
   return {
     action: 'PUSH',
+    hash: '',
     key: 'key',
     pathname: '/path',
     query: {},

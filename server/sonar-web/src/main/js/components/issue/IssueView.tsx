@@ -43,13 +43,13 @@ interface Props {
 }
 
 export default class IssueView extends React.PureComponent<Props> {
-  handleCheck = (_checked: boolean) => {
+  handleCheck = () => {
     if (this.props.onCheck) {
       this.props.onCheck(this.props.issue.key);
     }
   };
 
-  handleClick = (event: React.MouseEvent) => {
+  handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!isClickable(event.target as HTMLElement) && this.props.onClick) {
       event.preventDefault();
       this.props.onClick(this.props.issue.key);

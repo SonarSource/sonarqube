@@ -138,6 +138,7 @@ export default function startReactApp(
           <Redirect from="/projects_admin" to="/admin/projects_management" />
           <Redirect from="/quality_gates/index" to="/quality_gates" />
           <Redirect from="/roles/global" to="/admin/permissions" />
+          <Redirect from="/admin/roles/global" to="/admin/permissions" />
           <Redirect from="/settings" to="/admin/settings" />
           <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
           <Redirect from="/settings/index" to="/admin/settings" />
@@ -205,7 +206,9 @@ export default function startReactApp(
                   path="portfolios"
                   component={lazyLoad(() => import('../components/extensions/PortfoliosPage'))}
                 />
-                <RouteWithChildRoutes path="profiles" childRoutes={qualityProfilesRoutes} />
+                {!isSonarCloud() && (
+                  <RouteWithChildRoutes path="profiles" childRoutes={qualityProfilesRoutes} />
+                )}
                 <RouteWithChildRoutes path="web_api" childRoutes={webAPIRoutes} />
 
                 <Route component={lazyLoad(() => import('../components/ComponentContainer'))}>
@@ -295,17 +298,23 @@ export default function startReactApp(
                     childRoutes={backgroundTasksRoutes}
                   />
                   <RouteWithChildRoutes path="custom_metrics" childRoutes={customMetricsRoutes} />
-                  <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
-                  <RouteWithChildRoutes
-                    path="permission_templates"
-                    childRoutes={permissionTemplatesRoutes}
-                  />
-                  <RouteWithChildRoutes path="roles/global" childRoutes={globalPermissionsRoutes} />
-                  <RouteWithChildRoutes path="permissions" childRoutes={globalPermissionsRoutes} />
-                  <RouteWithChildRoutes
-                    path="projects_management"
-                    childRoutes={projectsManagementRoutes}
-                  />
+                  {!isSonarCloud() && (
+                    <>
+                      <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
+                      <RouteWithChildRoutes
+                        path="permission_templates"
+                        childRoutes={permissionTemplatesRoutes}
+                      />
+                      <RouteWithChildRoutes
+                        path="permissions"
+                        childRoutes={globalPermissionsRoutes}
+                      />
+                      <RouteWithChildRoutes
+                        path="projects_management"
+                        childRoutes={projectsManagementRoutes}
+                      />
+                    </>
+                  )}
                   <RouteWithChildRoutes path="settings" childRoutes={settingsRoutes} />
                   <RouteWithChildRoutes path="system" childRoutes={systemRoutes} />
                   <RouteWithChildRoutes path="marketplace" childRoutes={marketplaceRoutes} />

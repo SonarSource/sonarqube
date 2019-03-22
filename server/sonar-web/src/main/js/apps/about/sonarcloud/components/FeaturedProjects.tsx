@@ -43,7 +43,6 @@ interface State {
     project: FeaturedProject;
   }>;
   sliding: boolean;
-  translate: number;
   viewable: boolean;
 }
 
@@ -57,7 +56,6 @@ export default class FeaturedProjects extends React.PureComponent<Props, State> 
       reversing: false,
       slides: this.orderProjectsFromProps(),
       sliding: false,
-      translate: 0,
       viewable: false
     };
     this.handleScroll = throttle(this.handleScroll, 10);

@@ -19,7 +19,6 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import forSingleOrganization from '../../organizations/forSingleOrganization';
 import { getLanguages, getOrganizationByKey, Store } from '../../../store/rootReducer';
 
 const mapStateToProps = (state: Store, ownProps: any) => ({
@@ -29,4 +28,4 @@ const mapStateToProps = (state: Store, ownProps: any) => ({
     : undefined
 });
 
-export default forSingleOrganization(connect(mapStateToProps)(App));
+export default connect(mapStateToProps)(App);

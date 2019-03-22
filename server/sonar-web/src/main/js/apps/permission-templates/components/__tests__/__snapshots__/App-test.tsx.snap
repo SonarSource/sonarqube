@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <Suggestions
+    suggestions="permission_templates"
+  />
+  <OrganizationHelmet
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+    title="permission_templates.page"
+  />
+  <Home
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+    permissionTemplates={Array []}
+    permissions={Array []}
+    ready={false}
+    refresh={[Function]}
+    topQualifiers={
+      Array [
+        "TRK",
+      ]
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div>
+  <Suggestions
+    suggestions="permission_templates"
+  />
+  <OrganizationHelmet
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+    title="permission_templates.page"
+  />
+  <Home
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+    permissionTemplates={
+      Array [
+        Object {
+          "createdAt": "2019-02-07T17:23:26+0100",
+          "defaultFor": Array [
+            "TRK",
+          ],
+          "description": "Default permission template of organization test",
+          "id": "1",
+          "name": "Default template",
+          "permissions": Array [
+            Object {
+              "description": "Code viewer permission",
+              "groupsCount": 1,
+              "key": "codeviewer",
+              "name": "See Source Code",
+              "usersCount": 0,
+              "withProjectCreator": false,
+            },
+            Object {
+              "description": "Admin permission",
+              "groupsCount": 1,
+              "key": "admin",
+              "name": "Administer",
+              "usersCount": 0,
+              "withProjectCreator": false,
+            },
+          ],
+          "updatedAt": "2019-02-07T17:23:26+0100",
+        },
+      ]
+    }
+    permissions={
+      Array [
+        Object {
+          "description": "Code viewer permission",
+          "key": "codeviewer",
+          "name": "See Source Code",
+        },
+        Object {
+          "description": "Admin permission",
+          "key": "admin",
+          "name": "Administer",
+        },
+      ]
+    }
+    ready={true}
+    refresh={[Function]}
+    topQualifiers={
+      Array [
+        "TRK",
+      ]
+    }
+  />
+</div>
+`;

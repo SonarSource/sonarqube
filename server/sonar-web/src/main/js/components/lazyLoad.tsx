@@ -22,10 +22,8 @@ import { Alert } from './ui/Alert';
 import { translate } from '../helpers/l10n';
 import { get, save } from '../helpers/storage';
 
-type ReactComponent<P> = React.ComponentClass<P> | React.StatelessComponent<P>;
-
 interface Loader<P> {
-  (): Promise<{ default: ReactComponent<P> }>;
+  (): Promise<{ default: React.ComponentType<P> }>;
 }
 
 export const LAST_FAILED_CHUNK_STORAGE_KEY = 'sonarqube.last_failed_chunk';
@@ -36,12 +34,13 @@ export function lazyLoad<P>(loader: Loader<P>, displayName?: string) {
   }
 
   interface State {
-    Component?: ReactComponent<P>;
+    Component?: React.ComponentType<P>;
     error?: ImportError;
   }
 
   // use `React.Component`, not `React.PureComponent` to always re-render
   // and let the child component decide if it needs to change
+  // also, use any instead of P because typescript doesn't cope correctly with default props
   return class LazyLoader extends React.Component<any, State> {
     mounted = false;
     static displayName = displayName;
@@ -56,7 +55,7 @@ export function lazyLoad<P>(loader: Loader<P>, displayName?: string) {
       this.mounted = false;
     }
 
-    receiveComponent = (Component: ReactComponent<P>) => {
+    receiveComponent = (Component: React.ComponentType<P>) => {
       if (this.mounted) {
         this.setState({ Component, error: undefined });
       }
@@ -92,7 +91,7 @@ export function lazyLoad<P>(loader: Loader<P>, displayName?: string) {
         return null;
       }
 
-      return <Component {...this.props} />;
+      return <Component {...this.props as any} />;
     }
   };
 }

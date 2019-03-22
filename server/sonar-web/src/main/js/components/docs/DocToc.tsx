@@ -141,7 +141,7 @@ export default class DocToc extends React.PureComponent<Props, State> {
                 className={classNames({ active: highlightAnchor === anchor.href })}
                 href={anchor.href}
                 key={anchor.title}
-                onClick={event => {
+                onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
                   this.props.onAnchorClick(anchor.href, event);
                 }}>
                 {anchor.title}

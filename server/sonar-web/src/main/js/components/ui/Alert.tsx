@@ -35,7 +35,7 @@ export interface AlertProps {
   variant: AlertVariant;
 }
 
-export function Alert(props: AlertProps & React.HTMLAttributes<HTMLElement>) {
+export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) {
   const { className, display, variant, ...domProps } = props;
   return (
     <div
