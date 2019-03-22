@@ -13,6 +13,7 @@ module.exports = {
             'IE 11'
           ]
         },
+        corejs: 3,
         useBuiltIns: 'entry'
       }
     ],

@@ -153,9 +153,7 @@ module.exports = ({ production = true }) => {
         ]
       },
       plugins: [
-        // `allowExternal: true` to remove files outside of the current dir
-        production &&
-          new CleanWebpackPlugin([paths.appBuild], { allowExternal: true, verbose: false }),
+        production && new CleanWebpackPlugin(),
 
         production &&
           new CopyWebpackPlugin([

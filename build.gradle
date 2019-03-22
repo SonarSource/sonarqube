@@ -317,8 +317,8 @@ subprojects {
     apply plugin: 'com.moowork.node'
 
     node {
-      version = '8.11.4'
-      yarnVersion = '1.9.4'
+      version = '10.15.3'
+      yarnVersion = '1.15.2'
       download = true
     }
   }

@@ -12,6 +12,7 @@ module.exports = {
             'last 2 Edge versions'
           ]
         },
+        corejs: 3,
         useBuiltIns: 'entry'
       }
     ],
