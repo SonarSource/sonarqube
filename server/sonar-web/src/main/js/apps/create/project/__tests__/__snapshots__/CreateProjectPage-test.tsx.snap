@@ -9,6 +9,7 @@ exports[`should render correctly for SonarCloud 1`] = `
     location={
       Object {
         "action": "PUSH",
+        "hash": "",
         "key": "key",
         "pathname": "/path",
         "query": Object {},
@@ -44,6 +45,7 @@ exports[`should render correctly for SonarQube 1`] = `
     location={
       Object {
         "action": "PUSH",
+        "hash": "",
         "key": "key",
         "pathname": "/path",
         "query": Object {},

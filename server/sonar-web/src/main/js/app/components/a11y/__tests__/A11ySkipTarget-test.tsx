@@ -25,7 +25,6 @@ it('should render correctly, and (un)register the link when (un)mounted', () => 
   const link = { key: 'main', label: 'Skip to content' };
   const addA11ySkipLink = jest.fn();
   const removeA11ySkipLink = jest.fn();
-
   const wrapper = mount(
     <A11ySkipTargetInner
       addA11ySkipLink={addA11ySkipLink}

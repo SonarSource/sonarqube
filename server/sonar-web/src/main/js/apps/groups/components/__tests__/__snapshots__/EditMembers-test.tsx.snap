@@ -623,7 +623,7 @@ exports[`should edit members 3`] = `
       ],
       "results": Array [
         Object {
-          "isThrow": false,
+          "type": "return",
           "value": undefined,
         },
       ],

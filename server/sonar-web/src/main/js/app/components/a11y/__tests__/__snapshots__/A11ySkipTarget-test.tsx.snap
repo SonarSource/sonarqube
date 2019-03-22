@@ -15,7 +15,7 @@ exports[`should render correctly, and (un)register the link when (un)mounted 1`]
       ],
       "results": Array [
         Object {
-          "isThrow": false,
+          "type": "return",
           "value": undefined,
         },
       ],

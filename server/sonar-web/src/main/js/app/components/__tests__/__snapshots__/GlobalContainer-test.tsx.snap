@@ -20,6 +20,7 @@ exports[`should render correctly 1`] = `
                 location={
                   Object {
                     "action": "PUSH",
+                    "hash": "",
                     "key": "key",
                     "pathname": "/path",
                     "query": Object {},

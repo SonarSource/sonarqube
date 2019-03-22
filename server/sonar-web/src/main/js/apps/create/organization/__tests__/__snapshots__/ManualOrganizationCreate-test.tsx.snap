@@ -53,7 +53,7 @@ exports[`should render and create organization 2`] = `
           ],
           "results": Array [
             Object {
-              "isThrow": false,
+              "type": "return",
               "value": undefined,
             },
           ],

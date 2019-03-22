@@ -38,7 +38,7 @@ const excludedUsers = ['admin'];
 
 describe('UsersSelectSearch', () => {
   it('should render correctly', () => {
-    const onSearch = jest.fn(() => Promise.resolve(users));
+    const onSearch = jest.fn().mockResolvedValue({ users });
     const wrapper = shallow(
       <UsersSelectSearch
         excludedUsers={excludedUsers}

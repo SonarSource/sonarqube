@@ -51,7 +51,7 @@ exports[`should be actionable 2`] = `
       ],
       "results": Array [
         Object {
-          "isThrow": false,
+          "type": "return",
           "value": undefined,
         },
       ],

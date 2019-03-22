@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
       ],
       "results": Array [
         Object {
-          "isThrow": false,
+          "type": "return",
           "value": undefined,
         },
       ],
@@ -36,6 +36,7 @@ exports[`should render correctly 1`] = `
   location={
     Object {
       "action": "PUSH",
+      "hash": "",
       "key": "key",
       "pathname": "/path",
       "query": Object {},
@@ -48,6 +49,7 @@ exports[`should render correctly 1`] = `
     location={
       Object {
         "action": "PUSH",
+        "hash": "",
         "key": "key",
         "pathname": "/path",
         "query": Object {},
