@@ -23,8 +23,8 @@ import OrganizationMembers from '../OrganizationMembers';
 import { searchMembers, addMember, removeMember } from '../../../api/organizations';
 import { searchUsersGroups, addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 import {
+  mockLoggedInUser,
   mockOrganization,
-  mockCurrentUser,
   mockOrganizationWithAdminActions,
   mockOrganizationWithAlm
 } from '../../../helpers/testMocks';
@@ -172,7 +172,7 @@ it('should not allow to remove members when in sync mode', async () => {
 function shallowRender(props: Partial<OrganizationMembers['props']> = {}) {
   return shallow<OrganizationMembers>(
     <OrganizationMembers
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       organization={mockOrganizationWithAdminActions()}
       {...props}
     />

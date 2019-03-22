@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { EmailForm } from '../EmailForm';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
-  expect(shallow(<EmailForm currentUser={mockCurrentUser()} />)).toMatchSnapshot();
+  expect(shallow(<EmailForm currentUser={mockLoggedInUser()} />)).toMatchSnapshot();
 });

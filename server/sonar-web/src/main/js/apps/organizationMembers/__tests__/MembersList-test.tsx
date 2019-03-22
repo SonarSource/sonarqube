@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MembersList from '../MembersList';
-import { mockOrganization, mockCurrentUser } from '../../../helpers/testMocks';
+import { mockLoggedInUser, mockOrganization } from '../../../helpers/testMocks';
 
 const members = [
   { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 },
@@ -38,7 +38,7 @@ it('should render "no results"', () => {
 function shallowRender(props: Partial<MembersList['props']> = {}) {
   return shallow(
     <MembersList
-      currentUser={mockCurrentUser({ login: 'admin' })}
+      currentUser={mockLoggedInUser({ login: 'admin' })}
       members={members}
       organization={mockOrganization()}
       organizationGroups={[]}

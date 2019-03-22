@@ -21,8 +21,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import MembersListHeader, { Props } from '../MembersListHeader';
 import {
+  mockLoggedInUser,
   mockOrganization,
-  mockCurrentUser,
   mockOrganizationWithAlm
 } from '../../../helpers/testMocks';
 
@@ -53,7 +53,7 @@ it('should render a help tooltip', () => {
 it('should not render link in help tooltip', () => {
   expect(
     shallowRender({
-      currentUser: mockCurrentUser({ personalOrganization: 'foo' }),
+      currentUser: mockLoggedInUser({ personalOrganization: 'foo' }),
       organization: mockOrganizationWithAlm({}, { membersSync: true })
     }).find('HelpTooltip')
   ).toMatchSnapshot();
@@ -62,7 +62,7 @@ it('should not render link in help tooltip', () => {
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <MembersListHeader
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       handleSearch={jest.fn()}
       organization={mockOrganization()}
       total={8}

@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OnboardingModal, Props } from '../OnboardingModal';
 import { click } from '../../../../helpers/testUtils';
-import { mockCurrentUser, mockOrganization } from '../../../../helpers/testMocks';
+import { mockLoggedInUser, mockOrganization } from '../../../../helpers/testMocks';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -41,7 +41,7 @@ it('should open project create page', () => {
 
 it('should display organization list if any', () => {
   const wrapper = shallowRender({
-    currentUser: mockCurrentUser({ personalOrganization: 'personal' }),
+    currentUser: mockLoggedInUser({ personalOrganization: 'personal' }),
     userOrganizations: [
       mockOrganization({ key: 'a', name: 'Arthur' }),
       mockOrganization({ key: 'd', name: 'Daniel Inc' }),
@@ -56,7 +56,7 @@ it('should display organization list if any', () => {
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <OnboardingModal
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       onClose={jest.fn()}
       onOpenProjectOnboarding={jest.fn()}
       userOrganizations={[]}

@@ -20,7 +20,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigationHeader, { Props } from '../OrganizationNavigationHeader';
-import { mockOrganizationWithAlm, mockCurrentUser } from '../../../../helpers/testMocks';
+import {
+  mockOrganizationWithAlm,
+  mockCurrentUser,
+  mockLoggedInUser
+} from '../../../../helpers/testMocks';
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -34,7 +38,7 @@ it('renders with alm integration', () => {
 
 it('renders for external user w/o alm integration', () => {
   expect(
-    shallowRender({ currentUser: mockCurrentUser({ externalProvider: 'github' }) })
+    shallowRender({ currentUser: mockLoggedInUser({ externalProvider: 'github' }) })
   ).toMatchSnapshot();
 });
 

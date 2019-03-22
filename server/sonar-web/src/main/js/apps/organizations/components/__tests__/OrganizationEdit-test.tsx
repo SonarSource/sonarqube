@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { OrganizationEdit } from '../OrganizationEdit';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 
 it('smoke test', () => {
   const organization = { key: 'foo', name: 'Foo' };
   const wrapper = shallow(
     <OrganizationEdit
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       organization={organization}
       updateOrganization={jest.fn()}
     />

@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import { Meta } from '../MetaContainer';
 import {
   mockAppState,
-  mockCurrentUser,
+  mockLoggedInUser,
   mockOrganization,
   mockComponent
 } from '../../../../helpers/testMocks';
@@ -58,7 +58,7 @@ function shallowRender(props: Partial<Meta['props']> = {}) {
     <Meta
       appState={mockAppState({ organizationsEnabled: true })}
       component={mockComponent()}
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       onComponentChange={jest.fn()}
       organization={mockOrganization()}
       userOrganizations={[mockOrganization()]}

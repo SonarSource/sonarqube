@@ -21,7 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { App } from '../App';
 import {
-  mockCurrentUser,
+  mockLoggedInUser,
   mockRouter,
   mockIssue,
   mockLocation
@@ -193,7 +193,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
         organization: 'John',
         qualifier: 'Doe'
       }}
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       fetchIssues={jest.fn().mockResolvedValue({
         components: [referencedComponent],
         effortTotal: 1,

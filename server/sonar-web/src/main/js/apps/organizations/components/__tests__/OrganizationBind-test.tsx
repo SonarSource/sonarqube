@@ -28,7 +28,7 @@ import { getAlmAppInfo } from '../../../../api/alm-integration';
 import { save } from '../../../../helpers/storage';
 import {
   mockAlmApplication,
-  mockCurrentUser,
+  mockLoggedInUser,
   mockOrganization
 } from '../../../../helpers/testMocks';
 
@@ -64,7 +64,7 @@ it('should save state when handling Install App click', () => {
 function shallowRender(props: Partial<OrganizationBind['props']> = {}) {
   return shallow<OrganizationBind>(
     <OrganizationBind
-      currentUser={mockCurrentUser()}
+      currentUser={mockLoggedInUser()}
       organization={mockOrganization()}
       {...props}
     />

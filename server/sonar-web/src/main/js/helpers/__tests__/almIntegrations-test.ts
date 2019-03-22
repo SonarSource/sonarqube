@@ -26,7 +26,7 @@ import {
   getAlmMembersUrl,
   getUserAlmKey
 } from '../almIntegrations';
-import { mockCurrentUser } from '../testMocks';
+import { mockCurrentUser, mockLoggedInUser } from '../testMocks';
 
 it('#getAlmMembersUrl', () => {
   expect(getAlmMembersUrl('github', 'https://github.com/Foo')).toBe(
@@ -74,7 +74,7 @@ it('#sanitizeAlmId', () => {
 
 describe('getUserAlmKey', () => {
   it('should return sanitized almKey', () => {
-    expect(getUserAlmKey(mockCurrentUser({ externalProvider: 'bitbucketcloud' }))).toBe(
+    expect(getUserAlmKey(mockLoggedInUser({ externalProvider: 'bitbucketcloud' }))).toBe(
       'bitbucket'
     );
   });

@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Password from '../Password';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 
 it('renders correctly', () => {
-  expect(shallow(<Password user={mockCurrentUser()} />)).toMatchSnapshot();
+  expect(shallow(<Password user={mockLoggedInUser()} />)).toMatchSnapshot();
 });

@@ -131,7 +131,14 @@ export function mockQualityGateStatusCondition(
   };
 }
 
-export function mockCurrentUser(overrides: Partial<T.LoggedInUser> = {}): T.LoggedInUser {
+export function mockCurrentUser(overrides: Partial<T.CurrentUser> = {}): T.CurrentUser {
+  return {
+    isLoggedIn: false,
+    ...overrides
+  };
+}
+
+export function mockLoggedInUser(overrides: Partial<T.LoggedInUser> = {}): T.LoggedInUser {
   return {
     groups: [],
     isLoggedIn: true,
