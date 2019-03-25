@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -553,6 +554,32 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     assertThat(issueChangeNotification.getFieldValue("branch")).isEqualTo(BRANCH_NAME);
     assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getKey());
     assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
+  }
+
+  @Test
+  public void send_issue_change_notification_in_bulks_of_1000() {
+    UserDto user = db.users().insertUser();
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
+    ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
+    RuleDefinitionDto ruleDefinitionDto = newRule();
+    ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    List<DefaultIssue> issues = IntStream.range(0, 1001 + new Random().nextInt(10))
+      .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setType(randomTypeExceptHotspot).toDefaultIssue()
+        .setNew(false).setChanged(true).setSendNotifications(true).setAssigneeUuid(user.getUuid()))
+      .collect(toList());
+    DiskCache<DefaultIssue>.DiskAppender diskAppender = issueCache.newAppender();
+    issues.forEach(diskAppender::append);
+    diskAppender.close();
+    when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
+
+    underTest.execute(new TestComputationStepContext());
+
+    ArgumentCaptor<Collection> collectionCaptor = forClass(Collection.class);
+    verify(notificationService, times(2)).deliverEmails(collectionCaptor.capture());
+    verify(notificationService, times(issues.size())).deliver(any(IssueChangeNotification.class));
+    assertThat(collectionCaptor.getAllValues().get(0)).hasSize(1000);
+    assertThat(collectionCaptor.getAllValues().get(1)).hasSize(issues.size() - 1000);
   }
 
   private NewIssuesNotification createNewIssuesNotificationMock() {

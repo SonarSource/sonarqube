@@ -33,8 +33,22 @@ public class IssueChangeNotificationTest {
   private IssueChangeNotification notification = new IssueChangeNotification();
 
   @Test
-  public void set_issue() {
+  public void getProjectKey_returns_null_when_project_is_not_set() {
+    assertThat(notification.getProjectKey()).isNull();
+  }
 
+  @Test
+  public void getChangeAuthor_returns_null_when_issue_is_not_set() {
+    assertThat(notification.getChangeAuthor()).isNull();
+  }
+
+  @Test
+  public void getNewResolution_returns_null_when_issue_is_not_set() {
+    assertThat(notification.getNewResolution()).isNull();
+  }
+
+  @Test
+  public void set_issue() {
     UserDto assignee = newUserDto();
 
     DefaultIssue issue = new DefaultIssue()
@@ -49,7 +63,9 @@ public class IssueChangeNotificationTest {
     assertThat(result.getFieldValue("key")).isEqualTo("ABCD");
     assertThat(result.getFieldValue("message")).isEqualTo("Remove this useless method");
     assertThat(result.getFieldValue("old.resolution")).isEqualTo("FALSE-POSITIVE");
-    assertThat(result.getFieldValue("new.resolution")).isEqualTo("FIXED");
+    assertThat(result.getFieldValue("new.resolution"))
+      .isEqualTo("FIXED")
+      .isEqualTo(result.getNewResolution());
     assertThat(result.getFieldValue("assignee")).isEqualTo(assignee.getLogin());
   }
 
@@ -63,11 +79,15 @@ public class IssueChangeNotificationTest {
 
     IssueChangeNotification result = notification.setIssue(issue.setCurrentChange(new FieldDiffs().setDiff("resolution", null, "FIXED")));
     assertThat(result.getFieldValue("old.resolution")).isNull();
-    assertThat(result.getFieldValue("new.resolution")).isEqualTo("FIXED");
+    assertThat(result.getFieldValue("new.resolution"))
+      .isEqualTo("FIXED")
+      .isEqualTo(result.getNewResolution());
 
     result = notification.setIssue(issue.setCurrentChange(new FieldDiffs().setDiff("resolution", "", "FIXED")));
     assertThat(result.getFieldValue("old.resolution")).isNull();
-    assertThat(result.getFieldValue("new.resolution")).isEqualTo("FIXED");
+    assertThat(result.getFieldValue("new.resolution"))
+      .isEqualTo("FIXED")
+      .isEqualTo(result.getNewResolution());
   }
 
   @Test
@@ -81,16 +101,20 @@ public class IssueChangeNotificationTest {
     IssueChangeNotification result = notification.setIssue(issue.setCurrentChange(new FieldDiffs().setDiff("assignee", "john", null)));
     assertThat(result.getFieldValue("old.assignee")).isEqualTo("john");
     assertThat(result.getFieldValue("new.assignee")).isNull();
+    assertThat(result.getNewResolution()).isNull();
 
     result = notification.setIssue(issue.setCurrentChange(new FieldDiffs().setDiff("assignee", "john", "")));
     assertThat(result.getFieldValue("old.assignee")).isEqualTo("john");
     assertThat(result.getFieldValue("new.assignee")).isNull();
+    assertThat(result.getNewResolution()).isNull();
   }
 
   @Test
   public void set_project_without_branch() {
     IssueChangeNotification result = notification.setProject("MyService", "My Service", null, null);
-    assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
+    assertThat(result.getFieldValue("projectKey"))
+      .isEqualTo("MyService")
+      .isEqualTo(result.getProjectKey());
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
     assertThat(result.getFieldValue("branch")).isNull();
   }
@@ -98,7 +122,9 @@ public class IssueChangeNotificationTest {
   @Test
   public void set_project_with_branch() {
     IssueChangeNotification result = notification.setProject("MyService", "My Service", "feature1", null);
-    assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
+    assertThat(result.getFieldValue("projectKey"))
+      .isEqualTo("MyService")
+      .isEqualTo(result.getProjectKey());
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
     assertThat(result.getFieldValue("branch")).isEqualTo("feature1");
   }
@@ -106,7 +132,9 @@ public class IssueChangeNotificationTest {
   @Test
   public void set_project_with_pull_request() {
     IssueChangeNotification result = notification.setProject("MyService", "My Service", null, "pr-123");
-    assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
+    assertThat(result.getFieldValue("projectKey"))
+      .isEqualTo("MyService")
+      .isEqualTo(result.getProjectKey());
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
     assertThat(result.getFieldValue("pullRequest")).isEqualTo("pr-123");
   }
@@ -122,7 +150,9 @@ public class IssueChangeNotificationTest {
   public void set_change_author_login() {
     UserDto user = newUserDto();
     IssueChangeNotification result = notification.setChangeAuthor(user);
-    assertThat(result.getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
+    assertThat(result.getFieldValue("changeAuthor"))
+      .isEqualTo(user.getLogin())
+      .isEqualTo(result.getChangeAuthor());
   }
 
   @Test

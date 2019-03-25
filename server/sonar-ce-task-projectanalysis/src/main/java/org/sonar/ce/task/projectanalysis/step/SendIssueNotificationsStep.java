@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -141,27 +143,48 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids,
     NotificationStatistics notificationStatistics) {
+    int batchSize = 1000;
+    List<DefaultIssue> loadedIssues = new ArrayList<>(batchSize);
     while (issues.hasNext()) {
       DefaultIssue issue = issues.next();
       if (issue.type() != RuleType.SECURITY_HOTSPOT) {
         if (issue.isNew() && issue.resolution() == null) {
           newIssuesStats.add(issue);
         } else if (issue.isChanged() && issue.mustSendNotifications()) {
-          sendIssueChangeNotification(issue, project, usersDtoByUuids, notificationStatistics);
+          loadedIssues.add(issue);
         }
       }
+
+      if (loadedIssues.size() >= batchSize) {
+        sendIssueChangeNotification(loadedIssues, project, usersDtoByUuids, notificationStatistics);
+        loadedIssues.clear();
+      }
+    }
+
+    if (!loadedIssues.isEmpty()) {
+      sendIssueChangeNotification(loadedIssues, project, usersDtoByUuids, notificationStatistics);
     }
   }
 
-  private void sendIssueChangeNotification(DefaultIssue issue, Component project, Map<String, UserDto> usersDtoByUuids, NotificationStatistics notificationStatistics) {
-    IssueChangeNotification changeNotification = new IssueChangeNotification();
-    changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
-    changeNotification.setIssue(issue);
-    changeNotification.setAssignee(usersDtoByUuids.get(issue.assignee()));
-    changeNotification.setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest());
-    getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getKey(), c.getName()));
-    notificationStatistics.issueChangesDeliveries += service.deliver(changeNotification);
+  private void sendIssueChangeNotification(Collection<DefaultIssue> issues, Component project, Map<String, UserDto> usersDtoByUuids,
+    NotificationStatistics notificationStatistics) {
+    Set<IssueChangeNotification> notifications = issues.stream()
+      .map(issue -> {
+        IssueChangeNotification notification = new IssueChangeNotification();
+        notification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
+        notification.setIssue(issue);
+        notification.setAssignee(usersDtoByUuids.get(issue.assignee()));
+        notification.setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest());
+        getComponentKey(issue).ifPresent(c -> notification.setComponent(c.getKey(), c.getName()));
+        return notification;
+      })
+      .collect(MoreCollectors.toSet(issues.size()));
+
+    notificationStatistics.issueChangesDeliveries += service.deliverEmails(notifications);
     notificationStatistics.issueChanges++;
+
+    // compatibility with old API
+    notifications.forEach(notification -> notificationStatistics.issueChangesDeliveries += service.deliver(notification));
   }
 
   private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, Map<String, UserDto> assigneesByUuid,

@@ -38,6 +38,8 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 public class IssueChangeNotification extends Notification {
 
   public static final String TYPE = "issue-changes";
+  private static final String FIELD_CHANGE_AUTHOR = "changeAuthor";
+  private static final String FIELD_ASSIGNEE = "assignee";
 
   public IssueChangeNotification() {
     super(TYPE);
@@ -58,6 +60,11 @@ public class IssueChangeNotification extends Notification {
     return this;
   }
 
+  @CheckForNull
+  public String getNewResolution() {
+    return getFieldValue("new.resolution");
+  }
+
   public IssueChangeNotification setProject(ComponentDto project) {
     return setProject(project.getKey(), project.name(), project.getBranch(), project.getPullRequest());
   }
@@ -74,6 +81,11 @@ public class IssueChangeNotification extends Notification {
     return this;
   }
 
+  @CheckForNull
+  public String getProjectKey() {
+    return getFieldValue(FIELD_PROJECT_KEY);
+  }
+
   public IssueChangeNotification setComponent(ComponentDto component) {
     return setComponent(component.getKey(), component.longName());
   }
@@ -88,8 +100,13 @@ public class IssueChangeNotification extends Notification {
     if (author == null) {
       return this;
     }
-    setFieldValue("changeAuthor", author.getLogin());
+    setFieldValue(FIELD_CHANGE_AUTHOR, author.getLogin());
     return this;
+  }
+
+  @CheckForNull
+  public String getChangeAuthor() {
+    return getFieldValue(FIELD_CHANGE_AUTHOR);
   }
 
   public IssueChangeNotification setRuleName(@Nullable String s) {
@@ -113,8 +130,13 @@ public class IssueChangeNotification extends Notification {
 
   public IssueChangeNotification setAssignee(@Nullable UserDto assignee) {
     if (assignee != null) {
-      setFieldValue("assignee", assignee.getLogin());
+      setFieldValue(FIELD_ASSIGNEE, assignee.getLogin());
     }
     return this;
+  }
+
+  @CheckForNull
+  public String getAssignee() {
+    return getFieldValue(FIELD_ASSIGNEE);
   }
 }

@@ -80,8 +80,8 @@ import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
-import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
+import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationHandler;
+import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
 import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
@@ -409,14 +409,14 @@ public class PlatformLevel4 extends PlatformLevel {
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
       IssueChangesEmailTemplate.class,
-      ChangesOnMyIssueNotificationDispatcher.class,
-      ChangesOnMyIssueNotificationDispatcher.newMetadata(),
+      ChangesOnMyIssueNotificationHandler.class,
+      ChangesOnMyIssueNotificationHandler.newMetadata(),
       NewIssuesNotificationHandler.class,
       NewIssuesNotificationHandler.newMetadata(),
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
-      DoNotFixNotificationDispatcher.class,
-      DoNotFixNotificationDispatcher.newMetadata(),
+      DoNotFixNotificationHandler.class,
+      DoNotFixNotificationHandler.newMetadata(),
 
       // Security reports
       SecurityReportsWsModule.class,

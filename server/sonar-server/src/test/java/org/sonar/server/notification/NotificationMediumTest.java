@@ -223,8 +223,8 @@ public class NotificationMediumTest {
     // Emulate processing of each notification take 10 min to have a log each time
     when(underTest.now()).thenReturn(0L).thenReturn(10 * 60 * 1000 + 1L).thenReturn(20 * 60 * 1000 + 2L);
     underTest.start();
-    verify(underTest, timeout(200)).log(1, 1, 10);
-    verify(underTest, timeout(200)).log(2, 0, 20);
+    verify(underTest, timeout(200)).log(0, 1, 10);
+    verify(underTest, timeout(200)).log(0, 0, 20);
     underTest.stop();
   }
 
