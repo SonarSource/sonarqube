@@ -45,11 +45,6 @@ public class MyNewIssuesNotification extends NewIssuesNotification {
   }
 
   @CheckForNull
-  public String getProjectKey() {
-    return getFieldValue("projectKey");
-  }
-
-  @CheckForNull
   public String getAssignee() {
     return getFieldValue(FIELD_ASSIGNEE);
   }

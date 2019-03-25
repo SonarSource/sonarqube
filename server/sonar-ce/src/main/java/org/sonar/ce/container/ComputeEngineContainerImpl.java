@@ -105,8 +105,8 @@ import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
-import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
+import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.l18n.ServerI18n;
@@ -406,8 +406,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueChangesEmailTemplate.class,
       ChangesOnMyIssueNotificationDispatcher.class,
       ChangesOnMyIssueNotificationDispatcher.newMetadata(),
-      NewIssuesNotificationDispatcher.class,
-      NewIssuesNotificationDispatcher.newMetadata(),
+      NewIssuesNotificationHandler.class,
+      NewIssuesNotificationHandler.newMetadata(),
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
       DoNotFixNotificationDispatcher.class,

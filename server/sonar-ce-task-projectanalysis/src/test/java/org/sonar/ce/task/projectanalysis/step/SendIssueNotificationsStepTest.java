@@ -286,9 +286,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService).deliver(newIssuesNotificationMock);
+    verify(notificationService).deliverEmails(ImmutableSet.of(newIssuesNotificationMock));
     verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock));
     // old API compatibility call
+    verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
     verify(myNewIssuesNotificationMock).setProject(PROJECT.getKey(), PROJECT.getName(), null, null);

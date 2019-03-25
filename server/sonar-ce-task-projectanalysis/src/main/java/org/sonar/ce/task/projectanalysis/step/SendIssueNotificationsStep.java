@@ -57,6 +57,7 @@ import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
@@ -101,9 +102,9 @@ public class SendIssueNotificationsStep implements ComputationStep {
     Component project = treeRootHolder.getRoot();
     NotificationStatistics notificationStatistics = new NotificationStatistics();
     // FIXME do we still need this fail fast?
-//    if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
-      doExecute(notificationStatistics, project);
-//    }
+    // if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
+    doExecute(notificationStatistics, project);
+    // }
     notificationStatistics.dumpTo(context);
   }
 
@@ -171,8 +172,11 @@ public class SendIssueNotificationsStep implements ComputationStep {
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
       .setDebt(Duration.create(globalStatistics.effort().getOnLeak()));
-    notificationStatistics.newIssuesDeliveries += service.deliver(notification);
+    notificationStatistics.newIssuesDeliveries += service.deliverEmails(singleton(notification));
     notificationStatistics.newIssues++;
+
+    // compatibility with old API
+    notificationStatistics.newIssuesDeliveries += service.deliver(notification);
   }
 
   private void sendMyNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate, NotificationStatistics notificationStatistics) {

@@ -25,7 +25,7 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
-import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
+import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 
@@ -40,7 +40,7 @@ public class DispatchersImplTest {
       NotificationDispatcherMetadata.create(MyNewIssuesNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
-      NotificationDispatcherMetadata.create(NewIssuesNotificationDispatcher.KEY)
+      NotificationDispatcherMetadata.create(NewIssuesNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true"),
       NotificationDispatcherMetadata.create(NewAlerts.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
@@ -60,7 +60,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getGlobalDispatchers()).containsExactly(
-      NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, NewIssuesNotificationDispatcher.KEY, MyNewIssuesNotificationHandler.KEY);
+      NewAlerts.KEY, DoNotFixNotificationDispatcher.KEY, NewIssuesNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test

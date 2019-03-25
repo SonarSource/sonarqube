@@ -34,6 +34,7 @@ import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -95,6 +96,30 @@ public class NewIssuesNotificationTest {
     underTest.setProjectVersion(null);
 
     assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_VERSION)).isNull();
+  }
+
+  @Test
+  public void getProjectKey_returns_null_if_setProject_has_no_been_called() {
+    assertThat(underTest.getProjectKey()).isNull();
+  }
+
+  @Test
+  public void getProjectKey_returns_projectKey_if_setProject_has_been_called() {
+    String projectKey = randomAlphabetic(5);
+    String projectName = randomAlphabetic(6);
+    String branchName = randomAlphabetic(7);
+    String pullRequest = randomAlphabetic(8);
+    underTest.setProject(projectKey, projectName, branchName, pullRequest);
+
+    assertThat(underTest.getProjectKey()).isEqualTo(projectKey);
+  }
+
+  @Test
+  public void getProjectKey_returns_value_of_field_projectKey() {
+    String projectKey = randomAlphabetic(5);
+    underTest.setFieldValue("projectKey", projectKey);
+
+    assertThat(underTest.getProjectKey()).isEqualTo(projectKey);
   }
 
   @Test

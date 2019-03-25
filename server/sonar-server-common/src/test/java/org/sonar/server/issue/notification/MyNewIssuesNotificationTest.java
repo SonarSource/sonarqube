@@ -25,7 +25,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_ASSIGNEE;
@@ -50,19 +49,4 @@ public class MyNewIssuesNotificationTest {
     assertThat(underTest.getType()).isEqualTo(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
   }
 
-  @Test
-  public void getProjectKey_returns_null_if_setProject_has_no_been_called() {
-    assertThat(underTest.getProjectKey()).isNull();
-  }
-
-  @Test
-  public void getProjectKey_returns_projectKey_if_setProject_has_been_called() {
-    String projectKey = randomAlphabetic(5);
-    String projectName = randomAlphabetic(6);
-    String branchName = randomAlphabetic(7);
-    String pullRequest = randomAlphabetic(8);
-    underTest.setProject(projectKey, projectName, branchName, pullRequest);
-
-    assertThat(underTest.getProjectKey()).isEqualTo(projectKey);
-  }
 }

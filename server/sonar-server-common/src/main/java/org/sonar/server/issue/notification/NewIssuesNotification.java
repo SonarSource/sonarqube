@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.ToIntFunction;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
@@ -90,6 +91,11 @@ public class NewIssuesNotification extends Notification {
       setFieldValue(FIELD_PULL_REQUEST, pullRequest);
     }
     return this;
+  }
+
+  @CheckForNull
+  public String getProjectKey() {
+    return getFieldValue(FIELD_PROJECT_KEY);
   }
 
   public NewIssuesNotification setProjectVersion(@Nullable String version) {
