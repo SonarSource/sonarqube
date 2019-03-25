@@ -36,8 +36,8 @@ These parameters enable PR analysis:
 
 | Parameter Name        | Description |
 | --------------------- | ------------------ |
-| `sonar.pullrequest.branch` | The name of your PR<br/> Ex: `sonar.pullrequest.branch=feature/my-new-feature`|
 | `sonar.pullrequest.key` | Unique identifier of your PR. Must correspond to the key of the PR in GitHub or TFS. <br/> E.G.: `sonar.pullrequest.key=5` |
+| `sonar.pullrequest.branch` | The name of the branch that contains the changes to be merged.<br/> Ex: `sonar.pullrequest.branch=feature/my-new-feature`|
 | `sonar.pullrequest.base` | The long-lived branch into which the PR will be merged. <br/> Default: master <br/> E.G.: `sonar.pullrequest.base=master`|
 
 ### Pull Request Decoration
