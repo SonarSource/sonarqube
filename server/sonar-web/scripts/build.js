@@ -22,8 +22,7 @@ process.env.NODE_ENV = 'production';
 
 const chalk = require('chalk');
 const webpack = require('webpack');
-const sortBy = require('lodash/sortBy');
-const formatSize = require('./utils/formatSize');
+const reportBuildStats = require('./utils/reportBuildStats');
 const getConfigs = require('../config/webpack.config');
 
 const configs = getConfigs({ production: true });
@@ -38,31 +37,9 @@ function build() {
       console.log(chalk.red(err.message || err));
       process.exit(1);
     }
-
-    const report = (stats, bundleName, filesLimit = 10) => {
-      if (stats.compilation.errors && stats.compilation.errors.length) {
-        console.log(chalk.red.bold('Failed to create a production build!'));
-        stats.compilation.errors.forEach(err => console.log(chalk.red(err.message || err)));
-        process.exit(1);
-      }
-      const jsonStats = stats.toJson();
-      const onlyJS = jsonStats.assets.filter(asset => asset.name.endsWith('.js'));
-      console.log(`Biggest js chunks (${onlyJS.length} total) [${bundleName}]:`);
-      sortBy(onlyJS, asset => -asset.size)
-        .slice(0, filesLimit)
-        .forEach(asset => {
-          let sizeLabel = formatSize(asset.size);
-          const leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
-          sizeLabel = leftPadding + sizeLabel;
-          console.log('', chalk.yellow(sizeLabel), asset.name);
-        });
-      console.log();
-    };
-
-    report(stats.stats[0], 'modern');
+    reportBuildStats(stats.stats[0], 'modern');
     console.log();
-    report(stats.stats[1], 'legacy');
-
+    reportBuildStats(stats.stats[1], 'legacy');
     console.log(chalk.green.bold('Compiled successfully!'));
   });
 }

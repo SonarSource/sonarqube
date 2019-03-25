@@ -22,7 +22,7 @@ process.env.NODE_ENV = 'production';
 
 const chalk = require('chalk');
 const webpack = require('webpack');
-const sortBy = require('lodash/sortBy');
+const reportBuildStats = require('./utils/reportBuildStats');
 const getConfig = require('../config/webpack.config');
 
 const config = getConfig({ production: true });
@@ -37,18 +37,7 @@ function build() {
       console.log(chalk.red(err.message || err));
       process.exit(1);
     }
-
-    if (stats.compilation.errors && stats.compilation.errors.length) {
-      console.log(chalk.red.bold('Failed to create a production build!'));
-      stats.compilation.errors.forEach(err => console.log(chalk.red(err.message || err)));
-      process.exit(1);
-    }
-
-    const jsonStats = stats.toJson();
-    const seconds = jsonStats.time / 1000;
-    console.log('Duration: ' + seconds.toFixed(2) + 's');
-    console.log();
-
+    reportBuildStats(stats);
     console.log(chalk.green.bold('Compiled successfully!'));
   });
 }
