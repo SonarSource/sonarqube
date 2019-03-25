@@ -33,6 +33,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static java.util.Collections.singleton;
+
 @Properties({
   @Property(
     key = NotificationDaemon.PROPERTY_DELAY,
@@ -106,8 +108,9 @@ public class NotificationDaemon implements Startable {
 
     Notification notifToSend = manager.getFromQueue();
     while (notifToSend != null) {
-      service.deliver(notifToSend);
-      notifSentCount++;
+      notifSentCount += service.deliverEmails(singleton(notifToSend));
+      // compatibility with old API
+      notifSentCount += service.deliver(notifToSend);
       if (stopping) {
         break;
       }
