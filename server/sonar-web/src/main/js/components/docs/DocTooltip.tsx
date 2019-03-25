@@ -37,12 +37,16 @@ interface State {
 }
 
 export default class DocTooltip extends React.PureComponent<Props, State> {
+  mounted = false;
   state: State = { open: false };
 
   componentDidMount() {
+    this.mounted = true;
     this.props.doc.then(
       ({ default: content }) => {
-        this.setState({ content });
+        if (this.mounted) {
+          this.setState({ content });
+        }
       },
       () => {}
     );
@@ -50,11 +54,14 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
+    this.mounted = false;
     document.removeEventListener('scroll', this.close, true);
   }
 
   close = () => {
-    this.setState({ open: false });
+    if (this.mounted) {
+      this.setState({ open: false });
+    }
   };
 
   render() {
