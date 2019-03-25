@@ -91,10 +91,9 @@ public class NotificationService {
     checkArgument(aClass != Notification.class, "Type of notification objects must be a subtype of " + Notification.class.getSimpleName());
     return handlers.stream()
       .filter(t -> t.getNotificationClass() == aClass)
-      .findFirst()
       .map(t -> (NotificationHandler<T>) t)
-      .map(handler -> handler.deliver(notifications))
-      .orElse(0);
+      .mapToInt(handler -> handler.deliver(notifications))
+      .sum();
   }
 
   @SuppressWarnings("unchecked")
