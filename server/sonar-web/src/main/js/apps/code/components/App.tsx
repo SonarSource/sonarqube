@@ -40,7 +40,7 @@ import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
 import '../code.css';
 
 interface StateToProps {
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
 }
 
 interface DispatchToProps {

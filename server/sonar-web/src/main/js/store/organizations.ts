@@ -32,7 +32,7 @@ type Action =
   | ActionType<typeof deleteOrganization, 'DELETE_ORGANIZATION'>;
 
 export interface State {
-  byKey: { [key: string]: T.Organization };
+  byKey: T.Dict<T.Organization>;
   my: string[];
 }
 

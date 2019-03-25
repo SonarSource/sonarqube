@@ -26,7 +26,7 @@ interface Props {
   status: string;
 }
 
-const statusIcons: { [x: string]: (props: IconProps) => React.ReactElement<any> } = {
+const statusIcons: T.Dict<(props: IconProps) => React.ReactElement<any>> = {
   ok: OkTestStatusIcon,
   failure: FailureTestStatusIcon,
   error: ErrorTestStatusIcon,

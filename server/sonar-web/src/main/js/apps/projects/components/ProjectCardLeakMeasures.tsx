@@ -26,7 +26,7 @@ import VulnerabilityIcon from '../../../components/icons-components/Vulnerabilit
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  measures: { [key: string]: string };
+  measures: T.Dict<string>;
 }
 
 export default function ProjectCardLeakMeasures({ measures }: Props) {

@@ -30,7 +30,7 @@ import { Alert } from '../../../components/ui/Alert';
 interface Props {
   canEdit: boolean;
   conditions: T.Condition[];
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   onAddCondition: (condition: T.Condition) => void;
   onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
   onRemoveCondition: (Condition: T.Condition) => void;

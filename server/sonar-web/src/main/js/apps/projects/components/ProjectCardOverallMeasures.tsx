@@ -30,7 +30,7 @@ import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 
 interface Props {
-  measures: { [key: string]: string | undefined };
+  measures: T.Dict<string | undefined>;
 }
 
 export default function ProjectCardOverallMeasures({ measures }: Props) {

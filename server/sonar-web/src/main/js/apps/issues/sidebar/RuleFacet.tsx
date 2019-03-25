@@ -33,9 +33,9 @@ interface Props {
   open: boolean;
   organization: string | undefined;
   query: Query;
-  referencedRules: { [ruleKey: string]: ReferencedRule };
+  referencedRules: T.Dict<ReferencedRule>;
   rules: string[];
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
 }
 
 export default class RuleFacet extends React.PureComponent<Props> {

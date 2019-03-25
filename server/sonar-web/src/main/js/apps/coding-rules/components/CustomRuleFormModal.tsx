@@ -44,7 +44,7 @@ interface State {
   key: string;
   keyModifiedByUser: boolean;
   name: string;
-  params: { [p: string]: string };
+  params: T.Dict<string>;
   reactivating: boolean;
   severity: string;
   status: string;
@@ -57,7 +57,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
   constructor(props: Props) {
     super(props);
-    const params: { [p: string]: string } = {};
+    const params: T.Dict<string> = {};
     if (props.customRule && props.customRule.params) {
       for (const param of props.customRule.params) {
         params[param.key] = param.defaultValue || '';

@@ -36,7 +36,7 @@ export interface Props {
   onQueryChange: (change: RawQuery) => void;
   organization?: { key: string };
   property?: string;
-  query: { [x: string]: any };
+  query: T.Dict<any>;
   value?: any;
 }
 

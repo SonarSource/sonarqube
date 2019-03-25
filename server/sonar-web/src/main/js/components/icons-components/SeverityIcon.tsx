@@ -26,7 +26,7 @@ interface Props {
   severity: string | null | undefined;
 }
 
-const severityIcons: { [x: string]: (props: IconProps) => React.ReactElement<any> } = {
+const severityIcons: T.Dict<(props: IconProps) => React.ReactElement<any>> = {
   blocker: BlockerSeverityIcon,
   critical: CriticalSeverityIcon,
   major: MajorSeverityIcon,

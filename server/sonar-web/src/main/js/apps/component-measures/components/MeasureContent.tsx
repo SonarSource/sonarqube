@@ -42,7 +42,7 @@ interface Props {
   branchLike?: T.BranchLike;
   leakPeriod?: T.Period;
   requestedMetric: Pick<T.Metric, 'key' | 'direction'>;
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
   router: InjectedRouter;
   selected?: string;

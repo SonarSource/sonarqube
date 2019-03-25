@@ -27,7 +27,7 @@ export function receiveMetrics(metrics: T.Metric[]) {
 
 type Action = ActionType<typeof receiveMetrics, 'RECEIVE_METRICS'>;
 
-export type State = { byKey: { [key: string]: T.Metric }; keys: string[] };
+export type State = { byKey: T.Dict<T.Metric>; keys: string[] };
 
 const byKey = (state: State['byKey'] = {}, action: Action) => {
   if (action.type === 'RECEIVE_METRICS') {

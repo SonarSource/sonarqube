@@ -26,7 +26,7 @@ interface Props {
   os: string;
 }
 
-const filenames: { [key: string]: string } = {
+const filenames: T.Dict<string> = {
   win: 'build-wrapper-win-x86.zip',
   linux: 'build-wrapper-linux-x86.zip',
   mac: 'build-wrapper-macosx-x86.zip'

@@ -39,7 +39,7 @@ interface Props {
   component: T.ComponentMeasure;
   components: T.ComponentMeasureEnhanced[];
   domain: string;
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   updateSelected: (component: string) => void;
 }
 

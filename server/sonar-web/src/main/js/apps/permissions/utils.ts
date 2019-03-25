@@ -46,7 +46,7 @@ export const PERMISSIONS_ORDER_FOR_VIEW = ['user', 'admin'];
 
 export const PERMISSIONS_ORDER_FOR_DEV = ['user', 'admin'];
 
-export const PERMISSIONS_ORDER_BY_QUALIFIER: { [index: string]: string[] } = {
+export const PERMISSIONS_ORDER_BY_QUALIFIER: T.Dict<string[]> = {
   TRK: PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   VW: PERMISSIONS_ORDER_FOR_VIEW,
   SVW: PERMISSIONS_ORDER_FOR_VIEW,

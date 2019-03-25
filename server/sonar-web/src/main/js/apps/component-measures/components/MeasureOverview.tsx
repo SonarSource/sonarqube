@@ -37,9 +37,9 @@ interface Props {
   domain: string;
   leakPeriod?: T.Period;
   loading: boolean;
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
-  updateLoading: (param: { [key: string]: boolean }) => void;
+  updateLoading: (param: T.Dict<boolean>) => void;
   updateSelected: (component: string) => void;
 }
 

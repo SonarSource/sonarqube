@@ -46,8 +46,8 @@ interface ByType {
 
 interface State {
   activatedTotal: number | null;
-  activatedByType: { [type: string]: ByType };
-  allByType: { [type: string]: ByType };
+  activatedByType: T.Dict<ByType>;
+  allByType: T.Dict<ByType>;
   compareToSonarWay: { profile: string; profileName: string; missingRuleCount: number } | null;
   loading: boolean;
   total: number | null;

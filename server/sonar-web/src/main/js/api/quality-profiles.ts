@@ -169,8 +169,8 @@ export interface CompareResponse {
   modified: Array<{
     key: string;
     name: string;
-    left: { params: { [p: string]: string }; severity: string };
-    right: { params: { [p: string]: string }; severity: string };
+    left: { params: T.Dict<string>; severity: string };
+    right: { params: T.Dict<string>; severity: string };
   }>;
 }
 
@@ -284,7 +284,7 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
 export function activateRule(data: {
   key: string;
   organization: string | undefined;
-  params?: { [key: string]: string };
+  params?: T.Dict<string>;
   reset?: boolean;
   rule: string;
   severity?: string;

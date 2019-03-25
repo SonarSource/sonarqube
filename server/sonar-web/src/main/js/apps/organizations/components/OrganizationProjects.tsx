@@ -22,7 +22,7 @@ import AllProjectsContainer from '../../projects/components/AllProjectsContainer
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 
 interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
+  location: { pathname: string; query: T.Dict<string> };
   organization: T.Organization;
 }
 

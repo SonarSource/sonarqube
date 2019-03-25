@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 export interface Props {
   addNotification: (n: T.Notification) => void;
   channels: string[];
-  notificationsByProject: { [project: string]: T.Notification[] };
+  notificationsByProject: T.Dict<T.Notification[]>;
   projects: NotificationProject[];
   removeNotification: (n: T.Notification) => void;
   types: string[];

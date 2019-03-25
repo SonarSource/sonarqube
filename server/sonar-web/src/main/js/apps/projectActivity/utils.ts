@@ -70,12 +70,12 @@ export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER
 export const APPLICATION_EVENT_TYPES = ['QUALITY_GATE', 'DEFINITION_CHANGE', 'OTHER'];
 export const DEFAULT_GRAPH = 'issues';
 export const GRAPH_TYPES = ['issues', 'coverage', 'duplications', 'custom'];
-export const GRAPHS_METRICS_DISPLAYED: { [x: string]: string[] } = {
+export const GRAPHS_METRICS_DISPLAYED: T.Dict<string[]> = {
   issues: ['bugs', 'code_smells', 'vulnerabilities'],
   coverage: ['lines_to_cover', 'uncovered_lines'],
   duplications: ['ncloc', 'duplicated_lines']
 };
-export const GRAPHS_METRICS: { [x: string]: string[] } = {
+export const GRAPHS_METRICS: T.Dict<string[]> = {
   issues: GRAPHS_METRICS_DISPLAYED['issues'].concat([
     'reliability_rating',
     'security_rating',
@@ -142,7 +142,7 @@ export function generateCoveredLinesMetric(
   };
 }
 
-function findMetric(key: string, metrics: T.Metric[] | { [key: string]: T.Metric }) {
+function findMetric(key: string, metrics: T.Metric[] | T.Dict<T.Metric>) {
   if (Array.isArray(metrics)) {
     return metrics.find(metric => metric.key === key);
   }
@@ -152,7 +152,7 @@ function findMetric(key: string, metrics: T.Metric[] | { [key: string]: T.Metric
 export function generateSeries(
   measuresHistory: MeasureHistory[],
   graph: string,
-  metrics: T.Metric[] | { [key: string]: T.Metric },
+  metrics: T.Metric[] | T.Dict<T.Metric>,
   displayedMetrics: string[]
 ): Serie[] {
   if (displayedMetrics.length <= 0 || typeof measuresHistory === 'undefined') {
@@ -193,7 +193,7 @@ export function getSeriesMetricType(series: Serie[]) {
 }
 
 interface AnalysesByDay {
-  byDay: { [x: string]: ParsedAnalysis[] };
+  byDay: T.Dict<ParsedAnalysis[]>;
   version: string | null;
   key: string | null;
 }

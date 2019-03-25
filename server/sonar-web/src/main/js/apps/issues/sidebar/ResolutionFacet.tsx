@@ -35,7 +35,7 @@ interface Props {
   open: boolean;
   resolved: boolean;
   resolutions: string[];
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
 }
 
 const RESOLUTIONS = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];

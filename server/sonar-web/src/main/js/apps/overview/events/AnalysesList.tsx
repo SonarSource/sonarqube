@@ -32,7 +32,7 @@ interface Props {
   history?: {
     [metric: string]: Array<{ date: Date; value?: string }>;
   };
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   qualifier: string;
 }
 

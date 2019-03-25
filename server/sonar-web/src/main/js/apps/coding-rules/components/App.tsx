@@ -96,8 +96,8 @@ interface State {
   openRule?: T.Rule;
   paging?: T.Paging;
   query: Query;
-  referencedProfiles: { [profile: string]: Profile };
-  referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
+  referencedProfiles: T.Dict<Profile>;
+  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   rules: T.Rule[];
   selected?: string;
 }
@@ -615,7 +615,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-function parseActives(rawActives: { [rule: string]: T.RuleActivation[] }) {
+function parseActives(rawActives: T.Dict<T.RuleActivation[]>) {
   const actives: Actives = {};
   for (const [rule, activations] of Object.entries(rawActives)) {
     actives[rule] = {};
@@ -629,7 +629,7 @@ function parseActives(rawActives: { [rule: string]: T.RuleActivation[] }) {
 function parseFacets(rawFacets: { property: string; values: { count: number; val: string }[] }[]) {
   const facets: Facets = {};
   for (const rawFacet of rawFacets) {
-    const values: { [value: string]: number } = {};
+    const values: T.Dict<number> = {};
     for (const rawValue of rawFacet.values) {
       values[rawValue.val] = rawValue.count;
     }

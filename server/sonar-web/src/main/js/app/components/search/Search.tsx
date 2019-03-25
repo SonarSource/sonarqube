@@ -51,8 +51,8 @@ interface State {
   loadingMore?: string;
   more: More;
   open: boolean;
-  organizations: { [key: string]: { name: string } };
-  projects: { [key: string]: { name: string } };
+  organizations: T.Dict<{ name: string }>;
+  projects: T.Dict<{ name: string }>;
   query: string;
   results: Results;
   selected?: string;
@@ -62,7 +62,7 @@ interface State {
 export class Search extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
   node?: HTMLElement | null;
-  nodes: { [x: string]: HTMLElement };
+  nodes: T.Dict<HTMLElement>;
   mounted = false;
 
   constructor(props: Props) {

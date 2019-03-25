@@ -39,7 +39,7 @@ import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 export interface Props {
   cwe: string[];
   cweOpen: boolean;
-  cweStats: { [x: string]: number } | undefined;
+  cweStats: T.Dict<number> | undefined;
   fetchingOwaspTop10: boolean;
   fetchingSansTop25: boolean;
   fetchingCwe: boolean;
@@ -49,11 +49,11 @@ export interface Props {
   open: boolean;
   owaspTop10: string[];
   owaspTop10Open: boolean;
-  owaspTop10Stats: { [x: string]: number } | undefined;
+  owaspTop10Stats: T.Dict<number> | undefined;
   query: Query;
   sansTop25: string[];
   sansTop25Open: boolean;
-  sansTop25Stats: { [x: string]: number } | undefined;
+  sansTop25Stats: T.Dict<number> | undefined;
 }
 
 interface State {

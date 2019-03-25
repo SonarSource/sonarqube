@@ -34,7 +34,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
   statuses: string[];
 }
 

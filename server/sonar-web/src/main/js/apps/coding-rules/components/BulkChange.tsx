@@ -29,7 +29,7 @@ interface Props {
   languages: T.Languages;
   organization: string | undefined;
   query: Query;
-  referencedProfiles: { [profile: string]: Profile };
+  referencedProfiles: T.Dict<Profile>;
   total: number;
 }
 

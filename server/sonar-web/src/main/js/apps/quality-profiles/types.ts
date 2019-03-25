@@ -34,7 +34,7 @@ export interface ProfileChangelogEvent {
   action: string;
   authorName: string;
   date: string;
-  params?: { [change: string]: string | null };
+  params?: T.Dict<string | null>;
   ruleKey: string;
   ruleName: string;
 }

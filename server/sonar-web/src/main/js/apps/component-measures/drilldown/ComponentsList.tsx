@@ -29,7 +29,7 @@ interface Props {
   components: T.ComponentMeasureEnhanced[];
   onClick: (component: string) => void;
   metric: T.Metric;
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
   selectedComponent?: string;
   view: View;

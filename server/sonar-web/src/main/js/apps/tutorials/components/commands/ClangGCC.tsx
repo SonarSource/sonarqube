@@ -34,7 +34,7 @@ interface Props {
   token: string;
 }
 
-const executables: { [key: string]: string } = {
+const executables: T.Dict<string> = {
   linux: 'build-wrapper-linux-x86-64',
   win: 'build-wrapper-win-x86-64.exe',
   mac: 'build-wrapper-macosx-x86'

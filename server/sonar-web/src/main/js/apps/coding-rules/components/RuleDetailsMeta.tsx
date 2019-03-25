@@ -42,7 +42,7 @@ interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
   onTagsChange: (tags: string[]) => void;
   organization: string | undefined;
-  referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
+  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   ruleDetails: T.RuleDetails;
 }
 

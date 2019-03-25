@@ -28,7 +28,7 @@ import { CompareResponse, Profile } from '../../../api/quality-profiles';
 import ChevronRightIcon from '../../../components/icons-components/ChevronRightcon';
 import ChevronLeftIcon from '../../../components/icons-components/ChevronLeftIcon';
 
-type Params = { [p: string]: string };
+type Params = T.Dict<string>;
 
 interface Props extends CompareResponse {
   organization?: string;

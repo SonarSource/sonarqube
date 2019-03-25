@@ -35,8 +35,8 @@ export interface Props {
   open: boolean;
   organization: string | undefined;
   query: Query;
-  stats: { [x: string]: number } | undefined;
-  referencedUsers: { [login: string]: ReferencedUser };
+  stats: T.Dict<number> | undefined;
+  referencedUsers: T.Dict<ReferencedUser>;
 }
 
 export default class AssigneeFacet extends React.PureComponent<Props> {

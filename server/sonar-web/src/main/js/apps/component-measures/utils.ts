@@ -93,7 +93,7 @@ export function addMeasureCategories(domainName: string, measures: T.MeasureEnha
 export function enhanceComponent(
   component: T.ComponentMeasure,
   metric: Pick<T.Metric, 'key'> | undefined,
-  metrics: { [key: string]: T.Metric }
+  metrics: T.Dict<T.Metric>
 ): T.ComponentMeasureEnhanced {
   if (!component.measures) {
     return { ...component, measures: [] };
@@ -153,10 +153,7 @@ export function hasFullMeasures(branch?: T.BranchLike) {
   return !branch || isLongLivingBranch(branch) || isMainBranch(branch);
 }
 
-export function getMeasuresPageMetricKeys(
-  metrics: { [key: string]: T.Metric },
-  branch?: T.BranchLike
-) {
+export function getMeasuresPageMetricKeys(metrics: T.Dict<T.Metric>, branch?: T.BranchLike) {
   const metricKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
 
   if (isPullRequest(branch) || isShortLivingBranch(branch)) {
@@ -166,7 +163,7 @@ export function getMeasuresPageMetricKeys(
   }
 }
 
-export function getBubbleMetrics(domain: string, metrics: { [key: string]: T.Metric }) {
+export function getBubbleMetrics(domain: string, metrics: T.Dict<T.Metric>) {
   const conf = bubbles[domain];
   return {
     x: metrics[conf.x],

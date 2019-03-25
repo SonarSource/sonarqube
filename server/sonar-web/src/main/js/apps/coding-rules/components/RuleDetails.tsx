@@ -43,8 +43,8 @@ interface Props {
   onDelete: (rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   organization: string | undefined;
-  referencedProfiles: { [profile: string]: Profile };
-  referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
+  referencedProfiles: T.Dict<Profile>;
+  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   ruleKey: string;
   selectedProfile?: Profile;
 }

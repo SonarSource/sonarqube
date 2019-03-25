@@ -239,7 +239,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   getAvailableTransitions(issues: T.Issue[]) {
-    const transitions: { [x: string]: number } = {};
+    const transitions: T.Dict<number> = {};
     issues.forEach(issue => {
       if (issue.transitions) {
         issue.transitions.forEach(t => {

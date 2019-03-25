@@ -27,7 +27,7 @@ import './ApplicationQualityGateProject.css';
 import { ApplicationProject, ConditionAnalysis } from '../../../api/quality-gates';
 
 interface Props {
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   project: ApplicationProject;
 }
 

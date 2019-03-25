@@ -393,7 +393,7 @@ const defaultDiacriticsRemovalap = [
   }
 ];
 
-const diacriticsMap: { [x: string]: string } = {};
+const diacriticsMap: T.Dict<string> = {};
 defaultDiacriticsRemovalap.forEach(defaultDiacritic =>
   defaultDiacritic.letters.split('').forEach(letter => {
     diacriticsMap[letter] = defaultDiacritic.base;

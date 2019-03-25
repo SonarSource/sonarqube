@@ -23,11 +23,11 @@ import Facet, { BasicProps } from './Facet';
 import { getLanguages, Store } from '../../../store/rootReducer';
 
 interface StateProps {
-  referencedLanguages: { [language: string]: { key: string; name: string } };
+  referencedLanguages: T.Dict<{ key: string; name: string }>;
 }
 
 interface Props extends BasicProps, StateProps {
-  referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
+  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
 }
 
 class RepositoryFacet extends React.PureComponent<Props> {

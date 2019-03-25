@@ -22,7 +22,7 @@ import SeverityChange from './SeverityChange';
 import ParameterChange from './ParameterChange';
 
 interface Props {
-  changes: { [change: string]: string | null };
+  changes: T.Dict<string | null>;
 }
 
 export default function ChangesList({ changes }: Props) {

@@ -44,21 +44,21 @@ import {
 
 export interface Props {
   component: T.Component | undefined;
-  facets: { [facet: string]: Facet };
+  facets: T.Dict<Facet>;
   hideAuthorFacet?: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
-  loadingFacets: { [key: string]: boolean };
+  loadingFacets: T.Dict<boolean>;
   myIssues: boolean;
   onFacetToggle: (property: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
-  openFacets: { [facet: string]: boolean };
+  openFacets: T.Dict<boolean>;
   organization: { key: string } | undefined;
   query: Query;
-  referencedComponentsById: { [id: string]: ReferencedComponent };
-  referencedComponentsByKey: { [key: string]: ReferencedComponent };
-  referencedLanguages: { [languageKey: string]: ReferencedLanguage };
-  referencedRules: { [ruleKey: string]: ReferencedRule };
-  referencedUsers: { [login: string]: ReferencedUser };
+  referencedComponentsById: T.Dict<ReferencedComponent>;
+  referencedComponentsByKey: T.Dict<ReferencedComponent>;
+  referencedLanguages: T.Dict<ReferencedLanguage>;
+  referencedRules: T.Dict<ReferencedRule>;
+  referencedUsers: T.Dict<ReferencedUser>;
 }
 
 export default class Sidebar extends React.PureComponent<Props> {

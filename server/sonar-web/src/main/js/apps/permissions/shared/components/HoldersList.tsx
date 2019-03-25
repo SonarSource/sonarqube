@@ -40,7 +40,7 @@ interface Props {
 }
 
 interface State {
-  initialPermissionsCount: { [key: string]: number };
+  initialPermissionsCount: T.Dict<number>;
 }
 export default class HoldersList extends React.PureComponent<Props, State> {
   state: State = { initialPermissionsCount: {} };

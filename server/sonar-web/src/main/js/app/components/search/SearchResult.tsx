@@ -32,8 +32,8 @@ interface Props {
   innerRef: (componentKey: string, node: HTMLElement | null) => void;
   onClose: () => void;
   onSelect: (componentKey: string) => void;
-  organizations: { [key: string]: { name: string } };
-  projects: { [key: string]: { name: string } };
+  organizations: T.Dict<{ name: string }>;
+  projects: T.Dict<{ name: string }>;
   selected: boolean;
 }
 

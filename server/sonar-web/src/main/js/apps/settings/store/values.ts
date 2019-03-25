@@ -28,12 +28,10 @@ enum Actions {
 
 type Action = ActionType<typeof receiveValues, Actions.receiveValues>;
 
-interface SettingsState {
-  [key: string]: T.SettingValue;
-}
+type SettingsState = T.Dict<T.SettingValue>;
 
 export interface State {
-  components: { [component: string]: SettingsState };
+  components: T.Dict<SettingsState>;
   global: SettingsState;
 }
 

@@ -28,7 +28,7 @@ interface Props {
   children?: React.ReactNode;
   // Use as `import(/* webpackMode: "eager" */ 'Docs/tooltips/foo/bar.md')`
   doc: Promise<{ default: string }>;
-  overlayProps?: { [k: string]: string };
+  overlayProps?: T.Dict<string>;
 }
 
 interface State {

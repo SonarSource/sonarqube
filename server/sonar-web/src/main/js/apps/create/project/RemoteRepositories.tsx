@@ -36,7 +36,7 @@ interface Props {
   organization: T.Organization;
 }
 
-type SelectedRepositories = { [key: string]: T.AlmRepository | undefined };
+type SelectedRepositories = T.Dict<T.AlmRepository | undefined>;
 
 interface State {
   highlight: boolean;

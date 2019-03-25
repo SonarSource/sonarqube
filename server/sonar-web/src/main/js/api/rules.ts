@@ -32,7 +32,7 @@ export function getRulesApp(data: {
 }
 
 export interface SearchRulesResponse {
-  actives?: { [rule: string]: T.RuleActivation[] };
+  actives?: T.Dict<T.RuleActivation[]>;
   facets?: { property: string; values: { count: number; val: string }[] }[];
   p: number;
   ps: number;

@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 declare namespace T {
+  export type Dict<T> = { [key: string]: T };
+
   export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
   // Type ordered alphabetically to prevent merge conflicts
@@ -97,7 +99,7 @@ declare namespace T {
     organizationsEnabled?: boolean;
     productionDatabase: boolean;
     qualifiers: string[];
-    settings: { [key: string]: string };
+    settings: T.Dict<string>;
     standalone?: boolean;
     version: string;
   }
@@ -400,9 +402,7 @@ declare namespace T {
     name: string;
   }
 
-  export interface Languages {
-    [key: string]: Language;
-  }
+  export type Languages = T.Dict<Language>;
 
   export interface LightComponent {
     key: string;
@@ -773,10 +773,10 @@ declare namespace T {
   }
 
   export interface SettingValue {
-    fieldValues?: Array<{ [key: string]: string }>;
+    fieldValues?: Array<T.Dict<string>>;
     inherited?: boolean;
     key: string;
-    parentFieldValues?: Array<{ [key: string]: string }>;
+    parentFieldValues?: Array<T.Dict<string>>;
     parentValue?: string;
     parentValues?: string[];
     value?: string;

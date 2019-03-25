@@ -64,12 +64,12 @@ export function sortBySeverity(issues: T.Issue[]): T.Issue[] {
 }
 
 function injectRelational(
-  issue: { [x: string]: any },
+  issue: T.Dict<any>,
   source: any[] | undefined,
   baseField: string,
   lookupField: string
 ) {
-  const newFields: { [x: string]: any } = {};
+  const newFields: T.Dict<any> = {};
   const baseValue = issue[baseField];
   if (baseValue !== undefined && source !== undefined) {
     const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);

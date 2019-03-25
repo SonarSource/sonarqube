@@ -29,7 +29,7 @@ interface Props {
   baseComponent?: T.ComponentMeasure;
   branchLike?: T.BranchLike;
   components: T.ComponentMeasure[];
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
   selected?: T.ComponentMeasure;
 }

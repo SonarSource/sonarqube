@@ -47,7 +47,7 @@ const ISSUE_MEASURES = [
   'new_vulnerabilities'
 ];
 
-const issueParamsPerMetric: { [key: string]: { [key: string]: string } } = {
+const issueParamsPerMetric: T.Dict<T.Dict<string>> = {
   blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
   new_blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
   critical_violations: { resolved: 'false', severities: 'CRITICAL' },
@@ -85,7 +85,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
   };
 
   propsToIssueParams = () => {
-    const params: { [key: string]: string | boolean } = {
+    const params: T.Dict<string | boolean> = {
       ...(issueParamsPerMetric[this.props.metric] || { resolved: 'false' })
     };
 

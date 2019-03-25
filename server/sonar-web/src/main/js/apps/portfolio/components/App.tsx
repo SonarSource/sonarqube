@@ -42,7 +42,7 @@ interface OwnProps {
 }
 
 interface StateToProps {
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
 }
 
 interface DispatchToProps {
@@ -53,7 +53,7 @@ type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
   loading: boolean;
-  measures?: { [key: string]: string | undefined };
+  measures?: T.Dict<string | undefined>;
   subComponents?: SubComponent[];
   totalSubComponents?: number;
 }

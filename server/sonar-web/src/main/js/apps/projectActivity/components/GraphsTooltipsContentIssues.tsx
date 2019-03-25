@@ -31,7 +31,7 @@ interface Props {
   value: string;
 }
 
-const METRIC_RATING: { [x: string]: string } = {
+const METRIC_RATING: T.Dict<string> = {
   bugs: 'reliability_rating',
   vulnerabilities: 'security_rating',
   code_smells: 'sqale_rating'

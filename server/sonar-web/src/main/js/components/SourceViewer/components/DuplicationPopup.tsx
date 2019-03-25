@@ -33,7 +33,7 @@ import { Alert } from '../../ui/Alert';
 interface Props {
   blocks: T.DuplicationBlock[];
   branchLike: T.BranchLike | undefined;
-  duplicatedFiles?: { [ref: string]: T.DuplicatedFile };
+  duplicatedFiles?: T.Dict<T.DuplicatedFile>;
   inRemovedComponent: boolean;
   onClose: () => void;
   openComponent: WorkspaceContextShape['openComponent'];

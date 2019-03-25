@@ -38,7 +38,7 @@ interface OwnProps {
 }
 
 interface State {
-  deprecatedByKey: { [key: string]: number };
+  deprecatedByKey: T.Dict<number>;
 }
 
 class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
@@ -61,7 +61,7 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
     Promise.all(requests).then(
       responses => {
         if (this.mounted) {
-          const deprecatedByKey: { [key: string]: number } = {};
+          const deprecatedByKey: T.Dict<number> = {};
           responses.forEach((count, i) => {
             const profileKey = this.props.profiles[i].key;
             deprecatedByKey[profileKey] = count;

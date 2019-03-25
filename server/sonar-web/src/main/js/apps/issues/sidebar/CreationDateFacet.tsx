@@ -45,7 +45,7 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   sinceLeakPeriod: boolean;
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
 }
 
 class CreationDateFacet extends React.PureComponent<Props & InjectedIntlProps> {

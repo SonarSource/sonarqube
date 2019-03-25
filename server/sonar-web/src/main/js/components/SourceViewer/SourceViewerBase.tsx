@@ -87,7 +87,7 @@ export interface Props {
 interface State {
   component?: T.SourceViewerFile;
   displayDuplications: boolean;
-  duplicatedFiles?: { [ref: string]: T.DuplicatedFile };
+  duplicatedFiles?: T.Dict<T.DuplicatedFile>;
   duplications?: T.Duplication[];
   duplicationsByLine: { [line: number]: number[] };
   hasSourcesAfter: boolean;

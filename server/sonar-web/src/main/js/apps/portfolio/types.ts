@@ -19,7 +19,7 @@
  */
 export interface SubComponent {
   key: string;
-  measures: { [key: string]: string | undefined };
+  measures: T.Dict<string | undefined>;
   name: string;
   refKey?: string;
   qualifier: string;

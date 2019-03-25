@@ -36,7 +36,7 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
 }
 
 export default class DirectoryFacet extends React.PureComponent<Props> {

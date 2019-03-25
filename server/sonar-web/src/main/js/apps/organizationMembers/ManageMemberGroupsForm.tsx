@@ -39,7 +39,7 @@ interface Props {
 }
 
 interface State {
-  userGroups?: { [k: string]: UserGroup & { status?: string } };
+  userGroups?: T.Dict<UserGroup & { status?: string }>;
   loading?: boolean;
 }
 

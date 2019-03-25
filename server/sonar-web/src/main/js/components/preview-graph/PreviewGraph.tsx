@@ -43,7 +43,7 @@ interface History {
 interface Props {
   branchLike?: T.BranchLike;
   history?: History;
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   project: string;
   renderWhenEmpty?: () => React.ReactNode;
   router: Pick<Router, 'push'>;
@@ -110,7 +110,7 @@ class PreviewGraph extends React.PureComponent<Props, State> {
     history: History | undefined,
     graph: string,
     customMetrics: string[],
-    metrics: { [x: string]: T.Metric }
+    metrics: T.Dict<T.Metric>
   ) => {
     const myHistory = history;
     if (!myHistory) {

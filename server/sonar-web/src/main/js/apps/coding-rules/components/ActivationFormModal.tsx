@@ -39,7 +39,7 @@ interface Props {
 }
 
 interface State {
-  params: { [p: string]: string };
+  params: T.Dict<string>;
   profile: string;
   severity: string;
   submitting: boolean;
@@ -68,7 +68,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   }
 
   getParams = ({ activation, rule } = this.props) => {
-    const params: { [p: string]: string } = {};
+    const params: T.Dict<string> = {};
     if (rule && rule.params) {
       for (const param of rule.params) {
         params[param.key] = param.defaultValue || '';

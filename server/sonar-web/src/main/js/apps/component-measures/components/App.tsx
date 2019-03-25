@@ -74,7 +74,7 @@ interface State {
   leakPeriod?: T.Period;
   loading: boolean;
   measures: T.MeasureEnhanced[];
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
 }
 
 export class App extends React.PureComponent<Props, State> {

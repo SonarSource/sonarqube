@@ -36,7 +36,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
-  referencedProfiles: { [profile: string]: Profile };
+  referencedProfiles: T.Dict<Profile>;
   value: string | undefined;
 }
 

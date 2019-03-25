@@ -21,7 +21,7 @@ import * as React from 'react';
 import Icon, { IconProps } from './Icon';
 import * as theme from '../../app/theme';
 
-const qualifierIcons: { [x: string]: (props: IconProps) => React.ReactElement<any> } = {
+const qualifierIcons: T.Dict<(props: IconProps) => React.ReactElement<any>> = {
   app: ApplicationIcon,
   brc: SubProjectIcon,
   dev: DeveloperIcon,

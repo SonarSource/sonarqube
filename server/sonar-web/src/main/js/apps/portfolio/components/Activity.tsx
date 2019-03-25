@@ -30,7 +30,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: string;
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
 }
 
 interface State {
@@ -72,7 +72,7 @@ export default class Activity extends React.PureComponent<Props> {
     return getAllTimeMachineData({ component, metrics: graphMetrics.join() }).then(
       timeMachine => {
         if (this.mounted) {
-          const history: { [metric: string]: Array<{ date: Date; value?: string }> } = {};
+          const history: T.Dict<Array<{ date: Date; value?: string }>> = {};
           timeMachine.measures.forEach(measure => {
             const measureHistory = measure.history.map(analysis => ({
               date: parseDate(analysis.date),

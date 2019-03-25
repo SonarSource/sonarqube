@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-let bucket: { [key: string]: T.ComponentMeasure } = {};
-let childrenBucket: {
-  [key: string]: {
-    children: T.ComponentMeasure[];
-    page: number;
-    total: number;
-  };
-} = {};
-let breadcrumbsBucket: { [key: string]: T.Breadcrumb[] } = {};
+let bucket: T.Dict<T.ComponentMeasure> = {};
+let childrenBucket: T.Dict<{
+  children: T.ComponentMeasure[];
+  page: number;
+  total: number;
+}> = {};
+let breadcrumbsBucket: T.Dict<T.Breadcrumb[]> = {};
 
 export function addComponent(component: T.ComponentMeasure): void {
   bucket[component.key] = component;

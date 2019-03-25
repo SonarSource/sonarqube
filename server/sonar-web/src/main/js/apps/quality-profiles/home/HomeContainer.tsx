@@ -27,7 +27,7 @@ import { Actions } from '../../../api/quality-profiles';
 interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
-  location: { query: { [p: string]: string } };
+  location: { query: T.Dict<string> };
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;

@@ -149,25 +149,25 @@ export interface Facet {
 }
 
 export function mapFacet(facet: string) {
-  const propertyMapping: { [x: string]: string } = {
+  const propertyMapping: T.Dict<string> = {
     files: 'fileUuids',
     modules: 'moduleUuids'
   };
   return propertyMapping[facet] || facet;
 }
 
-export function parseFacets(facets: RawFacet[]): { [x: string]: Facet } {
+export function parseFacets(facets: RawFacet[]): T.Dict<Facet> {
   if (!facets) {
     return {};
   }
 
   // for readability purpose
-  const propertyMapping: { [x: string]: string } = {
+  const propertyMapping: T.Dict<string> = {
     fileUuids: 'files',
     moduleUuids: 'modules'
   };
 
-  const result: { [x: string]: Facet } = {};
+  const result: T.Dict<Facet> = {};
   facets.forEach(facet => {
     const values: Facet = {};
     facet.values.forEach(value => {

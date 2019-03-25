@@ -20,9 +20,9 @@
 export type StandardType = 'owaspTop10' | 'sansTop25' | 'cwe';
 
 export interface Standards {
-  owaspTop10: { [x: string]: { title: string; description?: string } };
-  sansTop25: { [x: string]: { title: string; description?: string } };
-  cwe: { [x: string]: { title: string; description?: string } };
+  owaspTop10: T.Dict<{ title: string; description?: string }>;
+  sansTop25: T.Dict<{ title: string; description?: string }>;
+  cwe: T.Dict<{ title: string; description?: string }>;
 }
 
 export function renderOwaspTop10Category(

@@ -26,7 +26,7 @@ import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {
   component: { description?: string; key: string };
-  measures: { [key: string]: string | undefined };
+  measures: T.Dict<string | undefined>;
 }
 
 export default function Summary({ component, measures }: Props) {

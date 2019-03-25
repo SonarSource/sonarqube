@@ -32,7 +32,7 @@ interface Props {
 }
 
 interface State {
-  openFacets: { [metric: string]: boolean };
+  openFacets: T.Dict<boolean>;
 }
 
 export default class Sidebar extends React.PureComponent<Props, State> {
@@ -84,10 +84,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   }
 }
 
-function getOpenFacets(
-  openFacets: { [metric: string]: boolean },
-  { measures, selectedMetric }: Props
-) {
+function getOpenFacets(openFacets: T.Dict<boolean>, { measures, selectedMetric }: Props) {
   const newOpenFacets = { ...openFacets };
   const measure = measures.find(measure => measure.metric.key === selectedMetric);
   if (measure && measure.metric && measure.metric.domain) {

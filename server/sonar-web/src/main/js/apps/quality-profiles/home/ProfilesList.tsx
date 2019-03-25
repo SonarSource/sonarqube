@@ -28,7 +28,7 @@ import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   languages: Array<{ key: string; name: string }>;
-  location: { query: { [p: string]: string } };
+  location: { query: T.Dict<string> };
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
@@ -92,7 +92,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
     const { profiles, languages } = this.props;
     const { language } = this.props.location.query;
 
-    const profilesIndex: { [language: string]: Profile[] } = groupBy<Profile>(
+    const profilesIndex: T.Dict<Profile[]> = groupBy<Profile>(
       profiles,
       profile => profile.language
     );

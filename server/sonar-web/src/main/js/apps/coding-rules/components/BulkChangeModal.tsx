@@ -34,7 +34,7 @@ interface Props {
   organization: string | undefined;
   profile?: Profile;
   query: Query;
-  referencedProfiles: { [profile: string]: Profile };
+  referencedProfiles: T.Dict<Profile>;
   total: number;
 }
 

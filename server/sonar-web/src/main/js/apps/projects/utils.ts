@@ -57,7 +57,7 @@ export const SORTING_LEAK_METRICS: SortingOption[] = [
   { value: 'new_lines', class: 'projects-leak-sorting-option' }
 ];
 
-export const SORTING_SWITCH: { [x: string]: string } = {
+export const SORTING_SWITCH: T.Dict<string> = {
   analysis_date: 'analysis_date',
   name: 'name',
   reliability: 'new_reliability',
@@ -115,7 +115,7 @@ const LEAK_METRICS = [
   'new_lines'
 ];
 
-const METRICS_BY_VISUALIZATION: { [x: string]: string[] } = {
+const METRICS_BY_VISUALIZATION: T.Dict<string[]> = {
   risk: ['reliability_rating', 'security_rating', 'coverage', 'ncloc', 'sqale_index'],
   // x, y, size, color
   reliability: ['ncloc', 'reliability_remediation_effort', 'bugs', 'reliability_rating'],
@@ -186,7 +186,7 @@ export function fetchProjects(
         facets: getFacetsMap(facets),
         projects: components
           .map(component => {
-            const componentMeasures: { [key: string]: string } = {};
+            const componentMeasures: T.Dict<string> = {};
             measures.filter(measure => measure.component === component.key).forEach(measure => {
               const value = isDiffMetric(measure.metric)
                 ? getPeriodValue(measure, 1)
@@ -272,7 +272,7 @@ export function fetchProjectOrganizations(
 }
 
 function mapFacetValues(values: Array<{ val: string; count: number }>) {
-  const map: { [value: string]: number } = {};
+  const map: T.Dict<number> = {};
   values.forEach(value => {
     map[value.val] = value.count;
   });
@@ -280,7 +280,7 @@ function mapFacetValues(values: Array<{ val: string; count: number }>) {
 }
 
 function getFacetsMap(facets: Facet[]) {
-  const map: { [property: string]: { [value: string]: number } } = {};
+  const map: T.Dict<T.Dict<number>> = {};
   facets.forEach(facet => {
     const property = mapMetricToProperty(facet.property);
     const { values } = facet;
@@ -293,7 +293,7 @@ function getFacetsMap(facets: Facet[]) {
 }
 
 function mapPropertyToMetric(property?: string) {
-  const map: { [property: string]: string } = {
+  const map: T.Dict<string> = {
     analysis_date: 'analysisDate',
     reliability: 'reliability_rating',
     new_reliability: 'new_reliability_rating',
@@ -323,7 +323,7 @@ function convertToSorting({ sort }: Query): { s?: string; asc?: boolean } {
 }
 
 function mapMetricToProperty(metricKey: string) {
-  const map: { [metric: string]: string } = {
+  const map: T.Dict<string> = {
     analysisDate: 'analysis_date',
     reliability_rating: 'reliability',
     new_reliability_rating: 'new_reliability',

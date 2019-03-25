@@ -33,7 +33,7 @@ import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 import { scrollToElement } from '../../helpers/scrolling';
 
 interface Props {
-  childProps?: { [k: string]: string };
+  childProps?: T.Dict<string>;
   className?: string;
   content: string | undefined;
   displayH1?: boolean;
@@ -108,8 +108,8 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
 }
 
 function withChildProps<P>(
-  WrappedComponent: React.ComponentType<P & { customProps?: { [k: string]: any } }>,
-  childProps?: { [k: string]: any }
+  WrappedComponent: React.ComponentType<P & { customProps?: T.Dict<any> }>,
+  childProps?: T.Dict<any>
 ) {
   return function withChildProps(props: P) {
     return <WrappedComponent customProps={childProps} {...props} />;

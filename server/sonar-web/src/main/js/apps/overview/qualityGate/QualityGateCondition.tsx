@@ -45,8 +45,8 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     }
   }
 
-  getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: { [x: string]: string }) => {
-    const query: { [x: string]: string | undefined } = {
+  getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: T.Dict<string>) => {
+    const query: T.Dict<string | undefined> = {
       resolved: 'false',
       ...getBranchLikeQuery(this.props.branchLike),
       ...customQuery
@@ -98,7 +98,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const metricKey = condition.measure.metric.key;
 
-    const RATING_METRICS_MAPPING: { [metric: string]: [string, boolean] } = {
+    const RATING_METRICS_MAPPING: T.Dict<[string, boolean]> = {
       reliability_rating: ['BUG', false],
       new_reliability_rating: ['BUG', true],
       security_rating: ['VULNERABILITY', false],

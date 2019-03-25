@@ -26,7 +26,7 @@ import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   options: BadgeOptions;
   type: BadgeType;
   updateOptions: (options: Partial<BadgeOptions>) => void;

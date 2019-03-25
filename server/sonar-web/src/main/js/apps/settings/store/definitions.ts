@@ -27,9 +27,7 @@ const enum Actions {
 
 type Action = ActionType<typeof receiveDefinitions, Actions.ReceiveDefinitions>;
 
-export interface State {
-  [key: string]: T.SettingCategoryDefinition;
-}
+export type State = T.Dict<T.SettingCategoryDefinition>;
 
 export function receiveDefinitions(definitions: T.SettingCategoryDefinition[]) {
   return { type: Actions.ReceiveDefinitions, definitions };

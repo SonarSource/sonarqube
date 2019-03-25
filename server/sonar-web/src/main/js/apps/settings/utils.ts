@@ -98,7 +98,7 @@ export function getEmptyValue(item: T.SettingDefinition | T.SettingCategoryDefin
     }
 
     if (item.type === 'PROPERTY_SET') {
-      const value: { [key: string]: string } = {};
+      const value: T.Dict<string> = {};
       item.fields.forEach(field => (value[field.key] = getEmptyValue(field)));
       return [value];
     }

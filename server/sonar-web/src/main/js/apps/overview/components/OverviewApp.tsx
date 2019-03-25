@@ -54,7 +54,7 @@ interface Props {
   component: T.Component;
   fetchMetrics: () => void;
   onComponentChange: (changes: {}) => void;
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
 }
 
 interface State {
@@ -119,7 +119,7 @@ export class OverviewApp extends React.PureComponent<Props, State> {
       metrics: metrics.join()
     }).then(r => {
       if (this.mounted) {
-        const history: { [metric: string]: Array<{ date: Date; value?: string }> } = {};
+        const history: T.Dict<Array<{ date: Date; value?: string }>> = {};
         r.measures.forEach(measure => {
           const measureHistory = measure.history.map(analysis => ({
             date: parseDate(analysis.date),

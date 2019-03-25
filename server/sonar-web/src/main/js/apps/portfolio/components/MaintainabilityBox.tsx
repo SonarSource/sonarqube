@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: string;
-  measures: { [key: string]: string | undefined };
+  measures: T.Dict<string | undefined>;
 }
 
 export default function MaintainabilityBox({ component, measures }: Props) {

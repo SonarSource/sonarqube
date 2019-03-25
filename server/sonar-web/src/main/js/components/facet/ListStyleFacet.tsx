@@ -50,11 +50,11 @@ export interface Props<S> {
   getFacetItemText: (item: string) => string;
   getSearchResultKey: (result: S) => string;
   getSearchResultText: (result: S) => string;
-  loadSearchResultCount?: (result: S[]) => Promise<{ [x: string]: number }>;
+  loadSearchResultCount?: (result: S[]) => Promise<T.Dict<number>>;
   maxInitialItems: number;
   maxItems: number;
   minSearchLength: number;
-  onChange: (changes: { [x: string]: string | string[] }) => void;
+  onChange: (changes: T.Dict<string | string[]>) => void;
   onClear?: () => void;
   onItemClick?: (itemValue: string, multiple: boolean) => void;
   onSearch: (query: string, page?: number) => Promise<SearchResponse<S>>;
@@ -66,7 +66,7 @@ export interface Props<S> {
   renderSearchResult: (result: S, query: string) => React.ReactNode;
   searchPlaceholder: string;
   getSortedItems?: () => string[];
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
   values: string[];
 }
 
@@ -77,7 +77,7 @@ interface State<S> {
   searchMaxResults?: boolean;
   searchPaging?: T.Paging;
   searchResults?: S[];
-  searchResultsCounts: { [key: string]: number };
+  searchResultsCounts: T.Dict<number>;
   showFullList: boolean;
 }
 

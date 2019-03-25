@@ -30,7 +30,7 @@ interface Props {
   className?: string;
   domain: string;
   leakPeriod?: T.Period;
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
   router: InjectedRouter;
   selected?: string;

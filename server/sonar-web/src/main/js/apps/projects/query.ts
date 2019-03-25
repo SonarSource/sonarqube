@@ -227,7 +227,7 @@ function convertSize(metric: string, size: number): string {
 }
 
 function mapPropertyToMetric(property?: string): string | undefined {
-  const map: { [property: string]: string } = {
+  const map: T.Dict<string> = {
     analysis_date: 'analysisDate',
     reliability: 'reliability_rating',
     new_reliability: 'new_reliability_rating',

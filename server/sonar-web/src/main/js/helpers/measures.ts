@@ -93,7 +93,7 @@ function useFormatter(
 }
 
 function getFormatter(type: string): Formatter {
-  const FORMATTERS: { [type: string]: Formatter } = {
+  const FORMATTERS: T.Dict<Formatter> = {
     INT: intFormatter,
     SHORT_INT: shortIntFormatter,
     FLOAT: floatFormatter,

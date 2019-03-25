@@ -22,9 +22,7 @@ import suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import { SuggestionsContext } from './SuggestionsContext';
 import { isSonarCloud } from '../../../helpers/system';
 
-interface SuggestionsJson {
-  [key: string]: T.SuggestionLink[];
-}
+type SuggestionsJson = T.Dict<T.SuggestionLink[]>;
 
 interface State {
   suggestions: T.SuggestionLink[];

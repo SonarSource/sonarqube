@@ -24,7 +24,7 @@ export function getNextRating(rating: number): number | undefined {
 function getWorstSeverity(data: string): { severity: string; count: number } | undefined {
   const SEVERITY_ORDER = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 
-  const severities: { [key: string]: number } = {};
+  const severities: T.Dict<number> = {};
   data.split(';').forEach(equality => {
     const [key, count] = equality.split('=');
     severities[key] = Number(count);
@@ -84,7 +84,7 @@ export const SUB_COMPONENTS_METRICS = [
 ];
 
 export function convertMeasures(measures: Array<{ metric: string; value?: string }>) {
-  const result: { [key: string]: string | undefined } = {};
+  const result: T.Dict<string | undefined> = {};
   measures.forEach(measure => {
     result[measure.metric] = measure.value;
   });

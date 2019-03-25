@@ -31,7 +31,7 @@ interface Props {
   options: Array<{ label: string; value: string }>;
   organization?: { key: string };
   property: string;
-  query: { [x: string]: any };
+  query: T.Dict<any>;
 }
 
 export default class SearchableFilterFooter extends React.PureComponent<Props> {

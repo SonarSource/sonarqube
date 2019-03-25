@@ -37,8 +37,8 @@ interface Props {
   organization: { key: string } | undefined;
   projects: string[];
   query: Query;
-  referencedComponents: { [componentKey: string]: ReferencedComponent };
-  stats: { [x: string]: number } | undefined;
+  referencedComponents: T.Dict<ReferencedComponent>;
+  stats: T.Dict<number> | undefined;
 }
 
 interface SearchedProject {

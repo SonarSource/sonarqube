@@ -38,7 +38,7 @@ interface Props {
   handleOpen: (component: string) => void;
   loadingMore: boolean;
   metric: T.Metric;
-  metrics: { [metric: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   paging?: T.Paging;
   rootComponent: T.ComponentMeasure;
   selectedKey?: string;

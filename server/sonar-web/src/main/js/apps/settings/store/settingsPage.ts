@@ -39,9 +39,9 @@ type Action =
   | ActionType<typeof stopLoading, Actions.StopLoading>;
 
 export interface State {
-  changedValues: { [key: string]: any };
-  loading: { [key: string]: boolean };
-  validationMessages: { [key: string]: string };
+  changedValues: T.Dict<any>;
+  loading: T.Dict<boolean>;
+  validationMessages: T.Dict<string>;
 }
 
 export function cancelChange(key: string) {

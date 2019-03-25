@@ -31,7 +31,7 @@ import './styles.css';
 
 interface Props {
   branchLike?: T.BranchLike;
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   project: string;
   qualifier: string;
 }

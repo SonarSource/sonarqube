@@ -20,9 +20,9 @@
 import { memoize } from 'lodash';
 
 const parseCookies = memoize(
-  (documentCookie: string): { [key: string]: string } => {
+  (documentCookie: string): T.Dict<string> => {
     const rawCookies = documentCookie.split('; ');
-    const cookies: { [key: string]: string } = {};
+    const cookies: T.Dict<string> = {};
     rawCookies.forEach(candidate => {
       const [key, value] = candidate.split('=');
       cookies[key] = value;

@@ -38,7 +38,7 @@ interface Props {
 
 export default class Visualizations extends React.PureComponent<Props> {
   renderVisualization(projects: Project[]) {
-    const visualizationToComponent: { [x: string]: any } = {
+    const visualizationToComponent: T.Dict<any> = {
       risk: Risk,
       reliability: Reliability,
       security: Security,

@@ -27,10 +27,7 @@ const KNOWN_RATINGS = [
   'security_rating'
 ];
 
-export function enhanceMeasure(
-  measure: T.Measure,
-  metrics: { [key: string]: T.Metric }
-): T.MeasureEnhanced {
+export function enhanceMeasure(measure: T.Measure, metrics: T.Dict<T.Metric>): T.MeasureEnhanced {
   return {
     ...measure,
     metric: metrics[measure.metric],

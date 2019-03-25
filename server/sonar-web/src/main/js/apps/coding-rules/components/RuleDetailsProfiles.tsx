@@ -38,7 +38,7 @@ interface Props {
   onActivate: () => Promise<void>;
   onDeactivate: () => Promise<void>;
   organization: string | undefined;
-  referencedProfiles: { [profile: string]: Profile };
+  referencedProfiles: T.Dict<Profile>;
   ruleDetails: T.RuleDetails;
 }
 

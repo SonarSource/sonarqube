@@ -37,7 +37,7 @@ type Action =
   | ActionType<typeof skipOnboardingAction, Actions.SkipOnboardingAction>;
 
 export interface State {
-  usersByLogin: { [login: string]: any };
+  usersByLogin: T.Dict<any>;
   userLogins: string[];
   currentUser: T.CurrentUser;
 }

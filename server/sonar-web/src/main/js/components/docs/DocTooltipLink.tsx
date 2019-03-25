@@ -23,7 +23,7 @@ import { forEach } from 'lodash';
 import DetachIcon from '../icons-components/DetachIcon';
 
 interface OwnProps {
-  customProps?: { [k: string]: string };
+  customProps?: T.Dict<string>;
 }
 
 type Props = OwnProps & React.AnchorHTMLAttributes<HTMLAnchorElement>;

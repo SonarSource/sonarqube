@@ -30,7 +30,7 @@ interface Props {
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
   organization?: { key: string };
-  query: { [x: string]: any };
+  query: T.Dict<any>;
   value?: any;
 }
 

@@ -37,7 +37,7 @@ interface OwnProps {
 }
 
 interface StateToProps {
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
 }
 
 interface DispatchToProps {

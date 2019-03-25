@@ -40,8 +40,8 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  referencedLanguages: { [languageKey: string]: ReferencedLanguage };
-  stats: { [x: string]: number } | undefined;
+  referencedLanguages: T.Dict<ReferencedLanguage>;
+  stats: T.Dict<number> | undefined;
 }
 
 class LanguageFacet extends React.PureComponent<Props> {

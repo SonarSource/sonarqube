@@ -36,7 +36,7 @@ interface Props {
   open: boolean;
   organization: string | undefined;
   query: Query;
-  stats: { [x: string]: number } | undefined;
+  stats: T.Dict<number> | undefined;
   tags: string[];
 }
 

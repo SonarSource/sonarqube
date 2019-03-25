@@ -31,7 +31,7 @@ interface Props {
   className?: string;
   onQueryChange: (change: RawQuery) => void;
   options: Option[];
-  query: { [x: string]: any };
+  query: T.Dict<any>;
   renderOption: (option: Option, isSelected: boolean) => React.ReactNode;
 
   value?: Option | Option[];

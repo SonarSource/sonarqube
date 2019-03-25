@@ -41,8 +41,8 @@ interface Props {
   organization: string | undefined;
   organizationsEnabled?: boolean;
   query: Query;
-  referencedProfiles: { [profile: string]: Profile };
-  referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
+  referencedProfiles: T.Dict<Profile>;
+  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   selectedProfile?: Profile;
 }
 

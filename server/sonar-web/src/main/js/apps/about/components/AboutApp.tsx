@@ -55,7 +55,7 @@ interface Props {
 }
 
 interface State {
-  issueTypes?: { [key: string]: { count: number } };
+  issueTypes?: T.Dict<{ count: number }>;
   loading: boolean;
   projectsCount: number;
 }

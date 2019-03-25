@@ -107,7 +107,7 @@ export default function WorstProjects({ component, subComponents, total }: Props
   );
 }
 
-function renderCell(measures: { [key: string]: string | undefined }, metric: string, type: string) {
+function renderCell(measures: T.Dict<string | undefined>, metric: string, type: string) {
   return (
     <td className="text-center">
       <Measure metricKey={metric} metricType={type} value={measures[metric]} />
@@ -115,7 +115,7 @@ function renderCell(measures: { [key: string]: string | undefined }, metric: str
   );
 }
 
-function renderNcloc(measures: { [key: string]: string | undefined }, maxLoc: number) {
+function renderNcloc(measures: T.Dict<string | undefined>, maxLoc: number) {
   const ncloc = Number(measures['ncloc'] || 0);
   const barWidth = maxLoc > 0 ? Math.max(1, Math.round((ncloc / maxLoc) * 50)) : 0;
   return (

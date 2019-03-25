@@ -60,7 +60,7 @@ export default class SearchResults extends React.PureComponent<Props> {
       )
       .map(match => {
         const page = this.props.pages.find(page => page.relativeName === match.ref);
-        const highlights: { [field: string]: [number, number][] } = {};
+        const highlights: T.Dict<[number, number][]> = {};
         let longestTerm = '';
         let exactMatch = false;
 

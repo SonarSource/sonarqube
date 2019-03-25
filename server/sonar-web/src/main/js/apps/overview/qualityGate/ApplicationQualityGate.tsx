@@ -33,7 +33,7 @@ interface Props {
 
 type State = {
   loading: boolean;
-  metrics?: { [key: string]: T.Metric };
+  metrics?: T.Dict<T.Metric>;
   projects?: ApplicationProject[];
   status?: string;
 };

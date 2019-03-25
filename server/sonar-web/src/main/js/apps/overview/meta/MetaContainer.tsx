@@ -53,7 +53,7 @@ interface OwnProps {
     [metric: string]: Array<{ date: Date; value?: string }>;
   };
   measures?: T.MeasureEnhanced[];
-  metrics?: { [key: string]: T.Metric };
+  metrics?: T.Dict<T.Metric>;
   onComponentChange: (changes: {}) => void;
 }
 

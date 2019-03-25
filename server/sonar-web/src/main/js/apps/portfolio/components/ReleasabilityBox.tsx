@@ -28,7 +28,7 @@ import { getComponentDrilldownUrl } from '../../../helpers/urls';
 
 interface Props {
   component: string;
-  measures: { [key: string]: string | undefined };
+  measures: T.Dict<string | undefined>;
 }
 
 export default function ReleasabilityBox({ component, measures }: Props) {

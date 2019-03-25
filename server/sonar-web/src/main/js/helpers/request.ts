@@ -41,16 +41,14 @@ export function getCSRFTokenValue(): string {
 /**
  * Return an object containing a special http request header used to prevent CSRF attacks.
  */
-export function getCSRFToken(): { [x: string]: string } {
+export function getCSRFToken(): T.Dict<string> {
   // Fetch API in Edge doesn't work with empty header,
   // so we ensure non-empty value
   const value = getCSRFTokenValue();
   return value ? { [getCSRFTokenName()]: value } : {};
 }
 
-export interface RequestData {
-  [x: string]: any;
-}
+export type RequestData = T.Dict<any>;
 
 export function omitNil(obj: RequestData): RequestData {
   return omitBy(obj, isNil);

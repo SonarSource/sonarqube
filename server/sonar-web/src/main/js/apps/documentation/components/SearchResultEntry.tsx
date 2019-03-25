@@ -24,7 +24,7 @@ import { highlightMarks, cutWords, DocumentationEntry } from '../utils';
 
 export interface SearchResult {
   exactMatch?: boolean;
-  highlights: { [field: string]: [number, number][] };
+  highlights: T.Dict<[number, number][]>;
   longestTerm: string;
   page: DocumentationEntry;
   query: string;

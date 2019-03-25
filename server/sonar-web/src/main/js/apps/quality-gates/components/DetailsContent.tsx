@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   isDefault?: boolean;
-  metrics: { [key: string]: T.Metric };
+  metrics: T.Dict<T.Metric>;
   organization?: string;
   onAddCondition: (condition: T.Condition) => void;
   onRemoveCondition: (Condition: T.Condition) => void;

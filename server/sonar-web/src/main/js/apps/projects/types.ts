@@ -22,7 +22,7 @@ export interface Project {
   isFavorite?: boolean;
   key: string;
   leakPeriodDate?: string;
-  measures: { [key: string]: string };
+  measures: T.Dict<string>;
   name: string;
   organization?: { key: string; name: string };
   tags: string[];

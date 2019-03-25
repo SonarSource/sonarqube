@@ -30,10 +30,10 @@ import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
 export interface BasicProps {
-  onChange: (changes: { [x: string]: string | string[] | undefined }) => void;
+  onChange: (changes: T.Dict<string | string[] | undefined>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
-  stats?: { [x: string]: number };
+  stats?: T.Dict<number>;
   values: string[];
 }
 

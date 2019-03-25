@@ -36,8 +36,8 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  referencedComponents: { [componentKey: string]: ReferencedComponent };
-  stats: { [x: string]: number } | undefined;
+  referencedComponents: T.Dict<ReferencedComponent>;
+  stats: T.Dict<number> | undefined;
 }
 
 export default class FileFacet extends React.PureComponent<Props> {

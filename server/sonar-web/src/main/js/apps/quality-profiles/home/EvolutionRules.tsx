@@ -28,10 +28,7 @@ import { formatMeasure } from '../../../helpers/measures';
 
 const RULES_LIMIT = 10;
 
-function parseRules(
-  rules: T.Rule[],
-  actives?: { [rule: string]: T.RuleActivation[] }
-): ExtendedRule[] {
+function parseRules(rules: T.Rule[], actives?: T.Dict<T.RuleActivation[]>): ExtendedRule[] {
   return rules.map(rule => {
     const activations = actives && actives[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };

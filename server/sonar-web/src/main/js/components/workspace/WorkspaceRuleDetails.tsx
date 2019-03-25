@@ -35,7 +35,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  referencedRepositories: { [repository: string]: { key: string; language: string; name: string } };
+  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   ruleDetails?: T.RuleDetails;
 }
 
