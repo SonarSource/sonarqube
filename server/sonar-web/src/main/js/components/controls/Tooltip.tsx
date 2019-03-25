@@ -66,7 +66,7 @@ export default function Tooltip(props: Props) {
 }
 
 export class TooltipInner extends React.Component<Props, State> {
-  throttledPositionTooltip: (() => void);
+  throttledPositionTooltip: () => void;
   mouseEnterTimeout?: number;
   mouseLeaveTimeout?: number;
   tooltipNode?: HTMLElement | null;

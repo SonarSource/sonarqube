@@ -91,7 +91,8 @@ jest.mock('../../../../api/measures', () => ({
       { metric: 'security_remediation_effort', value: '0' },
       { metric: 'statements', value: '3' },
       { metric: 'skipped_tests', value: '0' },
-      { metric: 'test_failures', value: '0' }
+      { metric: 'test_failures', value: '0' },
+      { metric: 'violations', value: '1' }
     ])
 }));
 
@@ -129,6 +130,7 @@ jest.mock('../../../../api/metrics', () => ({
       { key: 'statements', type: 'INT', domain: 'Size' },
       { key: 'skipped_tests', type: 'INT', domain: 'Tests' },
       { key: 'test_failures', type: 'INT', domain: 'Tests' },
+      { key: 'violations', type: 'INT', domain: 'Issues' },
       // next two must be filtered out
       { key: 'data', type: 'DATA' },
       { key: 'hidden', hidden: true }
@@ -155,13 +157,7 @@ const branchLike: T.ShortLivingBranch = {
 };
 
 it('should render source file', async () => {
-  const wrapper = shallow(
-    <MeasuresOverlay
-      branchLike={branchLike}
-      onClose={jest.fn()}
-      sourceViewerFile={sourceViewerFile}
-    />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
@@ -170,13 +166,18 @@ it('should render source file', async () => {
 });
 
 it('should render test file', async () => {
-  const wrapper = shallow(
-    <MeasuresOverlay
-      branchLike={branchLike}
-      onClose={jest.fn()}
-      sourceViewerFile={{ ...sourceViewerFile, q: 'UTS' }}
-    />
-  );
+  const wrapper = shallowRender({ sourceViewerFile: { ...sourceViewerFile, q: 'UTS' } });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<MeasuresOverlay['props']> = {}) {
+  return shallow(
+    <MeasuresOverlay
+      branchLike={branchLike}
+      onClose={jest.fn()}
+      sourceViewerFile={sourceViewerFile}
+      {...props}
+    />
+  );
+}

@@ -161,14 +161,13 @@ export class App extends React.PureComponent<Props, State> {
           <MaintainabilityBox component={component.key} measures={measures!} />
         </div>
 
-        {subComponents !== undefined &&
-          totalSubComponents !== undefined && (
-            <WorstProjects
-              component={component.key}
-              subComponents={subComponents}
-              total={totalSubComponents}
-            />
-          )}
+        {subComponents !== undefined && totalSubComponents !== undefined && (
+          <WorstProjects
+            component={component.key}
+            subComponents={subComponents}
+            total={totalSubComponents}
+          />
+        )}
       </div>
     );
   }

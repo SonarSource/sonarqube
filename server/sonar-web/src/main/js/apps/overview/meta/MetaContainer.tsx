@@ -82,14 +82,13 @@ export class Meta extends React.PureComponent<Props> {
           />
         )}
 
-        {qualityProfiles &&
-          qualityProfiles.length > 0 && (
-            <MetaQualityProfiles
-              headerClassName={qualityGate ? 'big-spacer-top' : undefined}
-              organization={organizationsEnabled ? component.organization : undefined}
-              profiles={qualityProfiles}
-            />
-          )}
+        {qualityProfiles && qualityProfiles.length > 0 && (
+          <MetaQualityProfiles
+            headerClassName={qualityGate ? 'big-spacer-top' : undefined}
+            organization={organizationsEnabled ? component.organization : undefined}
+            profiles={qualityProfiles}
+          />
+        )}
       </div>
     );
   }
@@ -145,16 +144,14 @@ export class Meta extends React.PureComponent<Props> {
           {organizationsEnabled && <MetaOrganizationKey organization={component.organization} />}
         </div>
 
-        {!isPrivate &&
-          (isProject || isApp) &&
-          metrics && (
-            <BadgesModal
-              branchLike={branchLike}
-              metrics={metrics}
-              project={component.key}
-              qualifier={component.qualifier}
-            />
-          )}
+        {!isPrivate && (isProject || isApp) && metrics && (
+          <BadgesModal
+            branchLike={branchLike}
+            metrics={metrics}
+            project={component.key}
+            qualifier={component.qualifier}
+          />
+        )}
       </div>
     );
   }

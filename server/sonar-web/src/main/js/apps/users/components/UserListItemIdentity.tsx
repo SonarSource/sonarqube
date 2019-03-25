@@ -35,10 +35,9 @@ export default function UserListItemIdentity({ identityProvider, user }: Props) 
         <span className="js-user-login note little-spacer-left">{user.login}</span>
       </div>
       {user.email && <div className="js-user-email little-spacer-top">{user.email}</div>}
-      {!user.local &&
-        user.externalProvider !== 'sonarqube' && (
-          <ExternalProvider identityProvider={identityProvider} user={user} />
-        )}
+      {!user.local && user.externalProvider !== 'sonarqube' && (
+        <ExternalProvider identityProvider={identityProvider} user={user} />
+      )}
     </td>
   );
 }

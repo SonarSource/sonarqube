@@ -45,7 +45,7 @@ import { isSonarCloud } from '../../helpers/system';
 import { withRouter, Router, Location } from '../../components/hoc/withRouter';
 
 interface Props {
-  children: React.ReactElement<any>;
+  children: React.ReactElement;
   fetchOrganization: (organization: string) => void;
   location: Pick<Location, 'query'>;
   registerBranchStatus: (branchLike: T.BranchLike, component: string, status: T.Status) => void;
@@ -319,20 +319,19 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        {component &&
-          !['FIL', 'UTS'].includes(component.qualifier) && (
-            <ComponentNav
-              branchLikes={branchLikes}
-              component={component}
-              currentBranchLike={branchLike}
-              currentTask={currentTask}
-              currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
-              isInProgress={isInProgress}
-              isPending={isPending}
-              location={this.props.location}
-              warnings={this.state.warnings}
-            />
-          )}
+        {component && !['FIL', 'UTS'].includes(component.qualifier) && (
+          <ComponentNav
+            branchLikes={branchLikes}
+            component={component}
+            currentBranchLike={branchLike}
+            currentTask={currentTask}
+            currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
+            isInProgress={isInProgress}
+            isPending={isPending}
+            location={this.props.location}
+            warnings={this.state.warnings}
+          />
+        )}
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />

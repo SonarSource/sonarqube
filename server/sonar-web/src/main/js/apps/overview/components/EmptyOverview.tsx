@@ -70,8 +70,9 @@ export function EmptyOverview({
                   }
                 />
               )}
-              {!hasBranches &&
-                !hasAnalyses && <AnalyzeTutorial component={component} currentUser={currentUser} />}
+              {!hasBranches && !hasAnalyses && (
+                <AnalyzeTutorial component={component} currentUser={currentUser} />
+              )}
             </>
           ) : (
             <WarningMessage

@@ -88,8 +88,8 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
       : openIssue.textRange && openIssue.textRange.endLine;
 
     // replace locations in another file with `undefined` to keep the same location indexes
-    const highlightedLocations = locations.map(
-      location => (location.component === component ? location : undefined)
+    const highlightedLocations = locations.map(location =>
+      location.component === component ? location : undefined
     );
 
     const highlightedLocationMessage =

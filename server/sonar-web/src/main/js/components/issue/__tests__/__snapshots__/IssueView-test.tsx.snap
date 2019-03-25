@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="issue selected"
+  data-issue="AVsae-CQS-9G3txfbFN2"
+  onClick={[Function]}
+  role="listitem"
+  tabIndex={0}
+>
+  <IssueTitleBar
+    issue={
+      Object {
+        "actions": Array [],
+        "comments": Array [
+          Object {
+            "author": "admin",
+            "authorActive": true,
+            "authorAvatar": "admin-avatar",
+            "authorLogin": "admin",
+            "authorName": "Admin",
+            "createdAt": "2017-07-05T09:33:29+0200",
+            "htmlText": "My comment",
+            "key": "1",
+            "markdown": "My comment",
+            "updatable": false,
+          },
+        ],
+        "component": "main.js",
+        "componentLongName": "main.js",
+        "componentQualifier": "FIL",
+        "componentUuid": "foo1234",
+        "creationDate": "2017-03-01T09:36:01+0100",
+        "flows": Array [],
+        "fromHotspot": false,
+        "key": "AVsae-CQS-9G3txfbFN2",
+        "line": 25,
+        "message": "Reduce the number of conditional operators (4) used in the expression",
+        "organization": "myorg",
+        "project": "myproject",
+        "projectKey": "foo",
+        "projectName": "Foo",
+        "projectOrganization": "org",
+        "rule": "javascript:S1067",
+        "ruleName": "foo",
+        "secondaryLocations": Array [],
+        "severity": "MAJOR",
+        "status": "OPEN",
+        "textRange": Object {
+          "endLine": 26,
+          "endOffset": 15,
+          "startLine": 25,
+          "startOffset": 0,
+        },
+        "transitions": Array [],
+        "type": "BUG",
+      }
+    }
+    togglePopup={[MockFunction]}
+  />
+  <IssueActionsBar
+    issue={
+      Object {
+        "actions": Array [],
+        "comments": Array [
+          Object {
+            "author": "admin",
+            "authorActive": true,
+            "authorAvatar": "admin-avatar",
+            "authorLogin": "admin",
+            "authorName": "Admin",
+            "createdAt": "2017-07-05T09:33:29+0200",
+            "htmlText": "My comment",
+            "key": "1",
+            "markdown": "My comment",
+            "updatable": false,
+          },
+        ],
+        "component": "main.js",
+        "componentLongName": "main.js",
+        "componentQualifier": "FIL",
+        "componentUuid": "foo1234",
+        "creationDate": "2017-03-01T09:36:01+0100",
+        "flows": Array [],
+        "fromHotspot": false,
+        "key": "AVsae-CQS-9G3txfbFN2",
+        "line": 25,
+        "message": "Reduce the number of conditional operators (4) used in the expression",
+        "organization": "myorg",
+        "project": "myproject",
+        "projectKey": "foo",
+        "projectName": "Foo",
+        "projectOrganization": "org",
+        "rule": "javascript:S1067",
+        "ruleName": "foo",
+        "secondaryLocations": Array [],
+        "severity": "MAJOR",
+        "status": "OPEN",
+        "textRange": Object {
+          "endLine": 26,
+          "endOffset": 15,
+          "startLine": 25,
+          "startOffset": 0,
+        },
+        "transitions": Array [],
+        "type": "BUG",
+      }
+    }
+    onAssign={[MockFunction]}
+    onChange={[MockFunction]}
+    togglePopup={[MockFunction]}
+  />
+  <div
+    className="issue-comments"
+  >
+    <IssueCommentLine
+      comment={
+        Object {
+          "author": "admin",
+          "authorActive": true,
+          "authorAvatar": "admin-avatar",
+          "authorLogin": "admin",
+          "authorName": "Admin",
+          "createdAt": "2017-07-05T09:33:29+0200",
+          "htmlText": "My comment",
+          "key": "1",
+          "markdown": "My comment",
+          "updatable": false,
+        }
+      }
+      key="1"
+      onDelete={[Function]}
+      onEdit={[Function]}
+    />
+  </div>
+</div>
+`;

@@ -110,25 +110,23 @@ export default class SettingForm extends React.PureComponent<Props, State> {
             {setting.inherited && (
               <div className="modal-field-description">{translate('settings._default')}</div>
             )}
-            {!setting.inherited &&
-              setting.parentValue && (
-                <div className="modal-field-description">
-                  {translateWithParameters('settings.default_x', setting.parentValue)}
-                </div>
-              )}
+            {!setting.inherited && setting.parentValue && (
+              <div className="modal-field-description">
+                {translateWithParameters('settings.default_x', setting.parentValue)}
+              </div>
+            )}
           </div>
         </div>
         <footer className="modal-foot">
-          {!setting.inherited &&
-            setting.parentValue && (
-              <Button
-                className="pull-left"
-                disabled={this.state.submitting}
-                onClick={this.handleResetClick}
-                type="reset">
-                {translate('reset_to_default')}
-              </Button>
-            )}
+          {!setting.inherited && setting.parentValue && (
+            <Button
+              className="pull-left"
+              disabled={this.state.submitting}
+              onClick={this.handleResetClick}
+              type="reset">
+              {translate('reset_to_default')}
+            </Button>
+          )}
           {this.state.submitting && <i className="spinner spacer-right" />}
           <SubmitButton disabled={submitDisabled}>{translate('save')}</SubmitButton>
           <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>

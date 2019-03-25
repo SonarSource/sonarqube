@@ -105,26 +105,25 @@ export default class DomainFacet extends React.PureComponent<Props> {
       );
     });
 
-    return sortedItems.map(
-      item =>
-        typeof item === 'string' ? (
-          this.renderCategoryItem(item)
-        ) : (
-          <FacetItem
-            active={item.metric.key === selected}
-            disabled={false}
-            key={item.metric.key}
-            name={
-              <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
-                {translateMetric(item.metric)}
-              </span>
-            }
-            onClick={this.props.onChange}
-            stat={this.renderItemFacetStat(item)}
-            tooltip={translateMetric(item.metric)}
-            value={item.metric.key}
-          />
-        )
+    return sortedItems.map(item =>
+      typeof item === 'string' ? (
+        this.renderCategoryItem(item)
+      ) : (
+        <FacetItem
+          active={item.metric.key === selected}
+          disabled={false}
+          key={item.metric.key}
+          name={
+            <span className="big-spacer-left" id={`measure-${item.metric.key}-name`}>
+              {translateMetric(item.metric)}
+            </span>
+          }
+          onClick={this.props.onChange}
+          stat={this.renderItemFacetStat(item)}
+          tooltip={translateMetric(item.metric)}
+          value={item.metric.key}
+        />
+      )
     );
   };
 

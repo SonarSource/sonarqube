@@ -314,11 +314,9 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
               renderLabel={renderLabel}
             />
           )}
-          {!showNewElement &&
-            selectedElements.length < 1 &&
-            unselectedElements.length < 1 && (
-              <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
-            )}
+          {!showNewElement && selectedElements.length < 1 && unselectedElements.length < 1 && (
+            <li className="spacer-left">{translateWithParameters('no_results_for_x', query)}</li>
+          )}
         </ul>
         {footerNode}
       </div>

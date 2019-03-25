@@ -166,38 +166,34 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   addPermissionToGroup = (group: string, permission: string) => {
-    return this.state.groups.map(
-      candidate =>
-        candidate.name === group
-          ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate
+    return this.state.groups.map(candidate =>
+      candidate.name === group
+        ? { ...candidate, permissions: [...candidate.permissions, permission] }
+        : candidate
     );
   };
 
   addPermissionToUser = (user: string, permission: string) => {
-    return this.state.users.map(
-      candidate =>
-        candidate.login === user
-          ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate
+    return this.state.users.map(candidate =>
+      candidate.login === user
+        ? { ...candidate, permissions: [...candidate.permissions, permission] }
+        : candidate
     );
   };
 
   removePermissionFromGroup = (group: string, permission: string) => {
-    return this.state.groups.map(
-      candidate =>
-        candidate.name === group
-          ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate
+    return this.state.groups.map(candidate =>
+      candidate.name === group
+        ? { ...candidate, permissions: without(candidate.permissions, permission) }
+        : candidate
     );
   };
 
   removePermissionFromUser = (user: string, permission: string) => {
-    return this.state.users.map(
-      candidate =>
-        candidate.login === user
-          ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate
+    return this.state.users.map(candidate =>
+      candidate.login === user
+        ? { ...candidate, permissions: without(candidate.permissions, permission) }
+        : candidate
     );
   };
 
@@ -389,14 +385,13 @@ export default class App extends React.PureComponent<Props, State> {
             onChange={this.handleVisibilityChange}
             visibility={component.visibility}
           />
-          {showUpgradeBox &&
-            organization && (
-              <UpgradeOrganizationBox
-                className="big-spacer-bottom"
-                onOrganizationUpgrade={this.handleOrganizationUpgrade}
-                organization={organization}
-              />
-            )}
+          {showUpgradeBox && organization && (
+            <UpgradeOrganizationBox
+              className="big-spacer-bottom"
+              onOrganizationUpgrade={this.handleOrganizationUpgrade}
+              organization={organization}
+            />
+          )}
           {this.state.disclaimer && (
             <PublicProjectDisclaimer
               component={component}

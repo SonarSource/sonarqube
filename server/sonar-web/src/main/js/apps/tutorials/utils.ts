@@ -39,6 +39,6 @@ export function isLanguageConfigured(config?: LanguageConfig) {
   return isJavaConfigured || isDotNetConfigured || isCFamilyConfigured || isOtherConfigured;
 }
 
-export function quote(os: string): ((s: string) => string) {
+export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
 }

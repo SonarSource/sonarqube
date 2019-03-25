@@ -180,17 +180,15 @@ export class GlobalNav extends React.PureComponent<Props, State> {
         <GlobalNavMenu {...this.props} />
 
         <ul className="global-navbar-menu global-navbar-menu-right">
-          {isSonarCloud() &&
-            isLoggedIn(currentUser) &&
-            news.length > 0 && (
-              <NavLatestNotification
-                lastNews={news[0]}
-                notificationsLastReadDate={this.props.notificationsLastReadDate}
-                notificationsOptOut={this.props.notificationsOptOut}
-                onClick={this.handleOpenNotificationSidebar}
-                setCurrentUserSetting={this.props.setCurrentUserSetting}
-              />
-            )}
+          {isSonarCloud() && isLoggedIn(currentUser) && news.length > 0 && (
+            <NavLatestNotification
+              lastNews={news[0]}
+              notificationsLastReadDate={this.props.notificationsLastReadDate}
+              notificationsOptOut={this.props.notificationsOptOut}
+              onClick={this.handleOpenNotificationSidebar}
+              setCurrentUserSetting={this.props.setCurrentUserSetting}
+            />
+          )}
           {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper />
           <Search appState={appState} currentUser={currentUser} />
@@ -207,19 +205,17 @@ export class GlobalNav extends React.PureComponent<Props, State> {
           )}
           <GlobalNavUserContainer appState={appState} currentUser={currentUser} />
         </ul>
-        {isSonarCloud() &&
-          isLoggedIn(currentUser) &&
-          this.state.notificationSidebar && (
-            <NotificationsSidebar
-              fetchMoreFeatureNews={this.fetchMoreFeatureNews}
-              loading={this.state.loadingNews}
-              loadingMore={this.state.loadingMoreNews}
-              news={news}
-              notificationsLastReadDate={this.props.notificationsLastReadDate}
-              onClose={this.handleCloseNotificationSidebar}
-              paging={this.state.newsPaging}
-            />
-          )}
+        {isSonarCloud() && isLoggedIn(currentUser) && this.state.notificationSidebar && (
+          <NotificationsSidebar
+            fetchMoreFeatureNews={this.fetchMoreFeatureNews}
+            loading={this.state.loadingNews}
+            loadingMore={this.state.loadingMoreNews}
+            news={news}
+            notificationsLastReadDate={this.props.notificationsLastReadDate}
+            onClose={this.handleCloseNotificationSidebar}
+            paging={this.state.newsPaging}
+          />
+        )}
       </NavBar>
     );
   }

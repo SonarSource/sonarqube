@@ -1,0 +1,224 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page page-limited"
+  id="project-permissions-page"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="permissions.page"
+  />
+  <PageHeader
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    loadHolders={[Function]}
+    loading={true}
+  />
+  <div>
+    <VisibilitySelector
+      className="big-spacer-top big-spacer-bottom"
+      onChange={[Function]}
+    />
+  </div>
+  <AllHoldersList
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    filter="all"
+    grantPermissionToGroup={[Function]}
+    grantPermissionToUser={[Function]}
+    groups={Array []}
+    onFilterChange={[Function]}
+    onLoadMore={[Function]}
+    onPermissionSelect={[Function]}
+    onQueryChange={[Function]}
+    query=""
+    revokePermissionFromGroup={[Function]}
+    revokePermissionFromUser={[Function]}
+    users={Array []}
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="page page-limited"
+  id="project-permissions-page"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="permissions.page"
+  />
+  <PageHeader
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    loadHolders={[Function]}
+    loading={false}
+  />
+  <div>
+    <VisibilitySelector
+      className="big-spacer-top big-spacer-bottom"
+      onChange={[Function]}
+    />
+  </div>
+  <AllHoldersList
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    filter="all"
+    grantPermissionToGroup={[Function]}
+    grantPermissionToUser={[Function]}
+    groups={
+      Array [
+        Object {
+          "name": "Anyone",
+          "permissions": Array [
+            "admin",
+            "codeviewer",
+            "issueadmin",
+          ],
+        },
+        Object {
+          "description": "SonarSource team",
+          "id": "1",
+          "name": "SonarSource",
+          "permissions": Array [],
+        },
+      ]
+    }
+    groupsPaging={
+      Object {
+        "pageIndex": 1,
+        "pageSize": 100,
+        "total": 2,
+      }
+    }
+    onFilterChange={[Function]}
+    onLoadMore={[Function]}
+    onPermissionSelect={[Function]}
+    onQueryChange={[Function]}
+    query=""
+    revokePermissionFromGroup={[Function]}
+    revokePermissionFromUser={[Function]}
+    users={
+      Array [
+        Object {
+          "avatar": "admin-avatar",
+          "email": "admin@gmail.com",
+          "login": "admin",
+          "name": "Admin Admin",
+          "permissions": Array [
+            "admin",
+          ],
+        },
+        Object {
+          "avatar": "user-avatar-1",
+          "email": "user1@gmail.com",
+          "login": "user1",
+          "name": "User Number 1",
+          "permissions": Array [],
+        },
+        Object {
+          "avatar": "user-avatar-2",
+          "email": "user2@gmail.com",
+          "login": "user2",
+          "name": "User Number 2",
+          "permissions": Array [],
+        },
+      ]
+    }
+    usersPaging={
+      Object {
+        "pageIndex": 1,
+        "pageSize": 100,
+        "total": 3,
+      }
+    }
+  />
+</div>
+`;

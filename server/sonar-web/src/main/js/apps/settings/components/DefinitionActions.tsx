@@ -83,12 +83,11 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
 
     return (
       <>
-        {isDefault &&
-          !hasValueChanged && (
-            <div className="spacer-top note" style={{ lineHeight: '24px' }}>
-              {translate('settings._default')}
-            </div>
-          )}
+        {isDefault && !hasValueChanged && (
+          <div className="spacer-top note" style={{ lineHeight: '24px' }}>
+            {translate('settings._default')}
+          </div>
+        )}
         <div className="settings-definition-changes nowrap">
           {hasValueChanged && (
             <Button

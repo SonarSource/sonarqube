@@ -60,14 +60,14 @@ export default function GlobalFooter({
       <GlobalFooterBranding />
 
       <ul className="page-footer-menu">
-        {!hideLoggedInInfo &&
-          currentEdition && <li className="page-footer-menu-item">{currentEdition.name}</li>}
-        {!hideLoggedInInfo &&
-          sonarqubeVersion && (
-            <li className="page-footer-menu-item">
-              {translateWithParameters('footer.version_x', sonarqubeVersion)}
-            </li>
-          )}
+        {!hideLoggedInInfo && currentEdition && (
+          <li className="page-footer-menu-item">{currentEdition.name}</li>
+        )}
+        {!hideLoggedInInfo && sonarqubeVersion && (
+          <li className="page-footer-menu-item">
+            {translateWithParameters('footer.version_x', sonarqubeVersion)}
+          </li>
+        )}
         <li className="page-footer-menu-item">
           <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">{translate('footer.license')}</a>
         </li>

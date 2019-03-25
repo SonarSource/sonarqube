@@ -134,24 +134,22 @@ export default class BranchRow extends React.PureComponent<Props, State> {
           />
         )}
 
-        {this.state.renaming &&
-          isMainBranch(branchLike) && (
-            <RenameBranchModal
-              branch={branchLike}
-              component={component}
-              onClose={this.handleRenamingStop}
-              onRename={this.handleChange}
-            />
-          )}
+        {this.state.renaming && isMainBranch(branchLike) && (
+          <RenameBranchModal
+            branch={branchLike}
+            component={component}
+            onClose={this.handleRenamingStop}
+            onRename={this.handleChange}
+          />
+        )}
 
-        {this.state.changingLeak &&
-          isLongLivingBranch(branchLike) && (
-            <LeakPeriodForm
-              branch={branchLike.name}
-              onClose={this.handleChangingLeakStop}
-              project={component}
-            />
-          )}
+        {this.state.changingLeak && isLongLivingBranch(branchLike) && (
+          <LeakPeriodForm
+            branch={branchLike.name}
+            onClose={this.handleChangingLeakStop}
+            project={component}
+          />
+        )}
       </td>
     );
   }

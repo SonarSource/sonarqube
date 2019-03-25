@@ -189,61 +189,54 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             {this.renderBigMeasure(measures.violations)}
             {this.renderBigMeasure(measures.sqale_index)}
           </div>
-          {measures.violations &&
-            !!measures.violations.value && (
-              <>
-                {typesFacet && (
-                  <div className="measures">
-                    <div className="measures-list">
-                      {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val)).map(f => (
-                        <div className="measure measure-one-line" key={f.val}>
-                          <span className="measure-name">
-                            <IssueTypeIcon className="little-spacer-right" query={f.val} />
-                            {translate('issue.type', f.val)}
-                          </span>
-                          <span className="measure-value">
-                            {formatMeasure(f.count, 'SHORT_INT')}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+          {measures.violations && !!measures.violations.value && (
+            <>
+              {typesFacet && (
+                <div className="measures">
+                  <div className="measures-list">
+                    {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val)).map(f => (
+                      <div className="measure measure-one-line" key={f.val}>
+                        <span className="measure-name">
+                          <IssueTypeIcon className="little-spacer-right" query={f.val} />
+                          {translate('issue.type', f.val)}
+                        </span>
+                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
-                {severitiesFacet && (
-                  <div className="measures">
-                    <div className="measures-list">
-                      {sortBy(severitiesFacet, f => SEVERITIES.indexOf(f.val)).map(f => (
-                        <div className="measure measure-one-line" key={f.val}>
-                          <span className="measure-name">
-                            <SeverityHelper severity={f.val} />
-                          </span>
-                          <span className="measure-value">
-                            {formatMeasure(f.count, 'SHORT_INT')}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                </div>
+              )}
+              {severitiesFacet && (
+                <div className="measures">
+                  <div className="measures-list">
+                    {sortBy(severitiesFacet, f => SEVERITIES.indexOf(f.val)).map(f => (
+                      <div className="measure measure-one-line" key={f.val}>
+                        <span className="measure-name">
+                          <SeverityHelper severity={f.val} />
+                        </span>
+                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
-                {tagsFacet && (
-                  <div className="measures">
-                    <div className="measures-list">
-                      {tagsFacet.map(f => (
-                        <div className="measure measure-one-line" key={f.val}>
-                          <span className="measure-name">
-                            <TagsIcon className="little-spacer-right" />
-                            {f.val}
-                          </span>
-                          <span className="measure-value">
-                            {formatMeasure(f.count, 'SHORT_INT')}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                </div>
+              )}
+              {tagsFacet && (
+                <div className="measures">
+                  <div className="measures-list">
+                    {tagsFacet.map(f => (
+                      <div className="measure measure-one-line" key={f.val}>
+                        <span className="measure-name">
+                          <TagsIcon className="little-spacer-right" />
+                          {f.val}
+                        </span>
+                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </>
-            )}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     );

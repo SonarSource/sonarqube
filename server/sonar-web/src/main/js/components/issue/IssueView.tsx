@@ -97,19 +97,18 @@ export default class IssueView extends React.PureComponent<Props> {
           onChange={this.props.onChange}
           togglePopup={this.props.togglePopup}
         />
-        {issue.comments &&
-          issue.comments.length > 0 && (
-            <div className="issue-comments">
-              {issue.comments.map(comment => (
-                <IssueCommentLine
-                  comment={comment}
-                  key={comment.key}
-                  onDelete={this.deleteComment}
-                  onEdit={this.editComment}
-                />
-              ))}
-            </div>
-          )}
+        {issue.comments && issue.comments.length > 0 && (
+          <div className="issue-comments">
+            {issue.comments.map(comment => (
+              <IssueCommentLine
+                comment={comment}
+                key={comment.key}
+                onDelete={this.deleteComment}
+                onEdit={this.editComment}
+              />
+            ))}
+          </div>
+        )}
         {hasCheckbox && (
           <>
             <Checkbox

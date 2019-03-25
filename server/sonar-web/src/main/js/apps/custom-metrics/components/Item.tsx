@@ -106,12 +106,11 @@ export default class Item extends React.PureComponent<Props, State> {
 
         <td className="thin nowrap">
           <ActionsDropdown>
-            {domains &&
-              types && (
-                <ActionsDropdownItem className="js-metric-update" onClick={this.handleEditClick}>
-                  {translate('update_details')}
-                </ActionsDropdownItem>
-              )}
+            {domains && types && (
+              <ActionsDropdownItem className="js-metric-update" onClick={this.handleEditClick}>
+                {translate('update_details')}
+              </ActionsDropdownItem>
+            )}
             <ActionsDropdownDivider />
             <ActionsDropdownItem
               className="js-metric-delete"
@@ -122,19 +121,17 @@ export default class Item extends React.PureComponent<Props, State> {
           </ActionsDropdown>
         </td>
 
-        {this.state.editForm &&
-          domains &&
-          types && (
-            <Form
-              confirmButtonText={translate('update_verb')}
-              domains={domains}
-              header={translate('custom_metrics.update_metric')}
-              metric={metric}
-              onClose={this.closeEditForm}
-              onSubmit={this.handleEditFormSubmit}
-              types={types}
-            />
-          )}
+        {this.state.editForm && domains && types && (
+          <Form
+            confirmButtonText={translate('update_verb')}
+            domains={domains}
+            header={translate('custom_metrics.update_metric')}
+            metric={metric}
+            onClose={this.closeEditForm}
+            onSubmit={this.handleEditFormSubmit}
+            types={types}
+          />
+        )}
 
         {this.state.deleteForm && (
           <DeleteForm

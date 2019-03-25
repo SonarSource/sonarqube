@@ -49,7 +49,6 @@ interface State {
   activatedByType: T.Dict<ByType>;
   allByType: T.Dict<ByType>;
   compareToSonarWay: { profile: string; profileName: string; missingRuleCount: number } | null;
-  loading: boolean;
   total: number | null;
 }
 
@@ -61,7 +60,6 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     activatedByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
     allByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
     compareToSonarWay: null,
-    loading: true,
     total: null
   };
 
@@ -110,7 +108,6 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
   }
 
   loadRules() {
-    this.setState({ loading: true });
     Promise.all([this.loadAllRules(), this.loadActivatedRules(), this.loadProfile()]).then(
       responses => {
         if (this.mounted) {
@@ -120,14 +117,8 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             allByType: keyBy<ByType>(takeFacet(allRules, 'types'), 'val'),
             activatedByType: keyBy<ByType>(takeFacet(activatedRules, 'types'), 'val'),
             compareToSonarWay: showProfile && showProfile.compareToSonarWay,
-            loading: false,
             total: allRules.total
           });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
         }
       }
     );
@@ -187,29 +178,27 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             </tbody>
           </table>
 
-          {actions.edit &&
-            !profile.isBuiltIn && (
-              <div className="text-right big-spacer-top">
-                <Link className="button js-activate-rules" to={activateMoreUrl}>
-                  {translate('quality_profiles.activate_more')}
-                </Link>
-              </div>
-            )}
+          {actions.edit && !profile.isBuiltIn && (
+            <div className="text-right big-spacer-top">
+              <Link className="button js-activate-rules" to={activateMoreUrl}>
+                {translate('quality_profiles.activate_more')}
+              </Link>
+            </div>
+          )}
 
           {/* if a user is allowed to `copy` a profile if they are a global or organization admin */}
           {/* this user could potentially active more rules if the profile was not built-in */}
           {/* in such cases it's better to show the button but disable it with a tooltip */}
-          {actions.copy &&
-            profile.isBuiltIn && (
-              <div className="text-right big-spacer-top">
-                <DocTooltip
-                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/activate-rules-in-built-in-profile.md')}>
-                  <Button className="disabled js-activate-rules">
-                    {translate('quality_profiles.activate_more')}
-                  </Button>
-                </DocTooltip>
-              </div>
-            )}
+          {actions.copy && profile.isBuiltIn && (
+            <div className="text-right big-spacer-top">
+              <DocTooltip
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/activate-rules-in-built-in-profile.md')}>
+                <Button className="disabled js-activate-rules">
+                  {translate('quality_profiles.activate_more')}
+                </Button>
+              </DocTooltip>
+            </div>
+          )}
         </div>
         {profile.activeDeprecatedRuleCount > 0 && (
           <ProfileRulesDeprecatedWarning
@@ -218,16 +207,15 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             profile={profile.key}
           />
         )}
-        {compareToSonarWay != null &&
-          compareToSonarWay.missingRuleCount > 0 && (
-            <ProfileRulesSonarWayComparison
-              language={profile.language}
-              organization={organization}
-              profile={profile.key}
-              sonarWayMissingRules={compareToSonarWay.missingRuleCount}
-              sonarway={compareToSonarWay.profile}
-            />
-          )}
+        {compareToSonarWay != null && compareToSonarWay.missingRuleCount > 0 && (
+          <ProfileRulesSonarWayComparison
+            language={profile.language}
+            organization={organization}
+            profile={profile.key}
+            sonarWayMissingRules={compareToSonarWay.missingRuleCount}
+            sonarway={compareToSonarWay.profile}
+          />
+        )}
       </div>
     );
   }

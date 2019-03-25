@@ -180,22 +180,21 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   value={selectedLanguage}
                 />
               </div>
-              {selectedLanguage &&
-                profiles.length && (
-                  <div className="modal-field">
-                    <label htmlFor="create-profile-parent">
-                      {translate('quality_profiles.parent')}
-                    </label>
-                    <Select
-                      clearable={true}
-                      id="create-profile-parent"
-                      name="parentKey"
-                      onChange={this.handleParentChange}
-                      options={profiles}
-                      value={this.state.parent || ''}
-                    />
-                  </div>
-                )}
+              {selectedLanguage && profiles.length && (
+                <div className="modal-field">
+                  <label htmlFor="create-profile-parent">
+                    {translate('quality_profiles.parent')}
+                  </label>
+                  <Select
+                    clearable={true}
+                    id="create-profile-parent"
+                    name="parentKey"
+                    onChange={this.handleParentChange}
+                    options={profiles}
+                    value={this.state.parent || ''}
+                  />
+                </div>
+              )}
               {importers.map(importer => (
                 <div
                   className="modal-field spacer-bottom js-importer"

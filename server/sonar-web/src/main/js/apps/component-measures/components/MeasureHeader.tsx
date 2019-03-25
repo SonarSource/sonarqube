@@ -61,22 +61,20 @@ export default function MeasureHeader(props: Props) {
               />
             </strong>
           </span>
-          {!isDiff &&
-            hasHistory && (
-              <Tooltip overlay={translate('component_measures.show_metric_history')}>
-                <Link
-                  className="js-show-history spacer-left button button-small"
-                  to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}>
-                  <HistoryIcon />
-                </Link>
-              </Tooltip>
-            )}
+          {!isDiff && hasHistory && (
+            <Tooltip overlay={translate('component_measures.show_metric_history')}>
+              <Link
+                className="js-show-history spacer-left button button-small"
+                to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}>
+                <HistoryIcon />
+              </Link>
+            </Tooltip>
+          )}
         </div>
         <div className="measure-details-primary-actions">
-          {displayLeak &&
-            leakPeriod && (
-              <LeakPeriodLegend className="spacer-left" component={component} period={leakPeriod} />
-            )}
+          {displayLeak && leakPeriod && (
+            <LeakPeriodLegend className="spacer-left" component={component} period={leakPeriod} />
+          )}
         </div>
       </div>
       {secondaryMeasure &&

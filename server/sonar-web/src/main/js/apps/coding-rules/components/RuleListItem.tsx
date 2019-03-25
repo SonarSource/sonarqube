@@ -89,37 +89,36 @@ export default class RuleListItem extends React.PureComponent<Props> {
     return (
       <td className="coding-rule-table-meta-cell coding-rule-activation">
         <SeverityIcon severity={activation.severity} />
-        {selectedProfile &&
-          selectedProfile.parentName && (
-            <>
-              {activation.inherit === 'OVERRIDES' && (
-                <Tooltip
-                  overlay={translateWithParameters(
-                    'coding_rules.overrides',
-                    selectedProfile.name,
-                    selectedProfile.parentName
-                  )}>
-                  <RuleInheritanceIcon
-                    className="little-spacer-left"
-                    inheritance={activation.inherit}
-                  />
-                </Tooltip>
-              )}
-              {activation.inherit === 'INHERITED' && (
-                <Tooltip
-                  overlay={translateWithParameters(
-                    'coding_rules.inherits',
-                    selectedProfile.name,
-                    selectedProfile.parentName
-                  )}>
-                  <RuleInheritanceIcon
-                    className="little-spacer-left"
-                    inheritance={activation.inherit}
-                  />
-                </Tooltip>
-              )}
-            </>
-          )}
+        {selectedProfile && selectedProfile.parentName && (
+          <>
+            {activation.inherit === 'OVERRIDES' && (
+              <Tooltip
+                overlay={translateWithParameters(
+                  'coding_rules.overrides',
+                  selectedProfile.name,
+                  selectedProfile.parentName
+                )}>
+                <RuleInheritanceIcon
+                  className="little-spacer-left"
+                  inheritance={activation.inherit}
+                />
+              </Tooltip>
+            )}
+            {activation.inherit === 'INHERITED' && (
+              <Tooltip
+                overlay={translateWithParameters(
+                  'coding_rules.inherits',
+                  selectedProfile.name,
+                  selectedProfile.parentName
+                )}>
+                <RuleInheritanceIcon
+                  className="little-spacer-left"
+                  inheritance={activation.inherit}
+                />
+              </Tooltip>
+            )}
+          </>
+        )}
       </td>
     );
   };

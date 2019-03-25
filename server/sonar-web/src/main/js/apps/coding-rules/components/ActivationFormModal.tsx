@@ -160,10 +160,9 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
           </div>
 
           <div className="modal-body">
-            {!isUpdateMode &&
-              activeInAllProfiles && (
-                <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
-              )}
+            {!isUpdateMode && activeInAllProfiles && (
+              <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
+            )}
 
             <div className="modal-field">
               <label>{translate('coding_rules.quality_profile')}</label>

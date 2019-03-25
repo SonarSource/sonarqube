@@ -884,13 +884,12 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="layout-page-filters">
-        {currentUser.isLoggedIn &&
-          !isSonarCloud() && (
-            <MyIssuesFilter
-              myIssues={this.state.myIssues}
-              onMyIssuesChange={this.handleMyIssuesChange}
-            />
-          )}
+        {currentUser.isLoggedIn && !isSonarCloud() && (
+          <MyIssuesFilter
+            myIssues={this.state.myIssues}
+            onMyIssuesChange={this.handleMyIssuesChange}
+          />
+        )}
         <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
         <Sidebar
           component={component}
@@ -936,15 +935,14 @@ export class App extends React.PureComponent<Props, State> {
           selectedFlowIndex={this.state.selectedFlowIndex}
           selectedLocationIndex={this.state.selectedLocationIndex}
         />
-        {paging &&
-          paging.total > 0 && (
-            <ListFooter
-              count={issues.length}
-              loadMore={this.fetchMoreIssues}
-              loading={loadingMore}
-              total={paging.total}
-            />
-          )}
+        {paging && paging.total > 0 && (
+          <ListFooter
+            count={issues.length}
+            loadMore={this.fetchMoreIssues}
+            loading={loadingMore}
+            total={paging.total}
+          />
+        )}
       </div>
     );
   }
@@ -1065,17 +1063,15 @@ export class App extends React.PureComponent<Props, State> {
           />
         ) : (
           <DeferredSpinner loading={loading}>
-            {checkAll &&
-              paging &&
-              paging.total > MAX_PAGE_SIZE && (
-                <Alert className="big-spacer-bottom" variant="warning">
-                  <FormattedMessage
-                    defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                    id="issue_bulk_change.max_issues_reached"
-                    values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                  />
-                </Alert>
-              )}
+            {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
+              <Alert className="big-spacer-bottom" variant="warning">
+                <FormattedMessage
+                  defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                  id="issue_bulk_change.max_issues_reached"
+                  values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                />
+              </Alert>
+            )}
             {this.renderList()}
           </DeferredSpinner>
         )}

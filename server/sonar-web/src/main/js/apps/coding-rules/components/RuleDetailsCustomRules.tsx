@@ -109,15 +109,17 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
 
       <td className="coding-rules-detail-list-parameters">
         {rule.params &&
-          rule.params.filter(param => param.defaultValue).map(param => (
-            <div className="coding-rules-detail-list-parameter" key={param.key}>
-              <span className="key">{param.key}</span>
-              <span className="sep">:&nbsp;</span>
-              <span className="value" title={param.defaultValue}>
-                {param.defaultValue}
-              </span>
-            </div>
-          ))}
+          rule.params
+            .filter(param => param.defaultValue)
+            .map(param => (
+              <div className="coding-rules-detail-list-parameter" key={param.key}>
+                <span className="key">{param.key}</span>
+                <span className="sep">:&nbsp;</span>
+                <span className="value" title={param.defaultValue}>
+                  {param.defaultValue}
+                </span>
+              </div>
+            ))}
       </td>
 
       {this.props.canChange && (

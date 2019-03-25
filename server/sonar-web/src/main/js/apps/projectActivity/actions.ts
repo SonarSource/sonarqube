@@ -49,8 +49,8 @@ export function changeEvent(analysis: string, event: T.AnalysisEvent) {
       }
       return {
         ...item,
-        events: item.events.map(
-          eventItem => (eventItem.key === event.key ? { ...eventItem, ...event } : eventItem)
+        events: item.events.map(eventItem =>
+          eventItem.key === event.key ? { ...eventItem, ...event } : eventItem
         )
       };
     })

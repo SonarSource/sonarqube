@@ -42,30 +42,7 @@ interface Props {
   ruleDetails: T.RuleDetails;
 }
 
-interface State {
-  loading: boolean;
-}
-
-export default class RuleDetailsProfiles extends React.PureComponent<Props, State> {
-  mounted = false;
-
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchProfiles();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleDetails.key !== this.props.ruleDetails.key) {
-      this.fetchProfiles();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchProfiles = () => this.setState({ loading: true });
-
+export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   handleActivate = () => this.props.onActivate();
 
   handleDeactivate = (key?: string) => {
@@ -119,12 +96,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
           <SeverityHelper className="display-inline-flex-center" severity={activation.severity} />
         </span>
       </Tooltip>
-      {parentActivation !== undefined &&
-        activation.severity !== parentActivation.severity && (
-          <div className="coding-rules-detail-quality-profile-inheritance">
-            {translate('coding_rules.original')} {translate('severity', parentActivation.severity)}
-          </div>
-        )}
+      {parentActivation !== undefined && activation.severity !== parentActivation.severity && (
+        <div className="coding-rules-detail-quality-profile-inheritance">
+          {translate('coding_rules.original')} {translate('severity', parentActivation.severity)}
+        </div>
+      )}
     </td>
   );
 
@@ -143,12 +119,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props, Stat
         <span className="value" title={param.value}>
           {param.value}
         </span>
-        {parentActivation &&
-          param.value !== originalValue && (
-            <div className="coding-rules-detail-quality-profile-inheritance">
-              {translate('coding_rules.original')} <span className="value">{originalValue}</span>
-            </div>
-          )}
+        {parentActivation && param.value !== originalValue && (
+          <div className="coding-rules-detail-quality-profile-inheritance">
+            {translate('coding_rules.original')} <span className="value">{originalValue}</span>
+          </div>
+        )}
       </div>
     );
   };

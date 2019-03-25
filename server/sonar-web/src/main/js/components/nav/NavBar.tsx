@@ -36,7 +36,7 @@ interface State {
 }
 
 export default class NavBar extends React.PureComponent<Props, State> {
-  throttledFollowHorizontalScroll: (() => void);
+  throttledFollowHorizontalScroll: () => void;
 
   constructor(props: Props) {
     super(props);

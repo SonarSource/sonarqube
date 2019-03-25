@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  role="link"
+  tabIndex={0}
+  title="Foo"
+>
+  <ProjectEventIcon
+    className="project-activity-event-icon foo"
+  />
+  <span
+    className="little-spacer-left"
+  />
+</div>
+`;

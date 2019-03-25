@@ -299,12 +299,11 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           showMore={this.showFullList}
           total={sortedItems.length}
         />
-        {mightHaveMoreResults &&
-          this.state.showFullList && (
-            <Alert className="spacer-top" variant="warning">
-              {translate('facet_might_have_more_results')}
-            </Alert>
-          )}
+        {mightHaveMoreResults && this.state.showFullList && (
+          <Alert className="spacer-top" variant="warning">
+            {translate('facet_might_have_more_results')}
+          </Alert>
+        )}
       </>
     );
   }
@@ -407,14 +406,13 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         />
 
         <DeferredSpinner loading={this.props.fetching} />
-        {this.props.open &&
-          !disabled && (
-            <>
-              {this.renderSearch()}
-              {showList ? this.renderList() : this.renderSearchResults()}
-              <MultipleSelectionHint options={Object.keys(stats).length} values={values.length} />
-            </>
-          )}
+        {this.props.open && !disabled && (
+          <>
+            {this.renderSearch()}
+            {showList ? this.renderList() : this.renderSearchResults()}
+            <MultipleSelectionHint options={Object.keys(stats).length} values={values.length} />
+          </>
+        )}
       </FacetBox>
     );
   }

@@ -110,15 +110,14 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     return (
       <td className="thin nowrap">
         <ActionsDropdown className="js-task-action">
-          {canFilter &&
-            task.componentName && (
-              <ActionsDropdownItem className="js-task-filter" onClick={this.handleFilterClick}>
-                {translateWithParameters(
-                  'background_tasks.filter_by_component_x',
-                  task.componentName
-                )}
-              </ActionsDropdownItem>
-            )}
+          {canFilter && task.componentName && (
+            <ActionsDropdownItem className="js-task-filter" onClick={this.handleFilterClick}>
+              {translateWithParameters(
+                'background_tasks.filter_by_component_x',
+                task.componentName
+              )}
+            </ActionsDropdownItem>
+          )}
           {canCancel && (
             <ActionsDropdownItem
               className="js-task-cancel"

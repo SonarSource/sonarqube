@@ -109,8 +109,8 @@ export default class App extends React.PureComponent<Props, State> {
     return updateCustomMeasure(data).then(() => {
       if (this.mounted) {
         this.setState(({ measures = [] }: State) => ({
-          measures: measures.map(
-            measure => (measure.id === data.id ? { ...measure, ...data } : measure)
+          measures: measures.map(measure =>
+            measure.id === data.id ? { ...measure, ...data } : measure
           )
         }));
       }
@@ -144,15 +144,14 @@ export default class App extends React.PureComponent<Props, State> {
           {measures && (
             <List measures={measures} onDelete={this.handleDelete} onEdit={this.handleEdit} />
           )}
-          {measures &&
-            paging && (
-              <ListFooter
-                count={measures.length}
-                loadMore={this.fetchMore}
-                ready={!loading}
-                total={paging.total}
-              />
-            )}
+          {measures && paging && (
+            <ListFooter
+              count={measures.length}
+              loadMore={this.fetchMore}
+              ready={!loading}
+              total={paging.total}
+            />
+          )}
         </div>
       </>
     );

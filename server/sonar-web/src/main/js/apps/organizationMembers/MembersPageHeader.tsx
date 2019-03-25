@@ -50,16 +50,14 @@ export default function MembersPageHeader(props: Props) {
       <DeferredSpinner loading={props.loading} />
       {isAdmin && (
         <div className="page-actions text-right">
-          {almKey &&
-            isGithub(almKey) &&
-            !showSyncNotif && (
-              <SyncMemberForm
-                buttonText={translate('organization.members.config_synchro')}
-                hasOtherMembers={members && members.length > 1}
-                organization={organization}
-                refreshMembers={refreshMembers}
-              />
-            )}
+          {almKey && isGithub(almKey) && !showSyncNotif && (
+            <SyncMemberForm
+              buttonText={translate('organization.members.config_synchro')}
+              hasOtherMembers={members && members.length > 1}
+              organization={organization}
+              refreshMembers={refreshMembers}
+            />
+          )}
           {!hasMemberSync && (
             <div className="display-inline-block spacer-left spacer-bottom">
               <AddMemberForm
@@ -87,24 +85,22 @@ export default function MembersPageHeader(props: Props) {
             )
           }}
         />
-        {almKey &&
-          isGithub(almKey) &&
-          showSyncNotif && (
-            <Alert className="spacer-top" display="inline" variant="info">
-              {translateWithParameters(
-                'organization.members.auto_sync_members_from_org_x',
-                translate('organization', almKey)
-              )}
-              <span className="spacer-left">
-                <SyncMemberForm
-                  buttonText={translate('configure')}
-                  hasOtherMembers={members && members.length > 1}
-                  organization={organization}
-                  refreshMembers={refreshMembers}
-                />
-              </span>
-            </Alert>
-          )}
+        {almKey && isGithub(almKey) && showSyncNotif && (
+          <Alert className="spacer-top" display="inline" variant="info">
+            {translateWithParameters(
+              'organization.members.auto_sync_members_from_org_x',
+              translate('organization', almKey)
+            )}
+            <span className="spacer-left">
+              <SyncMemberForm
+                buttonText={translate('configure')}
+                hasOtherMembers={members && members.length > 1}
+                organization={organization}
+                refreshMembers={refreshMembers}
+              />
+            </span>
+          </Alert>
+        )}
       </div>
     </header>
   );

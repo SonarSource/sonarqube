@@ -133,8 +133,8 @@ export default class Workspace extends React.PureComponent<{}, State> {
     if (this.mounted) {
       const { key, name, qualifier } = details;
       this.setState((state: State) => ({
-        components: state.components.map(
-          component => (component.key === key ? { ...component, name, qualifier } : component)
+        components: state.components.map(component =>
+          component.key === key ? { ...component, name, qualifier } : component
         )
       }));
     }

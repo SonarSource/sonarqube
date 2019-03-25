@@ -154,12 +154,11 @@ export class ComponentNavBranch extends React.PureComponent<Props, State> {
             fill={theme.gray80}
           />
           <span className="note">{displayName}</span>
-          {configuration &&
-            configuration.showSettings && (
-              <HelpTooltip className="spacer-left" overlay={this.renderOverlay()}>
-                <PlusCircleIcon className="vertical-middle" fill={theme.blue} size={12} />
-              </HelpTooltip>
-            )}
+          {configuration && configuration.showSettings && (
+            <HelpTooltip className="spacer-left" overlay={this.renderOverlay()}>
+              <PlusCircleIcon className="vertical-middle" fill={theme.blue} size={12} />
+            </HelpTooltip>
+          )}
         </div>
       );
     } else {

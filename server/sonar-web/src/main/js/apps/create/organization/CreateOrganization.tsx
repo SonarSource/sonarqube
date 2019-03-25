@@ -463,12 +463,11 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
             <h1 className="page-title huge big-spacer-bottom">
               <strong>{header}</strong>
             </h1>
-            {!importPersonalOrg &&
-              startedPrice !== undefined && (
-                <p className="page-description">
-                  {translate('onboarding.create_organization.page.description')}
-                </p>
-              )}
+            {!importPersonalOrg && startedPrice !== undefined && (
+              <p className="page-description">
+                {translate('onboarding.create_organization.page.description')}
+              </p>
+            )}
           </header>
           {this.state.loading ? (
             <DeferredSpinner />

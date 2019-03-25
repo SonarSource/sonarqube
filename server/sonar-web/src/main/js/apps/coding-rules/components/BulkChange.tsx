@@ -101,44 +101,41 @@ export default class BulkChange extends React.PureComponent<Props, State> {
                   {translate('coding_rules.activate_in')}…
                 </a>
               </li>
-              {allowActivateOnProfile &&
-                profile && (
-                  <li>
-                    <a href="#" onClick={this.handleActivateInProfileClick}>
-                      {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
-                    </a>
-                  </li>
-                )}
+              {allowActivateOnProfile && profile && (
+                <li>
+                  <a href="#" onClick={this.handleActivateInProfileClick}>
+                    {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
+                  </a>
+                </li>
+              )}
               <li>
                 <a href="#" onClick={this.handleDeactivateClick}>
                   {translate('coding_rules.deactivate_in')}…
                 </a>
               </li>
-              {allowDeactivateOnProfile &&
-                profile && (
-                  <li>
-                    <a href="#" onClick={this.handleDeactivateInProfileClick}>
-                      {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
-                    </a>
-                  </li>
-                )}
+              {allowDeactivateOnProfile && profile && (
+                <li>
+                  <a href="#" onClick={this.handleDeactivateInProfileClick}>
+                    {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
+                  </a>
+                </li>
+              )}
             </ul>
           }>
           <Button className="js-bulk-change">{translate('bulk_change')}</Button>
         </Dropdown>
-        {this.state.modal &&
-          this.state.action && (
-            <BulkChangeModal
-              action={this.state.action}
-              languages={this.props.languages}
-              onClose={this.closeModal}
-              organization={this.props.organization}
-              profile={this.state.profile}
-              query={this.props.query}
-              referencedProfiles={this.props.referencedProfiles}
-              total={this.props.total}
-            />
-          )}
+        {this.state.modal && this.state.action && (
+          <BulkChangeModal
+            action={this.state.action}
+            languages={this.props.languages}
+            onClose={this.closeModal}
+            organization={this.props.organization}
+            profile={this.state.profile}
+            query={this.props.query}
+            referencedProfiles={this.props.referencedProfiles}
+            total={this.props.total}
+          />
+        )}
       </>
     );
   }

@@ -1,0 +1,204 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="coding-rule-details"
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="coding-rule-details"
+>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <RuleDetailsMeta
+      onFilterChange={[MockFunction]}
+      onTagsChange={[Function]}
+      referencedRepositories={
+        Object {
+          "javascript": Object {
+            "key": "javascript",
+            "language": "js",
+            "name": "SonarAnalyzer",
+          },
+        }
+      }
+      ruleDetails={
+        Object {
+          "createdAt": "2014-12-16T17:26:54+0100",
+          "debtOverloaded": false,
+          "debtRemFnOffset": "5min",
+          "debtRemFnType": "CONSTANT_ISSUE",
+          "defaultDebtRemFnOffset": "5min",
+          "defaultDebtRemFnType": "CONSTANT_ISSUE",
+          "defaultRemFnBaseEffort": "5min",
+          "defaultRemFnType": "CONSTANT_ISSUE",
+          "htmlDesc": "",
+          "isExternal": false,
+          "isTemplate": false,
+          "key": "squid:S1337",
+          "lang": "java",
+          "langName": "Java",
+          "mdDesc": "",
+          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
+          "params": Array [],
+          "remFnBaseEffort": "5min",
+          "remFnOverloaded": false,
+          "remFnType": "CONSTANT_ISSUE",
+          "repo": "squid",
+          "scope": "MAIN",
+          "severity": "MAJOR",
+          "status": "READY",
+          "sysTags": Array [
+            "multi-threading",
+          ],
+          "tags": Array [],
+          "type": "BUG",
+        }
+      }
+    />
+    <RuleDetailsDescription
+      onChange={[Function]}
+      ruleDetails={
+        Object {
+          "createdAt": "2014-12-16T17:26:54+0100",
+          "debtOverloaded": false,
+          "debtRemFnOffset": "5min",
+          "debtRemFnType": "CONSTANT_ISSUE",
+          "defaultDebtRemFnOffset": "5min",
+          "defaultDebtRemFnType": "CONSTANT_ISSUE",
+          "defaultRemFnBaseEffort": "5min",
+          "defaultRemFnType": "CONSTANT_ISSUE",
+          "htmlDesc": "",
+          "isExternal": false,
+          "isTemplate": false,
+          "key": "squid:S1337",
+          "lang": "java",
+          "langName": "Java",
+          "mdDesc": "",
+          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
+          "params": Array [],
+          "remFnBaseEffort": "5min",
+          "remFnOverloaded": false,
+          "remFnType": "CONSTANT_ISSUE",
+          "repo": "squid",
+          "scope": "MAIN",
+          "severity": "MAJOR",
+          "status": "READY",
+          "sysTags": Array [
+            "multi-threading",
+          ],
+          "tags": Array [],
+          "type": "BUG",
+        }
+      }
+    />
+    <RuleDetailsProfiles
+      activations={
+        Array [
+          Object {
+            "createdAt": "2017-06-16T16:13:38+0200",
+            "inherit": "NONE",
+            "params": Array [],
+            "qProfile": "key",
+            "severity": "MAJOR",
+            "updatedAt": "2017-06-16T16:13:38+0200",
+          },
+        ]
+      }
+      onActivate={[Function]}
+      onDeactivate={[Function]}
+      referencedProfiles={
+        Object {
+          "key": Object {
+            "activeDeprecatedRuleCount": 2,
+            "activeRuleCount": 10,
+            "childrenCount": 0,
+            "depth": 1,
+            "isBuiltIn": false,
+            "isDefault": false,
+            "isInherited": false,
+            "key": "key",
+            "language": "js",
+            "languageName": "JavaScript",
+            "name": "name",
+            "organization": "foo",
+            "projectCount": 3,
+          },
+        }
+      }
+      ruleDetails={
+        Object {
+          "createdAt": "2014-12-16T17:26:54+0100",
+          "debtOverloaded": false,
+          "debtRemFnOffset": "5min",
+          "debtRemFnType": "CONSTANT_ISSUE",
+          "defaultDebtRemFnOffset": "5min",
+          "defaultDebtRemFnType": "CONSTANT_ISSUE",
+          "defaultRemFnBaseEffort": "5min",
+          "defaultRemFnType": "CONSTANT_ISSUE",
+          "htmlDesc": "",
+          "isExternal": false,
+          "isTemplate": false,
+          "key": "squid:S1337",
+          "lang": "java",
+          "langName": "Java",
+          "mdDesc": "",
+          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
+          "params": Array [],
+          "remFnBaseEffort": "5min",
+          "remFnOverloaded": false,
+          "remFnType": "CONSTANT_ISSUE",
+          "repo": "squid",
+          "scope": "MAIN",
+          "severity": "MAJOR",
+          "status": "READY",
+          "sysTags": Array [
+            "multi-threading",
+          ],
+          "tags": Array [],
+          "type": "BUG",
+        }
+      }
+    />
+    <Connect(withAppState(RuleDetailsIssues))
+      ruleDetails={
+        Object {
+          "createdAt": "2014-12-16T17:26:54+0100",
+          "debtOverloaded": false,
+          "debtRemFnOffset": "5min",
+          "debtRemFnType": "CONSTANT_ISSUE",
+          "defaultDebtRemFnOffset": "5min",
+          "defaultDebtRemFnType": "CONSTANT_ISSUE",
+          "defaultRemFnBaseEffort": "5min",
+          "defaultRemFnType": "CONSTANT_ISSUE",
+          "htmlDesc": "",
+          "isExternal": false,
+          "isTemplate": false,
+          "key": "squid:S1337",
+          "lang": "java",
+          "langName": "Java",
+          "mdDesc": "",
+          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
+          "params": Array [],
+          "remFnBaseEffort": "5min",
+          "remFnOverloaded": false,
+          "remFnType": "CONSTANT_ISSUE",
+          "repo": "squid",
+          "scope": "MAIN",
+          "severity": "MAJOR",
+          "status": "READY",
+          "sysTags": Array [
+            "multi-threading",
+          ],
+          "tags": Array [],
+          "type": "BUG",
+        }
+      }
+    />
+  </DeferredSpinner>
+</div>
+`;

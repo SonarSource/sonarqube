@@ -119,6 +119,29 @@ export function mockComponent(overrides: Partial<T.Component> = {}): T.Component
   };
 }
 
+export function mockComponentMeasure(
+  file = false,
+  overrides: Partial<T.ComponentMeasure> = {}
+): T.ComponentMeasure {
+  if (file) {
+    return {
+      key: 'foo:src/index.tsx',
+      name: 'index.tsx',
+      qualifier: 'FIL',
+      path: 'src/index.tsx',
+      measures: [{ metric: 'bugs', value: '1', bestValue: false }],
+      ...overrides
+    };
+  }
+  return {
+    key: 'foo',
+    name: 'Foo',
+    qualifier: 'TRK',
+    measures: [{ metric: 'bugs', value: '12', bestValue: false }],
+    ...overrides
+  };
+}
+
 export function mockQualityGateStatusCondition(
   overrides: Partial<T.QualityGateStatusCondition> = {}
 ): T.QualityGateStatusCondition {
@@ -352,6 +375,39 @@ export function mockRule(overrides: Partial<T.Rule> = {}): T.Rule {
     type: 'CODE_SMELL',
     ...overrides
   } as T.Rule;
+}
+
+export function mockRuleDetails(overrides: Partial<T.RuleDetails> = {}): T.RuleDetails {
+  return {
+    key: 'squid:S1337',
+    repo: 'squid',
+    name: '".equals()" should not be used to test the values of "Atomic" classes',
+    createdAt: '2014-12-16T17:26:54+0100',
+    htmlDesc: '',
+    mdDesc: '',
+    severity: 'MAJOR',
+    status: 'READY',
+    isTemplate: false,
+    tags: [],
+    sysTags: ['multi-threading'],
+    lang: 'java',
+    langName: 'Java',
+    params: [],
+    defaultDebtRemFnType: 'CONSTANT_ISSUE',
+    defaultDebtRemFnOffset: '5min',
+    debtOverloaded: false,
+    debtRemFnType: 'CONSTANT_ISSUE',
+    debtRemFnOffset: '5min',
+    defaultRemFnType: 'CONSTANT_ISSUE',
+    defaultRemFnBaseEffort: '5min',
+    remFnType: 'CONSTANT_ISSUE',
+    remFnBaseEffort: '5min',
+    remFnOverloaded: false,
+    scope: 'MAIN',
+    isExternal: false,
+    type: 'BUG',
+    ...overrides
+  };
 }
 
 export function mockShortLivingBranch(

@@ -68,14 +68,12 @@ export default function ComponentBreadcrumbs({
         </span>
       )}
 
-      {displaySubProject &&
-        issue.subProject !== undefined &&
-        issue.subProjectName !== undefined && (
-          <span title={issue.subProjectName}>
-            {limitComponentName(issue.subProjectName)}
-            <span className="slash-separator" />
-          </span>
-        )}
+      {displaySubProject && issue.subProject !== undefined && issue.subProjectName !== undefined && (
+        <span title={issue.subProjectName}>
+          {limitComponentName(issue.subProjectName)}
+          <span className="slash-separator" />
+        </span>
+      )}
 
       {collapsePath(componentName || '')}
     </div>

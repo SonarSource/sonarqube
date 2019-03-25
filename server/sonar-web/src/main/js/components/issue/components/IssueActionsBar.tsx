@@ -138,14 +138,13 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               />
             </li>
           )}
-          {!isSecurityHotspot &&
-            issue.effort && (
-              <li className="issue-meta">
-                <span className="issue-meta-label">
-                  {translateWithParameters('issue.x_effort', issue.effort)}
-                </span>
-              </li>
-            )}
+          {!isSecurityHotspot && issue.effort && (
+            <li className="issue-meta">
+              <span className="issue-meta-label">
+                {translateWithParameters('issue.x_effort', issue.effort)}
+              </span>
+            </li>
+          )}
           {canComment && (
             <IssueCommentAction
               commentAutoTriggered={this.state.commentAutoTriggered}

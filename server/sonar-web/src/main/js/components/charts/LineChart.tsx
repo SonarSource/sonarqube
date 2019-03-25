@@ -74,11 +74,13 @@ export default class LineChart extends React.PureComponent<Props> {
       return null;
     }
 
-    const points = this.props.data.filter(point => point.y != null).map((point, index) => {
-      const x = xScale(point.x);
-      const y = yScale(point.y || 0);
-      return <circle className="line-chart-point" cx={x} cy={y} key={index} r="3" />;
-    });
+    const points = this.props.data
+      .filter(point => point.y != null)
+      .map((point, index) => {
+        const x = xScale(point.x);
+        const y = yScale(point.y || 0);
+        return <circle className="line-chart-point" cx={x} cy={y} key={index} r="3" />;
+      });
     return <g>{points}</g>;
   }
 

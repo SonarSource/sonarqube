@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="settings-definition"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+      title="Foo setting"
+    >
+      Foo setting
+    </h3>
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "When Foo then Bar",
+        }
+      }
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    />
+    <Input
+      hasValueChanged={false}
+      onCancel={[Function]}
+      onChange={[Function]}
+      onSave={[Function]}
+      setting={
+        Object {
+          "definition": Object {
+            "category": "general",
+            "defaultValue": "42",
+            "description": "When Foo then Bar",
+            "fields": Array [],
+            "key": "foo",
+            "name": "Foo setting",
+            "options": Array [],
+            "subCategory": "SubFoo",
+            "type": "INTEGER",
+          },
+          "inherited": true,
+          "key": "foo",
+          "value": "42",
+        }
+      }
+      value="42"
+    />
+    <DefinitionActions
+      changedValue={null}
+      hasError={false}
+      hasValueChanged={false}
+      isDefault={true}
+      onCancel={[Function]}
+      onReset={[Function]}
+      onSave={[Function]}
+      setting={
+        Object {
+          "definition": Object {
+            "category": "general",
+            "defaultValue": "42",
+            "description": "When Foo then Bar",
+            "fields": Array [],
+            "key": "foo",
+            "name": "Foo setting",
+            "options": Array [],
+            "subCategory": "SubFoo",
+            "type": "INTEGER",
+          },
+          "inherited": true,
+          "key": "foo",
+          "value": "42",
+        }
+      }
+    />
+  </div>
+</div>
+`;

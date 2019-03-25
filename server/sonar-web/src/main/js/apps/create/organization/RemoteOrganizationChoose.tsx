@@ -103,48 +103,46 @@ export class RemoteOrganizationChoose extends React.PureComponent<Props & WithRo
           <h2>{translate('onboarding.import_organization.import_org_details')}</h2>
         </div>
         <div className="boxed-group-inner">
-          {almInstallId &&
-            !almOrganization && (
-              <Alert className="big-spacer-bottom width-60" variant="error">
-                <div className="markdown">
-                  {translate('onboarding.import_organization.org_not_found')}
-                  <ul>
-                    <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
-                    <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
-                  </ul>
-                </div>
-              </Alert>
-            )}
-          {almOrganization &&
-            boundOrganization && (
-              <Alert className="big-spacer-bottom width-60" variant="error">
-                <FormattedMessage
-                  defaultMessage={translate('onboarding.import_organization.already_bound_x')}
-                  id="onboarding.import_organization.already_bound_x"
-                  values={{
-                    avatar: (
-                      <img
-                        alt={almApplication.name}
-                        className="little-spacer-left"
-                        src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
-                          almApplication.key
-                        )}.svg`}
-                        width={16}
-                      />
-                    ),
-                    name: <strong>{almOrganization.name}</strong>,
-                    boundAvatar: (
-                      <OrganizationAvatar
-                        className="little-spacer-left"
-                        organization={boundOrganization}
-                        small={true}
-                      />
-                    ),
-                    boundName: <strong>{boundOrganization.name}</strong>
-                  }}
-                />
-              </Alert>
-            )}
+          {almInstallId && !almOrganization && (
+            <Alert className="big-spacer-bottom width-60" variant="error">
+              <div className="markdown">
+                {translate('onboarding.import_organization.org_not_found')}
+                <ul>
+                  <li>{translate('onboarding.import_organization.org_not_found.tips_1')}</li>
+                  <li>{translate('onboarding.import_organization.org_not_found.tips_2')}</li>
+                </ul>
+              </div>
+            </Alert>
+          )}
+          {almOrganization && boundOrganization && (
+            <Alert className="big-spacer-bottom width-60" variant="error">
+              <FormattedMessage
+                defaultMessage={translate('onboarding.import_organization.already_bound_x')}
+                id="onboarding.import_organization.already_bound_x"
+                values={{
+                  avatar: (
+                    <img
+                      alt={almApplication.name}
+                      className="little-spacer-left"
+                      src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(
+                        almApplication.key
+                      )}.svg`}
+                      width={16}
+                    />
+                  ),
+                  name: <strong>{almOrganization.name}</strong>,
+                  boundAvatar: (
+                    <OrganizationAvatar
+                      className="little-spacer-left"
+                      organization={boundOrganization}
+                      small={true}
+                    />
+                  ),
+                  boundName: <strong>{boundOrganization.name}</strong>
+                }}
+              />
+            </Alert>
+          )}
           <div className="display-flex-center">
             <div className="display-inline-block">
               <IdentityProviderLink

@@ -165,17 +165,16 @@ export default class App extends React.PureComponent<Props, State> {
             />
           )}
 
-          {groups !== undefined &&
-            paging !== undefined && (
-              <div id="groups-list-footer">
-                <ListFooter
-                  count={showAnyone ? groups.length + 1 : groups.length}
-                  loadMore={this.fetchMoreGroups}
-                  ready={!loading}
-                  total={showAnyone ? paging.total + 1 : paging.total}
-                />
-              </div>
-            )}
+          {groups !== undefined && paging !== undefined && (
+            <div id="groups-list-footer">
+              <ListFooter
+                count={showAnyone ? groups.length + 1 : groups.length}
+                loadMore={this.fetchMoreGroups}
+                ready={!loading}
+                total={showAnyone ? paging.total + 1 : paging.total}
+              />
+            </div>
+          )}
         </div>
       </>
     );

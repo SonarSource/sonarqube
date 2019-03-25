@@ -170,13 +170,11 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
-          {!loading &&
-            !done &&
-            permissionTemplates && (
-              <Button disabled={submitting} onClick={this.handleConfirmClick}>
-                {translate('apply')}
-              </Button>
-            )}
+          {!loading && !done && permissionTemplates && (
+            <Button disabled={submitting} onClick={this.handleConfirmClick}>
+              {translate('apply')}
+            </Button>
+          )}
           <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {done ? translate('close') : translate('cancel')}
           </ResetButtonLink>

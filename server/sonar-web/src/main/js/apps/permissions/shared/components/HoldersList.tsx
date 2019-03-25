@@ -148,16 +148,15 @@ export default class HoldersList extends React.PureComponent<Props, State> {
           <tbody>
             {items.length === 0 && !this.props.loading && this.renderEmpty()}
             {itemWithPermissions.map(item => this.renderItem(item, permissions))}
-            {itemWithPermissions.length > 0 &&
-              itemWithoutPermissions.length > 0 && (
-                <>
-                  <tr>
-                    <td className="divider" colSpan={20} />
-                  </tr>
-                  <tr />
-                  {/* Keep correct zebra colors in the table */}
-                </>
-              )}
+            {itemWithPermissions.length > 0 && itemWithoutPermissions.length > 0 && (
+              <>
+                <tr>
+                  <td className="divider" colSpan={20} />
+                </tr>
+                <tr />
+                {/* Keep correct zebra colors in the table */}
+              </>
+            )}
             {itemWithoutPermissions.map(item => this.renderItem(item, permissions))}
           </tbody>
         </table>

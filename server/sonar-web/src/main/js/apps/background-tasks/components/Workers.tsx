@@ -102,14 +102,13 @@ export default class Workers extends React.PureComponent<{}, State> {
 
     return (
       <div className="display-flex-center">
-        {!loading &&
-          workerCount > 1 && (
-            <Tooltip overlay={translate('background_tasks.number_of_workers.warning')}>
-              <span className="display-inline-flex-center little-spacer-right">
-                <AlertWarnIcon fill="#d3d3d3" />
-              </span>
-            </Tooltip>
-          )}
+        {!loading && workerCount > 1 && (
+          <Tooltip overlay={translate('background_tasks.number_of_workers.warning')}>
+            <span className="display-inline-flex-center little-spacer-right">
+              <AlertWarnIcon fill="#d3d3d3" />
+            </span>
+          </Tooltip>
+        )}
 
         <span className="text-middle">
           {translate('background_tasks.number_of_workers')}
@@ -121,20 +120,18 @@ export default class Workers extends React.PureComponent<{}, State> {
           )}
         </span>
 
-        {!loading &&
-          canSetWorkerCount && (
-            <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
-              <EditButton
-                className="js-edit button-small spacer-left"
-                onClick={this.handleChangeClick}
-              />
-            </Tooltip>
-          )}
+        {!loading && canSetWorkerCount && (
+          <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
+            <EditButton
+              className="js-edit button-small spacer-left"
+              onClick={this.handleChangeClick}
+            />
+          </Tooltip>
+        )}
 
-        {!loading &&
-          !canSetWorkerCount && (
-            <HelpTooltip className="spacer-left" overlay={<NoWorkersSupportPopup />} />
-          )}
+        {!loading && !canSetWorkerCount && (
+          <HelpTooltip className="spacer-left" overlay={<NoWorkersSupportPopup />} />
+        )}
 
         {formOpen && <WorkersForm onClose={this.closeForm} workerCount={this.state.workerCount} />}
       </div>

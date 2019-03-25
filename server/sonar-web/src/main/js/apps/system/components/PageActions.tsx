@@ -167,8 +167,9 @@ export default class PageActions extends React.PureComponent<Props, State> {
             {translate('system.restart_server')}
           </Button>
         )}
-        {this.props.canRestart &&
-          this.state.openRestartForm && <RestartForm onClose={this.handleServerRestartClose} />}
+        {this.props.canRestart && this.state.openRestartForm && (
+          <RestartForm onClose={this.handleServerRestartClose} />
+        )}
         {this.state.openLogsLevelForm && (
           <ChangeLogLevelForm
             infoMsg={translate(

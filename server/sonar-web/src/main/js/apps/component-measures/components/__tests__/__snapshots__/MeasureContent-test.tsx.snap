@@ -1,0 +1,312 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for a file 1`] = `
+<div
+  className="layout-page-main no-outline"
+>
+  <A11ySkipTarget
+    anchor="measures_main"
+  />
+  <div
+    className="layout-page-header-panel layout-page-main-header"
+  >
+    <div
+      className="layout-page-header-panel-inner layout-page-main-header-inner"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <MeasureContentHeader
+          left={
+            <Breadcrumbs
+              backToFirst={true}
+              className="text-ellipsis flex-1"
+              component={
+                Object {
+                  "key": "foo:src/index.tsx",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "1",
+                    },
+                  ],
+                  "name": "index.tsx",
+                  "path": "src/index.tsx",
+                  "qualifier": "FIL",
+                }
+              }
+              handleSelect={[Function]}
+              rootComponent={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+            />
+          }
+          right={
+            <div
+              className="display-flex-center"
+            />
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main-inner measure-details-content"
+  >
+    <MeasureHeader
+      component={
+        Object {
+          "key": "foo:src/index.tsx",
+          "measures": Array [
+            Object {
+              "bestValue": false,
+              "metric": "bugs",
+              "value": "1",
+            },
+          ],
+          "name": "index.tsx",
+          "path": "src/index.tsx",
+          "qualifier": "FIL",
+        }
+      }
+      measureValue="12"
+      metric={
+        Object {
+          "domain": "Reliability",
+          "id": "1",
+          "key": "bugs",
+          "name": "Bugs",
+          "type": "INT",
+        }
+      }
+    />
+    <div
+      className="measure-details-viewer"
+    >
+      <LazyLoader
+        component="foo:src/index.tsx"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for a project 1`] = `
+<div
+  className="layout-page-main no-outline"
+>
+  <A11ySkipTarget
+    anchor="measures_main"
+  />
+  <div
+    className="layout-page-header-panel layout-page-main-header"
+  >
+    <div
+      className="layout-page-header-panel-inner layout-page-main-header-inner"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <MeasureContentHeader
+          left={
+            <Breadcrumbs
+              backToFirst={true}
+              className="text-ellipsis flex-1"
+              component={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+              handleSelect={[Function]}
+              rootComponent={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+            />
+          }
+          right={
+            <div
+              className="display-flex-center"
+            >
+              <React.Fragment>
+                <div>
+                  component_measures.view_as
+                </div>
+                <MeasureViewSelect
+                  className="measure-view-select spacer-left big-spacer-right"
+                  handleViewChange={[Function]}
+                  metric={
+                    Object {
+                      "bestValue": "0",
+                      "custom": false,
+                      "description": "Bugs",
+                      "domain": "Reliability",
+                      "hidden": false,
+                      "higherValuesAreBetter": false,
+                      "key": "bugs",
+                      "name": "Bugs",
+                      "qualitative": true,
+                      "type": "INT",
+                    }
+                  }
+                  view="list"
+                />
+                <PageActions
+                  showShortcuts={true}
+                  total={2}
+                />
+              </React.Fragment>
+            </div>
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main-inner measure-details-content"
+  >
+    <MeasureHeader
+      component={
+        Object {
+          "key": "foo",
+          "measures": Array [
+            Object {
+              "bestValue": false,
+              "metric": "bugs",
+              "value": "12",
+            },
+          ],
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      measureValue="12"
+      metric={
+        Object {
+          "bestValue": "0",
+          "custom": false,
+          "description": "Bugs",
+          "domain": "Reliability",
+          "hidden": false,
+          "higherValuesAreBetter": false,
+          "key": "bugs",
+          "name": "Bugs",
+          "qualitative": true,
+          "type": "INT",
+        }
+      }
+    />
+    <FilesView
+      components={
+        Array [
+          Object {
+            "key": "foo:src/index.tsx",
+            "leak": undefined,
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "leak": undefined,
+                "metric": Object {
+                  "domain": "Reliability",
+                  "id": "1",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "INT",
+                },
+                "value": "1",
+              },
+            ],
+            "name": "index.tsx",
+            "path": "src/index.tsx",
+            "qualifier": "FIL",
+            "value": "1",
+          },
+        ]
+      }
+      defaultShowBestMeasures={false}
+      fetchMore={[Function]}
+      handleOpen={[Function]}
+      handleSelect={[Function]}
+      loadingMore={false}
+      metric={
+        Object {
+          "bestValue": "0",
+          "custom": false,
+          "description": "Bugs",
+          "domain": "Reliability",
+          "hidden": false,
+          "higherValuesAreBetter": false,
+          "key": "bugs",
+          "name": "Bugs",
+          "qualitative": true,
+          "type": "INT",
+        }
+      }
+      metrics={
+        Object {
+          "bugs": Object {
+            "domain": "Reliability",
+            "id": "1",
+            "key": "bugs",
+            "name": "Bugs",
+            "type": "INT",
+          },
+        }
+      }
+      paging={
+        Object {
+          "pageIndex": 1,
+          "pageSize": 500,
+          "total": 2,
+        }
+      }
+      rootComponent={
+        Object {
+          "key": "foo",
+          "measures": Array [
+            Object {
+              "bestValue": false,
+              "metric": "bugs",
+              "value": "12",
+            },
+          ],
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      view="list"
+    />
+  </div>
+</div>
+`;

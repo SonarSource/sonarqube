@@ -28,7 +28,7 @@ jest.mock('../embed-docs-modal/SuggestionsProvider', () => {
       return this.props.children;
     }
   }
-  
+
   return { default: SuggestionsProvider };
 });
 

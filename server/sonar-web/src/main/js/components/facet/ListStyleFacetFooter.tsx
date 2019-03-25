@@ -59,12 +59,11 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
           </a>
         )}
 
-        {this.props.showLess &&
-          allShown && (
-            <a className="spacer-left text-muted" href="#" onClick={this.handleShowLessClick}>
-              {translate('show_less')}
-            </a>
-          )}
+        {this.props.showLess && allShown && (
+          <a className="spacer-left text-muted" href="#" onClick={this.handleShowLessClick}>
+            {translate('show_less')}
+          </a>
+        )}
       </footer>
     );
   }

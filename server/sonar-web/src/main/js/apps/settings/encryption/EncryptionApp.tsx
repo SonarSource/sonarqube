@@ -77,13 +77,9 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
           <DeferredSpinner loading={loading} />
         </header>
 
-        {!loading &&
-          !secretKeyAvailable && (
-            <GenerateSecretKeyForm
-              generateSecretKey={this.generateSecretKey}
-              secretKey={secretKey}
-            />
-          )}
+        {!loading && !secretKeyAvailable && (
+          <GenerateSecretKeyForm generateSecretKey={this.generateSecretKey} secretKey={secretKey} />
+        )}
 
         {secretKeyAvailable && <EncryptionForm generateSecretKey={this.generateSecretKey} />}
       </div>

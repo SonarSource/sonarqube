@@ -65,15 +65,11 @@ export default class UserGroups extends React.PureComponent<Props, State> {
             </li>
           ))}
         <li className="little-spacer-bottom">
-          {groups.length > GROUPS_LIMIT &&
-            !this.state.showMore && (
-              <a
-                className="js-user-more-groups spacer-right"
-                href="#"
-                onClick={this.toggleShowMore}>
-                {translateWithParameters('more_x', groups.length - limit)}
-              </a>
-            )}
+          {groups.length > GROUPS_LIMIT && !this.state.showMore && (
+            <a className="js-user-more-groups spacer-right" href="#" onClick={this.toggleShowMore}>
+              {translateWithParameters('more_x', groups.length - limit)}
+            </a>
+          )}
           <ButtonIcon
             className="js-user-groups button-small"
             onClick={this.handleOpenForm}

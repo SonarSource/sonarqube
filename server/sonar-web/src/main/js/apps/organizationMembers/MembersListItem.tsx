@@ -127,15 +127,14 @@ export default class MembersListItem extends React.PureComponent<Props, State> {
               />
             )}
 
-            {removeMember &&
-              this.state.removeMemberForm && (
-                <RemoveMemberForm
-                  member={this.props.member}
-                  onClose={this.closeRemoveMemberForm}
-                  organization={this.props.organization}
-                  removeMember={removeMember}
-                />
-              )}
+            {removeMember && this.state.removeMemberForm && (
+              <RemoveMemberForm
+                member={this.props.member}
+                onClose={this.closeRemoveMemberForm}
+                organization={this.props.organization}
+                removeMember={removeMember}
+              />
+            )}
           </>
         )}
       </tr>

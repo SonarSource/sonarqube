@@ -105,8 +105,8 @@ it('fetches projects', () => {
 });
 
 it('redirects to the saved search', () => {
-  (get as jest.Mock).mockImplementation(
-    (key: string) => (key === 'sonarqube.projects.view' ? 'leak' : null)
+  (get as jest.Mock).mockImplementation((key: string) =>
+    key === 'sonarqube.projects.view' ? 'leak' : null
   );
   const replace = jest.fn();
   shallowRender({}, jest.fn(), replace);

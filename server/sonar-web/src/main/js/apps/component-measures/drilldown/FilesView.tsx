@@ -177,31 +177,28 @@ export default class FilesView extends React.PureComponent<Props, State> {
           selectedComponent={this.props.selectedKey}
           view={this.props.view}
         />
-        {hidingBestMeasures &&
-          this.props.paging && (
-            <Alert className="spacer-top" variant="info">
-              <div className="display-flex-center">
-                {translateWithParameters(
-                  'component_measures.hidden_best_score_metrics',
-                  formatMeasure(this.props.paging.total - filteredComponents.length, 'INT'),
-                  formatMeasure(this.props.metric.bestValue, this.props.metric.type)
-                )}
-                <Button className="button-small spacer-left" onClick={this.handleShowBestMeasures}>
-                  {translate('show_them')}
-                </Button>
-              </div>
-            </Alert>
-          )}
-        {!hidingBestMeasures &&
-          this.props.paging &&
-          this.props.components.length > 0 && (
-            <ListFooter
-              count={this.props.components.length}
-              loadMore={this.props.fetchMore}
-              loading={this.props.loadingMore}
-              total={this.props.paging.total}
-            />
-          )}
+        {hidingBestMeasures && this.props.paging && (
+          <Alert className="spacer-top" variant="info">
+            <div className="display-flex-center">
+              {translateWithParameters(
+                'component_measures.hidden_best_score_metrics',
+                formatMeasure(this.props.paging.total - filteredComponents.length, 'INT'),
+                formatMeasure(this.props.metric.bestValue, this.props.metric.type)
+              )}
+              <Button className="button-small spacer-left" onClick={this.handleShowBestMeasures}>
+                {translate('show_them')}
+              </Button>
+            </div>
+          </Alert>
+        )}
+        {!hidingBestMeasures && this.props.paging && this.props.components.length > 0 && (
+          <ListFooter
+            count={this.props.components.length}
+            loadMore={this.props.fetchMore}
+            loading={this.props.loadingMore}
+            total={this.props.paging.total}
+          />
+        )}
       </div>
     );
   }

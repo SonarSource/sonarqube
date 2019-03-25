@@ -173,14 +173,13 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       <div className="create-project">
         <div className="flex-1 huge-spacer-right">
           <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-            {isSonarCloud() &&
-              this.props.userOrganizations && (
-                <OrganizationInput
-                  onChange={this.handleOrganizationSelect}
-                  organization={selectedOrganization ? selectedOrganization.key : ''}
-                  organizations={this.props.userOrganizations}
-                />
-              )}
+            {isSonarCloud() && this.props.userOrganizations && (
+              <OrganizationInput
+                onChange={this.handleOrganizationSelect}
+                organization={selectedOrganization ? selectedOrganization.key : ''}
+                organizations={this.props.userOrganizations}
+              />
+            )}
             <ProjectKeyInput
               className="form-field"
               initialValue={this.state.projectKey}
@@ -212,20 +211,19 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 {translate('onboarding.create_project.display_name.description')}
               </div>
             </div>
-            {isSonarCloud() &&
-              selectedOrganization && (
-                <div
-                  className={classNames('visibility-select-wrapper', {
-                    open: Boolean(this.state.selectedOrganization)
-                  })}>
-                  <VisibilitySelector
-                    canTurnToPrivate={canChoosePrivate}
-                    onChange={this.handleVisibilityChange}
-                    showDetails={true}
-                    visibility={canChoosePrivate ? this.state.selectedVisibility : 'public'}
-                  />
-                </div>
-              )}
+            {isSonarCloud() && selectedOrganization && (
+              <div
+                className={classNames('visibility-select-wrapper', {
+                  open: Boolean(this.state.selectedOrganization)
+                })}>
+                <VisibilitySelector
+                  canTurnToPrivate={canChoosePrivate}
+                  onChange={this.handleVisibilityChange}
+                  showDetails={true}
+                  visibility={canChoosePrivate ? this.state.selectedVisibility : 'public'}
+                />
+              </div>
+            )}
             <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
               {translate('set_up')}
             </SubmitButton>
@@ -233,16 +231,15 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
           </form>
         </div>
 
-        {isSonarCloud() &&
-          selectedOrganization && (
-            <div className="create-project-side-sticky">
-              <UpgradeOrganizationBox
-                className={classNames('animated', { open: !canChoosePrivate })}
-                onOrganizationUpgrade={this.handleOrganizationUpgrade}
-                organization={selectedOrganization}
-              />
-            </div>
-          )}
+        {isSonarCloud() && selectedOrganization && (
+          <div className="create-project-side-sticky">
+            <UpgradeOrganizationBox
+              className={classNames('animated', { open: !canChoosePrivate })}
+              onOrganizationUpgrade={this.handleOrganizationUpgrade}
+              organization={selectedOrganization}
+            />
+          </div>
+        )}
       </div>
     );
   }

@@ -47,38 +47,37 @@ export default function MembersListHeader({
       {total !== undefined && (
         <span className="pull-right little-spacer-top">
           <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
-          {organization.alm &&
-            organization.alm.membersSync && (
-              <HelpTooltip
-                className="spacer-left"
-                overlay={
-                  <div className="abs-width-300 markdown cut-margins">
-                    <p>
-                      {translate(
-                        'organization.members.auto_sync_total_help',
-                        sanitizeAlmId(organization.alm.key)
-                      )}
-                    </p>
-                    {currentUser.personalOrganization !== organization.key && (
-                      <>
-                        <hr />
-                        <p>
-                          <a
-                            href={getAlmMembersUrl(organization.alm.key, organization.alm.url)}
-                            rel="noopener noreferrer"
-                            target="_blank">
-                            {translateWithParameters(
-                              'organization.members.see_all_members_on_x',
-                              translate(sanitizeAlmId(organization.alm.key))
-                            )}
-                          </a>
-                        </p>
-                      </>
+          {organization.alm && organization.alm.membersSync && (
+            <HelpTooltip
+              className="spacer-left"
+              overlay={
+                <div className="abs-width-300 markdown cut-margins">
+                  <p>
+                    {translate(
+                      'organization.members.auto_sync_total_help',
+                      sanitizeAlmId(organization.alm.key)
                     )}
-                  </div>
-                }
-              />
-            )}
+                  </p>
+                  {currentUser.personalOrganization !== organization.key && (
+                    <>
+                      <hr />
+                      <p>
+                        <a
+                          href={getAlmMembersUrl(organization.alm.key, organization.alm.url)}
+                          rel="noopener noreferrer"
+                          target="_blank">
+                          {translateWithParameters(
+                            'organization.members.see_all_members_on_x',
+                            translate(sanitizeAlmId(organization.alm.key))
+                          )}
+                        </a>
+                      </p>
+                    </>
+                  )}
+                </div>
+              }
+            />
+          )}
         </span>
       )}
     </div>

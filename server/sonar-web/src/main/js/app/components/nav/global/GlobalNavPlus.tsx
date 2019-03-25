@@ -188,14 +188,13 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
             <PlusIcon />
           </a>
         </Dropdown>
-        {this.state.governanceReady &&
-          this.state.createPortfolio && (
-            <CreateFormShim
-              defaultQualifier={defaultQualifier}
-              onClose={this.closeCreatePortfolioForm}
-              onCreate={this.handleCreatePortfolio}
-            />
-          )}
+        {this.state.governanceReady && this.state.createPortfolio && (
+          <CreateFormShim
+            defaultQualifier={defaultQualifier}
+            onClose={this.closeCreatePortfolioForm}
+            onCreate={this.handleCreatePortfolio}
+          />
+        )}
       </>
     );
   }

@@ -56,9 +56,8 @@ export function getUrlsList(navigation: DocsNavigationItem[]): string[] {
   return flatten(
     navigation
       .filter(item => !isDocsNavigationExternalLink(item))
-      .map(
-        (item: string | DocsNavigationBlock) =>
-          isDocsNavigationBlock(item) ? item.children : [item]
+      .map((item: string | DocsNavigationBlock) =>
+        isDocsNavigationBlock(item) ? item.children : [item]
       )
   );
 }

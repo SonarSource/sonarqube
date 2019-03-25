@@ -27,9 +27,11 @@ interface Props {
   confirmButtonText: string;
   header: string;
   onClose: () => void;
-  onSubmit: (
-    data: { description: string; name: string; projectKeyPattern: string }
-  ) => Promise<void>;
+  onSubmit: (data: {
+    description: string;
+    name: string;
+    projectKeyPattern: string;
+  }) => Promise<void>;
   permissionTemplate?: { description?: string; name: string; projectKeyPattern?: string };
 }
 

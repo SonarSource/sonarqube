@@ -185,14 +185,13 @@ interface ValueProps {
 export function UsersSelectSearchValue({ children, value }: ValueProps) {
   return (
     <div className="Select-value" title={value ? value.name : ''}>
-      {value &&
-        value.login && (
-          <div className="Select-value-label">
-            <Avatar hash={value.avatar} name={value.name} size={AVATAR_SIZE} />
-            <strong className="spacer-left">{children}</strong>
-            <span className="note little-spacer-left">{value.login}</span>
-          </div>
-        )}
+      {value && value.login && (
+        <div className="Select-value-label">
+          <Avatar hash={value.avatar} name={value.name} size={AVATAR_SIZE} />
+          <strong className="spacer-left">{children}</strong>
+          <span className="note little-spacer-left">{value.login}</span>
+        </div>
+      )}
     </div>
   );
 }

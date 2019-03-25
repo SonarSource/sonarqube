@@ -103,8 +103,8 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
   handleTagsChange = (tags: string[]) => {
     // optimistic update
     const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
-    this.setState(
-      state => (state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null)
+    this.setState(state =>
+      state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null
     );
     updateRule({
       key: this.props.ruleKey,
@@ -112,9 +112,8 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       tags: tags.join()
     }).catch(() => {
       if (this.mounted) {
-        this.setState(
-          state =>
-            state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null
+        this.setState(state =>
+          state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null
         );
       }
     });
@@ -239,18 +238,17 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             />
           )}
 
-          {!ruleDetails.isTemplate &&
-            !hideQualityProfiles && (
-              <RuleDetailsProfiles
-                activations={this.state.actives}
-                canWrite={canWrite}
-                onActivate={this.handleActivate}
-                onDeactivate={this.handleDeactivate}
-                organization={organization}
-                referencedProfiles={referencedProfiles}
-                ruleDetails={ruleDetails}
-              />
-            )}
+          {!ruleDetails.isTemplate && !hideQualityProfiles && (
+            <RuleDetailsProfiles
+              activations={this.state.actives}
+              canWrite={canWrite}
+              onActivate={this.handleActivate}
+              onDeactivate={this.handleDeactivate}
+              organization={organization}
+              referencedProfiles={referencedProfiles}
+              ruleDetails={ruleDetails}
+            />
+          )}
 
           {!ruleDetails.isTemplate && (
             <RuleDetailsIssues organization={organization} ruleDetails={ruleDetails} />

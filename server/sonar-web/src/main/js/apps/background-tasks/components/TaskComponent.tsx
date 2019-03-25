@@ -52,13 +52,11 @@ export default function TaskComponent({ task }: Props) {
       {task.branchType === 'LONG' && <LongLivingBranchIcon className="little-spacer-right" />}
       {task.pullRequest !== undefined && <PullRequestIcon className="little-spacer-right" />}
 
-      {!task.branchType &&
-        !task.pullRequest &&
-        task.componentQualifier && (
-          <span className="little-spacer-right">
-            <QualifierIcon qualifier={task.componentQualifier} />
-          </span>
-        )}
+      {!task.branchType && !task.pullRequest && task.componentQualifier && (
+        <span className="little-spacer-right">
+          <QualifierIcon qualifier={task.componentQualifier} />
+        </span>
+      )}
 
       {task.organization && <Organization organizationKey={task.organization} />}
 

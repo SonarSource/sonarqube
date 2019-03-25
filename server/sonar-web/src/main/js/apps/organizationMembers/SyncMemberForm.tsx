@@ -139,15 +139,14 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
               <li>{translate('organization.members.management.choose_members_permissions')}</li>
             </ul>
           </div>
-          {almKey &&
-            showWarning && (
-              <Alert className="big-spacer-top" variant="warning">
-                {translateWithParameters(
-                  'organization.members.management.automatic.warning_x',
-                  translate('organization', almKey)
-                )}
-              </Alert>
-            )}
+          {almKey && showWarning && (
+            <Alert className="big-spacer-top" variant="warning">
+              {translateWithParameters(
+                'organization.members.management.automatic.warning_x',
+                translate('organization', almKey)
+              )}
+            </Alert>
+          )}
         </RadioCard>
       </div>
     );

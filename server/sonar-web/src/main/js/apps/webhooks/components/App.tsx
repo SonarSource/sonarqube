@@ -97,11 +97,8 @@ export default class App extends React.PureComponent<Props, State> {
     return updateWebhook(data).then(() => {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({
-          webhooks: webhooks.map(
-            webhook =>
-              webhook.key === data.webhook
-                ? { ...webhook, name: data.name, url: data.url }
-                : webhook
+          webhooks: webhooks.map(webhook =>
+            webhook.key === data.webhook ? { ...webhook, name: data.name, url: data.url } : webhook
           )
         }));
       }

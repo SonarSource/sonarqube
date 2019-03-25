@@ -160,12 +160,11 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
             <IssueTypeIcon className="little-spacer-right" query={metric.key} />
             {metric.name}
           </div>
-          {!isDiff &&
-            condition.period != null && (
-              <div className="overview-quality-gate-condition-period">
-                {translate('quality_gates.conditions.new_code')}
-              </div>
-            )}
+          {!isDiff && condition.period != null && (
+            <div className="overview-quality-gate-condition-period">
+              {translate('quality_gates.conditions.new_code')}
+            </div>
+          )}
           <div className="overview-quality-gate-threshold">
             {operator} {formatMeasure(threshold, metric.type)}
           </div>

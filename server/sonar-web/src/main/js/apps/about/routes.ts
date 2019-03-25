@@ -23,8 +23,8 @@ import { isSonarCloud } from '../../helpers/system';
 const routes = [
   {
     indexRoute: {
-      component: lazyLoad(
-        () => (isSonarCloud() ? import('./sonarcloud/Home') : import('./components/AboutApp'))
+      component: lazyLoad(() =>
+        isSonarCloud() ? import('./sonarcloud/Home') : import('./components/AboutApp')
       )
     },
     childRoutes: isSonarCloud()

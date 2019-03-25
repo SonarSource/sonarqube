@@ -207,27 +207,26 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <div className="modal-body">
             {this.state.results.map(this.renderResult)}
 
-            {!this.state.finished &&
-              !this.state.submitting && (
-                <div className="modal-field">
-                  <h3>
-                    <label htmlFor="coding-rules-bulk-change-profile">
-                      {action === 'activate'
-                        ? translate('coding_rules.activate_in')
-                        : translate('coding_rules.deactivate_in')}
-                    </label>
-                  </h3>
-                  {profile ? (
-                    <span>
-                      {profile.name}
-                      {' — '}
-                      {translate('are_you_sure')}
-                    </span>
-                  ) : (
-                    this.renderProfileSelect()
-                  )}
-                </div>
-              )}
+            {!this.state.finished && !this.state.submitting && (
+              <div className="modal-field">
+                <h3>
+                  <label htmlFor="coding-rules-bulk-change-profile">
+                    {action === 'activate'
+                      ? translate('coding_rules.activate_in')
+                      : translate('coding_rules.deactivate_in')}
+                  </label>
+                </h3>
+                {profile ? (
+                  <span>
+                    {profile.name}
+                    {' — '}
+                    {translate('are_you_sure')}
+                  </span>
+                ) : (
+                  this.renderProfileSelect()
+                )}
+              </div>
+            )}
           </div>
 
           <footer className="modal-foot">

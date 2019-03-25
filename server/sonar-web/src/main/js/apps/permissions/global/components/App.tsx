@@ -132,38 +132,34 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   addPermissionToGroup = (groups: T.PermissionGroup[], group: string, permission: string) => {
-    return groups.map(
-      candidate =>
-        candidate.name === group
-          ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate
+    return groups.map(candidate =>
+      candidate.name === group
+        ? { ...candidate, permissions: [...candidate.permissions, permission] }
+        : candidate
     );
   };
 
   addPermissionToUser = (users: T.PermissionUser[], user: string, permission: string) => {
-    return users.map(
-      candidate =>
-        candidate.login === user
-          ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate
+    return users.map(candidate =>
+      candidate.login === user
+        ? { ...candidate, permissions: [...candidate.permissions, permission] }
+        : candidate
     );
   };
 
   removePermissionFromGroup = (groups: T.PermissionGroup[], group: string, permission: string) => {
-    return groups.map(
-      candidate =>
-        candidate.name === group
-          ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate
+    return groups.map(candidate =>
+      candidate.name === group
+        ? { ...candidate, permissions: without(candidate.permissions, permission) }
+        : candidate
     );
   };
 
   removePermissionFromUser = (users: T.PermissionUser[], user: string, permission: string) => {
-    return users.map(
-      candidate =>
-        candidate.login === user
-          ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate
+    return users.map(candidate =>
+      candidate.login === user
+        ? { ...candidate, permissions: without(candidate.permissions, permission) }
+        : candidate
     );
   };
 

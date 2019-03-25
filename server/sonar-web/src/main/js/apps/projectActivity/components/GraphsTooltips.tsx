@@ -113,10 +113,9 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
                 tooltipIdx={tooltipIdx}
               />
             )}
-            {events &&
-              events.length > 0 && (
-                <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
-              )}
+            {events && events.length > 0 && (
+              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
+            )}
           </table>
         </div>
       </Popup>

@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display BulkChangeModal 1`] = `
+<BulkChangeModal
+  action="activate"
+  languages={
+    Object {
+      "js": Object {
+        "key": "js",
+        "name": "JavaScript",
+      },
+    }
+  }
+  onClose={[Function]}
+  query={
+    Object {
+      "activation": false,
+      "profile": "key",
+    }
+  }
+  referencedProfiles={
+    Object {
+      "key": Object {
+        "actions": Object {
+          "associateProjects": true,
+          "copy": true,
+          "delete": false,
+          "edit": true,
+          "setAsDefault": true,
+        },
+        "activeDeprecatedRuleCount": 2,
+        "activeRuleCount": 10,
+        "childrenCount": 0,
+        "depth": 1,
+        "isBuiltIn": false,
+        "isDefault": false,
+        "isInherited": false,
+        "key": "key",
+        "language": "js",
+        "languageName": "JavaScript",
+        "name": "name",
+        "organization": "foo",
+        "projectCount": 3,
+      },
+    }
+  }
+  total={2}
+/>
+`;
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <Dropdown
+    className="pull-left"
+    overlay={
+      <ul
+        className="menu"
+      >
+        <li>
+          <a
+            href="#"
+            onClick={[Function]}
+          >
+            coding_rules.activate_in
+            …
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            onClick={[Function]}
+          >
+            coding_rules.activate_in
+             
+            <strong>
+              name
+            </strong>
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            onClick={[Function]}
+          >
+            coding_rules.deactivate_in
+            …
+          </a>
+        </li>
+      </ul>
+    }
+  >
+    <Button
+      className="js-bulk-change"
+    >
+      bulk_change
+    </Button>
+  </Dropdown>
+</Fragment>
+`;

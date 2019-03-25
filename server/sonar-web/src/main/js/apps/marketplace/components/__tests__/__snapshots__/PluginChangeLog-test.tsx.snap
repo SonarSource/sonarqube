@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="abs-width-300"
+>
+  <h6>
+    changelog
+  </h6>
+  <ul
+    className="js-plugin-changelog-list"
+  >
+    <PluginChangeLogItem
+      key="0.10"
+      release={
+        Object {
+          "changeLogUrl": "https://my.change.log/url",
+          "date": "2018-06-05",
+          "description": "Change version description",
+          "version": "0.10",
+        }
+      }
+      update={
+        Object {
+          "release": Object {
+            "changeLogUrl": "https://my.change.log/url",
+            "date": "2018-06-05",
+            "description": "Change version description",
+            "version": "0.10",
+          },
+          "requires": Array [],
+          "status": "COMPATIBLE",
+        }
+      }
+    />
+    <PluginChangeLogItem
+      release={
+        Object {
+          "changeLogUrl": "https://my.change.log/url",
+          "date": "2018-11-05",
+          "description": "Change version description",
+          "version": "0.11",
+        }
+      }
+      update={
+        Object {
+          "previousUpdates": Array [
+            Object {
+              "release": Object {
+                "changeLogUrl": "https://my.change.log/url",
+                "date": "2018-06-05",
+                "description": "Change version description",
+                "version": "0.10",
+              },
+              "requires": Array [],
+              "status": "COMPATIBLE",
+            },
+          ],
+          "requires": Array [
+            Object {
+              "description": "Code Analyzer for Java",
+              "key": "java",
+              "name": "SonarJava",
+            },
+          ],
+          "status": "COMPATIBLE",
+        }
+      }
+    />
+  </ul>
+</div>
+`;

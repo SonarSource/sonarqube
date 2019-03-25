@@ -76,25 +76,23 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
               qualifier={component.qualifier}
             />
           )}
-          {(mainBranch || longBranch) &&
-            currentPage !== undefined && (
-              <HomePageSelect className="spacer-left" currentPage={currentPage} />
-            )}
+          {(mainBranch || longBranch) && currentPage !== undefined && (
+            <HomePageSelect className="spacer-left" currentPage={currentPage} />
+          )}
         </div>
       )}
       {(isShortLivingBranch(branchLike) || isPullRequest(branchLike)) && (
         <div className="navbar-context-meta-secondary display-inline-flex-center">
-          {isPullRequest(branchLike) &&
-            branchLike.url !== undefined && (
-              <a
-                className="display-inline-flex-center big-spacer-right"
-                href={branchLike.url}
-                rel="noopener noreferrer"
-                target="_blank">
-                {translate('branches.see_the_pr')}
-                <DetachIcon className="little-spacer-left" size={12} />
-              </a>
-            )}
+          {isPullRequest(branchLike) && branchLike.url !== undefined && (
+            <a
+              className="display-inline-flex-center big-spacer-right"
+              href={branchLike.url}
+              rel="noopener noreferrer"
+              target="_blank">
+              {translate('branches.see_the_pr')}
+              <DetachIcon className="little-spacer-left" size={12} />
+            </a>
+          )}
           <BranchStatus branchLike={branchLike} component={component.key} />
         </div>
       )}

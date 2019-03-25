@@ -167,14 +167,9 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
         </div>
         <div className="layout-page-main-inner measure-details-content">
           <div className="clearfix big-spacer-bottom">
-            {leakPeriod &&
-              displayLeak && (
-                <LeakPeriodLegend
-                  className="pull-right"
-                  component={component}
-                  period={leakPeriod}
-                />
-              )}
+            {leakPeriod && displayLeak && (
+              <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
+            )}
           </div>
           <DeferredSpinner loading={this.props.loading} />
           {!this.props.loading && this.renderContent()}

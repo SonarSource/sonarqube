@@ -53,19 +53,18 @@ export default class Header extends React.PureComponent<Props, State> {
         <h1 className="page-title">{translate('projects_management')}</h1>
 
         <div className="page-actions">
-          {!isSonarCloud() &&
-            organization.projectVisibility && (
-              <span className="big-spacer-right">
-                <span className="text-middle">
-                  {translate('organization.default_visibility_of_new_projects')}{' '}
-                  <strong>{translate('visibility', organization.projectVisibility)}</strong>
-                </span>
-                <EditButton
-                  className="js-change-visibility spacer-left button-small"
-                  onClick={this.handleChangeVisibilityClick}
-                />
+          {!isSonarCloud() && organization.projectVisibility && (
+            <span className="big-spacer-right">
+              <span className="text-middle">
+                {translate('organization.default_visibility_of_new_projects')}{' '}
+                <strong>{translate('visibility', organization.projectVisibility)}</strong>
               </span>
-            )}
+              <EditButton
+                className="js-change-visibility spacer-left button-small"
+                onClick={this.handleChangeVisibilityClick}
+              />
+            </span>
+          )}
           {this.props.hasProvisionPermission && (
             <Button id="create-project" onClick={this.props.onProjectCreate}>
               {translate('qualifiers.create.TRK')}
@@ -75,14 +74,13 @@ export default class Header extends React.PureComponent<Props, State> {
 
         <p className="page-description">{translate('projects_management.page.description')}</p>
 
-        {!isSonarCloud() &&
-          this.state.visibilityForm && (
-            <ChangeDefaultVisibilityForm
-              onClose={this.closeVisiblityForm}
-              onConfirm={this.props.onVisibilityChange}
-              organization={organization}
-            />
-          )}
+        {!isSonarCloud() && this.state.visibilityForm && (
+          <ChangeDefaultVisibilityForm
+            onClose={this.closeVisiblityForm}
+            onConfirm={this.props.onVisibilityChange}
+            organization={organization}
+          />
+        )}
       </header>
     );
   }

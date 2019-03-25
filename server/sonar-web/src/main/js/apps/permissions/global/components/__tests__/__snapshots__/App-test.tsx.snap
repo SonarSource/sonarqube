@@ -1,0 +1,136 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="global_permissions"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="global_permissions.permission"
+  />
+  <PageHeader
+    loading={true}
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+  />
+  <Connect(AllHoldersList)
+    filter="all"
+    grantPermissionToGroup={[Function]}
+    grantPermissionToUser={[Function]}
+    groups={Array []}
+    loadHolders={[Function]}
+    loading={true}
+    onFilter={[Function]}
+    onLoadMore={[Function]}
+    onSearch={[Function]}
+    query=""
+    revokePermissionFromGroup={[Function]}
+    revokePermissionFromUser={[Function]}
+    users={Array []}
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="global_permissions"
+  />
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="global_permissions.permission"
+  />
+  <PageHeader
+    loading={false}
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    }
+  />
+  <Connect(AllHoldersList)
+    filter="all"
+    grantPermissionToGroup={[Function]}
+    grantPermissionToUser={[Function]}
+    groups={
+      Array [
+        Object {
+          "name": "Anyone",
+          "permissions": Array [
+            "admin",
+            "codeviewer",
+            "issueadmin",
+          ],
+        },
+        Object {
+          "description": "SonarSource team",
+          "id": "1",
+          "name": "SonarSource",
+          "permissions": Array [],
+        },
+      ]
+    }
+    groupsPaging={
+      Object {
+        "pageIndex": 1,
+        "pageSize": 100,
+        "total": 2,
+      }
+    }
+    loadHolders={[Function]}
+    loading={false}
+    onFilter={[Function]}
+    onLoadMore={[Function]}
+    onSearch={[Function]}
+    query=""
+    revokePermissionFromGroup={[Function]}
+    revokePermissionFromUser={[Function]}
+    users={
+      Array [
+        Object {
+          "avatar": "admin-avatar",
+          "email": "admin@gmail.com",
+          "login": "admin",
+          "name": "Admin Admin",
+          "permissions": Array [
+            "admin",
+          ],
+        },
+        Object {
+          "avatar": "user-avatar-1",
+          "email": "user1@gmail.com",
+          "login": "user1",
+          "name": "User Number 1",
+          "permissions": Array [],
+        },
+        Object {
+          "avatar": "user-avatar-2",
+          "email": "user2@gmail.com",
+          "login": "user2",
+          "name": "User Number 2",
+          "permissions": Array [],
+        },
+      ]
+    }
+    usersPaging={
+      Object {
+        "pageIndex": 1,
+        "pageSize": 100,
+        "total": 3,
+      }
+    }
+  />
+</div>
+`;

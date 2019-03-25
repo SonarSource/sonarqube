@@ -74,21 +74,18 @@ export default function ProjectCardLeak({ height, organization, project }: Props
             {hasTags && <TagsList className="spacer-left note" tags={project.tags} />}
           </div>
         </div>
-        {project.analysisDate &&
-          project.leakPeriodDate && (
-            <div className="project-card-dates note text-right pull-right">
-              <span className="project-card-leak-date pull-right">
-                {translateWithParameters('projects.new_code_period_x', formatDuration(periodMs))}
-              </span>
-              <DateTimeFormatter date={project.analysisDate}>
-                {formattedDate => (
-                  <span>
-                    {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
-                  </span>
-                )}
-              </DateTimeFormatter>
-            </div>
-          )}
+        {project.analysisDate && project.leakPeriodDate && (
+          <div className="project-card-dates note text-right pull-right">
+            <span className="project-card-leak-date pull-right">
+              {translateWithParameters('projects.new_code_period_x', formatDuration(periodMs))}
+            </span>
+            <DateTimeFormatter date={project.analysisDate}>
+              {formattedDate => (
+                <span>{translateWithParameters('projects.last_analysis_on_x', formattedDate)}</span>
+              )}
+            </DateTimeFormatter>
+          </div>
+        )}
       </div>
 
       {project.analysisDate && project.leakPeriodDate ? (

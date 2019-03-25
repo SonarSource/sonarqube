@@ -22,7 +22,7 @@ import PluginChangeLogItem from './PluginChangeLogItem';
 import { Release, Update } from '../../../api/plugins';
 import { translate } from '../../../helpers/l10n';
 
-interface Props {
+export interface Props {
   release: Release;
   update: Update;
 }
@@ -33,15 +33,14 @@ export default function PluginChangeLog({ release, update }: Props) {
       <h6>{translate('changelog')}</h6>
       <ul className="js-plugin-changelog-list">
         {update.previousUpdates &&
-          update.previousUpdates.map(
-            previousUpdate =>
-              previousUpdate.release ? (
-                <PluginChangeLogItem
-                  key={previousUpdate.release.version}
-                  release={previousUpdate.release}
-                  update={previousUpdate}
-                />
-              ) : null
+          update.previousUpdates.map(previousUpdate =>
+            previousUpdate.release ? (
+              <PluginChangeLogItem
+                key={previousUpdate.release.version}
+                release={previousUpdate.release}
+                update={previousUpdate}
+              />
+            ) : null
           )}
         <PluginChangeLogItem release={release} update={update} />
       </ul>

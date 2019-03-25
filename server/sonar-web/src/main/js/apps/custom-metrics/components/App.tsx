@@ -159,15 +159,14 @@ export default class App extends React.PureComponent<Props, State> {
               types={types}
             />
           )}
-          {metrics &&
-            paging && (
-              <ListFooter
-                count={metrics.length}
-                loadMore={this.fetchMore}
-                ready={!loading}
-                total={paging.total}
-              />
-            )}
+          {metrics && paging && (
+            <ListFooter
+              count={metrics.length}
+              loadMore={this.fetchMore}
+              ready={!loading}
+              total={paging.total}
+            />
+          )}
         </div>
       </>
     );

@@ -42,8 +42,8 @@ import {
 
 interface Props {
   cancelChange: (key: string) => void;
-  changedValue: any;
   changeValue: (key: string, value: any) => void;
+  changedValue: any;
   checkValue: (key: string) => boolean;
   component?: T.Component;
   loading: boolean;
@@ -160,24 +160,21 @@ export class Definition extends React.PureComponent<Props, State> {
               </span>
             )}
 
-            {!loading &&
-              validationMessage && (
-                <span className="text-danger">
-                  <AlertErrorIcon className="spacer-right" />
-                  <span>
-                    {translateWithParameters('settings.state.validation_failed', validationMessage)}
-                  </span>
+            {!loading && validationMessage && (
+              <span className="text-danger">
+                <AlertErrorIcon className="spacer-right" />
+                <span>
+                  {translateWithParameters('settings.state.validation_failed', validationMessage)}
                 </span>
-              )}
+              </span>
+            )}
 
-            {!loading &&
-              !hasError &&
-              this.state.success && (
-                <span className="text-success">
-                  <AlertSuccessIcon className="spacer-right" />
-                  {translate('settings.state.saved')}
-                </span>
-              )}
+            {!loading && !hasError && this.state.success && (
+              <span className="text-success">
+                <AlertSuccessIcon className="spacer-right" />
+                {translate('settings.state.saved')}
+              </span>
+            )}
           </div>
 
           <Input

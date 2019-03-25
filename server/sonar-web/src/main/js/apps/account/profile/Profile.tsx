@@ -38,12 +38,11 @@ function Profile({ customOrganizations, user }: Props) {
           {translate('login')}: <strong id="login">{user.login}</strong>
         </div>
 
-        {!user.local &&
-          user.externalProvider !== 'sonarqube' && (
-            <div className="spacer-bottom" id="identity-provider">
-              <UserExternalIdentity user={user} />
-            </div>
-          )}
+        {!user.local && user.externalProvider !== 'sonarqube' && (
+          <div className="spacer-bottom" id="identity-provider">
+            <UserExternalIdentity user={user} />
+          </div>
+        )}
 
         {!!user.email && (
           <div className="spacer-bottom">

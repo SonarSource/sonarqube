@@ -63,20 +63,18 @@ export default function NotificationsSidebar(props: Props) {
             ))
           )}
         </div>
-        {!loading &&
-          paging &&
-          paging.total > news.length && (
-            <div className="notifications-sidebar-footer">
-              <div className="spacer-top note text-center">
-                <a className="spacer-left" href="#" onClick={props.fetchMoreFeatureNews}>
-                  {translate('show_more')}
-                </a>
-                {loadingMore && (
-                  <DeferredSpinner className="vertical-bottom spacer-left position-absolute" />
-                )}
-              </div>
+        {!loading && paging && paging.total > news.length && (
+          <div className="notifications-sidebar-footer">
+            <div className="spacer-top note text-center">
+              <a className="spacer-left" href="#" onClick={props.fetchMoreFeatureNews}>
+                {translate('show_more')}
+              </a>
+              {loadingMore && (
+                <DeferredSpinner className="vertical-bottom spacer-left position-absolute" />
+              )}
             </div>
-          )}
+          </div>
+        )}
       </div>
     </Modal>
   );

@@ -118,8 +118,9 @@ export default class Facet extends React.PureComponent<Props> {
           {this.props.children}
         </FacetHeader>
 
-        {this.props.open &&
-          items !== undefined && <FacetItemsList>{items.map(this.renderItem)}</FacetItemsList>}
+        {this.props.open && items !== undefined && (
+          <FacetItemsList>{items.map(this.renderItem)}</FacetItemsList>
+        )}
 
         {this.props.open && this.props.renderFooter !== undefined && this.props.renderFooter()}
       </FacetBox>

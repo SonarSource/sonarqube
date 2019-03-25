@@ -209,33 +209,32 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
           organization={organization}
           refreshMembers={this.refreshMembers}
         />
-        {members !== undefined &&
-          paging !== undefined && (
-            <>
-              <MembersListHeader
-                currentUser={currentUser}
-                handleSearch={this.handleSearchMembers}
-                organization={organization}
+        {members !== undefined && paging !== undefined && (
+          <>
+            <MembersListHeader
+              currentUser={currentUser}
+              handleSearch={this.handleSearchMembers}
+              organization={organization}
+              total={paging.total}
+            />
+            <MembersList
+              currentUser={currentUser}
+              members={members}
+              organization={organization}
+              organizationGroups={groups}
+              removeMember={hasMemberSync ? undefined : this.handleRemoveMember}
+              updateMemberGroups={this.updateMemberGroups}
+            />
+            {paging.total !== 0 && (
+              <ListFooter
+                count={members.length}
+                loadMore={this.handleLoadMoreMembers}
+                ready={!loading}
                 total={paging.total}
               />
-              <MembersList
-                currentUser={currentUser}
-                members={members}
-                organization={organization}
-                organizationGroups={groups}
-                removeMember={hasMemberSync ? undefined : this.handleRemoveMember}
-                updateMemberGroups={this.updateMemberGroups}
-              />
-              {paging.total !== 0 && (
-                <ListFooter
-                  count={members.length}
-                  loadMore={this.handleLoadMoreMembers}
-                  ready={!loading}
-                  total={paging.total}
-                />
-              )}
-            </>
-          )}
+            )}
+          </>
+        )}
       </div>
     );
   }

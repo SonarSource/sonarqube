@@ -53,38 +53,36 @@ export function ComponentNavHeader(props: Props) {
         organization={organization && isSonarCloud() ? organization : undefined}
         title={component.name}
       />
-      {organization &&
-        isSonarCloud() && (
-          <>
-            <OrganizationAvatar organization={organization} />
-            <OrganizationLink
-              className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
-              organization={organization}>
-              {organization.name}
-            </OrganizationLink>
-            <span className="slash-separator" />
-          </>
-        )}
+      {organization && isSonarCloud() && (
+        <>
+          <OrganizationAvatar organization={organization} />
+          <OrganizationLink
+            className="navbar-context-header-breadcrumb-link link-base-color link-no-underline spacer-left"
+            organization={organization}>
+            {organization.name}
+          </OrganizationLink>
+          <span className="slash-separator" />
+        </>
+      )}
       {renderBreadcrumbs(
         component.breadcrumbs,
         props.currentBranchLike !== undefined && !isMainBranch(props.currentBranchLike)
       )}
-      {isSonarCloud() &&
-        component.alm && (
-          <a
-            className="link-no-underline"
-            href={component.alm.url}
-            rel="noopener noreferrer"
-            target="_blank">
-            <img
-              alt={sanitizeAlmId(component.alm.key)}
-              className="text-text-top spacer-left"
-              height={16}
-              src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(component.alm.key)}.svg`}
-              width={16}
-            />
-          </a>
-        )}
+      {isSonarCloud() && component.alm && (
+        <a
+          className="link-no-underline"
+          href={component.alm.url}
+          rel="noopener noreferrer"
+          target="_blank">
+          <img
+            alt={sanitizeAlmId(component.alm.key)}
+            className="text-text-top spacer-left"
+            height={16}
+            src={`${getBaseUrl()}/images/sonarcloud/${sanitizeAlmId(component.alm.key)}.svg`}
+            width={16}
+          />
+        </a>
+      )}
       {props.currentBranchLike && (
         <ComponentNavBranch
           branchLikes={props.branchLikes}

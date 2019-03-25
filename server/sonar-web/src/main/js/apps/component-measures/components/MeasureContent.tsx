@@ -53,7 +53,6 @@ interface Props {
 interface State {
   baseComponent?: T.ComponentMeasure;
   components: T.ComponentMeasureEnhanced[];
-  loading: boolean;
   loadingMoreComponents: boolean;
   measure?: T.Measure;
   metric?: T.Metric;
@@ -67,7 +66,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     components: [],
-    loading: true,
     loadingMoreComponents: false
   };
 
@@ -94,7 +92,6 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   }
 
   fetchComponentTree = () => {
-    this.setState({ loading: true });
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(
       this.props.view,
       this.props.requestedMetric
@@ -111,41 +108,30 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         metricKeys: baseComponentMetrics.join(),
         ...getBranchLikeQuery(this.props.branchLike)
       })
-    ]).then(
-      ([tree, measures]) => {
-        if (this.mounted) {
-          const metric = tree.metrics.find(m => m.key === this.props.requestedMetric.key);
-          const components = tree.components.map(component =>
-            enhanceComponent(component, metric, this.props.metrics)
-          );
+    ]).then(([tree, measures]) => {
+      if (this.mounted) {
+        const metric = tree.metrics.find(m => m.key === this.props.requestedMetric.key);
+        const components = tree.components.map(component =>
+          enhanceComponent(component, metric, this.props.metrics)
+        );
 
-          const measure = measures.find(
-            measure => measure.metric === this.props.requestedMetric.key
-          );
-          const secondaryMeasure = measures.find(
-            measure => measure.metric !== this.props.requestedMetric.key
-          );
+        const measure = measures.find(measure => measure.metric === this.props.requestedMetric.key);
+        const secondaryMeasure = measures.find(
+          measure => measure.metric !== this.props.requestedMetric.key
+        );
 
-          this.setState(({ selected }) => ({
-            baseComponent: tree.baseComponent,
-            components,
-            measure,
-            metric,
-            paging: tree.paging,
-            secondaryMeasure,
-            selected:
-              components.length > 0 && components.find(c => c.key === selected)
-                ? selected
-                : undefined
-          }));
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+        this.setState(({ selected }) => ({
+          baseComponent: tree.baseComponent,
+          components,
+          measure,
+          metric,
+          paging: tree.paging,
+          secondaryMeasure,
+          selected:
+            components.length > 0 && components.find(c => c.key === selected) ? selected : undefined
+        }));
       }
-    );
+    });
   };
 
   fetchMoreComponents = () => {
@@ -336,28 +322,27 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                 }
                 right={
                   <div className="display-flex-center">
-                    {!isFile &&
-                      metric && (
-                        <>
-                          <div>{translate('component_measures.view_as')}</div>
-                          <MeasureViewSelect
-                            className="measure-view-select spacer-left big-spacer-right"
-                            handleViewChange={this.updateView}
-                            metric={metric}
-                            view={view}
-                          />
+                    {!isFile && metric && (
+                      <>
+                        <div>{translate('component_measures.view_as')}</div>
+                        <MeasureViewSelect
+                          className="measure-view-select spacer-left big-spacer-right"
+                          handleViewChange={this.updateView}
+                          metric={metric}
+                          view={view}
+                        />
 
-                          <PageActions
-                            current={
-                              selectedIdx !== undefined && view !== 'treemap'
-                                ? selectedIdx + 1
-                                : undefined
-                            }
-                            showShortcuts={['list', 'tree'].includes(view)}
-                            total={paging && paging.total}
-                          />
-                        </>
-                      )}
+                        <PageActions
+                          current={
+                            selectedIdx !== undefined && view !== 'treemap'
+                              ? selectedIdx + 1
+                              : undefined
+                          }
+                          showShortcuts={['list', 'tree'].includes(view)}
+                          total={paging && paging.total}
+                        />
+                      </>
+                    )}
                   </div>
                 }
               />

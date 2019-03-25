@@ -166,6 +166,25 @@ exports[`should render source file 1`] = `
           >
             <div
               className="measure measure-big"
+              data-metric="violations"
+            >
+              <span
+                className="measure-value"
+              >
+                <Measure
+                  metricKey="violations"
+                  metricType="INT"
+                  value="1"
+                />
+              </span>
+              <span
+                className="measure-name"
+              >
+                violations
+              </span>
+            </div>
+            <div
+              className="measure measure-big"
               data-metric="sqale_index"
             >
               <span
@@ -182,6 +201,226 @@ exports[`should render source file 1`] = `
               >
                 sqale_index
               </span>
+            </div>
+          </div>
+          <div
+            className="measures"
+          >
+            <div
+              className="measures-list"
+            >
+              <div
+                className="measure measure-one-line"
+                key="BUG"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <IssueTypeIcon
+                    className="little-spacer-right"
+                    query="BUG"
+                  />
+                  issue.type.BUG
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="VULNERABILITY"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <IssueTypeIcon
+                    className="little-spacer-right"
+                    query="VULNERABILITY"
+                  />
+                  issue.type.VULNERABILITY
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  0
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="CODE_SMELL"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <IssueTypeIcon
+                    className="little-spacer-right"
+                    query="CODE_SMELL"
+                  />
+                  issue.type.CODE_SMELL
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  2
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            className="measures"
+          >
+            <div
+              className="measures-list"
+            >
+              <div
+                className="measure measure-one-line"
+                key="BLOCKER"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="BLOCKER"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  5
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="CRITICAL"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="CRITICAL"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  4
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="MAJOR"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="MAJOR"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="MINOR"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="MINOR"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  3
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="INFO"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="INFO"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  2
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            className="measures"
+          >
+            <div
+              className="measures-list"
+            >
+              <div
+                className="measure measure-one-line"
+                key="bad-practice"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <TagsIcon
+                    className="little-spacer-right"
+                  />
+                  bad-practice
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="cert"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <TagsIcon
+                    className="little-spacer-right"
+                  />
+                  cert
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  3
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="design"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <TagsIcon
+                    className="little-spacer-right"
+                  />
+                  design
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -524,6 +763,25 @@ exports[`should render source file 2`] = `
           >
             <div
               className="measure measure-big"
+              data-metric="violations"
+            >
+              <span
+                className="measure-value"
+              >
+                <Measure
+                  metricKey="violations"
+                  metricType="INT"
+                  value="1"
+                />
+              </span>
+              <span
+                className="measure-name"
+              >
+                violations
+              </span>
+            </div>
+            <div
+              className="measure measure-big"
               data-metric="sqale_index"
             >
               <span
@@ -540,6 +798,226 @@ exports[`should render source file 2`] = `
               >
                 sqale_index
               </span>
+            </div>
+          </div>
+          <div
+            className="measures"
+          >
+            <div
+              className="measures-list"
+            >
+              <div
+                className="measure measure-one-line"
+                key="BUG"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <IssueTypeIcon
+                    className="little-spacer-right"
+                    query="BUG"
+                  />
+                  issue.type.BUG
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="VULNERABILITY"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <IssueTypeIcon
+                    className="little-spacer-right"
+                    query="VULNERABILITY"
+                  />
+                  issue.type.VULNERABILITY
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  0
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="CODE_SMELL"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <IssueTypeIcon
+                    className="little-spacer-right"
+                    query="CODE_SMELL"
+                  />
+                  issue.type.CODE_SMELL
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  2
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            className="measures"
+          >
+            <div
+              className="measures-list"
+            >
+              <div
+                className="measure measure-one-line"
+                key="BLOCKER"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="BLOCKER"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  5
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="CRITICAL"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="CRITICAL"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  4
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="MAJOR"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="MAJOR"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="MINOR"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="MINOR"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  3
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="INFO"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <SeverityHelper
+                    severity="INFO"
+                  />
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  2
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            className="measures"
+          >
+            <div
+              className="measures-list"
+            >
+              <div
+                className="measure measure-one-line"
+                key="bad-practice"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <TagsIcon
+                    className="little-spacer-right"
+                  />
+                  bad-practice
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="cert"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <TagsIcon
+                    className="little-spacer-right"
+                  />
+                  cert
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  3
+                </span>
+              </div>
+              <div
+                className="measure measure-one-line"
+                key="design"
+              >
+                <span
+                  className="measure-name"
+                >
+                  <TagsIcon
+                    className="little-spacer-right"
+                  />
+                  design
+                </span>
+                <span
+                  className="measure-value"
+                >
+                  1
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1152,6 +1630,19 @@ exports[`should render source file 2`] = `
                         "type": "INT",
                       },
                       "value": "0",
+                    }
+                  }
+                />
+                <MeasuresOverlayMeasure
+                  key="violations"
+                  measure={
+                    Object {
+                      "metric": Object {
+                        "domain": "Issues",
+                        "key": "violations",
+                        "type": "INT",
+                      },
+                      "value": "1",
                     }
                   }
                 />

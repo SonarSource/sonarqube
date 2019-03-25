@@ -160,10 +160,9 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
 
         {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
 
-        {this.state.events != null &&
-          this.state.events.length > 0 && (
-            <Changelog events={this.state.events} organization={this.props.organization} />
-          )}
+        {this.state.events != null && this.state.events.length > 0 && (
+          <Changelog events={this.state.events} organization={this.props.organization} />
+        )}
 
         {shouldDisplayFooter && (
           <footer className="text-center spacer-top small">

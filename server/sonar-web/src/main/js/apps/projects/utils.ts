@@ -187,14 +187,16 @@ export function fetchProjects(
         projects: components
           .map(component => {
             const componentMeasures: T.Dict<string> = {};
-            measures.filter(measure => measure.component === component.key).forEach(measure => {
-              const value = isDiffMetric(measure.metric)
-                ? getPeriodValue(measure, 1)
-                : measure.value;
-              if (value !== undefined) {
-                componentMeasures[measure.metric] = value;
-              }
-            });
+            measures
+              .filter(measure => measure.component === component.key)
+              .forEach(measure => {
+                const value = isDiffMetric(measure.metric)
+                  ? getPeriodValue(measure, 1)
+                  : measure.value;
+                if (value !== undefined) {
+                  componentMeasures[measure.metric] = value;
+                }
+              });
             return { ...component, measures: componentMeasures };
           })
           .map(component => {

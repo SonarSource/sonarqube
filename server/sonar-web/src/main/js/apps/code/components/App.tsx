@@ -290,33 +290,31 @@ export class App extends React.PureComponent<Props, State> {
             </>
           )}
 
-          {showSearch &&
-            searchResults && (
-              <div className={componentsClassName}>
-                <Components
-                  branchLike={this.props.branchLike}
-                  components={searchResults}
-                  metrics={{}}
-                  onHighlight={this.handleHighlight}
-                  onSelect={this.handleSelect}
-                  rootComponent={component}
-                  selected={highlighted}
-                />
-              </div>
-            )}
+          {showSearch && searchResults && (
+            <div className={componentsClassName}>
+              <Components
+                branchLike={this.props.branchLike}
+                components={searchResults}
+                metrics={{}}
+                onHighlight={this.handleHighlight}
+                onSelect={this.handleSelect}
+                rootComponent={component}
+                selected={highlighted}
+              />
+            </div>
+          )}
 
-          {sourceViewer !== undefined &&
-            !showSearch && (
-              <div className="spacer-top">
-                <SourceViewerWrapper
-                  branchLike={branchLike}
-                  component={sourceViewer.key}
-                  isFile={true}
-                  location={location}
-                  onGoToParent={this.handleGoToParent}
-                />
-              </div>
-            )}
+          {sourceViewer !== undefined && !showSearch && (
+            <div className="spacer-top">
+              <SourceViewerWrapper
+                branchLike={branchLike}
+                component={sourceViewer.key}
+                isFile={true}
+                location={location}
+                onGoToParent={this.handleGoToParent}
+              />
+            </div>
+          )}
         </div>
       </div>
     );

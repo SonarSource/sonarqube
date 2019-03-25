@@ -128,13 +128,12 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
                             {duplication.file.projectName}
                           </Link>
                         </div>
-                        {duplication.file.subProject &&
-                          duplication.file.subProjectName && (
-                            <div className="component-name-parent">
-                              <QualifierIcon className="little-spacer-right" qualifier="BRC" />
-                              {duplication.file.subProjectName}
-                            </div>
-                          )}
+                        {duplication.file.subProject && duplication.file.subProjectName && (
+                          <div className="component-name-parent">
+                            <QualifierIcon className="little-spacer-right" qualifier="BRC" />
+                            {duplication.file.subProjectName}
+                          </div>
+                        )}
                       </>
                     )}
 

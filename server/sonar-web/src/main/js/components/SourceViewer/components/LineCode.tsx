@@ -225,20 +225,19 @@ export default class LineCode extends React.PureComponent<Props, State> {
         <div className="source-line-code-inner">
           <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
         </div>
-        {showIssues &&
-          issues.length > 0 && (
-            <LineIssuesList
-              branchLike={this.props.branchLike}
-              displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-              displayIssueLocationsLink={this.props.displayIssueLocationsLink}
-              issuePopup={this.props.issuePopup}
-              issues={issues}
-              onIssueChange={this.props.onIssueChange}
-              onIssueClick={onIssueSelect}
-              onIssuePopupToggle={this.props.onIssuePopupToggle}
-              selectedIssue={selectedIssue}
-            />
-          )}
+        {showIssues && issues.length > 0 && (
+          <LineIssuesList
+            branchLike={this.props.branchLike}
+            displayIssueLocationsCount={this.props.displayIssueLocationsCount}
+            displayIssueLocationsLink={this.props.displayIssueLocationsLink}
+            issuePopup={this.props.issuePopup}
+            issues={issues}
+            onIssueChange={this.props.onIssueChange}
+            onIssueClick={onIssueSelect}
+            onIssuePopupToggle={this.props.onIssuePopupToggle}
+            selectedIssue={selectedIssue}
+          />
+        )}
       </td>
     );
   }
