@@ -18,31 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBranchesAsTree, isSameBranchLike } from '../branches';
+import {
+  mockShortLivingBranch,
+  mockLongLivingBranch,
+  mockPullRequest,
+  mockMainBranch
+} from '../testMocks';
 
 describe('#sortBranchesAsTree', () => {
   it('sorts main branch and short-living branches', () => {
-    const main = mainBranch();
-    const foo = shortLivingBranch({ name: 'foo' });
-    const bar = shortLivingBranch({ name: 'bar' });
+    const main = mockMainBranch();
+    const foo = mockShortLivingBranch({ name: 'foo' });
+    const bar = mockShortLivingBranch({ name: 'bar' });
     expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
   });
 
   it('sorts main branch and long-living branches', () => {
-    const main = mainBranch();
-    const foo = longLivingBranch({ name: 'foo' });
-    const bar = longLivingBranch({ name: 'bar' });
+    const main = mockMainBranch();
+    const foo = mockLongLivingBranch({ name: 'foo' });
+    const bar = mockLongLivingBranch({ name: 'bar' });
     expect(sortBranchesAsTree([main, foo, bar])).toEqual([main, bar, foo]);
   });
 
   it('sorts all types of branches', () => {
-    const main = mainBranch();
-    const shortFoo = shortLivingBranch({ name: 'shortFoo', mergeBranch: 'master' });
-    const shortBar = shortLivingBranch({ name: 'shortBar', mergeBranch: 'longBaz' });
-    const shortPre = shortLivingBranch({ name: 'shortPre', mergeBranch: 'shortFoo' });
-    const longBaz = longLivingBranch({ name: 'longBaz' });
-    const longQux = longLivingBranch({ name: 'longQux' });
-    const longQwe = longLivingBranch({ name: 'longQwe' });
-    const pr = pullRequest({ base: 'master' });
+    const main = mockMainBranch();
+    const shortFoo = mockShortLivingBranch({ name: 'shortFoo', mergeBranch: 'master' });
+    const shortBar = mockShortLivingBranch({ name: 'shortBar', mergeBranch: 'longBaz' });
+    const shortPre = mockShortLivingBranch({ name: 'shortPre', mergeBranch: 'shortFoo' });
+    const longBaz = mockLongLivingBranch({ name: 'longBaz' });
+    const longQux = mockLongLivingBranch({ name: 'longQux' });
+    const longQwe = mockLongLivingBranch({ name: 'longQwe' });
+    const pr = mockPullRequest({ base: 'master' });
     // - main                     - main
     //    - shortFoo                - shortFoo
     //      - shortPre              - shortPre
@@ -58,10 +64,10 @@ describe('#sortBranchesAsTree', () => {
 
 describe('#isSameBranchLike', () => {
   it('compares different kinds', () => {
-    const main = mainBranch();
-    const short = shortLivingBranch({ name: 'foo' });
-    const long = longLivingBranch({ name: 'foo' });
-    const pr = pullRequest();
+    const main = mockMainBranch();
+    const short = mockShortLivingBranch({ name: 'foo' });
+    const long = mockLongLivingBranch({ name: 'foo' });
+    const pr = mockPullRequest();
     expect(isSameBranchLike(main, pr)).toBeFalsy();
     expect(isSameBranchLike(main, short)).toBeFalsy();
     expect(isSameBranchLike(main, long)).toBeFalsy();
@@ -72,58 +78,31 @@ describe('#isSameBranchLike', () => {
 
   it('compares pull requests', () => {
     expect(
-      isSameBranchLike(pullRequest({ key: '1234' }), pullRequest({ key: '1234' }))
+      isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '1234' }))
     ).toBeTruthy();
     expect(
-      isSameBranchLike(pullRequest({ key: '1234' }), pullRequest({ key: '5678' }))
+      isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '5678' }))
     ).toBeFalsy();
   });
 
   it('compares branches', () => {
     expect(
-      isSameBranchLike(longLivingBranch({ name: 'foo' }), longLivingBranch({ name: 'foo' }))
+      isSameBranchLike(mockLongLivingBranch({ name: 'foo' }), mockLongLivingBranch({ name: 'foo' }))
     ).toBeTruthy();
     expect(
-      isSameBranchLike(shortLivingBranch({ name: 'foo' }), shortLivingBranch({ name: 'foo' }))
+      isSameBranchLike(
+        mockShortLivingBranch({ name: 'foo' }),
+        mockShortLivingBranch({ name: 'foo' })
+      )
     ).toBeTruthy();
     expect(
-      isSameBranchLike(longLivingBranch({ name: 'foo' }), longLivingBranch({ name: 'bar' }))
+      isSameBranchLike(mockLongLivingBranch({ name: 'foo' }), mockLongLivingBranch({ name: 'bar' }))
     ).toBeFalsy();
     expect(
-      isSameBranchLike(shortLivingBranch({ name: 'foo' }), shortLivingBranch({ name: 'bar' }))
+      isSameBranchLike(
+        mockShortLivingBranch({ name: 'foo' }),
+        mockShortLivingBranch({ name: 'bar' })
+      )
     ).toBeFalsy();
   });
 });
-
-function mainBranch(): T.MainBranch {
-  return { isMain: true, name: 'master' };
-}
-
-function shortLivingBranch(overrides?: Partial<T.ShortLivingBranch>): T.ShortLivingBranch {
-  const status = { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 };
-  return {
-    isMain: false,
-    mergeBranch: 'master',
-    name: 'foo',
-    status,
-    type: 'SHORT',
-    ...overrides
-  };
-}
-
-function longLivingBranch(overrides?: Partial<T.LongLivingBranch>): T.LongLivingBranch {
-  const status = { qualityGateStatus: 'OK' };
-  return { isMain: false, name: 'foo', status, type: 'LONG', ...overrides };
-}
-
-function pullRequest(overrides?: Partial<T.PullRequest>): T.PullRequest {
-  const status = { bugs: 0, codeSmells: 0, qualityGateStatus: 'OK', vulnerabilities: 0 };
-  return {
-    base: 'master',
-    branch: 'feature',
-    key: '1234',
-    status,
-    title: 'Random Name',
-    ...overrides
-  };
-}

@@ -387,3 +387,12 @@ export function mockDocumentationEntry(
     ...overrides
   };
 }
+
+export function mockMainBranch(overrides: Partial<T.MainBranch> = {}): T.MainBranch {
+  return {
+    analysisDate: '2018-01-01',
+    isMain: true,
+    name: 'master',
+    ...overrides
+  };
+}
