@@ -74,7 +74,7 @@ public class DefaultNotificationManager implements NotificationManager {
    * {@inheritDoc}
    */
   @Override
-  public void scheduleForSending(Notification notification) {
+  public <T extends Notification> void scheduleForSending(T notification) {
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
     dbClient.notificationQueueDao().insert(singletonList(dto));
   }
@@ -82,7 +82,7 @@ public class DefaultNotificationManager implements NotificationManager {
   /**
    * Give the notification queue so that it can be processed
    */
-  public Notification getFromQueue() {
+  public <T extends Notification> T getFromQueue() {
     int batchSize = 1;
     List<NotificationQueueDto> notificationDtos = dbClient.notificationQueueDao().selectOldest(batchSize);
     if (notificationDtos.isEmpty()) {
@@ -93,7 +93,7 @@ public class DefaultNotificationManager implements NotificationManager {
     return convertToNotification(notificationDtos);
   }
 
-  private Notification convertToNotification(List<NotificationQueueDto> notifications) {
+  private <T extends Notification> T convertToNotification(List<NotificationQueueDto> notifications) {
     try {
       // If batchSize is increased then we should return a list instead of a single element
       return notifications.get(0).toNotification();

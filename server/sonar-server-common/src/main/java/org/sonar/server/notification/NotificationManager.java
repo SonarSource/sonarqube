@@ -43,7 +43,7 @@ public interface NotificationManager {
    *
    * @param notification the notification.
    */
-  void scheduleForSending(Notification notification);
+  <T extends Notification> void scheduleForSending(T notification);
 
   /**
    * <p>

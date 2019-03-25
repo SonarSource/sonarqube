@@ -120,7 +120,7 @@ public class DefaultNotificationManagerTest {
     List<NotificationQueueDto> dtos = Arrays.asList(dto);
     when(notificationQueueDao.selectOldest(1)).thenReturn(dtos);
 
-    assertThat(underTest.getFromQueue()).isNotNull();
+    assertThat(underTest.<Notification>getFromQueue()).isNotNull();
 
     InOrder inOrder = inOrder(notificationQueueDao);
     inOrder.verify(notificationQueueDao).selectOldest(1);
@@ -136,8 +136,8 @@ public class DefaultNotificationManagerTest {
     when(notificationQueueDao.selectOldest(1)).thenReturn(dtos);
 
     underTest = spy(underTest);
-    assertThat(underTest.getFromQueue()).isNull();
-    assertThat(underTest.getFromQueue()).isNull();
+    assertThat(underTest.<Notification>getFromQueue()).isNull();
+    assertThat(underTest.<Notification>getFromQueue()).isNull();
 
     verify(underTest, times(1)).logDeserializationIssue();
   }

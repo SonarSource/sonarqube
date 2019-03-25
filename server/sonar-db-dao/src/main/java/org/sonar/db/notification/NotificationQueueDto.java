@@ -61,7 +61,7 @@ public class NotificationQueueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static NotificationQueueDto toNotificationQueueDto(Notification notification) {
+  public static <T extends Notification> NotificationQueueDto toNotificationQueueDto(T notification) {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     try {
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
@@ -77,17 +77,18 @@ public class NotificationQueueDto {
     }
   }
 
-  public Notification toNotification() throws IOException, ClassNotFoundException {
+  public <T extends Notification> T toNotification() throws IOException, ClassNotFoundException {
     if (this.data == null) {
       return null;
     }
+
     ByteArrayInputStream byteArrayInputStream = null;
     try {
       byteArrayInputStream = new ByteArrayInputStream(this.data);
       ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
       Object result = objectInputStream.readObject();
       objectInputStream.close();
-      return (Notification) result;
+      return (T) result;
     } finally {
       IOUtils.closeQuietly(byteArrayInputStream);
     }
