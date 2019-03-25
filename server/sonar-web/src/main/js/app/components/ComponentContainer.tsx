@@ -27,7 +27,11 @@ import { getBranches, getPullRequests } from '../../api/branches';
 import { getTasksForComponent, getAnalysisStatus } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
-import { fetchOrganization, requireAuthorization } from '../../store/rootActions';
+import {
+  fetchOrganization,
+  requireAuthorization,
+  registerBranchStatus
+} from '../../store/rootActions';
 import { STATUSES } from '../../apps/background-tasks/constants';
 import {
   isPullRequest,
@@ -44,6 +48,7 @@ interface Props {
   children: React.ReactElement<any>;
   fetchOrganization: (organization: string) => void;
   location: Pick<Location, 'query'>;
+  registerBranchStatus: (branchLike: T.BranchLike, component: string, status: T.Status) => void;
   requireAuthorization: (router: Pick<Router, 'replace'>) => void;
   router: Pick<Router, 'replace'>;
 }
@@ -140,28 +145,26 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     branchLikes: T.BranchLike[];
     component: T.Component;
   }> => {
-    const application = component.breadcrumbs.find(({ qualifier }) => qualifier === 'APP');
-    if (application) {
-      return getBranches(application.key).then(branchLikes => {
-        return {
-          branchLike: this.getCurrentBranchLike(branchLikes),
-          branchLikes,
-          component
-        };
-      });
-    }
-    const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
-    if (project) {
-      return Promise.all([getBranches(project.key), getPullRequests(project.key)]).then(
-        ([branches, pullRequests]) => {
-          const branchLikes = [...branches, ...pullRequests];
-          const branchLike = this.getCurrentBranchLike(branchLikes);
-          return { branchLike, branchLikes, component };
-        }
-      );
-    }
+    const breadcrumb = component.breadcrumbs.find(({ qualifier }) => {
+      return ['APP', 'TRK'].includes(qualifier);
+    });
 
-    return Promise.resolve({ branchLikes: [], component });
+    if (breadcrumb) {
+      const { key } = breadcrumb;
+      return Promise.all([
+        getBranches(key),
+        breadcrumb.qualifier === 'APP' ? Promise.resolve([]) : getPullRequests(key)
+      ]).then(([branches, pullRequests]) => {
+        const branchLikes = [...branches, ...pullRequests];
+        const branchLike = this.getCurrentBranchLike(branchLikes);
+
+        this.registerBranchStatuses(branchLikes, component);
+
+        return { branchLike, branchLikes, component };
+      });
+    } else {
+      return Promise.resolve({ branchLikes: [], component });
+    }
   };
 
   fetchStatus = (component: T.Component) => {
@@ -267,6 +270,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return !task.branch && !task.pullRequest;
   };
 
+  registerBranchStatuses = (branchLikes: T.BranchLike[], component: T.Component) => {
+    branchLikes.forEach(branchLike => {
+      if (branchLike.status) {
+        this.props.registerBranchStatus(
+          branchLike,
+          component.key,
+          branchLike.status.qualityGateStatus
+        );
+      }
+    });
+  };
+
   handleComponentChange = (changes: Partial<T.Component>) => {
     if (this.mounted) {
       this.setState(state => {
@@ -304,20 +319,19 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        {component &&
-          !['FIL', 'UTS'].includes(component.qualifier) && (
-            <ComponentNav
-              branchLikes={branchLikes}
-              component={component}
-              currentBranchLike={branchLike}
-              currentTask={currentTask}
-              currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
-              isInProgress={isInProgress}
-              isPending={isPending}
-              location={this.props.location}
-              warnings={this.state.warnings}
-            />
-          )}
+        {component && !['FIL', 'UTS'].includes(component.qualifier) && (
+          <ComponentNav
+            branchLikes={branchLikes}
+            component={component}
+            currentBranchLike={branchLike}
+            currentTask={currentTask}
+            currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
+            isInProgress={isInProgress}
+            isPending={isPending}
+            location={this.props.location}
+            warnings={this.state.warnings}
+          />
+        )}
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />
@@ -340,7 +354,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { fetchOrganization, requireAuthorization };
+const mapDispatchToProps = { fetchOrganization, registerBranchStatus, requireAuthorization };
 
 export default withRouter(
   connect(

@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Location } from 'history';
 import { ComponentContainer } from '../ComponentContainer';
 import { getBranches, getPullRequests } from '../../../api/branches';
 import { getTasksForComponent } from '../../../api/ce';
@@ -27,12 +26,33 @@ import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import { getMeasures } from '../../../api/measures';
 import { isSonarCloud } from '../../../helpers/system';
+import { mockLocation, mockRouter, mockComponent } from '../../../helpers/testMocks';
 
 jest.mock('../../../api/branches', () => ({
-  getBranches: jest.fn().mockResolvedValue([]),
-  getPullRequests: jest.fn().mockResolvedValue([])
+  getBranches: jest.fn().mockResolvedValue([
+    {
+      isMain: true,
+      name: 'master',
+      type: 'LONG',
+      status: { qualityGateStatus: 'OK' }
+    }
+  ]),
+  getPullRequests: jest.fn().mockResolvedValue([
+    {
+      base: 'feature',
+      branch: 'feature',
+      key: 'pr-89',
+      title: 'PR Feature',
+      status: { qualityGateStatus: 'ERROR' }
+    },
+    {
+      base: 'feature',
+      branch: 'feature',
+      key: 'pr-90',
+      title: 'PR Feature 2'
+    }
+  ])
 }));
 
 jest.mock('../../../api/ce', () => ({
@@ -44,15 +64,6 @@ jest.mock('../../../api/components', () => ({
   getComponentData: jest.fn().mockResolvedValue({ analysisDate: '2018-07-30' })
 }));
 
-jest.mock('../../../api/measures', () => ({
-  getMeasures: jest
-    .fn()
-    .mockResolvedValue([
-      { metric: 'new_coverage', value: '0', periods: [{ index: 1, value: '95.9943' }] },
-      { metric: 'new_duplicated_lines_density', periods: [{ index: 1, value: '3.5' }] }
-    ])
-}));
-
 jest.mock('../../../api/nav', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({
     breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
@@ -61,7 +72,7 @@ jest.mock('../../../api/nav', () => ({
 }));
 
 jest.mock('../../../helpers/system', () => ({
-  isSonarCloud: jest.fn()
+  isSonarCloud: jest.fn().mockReturnValue(false)
 }));
 
 // mock this, because some of its children are using redux store
@@ -74,13 +85,7 @@ const Inner = () => <div />;
 const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
 beforeEach(() => {
-  (getBranches as jest.Mock).mockClear();
-  (getPullRequests as jest.Mock).mockClear();
-  (getComponentData as jest.Mock).mockClear();
-  (getComponentNavigation as jest.Mock).mockClear();
-  (getTasksForComponent as jest.Mock).mockClear();
-  (getMeasures as jest.Mock).mockClear();
-  (isSonarCloud as jest.Mock).mockReturnValue(false).mockClear();
+  jest.clearAllMocks();
 });
 
 it('changes component', () => {
@@ -96,7 +101,7 @@ it('changes component', () => {
 });
 
 it("doesn't load branches portfolio", async () => {
-  const wrapper = shallowRender({ location: { query: { id: 'portfolioKey' } } as Location });
+  const wrapper = shallowRender({ location: mockLocation({ query: { id: 'portfolioKey' } }) });
   await new Promise(setImmediate);
   expect(getBranches).not.toBeCalled();
   expect(getPullRequests).not.toBeCalled();
@@ -106,18 +111,24 @@ it("doesn't load branches portfolio", async () => {
   expect(wrapper.find(Inner).exists()).toBeTruthy();
 });
 
-it('updates branches on change', () => {
-  const wrapper = shallowRender({ location: { query: { id: 'portfolioKey' } } as Location });
+it('updates branches on change', async () => {
+  const registerBranchStatus = jest.fn();
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { id: 'portfolioKey' } }),
+    registerBranchStatus
+  });
   wrapper.setState({
     branchLikes: [mainBranch],
-    component: {
+    component: mockComponent({
       breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }]
-    } as T.Component,
+    }),
     loading: false
   });
   wrapper.find(Inner).prop<Function>('onBranchesChange')();
   expect(getBranches).toBeCalledWith('projectKey');
   expect(getPullRequests).toBeCalledWith('projectKey');
+  await waitAndUpdate(wrapper);
+  expect(registerBranchStatus).toBeCalledTimes(2);
 });
 
 it('loads organization', async () => {
@@ -216,13 +227,29 @@ it('reload component after task progress finished', async () => {
   expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 });
 
+it('should show component not found if it does not exist', async () => {
+  (getComponentNavigation as jest.Mock).mockRejectedValue({ status: 404 });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should redirect if the user has no access', async () => {
+  (getComponentNavigation as jest.Mock).mockRejectedValue({ status: 403 });
+  const requireAuthorization = jest.fn();
+  const wrapper = shallowRender({ requireAuthorization });
+  await waitAndUpdate(wrapper);
+  expect(requireAuthorization).toBeCalled();
+});
+
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
   return shallow<ComponentContainer>(
     <ComponentContainer
       fetchOrganization={jest.fn()}
-      location={{ query: { id: 'foo' } }}
+      location={mockLocation({ query: { id: 'foo' } })}
+      registerBranchStatus={jest.fn()}
       requireAuthorization={jest.fn()}
-      router={{ replace: jest.fn() }}
+      router={mockRouter()}
       {...props}>
       <Inner />
     </ComponentContainer>
