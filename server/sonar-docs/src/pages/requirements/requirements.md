@@ -83,6 +83,9 @@ To get the full experience SonarQube has to offer, you must enable JavaScript in
 <!-- sonarqube -->
 ## GitHub Enterprise Integration
 To add Pull Request analysis to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.14+.
+
+## Bitbucket Server Integration
+To add Pull Request analysis to Code Insights in Bitbucket Server, you must be running Bitbucket Server version 5.15+.
 <!-- /sonarqube -->
 
 ## Platform notes
