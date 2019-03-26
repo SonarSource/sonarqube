@@ -22,7 +22,7 @@ package org.sonar.server.notification.ws;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.server.event.NewAlerts;
+import org.sonar.server.qualitygate.notification.NewAlerts;
 import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;

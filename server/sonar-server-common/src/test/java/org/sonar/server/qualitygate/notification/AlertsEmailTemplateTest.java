@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification.email;
+package org.sonar.server.qualitygate.notification;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.server.qualitygate.notification.AlertsEmailTemplate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;

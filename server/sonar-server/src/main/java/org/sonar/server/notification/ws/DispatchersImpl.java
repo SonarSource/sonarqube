@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.event.NewAlerts;
+import org.sonar.server.qualitygate.notification.NewAlerts;
 import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationCenter;
