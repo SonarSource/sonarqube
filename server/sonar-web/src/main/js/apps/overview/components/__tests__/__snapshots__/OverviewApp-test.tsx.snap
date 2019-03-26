@@ -1,0 +1,729 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="text-center"
+>
+  <i
+    className="spinner spinner-margin"
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <A11ySkipTarget
+      anchor="overview_main"
+    />
+    <div
+      className="overview-main page-main"
+    >
+      <QualityGate
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        measures={
+          Array [
+            Object {
+              "bestValue": true,
+              "metric": Object {
+                "id": "coverage",
+                "key": "ncloc",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            Object {
+              "bestValue": true,
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+          ]
+        }
+      />
+      <div
+        className="overview-domains-list"
+      >
+        <enhance(undefined)}
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "foo",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          history={
+            Object {
+              "coverage": Array [
+                Object {
+                  "date": "2019-01-04",
+                  "value": "95.5",
+                },
+              ],
+              "duplicated_lines_density": Array [
+                Object {
+                  "date": "2019-01-02",
+                  "value": "1.0",
+                },
+              ],
+              "ncloc": Array [
+                Object {
+                  "date": "2019-01-03",
+                  "value": "10000",
+                },
+              ],
+              "sqale_index": Array [
+                Object {
+                  "date": "2019-01-01",
+                  "value": "1.0",
+                },
+              ],
+            }
+          }
+          historyStartDate="2019-01-01"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "ncloc",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+        />
+        <enhance(undefined)}
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "foo",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          history={
+            Object {
+              "coverage": Array [
+                Object {
+                  "date": "2019-01-04",
+                  "value": "95.5",
+                },
+              ],
+              "duplicated_lines_density": Array [
+                Object {
+                  "date": "2019-01-02",
+                  "value": "1.0",
+                },
+              ],
+              "ncloc": Array [
+                Object {
+                  "date": "2019-01-03",
+                  "value": "10000",
+                },
+              ],
+              "sqale_index": Array [
+                Object {
+                  "date": "2019-01-01",
+                  "value": "1.0",
+                },
+              ],
+            }
+          }
+          historyStartDate="2019-01-01"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "ncloc",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+        />
+        <enhance(undefined)}
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "foo",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          history={
+            Object {
+              "coverage": Array [
+                Object {
+                  "date": "2019-01-04",
+                  "value": "95.5",
+                },
+              ],
+              "duplicated_lines_density": Array [
+                Object {
+                  "date": "2019-01-02",
+                  "value": "1.0",
+                },
+              ],
+              "ncloc": Array [
+                Object {
+                  "date": "2019-01-03",
+                  "value": "10000",
+                },
+              ],
+              "sqale_index": Array [
+                Object {
+                  "date": "2019-01-01",
+                  "value": "1.0",
+                },
+              ],
+            }
+          }
+          historyStartDate="2019-01-01"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "ncloc",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+        />
+        <enhance(undefined)}
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "foo",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          history={
+            Object {
+              "coverage": Array [
+                Object {
+                  "date": "2019-01-04",
+                  "value": "95.5",
+                },
+              ],
+              "duplicated_lines_density": Array [
+                Object {
+                  "date": "2019-01-02",
+                  "value": "1.0",
+                },
+              ],
+              "ncloc": Array [
+                Object {
+                  "date": "2019-01-03",
+                  "value": "10000",
+                },
+              ],
+              "sqale_index": Array [
+                Object {
+                  "date": "2019-01-01",
+                  "value": "1.0",
+                },
+              ],
+            }
+          }
+          historyStartDate="2019-01-01"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "ncloc",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+        />
+      </div>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        history={
+          Object {
+            "coverage": Array [
+              Object {
+                "date": "2019-01-04",
+                "value": "95.5",
+              },
+            ],
+            "duplicated_lines_density": Array [
+              Object {
+                "date": "2019-01-02",
+                "value": "1.0",
+              },
+            ],
+            "ncloc": Array [
+              Object {
+                "date": "2019-01-03",
+                "value": "10000",
+              },
+            ],
+            "sqale_index": Array [
+              Object {
+                "date": "2019-01-01",
+                "value": "1.0",
+              },
+            ],
+          }
+        }
+        measures={
+          Array [
+            Object {
+              "bestValue": true,
+              "metric": Object {
+                "id": "coverage",
+                "key": "ncloc",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+            Object {
+              "bestValue": true,
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+          ]
+        }
+        metrics={
+          Object {
+            "coverage": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly if no measures are found 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="overview page-with-sidebar"
+  >
+    <A11ySkipTarget
+      anchor="overview_main"
+    />
+    <div
+      className="overview-main page-main"
+    >
+      <h3>
+        overview.project.empty
+      </h3>
+    </div>
+    <div
+      className="overview-sidebar page-sidebar-fixed"
+    >
+      <Connect(Meta)
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "isMain": true,
+            "name": "master",
+          }
+        }
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "foo",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+        history={
+          Object {
+            "coverage": Array [
+              Object {
+                "date": "2019-01-04",
+                "value": "95.5",
+              },
+            ],
+            "duplicated_lines_density": Array [
+              Object {
+                "date": "2019-01-02",
+                "value": "1.0",
+              },
+            ],
+            "ncloc": Array [
+              Object {
+                "date": "2019-01-03",
+                "value": "10000",
+              },
+            ],
+            "sqale_index": Array [
+              Object {
+                "date": "2019-01-01",
+                "value": "1.0",
+              },
+            ],
+          }
+        }
+        measures={
+          Array [
+            Object {
+              "bestValue": true,
+              "metric": Object {
+                "id": "coverage",
+                "key": "coverage",
+                "name": "Coverage",
+                "type": "PERCENT",
+              },
+              "periods": Array [
+                Object {
+                  "bestValue": true,
+                  "index": 1,
+                  "value": "1.0",
+                },
+              ],
+              "value": "1.0",
+            },
+          ]
+        }
+        metrics={
+          Object {
+            "coverage": Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            },
+          }
+        }
+        onComponentChange={[MockFunction]}
+      />
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,279 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <withRouter(ProfilesListHeader)
+    languages={
+      Array [
+        Object {
+          "key": "css",
+          "name": "CSS",
+        },
+        Object {
+          "key": "js",
+          "name": "JS",
+        },
+      ]
+    }
+    organization="foo"
+  />
+  <div
+    className="boxed-group boxed-group-inner quality-profiles-table"
+    key="css"
+  >
+    <table
+      className="data zebra zebra-hover"
+      data-language="css"
+    >
+      <thead>
+        <tr>
+          <th>
+            CSS
+            , 
+            quality_profiles.x_profiles.1
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.projects
+            <DocTooltip
+              className="table-cell-doc"
+              doc={Promise {}}
+            />
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.rules
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.updated
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.used
+          </th>
+          <th>
+             
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <ProfilesListRow
+          key="key"
+          organization="foo"
+          profile={
+            Object {
+              "activeDeprecatedRuleCount": 2,
+              "activeRuleCount": 10,
+              "childrenCount": 0,
+              "depth": 1,
+              "isBuiltIn": false,
+              "isDefault": false,
+              "isInherited": false,
+              "key": "key",
+              "language": "css",
+              "languageName": "CSS",
+              "name": "name",
+              "organization": "foo",
+              "projectCount": 3,
+            }
+          }
+          updateProfiles={[MockFunction]}
+        />
+      </tbody>
+    </table>
+  </div>
+  <div
+    className="boxed-group boxed-group-inner quality-profiles-table"
+    key="js"
+  >
+    <table
+      className="data zebra zebra-hover"
+      data-language="js"
+    >
+      <thead>
+        <tr>
+          <th>
+            JS
+            , 
+            quality_profiles.x_profiles.1
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.projects
+            <DocTooltip
+              className="table-cell-doc"
+              doc={Promise {}}
+            />
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.rules
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.updated
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.used
+          </th>
+          <th>
+             
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <ProfilesListRow
+          key="key"
+          organization="foo"
+          profile={
+            Object {
+              "activeDeprecatedRuleCount": 2,
+              "activeRuleCount": 10,
+              "childrenCount": 0,
+              "depth": 1,
+              "isBuiltIn": false,
+              "isDefault": false,
+              "isInherited": false,
+              "key": "key",
+              "language": "js",
+              "languageName": "JavaScript",
+              "name": "name",
+              "organization": "foo",
+              "projectCount": 3,
+            }
+          }
+          updateProfiles={[MockFunction]}
+        />
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div>
+  <withRouter(ProfilesListHeader)
+    currentFilter="css"
+    languages={
+      Array [
+        Object {
+          "key": "css",
+          "name": "CSS",
+        },
+        Object {
+          "key": "js",
+          "name": "JS",
+        },
+      ]
+    }
+    organization="foo"
+  />
+  <div
+    className="boxed-group boxed-group-inner quality-profiles-table"
+    key="css"
+  >
+    <table
+      className="data zebra zebra-hover"
+      data-language="css"
+    >
+      <thead>
+        <tr>
+          <th>
+            CSS
+            , 
+            quality_profiles.x_profiles.1
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.projects
+            <DocTooltip
+              className="table-cell-doc"
+              doc={Promise {}}
+            />
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.rules
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.updated
+          </th>
+          <th
+            className="text-right nowrap"
+          >
+            quality_profiles.list.used
+          </th>
+          <th>
+             
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <ProfilesListRow
+          key="key"
+          organization="foo"
+          profile={
+            Object {
+              "activeDeprecatedRuleCount": 2,
+              "activeRuleCount": 10,
+              "childrenCount": 0,
+              "depth": 1,
+              "isBuiltIn": false,
+              "isDefault": false,
+              "isInherited": false,
+              "key": "key",
+              "language": "css",
+              "languageName": "CSS",
+              "name": "name",
+              "organization": "foo",
+              "projectCount": 3,
+            }
+          }
+          updateProfiles={[MockFunction]}
+        />
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+exports[`should render correctly 3`] = `
+<div>
+  <withRouter(ProfilesListHeader)
+    currentFilter="unknown"
+    languages={
+      Array [
+        Object {
+          "key": "css",
+          "name": "CSS",
+        },
+        Object {
+          "key": "js",
+          "name": "JS",
+        },
+      ]
+    }
+    organization="foo"
+  />
+  <Alert
+    className="spacer-top"
+    variant="warning"
+  >
+    no_results
+  </Alert>
+</div>
+`;

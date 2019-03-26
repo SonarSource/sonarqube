@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, translateWithParameters, getCurrentLocale } from './l10n';
+import { isDefined } from './types';
 
 const HOURS_IN_DAY = 8;
 
@@ -54,10 +55,12 @@ export function enhanceMeasuresWithMetrics(
   measures: T.Measure[],
   metrics: T.Metric[]
 ): T.MeasureEnhanced[] {
-  return measures.map(measure => {
-    const metric = metrics.find(metric => metric.key === measure.metric) as T.Metric;
-    return { ...measure, metric };
-  });
+  return measures
+    .map(measure => {
+      const metric = metrics.find(metric => metric.key === measure.metric);
+      return metric && { ...measure, metric };
+    })
+    .filter(isDefined);
 }
 
 /** Get period value of a measure */

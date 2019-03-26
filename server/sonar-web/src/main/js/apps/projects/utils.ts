@@ -125,7 +125,7 @@ const METRICS_BY_VISUALIZATION: T.Dict<string[]> = {
   duplications: ['ncloc', 'duplicated_lines_density', 'duplicated_blocks']
 };
 
-const FACETS = [
+export const FACETS = [
   'reliability_rating',
   'security_rating',
   'sqale_rating',
@@ -137,7 +137,7 @@ const FACETS = [
   'tags'
 ];
 
-const LEAK_FACETS = [
+export const LEAK_FACETS = [
   'new_reliability_rating',
   'new_security_rating',
   'new_maintainability_rating',
@@ -232,7 +232,7 @@ function convertToQueryData(
 ) {
   const data: RequestData = { ...defaultData, organization };
   const filter = convertToFilter(query, isFavorite);
-  const sort = convertToSorting(query as any);
+  const sort = convertToSorting(query);
 
   if (filter) {
     data.filter = filter;

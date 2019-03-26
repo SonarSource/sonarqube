@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { groupBy, pick, sortBy } from 'lodash';
+import { Location } from 'history';
 import ProfilesListRow from './ProfilesListRow';
 import ProfilesListHeader from './ProfilesListHeader';
 import DocTooltip from '../../../components/docs/DocTooltip';
@@ -27,8 +28,8 @@ import { Profile } from '../types';
 import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
-  languages: Array<{ key: string; name: string }>;
-  location: { query: T.Dict<string> };
+  languages: T.Language[];
+  location: Pick<Location, 'query'>;
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;

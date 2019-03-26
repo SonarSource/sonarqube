@@ -218,6 +218,16 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
   };
 }
 
+export function mockMetric(overrides: Partial<T.Metric> = {}): T.Metric {
+  return {
+    id: 'coverage',
+    key: 'coverage',
+    name: 'Coverage',
+    type: 'PERCENT',
+    ...overrides
+  };
+}
+
 export function mockMeasure(overrides: Partial<T.Measure> = {}): T.Measure {
   return {
     bestValue: true,
@@ -391,6 +401,14 @@ export function mockMainBranch(overrides: Partial<T.MainBranch> = {}): T.MainBra
     analysisDate: '2018-01-01',
     isMain: true,
     name: 'master',
+    ...overrides
+  };
+}
+
+export function mockLanguage(overrides: Partial<T.Language> = {}): T.Language {
+  return {
+    key: 'css',
+    name: 'CSS',
     ...overrides
   };
 }
