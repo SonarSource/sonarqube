@@ -33,7 +33,7 @@ public final class ShortBranchIssueDto implements Serializable {
   private Integer line;
   private String checksum;
   private String status;
-  private Long issueCreationDate;
+  private Long issueUpdateDate;
 
   // joins
   private String ruleKey;
@@ -109,12 +109,12 @@ public final class ShortBranchIssueDto implements Serializable {
     return RuleKey.of(ruleRepo, ruleKey);
   }
 
-  public Long getIssueCreationDate() {
-    return issueCreationDate;
+  public Long getIssueUpdateDate() {
+    return issueUpdateDate;
   }
 
-  public ShortBranchIssueDto setIssueCreationDate(Long issueCreationDate) {
-    this.issueCreationDate = issueCreationDate;
+  public ShortBranchIssueDto setIssueUpdateDate(Long issueUpdateDate) {
+    this.issueUpdateDate = issueUpdateDate;
     return this;
   }
 

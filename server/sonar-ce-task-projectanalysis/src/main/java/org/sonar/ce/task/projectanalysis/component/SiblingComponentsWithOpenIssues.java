@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.KeyWithUuidDto;
@@ -32,24 +33,28 @@ import org.sonar.db.component.KeyWithUuidDto;
 import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFromKey;
 
 /**
- * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
+ * Cache a map of component key -> set&lt;uuid&gt; in sibling branches/PR that have open issues
  *
  */
-public class ShortBranchComponentsWithIssues {
-  private final String uuid;
+public class SiblingComponentsWithOpenIssues {
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder metadataHolder;
+  private final TreeRootHolder treeRootHolder;
 
   private Map<String, Set<String>> uuidsByKey;
 
-  public ShortBranchComponentsWithIssues(TreeRootHolder treeRootHolder, DbClient dbClient) {
-    this.uuid = treeRootHolder.getRoot().getUuid();
+  public SiblingComponentsWithOpenIssues(TreeRootHolder treeRootHolder, AnalysisMetadataHolder metadataHolder, DbClient dbClient) {
+    this.treeRootHolder = treeRootHolder;
+    this.metadataHolder = metadataHolder;
     this.dbClient = dbClient;
   }
 
   private void loadUuidsByKey() {
     uuidsByKey = new HashMap<>();
+    String currentBranchUuid = treeRootHolder.getRoot().getUuid();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, uuid);
+      List<KeyWithUuidDto> components = dbClient.componentDao().selectAllSiblingComponentKeysHavingOpenIssues(dbSession,
+        metadataHolder.getBranch().getMergeBranchUuid().orElse(currentBranchUuid), currentBranchUuid);
       for (KeyWithUuidDto dto : components) {
         uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }

@@ -25,37 +25,36 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.SimpleTracker;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
-public class ShortBranchIssueMerger {
-  private final ShortBranchIssuesLoader shortBranchIssuesLoader;
-  private final SimpleTracker<DefaultIssue, ShortBranchIssue> tracker;
+public class SiblingsIssueMerger {
+  private final SiblingsIssuesLoader siblingsIssuesLoader;
+  private final SimpleTracker<DefaultIssue, SiblingIssue> tracker;
   private final IssueLifecycle issueLifecycle;
 
-  public ShortBranchIssueMerger(ShortBranchIssuesLoader resolvedShortBranchIssuesLoader, IssueLifecycle issueLifecycle) {
-    this(resolvedShortBranchIssuesLoader, new SimpleTracker<>(), issueLifecycle);
+  public SiblingsIssueMerger(SiblingsIssuesLoader resolvedSiblingsIssuesLoader, IssueLifecycle issueLifecycle) {
+    this(resolvedSiblingsIssuesLoader, new SimpleTracker<>(), issueLifecycle);
   }
 
-  public ShortBranchIssueMerger(ShortBranchIssuesLoader shortBranchIssuesLoader, SimpleTracker<DefaultIssue, ShortBranchIssue> tracker, IssueLifecycle issueLifecycle) {
-    this.shortBranchIssuesLoader = shortBranchIssuesLoader;
+  public SiblingsIssueMerger(SiblingsIssuesLoader siblingsIssuesLoader, SimpleTracker<DefaultIssue, SiblingIssue> tracker, IssueLifecycle issueLifecycle) {
+    this.siblingsIssuesLoader = siblingsIssuesLoader;
     this.tracker = tracker;
     this.issueLifecycle = issueLifecycle;
   }
 
   /**
-   * Look for all resolved/confirmed issues in short living branches targeting the current long living branch, and run
+   * Look for all unclosed issues in branches/PR targeting the same long living branch, and run
    * a light issue tracking to find matches. Then merge issue attributes in the new issues. 
    */
   public void tryMerge(Component component, Collection<DefaultIssue> newIssues) {
-    Collection<ShortBranchIssue> shortBranchIssues = shortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component);
-    Tracking<DefaultIssue, ShortBranchIssue> tracking = tracker.track(newIssues, shortBranchIssues);
+    Collection<SiblingIssue> siblingIssues = siblingsIssuesLoader.loadCandidateSiblingIssuesForMerging(component);
+    Tracking<DefaultIssue, SiblingIssue> tracking = tracker.track(newIssues, siblingIssues);
 
-    Map<DefaultIssue, ShortBranchIssue> matchedRaws = tracking.getMatchedRaws();
+    Map<DefaultIssue, SiblingIssue> matchedRaws = tracking.getMatchedRaws();
 
-    Map<ShortBranchIssue, DefaultIssue> defaultIssues = shortBranchIssuesLoader.loadDefaultIssuesWithChanges(matchedRaws.values());
+    Map<SiblingIssue, DefaultIssue> defaultIssues = siblingsIssuesLoader.loadDefaultIssuesWithChanges(matchedRaws.values());
 
-    for (Map.Entry<DefaultIssue, ShortBranchIssue> e : matchedRaws.entrySet()) {
-      ShortBranchIssue issue = e.getValue();
+    for (Map.Entry<DefaultIssue, SiblingIssue> e : matchedRaws.entrySet()) {
+      SiblingIssue issue = e.getValue();
       issueLifecycle.mergeConfirmedOrResolvedFromShortLivingBranch(e.getKey(), defaultIssues.get(issue), issue.getBranchName());
     }
   }

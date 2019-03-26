@@ -94,7 +94,7 @@ public class IssueLifecycle {
 
   public void mergeConfirmedOrResolvedFromShortLivingBranch(DefaultIssue raw, DefaultIssue base, String fromShortBranchName) {
     copyAttributesOfIssueFromOtherBranch(raw, base);
-    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, fromShortBranchName, analysisMetadataHolder.getBranch().getName());
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, fromShortBranchName, analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getPullRequestKey() : analysisMetadataHolder.getBranch().getName());
   }
 
   private void copyAttributesOfIssueFromOtherBranch(DefaultIssue to, DefaultIssue from) {

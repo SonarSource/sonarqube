@@ -364,8 +364,8 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
   }
 
-  public List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(DbSession dbSession, String mergeBranchUuid) {
-    return mapper(dbSession).selectComponentKeysHavingIssuesToMerge(mergeBranchUuid);
+  public List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(DbSession dbSession, String referenceBranchUuid, String currentBranchUuid) {
+    return mapper(dbSession).selectAllSiblingComponentKeysHavingOpenIssues(referenceBranchUuid, currentBranchUuid);
   }
 
   /**

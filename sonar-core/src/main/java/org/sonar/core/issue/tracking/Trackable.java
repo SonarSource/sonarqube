@@ -46,7 +46,7 @@ public interface Trackable {
   String getStatus();
 
   /**
-   * Functional creation date for the issue. See {@link DefaultIssue#creationDate()}
+   * Functional update date for the issue. See {@link DefaultIssue#updateDate()}
    */
-  Date getCreationDate();
+  Date getUpdateDate();
 }

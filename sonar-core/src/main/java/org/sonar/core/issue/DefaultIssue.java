@@ -647,7 +647,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   @Override
-  public Date getCreationDate() {
-    return creationDate;
+  public Date getUpdateDate() {
+    return updateDate;
   }
 }

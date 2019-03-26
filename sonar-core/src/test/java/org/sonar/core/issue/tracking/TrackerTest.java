@@ -454,14 +454,14 @@ public class TrackerTest {
     private final Integer line;
     private final String message, lineHash;
     private final String status;
-    private final Date creationDate;
+    private final Date updateDate;
 
-    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message, String status, Date creationDate) {
+    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message, String status, Date updateDate) {
       this.line = line;
       this.lineHash = lineHash;
       this.ruleKey = ruleKey;
       this.status = status;
-      this.creationDate = creationDate;
+      this.updateDate = updateDate;
       this.message = trim(message);
     }
 
@@ -491,8 +491,8 @@ public class TrackerTest {
     }
 
     @Override
-    public Date getCreationDate() {
-      return creationDate;
+    public Date getUpdateDate() {
+      return updateDate;
     }
   }
 

@@ -27,7 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.tracking.Trackable;
 
 @Immutable
-public class ShortBranchIssue implements Trackable {
+public class SiblingIssue implements Trackable {
   private final String key;
   private final Integer line;
   private final String message;
@@ -35,9 +35,9 @@ public class ShortBranchIssue implements Trackable {
   private final RuleKey ruleKey;
   private final String status;
   private final String branchName;
-  private final Date creationDate;
+  private final Date updateDate;
 
-  public ShortBranchIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchName, Date creationDate) {
+  public SiblingIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchName, Date updateDate) {
     this.key = key;
     this.line = line;
     this.message = message;
@@ -45,7 +45,7 @@ public class ShortBranchIssue implements Trackable {
     this.ruleKey = ruleKey;
     this.status = status;
     this.branchName = branchName;
-    this.creationDate = creationDate;
+    this.updateDate = updateDate;
   }
 
   public String getKey() {
@@ -84,8 +84,8 @@ public class ShortBranchIssue implements Trackable {
   }
 
   @Override
-  public Date getCreationDate() {
-    return creationDate;
+  public Date getUpdateDate() {
+    return updateDate;
   }
 
   @Override
@@ -104,7 +104,7 @@ public class ShortBranchIssue implements Trackable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ShortBranchIssue other = (ShortBranchIssue) obj;
+    SiblingIssue other = (SiblingIssue) obj;
     return key.equals(other.key);
   }
 

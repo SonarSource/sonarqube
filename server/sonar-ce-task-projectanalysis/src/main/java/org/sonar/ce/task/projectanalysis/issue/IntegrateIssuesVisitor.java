@@ -40,12 +40,12 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
   private final IssueTrackingDelegator issueTracking;
-  private final ShortBranchIssueMerger issueStatusCopier;
+  private final SiblingsIssueMerger issueStatusCopier;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MergeBranchComponentUuids mergeBranchComponentUuids;
 
   public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
-    AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, ShortBranchIssueMerger issueStatusCopier,
+    AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, SiblingsIssueMerger issueStatusCopier,
     MergeBranchComponentUuids mergeBranchComponentUuids) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
@@ -86,9 +86,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       return;
     }
 
-    if (analysisMetadataHolder.isLongLivingBranch()) {
-      issueStatusCopier.tryMerge(component, list);
-    }
+    issueStatusCopier.tryMerge(component, list);
 
     for (DefaultIssue issue : list) {
       process(component, issue, cacheAppender);

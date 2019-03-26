@@ -166,7 +166,8 @@ public interface ComponentMapper {
 
   void updateTags(ComponentDto component);
 
-  List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(@Param("mergeBranchUuid") String mergeBranchUuid);
+  List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
+    @Param("currentBranchUuid") String currentBranchUuid);
 
   List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(@Param("organizationUuid") String organizationUuid);
 

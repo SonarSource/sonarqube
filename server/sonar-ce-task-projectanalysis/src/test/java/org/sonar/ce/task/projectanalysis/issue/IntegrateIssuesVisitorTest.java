@@ -117,7 +117,7 @@ public class IntegrateIssuesVisitorTest {
   private IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   private IssueVisitor issueVisitor = mock(IssueVisitor.class);
   private MergeBranchComponentUuids mergeBranchComponentsUuids = mock(MergeBranchComponentUuids.class);
-  private ShortBranchIssueMerger issueStatusCopier = mock(ShortBranchIssueMerger.class);
+  private SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
   private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);

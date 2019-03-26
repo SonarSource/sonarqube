@@ -36,7 +36,7 @@ import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
 import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
-import org.sonar.ce.task.projectanalysis.component.ShortBranchComponentsWithIssues;
+import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.ce.task.projectanalysis.dbmigration.DbMigrationModule;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
@@ -77,8 +77,8 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
-import org.sonar.ce.task.projectanalysis.issue.ShortBranchIssueMerger;
-import org.sonar.ce.task.projectanalysis.issue.ShortBranchIssuesLoader;
+import org.sonar.ce.task.projectanalysis.issue.SiblingsIssueMerger;
+import org.sonar.ce.task.projectanalysis.issue.SiblingsIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.ShortBranchOrPullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
@@ -197,7 +197,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MutableTaskResultHolderImpl.class,
       BatchReportReaderImpl.class,
       MergeBranchComponentUuids.class,
-      ShortBranchComponentsWithIssues.class,
+      SiblingComponentsWithOpenIssues.class,
 
       // repositories
       LanguageRepositoryImpl.class,
@@ -281,8 +281,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
       BranchPersisterImpl.class,
-      ShortBranchIssuesLoader.class,
-      ShortBranchIssueMerger.class,
+      SiblingsIssuesLoader.class,
+      SiblingsIssueMerger.class,
 
       // filemove
       ScoreMatrixDumperImpl.class,

@@ -235,7 +235,7 @@ public class IssueDaoTest {
     assertThat(fp.getRuleKey()).isNotNull();
     assertThat(fp.getStatus()).isNotNull();
     assertThat(fp.getBranchName()).isEqualTo("feature/foo");
-    assertThat(fp.getIssueCreationDate()).isNotNull();
+    assertThat(fp.getIssueUpdateDate()).isNotNull();
   }
 
   @Test

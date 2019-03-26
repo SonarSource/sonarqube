@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.ShortBranchComponentsWithIssues;
+import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,22 +38,22 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
-public class ShortBranchIssuesLoader {
+public class SiblingsIssuesLoader {
 
-  private final ShortBranchComponentsWithIssues shortBranchComponentsWithIssues;
+  private final SiblingComponentsWithOpenIssues siblingComponentsWithOpenIssues;
   private final DbClient dbClient;
   private final ComponentIssuesLoader componentIssuesLoader;
 
-  public ShortBranchIssuesLoader(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient,
-    ComponentIssuesLoader componentIssuesLoader) {
-    this.shortBranchComponentsWithIssues = shortBranchComponentsWithIssues;
+  public SiblingsIssuesLoader(SiblingComponentsWithOpenIssues siblingComponentsWithOpenIssues, DbClient dbClient,
+                              ComponentIssuesLoader componentIssuesLoader) {
+    this.siblingComponentsWithOpenIssues = siblingComponentsWithOpenIssues;
     this.dbClient = dbClient;
     this.componentIssuesLoader = componentIssuesLoader;
   }
 
-  public Collection<ShortBranchIssue> loadCandidateIssuesForMergingInTargetBranch(Component component) {
+  public Collection<SiblingIssue> loadCandidateSiblingIssuesForMerging(Component component) {
     String componentKey = ComponentDto.removeBranchAndPullRequestFromKey(component.getDbKey());
-    Set<String> uuids = shortBranchComponentsWithIssues.getUuids(componentKey);
+    Set<String> uuids = siblingComponentsWithOpenIssues.getUuids(componentKey);
     if (uuids.isEmpty()) {
       return Collections.emptyList();
     }
@@ -61,22 +61,22 @@ public class ShortBranchIssuesLoader {
     try (DbSession session = dbClient.openSession(false)) {
       return dbClient.issueDao().selectOpenByComponentUuids(session, uuids)
         .stream()
-        .map(ShortBranchIssuesLoader::toShortBranchIssue)
+        .map(SiblingsIssuesLoader::toSiblingIssue)
         .collect(Collectors.toList());
     }
   }
 
-  private static ShortBranchIssue toShortBranchIssue(ShortBranchIssueDto dto) {
-    return new ShortBranchIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchName(),
-      longToDate(dto.getIssueCreationDate()));
+  private static SiblingIssue toSiblingIssue(ShortBranchIssueDto dto) {
+    return new SiblingIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchName(),
+      longToDate(dto.getIssueUpdateDate()));
   }
 
-  public Map<ShortBranchIssue, DefaultIssue> loadDefaultIssuesWithChanges(Collection<ShortBranchIssue> lightIssues) {
+  public Map<SiblingIssue, DefaultIssue> loadDefaultIssuesWithChanges(Collection<SiblingIssue> lightIssues) {
     if (lightIssues.isEmpty()) {
       return Collections.emptyMap();
     }
 
-    Map<String, ShortBranchIssue> issuesByKey = lightIssues.stream().collect(Collectors.toMap(ShortBranchIssue::getKey, i -> i));
+    Map<String, SiblingIssue> issuesByKey = lightIssues.stream().collect(Collectors.toMap(SiblingIssue::getKey, i -> i));
     try (DbSession session = dbClient.openSession(false)) {
       List<DefaultIssue> issues = dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
         .stream()
