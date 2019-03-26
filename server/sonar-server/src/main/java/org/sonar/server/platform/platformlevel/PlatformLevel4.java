@@ -33,7 +33,6 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.LogOAuthWarning;
 import org.sonar.server.badge.ws.ProjectBadgesWsModule;
@@ -264,7 +263,6 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultResourceTypes.get(),
       SettingsChangeNotifier.class,
       PageDecorations.class,
-      Periods.class,
       ServerWs.class,
       BackendCleanup.class,
       IndexDefinitions.class,
