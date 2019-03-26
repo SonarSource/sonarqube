@@ -173,5 +173,7 @@ export function getQualityGateProjectStatus(
     projectId?: string;
   } & T.BranchParameters
 ): Promise<T.QualityGateProjectStatus> {
-  return getJSON('/api/qualitygates/project_status', data).catch(throwGlobalError);
+  return getJSON('/api/qualitygates/project_status', data)
+    .then(r => r.projectStatus)
+    .catch(throwGlobalError);
 }

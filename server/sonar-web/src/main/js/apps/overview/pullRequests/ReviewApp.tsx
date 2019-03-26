@@ -92,11 +92,11 @@ export class ReviewApp extends React.Component<Props, State> {
       }),
       getQualityGateProjectStatus(data)
     ]).then(
-      ([measures, qualityGateStatus]) => {
-        if (this.mounted && measures && qualityGateStatus) {
-          const { status } = qualityGateStatus.projectStatus;
+      ([measures, projectStatus]) => {
+        if (this.mounted && measures && projectStatus) {
+          const { status } = projectStatus;
           this.setState({
-            conditions: extractStatusConditionsFromProjectStatus(qualityGateStatus),
+            conditions: extractStatusConditionsFromProjectStatus(projectStatus),
             loading: false,
             measures,
             status

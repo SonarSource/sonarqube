@@ -294,24 +294,22 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
 }
 
 export function mockQualityGateProjectStatus(
-  overrides: Partial<T.QualityGateProjectStatus['projectStatus']> = {}
+  overrides: Partial<T.QualityGateProjectStatus> = {}
 ): T.QualityGateProjectStatus {
   return {
-    projectStatus: {
-      conditions: [
-        {
-          actualValue: '0',
-          comparator: 'GT',
-          errorThreshold: '1.0',
-          metricKey: 'new_bugs',
-          periodIndex: 1,
-          status: 'OK'
-        }
-      ],
-      ignoredConditions: false,
-      status: 'OK',
-      ...overrides
-    }
+    conditions: [
+      {
+        actualValue: '0',
+        comparator: 'GT',
+        errorThreshold: '1.0',
+        metricKey: 'new_bugs',
+        periodIndex: 1,
+        status: 'OK'
+      }
+    ],
+    ignoredConditions: false,
+    status: 'OK',
+    ...overrides
   };
 }
 

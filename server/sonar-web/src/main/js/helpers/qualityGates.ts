@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export function extractStatusConditionsFromProjectStatus(
-  status: T.QualityGateProjectStatus
+  projectStatus: T.QualityGateProjectStatus
 ): T.QualityGateStatusCondition[] {
-  const { conditions } = status.projectStatus;
+  const { conditions } = projectStatus;
   return conditions
     ? conditions.map(c => ({
         actual: c.actualValue,

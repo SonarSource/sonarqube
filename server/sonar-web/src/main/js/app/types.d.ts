@@ -655,11 +655,9 @@ declare namespace T {
   }
 
   export interface QualityGateProjectStatus {
-    projectStatus: {
-      conditions?: QualityGateProjectStatusCondition[];
-      ignoredConditions: boolean;
-      status: Status;
-    };
+    conditions?: QualityGateProjectStatusCondition[];
+    ignoredConditions: boolean;
+    status: Status;
   }
 
   export interface QualityGateStatusCondition {
