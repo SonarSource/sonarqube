@@ -28,16 +28,20 @@ Are you ready to eliminate bugs and vulnerabilities? Will you champion quality c
 
 Below are a few key pointers, otherwise head over to the left pane for full documentation content and search capabilities.
 
-### I write code
-* Why [new code](/user-guide/fixing-the-water-leak/) is the most important
-* [Concepts](/user-guide/concepts/)
-* [Quality Gates](/user-guide/quality-gates/)
-* [Issues](/user-guide/issues/)
+### I'm new to SonarQube
+* Installing a [quick demo version](/setup/get-started-2-minutes/).
+* Installing a [production instance](/setup/install-server/).
 
 ### I need to set up analysis
 * [Analyzing Source Code](/analysis/overview/)
 * [Branches](/branches/overview/)
 * [Pull Requests](/analysis/pull-request/)
+
+### I write code
+* Why [new code](/user-guide/fixing-the-water-leak/) is the most important
+* [Concepts](/user-guide/concepts/)
+* [Quality Gates](/user-guide/quality-gates/)
+* [Issues](/user-guide/issues/)
 
 ### I administer a project
 * [Project Existence](/project-administration/project-existence/)
@@ -51,6 +55,7 @@ Below are a few key pointers, otherwise head over to the left pane for full docu
 * [Housekeeping](/instance-administration/housekeeping/)
 
 ### I do DevOps
+* Installing a [production instance](/setup/install-server/).
 * [Upgrading](/setup/upgrading/)
 * [Monitoring](/instance-administration/monitoring/)
 * [Running a Cluster](/setup/operate-cluster/)

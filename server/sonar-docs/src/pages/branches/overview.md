@@ -20,7 +20,6 @@ Branch analysis allows you to
 
 ### Short-lived
 
-Short-Lived
 This corresponds to Pull/Merge Requests or Feature Branches. This kind of branch:
 
 * will disappear quickly
