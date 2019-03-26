@@ -26,10 +26,10 @@ import java.util.function.Predicate;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.qualitygate.notification.NewAlerts;
 import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationCenter;
+import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
@@ -38,7 +38,7 @@ import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_P
 public class DispatchersImpl implements Dispatchers, Startable {
 
   private static final Set<String> GLOBAL_DISPATCHERS_TO_IGNORE_ON_SONAR_CLOUD = ImmutableSet.of(
-    NewAlerts.KEY,
+    QGChangeNotificationHandler.KEY,
     DoNotFixNotificationHandler.KEY,
     NewIssuesNotificationHandler.KEY);
 

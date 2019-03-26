@@ -64,7 +64,6 @@ import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.es.metadata.EsDbCompatibilityImpl;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
-import org.sonar.server.qualitygate.notification.NewAlerts;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteModule;
@@ -151,6 +150,7 @@ import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
+import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationDispatcher;
@@ -385,8 +385,8 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentService.class,
       ComponentUpdater.class,
       ComponentFinder.class,
-      NewAlerts.class,
-      NewAlerts.newMetadata(),
+      QGChangeNotificationHandler.class,
+      QGChangeNotificationHandler.newMetadata(),
       ComponentCleanerService.class,
       ComponentIndexDefinition.class,
       ComponentIndex.class,

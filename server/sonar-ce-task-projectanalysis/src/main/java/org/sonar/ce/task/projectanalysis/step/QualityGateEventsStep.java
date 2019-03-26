@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -42,6 +41,9 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.server.notification.NotificationService;
+import org.sonar.server.qualitygate.notification.QGChangeNotification;
+
+import static java.util.Collections.singleton;
 
 /**
  * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
@@ -128,7 +130,8 @@ public class QualityGateEventsStep implements ComputationStep {
    * @param rawStatus OK or ERROR + optional text
    */
   private void notifyUsers(Component project, String label, QualityGateStatus rawStatus, boolean isNewAlert) {
-    Notification notification = new Notification("alerts")
+    QGChangeNotification notification = new QGChangeNotification();
+    notification
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
       .setFieldValue("projectName", project.getName())
       .setFieldValue("projectKey", project.getKey())
@@ -141,6 +144,9 @@ public class QualityGateEventsStep implements ComputationStep {
     if (!branch.isMain()) {
       notification.setFieldValue("branch", branch.getName());
     }
+    notificationService.deliverEmails(singleton(notification));
+
+    // compatibility with old API
     notificationService.deliver(notification);
   }
 

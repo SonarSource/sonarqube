@@ -22,12 +22,12 @@ package org.sonar.server.notification.ws;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.server.qualitygate.notification.NewAlerts;
 import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
+import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
@@ -42,7 +42,7 @@ public class DispatchersImplTest {
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
       NotificationDispatcherMetadata.create(NewIssuesNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true"),
-      NotificationDispatcherMetadata.create(NewAlerts.KEY)
+      NotificationDispatcherMetadata.create(QGChangeNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
       NotificationDispatcherMetadata.create(DoNotFixNotificationHandler.KEY)
@@ -60,7 +60,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getGlobalDispatchers()).containsExactly(
-      NewAlerts.KEY, DoNotFixNotificationHandler.KEY, NewIssuesNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
+      QGChangeNotificationHandler.KEY, DoNotFixNotificationHandler.KEY, NewIssuesNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsExactly(
-      NewAlerts.KEY, DoNotFixNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
+      QGChangeNotificationHandler.KEY, DoNotFixNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
@@ -87,6 +87,6 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsOnly(
-      MyNewIssuesNotificationHandler.KEY, NewAlerts.KEY, DoNotFixNotificationHandler.KEY);
+      MyNewIssuesNotificationHandler.KEY, QGChangeNotificationHandler.KEY, DoNotFixNotificationHandler.KEY);
   }
 }

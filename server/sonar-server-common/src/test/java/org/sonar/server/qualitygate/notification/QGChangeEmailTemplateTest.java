@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.server.qualitygate.notification.AlertsEmailTemplate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -32,15 +31,15 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AlertsEmailTemplateTest {
+public class QGChangeEmailTemplateTest {
 
-  private AlertsEmailTemplate template;
+  private QGChangeEmailTemplate template;
 
   @Before
   public void setUp() {
     EmailSettings configuration = mock(EmailSettings.class);
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
-    template = new AlertsEmailTemplate(configuration);
+    template = new QGChangeEmailTemplate(configuration);
   }
 
   @Test

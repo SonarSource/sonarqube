@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +44,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.project.Project;
+import org.sonar.server.qualitygate.notification.QGChangeNotification;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -177,8 +178,13 @@ public class QualityGateEventsStepTest {
     assertThat(event.getDescription()).isEqualTo(ALERT_TEXT);
     assertThat(event.getData()).isNull();
 
+    ArgumentCaptor<Collection> collectionCaptor = ArgumentCaptor.forClass(Collection.class);
+    verify(notificationService).deliverEmails(collectionCaptor.capture());
     verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
+    assertThat(collectionCaptor.getValue()).hasSize(1);
+    assertThat(collectionCaptor.getValue().iterator().next()).isSameAs(notification);
+    assertThat(notification).isInstanceOf(QGChangeNotification.class);
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
     assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());

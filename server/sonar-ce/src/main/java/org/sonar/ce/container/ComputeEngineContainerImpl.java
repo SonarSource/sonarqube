@@ -91,7 +91,6 @@ import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.es.ProjectIndexersImpl;
-import org.sonar.server.qualitygate.notification.NewAlerts;
 import org.sonar.server.extension.CoreExtensionBootstraper;
 import org.sonar.server.extension.CoreExtensionStopper;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -115,7 +114,6 @@ import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
-import org.sonar.server.qualitygate.notification.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
@@ -140,6 +138,8 @@ import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateEvaluatorImpl;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.notification.QGChangeEmailTemplate;
+import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.index.RuleIndex;
@@ -384,8 +384,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // components,
       FavoriteUpdater.class,
       ProjectIndexersImpl.class,
-      NewAlerts.class,
-      NewAlerts.newMetadata(),
+      QGChangeNotificationHandler.class,
+      QGChangeNotificationHandler.newMetadata(),
       ProjectMeasuresIndexer.class,
       ComponentIndexer.class,
 
@@ -413,7 +413,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DoNotFixNotificationHandler.newMetadata(),
 
       // Notifications
-      AlertsEmailTemplate.class,
+      QGChangeEmailTemplate.class,
       EmailSettings.class,
       NotificationService.class,
       DefaultNotificationManager.class,
