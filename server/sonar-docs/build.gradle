@@ -8,6 +8,10 @@ sonarqube {
 
 group = 'com.sonarsource.sonarqube'
 
+clean.doFirst {
+  delete "${project.baseDir}/public/"
+}
+
 yarn_run {
   environment = [ GATSBY_DOCS_VERSION: version ]
   inputs.property('version', version)
