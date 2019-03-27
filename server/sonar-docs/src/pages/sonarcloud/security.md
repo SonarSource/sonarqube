@@ -7,29 +7,26 @@ We know that your code is very important to you and your business. We also know 
 
 ## Hosting
 
-SonarCloud is hosted on Amazon AWS in Frankfurt. 
+SonarCloud is hosted on Amazon AWS in Frankfurt and Ireland. 
 
 ## System security
 
-We keep system up to date, OS packages are updated at least weekly. SonarCloud is on its own AWS VPC. We have firewall at VPC and VM level.
+SonarCloud uses its own Virtual Private Cloud (AWS VPC). Accesses to the infrastructure are restricted through firewalls, allowing accesses from SonarSource networks only. Secure protocols are required for accesses and SSL keys are used for authentication. Access to the infrastructure, inclusive of storage, is restricted to the Technology Operations team.
 
-Except the Operations team, no SonarSource employee has access to the system, especially the database which stores source code and analysis results.
-
-The Operations team has access to the system through secured channels (SSH) only. 
 
 ## Data security
 
-All the data is stored on a Postgres RDS instance which only the Operation has access to.
+At the infrastructure level, access to data is controlled by virtue of being hosted in a network zone which only the Technology Operations have access to. 
 
-Isolation of data per organization is ensured at software level, which secures access to source code to organization members only.
+To insure data availability, a replica of the SonarCloud database is maintained real time in a different availability zone. In addition, the database is fully backed up everyday with a 7 days retention. 
 
-The source code is not encrypted in the database, but the access to the database is restricted to SonarSource operations team and can be done only through a SSH tunnel.
+At the software level, SonarCloud ensures private source code is accessible to organization members only, in addition to SonarSource Technology Operations team for support purposes only.
 
-The DB is backed up everyday by Amazon RDS mechanism, with 7 days retention.
+
 
 ## Software security
 
-The Web Application and Web APIs regularly pass penetration testing conducted by a an external company, specialized in cyber and application security, certified in accordance to ISO-27001 and which is also member of the OWASP.
+SonarCloud UI and APIs regularly pass penetration testing conducted by a an external company, specialized in cyber and application security, certified in accordance to ISO-27001 and which is also member of the OWASP.
 
 ## Communications
 
@@ -58,7 +55,7 @@ SonarCloud performs webhook calls from the following list of IPs:
 
 ## Authentication
 
-Primary authentication on the system is available only through OAuth authentication with GitHub, Bitbucket Cloud and Microsoft Azure DevOps. As a consequence, users don’t have a password on SonarCloud, and are as protected as what they expect (especially with 2FA activated on those systems). 
+Primary authentication on the system is available through the SonarCloud GitHub application, through OAuth authentication with Bitbucket Cloud and Microsoft Azure DevOps. As a consequence, users don’t have a password on SonarCloud, and are as protected as what they expect (especially with 2FA activated on those systems). 
  
 For WS API calls or source code analysis triggered from CI services, only revocable user tokens are accepted.
 
