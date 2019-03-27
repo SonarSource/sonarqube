@@ -25,7 +25,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
+import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static org.sonar.core.config.CorePropertyDefinitions.DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -33,8 +33,6 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
 public class BuiltInQualityProfilesUpdateListener {
-
-  static final String BUILT_IN_QUALITY_PROFILES = "built-in-quality-profiles";
 
   private final NotificationManager notificationManager;
   private final Languages languages;
@@ -50,7 +48,8 @@ public class BuiltInQualityProfilesUpdateListener {
     if (config.getBoolean(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES).orElse(false)) {
       return;
     }
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification();
+
+    BuiltInQPChangeNotificationBuilder builder = new BuiltInQPChangeNotificationBuilder();
     changedProfiles.keySet().stream()
       .map(changedProfile -> {
         String profileName = changedProfile.getName();
@@ -70,7 +69,8 @@ public class BuiltInQualityProfilesUpdateListener {
           .setEndDate(endDate)
           .build();
       })
-      .forEach(notification::addProfile);
-    notificationManager.scheduleForSending(notification.serialize());
+      .forEach(builder::addProfile);
+
+    notificationManager.scheduleForSending(builder.build());
   }
 }

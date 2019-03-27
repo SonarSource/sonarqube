@@ -30,25 +30,24 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.utils.DateUtils.formatDate;
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.parse;
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener.BUILT_IN_QUALITY_PROFILES;
+import static org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
+import static org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.parse;
 
-public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
+public class BuiltInQPChangeNotificationTemplate extends EmailTemplate {
 
   private final Server server;
 
-  public BuiltInQualityProfilesNotificationTemplate(Server server) {
+  public BuiltInQPChangeNotificationTemplate(Server server) {
     this.server = server;
   }
 
   @Override
   public EmailMessage format(Notification notification) {
-    if (!BUILT_IN_QUALITY_PROFILES.equals(notification.getType())) {
+    if (!BuiltInQPChangeNotification.TYPE.equals(notification.getType())) {
       return null;
     }
 
-    BuiltInQualityProfilesNotification profilesNotification = parse(notification);
+    BuiltInQPChangeNotificationBuilder profilesNotification = parse(notification);
     StringBuilder message = new StringBuilder("The following built-in profiles have been updated:\n\n");
     profilesNotification.getProfiles().stream()
       .sorted(Comparator.comparing(Profile::getLanguageName).thenComparing(Profile::getProfileName))
@@ -93,7 +92,7 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
 
     // And finally return the email that will be sent
     return new EmailMessage()
-      .setMessageId(BUILT_IN_QUALITY_PROFILES)
+      .setMessageId(BuiltInQPChangeNotification.TYPE)
       .setSubject("Built-in quality profiles have been updated")
       .setMessage(message.toString());
   }

@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
+import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,11 +32,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDate;
 
-public class BuiltInQualityProfilesNotificationTemplateTest {
+public class BuiltInQPChangeNotificationTemplateTest {
 
   private Server server = mock(Server.class);
 
-  private BuiltInQualityProfilesNotificationTemplate underTest = new BuiltInQualityProfilesNotificationTemplate(server);
+  private BuiltInQPChangeNotificationTemplate underTest = new BuiltInQPChangeNotificationTemplate(server);
 
   @Before
   public void setUp() throws Exception {
@@ -48,7 +48,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -56,7 +56,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setNewRules(2)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertThat(emailMessage.getSubject()).isEqualTo("Built-in quality profiles have been updated");
   }
@@ -66,7 +66,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -74,7 +74,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setNewRules(2)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertMessage(emailMessage, "\n 2 new rules\n");
   }
@@ -84,7 +84,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -92,7 +92,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setUpdatedRules(2)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertMessage(emailMessage, "\n 2 rules have been updated\n");
   }
@@ -102,7 +102,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -110,7 +110,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setRemovedRules(2)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertMessage(emailMessage, "\n 2 rules removed\n");
   }
@@ -120,7 +120,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
         .addProfile(Profile.newBuilder()
             .setProfileName(profileName)
             .setLanguageKey(languageKey)
@@ -130,7 +130,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
             .setRemovedRules(1)
             .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertThat(emailMessage.getMessage())
         .contains("\n 1 new rule\n")
@@ -143,7 +143,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();
     String languageName = newLanguageName();
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -153,7 +153,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setRemovedRules(4)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertMessage(emailMessage,
       "\n" +
@@ -170,7 +170,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName2 = "profile2_" + randomAlphanumeric(20);
     String languageKey2 = "langkey2_" + randomAlphanumeric(20);
     String languageName2 = "langName2_" + randomAlphanumeric(20);
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName1)
         .setLanguageKey(languageKey1)
@@ -184,7 +184,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setNewRules(13)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertThat(emailMessage.getMessage()).containsSubsequence("The following built-in profiles have been updated:\n",
       profileTitleText(profileName1, languageKey1, languageName1),
@@ -203,12 +203,12 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String profileName1 = "profile1_" + randomAlphanumeric(20);
     String profileName2 = "profile2_" + randomAlphanumeric(20);
     String profileName3 = "profile3_" + randomAlphanumeric(20);
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder().setProfileName(profileName3).setLanguageKey(languageKey2).setLanguageName(languageName2).build())
       .addProfile(Profile.newBuilder().setProfileName(profileName2).setLanguageKey(languageKey1).setLanguageName(languageName1).build())
       .addProfile(Profile.newBuilder().setProfileName(profileName1).setLanguageKey(languageKey2).setLanguageName(languageName2).build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertThat(emailMessage.getMessage()).containsSubsequence(
       "\"" + profileName2 + "\" - " + languageName1,
@@ -218,14 +218,14 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
 
   @Test
   public void notification_contains_encoded_profile_name() {
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName("Sonar Way")
         .setLanguageKey("java")
         .setLanguageName(newLanguageName())
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertThat(emailMessage.getMessage()).contains(server.getPublicRootUrl() + "/profiles/changelog?language=java&name=Sonar+Way");
   }
@@ -237,7 +237,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
     String languageName = newLanguageName();
     long startDate = 1_000_000_000_000L;
     long endDate = startDate + 1_100_000_000_000L;
-    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -246,7 +246,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         .setEndDate(endDate)
         .build());
 
-    EmailMessage emailMessage = underTest.format(notification.serialize());
+    EmailMessage emailMessage = underTest.format(notification.build());
 
     assertMessage(emailMessage,
       profileTitleText(profileName, languageKey, languageName, formatDate(new Date(startDate)), formatDate(new Date(endDate))));

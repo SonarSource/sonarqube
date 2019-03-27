@@ -24,14 +24,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
+import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener.BUILT_IN_QUALITY_PROFILES;
 
-public class BuiltInQualityProfilesNotificationTest {
+public class BuiltInQPChangeNotificationTest {
 
   private static final Random RANDOM = new Random();
 
@@ -40,9 +39,9 @@ public class BuiltInQualityProfilesNotificationTest {
 
   @Test
   public void serialize_and_parse_no_profile() {
-    Notification notification = new BuiltInQualityProfilesNotification().serialize();
+    Notification notification = new BuiltInQPChangeNotificationBuilder().build();
 
-    BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
+    BuiltInQPChangeNotificationBuilder result = BuiltInQPChangeNotificationBuilder.parse(notification);
 
     assertThat(result.getProfiles()).isEmpty();
   }
@@ -58,7 +57,7 @@ public class BuiltInQualityProfilesNotificationTest {
     long startDate = RANDOM.nextInt(5000);
     long endDate = startDate + RANDOM.nextInt(5000);
 
-    Notification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotification notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -69,8 +68,8 @@ public class BuiltInQualityProfilesNotificationTest {
         .setStartDate(startDate)
         .setEndDate(endDate)
         .build())
-      .serialize();
-    BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
+      .build();
+    BuiltInQPChangeNotificationBuilder result = BuiltInQPChangeNotificationBuilder.parse(notification);
 
     assertThat(result.getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules,
@@ -87,7 +86,7 @@ public class BuiltInQualityProfilesNotificationTest {
     String languageKey2 = randomAlphanumeric(20);
     String languageName2 = randomAlphanumeric(20);
 
-    Notification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotification notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName1)
         .setLanguageKey(languageKey1)
@@ -98,8 +97,8 @@ public class BuiltInQualityProfilesNotificationTest {
         .setLanguageKey(languageKey2)
         .setLanguageName(languageName2)
         .build())
-      .serialize();
-    BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
+      .build();
+    BuiltInQPChangeNotificationBuilder result = BuiltInQPChangeNotificationBuilder.parse(notification);
 
     assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName)
       .containsExactlyInAnyOrder(tuple(profileName1, languageKey1, languageName1), tuple(profileName2, languageKey2, languageName2));
@@ -116,7 +115,7 @@ public class BuiltInQualityProfilesNotificationTest {
     long startDate = Long.MAX_VALUE;
     long endDate = Long.MAX_VALUE;
 
-    Notification notification = new BuiltInQualityProfilesNotification()
+    BuiltInQPChangeNotification notification = new BuiltInQPChangeNotificationBuilder()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
@@ -127,8 +126,8 @@ public class BuiltInQualityProfilesNotificationTest {
         .setStartDate(startDate)
         .setEndDate(endDate)
         .build())
-      .serialize();
-    BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
+      .build();
+    BuiltInQPChangeNotificationBuilder result = BuiltInQPChangeNotificationBuilder.parse(notification);
 
     assertThat(result.getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules,
@@ -141,6 +140,6 @@ public class BuiltInQualityProfilesNotificationTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Could not read the built-in quality profile notification");
 
-    BuiltInQualityProfilesNotification.parse(new Notification(BUILT_IN_QUALITY_PROFILES));
+    BuiltInQPChangeNotificationBuilder.parse(new Notification(BuiltInQPChangeNotification.TYPE));
   }
 }

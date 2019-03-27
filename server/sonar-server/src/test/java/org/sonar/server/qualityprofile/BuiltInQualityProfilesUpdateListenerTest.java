@@ -32,7 +32,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
+import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -66,7 +66,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
-    assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
+    assertThat(BuiltInQPChangeNotificationBuilder.parse(notificationArgumentCaptor.getValue()).getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules)
       .containsExactlyInAnyOrder(expectedTuple);
   }
@@ -84,7 +84,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
-    assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
+    assertThat(BuiltInQPChangeNotificationBuilder.parse(notificationArgumentCaptor.getValue()).getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getUpdatedRules)
       .containsExactlyInAnyOrder(expectedTuple);
   }
@@ -102,7 +102,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
-    assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
+    assertThat(BuiltInQPChangeNotificationBuilder.parse(notificationArgumentCaptor.getValue()).getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getRemovedRules)
       .containsExactlyInAnyOrder(expectedTuple);
   }
@@ -121,7 +121,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
-    assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
+    assertThat(BuiltInQPChangeNotificationBuilder.parse(notificationArgumentCaptor.getValue()).getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules)
       .containsExactlyInAnyOrder(expectedTuple1, expectedTuple2);
   }
@@ -141,7 +141,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
-    assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
+    assertThat(BuiltInQPChangeNotificationBuilder.parse(notificationArgumentCaptor.getValue()).getProfiles())
       .extracting(Profile::getStartDate, Profile::getEndDate)
       .containsExactlyInAnyOrder(tuple(startDate, endDate));
   }

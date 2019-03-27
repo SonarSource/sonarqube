@@ -22,7 +22,6 @@ package org.sonar.db.permission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -176,11 +175,8 @@ public class AuthorizationDao implements Dao {
       partitionSize -> partitionSize / 3);
   }
 
-  public Set<String> selectQualityProfileAdministratorLogins(DbSession dbSession) {
-    return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER_QUALITY_PROFILES.getKey())
-      .stream()
-      .map(EmailSubscriberDto::getLogin)
-      .collect(Collectors.toSet());
+  public Set<EmailSubscriberDto> selectQualityProfileAdministratorLogins(DbSession dbSession) {
+    return mapper(dbSession).selectEmailSubscribersWithGlobalPermission(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
   /**

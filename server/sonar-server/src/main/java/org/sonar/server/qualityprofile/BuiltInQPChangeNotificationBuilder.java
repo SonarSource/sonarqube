@@ -30,9 +30,8 @@ import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener.BUILT_IN_QUALITY_PROFILES;
 
-public class BuiltInQualityProfilesNotification {
+public class BuiltInQPChangeNotificationBuilder {
 
   private static final String NUMBER_OF_PROFILES = "numberOfProfiles";
   private static final String PROFILE_NAME = ".profileName";
@@ -46,13 +45,13 @@ public class BuiltInQualityProfilesNotification {
 
   private final List<Profile> profiles = new ArrayList<>();
 
-  public BuiltInQualityProfilesNotification addProfile(Profile profile) {
+  public BuiltInQPChangeNotificationBuilder addProfile(Profile profile) {
     profiles.add(profile);
     return this;
   }
 
-  public Notification serialize() {
-    Notification notification = new Notification(BUILT_IN_QUALITY_PROFILES);
+  public BuiltInQPChangeNotification build() {
+    BuiltInQPChangeNotification notification = new BuiltInQPChangeNotification();
     notification.setFieldValue(NUMBER_OF_PROFILES, String.valueOf(profiles.size()));
     AtomicInteger count = new AtomicInteger();
     profiles.forEach(profile -> {
@@ -69,10 +68,10 @@ public class BuiltInQualityProfilesNotification {
     return notification;
   }
 
-  public static BuiltInQualityProfilesNotification parse(Notification notification) {
-    checkState(BUILT_IN_QUALITY_PROFILES.equals(notification.getType()),
-      "Expected notification of type %s but got %s", BUILT_IN_QUALITY_PROFILES, notification.getType());
-    BuiltInQualityProfilesNotification notif = new BuiltInQualityProfilesNotification();
+  public static BuiltInQPChangeNotificationBuilder parse(Notification notification) {
+    checkState(BuiltInQPChangeNotification.TYPE.equals(notification.getType()),
+      "Expected notification of type %s but got %s", BuiltInQPChangeNotification.TYPE, notification.getType());
+    BuiltInQPChangeNotificationBuilder notif = new BuiltInQPChangeNotificationBuilder();
     String numberOfProfilesText = notification.getFieldValue(NUMBER_OF_PROFILES);
     checkState(numberOfProfilesText != null, "Could not read the built-in quality profile notification");
     Integer numberOfProfiles = Integer.valueOf(numberOfProfilesText);
