@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <h4
+    className="overview-meta-header"
+  >
+    overview.quality_profiles
+  </h4>
+  <ul
+    className="overview-meta-list"
+  >
+    <Tooltip
+      key="js"
+      overlay="overview.deleted_profile.name"
+    >
+      <li
+        className="overview-deleted-profile"
+      >
+        <div
+          className="text-ellipsis"
+        >
+          <span
+            className="note spacer-right"
+          >
+            (js)
+          </span>
+          name
+        </div>
+      </li>
+    </Tooltip>
+    <li
+      key="css"
+    >
+      <div
+        className="text-ellipsis"
+      >
+        <span
+          className="note spacer-right"
+        >
+          (CSS)
+        </span>
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/profiles/show",
+              "query": Object {
+                "language": "css",
+                "name": "name",
+              },
+            }
+          }
+        >
+          name
+        </Link>
+      </div>
+    </li>
+  </ul>
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <h4
+    className="overview-meta-header"
+  >
+    overview.quality_profiles
+  </h4>
+  <ul
+    className="overview-meta-list"
+  >
+    <Tooltip
+      key="js"
+      overlay="overview.deleted_profile.name"
+    >
+      <li
+        className="overview-deleted-profile"
+      >
+        <div
+          className="text-ellipsis"
+        >
+          <span
+            className="note spacer-right"
+          >
+            (js)
+          </span>
+          name
+        </div>
+      </li>
+    </Tooltip>
+    <Tooltip
+      key="css"
+      overlay="overview.deprecated_profile.10"
+    >
+      <li
+        className="overview-deprecated-rules"
+      >
+        <div
+          className="text-ellipsis"
+        >
+          <span
+            className="note spacer-right"
+          >
+            (CSS)
+          </span>
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/profiles/show",
+                "query": Object {
+                  "language": "css",
+                  "name": "name",
+                },
+              }
+            }
+          >
+            name
+          </Link>
+        </div>
+      </li>
+    </Tooltip>
+  </ul>
+</Fragment>
+`;

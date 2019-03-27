@@ -41,7 +41,7 @@ interface State {
   deprecatedByKey: T.Dict<number>;
 }
 
-class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
+export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
   mounted = false;
   state: State = { deprecatedByKey: {} };
 
@@ -55,15 +55,16 @@ class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, Sta
   }
 
   loadDeprecatedRules() {
-    const requests = this.props.profiles
-      .filter(p => !p.deleted)
-      .map(profile => this.loadDeprecatedRulesForProfile(profile.key));
+    const existingProfiles = this.props.profiles.filter(p => !p.deleted);
+    const requests = existingProfiles.map(profile =>
+      this.loadDeprecatedRulesForProfile(profile.key)
+    );
     Promise.all(requests).then(
       responses => {
         if (this.mounted) {
           const deprecatedByKey: T.Dict<number> = {};
           responses.forEach((count, i) => {
-            const profileKey = this.props.profiles[i].key;
+            const profileKey = existingProfiles[i].key;
             deprecatedByKey[profileKey] = count;
           });
           this.setState({ deprecatedByKey });
