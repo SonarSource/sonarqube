@@ -319,19 +319,20 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        {component && !['FIL', 'UTS'].includes(component.qualifier) && (
-          <ComponentNav
-            branchLikes={branchLikes}
-            component={component}
-            currentBranchLike={branchLike}
-            currentTask={currentTask}
-            currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
-            isInProgress={isInProgress}
-            isPending={isPending}
-            location={this.props.location}
-            warnings={this.state.warnings}
-          />
-        )}
+        {component &&
+          !['FIL', 'UTS'].includes(component.qualifier) && (
+            <ComponentNav
+              branchLikes={branchLikes}
+              component={component}
+              currentBranchLike={branchLike}
+              currentTask={currentTask}
+              currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
+              isInProgress={isInProgress}
+              isPending={isPending}
+              location={this.props.location}
+              warnings={this.state.warnings}
+            />
+          )}
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />
