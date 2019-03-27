@@ -22,8 +22,10 @@ import { getLinkName } from '../../projectLinks/utils';
 import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 import isValidUri from '../../../app/utils/isValidUri';
 import ClearIcon from '../../../components/icons-components/ClearIcon';
+import './MetaLink.css';
 
 interface Props {
+  iconOnly?: boolean;
   link: T.ProjectLink;
 }
 
@@ -42,7 +44,8 @@ export default class MetaLink extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { link } = this.props;
+    const { iconOnly, link } = this.props;
+    const linkTitle = getLinkName(link);
     return (
       <li>
         <a
@@ -50,9 +53,10 @@ export default class MetaLink extends React.PureComponent<Props, State> {
           href={link.url}
           onClick={!isValidUri(link.url) ? this.handleClick : undefined}
           rel="nofollow noreferrer noopener"
-          target="_blank">
+          target="_blank"
+          title={linkTitle}>
           <ProjectLinkIcon className="little-spacer-right" type={link.type} />
-          {getLinkName(link)}
+          {!iconOnly && linkTitle}
         </a>
         {this.state.expanded && (
           <div className="little-spacer-top copy-paste-link">

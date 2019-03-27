@@ -31,6 +31,7 @@ it('should match snapshot', () => {
   };
 
   expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
+  expect(shallow(<MetaLink iconOnly={true} link={link} />)).toMatchSnapshot();
 });
 
 it('should render dangerous links as plaintext', () => {

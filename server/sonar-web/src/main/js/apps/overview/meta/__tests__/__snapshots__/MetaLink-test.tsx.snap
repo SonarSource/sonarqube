@@ -7,6 +7,7 @@ exports[`should expand and collapse link 1`] = `
     href="scm:git:git@github.com"
     rel="nofollow noreferrer noopener"
     target="_blank"
+    title="Foo"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
@@ -24,6 +25,7 @@ exports[`should expand and collapse link 2`] = `
     href="scm:git:git@github.com"
     rel="nofollow noreferrer noopener"
     target="_blank"
+    title="Foo"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
@@ -41,6 +43,7 @@ exports[`should expand and collapse link 3`] = `
     href="scm:git:git@github.com"
     rel="nofollow noreferrer noopener"
     target="_blank"
+    title="Foo"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
@@ -58,12 +61,30 @@ exports[`should match snapshot 1`] = `
     href="http://example.com"
     rel="nofollow noreferrer noopener"
     target="_blank"
+    title="Foo"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
       type="foo"
     />
     Foo
+  </a>
+</li>
+`;
+
+exports[`should match snapshot 2`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="http://example.com"
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+    title="Foo"
+  >
+    <ProjectLinkIcon
+      className="little-spacer-right"
+      type="foo"
+    />
   </a>
 </li>
 `;
@@ -76,6 +97,7 @@ exports[`should render dangerous links as plaintext 1`] = `
     onClick={[Function]}
     rel="nofollow noreferrer noopener"
     target="_blank"
+    title="Dangerous"
   >
     <ProjectLinkIcon
       className="little-spacer-right"

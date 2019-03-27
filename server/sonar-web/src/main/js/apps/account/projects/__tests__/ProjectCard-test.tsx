@@ -19,68 +19,60 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Link } from 'react-router';
 import ProjectCard from '../ProjectCard';
-import Level from '../../../../components/ui/Level';
-
-const BASE = { key: 'key', links: [], name: 'name' };
 
 it('should render key and name', () => {
-  const project = { ...BASE };
-  const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-key').text()).toBe('key');
+  const wrapper = shallowRender();
+  expect(wrapper.find('.account-project-key').text()).toBe('key');
   expect(
-    output
+    wrapper
       .find('.account-project-name')
-      .find(Link)
+      .find('Link')
       .prop('children')
   ).toBe('name');
 });
 
 it('should render description', () => {
-  const project = { ...BASE, description: 'bla' };
-  const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-description').text()).toBe('bla');
+  const wrapper = shallowRender({ description: 'bla' });
+  expect(wrapper.find('.account-project-description').text()).toBe('bla');
 });
 
 it('should not render optional fields', () => {
-  const project = { ...BASE };
-  const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-description').length).toBe(0);
-  expect(output.find('.account-project-quality-gate').length).toBe(0);
-  expect(output.find('.account-project-links').length).toBe(0);
+  const wrapper = shallowRender();
+  expect(wrapper.find('.account-project-description').length).toBe(0);
+  expect(wrapper.find('.account-project-quality-gate').length).toBe(0);
+  expect(wrapper.find('.account-project-links').length).toBe(0);
 });
 
 it('should render analysis date', () => {
-  const project = { ...BASE, lastAnalysisDate: '2016-05-17' };
-  const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-analysis DateFromNow')).toHaveLength(1);
+  const wrapper = shallowRender({ lastAnalysisDate: '2016-05-17' });
+  expect(wrapper.find('.account-project-analysis DateFromNow')).toHaveLength(1);
 });
 
 it('should not render analysis date', () => {
-  const project = { ...BASE };
-  const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-analysis').text()).toContain(
+  const wrapper = shallowRender();
+  expect(wrapper.find('.account-project-analysis').text()).toContain(
     'my_account.projects.never_analyzed'
   );
 });
 
 it('should render quality gate status', () => {
-  const project = { ...BASE, qualityGate: 'ERROR' };
-  const output = shallow(<ProjectCard project={project} />);
+  const wrapper = shallowRender({ qualityGate: 'ERROR' });
   expect(
-    output
+    wrapper
       .find('.account-project-quality-gate')
-      .find(Level)
+      .find('Level')
       .prop('level')
   ).toBe('ERROR');
 });
 
 it('should render links', () => {
-  const project = {
-    ...BASE,
-    links: [{ name: 'n', type: 't', href: 'h' }]
-  };
-  const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-links').find('li').length).toBe(1);
+  const wrapper = shallowRender({
+    links: [{ name: 'name', type: 'type', href: 'href' }]
+  });
+  expect(wrapper.find('MetaLink').length).toBe(1);
 });
+
+function shallowRender(project: Partial<T.MyProject> = {}) {
+  return shallow(<ProjectCard project={{ key: 'key', links: [], name: 'name', ...project }} />);
+}
