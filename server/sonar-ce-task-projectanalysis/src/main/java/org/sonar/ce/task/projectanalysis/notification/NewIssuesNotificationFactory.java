@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.notification;
+package org.sonar.ce.task.projectanalysis.notification;
 
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
+import org.sonar.server.issue.notification.MyNewIssuesNotification;
+import org.sonar.server.issue.notification.NewIssuesNotification;
 
-@ServerSide
 @ComputeEngineSide
 public class NewIssuesNotificationFactory {
   private final DbClient dbClient;

@@ -86,7 +86,6 @@ import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
-import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
@@ -418,7 +417,6 @@ public class PlatformLevel4 extends PlatformLevel {
       MyNewIssuesNotificationHandler.newMetadata(),
       DoNotFixNotificationDispatcher.class,
       DoNotFixNotificationDispatcher.newMetadata(),
-      NewIssuesNotificationFactory.class,
 
       // Security reports
       SecurityReportsWsModule.class,

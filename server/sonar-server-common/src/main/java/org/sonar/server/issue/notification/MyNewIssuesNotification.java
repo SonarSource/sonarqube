@@ -32,7 +32,7 @@ public class MyNewIssuesNotification extends NewIssuesNotification {
 
   public static final String MY_NEW_ISSUES_NOTIF_TYPE = "my-new-issues";
 
-  MyNewIssuesNotification(DbClient dbClient, Durations durations) {
+  public MyNewIssuesNotification(DbClient dbClient, Durations durations) {
     super(MY_NEW_ISSUES_NOTIF_TYPE, dbClient, durations);
   }
 

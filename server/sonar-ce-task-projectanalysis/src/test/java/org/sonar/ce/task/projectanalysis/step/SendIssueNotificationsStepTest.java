@@ -56,7 +56,7 @@ import org.sonar.server.issue.notification.DistributedMetricStatsInt;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
-import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
+import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 

@@ -66,7 +66,7 @@ public class NewIssuesNotification extends Notification {
   private final transient DbClient dbClient;
   private final transient Durations durations;
 
-  NewIssuesNotification(DbClient dbClient, Durations durations) {
+  public NewIssuesNotification(DbClient dbClient, Durations durations) {
     this(TYPE, dbClient, durations);
   }
 
