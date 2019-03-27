@@ -55,7 +55,7 @@
     "unist-util-visit": "1.4.0"
   },
   "scripts": {
-    "build": "gatsby clean && yarn jest src/__tests__/ && gatsby build --prefix-paths",
+    "build": "gatsby clean && gatsby build --prefix-paths",
     "develop": "gatsby develop",
     "graphql-types": "gql-gen --url http://localhost:8000/___graphql --template typescript --out ./src/@types/graphql-types.d.ts",
     "test": "jest",
@@ -63,7 +63,8 @@
     "format-check": "prettier --list-different 'src/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src",
     "ts-check": "tsc --noEmit",
-    "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test"
+    "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
+    "validate-ci": "yarn lint && yarn ts-check && yarn format-check && yarn test"
   },
   "prettier": {
     "jsxBracketSameLine": true,

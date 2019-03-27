@@ -53,12 +53,12 @@ const utils = require('./utils');
  https://github.com/jantimon/html-webpack-plugin/issues/1051
 */
 
-module.exports = ({ production = true }) => {
+module.exports = ({ production = true, release = false }) => {
   const timestamp = Date.now();
 
   const commonConfig = {
     mode: production ? 'production' : 'development',
-    devtool: production ? 'source-map' : 'cheap-module-source-map',
+    devtool: production && release ? 'source-map' : 'cheap-module-source-map',
     resolve: {
       // Add '.ts' and '.tsx' as resolvable extensions.
       extensions: ['.ts', '.tsx', '.js', '.json'],
@@ -71,7 +71,8 @@ module.exports = ({ production = true }) => {
       splitChunks: {
         chunks: 'all',
         automaticNameDelimiter: '-'
-      }
+      },
+      minimize: production && release
     }
   };
 
@@ -177,7 +178,7 @@ module.exports = ({ production = true }) => {
         new HtmlWebpackPlugin({
           inject: false,
           template: paths.appHtml,
-          minify: utils.minifyParams({ production }),
+          minify: utils.minifyParams({ production: production && release }),
           timestamp
         }),
 
@@ -192,14 +193,15 @@ module.exports = ({ production = true }) => {
 
         !production && new webpack.HotModuleReplacementPlugin()
       ].filter(Boolean),
-      performance: production
-        ? {
-            // ignore source maps and documentation chunk
-            assetFilter: assetFilename =>
-              !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
-            hints: 'error'
-          }
-        : undefined
+      performance:
+        production && release
+          ? {
+              // ignore source maps and documentation chunk
+              assetFilter: assetFilename =>
+                !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
+              hints: 'error'
+            }
+          : undefined
     }),
 
     Object.assign({ name: 'legacy' }, commonConfig, {

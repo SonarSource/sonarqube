@@ -25,10 +25,13 @@ const webpack = require('webpack');
 const reportBuildStats = require('./utils/reportBuildStats');
 const getConfigs = require('../config/webpack.config');
 
-const configs = getConfigs({ production: true });
+const release = process.argv.findIndex(val => val === 'release') >= 0;
+const configs = getConfigs({ production: true, release }).filter(
+  config => release || config.name === 'modern'
+);
 
 function build() {
-  console.log(chalk.cyan.bold('Creating optimized production build...'));
+  console.log(chalk.cyan.bold(`Creating ${release ? 'optimized' : 'fast'} production build...`));
   console.log();
 
   webpack(configs, (err, stats) => {
@@ -38,8 +41,10 @@ function build() {
       process.exit(1);
     }
     reportBuildStats(stats.stats[0], 'modern');
-    console.log();
-    reportBuildStats(stats.stats[1], 'legacy');
+    if (release) {
+      console.log();
+      reportBuildStats(stats.stats[1], 'legacy');
+    }
     console.log(chalk.green.bold('Compiled successfully!'));
   });
 }
