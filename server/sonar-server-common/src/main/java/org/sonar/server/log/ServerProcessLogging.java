@@ -83,6 +83,7 @@ public abstract class ServerProcessLogging {
     builder.immutableLevel("org.postgresql.jdbc.PgConnection", Level.INFO);
     // Apache FOP
     builder.immutableLevel("org.apache.fop", Level.INFO);
+    builder.immutableLevel("org.apache.fop.apps.FOUserAgent", Level.WARN);
     builder.immutableLevel("org.apache.xmlgraphics.image.loader.spi.ImageImplRegistry", Level.INFO);
     // Hazelcast
     builder.immutableLevel("com.hazelcast.internal.cluster.impl.ClusterHeartbeatManager", Level.INFO);
