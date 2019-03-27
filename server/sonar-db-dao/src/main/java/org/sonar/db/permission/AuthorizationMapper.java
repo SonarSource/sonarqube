@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.EmailSubscriberDto;
 
 /**
  * @see AuthorizationDao
@@ -63,9 +64,7 @@ public interface AuthorizationMapper {
 
   Set<String> selectProjectPermissionsOfAnonymous(@Param("projectUuid") String projectUuid);
 
-  List<String> selectQualityProfileAdministratorLogins(@Param("permission") String permission);
-
   Set<String> keepAuthorizedLoginsOnProject(@Param("logins") List<String> logins, @Param("projectKey") String projectKey, @Param("permission") String permission);
 
-  List<String> selectLoginsWithGlobalPermission(@Param("permission") String permission);
+  Set<EmailSubscriberDto> selectEmailSubscribersWithGlobalPermission(@Param("permission") String permission);
 }

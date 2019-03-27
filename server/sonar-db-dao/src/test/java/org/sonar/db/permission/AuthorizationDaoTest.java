@@ -34,6 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -44,6 +45,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -1000,7 +1002,7 @@ public class AuthorizationDaoTest {
     UserDto user2 = db.users().insertUser();
     db.users().insertPermissionOnUser(organization2, user2, ADMINISTER_QUALITY_PROFILES);
 
-    List<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
+    Set<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
 
     assertThat(logins).containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin());
   }
@@ -1018,7 +1020,7 @@ public class AuthorizationDaoTest {
     UserDto user2 = db.users().insertUser();
     db.users().insertMember(qualityProfileAdministratorGroup2, user2);
 
-    List<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
+    Set<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
 
     assertThat(logins).containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin());
   }
@@ -1030,35 +1032,84 @@ public class AuthorizationDaoTest {
     db.users().insertPermissionOnUser(organization1, user1, ADMINISTER);
     db.users().insertUser();
 
-    List<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
+    Set<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
 
     assertThat(logins).isEmpty();
   }
 
   @Test
-  public void selectGlobalAdministratorLogins() {
+  public void selectGlobalAdministerEmailSubscribers_returns_only_global_administers() {
     OrganizationDto organization1 = db.organizations().insert();
-    UserDto user1 = db.users().insertUser();
+    UserDto user1 = db.users().insertUser(t -> t.setLogin("user1").setEmail(emailOf(t)));
     db.users().insertPermissionOnUser(organization1, user1, ADMINISTER);
     OrganizationDto organization2 = db.organizations().insert();
-    UserDto user2 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser(t -> t.setLogin("user2").setEmail(emailOf(t)));
     db.users().insertPermissionOnUser(organization2, user2, ADMINISTER);
 
+    // user3 is global administer via a group
     GroupDto administratorGroup2 = db.users().insertGroup(organization2);
     db.users().insertPermissionOnGroup(administratorGroup2, ADMINISTER);
-    UserDto user3 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser(t -> t.setLogin("user3").setEmail(emailOf(t)));
     db.users().insertMember(administratorGroup2, user3);
+    // user4 has another global permission via a group
+    GroupDto administratorGroup3 = db.users().insertGroup(organization2);
+    db.users().insertPermissionOnGroup(administratorGroup3, QUALITY_PROFILE_ADMIN);
+    UserDto user4 = db.users().insertUser(t -> t.setLogin("user4").setEmail(emailOf(t)));
+    db.users().insertMember(administratorGroup3, user4);
 
     ComponentDto project = db.components().insertPrivateProject();
 
-    UserDto user4 = db.users().insertUser();
-    db.users().insertPermissionOnUser(organization1, user4, ADMINISTER_QUALITY_PROFILES);
-    db.users().insertProjectPermissionOnUser(user4, "admin", project);
-    db.users().insertUser();
+    // user5 is only project level administer
+    UserDto user5 = db.users().insertUser(t -> t.setLogin("user5").setEmail(emailOf(t)));
+//    db.users().insertPermissionOnUser(organization1, user5, ADMINISTER);
+    db.users().insertProjectPermissionOnUser(user5, "admin", project);
+    // user6 has other global permission
+    UserDto user6 = db.users().insertUser(t -> t.setLogin("user6").setEmail(emailOf(t)));
+    db.users().insertPermissionOnUser(organization1, user6, ADMINISTER_QUALITY_PROFILES);
+    // user7 has no permission
+    db.users().insertUser(t -> t.setLogin("user7").setEmail(emailOf(t)));
 
-    List<String> logins = underTest.selectGlobalAdministratorLogins(dbSession);
+    Set<EmailSubscriberDto> subscribers = underTest.selectGlobalAdministerEmailSubscribers(dbSession);
 
-    assertThat(logins).containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin(), user3.getLogin());
+    assertThat(subscribers).containsOnly(
+      new EmailSubscriberDto(user1.getLogin(), true, emailOf(user1)),
+      new EmailSubscriberDto(user2.getLogin(), true, emailOf(user2)),
+      new EmailSubscriberDto(user3.getLogin(), true, emailOf(user3)));
+  }
+
+  @Test
+  public void selectGlobalAdministerEmailSubscribers_ignores_global_administers_without_email() {
+    OrganizationDto organization1 = db.organizations().insert();
+    // user1 and user1NoEmail are global administers on org1
+    UserDto user1 = db.users().insertUser(t -> t.setLogin("user1").setEmail(emailOf(t)));
+    db.users().insertPermissionOnUser(organization1, user1, ADMINISTER);
+    UserDto user1NoEmail = db.users().insertUser(t -> t.setLogin("user1NoEmail").setEmail(null));
+    db.users().insertPermissionOnUser(organization1, user1NoEmail, ADMINISTER);
+    // user2 and user2NoEmail are global administers on org2
+    OrganizationDto organization2 = db.organizations().insert();
+    UserDto user2 = db.users().insertUser(t -> t.setLogin("user2").setEmail(emailOf(t)));
+    db.users().insertPermissionOnUser(organization2, user2, ADMINISTER);
+    UserDto user2NoEmail = db.users().insertUser(t -> t.setLogin("user2NoEmail").setEmail(null));
+    db.users().insertPermissionOnUser(organization2, user2NoEmail, ADMINISTER);
+
+    // user3 and user3NoEmail are global administer via a group
+    GroupDto administratorGroup2 = db.users().insertGroup(organization2);
+    db.users().insertPermissionOnGroup(administratorGroup2, ADMINISTER);
+    UserDto user3 = db.users().insertUser(t -> t.setLogin("user3").setEmail(emailOf(t)));
+    db.users().insertMember(administratorGroup2, user3);
+    UserDto user3NoEmail = db.users().insertUser(t -> t.setLogin("user3NoEmail").setEmail(null));
+    db.users().insertMember(administratorGroup2, user3NoEmail);
+
+    Set<EmailSubscriberDto> subscribers = underTest.selectGlobalAdministerEmailSubscribers(dbSession);
+
+    assertThat(subscribers).containsOnly(
+      new EmailSubscriberDto(user1.getLogin(), true, emailOf(user1)),
+      new EmailSubscriberDto(user2.getLogin(), true, emailOf(user2)),
+      new EmailSubscriberDto(user3.getLogin(), true, emailOf(user3)));
+  }
+
+  private static String emailOf(UserDto t) {
+    return t.getLogin() + "@foo";
   }
 
   @Test

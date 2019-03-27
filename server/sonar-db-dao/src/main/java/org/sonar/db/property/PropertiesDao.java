@@ -34,6 +34,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -70,7 +71,7 @@ public class PropertiesDao implements Dao {
   }
 
   public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
-                                                                     @Nullable String projectKey) {
+    @Nullable String projectKey) {
     return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey);
   }
 

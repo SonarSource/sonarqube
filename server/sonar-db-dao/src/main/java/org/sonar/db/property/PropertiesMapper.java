@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.EmailSubscriberDto;
 
 public interface PropertiesMapper {
 

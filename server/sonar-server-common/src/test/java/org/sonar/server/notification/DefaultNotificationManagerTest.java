@@ -41,10 +41,10 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.permission.AuthorizationDao;
-import org.sonar.db.property.EmailSubscriberDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.Subscriber;
 import org.sonar.server.notification.NotificationManager.EmailRecipient;
@@ -296,7 +296,8 @@ public class DefaultNotificationManagerTest {
     String projectKey = randomAlphabetic(6);
     String otherProjectKey = randomAlphabetic(7);
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
-      .thenReturn(newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
+      .thenReturn(
+        newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", otherProjectKey))
       .thenReturn(newHashSet(new EmailSubscriberDto("user2", false, "user2@foo")));
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, otherDispatcherKey, "EmailNotificationChannel", projectKey))

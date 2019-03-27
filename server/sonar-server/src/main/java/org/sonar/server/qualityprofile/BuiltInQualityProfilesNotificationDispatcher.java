@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.List;
+import java.util.Set;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -51,7 +51,7 @@ public class BuiltInQualityProfilesNotificationDispatcher extends NotificationDi
     getRecipients().forEach(login -> context.addUser(login, emailNotificationChannel));
   }
 
-  private List<String> getRecipients() {
+  private Set<String> getRecipients() {
     try (DbSession session = dbClient.openSession(false)) {
       return dbClient.authorizationDao().selectQualityProfileAdministratorLogins(session);
     }

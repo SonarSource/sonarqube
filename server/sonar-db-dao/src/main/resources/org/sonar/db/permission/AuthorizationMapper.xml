@@ -399,24 +399,36 @@
       and gr.group_id is null
   </sql>
 
-  <select id="selectLoginsWithGlobalPermission" parameterType="map" resultType="String">
-    select u.login
-    from user_roles ur
-    inner join users u on u.id=ur.user_id
+  <select id="selectEmailSubscribersWithGlobalPermission" parameterType="map" resultType="org.sonar.db.EmailSubscriberDto">
+    select
+      u.login as "login",
+      ${_true} as "global",
+      u.email as "email"
+    from
+      users u
+    inner join user_roles ur on
+      ur.user_id = u.id
+      and ur.role=#{permission, jdbcType=VARCHAR}
+      and ur.resource_id is null
     where
-    ur.role=#{permission, jdbcType=VARCHAR}
-    and ur.resource_id is null
+      u.email is not null
 
     union
 
-    select u.login
-    from group_roles gr
-    inner join groups_users gu on gr.group_id = gu.group_id
-    inner join users u on u.id=gu.user_id
+    select
+      u.login as "login",
+      ${_true} as "global",
+      u.email as "email"
+    from users u
+    inner join groups_users gu on
+      u.id=gu.user_id
+    inner join group_roles gr on
+      gr.group_id = gu.group_id
+      and gr.role = #{permission, jdbcType=VARCHAR}
+      and gr.resource_id is null
     where
-    gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.resource_id is null and
-    gr.group_id is not null
+      u.email is not null
+
   </select>
 
   <select id="keepAuthorizedLoginsOnProject" parameterType="map" resultType="String">

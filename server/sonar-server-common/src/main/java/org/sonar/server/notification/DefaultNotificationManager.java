@@ -41,8 +41,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.EmailSubscriberDto;
 import org.sonar.db.notification.NotificationQueueDto;
-import org.sonar.db.property.EmailSubscriberDto;
 import org.sonar.db.property.Subscriber;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 
@@ -199,7 +199,7 @@ public class DefaultNotificationManager implements NotificationManager {
   }
 
   private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,
-                                                                    SubscriberPermissionsOnProject requiredPermissions) {
+    SubscriberPermissionsOnProject requiredPermissions) {
     if (requiredPermissions.getGlobalSubscribers().equals(requiredPermissions.getProjectSubscribers())) {
       return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, null, requiredPermissions.getGlobalSubscribers());
     } else {
@@ -210,7 +210,7 @@ public class DefaultNotificationManager implements NotificationManager {
   }
 
   private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,
-                                                                    @Nullable Boolean global, String permission) {
+    @Nullable Boolean global, String permission) {
     Set<EmailSubscriberDto> subscribers = emailSubscribers.stream()
       .filter(s -> global == null || s.isGlobal() == global)
       .collect(Collectors.toSet());

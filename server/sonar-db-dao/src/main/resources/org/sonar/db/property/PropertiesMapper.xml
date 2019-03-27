@@ -32,7 +32,7 @@
     </if>
   </select>
 
-  <select id="findEmailRecipientsForNotification" parameterType="map" resultType="org.sonar.db.property.EmailSubscriberDto">
+  <select id="findEmailRecipientsForNotification" parameterType="map" resultType="org.sonar.db.EmailSubscriberDto">
     SELECT
       u.login as "login",
       ${_true} as "global",
