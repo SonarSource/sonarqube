@@ -43,6 +43,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
+import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
@@ -53,13 +54,13 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
-import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -112,19 +113,19 @@ public class SendIssueNotificationsStep implements ComputationStep {
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
     Predicate<DefaultIssue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(isOnLeakPredicate);
-    Map<String, UserDto> usersDtoByUuids;
+    Map<String, UserDto> assigneesByUuid;
     try (DbSession dbSession = dbClient.openSession(false)) {
       Iterable<DefaultIssue> iterable = issueCache::traverse;
-      List<String> assigneeUuids = stream(iterable.spliterator(), false).map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toList());
-      usersDtoByUuids = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, dto -> dto));
+      Set<String> assigneeUuids = stream(iterable.spliterator(), false).map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toSet());
+      assigneesByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, dto -> dto));
     }
 
     try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
-      processIssues(newIssuesStats, issues, project, usersDtoByUuids, notificationStatistics);
+      processIssues(newIssuesStats, issues, project, assigneesByUuid, notificationStatistics);
     }
     if (newIssuesStats.hasIssuesOnLeak()) {
-      sendNewIssuesNotification(newIssuesStats, project, analysisDate, notificationStatistics);
-      sendMyNewIssuesNotification(newIssuesStats, project, analysisDate, notificationStatistics);
+      sendNewIssuesNotification(newIssuesStats, project, assigneesByUuid, analysisDate, notificationStatistics);
+      sendMyNewIssuesNotification(newIssuesStats, project, assigneesByUuid, analysisDate, notificationStatistics);
     }
   }
 
@@ -163,10 +164,11 @@ public class SendIssueNotificationsStep implements ComputationStep {
     notificationStatistics.issueChanges++;
   }
 
-  private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate, NotificationStatistics notificationStatistics) {
+  private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, Map<String, UserDto> assigneesByUuid,
+    long analysisDate, NotificationStatistics notificationStatistics) {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
-      .newNewIssuesNotification()
+      .newNewIssuesNotification(assigneesByUuid)
       .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
       .setProjectVersion(project.getProjectAttributes().getProjectVersion())
       .setAnalysisDate(new Date(analysisDate))
@@ -179,7 +181,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
     notificationStatistics.newIssuesDeliveries += service.deliver(notification);
   }
 
-  private void sendMyNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate, NotificationStatistics notificationStatistics) {
+  private void sendMyNewIssuesNotification(NewIssuesStatistics statistics, Component project, Map<String, UserDto> assigneesByUuid, long analysisDate,
+    NotificationStatistics notificationStatistics) {
     Map<String, UserDto> userDtoByUuid = loadUserDtoByUuid(statistics);
     Set<MyNewIssuesNotification> myNewIssuesNotifications = statistics.getAssigneesStatistics().entrySet()
       .stream()
@@ -188,7 +191,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
         String assigneeUuid = e.getKey();
         NewIssuesStatistics.Stats assigneeStatistics = e.getValue();
         MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
-          .newMyNewIssuesNotification()
+          .newMyNewIssuesNotification(assigneesByUuid)
           .setAssignee(userDtoByUuid.get(assigneeUuid));
         myNewIssuesNotification
           .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())

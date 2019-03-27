@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
+import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -56,7 +58,6 @@ import org.sonar.server.issue.notification.DistributedMetricStatsInt;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
-import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
@@ -67,13 +68,16 @@ import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
@@ -119,6 +123,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private final Random random = new Random();
   private final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Stream.of(RuleType.values()).filter(r -> r != RuleType.SECURITY_HOTSPOT).toArray(RuleType[]::new);
   private final RuleType randomRuleType = RULE_TYPES_EXCEPT_HOTSPOTS[random.nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)];
+  @SuppressWarnings("unchecked")
+  private Class<Map<String, UserDto>> assigneeCacheType = (Class<Map<String, UserDto>>) (Object) Map.class;
+  private ArgumentCaptor<Map<String, UserDto>> assigneeCacheCaptor = ArgumentCaptor.forClass(assigneeCacheType);
   private NotificationService notificationService = mock(NotificationService.class);
   private NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class);
   private NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();
@@ -133,8 +140,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest = new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder,
       newIssuesNotificationFactory, db.getDbClient());
 
-    when(newIssuesNotificationFactory.newNewIssuesNotification()).thenReturn(newIssuesNotificationMock);
-    when(newIssuesNotificationFactory.newMyNewIssuesNotification()).thenReturn(myNewIssuesNotificationMock);
+    when(newIssuesNotificationFactory.newNewIssuesNotification(any(assigneeCacheType))).thenReturn(newIssuesNotificationMock);
+    when(newIssuesNotificationFactory.newMyNewIssuesNotification(any(assigneeCacheType))).thenReturn(myNewIssuesNotificationMock);
   }
 
   @Test
@@ -326,11 +333,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class);
     NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();
-    when(newIssuesNotificationFactory.newNewIssuesNotification()).thenReturn(newIssuesNotificationMock);
+    when(newIssuesNotificationFactory.newNewIssuesNotification(assigneeCacheCaptor.capture()))
+      .thenReturn(newIssuesNotificationMock);
 
     MyNewIssuesNotification myNewIssuesNotificationMock1 = createMyNewIssuesNotificationMock();
     MyNewIssuesNotification myNewIssuesNotificationMock2 = createMyNewIssuesNotificationMock();
-    when(newIssuesNotificationFactory.newMyNewIssuesNotification()).thenReturn(myNewIssuesNotificationMock1).thenReturn(myNewIssuesNotificationMock2);
+    when(newIssuesNotificationFactory.newMyNewIssuesNotification(any(assigneeCacheType)))
+      .thenReturn(myNewIssuesNotificationMock1)
+      .thenReturn(myNewIssuesNotificationMock2);
 
     TestComputationStepContext context = new TestComputationStepContext();
     new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder, newIssuesNotificationFactory, db.getDbClient())
@@ -340,6 +350,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     // old API compatibility
     verify(notificationService).deliver(myNewIssuesNotificationMock1);
     verify(notificationService).deliver(myNewIssuesNotificationMock2);
+
+    verify(newIssuesNotificationFactory).newNewIssuesNotification(assigneeCacheCaptor.capture());
+    verify(newIssuesNotificationFactory, times(2)).newMyNewIssuesNotification(assigneeCacheCaptor.capture());
+    verifyNoMoreInteractions(newIssuesNotificationFactory);
+    verifyAssigneeCache(assigneeCacheCaptor, perceval, arthur);
 
     Map<String, MyNewIssuesNotification> myNewIssuesNotificationMocksByUsersName = new HashMap<>();
     ArgumentCaptor<UserDto> userCaptor1 = forClass(UserDto.class);
@@ -394,6 +409,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     // old API compatibility
     verify(notificationService).deliver(myNewIssuesNotificationMock);
 
+
+    verify(newIssuesNotificationFactory).newNewIssuesNotification(assigneeCacheCaptor.capture());
+    verify(newIssuesNotificationFactory).newMyNewIssuesNotification(assigneeCacheCaptor.capture());
+    verifyNoMoreInteractions(newIssuesNotificationFactory);
+    verifyAssigneeCache(assigneeCacheCaptor, user);
+
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), statsCaptor.capture());
@@ -406,6 +427,17 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
 
     verifyStatistics(context, 1, 1, 0);
+  }
+
+  private static void verifyAssigneeCache(ArgumentCaptor<Map<String, UserDto>> assigneeCacheCaptor, UserDto... users) {
+    Map<String, UserDto> cache = assigneeCacheCaptor.getAllValues().iterator().next();
+    assertThat(assigneeCacheCaptor.getAllValues())
+      .filteredOn(t -> t != cache)
+      .isEmpty();
+    Tuple[] expected = stream(users).map(user -> tuple(user.getUuid(), user.getUuid(), user.getId(), user.getLogin())).toArray(Tuple[]::new);
+    assertThat(cache.entrySet())
+      .extracting(t -> t.getKey(), t -> t.getValue().getUuid(), t -> t.getValue().getId(), t -> t.getValue().getLogin())
+      .containsOnly(expected);
   }
 
   @Test
@@ -569,7 +601,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     return branch;
   }
 
-  private static void verifyStatistics(TestComputationStepContext context, int expectedNewIssuesNotifications, int expectedMyNewIssuesNotifications, int expectedIssueChangesNotifications) {
+  private static void verifyStatistics(TestComputationStepContext context, int expectedNewIssuesNotifications, int expectedMyNewIssuesNotifications,
+    int expectedIssueChangesNotifications) {
     context.getStatistics().assertValue("newIssuesNotifs", expectedNewIssuesNotifications);
     context.getStatistics().assertValue("myNewIssuesNotifs", expectedMyNewIssuesNotifications);
     context.getStatistics().assertValue("changesNotifs", expectedIssueChangesNotifications);

@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.ToIntFunction;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -37,16 +37,9 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PROJECT_VERSION;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
@@ -63,17 +56,76 @@ public class NewIssuesNotification extends Notification {
   private static final String LABEL = ".label";
   private static final String DOT = ".";
 
-  private final transient DbClient dbClient;
+  private final transient DetailsSupplier detailsSupplier;
   private final transient Durations durations;
 
-  public NewIssuesNotification(DbClient dbClient, Durations durations) {
-    this(TYPE, dbClient, durations);
+  public NewIssuesNotification(Durations durations, DetailsSupplier detailsSupplier) {
+    this(TYPE, durations, detailsSupplier);
   }
 
-  protected NewIssuesNotification(String type, DbClient dbClient, Durations durations) {
+  protected NewIssuesNotification(String type, Durations durations, DetailsSupplier detailsSupplier) {
     super(type);
-    this.dbClient = dbClient;
     this.durations = durations;
+    this.detailsSupplier = detailsSupplier;
+  }
+
+  public interface DetailsSupplier {
+    /**
+     * @throws NullPointerException if {@code ruleKey} is {@code null}
+     */
+    Optional<RuleDefinition> getRuleDefinitionByRuleKey(RuleKey ruleKey);
+
+    /**
+     * @throws NullPointerException if {@code uuid} is {@code null}
+     */
+    Optional<String> getComponentNameByUuid(String uuid);
+
+    /**
+     * @throws NullPointerException if {@code uuid} is {@code null}
+     */
+    Optional<String> getUserNameByUuid(String uuid);
+  }
+
+  @Immutable
+  public static final class RuleDefinition {
+    private final String name;
+    private final String language;
+
+    public RuleDefinition(String name, @Nullable String language) {
+      this.name = requireNonNull(name, "name can't be null");
+      this.language = language;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    @CheckForNull
+    public String getLanguage() {
+      return language;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      RuleDefinition that = (RuleDefinition) o;
+      return name.equals(that.name) && Objects.equals(language, that.language);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(name, language);
+    }
+
+    @Override
+    public String toString() {
+      return "RuleDefinition{" + name + " (" + language + ')' + '}';
+    }
   }
 
   public NewIssuesNotification setAnalysisDate(Date d) {
@@ -108,33 +160,23 @@ public class NewIssuesNotification extends Notification {
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
     setDefaultMessage(stats.getDistributedMetricStats(RULE_TYPE).getOnLeak() + " new issues on " + projectName + ".\n");
 
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      setRuleTypeStatistics(stats);
-      setAssigneesStatistics(dbSession, stats);
-      setTagsStatistics(stats);
-      setComponentsStatistics(dbSession, stats);
-      setRuleStatistics(dbSession, stats);
-    }
+    setRuleTypeStatistics(stats);
+    setAssigneesStatistics(stats);
+    setTagsStatistics(stats);
+    setComponentsStatistics(stats);
+    setRuleStatistics(stats);
 
     return this;
   }
 
-  private void setRuleStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
+  private void setRuleStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.RULE;
     List<Map.Entry<String, MetricStatsInt>> fiveBiggest = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
-    Set<RuleKey> ruleKeys = fiveBiggest
-      .stream()
-      .map(Map.Entry::getKey)
-      .map(RuleKey::parse)
-      .collect(MoreCollectors.toSet(fiveBiggest.size()));
-    Map<String, RuleDefinitionDto> ruleByRuleKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession, ruleKeys)
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(s -> s.getKey().toString()));
     int i = 1;
     for (Map.Entry<String, MetricStatsInt> ruleStats : fiveBiggest) {
       String ruleKey = ruleStats.getKey();
-      RuleDefinitionDto rule = Optional.ofNullable(ruleByRuleKey.get(ruleKey))
-        .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", ruleKey)));
+      RuleDefinition rule = detailsSupplier.getRuleDefinitionByRuleKey(RuleKey.parse(ruleKey))
+        .orElseThrow(() -> new IllegalStateException(String.format("Rule with key '%s' does not exist", ruleKey)));
       String name = rule.getName() + " (" + rule.getLanguage() + ")";
       setFieldValue(metric + DOT + i + LABEL, name);
       setFieldValue(metric + DOT + i + COUNT, String.valueOf(ruleStats.getValue().getOnLeak()));
@@ -142,22 +184,14 @@ public class NewIssuesNotification extends Notification {
     }
   }
 
-  private void setComponentsStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
+  private void setComponentsStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.COMPONENT;
     int i = 1;
     List<Map.Entry<String, MetricStatsInt>> fiveBiggest = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
-    Set<String> componentUuids = fiveBiggest
-      .stream()
-      .map(Map.Entry::getKey)
-      .collect(MoreCollectors.toSet(fiveBiggest.size()));
-    Map<String, ComponentDto> componentDtosByUuid = dbClient.componentDao().selectByUuids(dbSession, componentUuids)
-      .stream()
-      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
     for (Map.Entry<String, MetricStatsInt> componentStats : fiveBiggest) {
       String uuid = componentStats.getKey();
-      String componentName = Optional.ofNullable(componentDtosByUuid.get(uuid))
-        .map(ComponentDto::name)
-        .orElseThrow(() -> new RowNotFoundException(String.format("Component with uuid '%s' not found", uuid)));
+      String componentName = detailsSupplier.getComponentNameByUuid(uuid)
+        .orElseThrow(() -> new IllegalStateException(String.format("Component with uuid '%s' not found", uuid)));
       setFieldValue(metric + DOT + i + LABEL, componentName);
       setFieldValue(metric + DOT + i + COUNT, String.valueOf(componentStats.getValue().getOnLeak()));
       i++;
@@ -174,19 +208,14 @@ public class NewIssuesNotification extends Notification {
     }
   }
 
-  private void setAssigneesStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
-
+  private void setAssigneesStatistics(NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.ASSIGNEE;
     List<Map.Entry<String, MetricStatsInt>> entries = fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak);
-
-    Set<String> assigneeUuids = entries.stream().map(Map.Entry::getKey).filter(Objects::nonNull).collect(toSet());
-    Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
 
     int i = 1;
     for (Map.Entry<String, MetricStatsInt> assigneeStats : entries) {
       String assigneeUuid = assigneeStats.getKey();
-      UserDto user = userDtoByUuid.get(assigneeUuid);
-      String name = user == null ? assigneeUuid : user.getName();
+      String name = detailsSupplier.getUserNameByUuid(assigneeUuid).orElse(assigneeUuid);
       setFieldValue(metric + DOT + i + LABEL, name);
       setFieldValue(metric + DOT + i + COUNT, String.valueOf(assigneeStats.getValue().getOnLeak()));
       i++;

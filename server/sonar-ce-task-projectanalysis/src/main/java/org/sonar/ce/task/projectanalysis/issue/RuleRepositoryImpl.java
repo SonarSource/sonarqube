@@ -173,6 +173,12 @@ public class RuleRepositoryImpl implements RuleRepository {
     }
 
     @Override
+    @CheckForNull
+    public String getLanguage() {
+      return null;
+    }
+
+    @Override
     public RuleStatus getStatus() {
       return RuleStatus.defaultStatus();
     }

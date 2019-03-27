@@ -20,6 +20,7 @@
 package org.sonar.server.issue.notification;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,12 +32,16 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.notification.NewIssuesNotification.DetailsSupplier;
+import org.sonar.server.issue.notification.NewIssuesNotification.RuleDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -53,7 +58,8 @@ public class NewIssuesNotificationTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private NewIssuesNotification underTest = new NewIssuesNotification(db.getDbClient(), new Durations());
+  private DetailsSupplier detailsSupplier = mock(DetailsSupplier.class);
+  private NewIssuesNotification underTest = new NewIssuesNotification(new Durations(), detailsSupplier);
 
   @Test
   public void set_project_without_branch() {
@@ -133,9 +139,8 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_statistics() {
-    UserDto maynard = db.users().insertUser(u-> u.setLogin("maynard"));
-    UserDto keenan = db.users().insertUser(u-> u.setLogin("keenan"));
-
+    UserDto maynard = db.users().insertUser(u -> u.setLogin("maynard"));
+    UserDto keenan = db.users().insertUser(u -> u.setLogin("keenan"));
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
@@ -146,6 +151,9 @@ public class NewIssuesNotificationTest {
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue1.toDefaultIssue()));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(issue2.toDefaultIssue()));
+    mockDetailsSupplierComponents(project, directory, file);
+    mockDetailsSupplierRules(rule1, rule2);
+    mockDetailsSupplierAssignees(maynard, keenan);
 
     underTest.setStatistics(project.longName(), stats);
 
@@ -170,6 +178,25 @@ public class NewIssuesNotificationTest {
     assertThat(underTest.getDefaultMessage()).startsWith("8 new issues on " + project.longName());
   }
 
+  private void mockDetailsSupplierAssignees(UserDto... users) {
+    for (UserDto user : users) {
+      when(detailsSupplier.getUserNameByUuid(user.getUuid())).thenReturn(Optional.of(user.getName()));
+    }
+  }
+
+  private void mockDetailsSupplierRules(RuleDefinitionDto... rules) {
+    for (RuleDefinitionDto rule : rules) {
+      when(detailsSupplier.getRuleDefinitionByRuleKey(rule.getKey()))
+        .thenReturn(Optional.of(new RuleDefinition(rule.getName(), rule.getLanguage())));
+    }
+  }
+
+  private void mockDetailsSupplierComponents(ComponentDto... components) {
+    for (ComponentDto component : components) {
+      when(detailsSupplier.getComponentNameByUuid(component.uuid())).thenReturn(Optional.of(component.name()));
+    }
+  }
+
   @Test
   public void set_assignee() {
     ComponentDto project = db.components().insertPrivateProject();
@@ -179,6 +206,9 @@ public class NewIssuesNotificationTest {
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(user.getUuid()));
     NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
     IntStream.rangeClosed(1, 5).forEach(i -> stats.add(issue.toDefaultIssue()));
+    mockDetailsSupplierRules(rule);
+    mockDetailsSupplierAssignees(user);
+    mockDetailsSupplierComponents(project, file);
 
     underTest.setStatistics(project.longName(), stats);
 
@@ -196,7 +226,6 @@ public class NewIssuesNotificationTest {
     UserDto user6 = db.users().insertUser();
     UserDto user7 = db.users().insertUser();
     UserDto user8 = db.users().insertUser();
-
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
@@ -209,6 +238,9 @@ public class NewIssuesNotificationTest {
     IntStream.rangeClosed(1, 5).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user6.getUuid())).toDefaultIssue()));
     IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user7.getUuid())).toDefaultIssue()));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule, project, file, issue -> issue.setAssigneeUuid(user8.getUuid())).toDefaultIssue()));
+    mockDetailsSupplierAssignees(user1, user2, user3, user4, user5, user6, user7, user8);
+    mockDetailsSupplierComponents(project, file);
+    mockDetailsSupplierRules(rule);
 
     underTest.setStatistics(project.longName(), stats);
 
@@ -247,6 +279,8 @@ public class NewIssuesNotificationTest {
     IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule, project, file7).toDefaultIssue()));
     ComponentDto file8 = db.components().insertComponent(newFileDto(project));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule, project, file8).toDefaultIssue()));
+    mockDetailsSupplierComponents(project, file1, file2, file3, file4, file5, file6, file7, file8);
+    mockDetailsSupplierRules(rule);
 
     underTest.setStatistics(project.longName(), stats);
 
@@ -285,6 +319,8 @@ public class NewIssuesNotificationTest {
     IntStream.rangeClosed(1, 4).forEach(i -> stats.add(db.issues().insert(rule7, project, file).toDefaultIssue()));
     RuleDefinitionDto rule8 = db.rules().insert(r -> r.setLanguage("Java"));
     IntStream.rangeClosed(1, 3).forEach(i -> stats.add(db.issues().insert(rule8, project, file).toDefaultIssue()));
+    mockDetailsSupplierComponents(project, file);
+    mockDetailsSupplierRules(rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8);
 
     underTest.setStatistics(project.longName(), stats);
 
@@ -310,4 +346,37 @@ public class NewIssuesNotificationTest {
     assertThat(underTest.getFieldValue(EFFORT + ".count")).isEqualTo("55min");
   }
 
+  @Test
+  public void RuleDefinition_implements_equals_base_on_name_and_language() {
+    String name = randomAlphabetic(5);
+    String language = randomAlphabetic(6);
+    RuleDefinition underTest = new RuleDefinition(name, language);
+
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isEqualTo(new RuleDefinition(name, language));
+    assertThat(underTest).isNotEqualTo(new RuleDefinition(language, name));
+    assertThat(underTest).isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name));
+    assertThat(underTest).isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)));
+    assertThat(underTest).isNotEqualTo(new RuleDefinition(language, null));
+    assertThat(underTest).isNotEqualTo(null);
+    assertThat(underTest).isNotEqualTo(new Object());
+  }
+
+  @Test
+  public void RuleDefinition_implements_hashcode_base_on_name_and_language() {
+    String name = randomAlphabetic(5);
+    String language = randomAlphabetic(6);
+    RuleDefinition underTest = new RuleDefinition(name, language);
+
+    assertThat(underTest.hashCode())
+      .isEqualTo(underTest.hashCode())
+      .isEqualTo(new RuleDefinition(name, language).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(language, name).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(language, null).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(null);
+    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
+  }
 }

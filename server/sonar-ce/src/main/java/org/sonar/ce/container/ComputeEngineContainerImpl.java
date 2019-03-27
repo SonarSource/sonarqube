@@ -105,7 +105,6 @@ import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
-import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
@@ -412,7 +411,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       MyNewIssuesNotificationHandler.newMetadata(),
       DoNotFixNotificationDispatcher.class,
       DoNotFixNotificationDispatcher.newMetadata(),
-      NewIssuesNotificationFactory.class, // used by SendIssueNotificationsStep
 
       // Notifications
       AlertsEmailTemplate.class,

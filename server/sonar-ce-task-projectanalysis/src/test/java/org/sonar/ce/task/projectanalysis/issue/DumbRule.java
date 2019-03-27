@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -33,6 +34,7 @@ public class DumbRule implements Rule {
   private Integer id;
   private RuleKey key;
   private String name;
+  private String language;
   private RuleStatus status = RuleStatus.READY;
   private RuleType type = RuleType.CODE_SMELL;
   private Set<String> tags = new HashSet<>();
@@ -59,6 +61,12 @@ public class DumbRule implements Rule {
   @Override
   public String getName() {
     return requireNonNull(name);
+  }
+
+  @Override
+  @CheckForNull
+  public String getLanguage() {
+    return language;
   }
 
   @Override
@@ -103,6 +111,11 @@ public class DumbRule implements Rule {
 
   public DumbRule setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public DumbRule setLanguage(@Nullable String language) {
+    this.language = language;
     return this;
   }
 

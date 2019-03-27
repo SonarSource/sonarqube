@@ -19,27 +19,94 @@
  */
 package org.sonar.ce.task.projectanalysis.notification;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Durations;
-import org.sonar.db.DbClient;
+import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
+import org.sonar.server.issue.notification.NewIssuesNotification.DetailsSupplier;
+import org.sonar.server.issue.notification.NewIssuesNotification.RuleDefinition;
+
+import static java.util.Objects.requireNonNull;
+import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 
 @ComputeEngineSide
 public class NewIssuesNotificationFactory {
-  private final DbClient dbClient;
+  private final TreeRootHolder treeRootHolder;
+  private final RuleRepository ruleRepository;
   private final Durations durations;
+  private Map<String, Component> componentsByUuid;
 
-  public NewIssuesNotificationFactory(DbClient dbClient, Durations durations) {
-    this.dbClient = dbClient;
+  public NewIssuesNotificationFactory(TreeRootHolder treeRootHolder, RuleRepository ruleRepository, Durations durations) {
+    this.treeRootHolder = treeRootHolder;
+    this.ruleRepository = ruleRepository;
     this.durations = durations;
   }
 
-  public MyNewIssuesNotification newMyNewIssuesNotification() {
-    return new MyNewIssuesNotification(dbClient, durations);
+  public MyNewIssuesNotification newMyNewIssuesNotification(Map<String, UserDto> assigneesByUuid) {
+    verifyAssigneesByUuid(assigneesByUuid);
+    return new MyNewIssuesNotification(durations, new DetailsSupplierImpl(assigneesByUuid));
   }
 
-  public NewIssuesNotification newNewIssuesNotification() {
-    return new NewIssuesNotification(dbClient, durations);
+  public NewIssuesNotification newNewIssuesNotification(Map<String, UserDto> assigneesByUuid) {
+    verifyAssigneesByUuid(assigneesByUuid);
+    return new NewIssuesNotification(durations, new DetailsSupplierImpl(assigneesByUuid));
+  }
+
+  private static void verifyAssigneesByUuid(Map<String, UserDto> assigneesByUuid) {
+    requireNonNull(assigneesByUuid, "assigneesByUuid can't be null");
+  }
+
+  private class DetailsSupplierImpl implements DetailsSupplier {
+    private final Map<String, UserDto> assigneesByUuid;
+
+    private DetailsSupplierImpl(Map<String, UserDto> assigneesByUuid) {
+      this.assigneesByUuid = assigneesByUuid;
+    }
+
+    @Override
+    public Optional<RuleDefinition> getRuleDefinitionByRuleKey(RuleKey ruleKey) {
+      requireNonNull(ruleKey, "ruleKey can't be null");
+      return ruleRepository.findByKey(ruleKey)
+        .map(t -> new RuleDefinition(t.getName(), t.getLanguage()));
+    }
+
+    @Override
+    public Optional<String> getComponentNameByUuid(String uuid) {
+      requireNonNull(uuid, "uuid can't be null");
+      return Optional.ofNullable(lazyLoadComponentsByUuid().get(uuid))
+        .map(t -> t.getType() == Component.Type.FILE || t.getType() == Component.Type.DIRECTORY ? t.getShortName() : t.getName());
+    }
+
+    private Map<String, Component> lazyLoadComponentsByUuid() {
+      if (componentsByUuid == null) {
+        ImmutableMap.Builder<String, Component> builder = ImmutableMap.builder();
+        new DepthTraversalTypeAwareCrawler(new TypeAwareVisitorAdapter(FILE, PRE_ORDER) {
+          @Override
+          public void visitAny(Component any) {
+            builder.put(any.getUuid(), any);
+          }
+        }).visit(treeRootHolder.getRoot());
+        componentsByUuid = builder.build();
+      }
+      return componentsByUuid;
+    }
+
+    @Override
+    public Optional<String> getUserNameByUuid(String uuid) {
+      requireNonNull(uuid, "uuid can't be null");
+      return Optional.ofNullable(assigneesByUuid.get(uuid))
+        .map(UserDto::getName);
+    }
   }
 }

@@ -39,6 +39,7 @@ public class RuleImpl implements Rule {
   private final int id;
   private final RuleKey key;
   private final String name;
+  private final String language;
   private final RuleStatus status;
   private final Set<String> tags;
   private final DebtRemediationFunction remediationFunction;
@@ -51,6 +52,7 @@ public class RuleImpl implements Rule {
     this.id = dto.getId();
     this.key = dto.getKey();
     this.name = dto.getName();
+    this.language = dto.getLanguage();
     this.status = dto.getStatus();
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
@@ -73,6 +75,12 @@ public class RuleImpl implements Rule {
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  @CheckForNull
+  public String getLanguage() {
+    return language;
   }
 
   @Override
@@ -124,6 +132,7 @@ public class RuleImpl implements Rule {
       .add("id", id)
       .add("key", key)
       .add("name", name)
+      .add("language", language)
       .add("status", status)
       .add("tags", tags)
       .add("pluginKey", pluginKey)

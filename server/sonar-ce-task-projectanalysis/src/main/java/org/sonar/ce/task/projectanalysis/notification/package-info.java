@@ -17,46 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.issue;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.task.projectanalysis.notification;
 
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.debt.DebtRemediationFunction;
-
-public interface Rule {
-
-  int getId();
-
-  RuleKey getKey();
-
-  String getName();
-
-  @CheckForNull
-  String getLanguage();
-
-  RuleStatus getStatus();
-
-  /**
-   * Will be null for external rules
-   */
-  @CheckForNull
-  RuleType getType();
-
-  boolean isExternal();
-
-  boolean isAdHoc();
-
-  /**
-   * Get all tags, whatever system or user tags.
-   */
-  Set<String> getTags();
-
-  @CheckForNull
-  DebtRemediationFunction getRemediationFunction();
-
-  @CheckForNull
-  String getPluginKey();
-}
+import javax.annotation.ParametersAreNonnullByDefault;
