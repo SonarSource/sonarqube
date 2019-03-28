@@ -26,7 +26,7 @@ For language-specific parameters related to test coverage and execution, see [Te
 ### Server
 Key | Description | Default
 ---|----|---
-`sonar.host.url`| the server URL | http://localhost:9000
+`sonar.host.url`| the server URL | <!-- sonarqube -->http://localhost:9000<!-- /sonarqube --><!-- sonarcloud -->https://sonarcloud.io<!-- /sonarcloud -->
 
 ### Project Configuration
 Key | Description | Default
