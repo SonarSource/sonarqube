@@ -14,7 +14,6 @@ dependencies {
 
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
-  compile 'commons-io:commons-io'
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')

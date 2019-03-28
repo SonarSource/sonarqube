@@ -22,7 +22,6 @@ package org.sonarqube.ws;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.commons.io.FilenameUtils;
 
 import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 

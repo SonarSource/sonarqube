@@ -49,4 +49,5 @@ public class WsUtils {
   public static String nullToEmpty(@Nullable String string) {
     return string == null ? "" : string;
   }
+
 }

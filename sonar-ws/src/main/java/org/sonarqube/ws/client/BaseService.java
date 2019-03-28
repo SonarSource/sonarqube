@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.sonarqube.ws.WsUtils.checkArgument;
@@ -54,9 +53,8 @@ public abstract class BaseService {
 
   public static <T extends Message> T convert(WsResponse response, Parser<T> parser) {
     try (InputStream byteStream = response.contentStream()) {
-      byte[] bytes = IOUtils.toByteArray(byteStream);
       // HTTP header "Content-Type" is not verified. It may be different than protobuf.
-      return parser.parseFrom(bytes);
+      return parser.parseFrom(byteStream);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to parse protobuf response of " + response.requestUrl(), e);
     }

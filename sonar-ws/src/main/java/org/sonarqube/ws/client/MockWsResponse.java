@@ -20,7 +20,6 @@
 package org.sonarqube.ws.client;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -29,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Objects.requireNonNull;
@@ -41,7 +39,7 @@ public class MockWsResponse extends BaseResponse {
   private int code = HttpURLConnection.HTTP_OK;
   private String requestUrl;
   private byte[] content;
-  private final Map<String,String> headers = new HashMap<>();
+  private final Map<String, String> headers = new HashMap<>();
 
   @Override
   public int code() {
@@ -71,14 +69,6 @@ public class MockWsResponse extends BaseResponse {
   public MockWsResponse setRequestUrl(String requestUrl) {
     this.requestUrl = requestUrl;
     return this;
-  }
-
-  public MockWsResponse setContent(InputStream is) {
-    try {
-      return setContent(IOUtils.toByteArray(is));
-    } catch (IOException e) {
-      throw new IllegalArgumentException(e);
-    }
   }
 
   public MockWsResponse setContent(byte[] b) {
