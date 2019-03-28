@@ -74,7 +74,7 @@ deploy_docs_task:
 
 validate_task:
   depends_on: build
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
   timeout_in: 90m
   gke_container:
     dockerfile: private/docker/Dockerfile-build
@@ -103,7 +103,7 @@ validate_task:
 
 qa_task:
   depends_on: build
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
@@ -152,7 +152,7 @@ promote_task:
     - build
     - validate
     - qa
-  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
+  only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
   gke_container:
     dockerfile: private/docker/Dockerfile-build
     builder_image_project: ci-cd-215716
