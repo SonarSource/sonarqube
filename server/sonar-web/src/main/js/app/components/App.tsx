@@ -105,7 +105,7 @@ class App extends React.PureComponent<Props> {
         <Helmet defaultTitle={getInstance()}>
           {this.props.enableGravatar && this.renderPreconnectLink()}
         </Helmet>
-        {isSonarCloud() && <PageTracker />}
+        <PageTracker />
         {this.props.children}
       </>
     );
