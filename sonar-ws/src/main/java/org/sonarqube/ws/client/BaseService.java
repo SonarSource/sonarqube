@@ -28,8 +28,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonarqube.ws.WsUtils.checkArgument;
+import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 
 public abstract class BaseService {
 
@@ -37,7 +37,7 @@ public abstract class BaseService {
   protected final String controller;
 
   public BaseService(WsConnector wsConnector, String controllerPath) {
-    checkArgument(!isNullOrEmpty(controllerPath));
+    checkArgument(!isNullOrEmpty(controllerPath), "Controller path cannot be empty");
     this.wsConnector = wsConnector;
     this.controller = controllerPath;
   }

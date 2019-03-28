@@ -47,9 +47,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.google.common.base.Strings.nullToEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static org.sonarqube.ws.WsUtils.nullToEmpty;
 
 /**
  * Helper to build an instance of {@link okhttp3.OkHttpClient} that

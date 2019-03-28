@@ -12,7 +12,6 @@ configurations {
 dependencies {
   // please keep list ordered
 
-  compile 'com.google.guava:guava'
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'commons-io:commons-io'

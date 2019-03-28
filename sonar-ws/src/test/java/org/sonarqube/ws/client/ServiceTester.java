@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.base.Joiner;
 import com.google.protobuf.Parser;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,6 @@ import static org.mockito.Mockito.spy;
  *
  */
 public class ServiceTester<T extends BaseService> extends ExternalResource {
-  private static final Joiner COMMA_JOINER = Joiner.on(",");
 
   private final T underTest;
   private final List<GetCall> getCalls = new ArrayList<>();

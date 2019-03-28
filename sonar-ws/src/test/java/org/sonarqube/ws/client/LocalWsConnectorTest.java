@@ -19,9 +19,9 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -57,7 +57,9 @@ public class LocalWsConnectorTest {
 
     WsResponse wsResponse = underTest.call(wsRequest);
 
-    verifyRequested("POST", "api/issues/search", MediaTypes.JSON, ImmutableMap.of("foo", "bar"));
+    Map<String, String> expectedParams = new HashMap<>();
+    expectedParams.put("foo", "bar");
+    verifyRequested("POST", "api/issues/search", MediaTypes.JSON, expectedParams);
     assertThat(wsResponse.code()).isEqualTo(400);
     assertThat(wsResponse.content()).isEqualTo("{}");
     assertThat(IOUtils.toString(wsResponse.contentReader())).isEqualTo("{}");

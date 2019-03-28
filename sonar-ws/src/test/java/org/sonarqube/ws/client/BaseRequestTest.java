@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import org.assertj.core.data.MapEntry;
@@ -28,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,17 +68,17 @@ public class BaseRequestTest {
     assertParameters(entry("keyB", "b"), entry("keyA", "a"));
     assertMultiValueParameters(entry("keyB", singletonList("b")), entry("keyA", singletonList("a")));
 
-    underTest.setParam("keyC", ImmutableList.of("c1", "c2", "c3"));
+    underTest.setParam("keyC", asList("c1", "c2", "c3"));
     assertParameters(entry("keyB", "b"), entry("keyA", "a"), entry("keyC", "c1"));
     assertMultiValueParameters(
       entry("keyB", singletonList("b")),
       entry("keyA", singletonList("a")),
-      entry("keyC", ImmutableList.of("c1", "c2", "c3")));
+      entry("keyC", asList("c1", "c2", "c3")));
   }
 
   @Test
   public void skip_null_value_in_multi_param() {
-    underTest.setParam("key", newArrayList("v1", null, "", "v3"));
+    underTest.setParam("key", asList("v1", null, "", "v3"));
 
     assertMultiValueParameters(entry("key", asList("v1", "", "v3")));
   }

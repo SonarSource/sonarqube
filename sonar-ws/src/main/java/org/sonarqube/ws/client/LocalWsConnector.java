@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,7 +40,6 @@ class LocalWsConnector implements WsConnector {
     this.localConnector = localConnector;
   }
 
-  @VisibleForTesting
   LocalConnector localConnector() {
     return localConnector;
   }

@@ -19,8 +19,7 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,11 +35,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
+import static org.sonarqube.ws.WsUtils.checkArgument;
+import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 
 abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
@@ -163,7 +162,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
   private static class DefaultParameters implements Parameters {
     // preserve insertion order
-    private final ListMultimap<String, String> keyValues = LinkedListMultimap.create();
+    private final Map<String, List<String>> keyValues = new LinkedHashMap<>();
 
     @Override
     @CheckForNull
@@ -173,7 +172,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
 
     @Override
     public List<String> getValues(String key) {
-      return keyValues.get(key);
+      return keyValues.containsKey(key) ? keyValues.get(key) : emptyList();
     }
 
     @Override
@@ -185,7 +184,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
       checkArgument(!isNullOrEmpty(key));
       checkArgument(value != null);
 
-      keyValues.putAll(key, singletonList(value));
+      keyValues.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
       return this;
     }
 
@@ -193,8 +192,7 @@ abstract class BaseRequest<SELF extends BaseRequest> implements WsRequest {
       checkArgument(!isNullOrEmpty(key));
       checkArgument(values != null && !values.isEmpty());
 
-      this.keyValues.putAll(key, values.stream().map(Object::toString).filter(Objects::nonNull).collect(Collectors.toList()));
-
+      keyValues.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values.stream().map(Object::toString).filter(Objects::nonNull).collect(Collectors.toList()));
       return this;
     }
   }

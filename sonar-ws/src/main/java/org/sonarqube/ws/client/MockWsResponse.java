@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import com.google.common.base.Throwables;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +77,7 @@ public class MockWsResponse extends BaseResponse {
     try {
       return setContent(IOUtils.toByteArray(is));
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new IllegalArgumentException(e);
     }
   }
 

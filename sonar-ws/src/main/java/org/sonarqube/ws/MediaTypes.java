@@ -19,11 +19,12 @@
  */
 package org.sonarqube.ws;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
+
+import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 
 /**
  * @since 5.3
@@ -40,36 +41,38 @@ public final class MediaTypes {
   public static final String DEFAULT = "application/octet-stream";
   public static final String SVG = "image/svg+xml";
 
-  private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()
-    .put("js", JAVASCRIPT)
-    .put("json", JSON)
-    .put("zip", ZIP)
-    .put("tgz", "application/tgz")
-    .put("ps", "application/postscript")
-    .put("jnlp", "application/jnlp")
-    .put("jar", "application/java-archive")
-    .put("xls", "application/vnd.ms-excel")
-    .put("ppt", "application/vnd.ms-powerpoint")
-    .put("tar", "application/x-tar")
-    .put("xml", XML)
-    .put("dtd", "application/xml-dtd")
-    .put("xslt", "application/xslt+xml")
-    .put("bmp", "image/bmp")
-    .put("gif", "image/gif")
-    .put("jpg", "image/jpeg")
-    .put("jpeg", "image/jpeg")
-    .put("tiff", "image/tiff")
-    .put("png", "image/png")
-    .put("svg", SVG)
-    .put("ico", "image/x-icon")
-    .put("txt", TXT)
-    .put("csv", "text/csv")
-    .put("properties", TXT)
-    .put("rtf", "text/rtf")
-    .put("html", HTML)
-    .put("css", "text/css")
-    .put("tsv", "text/tab-separated-values")
-    .build();
+  private static final Map<String, String> MAP = new HashMap<>();
+
+  static {
+    MAP.put("js", JAVASCRIPT);
+    MAP.put("json", JSON);
+    MAP.put("zip", ZIP);
+    MAP.put("tgz", "application/tgz");
+    MAP.put("ps", "application/postscript");
+    MAP.put("jnlp", "application/jnlp");
+    MAP.put("jar", "application/java-archive");
+    MAP.put("xls", "application/vnd.ms-excel");
+    MAP.put("ppt", "application/vnd.ms-powerpoint");
+    MAP.put("tar", "application/x-tar");
+    MAP.put("xml", XML);
+    MAP.put("dtd", "application/xml-dtd");
+    MAP.put("xslt", "application/xslt+xml");
+    MAP.put("bmp", "image/bmp");
+    MAP.put("gif", "image/gif");
+    MAP.put("jpg", "image/jpeg");
+    MAP.put("jpeg", "image/jpeg");
+    MAP.put("tiff", "image/tiff");
+    MAP.put("png", "image/png");
+    MAP.put("svg", SVG);
+    MAP.put("ico", "image/x-icon");
+    MAP.put("txt", TXT);
+    MAP.put("csv", "text/csv");
+    MAP.put("properties", TXT);
+    MAP.put("rtf", "text/rtf");
+    MAP.put("html", HTML);
+    MAP.put("css", "text/css");
+    MAP.put("tsv", "text/tab-separated-values");
+  }
 
   private MediaTypes() {
     // only static methods
@@ -78,7 +81,7 @@ public final class MediaTypes {
   public static String getByFilename(String filename) {
     String extension = FilenameUtils.getExtension(filename);
     String mime = null;
-    if (!Strings.isNullOrEmpty(extension)) {
+    if (!isNullOrEmpty(extension)) {
       mime = MAP.get(extension.toLowerCase(Locale.ENGLISH));
     }
     return mime != null ? mime : DEFAULT;
