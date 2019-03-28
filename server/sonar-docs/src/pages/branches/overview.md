@@ -71,7 +71,7 @@ By default, TravisCI only fetches the last 50 git commits. You must use `git fet
 
 A regular expression is used to determine whether a branch is treated as long-lived or short-lived. By default, branches that have names starting with either "branch" or "release" will be treated as long-lived.
 
-This can be updated globally in **Configuration > General > Detection** of long-lived branches or at project's level in the **Admininstration > Branches**.
+This can be updated <!-- sonarqube -->globally in **Configuration > General Settings > General > Detection of long-lived branches** or <!-- /sonarqube -->at a project's level in **Admininstration > Branches & Pull requests**.
 
 Once a branch type has been set, it cannot be changed. Explicitly, you cannot transform a long-lived to short-lived branch, or vice-versa.
 

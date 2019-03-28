@@ -7,7 +7,9 @@ url: /analysis/analysis-parameters/
 
 Parameters to configure project analysis can be set in multiple places. Here is the hierarchy of parameters:
 
+<!-- sonarqube -->
 * Global analysis parameters, defined in the UI, apply to all the projects (From the top bar, go to **[Administration > Configuration > General Settings](/#sonarqube-admin#/admin/settings)**)
+<!-- /sonarqube -->
 * Project analysis parameters, defined in the UI, override global parameters (At a project level, go to **Administration > General Settings**)
 * Project analysis parameters, defined in a project analysis configuration file or an analyzer configuration file, override the ones defined in the UI
 * Analysis / Command line parameters, defined when launching an analysis, override project analysis parameters
