@@ -7,12 +7,12 @@ exports[`should expand and collapse link 1`] = `
     href="scm:git:git@github.com"
     onClick={[Function]}
     target="_blank"
+    title="Foo"
   >
     <i
       className="icon-color-link icon-detach"
     />
-     
-    Foo
+     Foo
   </a>
 </li>
 `;
@@ -24,12 +24,12 @@ exports[`should expand and collapse link 2`] = `
     href="scm:git:git@github.com"
     onClick={[Function]}
     target="_blank"
+    title="Foo"
   >
     <i
       className="icon-color-link icon-detach"
     />
-     
-    Foo
+     Foo
   </a>
   <div
     className="little-spacer-top"
@@ -52,12 +52,12 @@ exports[`should expand and collapse link 3`] = `
     href="scm:git:git@github.com"
     onClick={[Function]}
     target="_blank"
+    title="Foo"
   >
     <i
       className="icon-color-link icon-detach"
     />
-     
-    Foo
+     Foo
   </a>
 </li>
 `;
@@ -69,12 +69,28 @@ exports[`should match snapshot 1`] = `
     href="http://example.com"
     onClick={false}
     target="_blank"
+    title="Foo"
   >
     <i
       className="icon-color-link icon-detach"
     />
-     
-    Foo
+     Foo
+  </a>
+</li>
+`;
+
+exports[`should match snapshot 2`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="http://example.com"
+    onClick={false}
+    target="_blank"
+    title="Foo"
+  >
+    <i
+      className="icon-color-link icon-detach"
+    />
   </a>
 </li>
 `;

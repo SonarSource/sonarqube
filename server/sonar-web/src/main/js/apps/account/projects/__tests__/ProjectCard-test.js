@@ -82,5 +82,5 @@ it('should render links', () => {
     links: [{ name: 'n', type: 't', href: 'h' }]
   };
   const output = shallow(<ProjectCard project={project} />);
-  expect(output.find('.account-project-links').find('li').length).toBe(1);
+  expect(output.find('MetaLink').length).toBe(1);
 });
