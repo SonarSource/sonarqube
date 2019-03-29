@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -34,10 +36,13 @@ import org.sonar.ce.task.projectanalysis.duplication.InProjectDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.InnerDuplicate;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
-import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.measure.LiveMeasureDto;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
@@ -46,32 +51,50 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
 /**
  * Compute duplication data measures on files, based on the {@link DuplicationRepository}
  */
-public class DuplicationDataMeasuresStep implements ComputationStep {
+public class PersistDuplicationDataStep implements ComputationStep {
 
-  private final MeasureRepository measureRepository;
+  private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final DuplicationRepository duplicationRepository;
-
+  private final MeasureToMeasureDto measureToMeasureDto;
   private final Metric duplicationDataMetric;
 
-  public DuplicationDataMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-    DuplicationRepository duplicationRepository) {
-    this.measureRepository = measureRepository;
+  public PersistDuplicationDataStep(DbClient dbClient, TreeRootHolder treeRootHolder, MetricRepository metricRepository,
+    DuplicationRepository duplicationRepository, MeasureToMeasureDto measureToMeasureDto) {
+    this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.duplicationRepository = duplicationRepository;
+    this.measureToMeasureDto = measureToMeasureDto;
     this.duplicationDataMetric = metricRepository.getByKey(DUPLICATIONS_DATA_KEY);
   }
 
   @Override
   public void execute(ComputationStep.Context context) {
-    new DepthTraversalTypeAwareCrawler(new DuplicationVisitor())
-      .visit(treeRootHolder.getRoot());
+    boolean supportUpsert = dbClient.getDatabase().getDialect().supportsUpsert();
+
+    // batch mode of DB session does not have benefits:
+    // - on postgres the multi-row upserts are the major optimization and have exactly the same
+    //   performance between batch and non-batch sessions
+    // - on other dbs the sequence of inserts and updates, in order to emulate upserts,
+    //   breaks the constraint of batch sessions (consecutive requests should have the same
+    //   structure (same PreparedStatement))
+    try (DbSession dbSession = dbClient.openSession(false);
+      DuplicationVisitor visitor = new DuplicationVisitor(dbSession, supportUpsert)) {
+      new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
+      context.getStatistics().add("insertsOrUpdates", visitor.insertsOrUpdates);
+    }
   }
 
-  private class DuplicationVisitor extends TypeAwareVisitorAdapter {
+  private class DuplicationVisitor extends TypeAwareVisitorAdapter implements AutoCloseable {
+    private final DbSession dbSession;
+    private final boolean supportUpsert;
+    private final List<LiveMeasureDto> nonPersistedBuffer = new ArrayList<>();
+    private int insertsOrUpdates = 0;
 
-    private DuplicationVisitor() {
+    private DuplicationVisitor(DbSession dbSession, boolean supportUpsert) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
+      this.dbSession = dbSession;
+      this.supportUpsert = supportUpsert;
     }
 
     @Override
@@ -83,14 +106,41 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
     }
 
     private void computeDuplications(Component component, Iterable<Duplication> duplications) {
-      String duplicationXml = createXmlDuplications(component.getDbKey(), duplications);
-      measureRepository.add(
-        component,
-        duplicationDataMetric,
-        Measure.newMeasureBuilder().create(duplicationXml));
+      Measure measure = generateMeasure(component.getDbKey(), duplications);
+      LiveMeasureDto dto = measureToMeasureDto.toLiveMeasureDto(measure, duplicationDataMetric, component);
+      nonPersistedBuffer.add(dto);
+      persist(false);
     }
 
-    private String createXmlDuplications(String componentDbKey, Iterable<Duplication> duplications) {
+    private void persist(boolean force) {
+      // Persist a bunch of 100 or less measures. That prevents from having more than 100 XML documents
+      // in memory. Consumption of memory does not explode with the number of duplications and is kept
+      // under control.
+      // Measures are upserted and transactions are committed every 100 rows (arbitrary number to
+      // maximize the performance of a multi-rows request on PostgreSQL).
+      // On PostgreSQL, a bunch of 100 measures is persisted into a single request (multi-rows upsert).
+      // On other DBs, measures are persisted one by one, with update-or-insert requests.
+      boolean shouldPersist = !nonPersistedBuffer.isEmpty() && (force || nonPersistedBuffer.size() > 100);
+      if (!shouldPersist) {
+        return;
+      }
+      if (supportUpsert) {
+        dbClient.liveMeasureDao().upsert(dbSession, nonPersistedBuffer);
+      } else {
+        nonPersistedBuffer.forEach(d -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, d));
+      }
+      insertsOrUpdates += nonPersistedBuffer.size();
+      nonPersistedBuffer.clear();
+      dbSession.commit();
+    }
+
+    @Override
+    public void close() {
+      // persist the measures remaining in the buffer
+      persist(true);
+    }
+
+    private Measure generateMeasure(String componentDbKey, Iterable<Duplication> duplications) {
       StringBuilder xml = new StringBuilder();
       xml.append("<duplications>");
       for (Duplication duplication : duplications) {
@@ -102,7 +152,7 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
         xml.append("</g>");
       }
       xml.append("</duplications>");
-      return xml.toString();
+      return Measure.newMeasureBuilder().create(xml.toString());
     }
 
     private void processDuplicationBlock(StringBuilder xml, Duplicate duplicate, String componentDbKey) {
@@ -140,7 +190,7 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Compute duplication data measures";
+    return "Persist duplication data";
   }
 
 }
