@@ -54,8 +54,6 @@ public interface PropertiesMapper {
   List<Long> selectIdsByOrganizationAndMatchingLogin(@Param("organizationUuid") String organizationUuid, @Param("login") String login,
                                                      @Param("propertyKeys") List<String> propertyKeys);
 
-  List<PropertyDto> selectGlobalPropertiesByKeyQuery(@Param("textQuery") String textQuery);
-
   void insertAsEmpty(@Param("key") String key, @Nullable @Param("userId") Integer userId, @Nullable @Param("componentId") Long componentId,
     @Param("now") long now);
 
