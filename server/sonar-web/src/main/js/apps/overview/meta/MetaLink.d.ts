@@ -17,39 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import MetaLink from '../MetaLink';
-import { click } from '../../../../helpers/testUtils';
+import * as React from 'react';
 
-it('should match snapshot', () => {
-  const link = {
-    id: '1',
-    name: 'Foo',
-    url: 'http://example.com',
-    type: 'foo'
-  };
+type Link = {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+};
 
-  expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
-  expect(shallow(<MetaLink iconOnly={true} link={link} />)).toMatchSnapshot();
-});
+interface Props {
+  iconOnly?: boolean;
+  link: Link;
+}
 
-it('should expand and collapse link', () => {
-  const link = {
-    id: '1',
-    name: 'Foo',
-    url: 'scm:git:git@github.com',
-    type: 'foo'
-  };
-
-  const wrapper = shallow(<MetaLink link={link} />);
-  expect(wrapper).toMatchSnapshot();
-
-  // expand
-  click(wrapper.find('a'));
-  expect(wrapper).toMatchSnapshot();
-
-  // collapse
-  click(wrapper.find('a'));
-  expect(wrapper).toMatchSnapshot();
-});
+export default class MetaLink extends React.Component<Props> {}
