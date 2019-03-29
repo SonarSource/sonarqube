@@ -76,6 +76,10 @@ public class PropertiesDao implements Dao {
   }
 
   public boolean hasProjectNotificationSubscribersForDispatchers(String projectUuid, Collection<String> dispatcherKeys) {
+    if (dispatcherKeys.isEmpty()) {
+      return false;
+    }
+
     try (DbSession session = mybatis.openSession(false);
       Connection connection = session.getConnection();
       PreparedStatement pstmt = createStatement(projectUuid, dispatcherKeys, connection);

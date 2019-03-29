@@ -228,22 +228,6 @@ public class NotificationMediumTest {
     underTest.stop();
   }
 
-  @Test
-  public void hasProjectSubscribersForType() {
-    setUpMocks();
-
-    PropertiesDao dao = mock(PropertiesDao.class);
-    when(dbClient.propertiesDao()).thenReturn(dao);
-
-    // no subscribers
-    when(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_UUID", Arrays.asList("CommentOnIssueAssignedToMe", "CommentOnIssueCreatedByMe"))).thenReturn(false);
-    assertThat(service.hasProjectSubscribersForTypes("PROJECT_UUID", Sets.newHashSet("issue-changes"))).isFalse();
-
-    // has subscribers on one dispatcher (among the two)
-    when(dao.hasProjectNotificationSubscribersForDispatchers("PROJECT_UUID", Arrays.asList("CommentOnIssueAssignedToMe", "CommentOnIssueCreatedByMe"))).thenReturn(true);
-    assertThat(service.hasProjectSubscribersForTypes("PROJECT_UUID", Sets.newHashSet("issue-changes"))).isTrue();
-  }
-
   private static Answer<Object> addUser(final String user, final NotificationChannel channel) {
     return addUser(user, new NotificationChannel[] {channel});
   }

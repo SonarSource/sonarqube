@@ -20,9 +20,11 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
@@ -36,6 +38,11 @@ public class BuiltInQPChangeNotificationHandler implements NotificationHandler<B
   public BuiltInQPChangeNotificationHandler(DbClient dbClient, EmailNotificationChannel emailNotificationChannel) {
     this.dbClient = dbClient;
     this.emailNotificationChannel = emailNotificationChannel;
+  }
+
+  @Override
+  public Optional<NotificationDispatcherMetadata> getMetadata() {
+    return Optional.empty();
   }
 
   @Override

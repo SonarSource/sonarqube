@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.api.issue.Issue;
@@ -33,6 +34,7 @@ import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static java.util.Optional.of;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
@@ -40,6 +42,9 @@ import static org.sonar.server.notification.NotificationManager.SubscriberPermis
 public class DoNotFixNotificationHandler implements NotificationHandler<IssueChangeNotification> {
 
   public static final String KEY = "NewFalsePositiveIssue";
+  private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
+    .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+    .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private static final Set<String> SUPPORTED_NEW_RESOLUTIONS = ImmutableSet.of(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_WONT_FIX);
 
@@ -51,10 +56,13 @@ public class DoNotFixNotificationHandler implements NotificationHandler<IssueCha
     this.emailNotificationChannel = emailNotificationChannel;
   }
 
+  @Override
+  public Optional<NotificationDispatcherMetadata> getMetadata() {
+    return of(METADATA);
+  }
+
   public static NotificationDispatcherMetadata newMetadata() {
-    return NotificationDispatcherMetadata.create(KEY)
-      .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-      .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
+    return METADATA;
   }
 
   @Override

@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotification;
+import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationBuilder;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationSerializer;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.db.DbClient;
@@ -69,14 +70,18 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
       return;
     }
 
-    if (notificationService.hasProjectSubscribersForTypes(projectUuid, singleton(ReportAnalysisFailureNotification.TYPE))) {
+    if (notificationService.hasProjectSubscribersForTypes(projectUuid, singleton(ReportAnalysisFailureNotification.class))) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         ComponentDto projectDto = dbClient.componentDao().selectOrFailByUuid(dbSession, projectUuid);
         checkScopeAndQualifier(projectDto);
         CeActivityDto ceActivityDto = dbClient.ceActivityDao().selectByUuid(dbSession, ceTask.getUuid())
           .orElseThrow(() -> new RowNotFoundException(format("CeActivity with uuid '%s' not found", ceTask.getUuid())));
-        ReportAnalysisFailureNotification taskFailureNotification = buildNotification(ceActivityDto, projectDto, error);
-        notificationService.deliver(taskFailureNotificationSerializer.toNotification(taskFailureNotification));
+        ReportAnalysisFailureNotificationBuilder taskFailureNotification = buildNotification(ceActivityDto, projectDto, error);
+        ReportAnalysisFailureNotification notification = taskFailureNotificationSerializer.toNotification(taskFailureNotification);
+        notificationService.deliverEmails(singleton(notification));
+
+        // compatibility with old API
+        notificationService.deliver(notification);
       }
     }
   }
@@ -92,15 +97,15 @@ public class ReportAnalysisFailureNotificationExecutionListener implements CeWor
       "Component %s must be a project (scope=%s, qualifier=%s)", projectDto.uuid(), scope, qualifier);
   }
 
-  private ReportAnalysisFailureNotification buildNotification(CeActivityDto ceActivityDto, ComponentDto projectDto, @Nullable Throwable error) {
+  private ReportAnalysisFailureNotificationBuilder buildNotification(CeActivityDto ceActivityDto, ComponentDto projectDto, @Nullable Throwable error) {
     Long executedAt = ceActivityDto.getExecutedAt();
-    return new ReportAnalysisFailureNotification(
-      new ReportAnalysisFailureNotification.Project(
+    return new ReportAnalysisFailureNotificationBuilder(
+      new ReportAnalysisFailureNotificationBuilder.Project(
         projectDto.uuid(),
         projectDto.getKey(),
         projectDto.name(),
         projectDto.getBranch()),
-      new ReportAnalysisFailureNotification.Task(
+      new ReportAnalysisFailureNotificationBuilder.Task(
         ceActivityDto.getUuid(),
         ceActivityDto.getSubmittedAt(),
         executedAt == null ? system2.now() : executedAt),

@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.notification;
 
-import org.sonar.api.notifications.Notification;
-
 import static java.lang.String.valueOf;
 
 public class ReportAnalysisFailureNotificationSerializerImpl implements ReportAnalysisFailureNotificationSerializer {
@@ -34,27 +32,29 @@ public class ReportAnalysisFailureNotificationSerializerImpl implements ReportAn
   private static final String FIELD_ERROR_MESSAGE = "error.message";
 
   @Override
-  public Notification toNotification(ReportAnalysisFailureNotification reportAnalysisFailureNotification) {
-    return new Notification(ReportAnalysisFailureNotification.TYPE)
-      .setFieldValue(FIELD_PROJECT_UUID, reportAnalysisFailureNotification.getProject().getUuid())
-      .setFieldValue(FIELD_PROJECT_KEY, reportAnalysisFailureNotification.getProject().getKey())
-      .setFieldValue(FIELD_PROJECT_NAME, reportAnalysisFailureNotification.getProject().getName())
-      .setFieldValue(FIELD_PROJECT_BRANCH, reportAnalysisFailureNotification.getProject().getBranchName())
-      .setFieldValue(FIELD_TASK_UUID, reportAnalysisFailureNotification.getTask().getUuid())
-      .setFieldValue(FIELD_TASK_CREATED_AT, valueOf(reportAnalysisFailureNotification.getTask().getCreatedAt()))
-      .setFieldValue(FIELD_TASK_FAILED_AT, valueOf(reportAnalysisFailureNotification.getTask().getFailedAt()))
-      .setFieldValue(FIELD_ERROR_MESSAGE, reportAnalysisFailureNotification.getErrorMessage());
+  public ReportAnalysisFailureNotification toNotification(ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder) {
+    ReportAnalysisFailureNotification notification = new ReportAnalysisFailureNotification();
+    notification
+      .setFieldValue(FIELD_PROJECT_UUID, reportAnalysisFailureNotificationBuilder.getProject().getUuid())
+      .setFieldValue(FIELD_PROJECT_KEY, reportAnalysisFailureNotificationBuilder.getProject().getKey())
+      .setFieldValue(FIELD_PROJECT_NAME, reportAnalysisFailureNotificationBuilder.getProject().getName())
+      .setFieldValue(FIELD_PROJECT_BRANCH, reportAnalysisFailureNotificationBuilder.getProject().getBranchName())
+      .setFieldValue(FIELD_TASK_UUID, reportAnalysisFailureNotificationBuilder.getTask().getUuid())
+      .setFieldValue(FIELD_TASK_CREATED_AT, valueOf(reportAnalysisFailureNotificationBuilder.getTask().getCreatedAt()))
+      .setFieldValue(FIELD_TASK_FAILED_AT, valueOf(reportAnalysisFailureNotificationBuilder.getTask().getFailedAt()))
+      .setFieldValue(FIELD_ERROR_MESSAGE, reportAnalysisFailureNotificationBuilder.getErrorMessage());
+    return notification;
   }
 
   @Override
-  public ReportAnalysisFailureNotification fromNotification(Notification notification) {
-    return new ReportAnalysisFailureNotification(
-      new ReportAnalysisFailureNotification.Project(
+  public ReportAnalysisFailureNotificationBuilder fromNotification(ReportAnalysisFailureNotification notification) {
+    return new ReportAnalysisFailureNotificationBuilder(
+      new ReportAnalysisFailureNotificationBuilder.Project(
         notification.getFieldValue(FIELD_PROJECT_UUID),
         notification.getFieldValue(FIELD_PROJECT_KEY),
         notification.getFieldValue(FIELD_PROJECT_NAME),
         notification.getFieldValue(FIELD_PROJECT_BRANCH)),
-      new ReportAnalysisFailureNotification.Task(
+      new ReportAnalysisFailureNotificationBuilder.Task(
         notification.getFieldValue(FIELD_TASK_UUID),
         Long.valueOf(notification.getFieldValue(FIELD_TASK_CREATED_AT)),
         Long.valueOf(notification.getFieldValue(FIELD_TASK_FAILED_AT))),

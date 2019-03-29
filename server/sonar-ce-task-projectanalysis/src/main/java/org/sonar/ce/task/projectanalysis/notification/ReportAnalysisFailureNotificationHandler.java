@@ -17,34 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.notification;
+package org.sonar.ce.task.projectanalysis.notification;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
-public class NewIssuesNotificationHandler implements NotificationHandler<NewIssuesNotification> {
-
-  public static final String KEY = "NewIssues";
+public class ReportAnalysisFailureNotificationHandler implements NotificationHandler<ReportAnalysisFailureNotification> {
+  private static final String KEY = "CeReportTaskFailure";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
     .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
+  private static final SubscriberPermissionsOnProject REQUIRED_SUBSCRIBER_PERMISSIONS = new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER);
 
   private final NotificationManager notificationManager;
   private final EmailNotificationChannel emailNotificationChannel;
 
-  public NewIssuesNotificationHandler(NotificationManager notificationManager,  EmailNotificationChannel emailNotificationChannel) {
+  public ReportAnalysisFailureNotificationHandler(NotificationManager notificationManager, EmailNotificationChannel emailNotificationChannel) {
     this.notificationManager = notificationManager;
     this.emailNotificationChannel = emailNotificationChannel;
   }
@@ -59,19 +60,19 @@ public class NewIssuesNotificationHandler implements NotificationHandler<NewIssu
   }
 
   @Override
-  public Class<NewIssuesNotification> getNotificationClass() {
-    return NewIssuesNotification.class;
+  public Class<ReportAnalysisFailureNotification> getNotificationClass() {
+    return ReportAnalysisFailureNotification.class;
   }
 
   @Override
-  public int deliver(Collection<NewIssuesNotification> notifications) {
+  public int deliver(Collection<ReportAnalysisFailureNotification> notifications) {
     if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
       return 0;
     }
 
-    Multimap<String, NewIssuesNotification> notificationsByProjectKey = notifications.stream()
+    Multimap<String, ReportAnalysisFailureNotification> notificationsByProjectKey = notifications.stream()
       .filter(t -> t.getProjectKey() != null)
-      .collect(index(NewIssuesNotification::getProjectKey));
+      .collect(index(ReportAnalysisFailureNotification::getProjectKey));
     if (notificationsByProjectKey.isEmpty()) {
       return 0;
     }
@@ -86,11 +87,10 @@ public class NewIssuesNotificationHandler implements NotificationHandler<NewIssu
     return emailNotificationChannel.deliver(deliveryRequests);
   }
 
-  private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<NewIssuesNotification> notifications) {
-    return notificationManager.findSubscribedEmailRecipients(KEY, projectKey, ALL_MUST_HAVE_ROLE_USER)
+  private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<ReportAnalysisFailureNotification> notifications) {
+    return notificationManager.findSubscribedEmailRecipients(KEY, projectKey, REQUIRED_SUBSCRIBER_PERMISSIONS)
       .stream()
       .flatMap(emailRecipient -> notifications.stream()
         .map(notification -> new EmailDeliveryRequest(emailRecipient.getEmail(), notification)));
   }
-
 }

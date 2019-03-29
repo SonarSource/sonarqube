@@ -42,11 +42,11 @@ public class ReportAnalysisFailureNotificationEmailTemplate extends EmailTemplat
 
   @Override
   public EmailMessage format(Notification notification) {
-    if (!ReportAnalysisFailureNotification.TYPE.equals(notification.getType())) {
+    if (!(notification instanceof ReportAnalysisFailureNotification)) {
       return null;
     }
 
-    ReportAnalysisFailureNotification taskFailureNotification = serializer.fromNotification(notification);
+    ReportAnalysisFailureNotificationBuilder taskFailureNotification = serializer.fromNotification((ReportAnalysisFailureNotification) notification);
     String projectUuid = taskFailureNotification.getProject().getUuid();
     String projectFullName = computeProjectFullName(taskFailureNotification.getProject());
 
@@ -56,7 +56,7 @@ public class ReportAnalysisFailureNotificationEmailTemplate extends EmailTemplat
       .setMessage(message(projectFullName, taskFailureNotification));
   }
 
-  private static String computeProjectFullName(ReportAnalysisFailureNotification.Project project) {
+  private static String computeProjectFullName(ReportAnalysisFailureNotificationBuilder.Project project) {
     String branchName = project.getBranchName();
     if (branchName != null) {
       return String.format("%s (%s)", project.getName(), branchName);
@@ -68,9 +68,9 @@ public class ReportAnalysisFailureNotificationEmailTemplate extends EmailTemplat
     return String.format("%s: Background task in failure", projectFullName);
   }
 
-  private String message(String projectFullName, ReportAnalysisFailureNotification taskFailureNotification) {
-    ReportAnalysisFailureNotification.Project project = taskFailureNotification.getProject();
-    ReportAnalysisFailureNotification.Task task = taskFailureNotification.getTask();
+  private String message(String projectFullName, ReportAnalysisFailureNotificationBuilder taskFailureNotification) {
+    ReportAnalysisFailureNotificationBuilder.Project project = taskFailureNotification.getProject();
+    ReportAnalysisFailureNotificationBuilder.Task task = taskFailureNotification.getTask();
 
     StringBuilder res = new StringBuilder();
     res.append("Project:").append(TAB).append(projectFullName).append(LINE_RETURN);

@@ -33,6 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotification;
+import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationBuilder;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationSerializer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -123,7 +124,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     String componentUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
-    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.TYPE)))
+    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(false);
 
     fullMockedUnderTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
@@ -136,7 +137,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     String componentUuid = randomAlphanumeric(6);
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
-    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.TYPE)))
+    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
 
     expectedException.expect(RowNotFoundException.class);
@@ -162,7 +163,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .forEach(component -> {
         try {
           when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));
-          when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.TYPE)))
+          when(notificationService.hasProjectSubscribersForTypes(component.uuid(), singleton(ReportAnalysisFailureNotification.class)))
             .thenReturn(true);
 
           underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
@@ -182,7 +183,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(componentUuid, null, null)));
-    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.TYPE)))
+    when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
     dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid));
 
@@ -202,17 +203,17 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
 
-    ArgumentCaptor<ReportAnalysisFailureNotification> notificationCaptor = verifyAndCaptureSerializedNotification();
+    ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
     verify(notificationService).deliver(same(notificationMock));
 
-    ReportAnalysisFailureNotification reportAnalysisFailureNotification = notificationCaptor.getValue();
+    ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
 
-    ReportAnalysisFailureNotification.Project notificationProject = reportAnalysisFailureNotification.getProject();
+    ReportAnalysisFailureNotificationBuilder.Project notificationProject = reportAnalysisFailureNotificationBuilder.getProject();
     assertThat(notificationProject.getName()).isEqualTo(project.name());
     assertThat(notificationProject.getKey()).isEqualTo(project.getKey());
     assertThat(notificationProject.getUuid()).isEqualTo(project.uuid());
     assertThat(notificationProject.getBranchName()).isEqualTo(project.getBranch());
-    ReportAnalysisFailureNotification.Task notificationTask = reportAnalysisFailureNotification.getTask();
+    ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.getTask();
     assertThat(notificationTask.getUuid()).isEqualTo(taskUuid);
     assertThat(notificationTask.getCreatedAt()).isEqualTo(createdAt);
     assertThat(notificationTask.getFailedAt()).isEqualTo(executedAt);
@@ -226,10 +227,10 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, throwableMock);
 
-    ArgumentCaptor<ReportAnalysisFailureNotification> notificationCaptor = verifyAndCaptureSerializedNotification();
+    ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
 
-    ReportAnalysisFailureNotification reportAnalysisFailureNotification = notificationCaptor.getValue();
-    assertThat(reportAnalysisFailureNotification.getErrorMessage()).isEqualTo(message);
+    ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
+    assertThat(reportAnalysisFailureNotificationBuilder.getErrorMessage()).isEqualTo(message);
   }
 
   @Test
@@ -241,10 +242,10 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, null);
 
     verify(notificationService).deliver(same(notificationMock));
-    ArgumentCaptor<ReportAnalysisFailureNotification> notificationCaptor = verifyAndCaptureSerializedNotification();
+    ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
 
-    ReportAnalysisFailureNotification reportAnalysisFailureNotification = notificationCaptor.getValue();
-    assertThat(reportAnalysisFailureNotification.getErrorMessage()).isNull();
+    ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
+    assertThat(reportAnalysisFailureNotificationBuilder.getErrorMessage()).isNull();
   }
 
   @Test
@@ -281,13 +282,13 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, ceTaskResultMock, null);
 
     verify(notificationService).deliver(same(notificationMock));
-    ArgumentCaptor<ReportAnalysisFailureNotification> notificationCaptor = verifyAndCaptureSerializedNotification();
+    ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
     assertThat(notificationCaptor.getValue().getTask().getFailedAt()).isEqualTo(now);
   }
 
-  private Notification mockSerializer() {
-    Notification notificationMock = mock(Notification.class);
-    when(serializer.toNotification(any(ReportAnalysisFailureNotification.class))).thenReturn(notificationMock);
+  private ReportAnalysisFailureNotification mockSerializer() {
+    ReportAnalysisFailureNotification notificationMock = mock(ReportAnalysisFailureNotification.class);
+    when(serializer.toNotification(any(ReportAnalysisFailureNotificationBuilder.class))).thenReturn(notificationMock);
     return notificationMock;
   }
 
@@ -296,7 +297,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(project.uuid(), null, null)));
     when(ceTaskMock.getUuid()).thenReturn(taskUuid);
-    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), singleton(ReportAnalysisFailureNotification.TYPE)))
+    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
     insertActivityDto(taskUuid, createdAt, executedAt, project);
     return project;
@@ -313,8 +314,8 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     dbTester.getSession().commit();
   }
 
-  private ArgumentCaptor<ReportAnalysisFailureNotification> verifyAndCaptureSerializedNotification() {
-    ArgumentCaptor<ReportAnalysisFailureNotification> notificationCaptor = ArgumentCaptor.forClass(ReportAnalysisFailureNotification.class);
+  private ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> verifyAndCaptureSerializedNotification() {
+    ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = ArgumentCaptor.forClass(ReportAnalysisFailureNotificationBuilder.class);
     verify(serializer).toNotification(notificationCaptor.capture());
     return notificationCaptor;
   }

@@ -58,6 +58,11 @@ public class DoNotFixNotificationHandlerTest {
   private DoNotFixNotificationHandler underTest = new DoNotFixNotificationHandler(notificationManager, emailNotificationChannel);
 
   @Test
+  public void getMetadata_returns_same_instance_as_static_method() {
+    assertThat(underTest.getMetadata().get()).isSameAs(DoNotFixNotificationHandler.newMetadata());
+  }
+
+  @Test
   public void verify_changeOnMyIssues_notification_dispatcher_key() {
     NotificationDispatcherMetadata metadata = DoNotFixNotificationHandler.newMetadata();
 

@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -76,7 +77,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   /**
    * Types of the notifications sent by this step
    */
-  static final Set<String> NOTIF_TYPES = ImmutableSet.of(IssueChangeNotification.TYPE, NewIssuesNotification.TYPE, MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
+  static final Set<Class<? extends Notification>> NOTIF_TYPES = ImmutableSet.of(NewIssuesNotification.class, MyNewIssuesNotification.class, IssueChangeNotification.class);
 
   private final IssueCache issueCache;
   private final RuleRepository rules;
@@ -104,10 +105,9 @@ public class SendIssueNotificationsStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     Component project = treeRootHolder.getRoot();
     NotificationStatistics notificationStatistics = new NotificationStatistics();
-    // FIXME do we still need this fail fast?
-    // if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
-    doExecute(notificationStatistics, project);
-    // }
+    if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
+      doExecute(notificationStatistics, project);
+    }
     notificationStatistics.dumpTo(context);
   }
 

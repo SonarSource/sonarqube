@@ -60,6 +60,11 @@ public class ChangesOnMyIssueNotificationHandlerTest {
   private ChangesOnMyIssueNotificationHandler underTest = new ChangesOnMyIssueNotificationHandler(notificationManager, emailNotificationChannel);
 
   @Test
+  public void getMetadata_returns_same_instance_as_static_method() {
+    assertThat(underTest.getMetadata().get()).isSameAs(ChangesOnMyIssueNotificationHandler.newMetadata());
+  }
+
+  @Test
   public void verify_changeOnMyIssues_notification_dispatcher_key() {
     NotificationDispatcherMetadata metadata = ChangesOnMyIssueNotificationHandler.newMetadata();
 

@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.notification;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
@@ -36,6 +37,9 @@ import static org.sonar.server.notification.NotificationManager.SubscriberPermis
 public class QGChangeNotificationHandler implements NotificationHandler<QGChangeNotification> {
 
   public static final String KEY = "NewAlerts";
+  private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
+    .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+    .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;
   private final EmailNotificationChannel emailNotificationChannel;
@@ -50,10 +54,13 @@ public class QGChangeNotificationHandler implements NotificationHandler<QGChange
     return QGChangeNotification.class;
   }
 
+  @Override
+  public Optional<NotificationDispatcherMetadata> getMetadata() {
+    return Optional.of(METADATA);
+  }
+
   public static NotificationDispatcherMetadata newMetadata() {
-    return NotificationDispatcherMetadata.create(KEY)
-      .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-      .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
+    return METADATA;
   }
 
   @Override

@@ -52,6 +52,11 @@ public class QGChangeNotificationHandlerTest {
   private QGChangeNotificationHandler underTest = new QGChangeNotificationHandler(notificationManager, emailNotificationChannel);
 
   @Test
+  public void getMetadata_returns_same_instance_as_static_method() {
+    assertThat(underTest.getMetadata().get()).isSameAs(QGChangeNotificationHandler.newMetadata());
+  }
+
+  @Test
   public void verify_qgChange_notification_dispatcher_key() {
     NotificationDispatcherMetadata metadata = QGChangeNotificationHandler.newMetadata();
 
@@ -246,7 +251,5 @@ public class QGChangeNotificationHandlerTest {
   private static String emailOf(String assignee1) {
     return assignee1 + "@giraffe";
   }
-
-
 
 }

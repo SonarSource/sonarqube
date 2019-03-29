@@ -19,10 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.notification;
 
-import org.sonar.api.notifications.Notification;
-
 public interface ReportAnalysisFailureNotificationSerializer {
-  Notification toNotification(ReportAnalysisFailureNotification reportAnalysisFailureNotification);
+  ReportAnalysisFailureNotification toNotification(ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder);
 
-  ReportAnalysisFailureNotification fromNotification(Notification notification);
+  ReportAnalysisFailureNotificationBuilder fromNotification(ReportAnalysisFailureNotification notification);
 }

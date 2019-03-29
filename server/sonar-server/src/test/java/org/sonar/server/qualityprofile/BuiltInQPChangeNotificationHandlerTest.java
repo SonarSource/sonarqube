@@ -49,9 +49,14 @@ public class BuiltInQPChangeNotificationHandlerTest {
   private BuiltInQPChangeNotificationHandler underTest = new BuiltInQPChangeNotificationHandler(dbClient, emailNotificationChannel);
 
   @Before
-  public void wire_mocks()  {
+  public void wire_mocks() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.authorizationDao()).thenReturn(authorizationDao);
+  }
+
+  @Test
+  public void getMetadata_returns_empty() {
+    assertThat(underTest.getMetadata()).isEmpty();
   }
 
   @Test
@@ -127,6 +132,5 @@ public class BuiltInQPChangeNotificationHandlerTest {
     verifyNoMoreInteractions(authorizationDao);
     notifications.forEach(Mockito::verifyZeroInteractions);
   }
-
 
 }

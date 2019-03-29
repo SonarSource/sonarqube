@@ -19,23 +19,29 @@
  */
 package org.sonar.server.notification;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
+import org.sonar.db.property.PropertiesDao;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +50,12 @@ public class NotificationServiceTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = mock(DbClient.class);
+  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
+
+  @Before
+  public void wire_mocks() {
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+  }
 
   @Test
   public void deliverEmails_fails_with_IAE_if_type_of_collection_is_Notification() {
@@ -208,6 +220,116 @@ public class NotificationServiceTest {
     verify(handler2).deliver(notification2s);
     verify(handler1A, times(0)).deliver(anyCollection());
     verify(handler1B, times(0)).deliver(anyCollection());
+  }
+
+  @Test
+  public void hasProjectSubscribersForType_returns_false_if_there_are_no_handler() {
+    String projectUuid = randomAlphabetic(7);
+    NotificationService underTest = new NotificationService(dbClient);
+
+    assertThat(underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class))).isFalse();
+    assertThat(underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification2.class))).isFalse();
+  }
+
+  @Test
+  public void hasProjectSubscribersForType_checks_property_for_each_dispatcher_key_supporting_Notification_type() {
+    String dispatcherKey1A = randomAlphabetic(5);
+    String dispatcherKey1B = randomAlphabetic(6);
+    String projectUuid = randomAlphabetic(7);
+    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+    when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
+    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+    when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
+    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+    when(handler2.getMetadata()).thenReturn(Optional.empty());
+    boolean expected = new Random().nextBoolean();
+    when(propertiesDao.hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B)))
+      .thenReturn(expected);
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+
+    boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class));
+
+    verify(propertiesDao).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B));
+    verifyNoMoreInteractions(propertiesDao);
+    assertThat(flag).isEqualTo(expected);
+
+    flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class, Notification2.class));
+
+    verify(propertiesDao, times(2)).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B));
+    verifyNoMoreInteractions(propertiesDao);
+    assertThat(flag).isEqualTo(expected);
+  }
+
+  @Test
+  public void hasProjectSubscribersForType_checks_property_for_each_dispatcher_key_supporting_Notification_types() {
+    String dispatcherKey1A = randomAlphabetic(5);
+    String dispatcherKey1B = randomAlphabetic(6);
+    String dispatcherKey2 = randomAlphabetic(7);
+    String projectUuid = randomAlphabetic(8);
+    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+    when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
+    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+    when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
+    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+    when(handler2.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey2)));
+    boolean expected1 = new Random().nextBoolean();
+    when(propertiesDao.hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B, dispatcherKey2)))
+      .thenReturn(expected1);
+    boolean expected2 = new Random().nextBoolean();
+    when(propertiesDao.hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey2)))
+      .thenReturn(expected2);
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+
+    boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification1.class, Notification2.class));
+
+    verify(propertiesDao).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B, dispatcherKey2));
+    verifyNoMoreInteractions(propertiesDao);
+    assertThat(flag).isEqualTo(expected1);
+
+    flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification2.class));
+
+    verify(propertiesDao).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey1A, dispatcherKey1B, dispatcherKey2));
+    verify(propertiesDao).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of(dispatcherKey2));
+    verifyNoMoreInteractions(propertiesDao);
+    assertThat(flag).isEqualTo(expected2);
+  }
+
+  @Test
+  public void hasProjectSubscribersForType_returns_false_if_set_is_empty() {
+    String dispatcherKey1A = randomAlphabetic(5);
+    String dispatcherKey1B = randomAlphabetic(6);
+    String projectUuid = randomAlphabetic(7);
+    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+    when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
+    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+    when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
+    NotificationHandler2 handler2 = mock(NotificationHandler2.class);
+    when(handler2.getMetadata()).thenReturn(Optional.empty());
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B, handler2});
+
+    boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of());
+
+    assertThat(flag).isFalse();
+    verify(propertiesDao).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of());
+    verifyNoMoreInteractions(propertiesDao);
+  }
+
+  @Test
+  public void hasProjectSubscribersForType_returns_false_for_type_which_have_no_handler() {
+    String dispatcherKey1A = randomAlphabetic(5);
+    String dispatcherKey1B = randomAlphabetic(6);
+    String projectUuid = randomAlphabetic(7);
+    NotificationHandler1A handler1A = mock(NotificationHandler1A.class);
+    when(handler1A.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1A)));
+    NotificationHandler1B handler1B = mock(NotificationHandler1B.class);
+    when(handler1B.getMetadata()).thenReturn(Optional.of(NotificationDispatcherMetadata.create(dispatcherKey1B)));
+    NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler1A, handler1B});
+
+    boolean flag = underTest.hasProjectSubscribersForTypes(projectUuid, ImmutableSet.of(Notification2.class));
+
+    assertThat(flag).isFalse();
+    verify(propertiesDao).hasProjectNotificationSubscribersForDispatchers(projectUuid, ImmutableSet.of());
+    verifyNoMoreInteractions(propertiesDao);
   }
 
   private static final class Notification1 extends Notification {

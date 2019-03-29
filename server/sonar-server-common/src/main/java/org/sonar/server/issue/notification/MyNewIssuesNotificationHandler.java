@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -39,6 +40,9 @@ import static org.sonar.server.notification.NotificationManager.SubscriberPermis
 
 public class MyNewIssuesNotificationHandler implements NotificationHandler<MyNewIssuesNotification> {
   public static final String KEY = "SQ-MyNewIssues";
+  private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
+    .setProperty(GLOBAL_NOTIFICATION, String.valueOf(true))
+    .setProperty(PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;
   private final EmailNotificationChannel emailNotificationChannel;
@@ -48,10 +52,13 @@ public class MyNewIssuesNotificationHandler implements NotificationHandler<MyNew
     this.emailNotificationChannel = emailNotificationChannel;
   }
 
+  @Override
+  public Optional<NotificationDispatcherMetadata> getMetadata() {
+    return Optional.of(METADATA);
+  }
+
   public static NotificationDispatcherMetadata newMetadata() {
-    return NotificationDispatcherMetadata.create(KEY)
-      .setProperty(GLOBAL_NOTIFICATION, String.valueOf(true))
-      .setProperty(PER_PROJECT_NOTIFICATION, String.valueOf(true));
+    return METADATA;
   }
 
   @Override

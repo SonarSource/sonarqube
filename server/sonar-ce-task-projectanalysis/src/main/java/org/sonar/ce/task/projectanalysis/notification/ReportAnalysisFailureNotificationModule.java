@@ -25,8 +25,8 @@ public class ReportAnalysisFailureNotificationModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      ReportAnalysisFailureNotificationDispatcher.class,
-      ReportAnalysisFailureNotificationDispatcher.newMetadata(),
+      ReportAnalysisFailureNotificationHandler.class,
+      ReportAnalysisFailureNotificationHandler.newMetadata(),
       ReportAnalysisFailureNotificationSerializerImpl.class,
       ReportAnalysisFailureNotificationEmailTemplate.class);
   }

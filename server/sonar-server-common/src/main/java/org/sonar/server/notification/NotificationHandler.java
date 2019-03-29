@@ -20,6 +20,7 @@
 package org.sonar.server.notification;
 
 import java.util.Collection;
+import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.server.ServerSide;
@@ -27,6 +28,8 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 @ComputeEngineSide
 public interface NotificationHandler<T extends Notification> {
+  Optional<NotificationDispatcherMetadata> getMetadata();
+
   Class<T> getNotificationClass();
 
   int deliver(Collection<T> notifications);
