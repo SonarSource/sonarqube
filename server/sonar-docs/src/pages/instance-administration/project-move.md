@@ -46,3 +46,4 @@ Notes:
 
 * If the import is successful, the zip file will automatically be deleted.
 * It is not possible to import a Project that has been already analyzed on the target instance.
+* Security reports in an imported project will be empty until analysis has run.
