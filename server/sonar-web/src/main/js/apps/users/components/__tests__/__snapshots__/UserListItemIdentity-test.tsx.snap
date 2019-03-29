@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#ExternalProvider should render correctly 1`] = `
+<div
+  className="js-user-identity-provider little-spacer-top"
+>
+  <div
+    className="identity-provider"
+    style={
+      Object {
+        "backgroundColor": "blue",
+        "color": "#fff",
+      }
+    }
+  >
+    <img
+      alt="Foo Provider"
+      className="little-spacer-right"
+      height="14"
+      src="icon/path"
+      width="14"
+    />
+  </div>
+</div>
+`;
+
+exports[`#ExternalProvider should render the user external provider and identity 1`] = `
+<div
+  className="js-user-identity-provider little-spacer-top"
+>
+  <span>
+    foo
+    : 
+  </span>
+</div>
+`;
+
+exports[`#UserListItemIdentity should render correctly 1`] = `
+<td>
+  <div>
+    <strong
+      className="js-user-name"
+    >
+      One
+    </strong>
+    <span
+      className="js-user-login note little-spacer-left"
+    >
+      obi
+    </span>
+  </div>
+  <div
+    className="js-user-email little-spacer-top"
+  >
+    obi.one@empire
+  </div>
+  <ExternalProvider
+    identityProvider={
+      Object {
+        "backgroundColor": "blue",
+        "iconPath": "icon/path",
+        "key": "foo",
+        "name": "Foo Provider",
+      }
+    }
+    user={
+      Object {
+        "active": true,
+        "email": "obi.one@empire",
+        "externalProvider": "foo",
+        "lastConnectionDate": "2019-01-18T15:06:33+0100",
+        "local": false,
+        "login": "obi",
+        "name": "One",
+        "scmAccounts": Array [],
+      }
+    }
+  />
+</td>
+`;

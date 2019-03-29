@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="boxed-group quality-profile-projects"
+>
+  <div
+    className="boxed-group-actions"
+  >
+    <Button
+      className="js-change-projects"
+      onClick={[Function]}
+    >
+      quality_profiles.change_projects
+    </Button>
+  </div>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      projects
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <i
+      className="spinner"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="boxed-group quality-profile-projects"
+>
+  <div
+    className="boxed-group-actions"
+  >
+    <Button
+      className="js-change-projects"
+      onClick={[Function]}
+    >
+      quality_profiles.change_projects
+    </Button>
+  </div>
+  <header
+    className="boxed-group-header"
+  >
+    <h2>
+      projects
+    </h2>
+  </header>
+  <div
+    className="boxed-group-inner"
+  >
+    <ul>
+      <li
+        className="spacer-top js-profile-project"
+        data-key="org.sonarsource.xml:xml"
+        key="org.sonarsource.xml:xml"
+      >
+        <Link
+          className="link-with-icon"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/dashboard",
+              "query": Object {
+                "id": "org.sonarsource.xml:xml",
+              },
+            }
+          }
+        >
+          <QualifierIcon
+            qualifier="TRK"
+          />
+           
+          <span>
+            SonarXML
+          </span>
+        </Link>
+      </li>
+    </ul>
+    <ListFooter
+      count={1}
+      loadMore={[Function]}
+      ready={true}
+      total={10}
+    />
+  </div>
+</div>
+`;

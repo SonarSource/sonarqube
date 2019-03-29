@@ -19,40 +19,70 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ComponentNavMeta } from '../ComponentNavMeta';
+import { ComponentNavMeta, getCurrentPage, Props } from '../ComponentNavMeta';
 import {
   mockShortLivingBranch,
   mockComponent,
   mockLongLivingBranch,
-  mockPullRequest
+  mockPullRequest,
+  mockCurrentUser,
+  mockLoggedInUser
 } from '../../../../../helpers/testMocks';
 
-it('renders status of short-living branch', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
+describe('#ComponentNavMeta', () => {
+  it('renders status of short-living branch', () => {
+    expect(shallowRender()).toMatchSnapshot();
+  });
 
-it('renders meta for long-living branch', () => {
-  expect(shallowRender({ branchLike: mockLongLivingBranch() })).toMatchSnapshot();
-});
+  it('renders meta for long-living branch', () => {
+    expect(
+      shallowRender({ branchLike: mockLongLivingBranch(), currentUser: mockLoggedInUser() })
+    ).toMatchSnapshot();
+  });
 
-it('renders meta for pull request', () => {
-  expect(
-    shallowRender({
-      branchLike: mockPullRequest({
-        url: 'https://example.com/pull/1234'
+  it('renders meta for pull request', () => {
+    expect(
+      shallowRender({
+        branchLike: mockPullRequest({
+          url: 'https://example.com/pull/1234'
+        })
       })
-    })
-  ).toMatchSnapshot();
+    ).toMatchSnapshot();
+  });
 });
 
-function shallowRender(props = {}) {
+describe('#getCurrentPage', () => {
+  it('should return a portfolio page', () => {
+    expect(getCurrentPage(mockComponent({ key: 'foo', qualifier: 'VW' }), undefined)).toEqual({
+      type: 'PORTFOLIO',
+      component: 'foo'
+    });
+  });
+
+  it('should return an app page', () => {
+    expect(
+      getCurrentPage(
+        mockComponent({ key: 'foo', qualifier: 'APP' }),
+        mockLongLivingBranch({ name: 'develop' })
+      )
+    ).toEqual({ type: 'APPLICATION', component: 'foo', branch: 'develop' });
+  });
+
+  it('should return a portfolio page', () => {
+    expect(getCurrentPage(mockComponent(), mockShortLivingBranch())).toEqual({
+      type: 'PROJECT',
+      component: 'my-project',
+      branch: undefined
+    });
+  });
+});
+
+function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <ComponentNavMeta
       branchLike={mockShortLivingBranch()}
       component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={{
-        isLoggedIn: false
-      }}
+      currentUser={mockCurrentUser()}
       warnings={[]}
       {...props}
     />

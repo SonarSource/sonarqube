@@ -39,6 +39,33 @@ exports[`should hide QG and QP links if the organization has a paid plan, and th
       onComponentChange={[MockFunction]}
     />
   </div>
+  <AnalysesList
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    metrics={Object {}}
+    qualifier="TRK"
+  />
   <MetaLinks
     component={
       Object {
@@ -75,6 +102,11 @@ exports[`should hide QG and QP links if the organization has a paid plan, and th
       organization="foo"
     />
   </div>
+  <BadgesModal
+    metrics={Object {}}
+    project="my-project"
+    qualifier="TRK"
+  />
 </div>
 `;
 
@@ -117,6 +149,33 @@ exports[`should render correctly 1`] = `
       onComponentChange={[MockFunction]}
     />
   </div>
+  <AnalysesList
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    metrics={Object {}}
+    qualifier="TRK"
+  />
   <div
     className="overview-meta-card"
     id="overview-meta-quality-gate"
@@ -182,6 +241,11 @@ exports[`should render correctly 1`] = `
       organization="foo"
     />
   </div>
+  <BadgesModal
+    metrics={Object {}}
+    project="my-project"
+    qualifier="TRK"
+  />
 </div>
 `;
 
@@ -224,6 +288,33 @@ exports[`should show QG and QP links if the organization has a paid plan, and th
       onComponentChange={[MockFunction]}
     />
   </div>
+  <AnalysesList
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    metrics={Object {}}
+    qualifier="TRK"
+  />
   <div
     className="overview-meta-card"
     id="overview-meta-quality-gate"
@@ -289,5 +380,10 @@ exports[`should show QG and QP links if the organization has a paid plan, and th
       organization="foo"
     />
   </div>
+  <BadgesModal
+    metrics={Object {}}
+    project="my-project"
+    qualifier="TRK"
+  />
 </div>
 `;

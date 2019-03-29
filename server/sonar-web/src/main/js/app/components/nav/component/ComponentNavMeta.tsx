@@ -36,12 +36,9 @@ import { translate } from '../../../../helpers/l10n';
 import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
 
-interface StateProps {
-  currentUser: T.CurrentUser;
-}
-
-interface Props extends StateProps {
+export interface Props {
   branchLike?: T.BranchLike;
+  currentUser: T.CurrentUser;
   component: T.Component;
   warnings: string[];
 }
@@ -100,7 +97,7 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
   );
 }
 
-function getCurrentPage(component: T.Component, branchLike: T.BranchLike | undefined) {
+export function getCurrentPage(component: T.Component, branchLike: T.BranchLike | undefined) {
   let currentPage: T.HomePage | undefined;
   if (component.qualifier === 'VW' || component.qualifier === 'SVW') {
     currentPage = { type: 'PORTFOLIO', component: component.key };
@@ -115,7 +112,7 @@ function getCurrentPage(component: T.Component, branchLike: T.BranchLike | undef
   return currentPage;
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
+const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state)
 });
 

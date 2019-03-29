@@ -18,56 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import UserExternalIdentity from './UserExternalIdentity';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
-import { getCurrentUser, areThereCustomOrganizations, Store } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
+import { isSonarCloud } from '../../../helpers/system';
+import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 
-interface Props {
-  customOrganizations?: boolean;
-  user: T.LoggedInUser;
+export interface Props {
+  currentUser: T.LoggedInUser;
 }
 
-function Profile({ customOrganizations, user }: Props) {
+export function Profile({ currentUser }: Props) {
   return (
     <div className="account-body account-container">
       <div className="boxed-group boxed-group-inner">
         <div className="spacer-bottom">
-          {translate('login')}: <strong id="login">{user.login}</strong>
+          {translate('login')}: <strong id="login">{currentUser.login}</strong>
         </div>
 
-        {!user.local && user.externalProvider !== 'sonarqube' && (
+        {!currentUser.local && currentUser.externalProvider !== 'sonarqube' && (
           <div className="spacer-bottom" id="identity-provider">
-            <UserExternalIdentity user={user} />
+            <UserExternalIdentity user={currentUser} />
           </div>
         )}
 
-        {!!user.email && (
+        {Boolean(currentUser.email) && (
           <div className="spacer-bottom">
-            {translate('my_profile.email')}: <strong id="email">{user.email}</strong>
+            {translate('my_profile.email')}: <strong id="email">{currentUser.email}</strong>
           </div>
         )}
 
-        {!customOrganizations && (
+        {!isSonarCloud() && (
           <>
             <hr className="account-separator" />
-            <UserGroups groups={user.groups} />
+            <UserGroups groups={currentUser.groups} />
           </>
         )}
 
         <hr />
 
-        <UserScmAccounts scmAccounts={user.scmAccounts} user={user} />
+        <UserScmAccounts scmAccounts={currentUser.scmAccounts} user={currentUser} />
       </div>
     </div>
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  customOrganizations: areThereCustomOrganizations(state),
-  user: getCurrentUser(state) as T.LoggedInUser
-});
-
-export default connect(mapStateToProps)(Profile);
+export default whenLoggedIn(Profile);

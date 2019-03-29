@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="account-body account-container"
+>
+  <div
+    className="boxed-group boxed-group-inner"
+  >
+    <div
+      className="spacer-bottom"
+    >
+      login
+      : 
+      <strong
+        id="login"
+      >
+        luke
+      </strong>
+    </div>
+    <div
+      className="spacer-bottom"
+      id="identity-provider"
+    >
+      <UserExternalIdentity
+        user={
+          Object {
+            "groups": Array [],
+            "isLoggedIn": true,
+            "login": "luke",
+            "name": "Skywalker",
+            "scmAccounts": Array [],
+          }
+        }
+      />
+    </div>
+    <hr
+      className="account-separator"
+    />
+    <UserGroups
+      groups={Array []}
+    />
+    <hr />
+    <UserScmAccounts
+      scmAccounts={Array []}
+      user={
+        Object {
+          "groups": Array [],
+          "isLoggedIn": true,
+          "login": "luke",
+          "name": "Skywalker",
+          "scmAccounts": Array [],
+        }
+      }
+    />
+  </div>
+</div>
+`;

@@ -22,7 +22,7 @@ import * as theme from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/urls';
 
-interface Props {
+export interface Props {
   identityProvider?: T.IdentityProvider;
   user: T.User;
 }

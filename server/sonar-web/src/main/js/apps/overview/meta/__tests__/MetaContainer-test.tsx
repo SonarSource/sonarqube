@@ -59,6 +59,7 @@ function shallowRender(props: Partial<Meta['props']> = {}) {
       appState={mockAppState({ organizationsEnabled: true })}
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
+      metrics={{}}
       onComponentChange={jest.fn()}
       organization={mockOrganization()}
       userOrganizations={[mockOrganization()]}

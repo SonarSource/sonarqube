@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render available plugin correctly 1`] = `
+<div
+  className="js-actions"
+>
+  <p
+    className="little-spacer-bottom"
+  >
+    <Checkbox
+      checked={false}
+      className="js-terms"
+      id="plugin-terms-foo"
+      onCheck={[Function]}
+      thirdState={false}
+    >
+      <label
+        className="little-spacer-left"
+        htmlFor="plugin-terms-foo"
+      >
+        marketplace.i_accept_the
+      </label>
+    </Checkbox>
+    <a
+      className="js-plugin-terms nowrap little-spacer-left"
+      href="https://url"
+      target="_blank"
+    >
+      marketplace.terms_and_conditions
+    </a>
+  </p>
+  <Button
+    className="js-install"
+    disabled={true}
+    onClick={[Function]}
+  >
+    marketplace.install
+  </Button>
+</div>
+`;
+
+exports[`should render available plugin correctly 2`] = `
+<div
+  className="js-actions"
+>
+  <div>
+    <p
+      className="little-spacer-bottom"
+    >
+      marketplace.available_under_commercial_license
+    </p>
+    <a
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+  </div>
+</div>
+`;
+
+exports[`should render installed plugin correctly 1`] = `
+<div
+  className="js-actions"
+>
+  <div
+    className="display-inlin-block"
+  >
+    <PluginUpdateButton
+      disabled={false}
+      key="0"
+      onClick={[Function]}
+      update={
+        Object {
+          "requires": Array [],
+          "status": "COMPATIBLE",
+        }
+      }
+    />
+    <Button
+      className="js-uninstall button-red little-spacer-left"
+      disabled={false}
+      onClick={[Function]}
+    >
+      marketplace.uninstall
+    </Button>
+  </div>
+</div>
+`;
+
+exports[`should render installed plugin correctly 2`] = `
+<div
+  className="js-actions"
+>
+  <p>
+    <CheckIcon
+      className="little-spacer-right"
+    />
+    marketplace.installed
+  </p>
+  <div
+    className="spacer-top"
+  >
+    <PluginUpdateButton
+      disabled={false}
+      key="0"
+      onClick={[Function]}
+      update={
+        Object {
+          "requires": Array [],
+          "status": "COMPATIBLE",
+        }
+      }
+    />
+  </div>
+</div>
+`;

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders meta for long-living branch 1`] = `
+exports[`#ComponentNavMeta renders meta for long-living branch 1`] = `
 <div
   className="navbar-context-meta"
 >
@@ -23,10 +23,24 @@ exports[`renders meta for long-living branch 1`] = `
       0.0.1
     </div>
   </Tooltip>
+  <div
+    className="navbar-context-meta-secondary"
+  >
+    <Connect(HomePageSelect)
+      className="spacer-left"
+      currentPage={
+        Object {
+          "branch": "master",
+          "component": "my-project",
+          "type": "PROJECT",
+        }
+      }
+    />
+  </div>
 </div>
 `;
 
-exports[`renders meta for pull request 1`] = `
+exports[`#ComponentNavMeta renders meta for pull request 1`] = `
 <div
   className="navbar-context-meta"
 >
@@ -69,7 +83,7 @@ exports[`renders meta for pull request 1`] = `
 </div>
 `;
 
-exports[`renders status of short-living branch 1`] = `
+exports[`#ComponentNavMeta renders status of short-living branch 1`] = `
 <div
   className="navbar-context-meta"
 >
