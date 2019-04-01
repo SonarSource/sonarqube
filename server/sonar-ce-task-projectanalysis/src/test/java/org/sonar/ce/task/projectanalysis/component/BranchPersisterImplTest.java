@@ -142,8 +142,7 @@ public class BranchPersisterImplTest {
   }
 
   @Test
-  @UseDataProvider("nullOrNotNullString")
-  public void persist_creates_row_in_PROJECTS_BRANCHES_for_pull_request(@Nullable String mergeBranchUuid) {
+  public void persist_creates_row_in_PROJECTS_BRANCHES_for_pull_request() {
     String pullRequestId = "pr-123";
 
     // add project and branch in table PROJECTS
@@ -153,7 +152,7 @@ public class BranchPersisterImplTest {
     dbTester.commit();
     // set project in metadata
     treeRootHolder.setRoot(BRANCH);
-    analysisMetadataHolder.setBranch(createBranch(PULL_REQUEST, false, pullRequestId, mergeBranchUuid));
+    analysisMetadataHolder.setBranch(createBranch(PULL_REQUEST, false, pullRequestId, "mergeBanchUuid"));
     analysisMetadataHolder.setProject(Project.from(mainComponent));
     analysisMetadataHolder.setPullRequestKey(pullRequestId);
 
@@ -166,10 +165,11 @@ public class BranchPersisterImplTest {
     assertThat(branchDto).isPresent();
     assertThat(branchDto.get().getBranchType()).isEqualTo(PULL_REQUEST);
     assertThat(branchDto.get().getKey()).isEqualTo(pullRequestId);
-    assertThat(branchDto.get().getMergeBranchUuid()).isEqualTo(mergeBranchUuid);
+    assertThat(branchDto.get().getMergeBranchUuid()).isEqualTo("mergeBanchUuid");
     assertThat(branchDto.get().getProjectUuid()).isEqualTo(MAIN.getUuid());
     assertThat(branchDto.get().getPullRequestData()).isEqualTo(DbProjectBranches.PullRequestData.newBuilder()
       .setBranch(pullRequestId)
+      .setTarget("mergeBanchUuid")
       .setTitle(pullRequestId)
       .build());
   }
@@ -183,7 +183,8 @@ public class BranchPersisterImplTest {
     when(branch.getType()).thenReturn(type);
     when(branch.getName()).thenReturn(name);
     when(branch.isMain()).thenReturn(isMain);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.ofNullable(mergeBranchUuid));
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
+    when(branch.getTargetBranchName()).thenReturn(mergeBranchUuid);
     return branch;
   }
 

@@ -19,31 +19,23 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.List;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
-import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 public class QualityProfilesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(QualityProfilesProvider.class);
   private static final String LOG_MSG = "Load quality profiles";
   private QualityProfiles profiles = null;
 
-  public QualityProfiles provide(QualityProfileLoader loader, ProjectRepositories projectRepositories, ProcessedScannerProperties props) {
+  public QualityProfiles provide(QualityProfileLoader loader, ProcessedScannerProperties props) {
     if (this.profiles == null) {
-      List<QualityProfile> profileList;
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      if (!projectRepositories.exists()) {
-        profileList = loader.loadDefault();
-      } else {
-        profileList = loader.load(props.getKeyWithBranch());
-      }
+      profiles = new QualityProfiles(loader.load(props.getKeyWithBranch()));
       profiler.stopInfo();
-      profiles = new QualityProfiles(profileList);
     }
 
     return profiles;

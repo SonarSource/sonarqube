@@ -160,6 +160,10 @@ public class MetadataPublisher implements ReportPublisherStep {
     if (referenceBranch != null) {
       builder.setMergeBranchName(referenceBranch);
     }
+    String targetBranchName = branchConfiguration.targetBranchName();
+    if (targetBranchName != null) {
+      builder.setTargetBranchName(targetBranchName);
+    }
     if (branchType == BranchType.PULL_REQUEST) {
       builder.setPullRequestKey(branchConfiguration.pullRequestKey());
     }

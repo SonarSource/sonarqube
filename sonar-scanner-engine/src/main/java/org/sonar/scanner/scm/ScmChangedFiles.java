@@ -21,6 +21,7 @@ package org.sonar.scanner.scm;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -33,10 +34,19 @@ public class ScmChangedFiles {
     this.fileCollection = changedFiles;
   }
 
-  public boolean verifyChanged(Path file) {
-    return fileCollection == null || fileCollection.contains(file);
+  public boolean isChanged(Path file) {
+    if (!isValid()) {
+      throw new IllegalStateException("Scm didn't provide valid data");
+    }
+
+    return fileCollection.contains(file);
   }
 
+  public boolean isValid() {
+    return fileCollection != null;
+  }
+
+  @CheckForNull
   Collection<Path> get() {
     return fileCollection;
   }

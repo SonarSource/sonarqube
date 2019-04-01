@@ -57,8 +57,8 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    String targetScmBranch = branchConfiguration.targetScmBranch();
-    if (scmConfiguration.isDisabled() || !branchConfiguration.isShortOrPullRequest() || targetScmBranch == null) {
+    String targetBranchName = branchConfiguration.targetBranchName();
+    if (scmConfiguration.isDisabled() || !branchConfiguration.isShortOrPullRequest() || targetBranchName == null) {
       return;
     }
 
@@ -68,7 +68,7 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
     }
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    int count = writeChangedLines(provider, writer, targetScmBranch);
+    int count = writeChangedLines(provider, writer, targetBranchName);
     LOG.debug("SCM reported changed lines for {} {} in the branch", count, ScannerUtils.pluralize("file", count));
     profiler.stopInfo();
   }

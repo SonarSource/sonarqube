@@ -35,4 +35,6 @@ message PullRequestData {
   string url = 3;
 
   map<string, string> attributes = 4;
+
+  string target = 5;
 }

@@ -671,8 +671,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     }
 
     @Override
-    public java.util.Optional<String> getMergeBranchUuid() {
-      return java.util.Optional.empty();
+    public String getMergeBranchUuid() {
+      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -692,6 +692,11 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     @Override
     public String getPullRequestKey() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getTargetBranchName() {
       throw new UnsupportedOperationException();
     }
 

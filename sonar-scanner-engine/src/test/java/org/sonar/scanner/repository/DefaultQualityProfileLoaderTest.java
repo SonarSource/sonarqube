@@ -70,17 +70,27 @@ public class DefaultQualityProfileLoaderTest {
   }
 
   @Test
-  public void loadDefault_gets_all_default_profiles() throws IOException {
-    prepareCallWithResults();
-    underTest.loadDefault();
+  public void load_tries_default_if_no_profiles_found_for_project() throws IOException {
+    HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No project found with key 'foo'\"}]}");
+    WsTestUtil.mockException(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo", e);
+    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true", createStreamOfProfiles("qp"));
+
+    underTest.load("foo");
+
+    verifyCalledPath("/api/qualityprofiles/search.protobuf?projectKey=foo");
     verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true");
   }
 
   @Test
   public void loadDefault_sets_organization_parameter_if_defined_in_settings() throws IOException {
     when(properties.organizationKey()).thenReturn(Optional.of("my-org"));
+
+    HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No organization with key 'myorg'\"}]}");
+    WsTestUtil.mockException(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo&organization=my-org", e);
     WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true&organization=my-org", createStreamOfProfiles("qp"));
-    underTest.loadDefault();
+
+    underTest.load("foo");
+
     verifyCalledPath("/api/qualityprofiles/search.protobuf?defaults=true&organization=my-org");
   }
 
@@ -96,12 +106,12 @@ public class DefaultQualityProfileLoaderTest {
   }
 
   @Test
-  public void load_throws_MessageException_if_organization_is_not_found() throws IOException {
+  public void load_throws_MessageException_if_organization_is_not_found_after_trying_default() throws IOException {
     HttpException e = new HttpException("", 404, "{\"errors\":[{\"msg\":\"No organization with key 'myorg'\"}]}");
     WsTestUtil.mockException(wsClient, e);
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Failed to load the quality profiles of project 'project': No organization with key 'myorg'");
+    exception.expectMessage("Failed to load the default quality profiles: No organization with key 'myorg'");
 
     underTest.load("project");
     verifyNoMoreInteractions(wsClient);

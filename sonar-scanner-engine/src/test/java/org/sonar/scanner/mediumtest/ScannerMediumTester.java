@@ -74,7 +74,6 @@ import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 /**
  * Main utility class for writing scanner medium tests.
- * 
  */
 public class ScannerMediumTester extends ExternalResource {
 
@@ -389,7 +388,7 @@ public class ScannerMediumTester extends ExternalResource {
 
     @CheckForNull
     @Override
-    public String targetScmBranch() {
+    public String targetBranchName() {
       return branchTarget;
     }
 
@@ -447,11 +446,6 @@ public class ScannerMediumTester extends ExternalResource {
 
     @Override
     public List<QualityProfile> load(String projectKey) {
-      return qualityProfiles;
-    }
-
-    @Override
-    public List<QualityProfile> loadDefault() {
       return qualityProfiles;
     }
   }

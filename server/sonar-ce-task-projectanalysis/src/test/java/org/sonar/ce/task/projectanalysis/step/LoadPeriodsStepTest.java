@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -447,7 +446,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
       }
 
       @Override
-      public Optional<String> getMergeBranchUuid() {
+      public String getMergeBranchUuid() {
         throw new UnsupportedOperationException("getMergeBranchUuid not implemented");
       }
 
@@ -459,6 +458,11 @@ public class LoadPeriodsStepTest extends BaseStepTest {
       @Override
       public String getPullRequestKey() {
         throw new UnsupportedOperationException("getPullRequestKey not implemented");
+      }
+
+      @Override
+      public String getTargetBranchName() {
+        throw new UnsupportedOperationException();
       }
 
       @Override

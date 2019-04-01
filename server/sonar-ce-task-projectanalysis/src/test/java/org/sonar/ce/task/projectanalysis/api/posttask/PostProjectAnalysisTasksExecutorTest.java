@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
@@ -135,7 +134,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2})
-        .finished(allStepsExecuted);
+      .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());
     inOrder.verify(postProjectAnalysisTask2).finished(projectAnalysisArgumentCaptor.capture());
@@ -289,8 +288,8 @@ public class PostProjectAnalysisTasksExecutorTest {
       }
 
       @Override
-      public Optional<String> getMergeBranchUuid() {
-        return Optional.empty();
+      public String getMergeBranchUuid() {
+        throw new UnsupportedOperationException();
       }
 
       @Override
@@ -305,6 +304,10 @@ public class PostProjectAnalysisTasksExecutorTest {
 
       @Override
       public String getPullRequestKey() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override public String getTargetBranchName() {
         throw new UnsupportedOperationException();
       }
 
@@ -372,7 +375,7 @@ public class PostProjectAnalysisTasksExecutorTest {
     new PostProjectAnalysisTasksExecutor(
       ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
       system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
-        .finished(allStepsExecuted);
+      .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());
     inOrder.verify(postProjectAnalysisTask2).finished(projectAnalysisArgumentCaptor.capture());

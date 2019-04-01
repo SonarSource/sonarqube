@@ -24,6 +24,4 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 public interface QualityProfileLoader {
   List<QualityProfile> load(String projectKey);
-
-  List<QualityProfile> loadDefault();
 }

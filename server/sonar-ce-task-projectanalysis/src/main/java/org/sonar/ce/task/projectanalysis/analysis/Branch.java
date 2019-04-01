@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.analysis;
 
-import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.component.ComponentKeyGenerator;
 import org.sonar.db.component.BranchType;
@@ -43,10 +42,11 @@ public interface Branch extends ComponentKeyGenerator {
   String getName();
 
   /**
-   * Indicates the branch from which it was forked.
-   * It will be empty for main branches or legacy branches.
+   * Indicates the first LLB branch from which it was forked.
+   *
+   * @throws IllegalStateException for main branches or legacy branches.
    */
-  Optional<String> getMergeBranchUuid();
+  String getMergeBranchUuid();
 
   /**
    * Whether the cross-project duplication tracker must be enabled
@@ -58,4 +58,13 @@ public interface Branch extends ComponentKeyGenerator {
    * @throws IllegalStateException if this branch configuration is not a pull request.
    */
   String getPullRequestKey();
+
+  /**
+   * The target/base branch name of a SLB or PR.
+   * Correspond to <pre>sonar.pullrequest.base</pre> or <pre>sonar.branch.target</pre>
+   * It's not guaranteed to exist.
+   *
+   * @throws IllegalStateException if this branch configuration is not a pull request or SLB.
+   */
+  String getTargetBranchName();
 }

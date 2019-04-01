@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -110,14 +109,14 @@ public class SiblingComponentsWithOpenIssuesTest {
     fileWithOneResolvedIssueOnLong2Short1 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
     db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneResolvedIssueOnLong2Short1).setStatus("RESOLVED"));
 
-    setCurrentBranchUuid(long1.uuid());
+    setRoot(long1);
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
   }
 
   @Test
   public void should_find_sibling_components_with_open_issues_for_long1() {
-    setCurrentBranchUuid(long1.uuid());
-    setReferenceBranchUuid(null);
+    setRoot(long1);
+    setBranch(BranchType.LONG);
 
     assertThat(underTest.getUuids(fileWithNoIssuesOnLong1.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong1Short1.getKey())).containsOnly(fileWithOneOpenIssueOnLong1Short1.uuid());
@@ -132,8 +131,8 @@ public class SiblingComponentsWithOpenIssuesTest {
 
   @Test
   public void should_find_sibling_components_with_open_issues_for_short1() {
-    setCurrentBranchUuid(long1short1.uuid());
-    setReferenceBranchUuid(long1.uuid());
+    setRoot(long1short1);
+    setBranch(BranchType.SHORT, long1.uuid());
 
     assertThat(underTest.getUuids(fileWithNoIssuesOnLong1.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong1Short1.getKey())).isEmpty();
@@ -146,8 +145,9 @@ public class SiblingComponentsWithOpenIssuesTest {
 
   @Test
   public void should_find_sibling_components_with_open_issues_for_long2() {
-    setCurrentBranchUuid(long2.uuid());
-    setReferenceBranchUuid(null);
+    setRoot(long2);
+    setBranch(BranchType.LONG);
+
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
 
     assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong1Short1.getKey())).isEmpty();
@@ -158,8 +158,8 @@ public class SiblingComponentsWithOpenIssuesTest {
   @Test
   public void should_find_sibling_components_with_open_issues_from_short() {
     ComponentDto project = db.components().insertMainBranch();
-    setCurrentBranchUuid(project.uuid());
-    setReferenceBranchUuid(null);
+    setRoot(project);
+    setBranch(BranchType.LONG);
 
     ComponentDto branch = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.SHORT),
@@ -178,8 +178,8 @@ public class SiblingComponentsWithOpenIssuesTest {
   @Test
   public void should_find_sibling_components_with_open_issues_from_pullrequest() {
     ComponentDto project = db.components().insertMainBranch();
-    setCurrentBranchUuid(project.uuid());
-    setReferenceBranchUuid(null);
+    setRoot(project);
+    setBranch(BranchType.LONG);
 
     ComponentDto pullRequest = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.PULL_REQUEST),
@@ -198,8 +198,8 @@ public class SiblingComponentsWithOpenIssuesTest {
   @Test
   public void should_not_find_sibling_components_on_derived_long() {
     ComponentDto project = db.components().insertMainBranch();
-    setCurrentBranchUuid(project.uuid());
-    setReferenceBranchUuid(null);
+    setRoot(project);
+    setBranch(BranchType.LONG);
 
     ComponentDto derivedLongBranch = db.components().insertProjectBranch(project,
       b -> b.setBranchType(BranchType.LONG),
@@ -215,15 +215,20 @@ public class SiblingComponentsWithOpenIssuesTest {
     assertThat(underTest.getUuids(fileWithResolvedIssueOnDerivedLongBranch.getKey())).isEmpty();
   }
 
-  private void setCurrentBranchUuid(String uuid) {
+  private void setRoot(ComponentDto componentDto) {
     Component root = mock(Component.class);
-    when(root.getUuid()).thenReturn(uuid);
+    when(root.getUuid()).thenReturn(componentDto.uuid());
     treeRootHolder.setRoot(root);
   }
 
-  private void setReferenceBranchUuid(@Nullable String uuid) {
+  private void setBranch(BranchType currentBranchType) {
+    setBranch(currentBranchType, null);
+  }
+
+  private void setBranch(BranchType currentBranchType, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.ofNullable(uuid));
+    when(branch.getType()).thenReturn(currentBranchType);
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
     metadataHolder.setBranch(branch);
   }
 }

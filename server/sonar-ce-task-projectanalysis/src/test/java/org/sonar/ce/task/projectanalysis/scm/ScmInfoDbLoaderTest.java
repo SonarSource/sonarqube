@@ -93,7 +93,7 @@ public class ScmInfoDbLoaderTest {
 
     String mergeFileUuid = "mergeFileUuid";
     String hash = computeSourceHash(1);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.of("mergeBranchUuid"));
+    when(branch.getMergeBranchUuid()).thenReturn("mergeBranchUuid");
 
     when(mergeBranchComponentUuids.getUuid(FILE.getDbKey())).thenReturn(mergeFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, mergeFileUuid);
@@ -118,7 +118,6 @@ public class ScmInfoDbLoaderTest {
   @Test
   public void do_not_read_from_db_on_first_analysis_and_no_merge_branch() {
     Branch branch = mock(Branch.class);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.empty());
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
 

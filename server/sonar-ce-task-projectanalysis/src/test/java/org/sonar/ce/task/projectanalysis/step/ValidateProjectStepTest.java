@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Date;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -129,11 +128,10 @@ public class ValidateProjectStepTest {
     underTest.execute(new TestComputationStepContext());
   }
 
-
   private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(type);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.ofNullable(mergeBranchUuid));
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
     analysisMetadataHolder.setBranch(branch);
   }
 

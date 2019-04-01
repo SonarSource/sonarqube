@@ -39,6 +39,7 @@ message Metadata {
   bool cross_project_duplication_activated = 6;
   map<string, QProfile> qprofiles_per_language = 7;
   map<string, Plugin> plugins_by_key = 8;
+
   string branch_name = 9;
   BranchType branch_type = 10;
   string merge_branch_name = 11;
@@ -51,6 +52,8 @@ message Metadata {
 
   string projectVersion = 16;
   string buildString = 17;
+
+  string target_branch_name = 18;
 
   message QProfile {
     string key = 1;

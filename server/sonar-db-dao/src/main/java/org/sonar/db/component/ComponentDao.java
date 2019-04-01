@@ -364,6 +364,10 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
   }
 
+  /**
+   * Returns components with open issues from branches that use a certain long living branch as reference (merge branch).
+   * Excludes components from the current branch.
+   */
   public List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(DbSession dbSession, String referenceBranchUuid, String currentBranchUuid) {
     return mapper(dbSession).selectAllSiblingComponentKeysHavingOpenIssues(referenceBranchUuid, currentBranchUuid);
   }

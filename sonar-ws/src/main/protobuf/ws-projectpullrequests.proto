@@ -40,6 +40,7 @@ message PullRequest {
   optional bool isOrphan = 6;
   optional string analysisDate = 7;
   optional string url = 8;
+  optional string target = 9;
 }
 
 message Status {

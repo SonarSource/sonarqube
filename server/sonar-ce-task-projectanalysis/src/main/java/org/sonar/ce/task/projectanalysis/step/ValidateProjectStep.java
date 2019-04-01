@@ -91,7 +91,7 @@ public class ValidateProjectStep implements ComputationStep {
     if (!analysisMetadataHolder.isSLBorPR()) {
       return;
     }
-    String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid().get();
+    String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid();
     int moduleCount = dbClient.componentDao().countEnabledModulesByProjectUuid(session, mergeBranchUuid);
     if (moduleCount > 0) {
       Optional<BranchDto> opt = dbClient.branchDao().selectByUuid(session, mergeBranchUuid);

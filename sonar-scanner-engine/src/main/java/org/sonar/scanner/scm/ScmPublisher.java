@@ -35,7 +35,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
@@ -44,16 +44,16 @@ public final class ScmPublisher {
   private static final Logger LOG = Loggers.get(ScmPublisher.class);
 
   private final ScmConfiguration configuration;
-  private final ProjectRepositories projectRepositories;
+  private final ProjectRepositoriesSupplier projectRepositoriesSupplier;
   private final InputComponentStore componentStore;
   private final FileSystem fs;
   private final ScannerReportWriter writer;
   private final BranchConfiguration branchConfiguration;
 
-  public ScmPublisher(ScmConfiguration configuration, ProjectRepositories projectRepositories,
-                      InputComponentStore componentStore, FileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
+  public ScmPublisher(ScmConfiguration configuration, ProjectRepositoriesSupplier projectRepositoriesSupplier,
+    InputComponentStore componentStore, FileSystem fs, ReportPublisher reportPublisher, BranchConfiguration branchConfiguration) {
     this.configuration = configuration;
-    this.projectRepositories = projectRepositories;
+    this.projectRepositoriesSupplier = projectRepositoriesSupplier;
     this.componentStore = componentStore;
     this.fs = fs;
     this.branchConfiguration = branchConfiguration;
@@ -96,12 +96,11 @@ public final class ScmPublisher {
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
       } else if (!branchConfiguration.isShortOrPullRequest()) {
-        // File status is SAME so that mean fileData exists
-        FileData fileData = projectRepositories.fileData(componentStore.findModule(f).getKeyWithBranch(), f);
-        if (StringUtils.isEmpty(fileData.revision())) {
+        FileData fileData = projectRepositoriesSupplier.get().fileData(componentStore.findModule(f).getKeyWithBranch(), f);
+        if (fileData == null || StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {
-          askToCopyDataFromPreviousAnalysis((DefaultInputFile) f, writer);
+          askToCopyDataFromPreviousAnalysis(f, writer);
         }
       }
     }

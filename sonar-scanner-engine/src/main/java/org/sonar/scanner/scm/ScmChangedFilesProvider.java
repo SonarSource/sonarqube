@@ -22,7 +22,6 @@ package org.sonar.scanner.scm;
 import java.nio.file.Path;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
-import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
@@ -38,19 +37,12 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
 
   private ScmChangedFiles scmBranchChangedFiles;
 
-  /*
-   * ScmConfiguration is not available in issues mode
-   */
-  public ScmChangedFiles provide(@Nullable ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
+  public ScmChangedFiles provide(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
     if (scmBranchChangedFiles == null) {
-      if (scmConfiguration == null) {
-        scmBranchChangedFiles = new ScmChangedFiles(null);
-      } else {
-        Path rootBaseDir = project.getBaseDir();
-        Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
-        validatePaths(changedFiles);
-        scmBranchChangedFiles = new ScmChangedFiles(changedFiles);
-      }
+      Path rootBaseDir = project.getBaseDir();
+      Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
+      validatePaths(changedFiles);
+      scmBranchChangedFiles = new ScmChangedFiles(changedFiles);
     }
     return scmBranchChangedFiles;
   }
@@ -63,12 +55,12 @@ public class ScmChangedFilesProvider extends ProviderAdapter {
 
   @CheckForNull
   private static Collection<Path> loadChangedFilesIfNeeded(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, Path rootBaseDir) {
-    String targetScmBranch = branchConfiguration.targetScmBranch();
-    if (branchConfiguration.isShortOrPullRequest() && targetScmBranch != null) {
+    final String targetBranchName = branchConfiguration.targetBranchName();
+    if (branchConfiguration.isShortOrPullRequest() && targetBranchName != null) {
       ScmProvider scmProvider = scmConfiguration.provider();
       if (scmProvider != null) {
         Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        Collection<Path> changedFiles = scmProvider.branchChangedFiles(targetScmBranch, rootBaseDir);
+        Collection<Path> changedFiles = scmProvider.branchChangedFiles(targetBranchName, rootBaseDir);
         profiler.stopInfo();
         if (changedFiles != null) {
           LOG.debug("SCM reported {} {} changed in the branch", changedFiles.size(), ScannerUtils.pluralize("file", changedFiles.size()));

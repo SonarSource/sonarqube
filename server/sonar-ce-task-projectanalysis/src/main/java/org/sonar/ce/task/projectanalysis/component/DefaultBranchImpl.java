@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -64,8 +63,8 @@ public class DefaultBranchImpl implements Branch {
   }
 
   @Override
-  public Optional<String> getMergeBranchUuid() {
-    return Optional.empty();
+  public String getMergeBranchUuid() {
+    throw new IllegalStateException("Not valid for the main branch");
   }
 
   @Override
@@ -87,6 +86,11 @@ public class DefaultBranchImpl implements Branch {
   @Override
   public String getPullRequestKey() {
     throw new IllegalStateException("Only a branch of type PULL_REQUEST can have a pull request id.");
+  }
+
+  @Override
+  public String getTargetBranchName() {
+    throw new IllegalStateException("Only on a short lived branch or pull request");
   }
 
   @Override

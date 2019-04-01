@@ -23,12 +23,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScmChangedFilesTest {
   private ScmChangedFiles scmChangedFiles;
+
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testGetter() {
@@ -40,15 +45,19 @@ public class ScmChangedFilesTest {
   @Test
   public void testNullable() {
     scmChangedFiles = new ScmChangedFiles(null);
+    assertThat(scmChangedFiles.isValid()).isFalse();
     assertThat(scmChangedFiles.get()).isNull();
-    assertThat(scmChangedFiles.verifyChanged(Paths.get("files2"))).isTrue();
+
+    exception.expect(IllegalStateException.class);
+    assertThat(scmChangedFiles.isChanged(Paths.get("files2"))).isTrue();
   }
 
   @Test
   public void testConfirm() {
     Collection<Path> files = Collections.singletonList(Paths.get("files"));
     scmChangedFiles = new ScmChangedFiles(files);
-    assertThat(scmChangedFiles.verifyChanged(Paths.get("files"))).isTrue();
-    assertThat(scmChangedFiles.verifyChanged(Paths.get("files2"))).isFalse();
+    assertThat(scmChangedFiles.isValid()).isTrue();
+    assertThat(scmChangedFiles.isChanged(Paths.get("files"))).isTrue();
+    assertThat(scmChangedFiles.isChanged(Paths.get("files2"))).isFalse();
   }
 }

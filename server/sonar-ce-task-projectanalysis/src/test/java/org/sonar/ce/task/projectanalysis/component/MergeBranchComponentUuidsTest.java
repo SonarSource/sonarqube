@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,19 +61,19 @@ public class MergeBranchComponentUuidsTest {
 
   @Test
   public void should_support_db_key() {
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.of(mergeBranch.uuid()));
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranch.uuid());
     assertThat(underTest.getUuid(branchFile.getDbKey())).isEqualTo(mergeBranchFile.uuid());
   }
 
   @Test
   public void should_support_key() {
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.of(mergeBranch.uuid()));
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranch.uuid());
     assertThat(underTest.getUuid(branchFile.getKey())).isEqualTo(mergeBranchFile.uuid());
   }
 
   @Test
   public void return_null_if_file_doesnt_exist() {
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.of(mergeBranch.uuid()));
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranch.uuid());
     assertThat(underTest.getUuid("doesnt exist")).isNull();
   }
 }

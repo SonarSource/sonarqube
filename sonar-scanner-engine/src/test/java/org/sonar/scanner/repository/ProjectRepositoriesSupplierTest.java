@@ -23,53 +23,43 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ProjectRepositoriesProviderTest {
-  private ProjectRepositoriesProvider provider;
+public class ProjectRepositoriesSupplierTest {
+  private ProjectRepositoriesSupplier underTest;
   private ProjectRepositories project;
 
-  @Mock
-  private ProjectRepositoriesLoader loader;
-  @Mock
-  private ProcessedScannerProperties props;
-  @Mock
-  private BranchConfiguration branchConfiguration;
+  private ProjectRepositoriesLoader loader = mock(ProjectRepositoriesLoader.class);
+  private ProcessedScannerProperties props = mock(ProcessedScannerProperties.class);
+  private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
-
+    underTest = new ProjectRepositoriesSupplier(loader, props, branchConfiguration);
     Map<String, FileData> fileMap = Maps.newHashMap();
-
     project = new SingleProjectRepository(fileMap);
-    provider = new ProjectRepositoriesProvider();
-
     when(props.getKeyWithBranch()).thenReturn("key");
   }
 
   @Test
   public void testValidation() {
     when(loader.load(eq("key"), any())).thenReturn(project);
-
-    provider.provide(loader, props, branchConfiguration);
+    underTest.get();
   }
 
   @Test
   public void testAssociated() {
     when(loader.load(eq("key"), any())).thenReturn(project);
-
-    ProjectRepositories repo = provider.provide(loader, props, branchConfiguration);
+    ProjectRepositories repo = underTest.get();
 
     assertThat(repo.exists()).isEqualTo(true);
 

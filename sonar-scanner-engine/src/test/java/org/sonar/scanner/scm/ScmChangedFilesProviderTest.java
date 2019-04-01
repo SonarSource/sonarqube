@@ -66,7 +66,7 @@ public class ScmChangedFilesProviderTest {
   @Test
   public void testNoScmProvider() {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
-    when(branchConfiguration.targetScmBranch()).thenReturn("target");
+    when(branchConfiguration.targetBranchName()).thenReturn("target");
 
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, project);
 
@@ -76,7 +76,7 @@ public class ScmChangedFilesProviderTest {
 
   @Test
   public void testFailIfRelativePath() {
-    when(branchConfiguration.targetScmBranch()).thenReturn("target");
+    when(branchConfiguration.targetBranchName()).thenReturn("target");
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singleton(Paths.get("changedFile")));
@@ -88,7 +88,7 @@ public class ScmChangedFilesProviderTest {
 
   @Test
   public void testProviderDoesntSupport() {
-    when(branchConfiguration.targetScmBranch()).thenReturn("target");
+    when(branchConfiguration.targetBranchName()).thenReturn("target");
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(null);
@@ -118,7 +118,7 @@ public class ScmChangedFilesProviderTest {
 
     when(scmConfiguration.provider()).thenReturn(legacy);
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
-    when(branchConfiguration.targetScmBranch()).thenReturn("target");
+    when(branchConfiguration.targetBranchName()).thenReturn("target");
 
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, project);
 
@@ -128,7 +128,7 @@ public class ScmChangedFilesProviderTest {
 
   @Test
   public void testReturnChangedFiles() {
-    when(branchConfiguration.targetScmBranch()).thenReturn("target");
+    when(branchConfiguration.targetBranchName()).thenReturn("target");
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singleton(Paths.get("changedFile").toAbsolutePath()));

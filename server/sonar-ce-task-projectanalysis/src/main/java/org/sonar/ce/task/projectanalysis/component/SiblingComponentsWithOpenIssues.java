@@ -34,7 +34,6 @@ import static org.sonar.db.component.ComponentDto.removeBranchAndPullRequestFrom
 
 /**
  * Cache a map of component key -> set&lt;uuid&gt; in sibling branches/PR that have open issues
- *
  */
 public class SiblingComponentsWithOpenIssues {
   private final DbClient dbClient;
@@ -50,11 +49,19 @@ public class SiblingComponentsWithOpenIssues {
   }
 
   private void loadUuidsByKey() {
-    uuidsByKey = new HashMap<>();
     String currentBranchUuid = treeRootHolder.getRoot().getUuid();
+    String longLivingReferenceBranchUuid;
+
+    if (metadataHolder.isSLBorPR()) {
+      longLivingReferenceBranchUuid = metadataHolder.getBranch().getMergeBranchUuid();
+    } else {
+      longLivingReferenceBranchUuid = currentBranchUuid;
+    }
+
+    uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<KeyWithUuidDto> components = dbClient.componentDao().selectAllSiblingComponentKeysHavingOpenIssues(dbSession,
-        metadataHolder.getBranch().getMergeBranchUuid().orElse(currentBranchUuid), currentBranchUuid);
+        longLivingReferenceBranchUuid, currentBranchUuid);
       for (KeyWithUuidDto dto : components) {
         uuidsByKey.computeIfAbsent(removeBranchAndPullRequestFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }

@@ -50,24 +50,27 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     this.wsClient = wsClient;
   }
 
-  @Override
-  public List<QualityProfile> loadDefault() {
+  private List<QualityProfile> loadDefault() {
     StringBuilder url = new StringBuilder(WS_URL + "?defaults=true");
-    return handleErrors(url, () -> "Failed to load the default quality profiles");
+    return handleErrors(url, () -> "Failed to load the default quality profiles", false);
   }
 
   @Override
   public List<QualityProfile> load(String projectKey) {
     StringBuilder url = new StringBuilder(WS_URL + "?projectKey=").append(encodeForUrl(projectKey));
-    return handleErrors(url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey));
+    return handleErrors(url, () -> String.format("Failed to load the quality profiles of project '%s'", projectKey), true);
   }
 
-  private List<QualityProfile> handleErrors(StringBuilder url, Supplier<String> errorMsg) {
+  private List<QualityProfile> handleErrors(StringBuilder url, Supplier<String> errorMsg, boolean tryLoadDefault) {
     try {
       return doLoad(url);
     } catch (HttpException e) {
       if (e.code() == 404) {
-        throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
+        if (tryLoadDefault) {
+          return loadDefault();
+        } else {
+          throw MessageException.of(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
+        }
       }
       throw new IllegalStateException(errorMsg.get() + ": " + ScannerWsClient.createErrorMessage(e));
     } catch (MessageException e) {

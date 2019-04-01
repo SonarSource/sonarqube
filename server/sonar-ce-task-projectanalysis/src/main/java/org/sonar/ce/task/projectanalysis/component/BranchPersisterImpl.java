@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.db.DbClient;
@@ -62,8 +63,10 @@ public class BranchPersisterImpl implements BranchPersister {
     dto.setProjectUuid(firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
     dto.setBranchType(branch.getType());
 
-    // merge branch is only present if it's a short living branch
-    dto.setMergeBranchUuid(branch.getMergeBranchUuid().orElse(null));
+    // merge branch is only present if it's not a main branch and not an application
+    if (!branch.isMain() && !Qualifiers.APP.equals(componentDto.qualifier())) {
+      dto.setMergeBranchUuid(branch.getMergeBranchUuid());
+    }
 
     if (branch.getType() == BranchType.PULL_REQUEST) {
       dto.setKey(analysisMetadataHolder.getPullRequestKey());
@@ -71,6 +74,7 @@ public class BranchPersisterImpl implements BranchPersister {
       DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
         .setBranch(branch.getName())
         .setTitle(branch.getName())
+        .setTarget(branch.getTargetBranchName())
         .build();
       dto.setPullRequestData(pullRequestData);
     } else {

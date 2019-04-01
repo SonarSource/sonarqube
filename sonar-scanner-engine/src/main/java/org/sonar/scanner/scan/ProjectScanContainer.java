@@ -77,7 +77,7 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositoriesProvider;
+import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
@@ -157,7 +157,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new ProjectBranchesProvider(),
       new ProjectPullRequestsProvider(),
       DefaultAnalysisMode.class,
-      new ProjectRepositoriesProvider(),
+      ProjectRepositoriesSupplier.class,
       new ProjectServerSettingsProvider(),
 
       // temp
@@ -304,7 +304,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
     BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
     if (branchConfig.branchType() == BranchType.PULL_REQUEST) {
-      LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.targetScmBranch()), branchConfig.branchName());
+      LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.targetBranchName()), branchConfig.branchName());
     } else if (branchConfig.branchName() != null) {
       LOG.info("Branch name: {}, type: {}", branchConfig.branchName(), branchTypeToDisplayName(branchConfig.branchType()));
     }

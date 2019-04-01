@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
 import static org.sonar.api.batch.fs.InputFile.Status.ADDED;
@@ -33,33 +33,40 @@ import static org.sonar.api.batch.fs.InputFile.Status.SAME;
 
 @Immutable
 public class StatusDetection {
-  private final ProjectRepositories projectRepositories;
+  private final ProjectRepositoriesSupplier projectSettingsSupplier;
   private final ScmChangedFiles scmChangedFiles;
 
-  public StatusDetection(ProjectRepositories projectSettings, ScmChangedFiles scmChangedFiles) {
-    this.projectRepositories = projectSettings;
+  public StatusDetection(ProjectRepositoriesSupplier projectSettingsSupplier, ScmChangedFiles scmChangedFiles) {
+    this.projectSettingsSupplier = projectSettingsSupplier;
     this.scmChangedFiles = scmChangedFiles;
   }
 
   InputFile.Status status(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {
-    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile);
+    if (scmChangedFiles.isValid()) {
+      return checkChangedWithScm(inputFile);
+    }
+    return checkChangedWithProjectRepositories(moduleKeyWithBranch, inputFile, hash);
+  }
+
+  private InputFile.Status checkChangedWithProjectRepositories(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {
+    FileData fileDataPerPath = projectSettingsSupplier.get().fileData(moduleKeyWithBranch, inputFile);
     if (fileDataPerPath == null) {
-      return checkChanged(ADDED, inputFile);
+      return ADDED;
     }
     String previousHash = fileDataPerPath.hash();
     if (StringUtils.equals(hash, previousHash)) {
       return SAME;
     }
     if (StringUtils.isEmpty(previousHash)) {
-      return checkChanged(ADDED, inputFile);
+      return ADDED;
     }
-    return checkChanged(CHANGED, inputFile);
+    return CHANGED;
   }
 
-  private InputFile.Status checkChanged(InputFile.Status status, DefaultInputFile inputFile) {
-    if (!scmChangedFiles.verifyChanged(inputFile.path())) {
+  private InputFile.Status checkChangedWithScm(DefaultInputFile inputFile) {
+    if (!scmChangedFiles.isChanged(inputFile.path())) {
       return SAME;
     }
-    return status;
+    return CHANGED;
   }
 }

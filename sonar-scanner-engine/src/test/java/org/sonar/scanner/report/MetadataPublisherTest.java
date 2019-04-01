@@ -260,9 +260,11 @@ public class MetadataPublisherTest {
   @Test
   public void write_short_lived_branch_info() throws Exception {
     String branchName = "feature";
-    String branchTarget = "short-lived";
+    String targetBranchName = "short-lived";
+    String longLivingSonarReferenceBranch = "long-lived";
     when(branches.branchName()).thenReturn(branchName);
-    when(branches.longLivingSonarReferenceBranch()).thenReturn(branchTarget);
+    when(branches.targetBranchName()).thenReturn(targetBranchName);
+    when(branches.longLivingSonarReferenceBranch()).thenReturn(longLivingSonarReferenceBranch);
 
     File outputDir = temp.newFolder();
     underTest.publish(new ScannerReportWriter(outputDir));
@@ -271,7 +273,8 @@ public class MetadataPublisherTest {
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getBranchName()).isEqualTo(branchName);
     assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.SHORT);
-    assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
+    assertThat(metadata.getMergeBranchName()).isEqualTo(longLivingSonarReferenceBranch);
+    assertThat(metadata.getTargetBranchName()).isEqualTo(targetBranchName);
   }
 
   @Test

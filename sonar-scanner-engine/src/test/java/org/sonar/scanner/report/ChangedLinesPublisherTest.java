@@ -69,7 +69,7 @@ public class ChangedLinesPublisherTest {
     when(branchConfiguration.isShortOrPullRequest()).thenReturn(true);
     when(scmConfiguration.isDisabled()).thenReturn(false);
     when(scmConfiguration.provider()).thenReturn(provider);
-    when(branchConfiguration.targetScmBranch()).thenReturn(TARGET_BRANCH);
+    when(branchConfiguration.targetBranchName()).thenReturn(TARGET_BRANCH);
     when(project.getBaseDir()).thenReturn(BASE_DIR);
   }
 
@@ -91,7 +91,7 @@ public class ChangedLinesPublisherTest {
 
   @Test
   public void skip_if_target_branch_is_null() {
-    when(branchConfiguration.targetScmBranch()).thenReturn(null);
+    when(branchConfiguration.targetBranchName()).thenReturn(null);
     publisher.publish(writer);
     verifyZeroInteractions(inputComponentStore, inputModuleHierarchy, provider);
     assertNotPublished();

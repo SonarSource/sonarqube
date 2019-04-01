@@ -37,7 +37,7 @@ public class DefaultBranchConfiguration implements BranchConfiguration {
 
   @CheckForNull
   @Override
-  public String targetScmBranch() {
+  public String targetBranchName() {
     return null;
   }
 

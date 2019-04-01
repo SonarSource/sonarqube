@@ -19,19 +19,29 @@
  */
 package org.sonar.scanner.repository;
 
-import org.picocontainer.injectors.ProviderAdapter;
+import java.util.function.Supplier;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
-public class ProjectRepositoriesProvider extends ProviderAdapter {
-  private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
+public class ProjectRepositoriesSupplier implements Supplier<ProjectRepositories> {
+  private static final Logger LOG = Loggers.get(ProjectRepositoriesSupplier.class);
   private static final String LOG_MSG = "Load project repositories";
+  private final ProjectRepositoriesLoader loader;
+  private final ProcessedScannerProperties scannerProperties;
+  private final BranchConfiguration branchConfig;
+
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProcessedScannerProperties scannerProperties, BranchConfiguration branchConfig) {
+  public ProjectRepositoriesSupplier(ProjectRepositoriesLoader loader, ProcessedScannerProperties scannerProperties, BranchConfiguration branchConfig) {
+    this.loader = loader;
+    this.scannerProperties = scannerProperties;
+    this.branchConfig = branchConfig;
+  }
+
+  public ProjectRepositories get() {
     if (project == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       project = loader.load(scannerProperties.getKeyWithBranch(), branchConfig.longLivingSonarReferenceBranch());

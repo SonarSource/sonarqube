@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -150,6 +151,13 @@ public class ListAction implements PullRequestWsAction {
     } else {
       builder.setIsOrphan(true);
     }
+
+    if (StringUtils.isNotEmpty(pullRequestData.getTarget())) {
+      builder.setTarget(pullRequestData.getTarget());
+    } else if (mergeBranch.isPresent()) {
+      builder.setTarget(mergeBranch.get().getKey());
+    }
+
     ofNullable(analysisDate).ifPresent(builder::setAnalysisDate);
     setQualityGate(builder, qualityGateMeasure, branchStatistics);
     response.addPullRequests(builder);

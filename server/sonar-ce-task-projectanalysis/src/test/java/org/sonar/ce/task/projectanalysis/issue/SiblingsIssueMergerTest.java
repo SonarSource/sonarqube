@@ -23,7 +23,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,9 +86,9 @@ public class SiblingsIssueMergerTest {
 
   private static final org.sonar.ce.task.projectanalysis.component.Component FILE_1 = builder(
     org.sonar.ce.task.projectanalysis.component.Component.Type.FILE, FILE_1_REF)
-      .setKey(FILE_1_KEY)
-      .setUuid(FILE_1_UUID)
-      .build();
+    .setKey(FILE_1_KEY)
+    .setUuid(FILE_1_UUID)
+    .build();
 
   private SimpleTracker<DefaultIssue, SiblingIssue> tracker = new SimpleTracker<>();
   private SiblingsIssueMerger copier;
@@ -105,11 +104,10 @@ public class SiblingsIssueMergerTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    when(branch.getMergeBranchUuid()).thenReturn(Optional.empty());
-    metadataHolder.setBranch(branch);
     DbClient dbClient = db.getDbClient();
     ComponentIssuesLoader componentIssuesLoader = new ComponentIssuesLoader(dbClient, null, null, new MapSettings().asConfig(), System2.INSTANCE);
-    copier = new SiblingsIssueMerger(new SiblingsIssuesLoader(new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, dbClient), dbClient, componentIssuesLoader), tracker,
+    copier = new SiblingsIssueMerger(new SiblingsIssuesLoader(new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, dbClient), dbClient, componentIssuesLoader),
+      tracker,
       issueLifecycle);
     projectDto = db.components().insertMainBranch(p -> p.setDbKey(PROJECT_KEY).setUuid(PROJECT_UUID));
     branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")
@@ -125,6 +123,8 @@ public class SiblingsIssueMergerTest {
     fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch2"));
     fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch3"));
     rule = db.rules().insert();
+    when(branch.getMergeBranchUuid()).thenReturn(projectDto.uuid());
+    metadataHolder.setBranch(branch);
   }
 
   @Test

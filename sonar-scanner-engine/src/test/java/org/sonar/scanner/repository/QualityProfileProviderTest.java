@@ -19,25 +19,21 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.ProcessedScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -49,22 +45,16 @@ public class QualityProfileProviderTest {
 
   private QualityProfilesProvider qualityProfileProvider;
 
-  @Mock
-  private QualityProfileLoader loader;
-  @Mock
-  private ProcessedScannerProperties props;
-  @Mock
-  private ProjectRepositories projectRepo;
+  private QualityProfileLoader loader = mock(QualityProfileLoader.class);
+  private ProcessedScannerProperties props = mock(ProcessedScannerProperties.class);
 
   private List<QualityProfile> response;
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
     qualityProfileProvider = new QualityProfilesProvider();
 
     when(props.getKeyWithBranch()).thenReturn("project");
-    when(projectRepo.exists()).thenReturn(true);
 
     response = new ArrayList<>(1);
     response.add(QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").setRulesUpdatedAt(DateUtils.formatDateTime(new Date())).build());
@@ -73,7 +63,7 @@ public class QualityProfileProviderTest {
   @Test
   public void testProvide() {
     when(loader.load("project")).thenReturn(response);
-    QualityProfiles qps = qualityProfileProvider.provide(loader, projectRepo, props);
+    QualityProfiles qps = qualityProfileProvider.provide(loader, props);
     assertResponse(qps);
 
     verify(loader).load("project");
@@ -81,36 +71,13 @@ public class QualityProfileProviderTest {
   }
 
   @Test
-  public void testProjectDoesntExist() {
-    when(projectRepo.exists()).thenReturn(false);
-    when(loader.loadDefault()).thenReturn(response);
-    QualityProfiles qps = qualityProfileProvider.provide(loader, projectRepo, props);
-    assertResponse(qps);
-
-    verify(loader).loadDefault();
-    verifyNoMoreInteractions(loader);
-  }
-
-  @Test
   public void testProfileProp() {
     when(loader.load(eq("project"))).thenReturn(response);
 
-    QualityProfiles qps = qualityProfileProvider.provide(loader, projectRepo, props);
+    QualityProfiles qps = qualityProfileProvider.provide(loader, props);
     assertResponse(qps);
 
     verify(loader).load(eq("project"));
-    verifyNoMoreInteractions(loader);
-  }
-
-  @Test
-  public void testProfilePropDefault() {
-    when(projectRepo.exists()).thenReturn(false);
-    when(loader.loadDefault()).thenReturn(response);
-
-    QualityProfiles qps = qualityProfileProvider.provide(loader, projectRepo, props);
-    assertResponse(qps);
-
-    verify(loader).loadDefault();
     verifyNoMoreInteractions(loader);
   }
 
