@@ -3,6 +3,13 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 7.8 Upgrade Notes
+**Scanner version compatibility**
+Only the following scanner versions are compatible with SonarQube 7.8:
+* SonarQube Scanner CLI 2.9+
+* SonarQube Scanner Maven 3.3.0.603+
+* SonarQube Scanner Gradle 2.3+
+
 ## Release 7.7 Upgrade Notes  
 **Deprecated parameters dropped**  
 `sonar.language`, and  `sonar.profile`, both deprecated since 4.5, are dropped in this version as is `sonar.analysis.mode`, which as been deprecated since 6.6. These now-unrecognized parameters will simply be ignored, rather than failing analysis.
