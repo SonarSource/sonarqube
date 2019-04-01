@@ -307,7 +307,8 @@ public class PostProjectAnalysisTasksExecutorTest {
         throw new UnsupportedOperationException();
       }
 
-      @Override public String getTargetBranchName() {
+      @Override
+      public String getTargetBranchName() {
         throw new UnsupportedOperationException();
       }
 

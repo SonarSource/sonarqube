@@ -25,7 +25,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
@@ -35,9 +35,9 @@ public class ScmInfoDbLoader {
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
-  private final MergeBranchComponentUuids mergeBranchComponentUuid;
+  private final MergeAndTargetBranchComponentUuids mergeBranchComponentUuid;
 
-  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, MergeBranchComponentUuids mergeBranchComponentUuid) {
+  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, MergeAndTargetBranchComponentUuids mergeBranchComponentUuid) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
     this.mergeBranchComponentUuid = mergeBranchComponentUuid;
@@ -67,7 +67,7 @@ public class ScmInfoDbLoader {
     // at this point, it's the first analysis but had copyFromPrevious flag true
     Branch branch = analysisMetadataHolder.getBranch();
     if (!branch.isMain()) {
-      return Optional.ofNullable(mergeBranchComponentUuid.getUuid(file.getDbKey()));
+      return Optional.ofNullable(mergeBranchComponentUuid.getMergeBranchComponentUuid(file.getDbKey()));
     }
 
     return Optional.empty();

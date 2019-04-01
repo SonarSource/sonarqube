@@ -27,7 +27,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.core.issue.DefaultIssue;
@@ -42,11 +42,11 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueTrackingDelegator issueTracking;
   private final SiblingsIssueMerger issueStatusCopier;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final MergeBranchComponentUuids mergeBranchComponentUuids;
+  private final MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids;
 
   public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
     AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, SiblingsIssueMerger issueStatusCopier,
-    MergeBranchComponentUuids mergeBranchComponentUuids) {
+    MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;
@@ -54,7 +54,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.issueTracking = issueTracking;
     this.issueStatusCopier = issueStatusCopier;
-    this.mergeBranchComponentUuids = mergeBranchComponentUuids;
+    this.mergeAndTargetBranchComponentUuids = mergeAndTargetBranchComponentUuids;
   }
 
   @Override
@@ -97,7 +97,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : matched.entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
-      issueLifecycle.copyExistingOpenIssueFromLongLivingBranch(raw, base, mergeBranchComponentUuids.getMergeBranchName());
+      issueLifecycle.copyExistingOpenIssueFromLongLivingBranch(raw, base, mergeAndTargetBranchComponentUuids.getMergeBranchName());
       process(component, raw, cacheAppender);
     }
   }

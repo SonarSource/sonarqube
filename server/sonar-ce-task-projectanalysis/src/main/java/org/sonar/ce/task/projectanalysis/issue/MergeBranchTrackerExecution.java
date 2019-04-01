@@ -26,10 +26,10 @@ import org.sonar.core.issue.tracking.Tracking;
 
 public class MergeBranchTrackerExecution {
   private final TrackerRawInputFactory rawInputFactory;
-  private final TrackerMergeBranchInputFactory mergeInputFactory;
+  private final TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
 
-  public MergeBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerMergeBranchInputFactory mergeInputFactory,
+  public MergeBranchTrackerExecution(TrackerRawInputFactory rawInputFactory, TrackerMergeOrTargetBranchInputFactory mergeInputFactory,
     Tracker<DefaultIssue, DefaultIssue> tracker) {
     this.rawInputFactory = rawInputFactory;
     this.mergeInputFactory = mergeInputFactory;
@@ -37,6 +37,6 @@ public class MergeBranchTrackerExecution {
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
-    return tracker.trackNonClosed(rawInputFactory.create(component), mergeInputFactory.create(component));
+    return tracker.trackNonClosed(rawInputFactory.create(component), mergeInputFactory.createForMergeBranch(component));
   }
 }

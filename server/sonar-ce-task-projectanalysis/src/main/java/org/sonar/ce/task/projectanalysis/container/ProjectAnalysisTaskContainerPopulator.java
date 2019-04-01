@@ -34,7 +34,7 @@ import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
@@ -82,7 +82,7 @@ import org.sonar.ce.task.projectanalysis.issue.SiblingsIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.ShortBranchOrPullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
-import org.sonar.ce.task.projectanalysis.issue.TrackerMergeBranchInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.TrackerMergeOrTargetBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerRawInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.BranchCoverageRule;
@@ -196,7 +196,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MeasureComputersHolderImpl.class,
       MutableTaskResultHolderImpl.class,
       BatchReportReaderImpl.class,
-      MergeBranchComponentUuids.class,
+      MergeAndTargetBranchComponentUuids.class,
       SiblingComponentsWithOpenIssues.class,
 
       // repositories
@@ -271,7 +271,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       UpdateConflictResolver.class,
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
-      TrackerMergeBranchInputFactory.class,
+      TrackerMergeOrTargetBranchInputFactory.class,
       ClosedIssuesInputFactory.class,
       Tracker.class,
       TrackerExecution.class,

@@ -36,7 +36,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -116,9 +116,9 @@ public class IntegrateIssuesVisitorTest {
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
   private IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   private IssueVisitor issueVisitor = mock(IssueVisitor.class);
-  private MergeBranchComponentUuids mergeBranchComponentsUuids = mock(MergeBranchComponentUuids.class);
+  private MergeAndTargetBranchComponentUuids mergeBranchComponentsUuids = mock(MergeAndTargetBranchComponentUuids.class);
   private SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
-  private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
+  private MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids = mock(MergeAndTargetBranchComponentUuids.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
 
@@ -145,7 +145,7 @@ public class IntegrateIssuesVisitorTest {
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(),
       issueFilter, ruleRepositoryRule, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository, mock(ReportModulesPath.class), analysisMetadataHolder, new IssueFieldsSetter(), mock(ComponentsWithUnprocessedIssues.class));
-    TrackerMergeBranchInputFactory mergeInputFactory = new TrackerMergeBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
+    TrackerMergeOrTargetBranchInputFactory mergeInputFactory = new TrackerMergeOrTargetBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, rawInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
     shortBranchTracker = new ShortBranchOrPullRequestTrackerExecution(baseInputFactory, rawInputFactory, mergeInputFactory, new Tracker<>(), newLinesRepository);
@@ -155,7 +155,7 @@ public class IntegrateIssuesVisitorTest {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, analysisMetadataHolder, trackingDelegator, issueStatusCopier, mergeBranchComponentUuids);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, analysisMetadataHolder, trackingDelegator, issueStatusCopier, mergeAndTargetBranchComponentUuids);
   }
 
   @Test
@@ -262,8 +262,8 @@ public class IntegrateIssuesVisitorTest {
   @Test
   public void copy_issues_when_creating_new_long_living_branch() {
 
-    when(mergeBranchComponentsUuids.getUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
-    when(mergeBranchComponentUuids.getMergeBranchName()).thenReturn("master");
+    when(mergeBranchComponentsUuids.getMergeBranchComponentUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
+    when(mergeAndTargetBranchComponentUuids.getMergeBranchName()).thenReturn("master");
 
     when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);

@@ -33,7 +33,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
@@ -67,9 +67,9 @@ public class ScmInfoDbLoaderTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   private Branch branch = mock(Branch.class);
-  private MergeBranchComponentUuids mergeBranchComponentUuids = mock(MergeBranchComponentUuids.class);
+  private MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids = mock(MergeAndTargetBranchComponentUuids.class);
 
-  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), mergeBranchComponentUuids);
+  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), mergeAndTargetBranchComponentUuids);
 
   @Test
   public void returns_ScmInfo_from_DB() {
@@ -95,7 +95,7 @@ public class ScmInfoDbLoaderTest {
     String hash = computeSourceHash(1);
     when(branch.getMergeBranchUuid()).thenReturn("mergeBranchUuid");
 
-    when(mergeBranchComponentUuids.getUuid(FILE.getDbKey())).thenReturn(mergeFileUuid);
+    when(mergeAndTargetBranchComponentUuids.getMergeBranchComponentUuid(FILE.getDbKey())).thenReturn(mergeFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, mergeFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();

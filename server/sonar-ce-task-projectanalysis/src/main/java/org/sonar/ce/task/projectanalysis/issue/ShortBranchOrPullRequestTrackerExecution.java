@@ -36,13 +36,12 @@ import org.sonar.core.util.stream.MoreCollectors;
 public class ShortBranchOrPullRequestTrackerExecution {
   private final TrackerBaseInputFactory baseInputFactory;
   private final TrackerRawInputFactory rawInputFactory;
-  private final TrackerMergeBranchInputFactory mergeInputFactory;
+  private final TrackerMergeOrTargetBranchInputFactory mergeInputFactory;
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
 
   public ShortBranchOrPullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerRawInputFactory rawInputFactory,
-    TrackerMergeBranchInputFactory mergeInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository) {
+    TrackerMergeOrTargetBranchInputFactory mergeInputFactory, Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository) {
     this.baseInputFactory = baseInputFactory;
     this.rawInputFactory = rawInputFactory;
     this.mergeInputFactory = mergeInputFactory;
@@ -52,21 +51,41 @@ public class ShortBranchOrPullRequestTrackerExecution {
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component) {
     Input<DefaultIssue> rawInput = rawInputFactory.create(component);
-    Input<DefaultIssue> baseInput = baseInputFactory.create(component);
+    Input<DefaultIssue> previousAnalysisInput = baseInputFactory.create(component);
 
-    Input<DefaultIssue> unmatchedRawInput;
+    // Step 1: track issues with merge branch (= long living)
+    Input<DefaultIssue> unmatchedRawsAfterMergeBranchTracking;
     if (mergeInputFactory.hasMergeBranchAnalysis()) {
-      Input<DefaultIssue> mergeInput = mergeInputFactory.create(component);
+      Input<DefaultIssue> mergeInput = mergeInputFactory.createForMergeBranch(component);
       Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.trackNonClosed(rawInput, mergeInput);
       List<DefaultIssue> unmatchedRaws = mergeTracking.getUnmatchedRaws().collect(MoreCollectors.toList());
-      unmatchedRawInput = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
+      unmatchedRawsAfterMergeBranchTracking = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
     } else {
-      List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, rawInput.getIssues());
-      unmatchedRawInput = new DefaultTrackingInput(filteredRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
+      unmatchedRawsAfterMergeBranchTracking = rawInput;
     }
 
-    // do second tracking with base branch using raws issues that are still unmatched
-    return tracker.trackNonClosed(unmatchedRawInput, baseInput);
+    // Step 2: track remaining unmatched issues with target branch
+    Input<DefaultIssue> unmatchedRawsAfterTargetBranchTracking;
+    if (mergeInputFactory.hasTargetBranchAnalysis() && mergeInputFactory.areTargetAndMergeBranchesDifferent()) {
+      Input<DefaultIssue> targetInput = mergeInputFactory.createForTargetBranch(component);
+      Tracking<DefaultIssue, DefaultIssue> mergeTracking = tracker.trackNonClosed(unmatchedRawsAfterMergeBranchTracking, targetInput);
+      List<DefaultIssue> unmatchedRaws = mergeTracking.getUnmatchedRaws().collect(MoreCollectors.toList());
+      unmatchedRawsAfterTargetBranchTracking = new DefaultTrackingInput(unmatchedRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
+    } else {
+      unmatchedRawsAfterTargetBranchTracking = unmatchedRawsAfterMergeBranchTracking;
+    }
+
+    // Step 3: if there is no analysis or merge or target branch, keep only issues on changed lines
+    Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering;
+    if (!mergeInputFactory.hasTargetBranchAnalysis() || !mergeInputFactory.hasMergeBranchAnalysis()) {
+      List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, unmatchedRawsAfterTargetBranchTracking.getIssues());
+      unmatchedRawsAfterChangedLineFiltering = new DefaultTrackingInput(filteredRaws, rawInput.getLineHashSequence(), rawInput.getBlockHashSequence());
+    } else {
+      unmatchedRawsAfterChangedLineFiltering = unmatchedRawsAfterTargetBranchTracking;
+    }
+
+    // Step 4: track issues of previous analysis of the current branch/PR
+    return tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, previousAnalysisInput);
   }
 
   private List<DefaultIssue> keepIssuesHavingAtLeastOneLocationOnChangedLines(Component component, Collection<DefaultIssue> issues) {
