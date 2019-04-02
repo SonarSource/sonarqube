@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import * as key from 'keymaster';
 import Helmet from 'react-helmet';
@@ -32,6 +33,18 @@ import PageActions from './PageActions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
 import Sidebar from '../sidebar/Sidebar';
+import { Alert } from '../../../components/ui/Alert';
+import { Button } from '../../../components/ui/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import EmptySearch from '../../../components/common/EmptySearch';
+import FiltersHeader from '../../../components/common/FiltersHeader';
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import ListFooter from '../../../components/controls/ListFooter';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import * as actions from '../actions';
 import {
   areMyIssuesSelected,
@@ -56,17 +69,6 @@ import {
   shouldOpenStandardsFacet,
   shouldOpenStandardsChildFacet
 } from '../utils';
-import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { Alert } from '../../../components/ui/Alert';
-import { Button } from '../../../components/ui/buttons';
-import Checkbox from '../../../components/controls/Checkbox';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import EmptySearch from '../../../components/common/EmptySearch';
-import FiltersHeader from '../../../components/common/FiltersHeader';
-import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
-import ListFooter from '../../../components/controls/ListFooter';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import {
   isShortLivingBranch,
   isSameBranchLike,
@@ -75,15 +77,15 @@ import {
   fillBranchLike
 } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { RawQuery } from '../../../helpers/query';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
 } from '../../../helpers/pages';
+import { RawQuery } from '../../../helpers/query';
 import { isSonarCloud } from '../../../helpers/system';
-import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
+import { fetchBranchStatus } from '../../../store/rootActions';
 import '../../../components/search-navigator.css';
 import '../styles.css';
 
@@ -102,6 +104,7 @@ interface Props {
   branchLike?: T.BranchLike;
   component?: T.Component;
   currentUser: T.CurrentUser;
+  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
@@ -785,6 +788,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleIssueChange = (issue: T.Issue) => {
+    this.refreshBranchStatus();
     this.setState(state => ({
       issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
     }));
@@ -802,12 +806,14 @@ export class App extends React.PureComponent<Props, State> {
 
   handleBulkChangeDone = () => {
     this.setState({ checkAll: false });
+    this.refreshBranchStatus();
     this.fetchFirstIssues();
     this.handleCloseBulkChange();
   };
 
   handleReload = () => {
     this.fetchFirstIssues();
+    this.refreshBranchStatus();
     if (isShortLivingBranch(this.props.branchLike) || isPullRequest(this.props.branchLike)) {
       this.props.onBranchesChange();
     }
@@ -857,6 +863,13 @@ export class App extends React.PureComponent<Props, State> {
 
   selectPreviousFlow = () => {
     this.setState(actions.selectPreviousFlow);
+  };
+
+  refreshBranchStatus = () => {
+    const { branchLike, component } = this.props;
+    if (branchLike && component && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+      this.props.fetchBranchStatus(branchLike, component.key);
+    }
   };
 
   renderBulkChange(openIssue: T.Issue | undefined) {
@@ -1148,4 +1161,11 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(App);
+const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
+
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps
+  )(App)
+);

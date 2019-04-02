@@ -29,7 +29,6 @@ import {
   mockCurrentUser
 } from '../../../../helpers/testMocks';
 import handleRequiredAuthentication from '../../../../app/utils/handleRequiredAuthentication';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   enableLocationsNavigator,
   selectNextLocation,
@@ -37,10 +36,28 @@ import {
   selectNextFlow,
   selectPreviousFlow
 } from '../../actions';
+import { waitAndUpdate, KEYCODE_MAP, keydown } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../app/utils/handleRequiredAuthentication', () => ({
   default: jest.fn()
 }));
+
+jest.mock('keymaster', () => {
+  const key: any = (bindKey: string, _: string, callback: Function) => {
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (bindKey.split(',').includes(KEYCODE_MAP[event.keyCode])) {
+        return callback();
+      }
+      return true;
+    });
+  };
+
+  key.getScope = () => 'issues';
+  key.setScope = () => {};
+  key.deleteScope = () => {};
+
+  return key;
+});
 
 const ISSUES = [
   { key: 'foo' } as T.Issue,
@@ -339,6 +356,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
         qualifier: 'Doe'
       }}
       currentUser={mockLoggedInUser()}
+      fetchBranchStatus={jest.fn()}
       fetchIssues={jest.fn().mockResolvedValue({
         components: [referencedComponent],
         effortTotal: 1,
