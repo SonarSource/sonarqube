@@ -17,22 +17,63 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { registerBranchStatus } from '../rootActions';
-import { mockLongLivingBranch } from '../../helpers/testMocks';
+import { registerBranchStatus, fetchBranchStatus } from '../rootActions';
+import { mockLongLivingBranch, mockQualityGateStatusCondition } from '../../helpers/testMocks';
 import { registerBranchStatusAction } from '../branches';
+
+jest.useFakeTimers();
 
 jest.mock('../branches', () => ({
   ...require.requireActual('../branches'),
   registerBranchStatusAction: jest.fn()
 }));
 
-it('correctly dispatches actions for branches', () => {
-  const dispatch = jest.fn();
+jest.mock('../../api/quality-gates', () => {
+  const { mockQualityGateProjectStatus } = require.requireActual('../../helpers/testMocks');
+  return {
+    getQualityGateProjectStatus: jest.fn().mockResolvedValue(
+      mockQualityGateProjectStatus({
+        conditions: [
+          {
+            actualValue: '10',
+            comparator: 'GT',
+            errorThreshold: '0',
+            metricKey: 'foo',
+            periodIndex: 1,
+            status: 'ERROR'
+          }
+        ]
+      })
+    )
+  };
+});
+
+describe('branch store actions', () => {
   const branchLike = mockLongLivingBranch();
   const component = 'foo';
   const status = 'OK';
 
-  registerBranchStatus(branchLike, component, status)(dispatch);
-  expect(registerBranchStatusAction).toBeCalledWith(branchLike, component, status);
-  expect(dispatch).toBeCalled();
+  it('correctly registers a new branch status', () => {
+    const dispatch = jest.fn();
+
+    registerBranchStatus(branchLike, component, status)(dispatch);
+    expect(registerBranchStatusAction).toBeCalledWith(branchLike, component, status);
+    expect(dispatch).toBeCalled();
+  });
+
+  it('correctly fetches a branch status', async () => {
+    const dispatch = jest.fn();
+
+    fetchBranchStatus(branchLike, component)(dispatch);
+
+    jest.runAllTimers();
+    await new Promise(setImmediate);
+
+    expect(registerBranchStatusAction).toBeCalledWith(branchLike, component, status, [
+      mockQualityGateStatusCondition({
+        period: 1
+      })
+    ]);
+    expect(dispatch).toBeCalled();
+  });
 });

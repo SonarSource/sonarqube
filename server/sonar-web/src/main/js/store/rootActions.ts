@@ -19,6 +19,7 @@
  */
 import { Dispatch } from 'redux';
 import { InjectedRouter } from 'react-router';
+import { debounce } from 'lodash';
 import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
@@ -29,6 +30,9 @@ import * as auth from '../api/auth';
 import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
 import { getOrganizations, getOrganization, getOrganizationNavigation } from '../api/organizations';
+import { getQualityGateProjectStatus } from '../api/quality-gates';
+import { getBranchLikeQuery } from '../helpers/branches';
+import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
 
 export function fetchLanguages() {
   return (dispatch: Dispatch) => {
@@ -61,6 +65,21 @@ export const fetchOrganization = (key: string) => (dispatch: Dispatch) => {
     }
   );
 };
+
+export function fetchBranchStatus(branchLike: T.BranchLike, projectKey: string) {
+  return debounce((dispatch: Dispatch<any>) => {
+    getQualityGateProjectStatus({ projectKey, ...getBranchLikeQuery(branchLike) }).then(
+      projectStatus => {
+        const { status } = projectStatus;
+        const conditions = extractStatusConditionsFromProjectStatus(projectStatus);
+        dispatch(registerBranchStatusAction(branchLike, projectKey, status, conditions));
+      },
+      () => {
+        dispatch(addGlobalErrorMessage('Fetching Quality Gate status failed'));
+      }
+    );
+  }, 1000);
+}
 
 export function doLogin(login: string, password: string) {
   return (dispatch: Dispatch<any>) =>
