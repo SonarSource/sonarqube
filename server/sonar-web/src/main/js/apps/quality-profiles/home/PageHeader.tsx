@@ -24,6 +24,7 @@ import RestoreProfileForm from './RestoreProfileForm';
 import { Profile } from '../types';
 import { getProfilePath } from '../utils';
 import { Actions } from '../../../api/quality-profiles';
+import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 import { withRouter, Router } from '../../../components/hoc/withRouter';
@@ -42,7 +43,7 @@ interface State {
   restoreFormOpen: boolean;
 }
 
-class PageHeader extends React.PureComponent<Props, State> {
+export class PageHeader extends React.PureComponent<Props, State> {
   state: State = {
     createFormOpen: false,
     restoreFormOpen: false
@@ -76,13 +77,17 @@ class PageHeader extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { actions, languages, organization, profiles } = this.props;
     return (
       <header className="page-header">
         <h1 className="page-title">{translate('quality_profiles.page')}</h1>
 
-        {this.props.actions.create && (
+        {actions.create && (
           <div className="page-actions">
-            <Button id="quality-profiles-create" onClick={this.handleCreateClick}>
+            <Button
+              disabled={languages.length === 0}
+              id="quality-profiles-create"
+              onClick={this.handleCreateClick}>
               {translate('create')}
             </Button>
             <Button
@@ -91,6 +96,11 @@ class PageHeader extends React.PureComponent<Props, State> {
               onClick={this.handleRestoreClick}>
               {translate('restore')}
             </Button>
+            {languages.length === 0 && (
+              <Alert className="spacer-top" variant="warning">
+                {translate('quality_profiles.no_languages_available')}
+              </Alert>
+            )}
           </div>
         )}
 
@@ -112,17 +122,17 @@ class PageHeader extends React.PureComponent<Props, State> {
           <RestoreProfileForm
             onClose={this.closeRestoreForm}
             onRestore={this.props.updateProfiles}
-            organization={this.props.organization}
+            organization={organization}
           />
         )}
 
         {this.state.createFormOpen && (
           <CreateProfileForm
-            languages={this.props.languages}
+            languages={languages}
             onClose={this.closeCreateForm}
             onCreate={this.handleCreate}
-            organization={this.props.organization}
-            profiles={this.props.profiles}
+            organization={organization}
+            profiles={profiles}
           />
         )}
       </header>

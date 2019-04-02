@@ -1,0 +1,276 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    quality_profiles.page
+  </h1>
+  <div
+    className="page-description markdown"
+  >
+    quality_profiles.intro1
+    <br />
+    quality_profiles.intro2
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to={
+        Object {
+          "pathname": "/documentation/instance-administration/quality-profiles/",
+        }
+      }
+    >
+      learn_more
+    </Link>
+  </div>
+</header>
+`;
+
+exports[`should render correctly 2`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    quality_profiles.page
+  </h1>
+  <div
+    className="page-actions"
+  >
+    <Button
+      disabled={false}
+      id="quality-profiles-create"
+      onClick={[Function]}
+    >
+      create
+    </Button>
+    <Button
+      className="little-spacer-left"
+      id="quality-profiles-restore"
+      onClick={[Function]}
+    >
+      restore
+    </Button>
+  </div>
+  <div
+    className="page-description markdown"
+  >
+    quality_profiles.intro1
+    <br />
+    quality_profiles.intro2
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to={
+        Object {
+          "pathname": "/documentation/instance-administration/quality-profiles/",
+        }
+      }
+    >
+      learn_more
+    </Link>
+  </div>
+</header>
+`;
+
+exports[`should render correctly 3`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    quality_profiles.page
+  </h1>
+  <div
+    className="page-actions"
+  >
+    <Button
+      disabled={true}
+      id="quality-profiles-create"
+      onClick={[Function]}
+    >
+      create
+    </Button>
+    <Button
+      className="little-spacer-left"
+      id="quality-profiles-restore"
+      onClick={[Function]}
+    >
+      restore
+    </Button>
+    <Alert
+      className="spacer-top"
+      variant="warning"
+    >
+      quality_profiles.no_languages_available
+    </Alert>
+  </div>
+  <div
+    className="page-description markdown"
+  >
+    quality_profiles.intro1
+    <br />
+    quality_profiles.intro2
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to={
+        Object {
+          "pathname": "/documentation/instance-administration/quality-profiles/",
+        }
+      }
+    >
+      learn_more
+    </Link>
+  </div>
+</header>
+`;
+
+exports[`should show a create form 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    quality_profiles.page
+  </h1>
+  <div
+    className="page-actions"
+  >
+    <Button
+      disabled={false}
+      id="quality-profiles-create"
+      onClick={[Function]}
+    >
+      create
+    </Button>
+    <Button
+      className="little-spacer-left"
+      id="quality-profiles-restore"
+      onClick={[Function]}
+    >
+      restore
+    </Button>
+  </div>
+  <div
+    className="page-description markdown"
+  >
+    quality_profiles.intro1
+    <br />
+    quality_profiles.intro2
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to={
+        Object {
+          "pathname": "/documentation/instance-administration/quality-profiles/",
+        }
+      }
+    >
+      learn_more
+    </Link>
+  </div>
+  <CreateProfileForm
+    languages={
+      Array [
+        Object {
+          "key": "css",
+          "name": "CSS",
+        },
+      ]
+    }
+    onClose={[Function]}
+    onCreate={[Function]}
+    organization="foo"
+    profiles={
+      Array [
+        Object {
+          "activeDeprecatedRuleCount": 2,
+          "activeRuleCount": 10,
+          "childrenCount": 0,
+          "depth": 1,
+          "isBuiltIn": false,
+          "isDefault": false,
+          "isInherited": false,
+          "key": "key",
+          "language": "js",
+          "languageName": "JavaScript",
+          "name": "name",
+          "organization": "foo",
+          "projectCount": 3,
+        },
+      ]
+    }
+  />
+</header>
+`;
+
+exports[`should show a restore form 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    quality_profiles.page
+  </h1>
+  <div
+    className="page-actions"
+  >
+    <Button
+      disabled={false}
+      id="quality-profiles-create"
+      onClick={[Function]}
+    >
+      create
+    </Button>
+    <Button
+      className="little-spacer-left"
+      id="quality-profiles-restore"
+      onClick={[Function]}
+    >
+      restore
+    </Button>
+  </div>
+  <div
+    className="page-description markdown"
+  >
+    quality_profiles.intro1
+    <br />
+    quality_profiles.intro2
+    <Link
+      className="spacer-left"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      target="_blank"
+      to={
+        Object {
+          "pathname": "/documentation/instance-administration/quality-profiles/",
+        }
+      }
+    >
+      learn_more
+    </Link>
+  </div>
+  <RestoreProfileForm
+    onClose={[Function]}
+    onRestore={[MockFunction]}
+    organization="foo"
+  />
+</header>
+`;

@@ -109,6 +109,7 @@
   margin-bottom: 10px;
   margin-left: 10px;
   line-height: var(--controlHeight);
+  text-align: right;
 }
 
 .page-actions .badge {
