@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import org.sonar.db.MyBatis;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PropertiesDao implements Dao {
@@ -72,7 +74,22 @@ public class PropertiesDao implements Dao {
 
   public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
     @Nullable String projectKey) {
-    return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey);
+    return getMapper(dbSession).findEmailRecipientsForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey, null);
+  }
+
+  public Set<EmailSubscriberDto> findEmailSubscribersForNotification(DbSession dbSession, String notificationDispatcherKey, String notificationChannelKey,
+    @Nullable String projectKey, Set<String> logins) {
+    if (logins.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    return executeLargeInputsIntoSet(
+      logins,
+      loginsPartition -> {
+        String notificationKey = NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey;
+        return getMapper(dbSession).findEmailRecipientsForNotification(notificationKey, projectKey, loginsPartition);
+      },
+      partitionSize -> projectKey == null ? partitionSize : (partitionSize / 2));
   }
 
   public boolean hasProjectNotificationSubscribersForDispatchers(String projectUuid, Collection<String> dispatcherKeys) {

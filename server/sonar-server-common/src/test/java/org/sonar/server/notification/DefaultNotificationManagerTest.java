@@ -272,6 +272,37 @@ public class DefaultNotificationManagerTest {
   }
 
   @Test
+  public void findSubscribedEmailRecipients_with_logins_fails_with_NPE_if_projectKey_is_null() {
+    String dispatcherKey = randomAlphabetic(12);
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("projectKey is mandatory");
+
+    underTest.findSubscribedEmailRecipients(dispatcherKey, null, ImmutableSet.of(), ALL_MUST_HAVE_ROLE_USER);
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_with_logins_fails_with_NPE_if_logins_is_null() {
+    String dispatcherKey = randomAlphabetic(12);
+    String projectKey = randomAlphabetic(6);
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("logins can't be null");
+
+    underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, null, ALL_MUST_HAVE_ROLE_USER);
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_with_logins_returns_empty_if_login_set_is_empty() {
+    String dispatcherKey = randomAlphabetic(12);
+    String projectKey = randomAlphabetic(6);
+
+    Set<EmailRecipient> recipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, ImmutableSet.of(), ALL_MUST_HAVE_ROLE_USER);
+
+    assertThat(recipients).isEmpty();
+  }
+
+  @Test
   public void findSubscribedEmailRecipients_returns_empty_if_no_email_recipients_in_project_for_dispatcher_key() {
     String dispatcherKey = randomAlphabetic(12);
     String globalPermission = randomAlphanumeric(4);
@@ -288,21 +319,33 @@ public class DefaultNotificationManagerTest {
   }
 
   @Test
-  public void findSubscribedEmailRecipients_applies_distinct_permission_filtering_global_or_project_subscribers() {
+  public void findSubscribedEmailRecipients_with_logins_returns_empty_if_no_email_recipients_in_project_for_dispatcher_key() {
     String dispatcherKey = randomAlphabetic(12);
-    String otherDispatcherKey = randomAlphabetic(13);
     String globalPermission = randomAlphanumeric(4);
     String projectPermission = randomAlphanumeric(5);
     String projectKey = randomAlphabetic(6);
-    String otherProjectKey = randomAlphabetic(7);
+    Set<String> logins = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> "login_" + i)
+      .collect(Collectors.toSet());
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
+      .thenReturn(Collections.emptySet());
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    assertThat(emailRecipients).isEmpty();
+
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(any(DbSession.class), anySet(), anyString(), anyString());
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_applies_distinct_permission_filtering_global_or_project_subscribers() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(
         newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
-    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", otherProjectKey))
-      .thenReturn(newHashSet(new EmailSubscriberDto("user2", false, "user2@foo")));
-    when(propertiesDao.findEmailSubscribersForNotification(dbSession, otherDispatcherKey, "EmailNotificationChannel", projectKey))
-      .thenReturn(newHashSet(new EmailSubscriberDto("user4", true, "user4@foo")));
-
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
@@ -319,7 +362,32 @@ public class DefaultNotificationManagerTest {
   }
 
   @Test
-  public void findSubscribedEmailRecipients_do_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
+  public void findSubscribedEmailRecipients_with_logins_applies_distinct_permission_filtering_global_or_project_subscribers() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    Set<String> logins = ImmutableSet.of("user1", "user2", "user3");
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
+      .thenReturn(
+        newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
+      .thenReturn(newHashSet("user3"));
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
+      .thenReturn(newHashSet("user1", "user3"));
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    assertThat(emailRecipients)
+      .isEqualTo(ImmutableSet.of(new EmailRecipient("user1", "user1@foo"), new EmailRecipient("user3", "user3@foo")));
+
+    // code is optimized to perform only 2 SQL requests for all channels
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_does_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
     String dispatcherKey = randomAlphabetic(12);
     String globalPermission = randomAlphanumeric(4);
     String projectPermission = randomAlphanumeric(5);
@@ -327,13 +395,38 @@ public class DefaultNotificationManagerTest {
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> new EmailSubscriberDto("user" + i, true, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
+    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(subscribers);
-    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, globalPermission))
       .thenReturn(logins);
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    Set<EmailRecipient> expected = subscribers.stream().map(i -> new EmailRecipient(i.getLogin(), i.getEmail())).collect(Collectors.toSet());
+    assertThat(emailRecipients)
+      .isEqualTo(expected);
+
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_with_logins_does_not_call_db_for_project_permission_filtering_if_there_is_no_project_subscriber() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> new EmailSubscriberDto("user" + i, true, "user" + i + "@sonarsource.com"))
+      .collect(Collectors.toSet());
+    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
+      .thenReturn(subscribers);
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, globalPermission))
+      .thenReturn(logins);
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
       new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     Set<EmailRecipient> expected = subscribers.stream().map(i -> new EmailRecipient(i.getLogin(), i.getEmail())).collect(Collectors.toSet());
     assertThat(emailRecipients)
@@ -352,13 +445,38 @@ public class DefaultNotificationManagerTest {
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> new EmailSubscriberDto("user" + i, false, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
+    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(subscribers);
-    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, projectPermission))
       .thenReturn(logins);
 
     Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey,
+      new SubscriberPermissionsOnProject(globalPermission, projectPermission));
+    Set<EmailRecipient> expected = subscribers.stream().map(i -> new EmailRecipient(i.getLogin(), i.getEmail())).collect(Collectors.toSet());
+    assertThat(emailRecipients)
+      .isEqualTo(expected);
+
+    verify(authorizationDao, times(0)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(globalPermission));
+    verify(authorizationDao, times(1)).keepAuthorizedLoginsOnProject(eq(dbSession), anySet(), anyString(), eq(projectPermission));
+  }
+
+  @Test
+  public void findSubscribedEmailRecipients_with_logins_does_not_call_DB_for_project_permission_filtering_if_there_is_no_global_subscriber() {
+    String dispatcherKey = randomAlphabetic(12);
+    String globalPermission = randomAlphanumeric(4);
+    String projectPermission = randomAlphanumeric(5);
+    String projectKey = randomAlphabetic(6);
+    Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> new EmailSubscriberDto("user" + i, false, "user" + i + "@sonarsource.com"))
+      .collect(Collectors.toSet());
+    Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
+    when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
+      .thenReturn(subscribers);
+    when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, logins, projectKey, projectPermission))
+      .thenReturn(logins);
+
+    Set<EmailRecipient> emailRecipients = underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, logins,
       new SubscriberPermissionsOnProject(globalPermission, projectPermission));
     Set<EmailRecipient> expected = subscribers.stream().map(i -> new EmailRecipient(i.getLogin(), i.getEmail())).collect(Collectors.toSet());
     assertThat(emailRecipients)

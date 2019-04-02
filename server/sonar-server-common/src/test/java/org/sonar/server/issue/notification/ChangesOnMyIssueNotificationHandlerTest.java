@@ -36,7 +36,9 @@ import org.mockito.Mockito;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -192,8 +194,8 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(Stream.concat(notifications1.stream(), notifications2.stream()).collect(toSet()));
 
     assertThat(deliver).isZero();
-    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey1, ALL_MUST_HAVE_ROLE_USER);
-    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey2, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey1, singleton(assignee1), ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey2, singleton(assignee2), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
@@ -205,17 +207,15 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     String projectKey = randomAlphabetic(5);
     String assignee1 = randomAlphabetic(6);
     String assignee2 = randomAlphabetic(7);
-    String assignee3 = randomAlphabetic(8);
     // assignee1 is not authorized
     Set<IssueChangeNotification> assignee1Notifications = randomSetOfNotifications(projectKey, assignee1, noOrDifferentChangeAuthor);
     // assignee2 is authorized
     Set<IssueChangeNotification> assignee2Notifications = randomSetOfNotifications(projectKey, assignee2, noOrDifferentChangeAuthor);
-    // assignee3 is authorized but has no notification
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2), emailRecipientOf(assignee3)));
-    Set<EmailNotificationChannel.EmailDeliveryRequest> expectedRequests = assignee2Notifications.stream()
-      .map(t -> new EmailNotificationChannel.EmailDeliveryRequest(emailOf(t.getAssignee()), t))
+    when(notificationManager.findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ImmutableSet.of(assignee1, assignee2), ALL_MUST_HAVE_ROLE_USER))
+      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2)));
+    Set<EmailDeliveryRequest> expectedRequests = assignee2Notifications.stream()
+      .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
     when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
@@ -223,7 +223,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(Stream.concat(assignee1Notifications.stream(), assignee2Notifications.stream()).collect(toSet()));
 
     assertThat(deliver).isEqualTo(deliveredCount);
-    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ImmutableSet.of(assignee1, assignee2), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verify(emailNotificationChannel).deliver(expectedRequests);
@@ -238,22 +238,23 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     String assignee3 = randomAlphabetic(8);
     // assignee1 is the changeAuthor of every notification he's the assignee of
     Set<IssueChangeNotification> assignee1ChangeAuthor = randomSetOfNotifications(projectKey, assignee1, assignee1);
-    // assignee1 is the changeAuthor of some notification he's the assignee of
+    // assignee2 is the changeAuthor of some notification he's the assignee of
     Set<IssueChangeNotification> assignee2ChangeAuthor = randomSetOfNotifications(projectKey, assignee2, assignee2);
     Set<IssueChangeNotification> assignee2NotChangeAuthor = randomSetOfNotifications(projectKey, assignee2, randomAlphabetic(10));
     Set<IssueChangeNotification> assignee2NoChangeAuthor = randomSetOfNotifications(projectKey, assignee2, NO_CHANGE_AUTHOR);
-    // assignee2 is never the changeAuthor of the notification he's the assignee of
+    // assignee3 is never the changeAuthor of the notification he's the assignee of
     Set<IssueChangeNotification> assignee3NotChangeAuthor = randomSetOfNotifications(projectKey, assignee3, randomAlphabetic(11));
     Set<IssueChangeNotification> assignee3NoChangeAuthor = randomSetOfNotifications(projectKey, assignee3, NO_CHANGE_AUTHOR);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    // all assignees have subscribed
-    when(notificationManager.findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee1), emailRecipientOf(assignee2), emailRecipientOf(assignee3)));
-    Set<EmailNotificationChannel.EmailDeliveryRequest> expectedRequests = Stream.of(
+    // assignees which are not changeAuthor have subscribed
+    Set<String> assigneesChangeAuthor = ImmutableSet.of(assignee2, assignee3);
+    when(notificationManager.findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, assigneesChangeAuthor, ALL_MUST_HAVE_ROLE_USER))
+      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2), emailRecipientOf(assignee3)));
+    Set<EmailDeliveryRequest> expectedRequests = Stream.of(
       assignee2NotChangeAuthor.stream(), assignee2NoChangeAuthor.stream(),
       assignee3NotChangeAuthor.stream(), assignee3NoChangeAuthor.stream())
       .flatMap(t -> t)
-      .map(t -> new EmailNotificationChannel.EmailDeliveryRequest(emailOf(t.getAssignee()), t))
+      .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
     when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
@@ -266,7 +267,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isEqualTo(deliveredCount);
-    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, assigneesChangeAuthor, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verify(emailNotificationChannel).deliver(expectedRequests);

@@ -188,14 +188,37 @@ public class DefaultNotificationManager implements NotificationManager {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
         dbSession, dispatcherKey, EmailNotificationChannel.class.getSimpleName(), projectKey);
-      if (emailSubscribers.isEmpty()) {
-        return emptySet();
-      }
 
-      return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, subscriberPermissionsOnProject)
-        .map(emailSubscriber -> new EmailRecipient(emailSubscriber.getLogin(), emailSubscriber.getEmail()))
-        .collect(MoreCollectors.toSet());
+      return keepAuthorizedEmailSubscribers(dbSession, projectKey, subscriberPermissionsOnProject, emailSubscribers);
     }
+  }
+
+  @Override
+  public Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, Set<String> logins,
+    SubscriberPermissionsOnProject subscriberPermissionsOnProject) {
+    verifyProjectKey(projectKey);
+    requireNonNull(logins, "logins can't be null");
+    if (logins.isEmpty()) {
+      return emptySet();
+    }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Set<EmailSubscriberDto> emailSubscribers = dbClient.propertiesDao().findEmailSubscribersForNotification(
+        dbSession, dispatcherKey, EmailNotificationChannel.class.getSimpleName(), projectKey, logins);
+
+      return keepAuthorizedEmailSubscribers(dbSession, projectKey, subscriberPermissionsOnProject, emailSubscribers);
+    }
+  }
+
+  private Set<EmailRecipient> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey,
+    SubscriberPermissionsOnProject subscriberPermissionsOnProject, Set<EmailSubscriberDto> emailSubscribers) {
+    if (emailSubscribers.isEmpty()) {
+      return emptySet();
+    }
+
+    return keepAuthorizedEmailSubscribers(dbSession, projectKey, emailSubscribers, subscriberPermissionsOnProject)
+      .map(emailSubscriber -> new EmailRecipient(emailSubscriber.getLogin(), emailSubscriber.getEmail()))
+      .collect(MoreCollectors.toSet());
   }
 
   private Stream<EmailSubscriberDto> keepAuthorizedEmailSubscribers(DbSession dbSession, String projectKey, Set<EmailSubscriberDto> emailSubscribers,

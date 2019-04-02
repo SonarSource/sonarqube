@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.server.notification.EmailNotificationHandler;
@@ -89,8 +90,11 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<IssueChangeNotification> notifications) {
+    Set<String> assignees = notifications.stream()
+      .map(IssueChangeNotification::getAssignee)
+      .collect(Collectors.toSet());
     Map<String, EmailRecipient> recipientsByLogin = notificationManager
-      .findSubscribedEmailRecipients(KEY, projectKey, ALL_MUST_HAVE_ROLE_USER)
+      .findSubscribedEmailRecipients(KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER)
       .stream()
       .collect(uniqueIndex(EmailRecipient::getLogin));
     return notifications.stream()

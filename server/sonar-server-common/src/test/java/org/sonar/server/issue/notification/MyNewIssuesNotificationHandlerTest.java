@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
@@ -35,6 +34,7 @@ import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -156,13 +156,13 @@ public class MyNewIssuesNotificationHandlerTest {
     String assignee = randomAlphabetic(10);
     MyNewIssuesNotification notification = newNotification(projectKey, assignee);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, of(assignee), ALL_MUST_HAVE_ROLE_USER))
       .thenReturn(emptySet());
 
     int deliver = underTest.deliver(Collections.singleton(notification));
 
     assertThat(deliver).isZero();
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, of(assignee), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
@@ -185,7 +185,8 @@ public class MyNewIssuesNotificationHandlerTest {
       .map(n -> new EmailDeliveryRequest(n.getAssignee() + "@foo", n))
       .collect(toSet());
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
+    Set<String> assignees = withProjectKey.stream().map(MyNewIssuesNotification::getAssignee).collect(toSet());
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER))
       .thenReturn(authorizedRecipients);
 
     Set<MyNewIssuesNotification> notifications = Stream.of(withProjectKey.stream(), noProjectKey.stream(), noProjectKeyNoAssignee.stream())
@@ -194,7 +195,7 @@ public class MyNewIssuesNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isZero();
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verify(emailNotificationChannel).deliver(expectedRequests);
@@ -216,7 +217,8 @@ public class MyNewIssuesNotificationHandlerTest {
       .map(n -> new EmailDeliveryRequest(n.getAssignee() + "@foo", n))
       .collect(toSet());
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
+    Set<String> assignees = withAssignee.stream().map(MyNewIssuesNotification::getAssignee).collect(toSet());
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER))
       .thenReturn(authorizedRecipients);
 
     Set<MyNewIssuesNotification> notifications = Stream.of(withAssignee.stream(), noAssignee.stream(), noProjectKeyNoAssignee.stream())
@@ -225,7 +227,7 @@ public class MyNewIssuesNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isZero();
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verify(emailNotificationChannel).deliver(expectedRequests);
@@ -241,16 +243,16 @@ public class MyNewIssuesNotificationHandlerTest {
     Set<MyNewIssuesNotification> notifications1 = randomSetOfNotifications(projectKey1, assignee1);
     Set<MyNewIssuesNotification> notifications2 = randomSetOfNotifications(projectKey2, assignee2);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, ALL_MUST_HAVE_ROLE_USER))
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, of(assignee1), ALL_MUST_HAVE_ROLE_USER))
       .thenReturn(emptySet());
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, ALL_MUST_HAVE_ROLE_USER))
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, of(assignee2),ALL_MUST_HAVE_ROLE_USER))
       .thenReturn(emptySet());
 
     int deliver = underTest.deliver(Stream.concat(notifications1.stream(), notifications2.stream()).collect(toSet()));
 
     assertThat(deliver).isZero();
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, ALL_MUST_HAVE_ROLE_USER);
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, of(assignee1), ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, of(assignee2), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verifyNoMoreInteractions(emailNotificationChannel);
@@ -261,15 +263,14 @@ public class MyNewIssuesNotificationHandlerTest {
     String projectKey = randomAlphabetic(5);
     String assignee1 = randomAlphabetic(6);
     String assignee2 = randomAlphabetic(7);
-    String assignee3 = randomAlphabetic(8);
+    Set<String> assignees = of(assignee1, assignee2);
     // assignee1 is not authorized
     Set<MyNewIssuesNotification> assignee1Notifications = randomSetOfNotifications(projectKey, assignee1);
     // assignee2 is authorized
     Set<MyNewIssuesNotification> assignee2Notifications = randomSetOfNotifications(projectKey, assignee2);
-    // assignee 3 is authorized but has no notification
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2), emailRecipientOf(assignee3)));
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER))
+      .thenReturn(of(emailRecipientOf(assignee2)));
     Set<EmailDeliveryRequest> expectedRequests = assignee2Notifications.stream()
       .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
@@ -279,7 +280,7 @@ public class MyNewIssuesNotificationHandlerTest {
     int deliver = underTest.deliver(Stream.concat(assignee1Notifications.stream(), assignee2Notifications.stream()).collect(toSet()));
 
     assertThat(deliver).isEqualTo(deliveredCount);
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verify(emailNotificationChannel).deliver(expectedRequests);
@@ -305,11 +306,11 @@ public class MyNewIssuesNotificationHandlerTest {
     Set<MyNewIssuesNotification> assignee3Project2 = randomSetOfNotifications(projectKey2, assignee3);
     Set<MyNewIssuesNotification> assignee3Project3 = randomSetOfNotifications(projectKey3, assignee3);
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee1), emailRecipientOf(assignee2)));
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, ALL_MUST_HAVE_ROLE_USER))
-      .thenReturn(ImmutableSet.of(emailRecipientOf(assignee2), emailRecipientOf(assignee3)));
-    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey3, ALL_MUST_HAVE_ROLE_USER))
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, of(assignee1, assignee2), ALL_MUST_HAVE_ROLE_USER))
+      .thenReturn(of(emailRecipientOf(assignee1), emailRecipientOf(assignee2)));
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, of(assignee1, assignee2, assignee3), ALL_MUST_HAVE_ROLE_USER))
+      .thenReturn(of(emailRecipientOf(assignee2), emailRecipientOf(assignee3)));
+    when(notificationManager.findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey3, of(assignee2, assignee3), ALL_MUST_HAVE_ROLE_USER))
       .thenReturn(emptySet());
     Set<EmailDeliveryRequest> expectedRequests = Stream.of(
       assignee1Project1.stream(), assignee2Project1.stream(), assignee2Project2.stream(), assignee3Project2.stream())
@@ -328,9 +329,9 @@ public class MyNewIssuesNotificationHandlerTest {
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isEqualTo(deliveredCount);
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, ALL_MUST_HAVE_ROLE_USER);
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, ALL_MUST_HAVE_ROLE_USER);
-    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey3, ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey1, of(assignee1, assignee2), ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey2, of(assignee1, assignee2, assignee3), ALL_MUST_HAVE_ROLE_USER);
+    verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey3, of(assignee2, assignee3), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
     verify(emailNotificationChannel).deliver(expectedRequests);

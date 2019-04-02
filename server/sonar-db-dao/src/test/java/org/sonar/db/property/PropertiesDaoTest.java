@@ -47,6 +47,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
@@ -172,6 +173,19 @@ public class PropertiesDaoTest {
   }
 
   @Test
+  public void findEmailRecipientsForNotification_with_logins_returns_empty_on_empty_properties_table() {
+    db.users().insertUser();
+    String dispatcherKey = randomAlphabetic(5);
+    String channelKey = randomAlphabetic(6);
+    String projectKey = randomAlphabetic(7);
+    Set<String> logins = of("user1", "user2");
+
+    Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, logins);
+
+    assertThat(subscribers).isEmpty();
+  }
+
+  @Test
   public void findEmailRecipientsForNotification_finds_only_globally_subscribed_users_if_projectKey_is_null() {
     int userId1 = db.users().insertUser(withEmail("user1")).getId();
     int userId2 = db.users().insertUser(withEmail("user2")).getId();
@@ -200,6 +214,47 @@ public class PropertiesDaoTest {
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), otherDispatcherKey, channelKey, null))
       .isEmpty();
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), channelKey, dispatcherKey, null))
+      .isEmpty();
+  }
+
+  @Test
+  public void findEmailRecipientsForNotification_with_logins_finds_only_globally_subscribed_specified_users_if_projectKey_is_null() {
+    int userId1 = db.users().insertUser(withEmail("user1")).getId();
+    int userId2 = db.users().insertUser(withEmail("user2")).getId();
+    int userId3 = db.users().insertUser(withEmail("user3")).getId();
+    int userId4 = db.users().insertUser(withEmail("user4")).getId();
+    long projectId = insertPrivateProject("PROJECT_A").getId();
+    String dispatcherKey = randomAlphabetic(5);
+    String otherDispatcherKey = randomAlphabetic(6);
+    String channelKey = randomAlphabetic(7);
+    String otherChannelKey = randomAlphabetic(8);
+    // user1 subscribed only globally
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    // user2 subscribed on project and globally
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectId, userId2);
+    // user3 subscribed on project only
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectId, userId3);
+    // user4 did not subscribe
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectId, userId4);
+    Set<String> allLogins = of("user1", "user2", "user3", "user4");
+
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, allLogins))
+      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user2", true, emailOf("user2")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of("user1", "user2")))
+      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user2", true, emailOf("user2")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of("user2")))
+      .containsOnly(new EmailSubscriberDto("user2", true, emailOf("user2")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of("user1")))
+      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of()))
+      .isEmpty();
+
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, otherChannelKey, null, allLogins))
+      .isEmpty();
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), otherDispatcherKey, channelKey, null, allLogins))
+      .isEmpty();
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), channelKey, dispatcherKey, null, allLogins))
       .isEmpty();
   }
 
@@ -243,6 +298,56 @@ public class PropertiesDaoTest {
   }
 
   @Test
+  public void findEmailRecipientsForNotification_with_logins_finds_global_and_project_subscribed_specified_users_when_projectKey_is_non_null() {
+    int userId1 = db.users().insertUser(withEmail("user1")).getId();
+    int userId2 = db.users().insertUser(withEmail("user2")).getId();
+    int userId3 = db.users().insertUser(withEmail("user3")).getId();
+    int userId4 = db.users().insertUser(withEmail("user4")).getId();
+    String projectKey = randomAlphabetic(3);
+    String otherProjectKey = randomAlphabetic(4);
+    long projectId = insertPrivateProject(projectKey).getId();
+    String dispatcherKey = randomAlphabetic(5);
+    String otherDispatcherKey = randomAlphabetic(6);
+    String channelKey = randomAlphabetic(7);
+    String otherChannelKey = randomAlphabetic(8);
+    // user1 subscribed only globally
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    // user2 subscribed on project and globally
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectId, userId2);
+    // user3 subscribed on project only
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectId, userId3);
+    // user4 did not subscribe
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectId, userId4);
+    Set<String> allLogins = of("user1", "user2", "user3", "user4");
+
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
+      .containsOnly(
+        new EmailSubscriberDto("user1", true, emailOf("user1")),
+        new EmailSubscriberDto("user2", true, emailOf("user2")), new EmailSubscriberDto("user2", false, "user2@foo"),
+        new EmailSubscriberDto("user3", false, emailOf("user3")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of("user1")))
+      .containsOnly(
+        new EmailSubscriberDto("user1", true, emailOf("user1")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of("user2")))
+      .containsOnly(
+        new EmailSubscriberDto("user2", true, emailOf("user2")), new EmailSubscriberDto("user2", false, "user2@foo"));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of("user3")))
+      .containsOnly(new EmailSubscriberDto("user3", false, emailOf("user3")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of()))
+      .isEmpty();
+
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, otherProjectKey, allLogins))
+      .containsOnly(
+        new EmailSubscriberDto("user1", true, emailOf("user1")),
+        new EmailSubscriberDto("user2", true, emailOf("user2")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, otherChannelKey, otherProjectKey, allLogins))
+      .isEmpty();
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), otherDispatcherKey, channelKey, otherProjectKey, allLogins))
+      .isEmpty();
+  }
+
+  @Test
   public void findEmailRecipientsForNotification_ignores_subscribed_users_without_email() {
     int userId1 = db.users().insertUser(withEmail("user1")).getId();
     int userId2 = db.users().insertUser(noEmail("user2")).getId();
@@ -266,6 +371,36 @@ public class PropertiesDaoTest {
         new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user1", false, emailOf("user1")),
         new EmailSubscriberDto("user3", true, emailOf("user3")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null))
+      .containsOnly(
+        new EmailSubscriberDto("user1", true, emailOf("user1")),
+        new EmailSubscriberDto("user3", true, emailOf("user3")));
+  }
+
+  @Test
+  public void findEmailRecipientsForNotification_with_logins_ignores_subscribed_users_without_email() {
+    int userId1 = db.users().insertUser(withEmail("user1")).getId();
+    int userId2 = db.users().insertUser(noEmail("user2")).getId();
+    int userId3 = db.users().insertUser(withEmail("user3")).getId();
+    int userId4 = db.users().insertUser(noEmail("user4")).getId();
+    Set<String> allLogins = of("user1", "user2", "user3");
+    String projectKey = randomAlphabetic(3);
+    long projectId = insertPrivateProject(projectKey).getId();
+    String dispatcherKey = randomAlphabetic(4);
+    String channelKey = randomAlphabetic(5);
+    // user1 and user2 subscribed on project and globally
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectId, userId1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectId, userId2);
+    // user3 and user4 subscribed only globally
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId4);
+
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
+      .containsOnly(
+        new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user1", false, emailOf("user1")),
+        new EmailSubscriberDto("user3", true, emailOf("user3")));
+    assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, allLogins))
       .containsOnly(
         new EmailSubscriberDto("user1", true, emailOf("user1")),
         new EmailSubscriberDto("user3", true, emailOf("user3")));

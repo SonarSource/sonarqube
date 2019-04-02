@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -84,8 +85,11 @@ public class MyNewIssuesNotificationHandler extends EmailNotificationHandler<MyN
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<MyNewIssuesNotification> notifications) {
+    Set<String> assignees = notifications.stream()
+      .map(MyNewIssuesNotification::getAssignee)
+      .collect(Collectors.toSet());
     Map<String, NotificationManager.EmailRecipient> recipientsByLogin = notificationManager
-      .findSubscribedEmailRecipients(KEY, projectKey, ALL_MUST_HAVE_ROLE_USER)
+      .findSubscribedEmailRecipients(KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER)
       .stream()
       .collect(MoreCollectors.uniqueIndex(NotificationManager.EmailRecipient::getLogin));
     return notifications.stream()

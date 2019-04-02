@@ -46,6 +46,9 @@
       and p.resource_id IS NULL
     WHERE
       u.email is not null
+      <if test="logins != null">
+        and u.login in <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login,jdbcType=VARCHAR}</foreach>
+      </if>
 
     <if test="projectKey != null">
       UNION
@@ -65,6 +68,9 @@
         and p.resource_id = c.id
       WHERE
         u.email is not null
+        <if test="logins != null">
+          and u.login in <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login,jdbcType=VARCHAR}</foreach>
+        </if>
     </if>
 
   </select>

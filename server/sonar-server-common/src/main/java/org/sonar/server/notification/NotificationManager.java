@@ -63,6 +63,7 @@ public interface NotificationManager {
   Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectKey,
     SubscriberPermissionsOnProject subscriberPermissionsOnProject);
 
+
   @Immutable
   final class EmailRecipient {
     private final String login;
@@ -104,7 +105,20 @@ public interface NotificationManager {
     }
   }
 
+  /**
+   * Find login and email of users which have subscribed to the email notification of the specified {@code dispatcherKey}.
+   * <p>
+   * Obviously, only subscribers which have an email are returned.
+   */
   Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, SubscriberPermissionsOnProject subscriberPermissionsOnProject);
+
+  /**
+   * Find email of users with the specified {@code logins} which have subscribed to the email notification of the
+   * specified {@code dispatcherKey}.
+   * <p>
+   * Obviously, only subscribers which have an email are returned.
+   */
+  Set<EmailRecipient> findSubscribedEmailRecipients(String dispatcherKey, String projectKey, Set<String> logins, SubscriberPermissionsOnProject subscriberPermissionsOnProject);
 
   final class SubscriberPermissionsOnProject {
     public static final SubscriberPermissionsOnProject ALL_MUST_HAVE_ROLE_USER = new SubscriberPermissionsOnProject(UserRole.USER);
