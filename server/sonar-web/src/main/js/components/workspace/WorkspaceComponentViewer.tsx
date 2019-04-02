@@ -18,20 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { ComponentDescriptor } from './context';
 import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import SourceViewer from '../SourceViewer/SourceViewer';
 import { scrollToElement } from '../../helpers/scrolling';
+import { isPullRequest, isShortLivingBranch } from '../../helpers/branches';
+import { fetchBranchStatus } from '../../store/rootActions';
+import { getParents } from '../../api/components';
 
 export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   component: ComponentDescriptor;
+  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
   height: number;
   onClose: (componentKey: string) => void;
   onLoad: (details: { key: string; name: string; qualifier: string }) => void;
 }
 
-export default class WorkspaceComponentViewer extends React.PureComponent<Props> {
+export class WorkspaceComponentViewer extends React.PureComponent<Props> {
   container?: HTMLElement | null;
 
   componentDidMount() {
@@ -48,6 +53,10 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
 
   handleClose = () => {
     this.props.onClose(this.props.component.key);
+  };
+
+  handleIssueChange = (_: T.Issue) => {
+    this.refreshBranchStatus();
   };
 
   handleLoaded = (component: T.SourceViewerFile) => {
@@ -69,6 +78,21 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
           bottomOffset: 50
         });
       }
+    }
+  };
+
+  refreshBranchStatus = () => {
+    const { component } = this.props;
+    const { branchLike } = component;
+    if (branchLike && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+      getParents(component.key).then(
+        (parents?: any[]) => {
+          if (parents && parents.length > 0) {
+            this.props.fetchBranchStatus(branchLike, parents.pop().key);
+          }
+        },
+        () => {}
+      );
     }
   };
 
@@ -96,6 +120,7 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
             branchLike={component.branchLike}
             component={component.key}
             highlightedLine={component.line}
+            onIssueChange={this.handleIssueChange}
             onLoaded={this.handleLoaded}
           />
         </div>
@@ -103,3 +128,10 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
     );
   }
 }
+
+const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(WorkspaceComponentViewer);

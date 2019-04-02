@@ -30,6 +30,7 @@ exports[`should render 1`] = `
   >
     <SourceViewer
       component="foo"
+      onIssueChange={[Function]}
       onLoaded={[Function]}
     />
   </div>
