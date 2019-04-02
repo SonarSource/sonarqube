@@ -156,8 +156,8 @@ public class CeQueueDao implements Dao {
     ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     executeLargeUpdates(
       projectUuids,
-      uuids -> {
-        List<QueueCount> i = mapper(dbSession).countByStatusAndMainComponentUuids(status, projectUuids);
+      partitionOfProjectUuids -> {
+        List<QueueCount> i = mapper(dbSession).countByStatusAndMainComponentUuids(status, partitionOfProjectUuids);
         i.forEach(o -> builder.put(o.getMainComponentUuid(), o.getTotal()));
       });
     return builder.build();

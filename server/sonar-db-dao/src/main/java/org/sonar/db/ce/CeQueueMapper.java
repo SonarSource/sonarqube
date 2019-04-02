@@ -20,7 +20,6 @@
 package org.sonar.db.ce;
 
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -69,7 +68,7 @@ public interface CeQueueMapper {
 
   int countByStatusAndMainComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
 
-  List<QueueCount> countByStatusAndMainComponentUuids(@Param("status") CeQueueDto.Status status, @Param("mainComponentUuids") Set<String> mainComponentUuids);
+  List<QueueCount> countByStatusAndMainComponentUuids(@Param("status") CeQueueDto.Status status, @Param("mainComponentUuids") List<String> mainComponentUuids);
 
   void insert(CeQueueDto dto);
 
