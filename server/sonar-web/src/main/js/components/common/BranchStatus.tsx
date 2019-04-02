@@ -37,7 +37,7 @@ export function BranchStatus({ status }: Props) {
 }
 
 const mapStateToProps = (state: Store, { branchLike, component }: Props) => {
-  const status = getBranchStatusByBranchLike(state, component, branchLike);
+  const { status } = getBranchStatusByBranchLike(state, component, branchLike);
   return { status };
 };
 

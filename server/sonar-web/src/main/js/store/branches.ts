@@ -20,8 +20,13 @@
 import { ActionType } from './utils/actions';
 import { getBranchLikeKey } from '../helpers/branches';
 
+export interface BranchStatusData {
+  conditions?: T.QualityGateStatusCondition[];
+  status?: T.Status;
+}
+
 export interface State {
-  byComponent: T.Dict<T.Dict<{ status?: T.Status }>>;
+  byComponent: T.Dict<T.Dict<BranchStatusData>>;
 }
 
 const enum Actions {
@@ -33,14 +38,15 @@ type Action = ActionType<typeof registerBranchStatusAction, Actions.RegisterBran
 export function registerBranchStatusAction(
   branchLike: T.BranchLike,
   component: string,
-  status: T.Status
+  status: T.Status,
+  conditions?: T.QualityGateStatusCondition[]
 ) {
-  return { type: Actions.RegisterBranchStatus, branchLike, component, status };
+  return { type: Actions.RegisterBranchStatus, branchLike, component, conditions, status };
 }
 
 export default function(state: State = { byComponent: {} }, action: Action): State {
   if (action.type === Actions.RegisterBranchStatus) {
-    const { component, branchLike, status } = action;
+    const { component, conditions, branchLike, status } = action;
     const branchLikeKey = getBranchLikeKey(branchLike);
     return {
       byComponent: {
@@ -48,6 +54,7 @@ export default function(state: State = { byComponent: {} }, action: Action): Sta
         [component]: {
           ...(state.byComponent[component] || {}),
           [branchLikeKey]: {
+            conditions,
             status
           }
         }
@@ -62,11 +69,7 @@ export function getBranchStatusByBranchLike(
   state: State,
   component: string,
   branchLike: T.BranchLike
-) {
+): BranchStatusData {
   const branchLikeKey = getBranchLikeKey(branchLike);
-  return (
-    state.byComponent[component] &&
-    state.byComponent[component][branchLikeKey] &&
-    state.byComponent[component][branchLikeKey].status
-  );
+  return state.byComponent[component] && state.byComponent[component][branchLikeKey];
 }

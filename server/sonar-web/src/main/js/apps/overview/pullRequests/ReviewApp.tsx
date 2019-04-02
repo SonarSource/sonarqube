@@ -29,32 +29,39 @@ import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import QualityGateConditions from '../qualityGate/QualityGateConditions';
 import { getMeasures } from '../../../api/measures';
-import { getQualityGateProjectStatus } from '../../../api/quality-gates';
 import { PR_METRICS, IssueType, MeasurementType } from '../utils';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branches';
-import { extractStatusConditionsFromProjectStatus } from '../../../helpers/qualityGates';
-import { registerBranchStatus } from '../../../store/rootActions';
+import { isSameStatusConditionList } from '../../../helpers/qualityGates';
+import { Store, getBranchStatusByBranchLike } from '../../../store/rootReducer';
+import { fetchBranchStatus } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
-interface Props {
+interface OwnProps {
   branchLike: T.PullRequest | T.ShortLivingBranch;
   component: T.Component;
-  registerBranchStatus: (branchLike: T.BranchLike, component: string, status: T.Status) => void;
 }
 
-interface State {
-  conditions: T.QualityGateStatusCondition[];
-  loading: boolean;
-  measures: T.Measure[];
+interface StateProps {
+  conditions?: T.QualityGateStatusCondition[];
   status?: T.Status;
 }
 
-export class ReviewApp extends React.Component<Props, State> {
+interface DispatchProps {
+  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
+}
+
+type Props = OwnProps & StateProps & DispatchProps;
+
+interface State {
+  loading: boolean;
+  measures: T.Measure[];
+}
+
+export class ReviewApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   state: State = {
-    conditions: [],
     loading: false,
     measures: []
   };
@@ -67,6 +74,8 @@ export class ReviewApp extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.component.key !== prevProps.component.key ||
+      this.props.status !== prevProps.status ||
+      !isSameStatusConditionList(this.props.conditions, prevProps.conditions) ||
       !isSameBranchLike(this.props.branchLike, prevProps.branchLike)
     ) {
       this.fetchBranchData();
@@ -82,27 +91,20 @@ export class ReviewApp extends React.Component<Props, State> {
 
     this.setState({ loading: true });
 
-    const data = { projectKey: component.key, ...getBranchLikeQuery(branchLike) };
-
     Promise.all([
       getMeasures({
         component: component.key,
         metricKeys: PR_METRICS.join(),
         ...getBranchLikeQuery(branchLike)
       }),
-      getQualityGateProjectStatus(data)
+      this.props.fetchBranchStatus(branchLike, component.key)
     ]).then(
-      ([measures, projectStatus]) => {
-        if (this.mounted && measures && projectStatus) {
-          const { status } = projectStatus;
+      ([measures]) => {
+        if (this.mounted && measures) {
           this.setState({
-            conditions: extractStatusConditionsFromProjectStatus(projectStatus),
             loading: false,
-            measures,
-            status
+            measures
           });
-
-          this.props.registerBranchStatus(branchLike, component.key, status);
         }
       },
       () => {
@@ -114,8 +116,8 @@ export class ReviewApp extends React.Component<Props, State> {
   };
 
   render() {
-    const { branchLike, component } = this.props;
-    const { conditions = [], loading, measures, status } = this.state;
+    const { branchLike, component, conditions = [], status } = this.props;
+    const { loading, measures } = this.state;
     const erroredConditions = conditions.filter(condition => condition.level === 'ERROR');
 
     return (
@@ -214,9 +216,14 @@ export class ReviewApp extends React.Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = { registerBranchStatus };
+const mapStateToProps = (state: Store, { branchLike, component }: OwnProps) => {
+  const { conditions, status } = getBranchStatusByBranchLike(state, component.key, branchLike);
+  return { conditions, status };
+};
+
+const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(ReviewApp);

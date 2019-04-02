@@ -25,16 +25,18 @@ import reducer, {
 import {
   mockPullRequest,
   mockLongLivingBranch,
-  mockShortLivingBranch
+  mockShortLivingBranch,
+  mockQualityGateStatusCondition
 } from '../../helpers/testMocks';
 import { getBranchLikeKey } from '../../helpers/branches';
 
-type TestArgs = [T.BranchLike, string, T.Status];
+type TestArgs = [T.BranchLike, string, T.Status, T.QualityGateStatusCondition[]];
 
+const FAILING_CONDITION = mockQualityGateStatusCondition();
 const COMPONENT = 'foo';
-const BRANCH_STATUS_1: TestArgs = [mockPullRequest(), COMPONENT, 'ERROR'];
-const BRANCH_STATUS_2: TestArgs = [mockLongLivingBranch(), 'bar', 'OK'];
-const BRANCH_STATUS_3: TestArgs = [mockShortLivingBranch(), COMPONENT, 'OK'];
+const BRANCH_STATUS_1: TestArgs = [mockPullRequest(), COMPONENT, 'ERROR', [FAILING_CONDITION]];
+const BRANCH_STATUS_2: TestArgs = [mockLongLivingBranch(), 'bar', 'OK', []];
+const BRANCH_STATUS_3: TestArgs = [mockShortLivingBranch(), COMPONENT, 'OK', []];
 
 it('should allow to register new branche statuses', () => {
   const initialState: State = convertToState();
@@ -50,7 +52,7 @@ it('should allow to register new branche statuses', () => {
 it('should allow to update branche statuses', () => {
   const initialState: State = convertToState([BRANCH_STATUS_1, BRANCH_STATUS_2, BRANCH_STATUS_3]);
   const branchLike: T.BranchLike = { ...BRANCH_STATUS_1[0], status: { qualityGateStatus: 'OK' } };
-  const branchStatus: TestArgs = [branchLike, COMPONENT, 'OK'];
+  const branchStatus: TestArgs = [branchLike, COMPONENT, 'OK', []];
 
   const newState = reducer(initialState, registerBranchStatusAction(...branchStatus));
   expect(newState).toEqual(convertToState([branchStatus, BRANCH_STATUS_2, BRANCH_STATUS_3]));
@@ -61,7 +63,10 @@ it('should get the branche statuses from state', () => {
   const initialState: State = convertToState([BRANCH_STATUS_1, BRANCH_STATUS_2]);
 
   const [branchLike, component] = BRANCH_STATUS_1;
-  expect(getBranchStatusByBranchLike(initialState, component, branchLike)).toEqual('ERROR');
+  expect(getBranchStatusByBranchLike(initialState, component, branchLike)).toEqual({
+    conditions: [FAILING_CONDITION],
+    status: 'ERROR'
+  });
   expect(getBranchStatusByBranchLike(initialState, component, BRANCH_STATUS_2[0])).toBeUndefined();
 });
 
@@ -69,10 +74,10 @@ function convertToState(items: TestArgs[] = []) {
   const state: State = { byComponent: {} };
 
   items.forEach(item => {
-    const [branchLike, component, status] = item;
+    const [branchLike, component, status, conditions] = item;
     state.byComponent[component] = {
       ...(state.byComponent[component] || {}),
-      [getBranchLikeKey(branchLike)]: { status }
+      [getBranchLikeKey(branchLike)]: { conditions, status }
     };
   });
 
