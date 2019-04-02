@@ -24,17 +24,18 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
-import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static java.util.Collections.emptySet;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
-public class QGChangeNotificationHandler implements NotificationHandler<QGChangeNotification> {
+public class QGChangeNotificationHandler extends EmailNotificationHandler<QGChangeNotification> {
 
   public static final String KEY = "NewAlerts";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
@@ -42,11 +43,10 @@ public class QGChangeNotificationHandler implements NotificationHandler<QGChange
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;
-  private final EmailNotificationChannel emailNotificationChannel;
 
   public QGChangeNotificationHandler(NotificationManager notificationManager, EmailNotificationChannel emailNotificationChannel) {
+    super(emailNotificationChannel);
     this.notificationManager = notificationManager;
-    this.emailNotificationChannel = emailNotificationChannel;
   }
 
   @Override
@@ -64,26 +64,18 @@ public class QGChangeNotificationHandler implements NotificationHandler<QGChange
   }
 
   @Override
-  public int deliver(Collection<QGChangeNotification> notifications) {
-    if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
-      return 0;
-    }
-
+  public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<QGChangeNotification> notifications) {
     Multimap<String, QGChangeNotification> notificationsByProjectKey = notifications.stream()
       .filter(t -> t.getProjectKey() != null)
       .collect(index(QGChangeNotification::getProjectKey));
     if (notificationsByProjectKey.isEmpty()) {
-      return 0;
+      return emptySet();
     }
 
-    Set<EmailDeliveryRequest> deliveryRequests = notificationsByProjectKey.asMap().entrySet()
+    return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
       .collect(toSet(notifications.size()));
-    if (deliveryRequests.isEmpty()) {
-      return 0;
-    }
-    return emailNotificationChannel.deliver(deliveryRequests);
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<QGChangeNotification> notifications) {

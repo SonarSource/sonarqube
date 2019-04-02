@@ -24,20 +24,19 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
-import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
-public class BuiltInQPChangeNotificationHandler implements NotificationHandler<BuiltInQPChangeNotification> {
+public class BuiltInQPChangeNotificationHandler extends EmailNotificationHandler<BuiltInQPChangeNotification> {
   private final DbClient dbClient;
-  private final EmailNotificationChannel emailNotificationChannel;
 
   public BuiltInQPChangeNotificationHandler(DbClient dbClient, EmailNotificationChannel emailNotificationChannel) {
+    super(emailNotificationChannel);
     this.dbClient = dbClient;
-    this.emailNotificationChannel = emailNotificationChannel;
   }
 
   @Override
@@ -51,23 +50,13 @@ public class BuiltInQPChangeNotificationHandler implements NotificationHandler<B
   }
 
   @Override
-  public int deliver(Collection<BuiltInQPChangeNotification> notifications) {
-    if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
-      return 0;
-    }
-
+  public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<BuiltInQPChangeNotification> notifications) {
     try (DbSession session = dbClient.openSession(false)) {
-      Set<EmailDeliveryRequest> deliveryRequests = dbClient.authorizationDao()
+      return dbClient.authorizationDao()
         .selectQualityProfileAdministratorLogins(session)
         .stream()
         .flatMap(t -> notifications.stream().map(notification -> new EmailDeliveryRequest(t.getEmail(), notification)))
         .collect(toSet());
-
-      if (deliveryRequests.isEmpty()) {
-        return 0;
-      }
-
-      return emailNotificationChannel.deliver(deliveryRequests);
     }
   }
 }

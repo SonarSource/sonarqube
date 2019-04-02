@@ -24,17 +24,18 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
-import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static java.util.Collections.emptySet;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
-public class NewIssuesNotificationHandler implements NotificationHandler<NewIssuesNotification> {
+public class NewIssuesNotificationHandler extends EmailNotificationHandler<NewIssuesNotification> {
 
   public static final String KEY = "NewIssues";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
@@ -42,11 +43,10 @@ public class NewIssuesNotificationHandler implements NotificationHandler<NewIssu
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;
-  private final EmailNotificationChannel emailNotificationChannel;
 
-  public NewIssuesNotificationHandler(NotificationManager notificationManager,  EmailNotificationChannel emailNotificationChannel) {
+  public NewIssuesNotificationHandler(NotificationManager notificationManager, EmailNotificationChannel emailNotificationChannel) {
+    super(emailNotificationChannel);
     this.notificationManager = notificationManager;
-    this.emailNotificationChannel = emailNotificationChannel;
   }
 
   @Override
@@ -64,26 +64,18 @@ public class NewIssuesNotificationHandler implements NotificationHandler<NewIssu
   }
 
   @Override
-  public int deliver(Collection<NewIssuesNotification> notifications) {
-    if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
-      return 0;
-    }
-
+  public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<NewIssuesNotification> notifications) {
     Multimap<String, NewIssuesNotification> notificationsByProjectKey = notifications.stream()
       .filter(t -> t.getProjectKey() != null)
       .collect(index(NewIssuesNotification::getProjectKey));
     if (notificationsByProjectKey.isEmpty()) {
-      return 0;
+      return emptySet();
     }
 
-    Set<EmailDeliveryRequest> deliveryRequests = notificationsByProjectKey.asMap().entrySet()
+    return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
       .collect(toSet(notifications.size()));
-    if (deliveryRequests.isEmpty()) {
-      return 0;
-    }
-    return emailNotificationChannel.deliver(deliveryRequests);
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<NewIssuesNotification> notifications) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.notification;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
@@ -27,19 +28,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
-import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.NotificationManager.EmailRecipient;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
 import static org.sonar.core.util.stream.MoreCollectors.index;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
-public class ChangesOnMyIssueNotificationHandler implements NotificationHandler<IssueChangeNotification> {
+public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandler<IssueChangeNotification> {
 
   private static final String KEY = "ChangesOnMyIssue";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
@@ -47,11 +48,10 @@ public class ChangesOnMyIssueNotificationHandler implements NotificationHandler<
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;
-  private final EmailNotificationChannel emailNotificationChannel;
 
   public ChangesOnMyIssueNotificationHandler(NotificationManager notificationManager, EmailNotificationChannel emailNotificationChannel) {
+    super(emailNotificationChannel);
     this.notificationManager = notificationManager;
-    this.emailNotificationChannel = emailNotificationChannel;
   }
 
   @Override
@@ -69,11 +69,7 @@ public class ChangesOnMyIssueNotificationHandler implements NotificationHandler<
   }
 
   @Override
-  public int deliver(Collection<IssueChangeNotification> notifications) {
-    if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
-      return 0;
-    }
-
+  public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<IssueChangeNotification> notifications) {
     Multimap<String, IssueChangeNotification> notificationsByProjectKey = notifications.stream()
       // ignore inconsistent data
       .filter(t -> t.getProjectKey() != null)
@@ -83,17 +79,13 @@ public class ChangesOnMyIssueNotificationHandler implements NotificationHandler<
       .filter(t -> !Objects.equals(t.getAssignee(), t.getChangeAuthor()))
       .collect(index(IssueChangeNotification::getProjectKey));
     if (notificationsByProjectKey.isEmpty()) {
-      return 0;
+      return ImmutableSet.of();
     }
 
-    Set<EmailDeliveryRequest> deliveryRequests = notificationsByProjectKey.asMap().entrySet()
+    return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
-      .collect(MoreCollectors.toSet(notifications.size()));
-    if (deliveryRequests.isEmpty()) {
-      return 0;
-    }
-    return emailNotificationChannel.deliver(deliveryRequests);
+      .collect(toSet(notifications.size()));
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<IssueChangeNotification> notifications) {

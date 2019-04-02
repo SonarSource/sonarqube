@@ -25,17 +25,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.api.web.UserRole;
+import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
-import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static java.util.Collections.emptySet;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
-public class ReportAnalysisFailureNotificationHandler implements NotificationHandler<ReportAnalysisFailureNotification> {
+public class ReportAnalysisFailureNotificationHandler extends EmailNotificationHandler<ReportAnalysisFailureNotification> {
   private static final String KEY = "CeReportTaskFailure";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
     .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
@@ -43,11 +44,10 @@ public class ReportAnalysisFailureNotificationHandler implements NotificationHan
   private static final SubscriberPermissionsOnProject REQUIRED_SUBSCRIBER_PERMISSIONS = new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER);
 
   private final NotificationManager notificationManager;
-  private final EmailNotificationChannel emailNotificationChannel;
 
   public ReportAnalysisFailureNotificationHandler(NotificationManager notificationManager, EmailNotificationChannel emailNotificationChannel) {
+    super(emailNotificationChannel);
     this.notificationManager = notificationManager;
-    this.emailNotificationChannel = emailNotificationChannel;
   }
 
   @Override
@@ -65,26 +65,18 @@ public class ReportAnalysisFailureNotificationHandler implements NotificationHan
   }
 
   @Override
-  public int deliver(Collection<ReportAnalysisFailureNotification> notifications) {
-    if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
-      return 0;
-    }
-
+  public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<ReportAnalysisFailureNotification> notifications) {
     Multimap<String, ReportAnalysisFailureNotification> notificationsByProjectKey = notifications.stream()
       .filter(t -> t.getProjectKey() != null)
       .collect(index(ReportAnalysisFailureNotification::getProjectKey));
     if (notificationsByProjectKey.isEmpty()) {
-      return 0;
+      return emptySet();
     }
 
-    Set<EmailDeliveryRequest> deliveryRequests = notificationsByProjectKey.asMap().entrySet()
+    return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
       .collect(toSet(notifications.size()));
-    if (deliveryRequests.isEmpty()) {
-      return 0;
-    }
-    return emailNotificationChannel.deliver(deliveryRequests);
   }
 
   private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<ReportAnalysisFailureNotification> notifications) {

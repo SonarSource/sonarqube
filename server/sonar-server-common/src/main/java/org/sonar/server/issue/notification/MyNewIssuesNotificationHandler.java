@@ -28,28 +28,29 @@ import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
-import org.sonar.server.notification.NotificationHandler;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
+import static java.util.Collections.emptySet;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
-public class MyNewIssuesNotificationHandler implements NotificationHandler<MyNewIssuesNotification> {
+public class MyNewIssuesNotificationHandler extends EmailNotificationHandler<MyNewIssuesNotification> {
   public static final String KEY = "SQ-MyNewIssues";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
     .setProperty(GLOBAL_NOTIFICATION, String.valueOf(true))
     .setProperty(PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;
-  private final EmailNotificationChannel emailNotificationChannel;
 
   public MyNewIssuesNotificationHandler(NotificationManager notificationManager, EmailNotificationChannel emailNotificationChannel) {
+    super(emailNotificationChannel);
     this.notificationManager = notificationManager;
-    this.emailNotificationChannel = emailNotificationChannel;
   }
 
   @Override
@@ -67,30 +68,22 @@ public class MyNewIssuesNotificationHandler implements NotificationHandler<MyNew
   }
 
   @Override
-  public int deliver(Collection<MyNewIssuesNotification> notifications) {
-    if (notifications.isEmpty() || !emailNotificationChannel.isActivated()) {
-      return 0;
-    }
-
+  public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<MyNewIssuesNotification> notifications) {
     Multimap<String, MyNewIssuesNotification> notificationsByProjectKey = notifications.stream()
       .filter(t -> t.getProjectKey() != null)
       .filter(t -> t.getAssignee() != null)
       .collect(index(MyNewIssuesNotification::getProjectKey));
     if (notificationsByProjectKey.isEmpty()) {
-      return 0;
+      return emptySet();
     }
 
-    Set<EmailNotificationChannel.EmailDeliveryRequest> deliveryRequests = notificationsByProjectKey.asMap().entrySet()
+    return notificationsByProjectKey.asMap().entrySet()
       .stream()
       .flatMap(e -> toEmailDeliveryRequests(e.getKey(), e.getValue()))
       .collect(MoreCollectors.toSet(notifications.size()));
-    if (deliveryRequests.isEmpty()) {
-      return 0;
-    }
-    return emailNotificationChannel.deliver(deliveryRequests);
   }
 
-  private Stream<? extends EmailNotificationChannel.EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<MyNewIssuesNotification> notifications) {
+  private Stream<? extends EmailDeliveryRequest> toEmailDeliveryRequests(String projectKey, Collection<MyNewIssuesNotification> notifications) {
     Map<String, NotificationManager.EmailRecipient> recipientsByLogin = notificationManager
       .findSubscribedEmailRecipients(KEY, projectKey, ALL_MUST_HAVE_ROLE_USER)
       .stream()
@@ -101,13 +94,13 @@ public class MyNewIssuesNotificationHandler implements NotificationHandler<MyNew
   }
 
   @CheckForNull
-  private static EmailNotificationChannel.EmailDeliveryRequest toEmailDeliveryRequest(Map<String, NotificationManager.EmailRecipient> recipientsByLogin,
+  private static EmailDeliveryRequest toEmailDeliveryRequest(Map<String, NotificationManager.EmailRecipient> recipientsByLogin,
     MyNewIssuesNotification notification) {
     String assignee = notification.getAssignee();
 
     NotificationManager.EmailRecipient emailRecipient = recipientsByLogin.get(assignee);
     if (emailRecipient != null) {
-      return new EmailNotificationChannel.EmailDeliveryRequest(emailRecipient.getEmail(), notification);
+      return new EmailDeliveryRequest(emailRecipient.getEmail(), notification);
     }
     return null;
   }
