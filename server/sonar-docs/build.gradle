@@ -9,7 +9,7 @@ sonarqube {
 group = 'com.sonarsource.sonarqube'
 
 clean.doFirst {
-  delete "${project.baseDir}/public/"
+  delete "${project.buildDir}/public/"
 }
 
 yarn_run {
