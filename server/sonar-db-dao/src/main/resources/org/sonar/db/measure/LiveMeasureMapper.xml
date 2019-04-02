@@ -169,6 +169,15 @@
       </if>
   </sql>
 
+  <select id="scrollSelectByComponentUuidAndMetricKeys" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}"
+            resultSetType="FORWARD_ONLY">
+     select <include refid="columns"/> from live_measures lm
+     inner join metrics m on m.id = lm.metric_id
+     where
+     m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
+     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectTreeByQuery" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select <include refid="columns"/> from live_measures lm
     inner join projects p on p.uuid = lm.component_uuid

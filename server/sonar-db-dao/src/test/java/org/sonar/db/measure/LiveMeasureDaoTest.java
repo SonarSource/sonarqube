@@ -30,6 +30,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
@@ -209,6 +210,40 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
+  public void scrollSelectByComponentUuidAndMetricKeys_for_non_empty_metric_set() {
+    List<LiveMeasureDto> results = new ArrayList<>();
+    MetricDto metric = db.measures().insertMetric();
+    MetricDto metric2 = db.measures().insertMetric();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14));
+    underTest.insert(db.getSession(), newLiveMeasure(project, metric2).setValue(4.54));
+    underTest.insert(db.getSession(), newLiveMeasure(project2, metric).setValue(99.99));
+    underTest.scrollSelectByComponentUuidAndMetricKeys(db.getSession(), project.uuid(), Sets.newSet(metric.getKey(), metric2.getKey()),
+      context -> results.add(context.getResultObject()));
+
+    assertThat(results).hasSize(2);
+    LiveMeasureDto result = results.stream().filter(lm -> lm.getMetricId() == metric.getId()).findFirst().get();
+    assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
+    assertThat(result.getMetricId()).isEqualTo(metric.getId());
+    assertThat(result.getValue()).isEqualTo(3.14);
+    LiveMeasureDto result2 = results.stream().filter(lm -> lm.getMetricId() == metric2.getId()).findFirst().get();
+    assertThat(result2.getComponentUuid()).isEqualTo(project.uuid());
+    assertThat(result2.getMetricId()).isEqualTo(metric2.getId());
+    assertThat(result2.getValue()).isEqualTo(4.54);
+  }
+
+  @Test
+  public void scrollSelectByComponentUuidAndMetricKeys_for_empty_metric_set() {
+    List<LiveMeasureDto> results = new ArrayList<>();
+    ComponentDto project = db.components().insertPrivateProject();
+    underTest.scrollSelectByComponentUuidAndMetricKeys(db.getSession(), project.uuid(), Sets.newSet(),
+      context -> results.add(context.getResultObject()));
+
+    assertThat(results).isEmpty();
+  }
+
+  @Test
   public void selectTreeByQuery_with_empty_results() {
     List<LiveMeasureDto> results = new ArrayList<>();
     underTest.selectTreeByQuery(db.getSession(), newPrivateProjectDto(db.getDefaultOrganization()),
@@ -310,7 +345,6 @@ public class LiveMeasureDaoTest {
     LiveMeasureDto measure = newLiveMeasure(file, metric).setData(data);
 
     underTest.insert(db.getSession(), measure);
-
 
     LiveMeasureDto result = underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not found"));
     assertThat(new String(result.getData(), StandardCharsets.UTF_8)).isEqualTo("text_value");
@@ -451,7 +485,7 @@ public class LiveMeasureDaoTest {
     underTest.upsert(db.getSession(), asList(dto));
 
     // update
-    dto.setData((String)null);
+    dto.setData((String) null);
     int count = underTest.upsert(db.getSession(), asList(dto));
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);

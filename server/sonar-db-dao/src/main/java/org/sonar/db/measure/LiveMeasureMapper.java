@@ -37,6 +37,11 @@ public interface LiveMeasureMapper {
     @Param("componentUuids") Collection<String> componentUuids,
     @Param("metricKeys") Collection<String> metricKeys);
 
+  void scrollSelectByComponentUuidAndMetricKeys(
+    @Param("componentUuid") String componentUuid,
+    @Param("metricKeys") Collection<String> metricKeys,
+    ResultHandler<LiveMeasureDto> handler);
+
   LiveMeasureDto selectByComponentUuidAndMetricKey(
     @Param("componentUuid") String componentUuid,
     @Param("metricKey") String metricKey);
@@ -63,7 +68,7 @@ public interface LiveMeasureMapper {
   int update(
     @Param("dto") LiveMeasureDto dto,
     @Param("now") long now);
-  
+
   int upsert(
     @Param("dtos") List<LiveMeasureDto> dtos,
     @Param("now") long now);
