@@ -32,9 +32,9 @@ import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { fetchMetrics } from '../../../store/rootActions';
+import { fetchMetrics, fetchBranchStatus } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
-import { isSameBranchLike } from '../../../helpers/branches';
+import { isSameBranchLike, isPullRequest, isShortLivingBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl, getCodeUrl } from '../../../helpers/urls';
 import '../code.css';
@@ -44,6 +44,7 @@ interface StateToProps {
 }
 
 interface DispatchToProps {
+  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
   fetchMetrics: () => void;
 }
 
@@ -70,7 +71,6 @@ interface State {
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
-
   state: State = {
     breadcrumbs: [],
     loading: true,
@@ -190,6 +190,10 @@ export class App extends React.PureComponent<Props, State> {
     this.setState({ highlighted });
   };
 
+  handleIssueChange = (_: T.Issue) => {
+    this.refreshBranchStatus();
+  };
+
   handleSearchClear = () => {
     this.setState({ searchResults: undefined });
   };
@@ -216,6 +220,13 @@ export class App extends React.PureComponent<Props, State> {
     const finalKey = selected || component.key;
 
     this.loadComponent(finalKey);
+  };
+
+  refreshBranchStatus = () => {
+    const { branchLike, component } = this.props;
+    if (branchLike && component && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+      this.props.fetchBranchStatus(branchLike, component.key);
+    }
   };
 
   render() {
@@ -312,6 +323,7 @@ export class App extends React.PureComponent<Props, State> {
                 isFile={true}
                 location={location}
                 onGoToParent={this.handleGoToParent}
+                onIssueChange={this.handleIssueChange}
               />
             </div>
           )}
@@ -325,7 +337,10 @@ const mapStateToProps = (state: any): StateToProps => ({
   metrics: getMetrics(state)
 });
 
-const mapDispatchToProps: DispatchToProps = { fetchMetrics };
+const mapDispatchToProps: DispatchToProps = {
+  fetchBranchStatus: fetchBranchStatus as any,
+  fetchMetrics
+};
 
 export default connect<StateToProps, DispatchToProps, Props>(
   mapStateToProps,

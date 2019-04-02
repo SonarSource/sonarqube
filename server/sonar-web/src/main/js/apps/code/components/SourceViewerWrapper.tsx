@@ -27,6 +27,7 @@ interface Props {
   branchLike?: T.BranchLike;
   component: string;
   location: Pick<Location, 'query'>;
+  onIssueChange?: (issue: T.Issue) => void;
 }
 
 export class SourceViewerWrapper extends React.PureComponent<Props> {
@@ -53,6 +54,7 @@ export class SourceViewerWrapper extends React.PureComponent<Props> {
         branchLike={branchLike}
         component={component}
         highlightedLine={finalLine}
+        onIssueChange={this.props.onIssueChange}
         onLoaded={this.scrollToLine}
         showMeasures={true}
       />
