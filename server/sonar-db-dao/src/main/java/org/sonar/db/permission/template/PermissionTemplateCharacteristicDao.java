@@ -25,13 +25,13 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PermissionTemplateCharacteristicDao implements Dao {
 
   public List<PermissionTemplateCharacteristicDto> selectByTemplateIds(DbSession dbSession, List<Long> templateIds) {
-    return templateIds.isEmpty() ? emptyList() : mapper(dbSession).selectByTemplateIds(templateIds);
+    return executeLargeInputs(templateIds, partitionOfTemplateIds -> mapper(dbSession).selectByTemplateIds(partitionOfTemplateIds));
   }
 
   public Optional<PermissionTemplateCharacteristicDto> selectByPermissionAndTemplateId(DbSession dbSession, String permission, long templateId) {
