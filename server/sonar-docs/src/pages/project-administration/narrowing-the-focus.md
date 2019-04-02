@@ -17,7 +17,7 @@ If {instance}'s results aren't relevant, no one will want to use it. That's why 
 You can make these changes globally or at a project level. At both levels, the navigation path is the same: **Administration > General Settings > Analysis Scope**.
 
 ## Ignore Files
-We recommend that you exclude generated code, source code from libraries, etc. There are four different ways to narrow your analysis to the source code that will be relevant to the development team. You can combine them all together to tune your analysis scope.
+We recommend that you exclude generated code, source code from libraries, etc. There are four different ways to narrow your analysis to the source code that will be relevant to the development team. You can combine them all together to tune your analysis scope. Additionally, we automatically exclude from analysis the files described in your projects' `.gitignore` files. This behavior can be disabled. See `sonar.scm.exclusions.disabled` in the [Analysis Parameters](/analysis/analysis-parameters/) page for details.
 
 ### Source Directories
 Set the [sonar.sources](/analysis/analysis-parameters/) property to limit the scope of the analysis to certain directories.
