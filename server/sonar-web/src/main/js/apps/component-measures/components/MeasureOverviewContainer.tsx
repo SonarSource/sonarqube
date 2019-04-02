@@ -31,6 +31,7 @@ interface Props {
   domain: string;
   leakPeriod?: T.Period;
   metrics: T.Dict<T.Metric>;
+  onIssueChange?: (issue: T.Issue) => void;
   rootComponent: T.ComponentMeasure;
   router: InjectedRouter;
   selected?: string;
@@ -124,6 +125,7 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
         leakPeriod={this.props.leakPeriod}
         loading={this.state.loading.component || this.state.loading.bubbles}
         metrics={this.props.metrics}
+        onIssueChange={this.props.onIssueChange}
         rootComponent={this.props.rootComponent}
         updateLoading={this.updateLoading}
         updateSelected={this.updateSelected}

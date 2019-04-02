@@ -43,6 +43,7 @@ interface Props {
   leakPeriod?: T.Period;
   requestedMetric: Pick<T.Metric, 'key' | 'direction'>;
   metrics: T.Dict<T.Metric>;
+  onIssueChange?: (issue: T.Issue) => void;
   rootComponent: T.ComponentMeasure;
   router: InjectedRouter;
   selected?: string;
@@ -361,7 +362,11 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
           />
           {isFile ? (
             <div className="measure-details-viewer">
-              <SourceViewer branchLike={branchLike} component={baseComponent.key} />
+              <SourceViewer
+                branchLike={branchLike}
+                component={baseComponent.key}
+                onIssueChange={this.props.onIssueChange}
+              />
             </div>
           ) : (
             this.renderMeasure()

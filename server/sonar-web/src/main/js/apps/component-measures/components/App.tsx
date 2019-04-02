@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as key from 'keymaster';
+import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Helmet from 'react-helmet';
 import { keyBy } from 'lodash';
@@ -64,10 +65,12 @@ import { getAllMetrics } from '../../../api/metrics';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import { getLeakPeriod } from '../../../helpers/periods';
+import { fetchBranchStatus } from '../../../store/rootActions';
 
 interface Props extends WithRouterProps {
   branchLike?: T.BranchLike;
   component: T.ComponentMeasure;
+  fetchBranchStatus: (branchLike: T.BranchLike, projectKey: string) => Promise<void>;
 }
 
 interface State {
@@ -203,6 +206,10 @@ export class App extends React.PureComponent<Props, State> {
     return metric;
   };
 
+  handleIssueChange = (_: T.Issue) => {
+    this.refreshBranchStatus();
+  };
+
   updateQuery = (newQuery: Partial<Query>) => {
     const query: Query = { ...parseQuery(this.props.location.query), ...newQuery };
 
@@ -225,6 +232,13 @@ export class App extends React.PureComponent<Props, State> {
     });
   };
 
+  refreshBranchStatus = () => {
+    const { branchLike, component } = this.props;
+    if (branchLike && component && (isPullRequest(branchLike) || isShortLivingBranch(branchLike))) {
+      this.props.fetchBranchStatus(branchLike, component.key);
+    }
+  };
+
   renderContent = (displayOverview: boolean, query: Query, metric?: T.Metric) => {
     const { branchLike, component } = this.props;
     const { leakPeriod } = this.state;
@@ -236,6 +250,7 @@ export class App extends React.PureComponent<Props, State> {
           domain={query.metric}
           leakPeriod={leakPeriod}
           metrics={this.state.metrics}
+          onIssueChange={this.handleIssueChange}
           rootComponent={component}
           router={this.props.router}
           selected={query.selected}
@@ -267,6 +282,7 @@ export class App extends React.PureComponent<Props, State> {
         branchLike={branchLike}
         leakPeriod={leakPeriod}
         metrics={this.state.metrics}
+        onIssueChange={this.handleIssueChange}
         requestedMetric={metric}
         rootComponent={component}
         router={this.props.router}
@@ -322,4 +338,11 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(App);
+const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
+
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps
+  )(App)
+);

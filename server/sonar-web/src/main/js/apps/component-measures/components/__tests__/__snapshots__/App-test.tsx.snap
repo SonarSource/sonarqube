@@ -113,6 +113,7 @@ exports[`should render correctly 1`] = `
           },
         }
       }
+      onIssueChange={[Function]}
       requestedMetric={
         Object {
           "domain": "Coverage",
@@ -124,14 +125,38 @@ exports[`should render correctly 1`] = `
       }
       rootComponent={
         Object {
+          "breadcrumbs": Array [],
           "key": "foo",
           "name": "Foo",
+          "organization": "foo",
           "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
         }
       }
       router={
         Object {
+          "createHref": [MockFunction],
+          "createPath": [MockFunction],
+          "go": [MockFunction],
+          "goBack": [MockFunction],
+          "goForward": [MockFunction],
+          "isActive": [MockFunction],
           "push": [MockFunction],
+          "replace": [MockFunction],
+          "setRouteLeaveHook": [MockFunction],
         }
       }
       selected=""

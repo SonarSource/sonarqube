@@ -38,6 +38,7 @@ interface Props {
   leakPeriod?: T.Period;
   loading: boolean;
   metrics: T.Dict<T.Metric>;
+  onIssueChange?: (issue: T.Issue) => void;
   rootComponent: T.ComponentMeasure;
   updateLoading: (param: T.Dict<boolean>) => void;
   updateSelected: (component: string) => void;
@@ -117,7 +118,11 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     if (isFileType(component)) {
       return (
         <div className="measure-details-viewer">
-          <SourceViewer branchLike={branchLike} component={component.key} />
+          <SourceViewer
+            branchLike={branchLike}
+            component={component.key}
+            onIssueChange={this.props.onIssueChange}
+          />
         </div>
       );
     }
