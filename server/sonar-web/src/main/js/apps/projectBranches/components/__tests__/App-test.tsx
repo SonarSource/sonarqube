@@ -17,40 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+import * as React from 'react';
+import { mount, shallow } from 'enzyme';
+import App from '../App';
+import { getValues } from '../../../../api/settings';
+import {
+  mockMainBranch,
+  mockLongLivingBranch,
+  mockShortLivingBranch,
+  mockPullRequest
+} from '../../../../helpers/testMocks';
+
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn(() => Promise.resolve([]))
 }));
 
-import * as React from 'react';
-import { mount, shallow } from 'enzyme';
-import App from '../App';
-
-const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
-
 beforeEach(() => {
-  getValues.mockClear();
+  jest.clearAllMocks();
 });
 
 it('renders sorted list of branches', () => {
-  const branchLikes: [
-    T.MainBranch,
-    T.LongLivingBranch,
-    T.ShortLivingBranch,
-    T.PullRequest,
-    T.ShortLivingBranch
-  ] = [
-    { isMain: true, name: 'master' },
-    { isMain: false, name: 'branch-1.0', type: 'LONG' },
-    { isMain: false, mergeBranch: 'master', name: 'feature', type: 'SHORT' },
-    { base: 'master', branch: 'feature', key: '1234', title: 'Feature PR' },
-    {
-      isMain: false,
-      mergeBranch: 'foobar',
-      isOrphan: true,
-      name: 'feature',
-      type: 'SHORT'
-    }
+  const branchLikes = [
+    mockMainBranch(),
+    mockLongLivingBranch(),
+    mockShortLivingBranch(),
+    mockPullRequest(),
+    mockShortLivingBranch({ mergeBranch: 'foobar', name: 'feature', isOrphan: true })
   ];
   const wrapper = shallow(
     <App

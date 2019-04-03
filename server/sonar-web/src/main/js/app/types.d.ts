@@ -625,6 +625,7 @@ declare namespace T {
     key: string;
     isOrphan?: true;
     status?: { qualityGateStatus: Status };
+    target: string;
     title: string;
     url?: string;
   }

@@ -20,24 +20,16 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { EmptyOverview, WarningMessage } from '../EmptyOverview';
+import {
+  mockPullRequest,
+  mockLoggedInUser,
+  mockMainBranch,
+  mockComponent
+} from '../../../../helpers/testMocks';
 
-const branch = { isMain: true, name: 'b', type: 'LONG' };
-
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-const LoggedInUser = {
-  isLoggedIn: true,
-  login: 'luke',
-  name: 'Skywalker'
-};
+const branch = mockMainBranch();
+const component = mockComponent({ version: '0.0.1' });
+const LoggedInUser = mockLoggedInUser();
 
 it('renders correctly', () => {
   expect(
@@ -99,17 +91,7 @@ it('should render warning message', () => {
 
 it('should not render warning message', () => {
   expect(
-    shallow(
-      <WarningMessage
-        branchLike={{
-          base: 'foo',
-          branch: 'bar',
-          key: '1',
-          title: 'PR bar'
-        }}
-        message="foo"
-      />
-    )
+    shallow(<WarningMessage branchLike={mockPullRequest()} message="foo" />)
       .find('FormattedMessage')
       .exists()
   ).toBeFalsy();

@@ -21,23 +21,13 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import BranchRow from '../BranchRow';
 import { click } from '../../../../helpers/testUtils';
+import { mockPullRequest, mockShortLivingBranch } from '../../../../helpers/testMocks';
 
 const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
 
-const shortBranch: T.ShortLivingBranch = {
-  analysisDate: '2017-09-27T00:05:19+0000',
-  isMain: false,
-  name: 'feature',
-  mergeBranch: 'foo',
-  type: 'SHORT'
-};
+const shortBranch = mockShortLivingBranch();
 
-const pullRequest: T.PullRequest = {
-  base: 'master',
-  branch: 'feature',
-  key: '1234',
-  title: 'Feature PR'
-};
+const pullRequest = mockPullRequest();
 
 it('renders main branch', () => {
   expect(shallowRender(mainBranch)).toMatchSnapshot();

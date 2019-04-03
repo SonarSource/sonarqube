@@ -76,6 +76,7 @@ exports[`should render correctly 1`] = `
     <MeasureContent
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": true,
           "name": "master",
         }

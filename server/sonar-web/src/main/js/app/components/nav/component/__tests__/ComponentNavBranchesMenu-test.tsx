@@ -21,6 +21,12 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { ComponentNavBranchesMenu } from '../ComponentNavBranchesMenu';
 import { elementKeydown } from '../../../../../helpers/testUtils';
+import {
+  mockPullRequest,
+  mockShortLivingBranch,
+  mockLongLivingBranch,
+  mockMainBranch
+} from '../../../../../helpers/testMocks';
 
 const component = { key: 'component' } as T.Component;
 
@@ -29,14 +35,14 @@ it('renders list', () => {
     shallow(
       <ComponentNavBranchesMenu
         branchLikes={[
-          mainBranch(),
+          mockMainBranch(),
           shortBranch('foo'),
-          longBranch('bar'),
+          mockLongLivingBranch({ name: 'bar' }),
           shortBranch('baz', true),
-          pullRequest('qux')
+          mockPullRequest({ status: { qualityGateStatus: 'OK' }, title: 'qux' })
         ]}
         component={component}
-        currentBranchLike={mainBranch()}
+        currentBranchLike={mockMainBranch()}
         onClose={jest.fn()}
         router={{ push: jest.fn() }}
       />
@@ -48,14 +54,14 @@ it('searches', () => {
   const wrapper = shallow(
     <ComponentNavBranchesMenu
       branchLikes={[
-        mainBranch(),
+        mockMainBranch(),
         shortBranch('foo'),
         shortBranch('foobar'),
-        longBranch('bar'),
-        longBranch('BARBAZ')
+        mockLongLivingBranch({ name: 'bar' }),
+        mockLongLivingBranch({ name: 'BARBAZ' })
       ]}
       component={component}
-      currentBranchLike={mainBranch()}
+      currentBranchLike={mockMainBranch()}
       onClose={jest.fn()}
       router={{ push: jest.fn() }}
     />
@@ -67,9 +73,14 @@ it('searches', () => {
 it('selects next & previous', () => {
   const wrapper = shallow<ComponentNavBranchesMenu>(
     <ComponentNavBranchesMenu
-      branchLikes={[mainBranch(), shortBranch('foo'), shortBranch('foobar'), longBranch('bar')]}
+      branchLikes={[
+        mockMainBranch(),
+        shortBranch('foo'),
+        shortBranch('foobar'),
+        mockLongLivingBranch({ name: 'bar' })
+      ]}
       component={component}
-      currentBranchLike={mainBranch()}
+      currentBranchLike={mockMainBranch()}
       onClose={jest.fn()}
       router={{ push: jest.fn() }}
     />
@@ -85,31 +96,6 @@ it('selects next & previous', () => {
   expect(wrapper.state().selected).toEqual(shortBranch('foo'));
 });
 
-function mainBranch(): T.MainBranch {
-  return { isMain: true, name: 'master' };
-}
-
-function shortBranch(name: string, isOrphan?: true): T.ShortLivingBranch {
-  return {
-    isMain: false,
-    isOrphan,
-    mergeBranch: 'master',
-    name,
-    status: { qualityGateStatus: 'OK' },
-    type: 'SHORT'
-  };
-}
-
-function longBranch(name: string): T.LongLivingBranch {
-  return { isMain: false, name, type: 'LONG' };
-}
-
-function pullRequest(title: string): T.PullRequest {
-  return {
-    base: 'master',
-    branch: 'feature',
-    key: '1234',
-    status: { qualityGateStatus: 'OK' },
-    title
-  };
+function shortBranch(name: string, isOrphan?: true) {
+  return mockShortLivingBranch({ name, isOrphan, status: { qualityGateStatus: 'OK' } });
 }

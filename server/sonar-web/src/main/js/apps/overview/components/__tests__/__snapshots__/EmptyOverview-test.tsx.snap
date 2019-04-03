@@ -13,20 +13,35 @@ exports[`renders correctly 1`] = `
       <AnalyzeTutorial
         component={
           Object {
-            "analysisDate": "2016-01-01",
             "breadcrumbs": Array [],
-            "key": "foo",
-            "name": "Foo",
-            "organization": "org",
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
             "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
             "version": "0.0.1",
           }
         }
         currentUser={
           Object {
+            "groups": Array [],
             "isLoggedIn": true,
             "login": "luke",
             "name": "Skywalker",
+            "scmAccounts": Array [],
           }
         }
       />
@@ -37,19 +52,32 @@ exports[`renders correctly 1`] = `
       <Connect(Meta)
         branchLike={
           Object {
+            "analysisDate": "2018-01-01",
             "isMain": true,
-            "name": "b",
-            "type": "LONG",
+            "name": "master",
           }
         }
         component={
           Object {
-            "analysisDate": "2016-01-01",
             "breadcrumbs": Array [],
-            "key": "foo",
-            "name": "Foo",
-            "organization": "org",
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
             "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
             "version": "0.0.1",
           }
         }
@@ -76,19 +104,32 @@ exports[`should not render the tutorial 1`] = `
       <Connect(Meta)
         branchLike={
           Object {
+            "analysisDate": "2018-01-01",
             "isMain": true,
-            "name": "b",
-            "type": "LONG",
+            "name": "master",
           }
         }
         component={
           Object {
-            "analysisDate": "2016-01-01",
             "breadcrumbs": Array [],
-            "key": "foo",
-            "name": "Foo",
-            "organization": "org",
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
             "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
             "version": "0.0.1",
           }
         }
@@ -112,9 +153,9 @@ exports[`should render another message when there are branches 1`] = `
       <WarningMessage
         branchLike={
           Object {
+            "analysisDate": "2018-01-01",
             "isMain": true,
-            "name": "b",
-            "type": "LONG",
+            "name": "master",
           }
         }
         message="provisioning.no_analysis_on_main_branch"
@@ -126,19 +167,32 @@ exports[`should render another message when there are branches 1`] = `
       <Connect(Meta)
         branchLike={
           Object {
+            "analysisDate": "2018-01-01",
             "isMain": true,
-            "name": "b",
-            "type": "LONG",
+            "name": "master",
           }
         }
         component={
           Object {
-            "analysisDate": "2016-01-01",
             "breadcrumbs": Array [],
-            "key": "foo",
-            "name": "Foo",
-            "organization": "org",
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
             "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
             "version": "0.0.1",
           }
         }
@@ -162,9 +216,9 @@ exports[`should render another message when there are branches 2`] = `
       <WarningMessage
         branchLike={
           Object {
+            "analysisDate": "2018-01-01",
             "isMain": true,
-            "name": "b",
-            "type": "LONG",
+            "name": "master",
           }
         }
         message="provisioning.no_analysis_on_main_branch.bad_configuration"
@@ -176,19 +230,32 @@ exports[`should render another message when there are branches 2`] = `
       <Connect(Meta)
         branchLike={
           Object {
+            "analysisDate": "2018-01-01",
             "isMain": true,
-            "name": "b",
-            "type": "LONG",
+            "name": "master",
           }
         }
         component={
           Object {
-            "analysisDate": "2016-01-01",
             "breadcrumbs": Array [],
-            "key": "foo",
-            "name": "Foo",
-            "organization": "org",
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
             "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
             "version": "0.0.1",
           }
         }
@@ -208,7 +275,7 @@ exports[`should render warning message 1`] = `
     id="foo"
     values={
       Object {
-        "branchName": "b",
+        "branchName": "master",
         "branchType": <div
           className="outline-badge text-baseline"
         >

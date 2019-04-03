@@ -82,6 +82,7 @@ exports[`renders sorted list of branches 1`] = `
         <BranchRow
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": true,
               "name": "master",
             }
@@ -93,10 +94,12 @@ exports[`renders sorted list of branches 1`] = `
         <BranchRow
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "base": "master",
-              "branch": "feature",
-              "key": "1234",
-              "title": "Feature PR",
+              "branch": "feature/foo/bar",
+              "key": "1001",
+              "target": "master",
+              "title": "Foo Bar feature",
             }
           }
           component="foo"
@@ -105,9 +108,10 @@ exports[`renders sorted list of branches 1`] = `
         <BranchRow
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": false,
               "mergeBranch": "master",
-              "name": "feature",
+              "name": "feature/foo",
               "type": "SHORT",
             }
           }
@@ -117,8 +121,9 @@ exports[`renders sorted list of branches 1`] = `
         <BranchRow
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": false,
-              "name": "branch-1.0",
+              "name": "branch-6.7",
               "type": "LONG",
             }
           }
@@ -144,6 +149,7 @@ exports[`renders sorted list of branches 1`] = `
         <BranchRow
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": false,
               "isOrphan": true,
               "mergeBranch": "foobar",

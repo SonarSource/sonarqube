@@ -22,11 +22,17 @@ import { shallow } from 'enzyme';
 import { ComponentNavBranch } from '../ComponentNavBranch';
 import { click } from '../../../../../helpers/testUtils';
 import { isSonarCloud } from '../../../../../helpers/system';
+import {
+  mockPullRequest,
+  mockShortLivingBranch,
+  mockMainBranch,
+  mockLongLivingBranch
+} from '../../../../../helpers/testMocks';
 
 jest.mock('../../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
-const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
-const fooBranch: T.LongLivingBranch = { isMain: false, name: 'foo', type: 'LONG' };
+const mainBranch = mockMainBranch();
+const fooBranch = mockLongLivingBranch();
 
 beforeEach(() => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
@@ -47,13 +53,9 @@ it('renders main branch', () => {
 });
 
 it('renders short-living branch', () => {
-  const branch: T.ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: 'master',
-    name: 'foo',
-    status: { qualityGateStatus: 'OK' },
-    type: 'SHORT'
-  };
+  const branch: T.ShortLivingBranch = mockShortLivingBranch({
+    status: { qualityGateStatus: 'OK' }
+  });
   const component = {} as T.Component;
   expect(
     shallow(
@@ -68,13 +70,10 @@ it('renders short-living branch', () => {
 });
 
 it('renders pull request', () => {
-  const pullRequest: T.PullRequest = {
-    base: 'master',
-    branch: 'feature',
-    key: '1234',
-    title: 'Feature PR',
+  const pullRequest = mockPullRequest({
+    target: 'feature/foo',
     url: 'https://example.com/pull/1234'
-  };
+  });
   const component = {} as T.Component;
   expect(
     shallow(

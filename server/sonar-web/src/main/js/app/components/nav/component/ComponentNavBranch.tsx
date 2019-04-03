@@ -109,7 +109,7 @@ export class ComponentNavBranch extends React.PureComponent<Props, State> {
             defaultMessage={translate('branches.pull_request.for_merge_into_x_from_y')}
             id="branches.pull_request.for_merge_into_x_from_y"
             values={{
-              base: <strong>{currentBranchLike.base}</strong>,
+              target: <strong>{currentBranchLike.target}</strong>,
               branch: <strong>{currentBranchLike.branch}</strong>
             }}
           />

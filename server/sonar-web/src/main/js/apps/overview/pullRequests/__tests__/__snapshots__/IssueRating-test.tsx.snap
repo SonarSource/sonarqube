@@ -18,6 +18,7 @@ exports[`should render correctly for bugs 1`] = `
             "base": "master",
             "branch": "feature/foo/bar",
             "key": "1001",
+            "target": "master",
             "title": "Foo Bar feature",
           }
         }
@@ -52,6 +53,7 @@ exports[`should render correctly for code smells 1`] = `
             "base": "master",
             "branch": "feature/foo/bar",
             "key": "1001",
+            "target": "master",
             "title": "Foo Bar feature",
           }
         }
@@ -86,6 +88,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
             "base": "master",
             "branch": "feature/foo/bar",
             "key": "1001",
+            "target": "master",
             "title": "Foo Bar feature",
           }
         }

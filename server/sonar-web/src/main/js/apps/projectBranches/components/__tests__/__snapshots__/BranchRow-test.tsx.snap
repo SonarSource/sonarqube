@@ -58,15 +58,17 @@ exports[`renders pull request 1`] = `
     <BranchIcon
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "base": "master",
-          "branch": "feature",
-          "key": "1234",
-          "title": "Feature PR",
+          "branch": "feature/foo/bar",
+          "key": "1001",
+          "target": "master",
+          "title": "Foo Bar feature",
         }
       }
       className="little-spacer-right big-spacer-left"
     />
-    1234 – Feature PR
+    1001 – Foo Bar feature
   </td>
   <td
     className="thin nowrap"
@@ -74,10 +76,12 @@ exports[`renders pull request 1`] = `
     <Connect(BranchStatus)
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "base": "master",
-          "branch": "feature",
-          "key": "1234",
-          "title": "Feature PR",
+          "branch": "feature/foo/bar",
+          "key": "1001",
+          "target": "master",
+          "title": "Foo Bar feature",
         }
       }
       component="foo"
@@ -85,7 +89,11 @@ exports[`renders pull request 1`] = `
   </td>
   <td
     className="thin nowrap text-right big-spacer-left"
-  />
+  >
+    <DateFromNow
+      date="2018-01-01"
+    />
+  </td>
   <td
     className="thin nowrap text-right"
   >
@@ -110,16 +118,16 @@ exports[`renders short-living branch 1`] = `
     <BranchIcon
       branchLike={
         Object {
-          "analysisDate": "2017-09-27T00:05:19+0000",
+          "analysisDate": "2018-01-01",
           "isMain": false,
-          "mergeBranch": "foo",
-          "name": "feature",
+          "mergeBranch": "master",
+          "name": "feature/foo",
           "type": "SHORT",
         }
       }
       className="little-spacer-right big-spacer-left"
     />
-    feature
+    feature/foo
   </td>
   <td
     className="thin nowrap"
@@ -127,10 +135,10 @@ exports[`renders short-living branch 1`] = `
     <Connect(BranchStatus)
       branchLike={
         Object {
-          "analysisDate": "2017-09-27T00:05:19+0000",
+          "analysisDate": "2018-01-01",
           "isMain": false,
-          "mergeBranch": "foo",
-          "name": "feature",
+          "mergeBranch": "master",
+          "name": "feature/foo",
           "type": "SHORT",
         }
       }
@@ -141,7 +149,7 @@ exports[`renders short-living branch 1`] = `
     className="thin nowrap text-right big-spacer-left"
   >
     <DateFromNow
-      date="2017-09-27T00:05:19+0000"
+      date="2018-01-01"
     />
   </td>
   <td

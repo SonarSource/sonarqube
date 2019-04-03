@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
-jest.mock('../../../../api/branches', () => ({
-  deleteBranch: jest.fn(),
-  deletePullRequest: jest.fn()
-}));
-
 import * as React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import DeleteBranchModal from '../DeleteBranchModal';
 import { submit, doAsync, click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { deleteBranch, deletePullRequest } from '../../../../api/branches';
+import { mockShortLivingBranch, mockPullRequest } from '../../../../helpers/testMocks';
 
-const branch: T.ShortLivingBranch = {
-  isMain: false,
-  name: 'feature',
-  mergeBranch: 'master',
-  type: 'SHORT'
-};
+jest.mock('../../../../api/branches', () => ({
+  deleteBranch: jest.fn(),
+  deletePullRequest: jest.fn()
+}));
+
+const branch = mockShortLivingBranch();
 
 beforeEach(() => {
-  (deleteBranch as jest.Mock).mockClear();
-  (deletePullRequest as jest.Mock).mockClear();
+  jest.clearAllMocks();
 });
 
 it('renders', () => {
@@ -58,17 +52,12 @@ it('deletes branch', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
   expect(onDelete).toBeCalled();
-  expect(deleteBranch).toBeCalledWith({ branch: 'feature', project: 'foo' });
+  expect(deleteBranch).toBeCalledWith({ branch: 'feature/foo', project: 'foo' });
 });
 
 it('deletes pull request', async () => {
   (deletePullRequest as jest.Mock).mockImplementationOnce(() => Promise.resolve());
-  const pullRequest: T.PullRequest = {
-    base: 'master',
-    branch: 'feature',
-    key: '1234',
-    title: 'Feature PR'
-  };
+  const pullRequest = mockPullRequest();
   const onDelete = jest.fn();
   const wrapper = shallowRender(pullRequest, onDelete);
 
@@ -77,7 +66,7 @@ it('deletes pull request', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
   expect(onDelete).toBeCalled();
-  expect(deletePullRequest).toBeCalledWith({ project: 'foo', pullRequest: '1234' });
+  expect(deletePullRequest).toBeCalledWith({ project: 'foo', pullRequest: '1001' });
 });
 
 it('cancels', () => {
@@ -101,7 +90,7 @@ it('stops loading on WS error', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
   expect(onDelete).not.toBeCalled();
-  expect(deleteBranch).toBeCalledWith({ branch: 'feature', project: 'foo' });
+  expect(deleteBranch).toBeCalledWith({ branch: 'feature/foo', project: 'foo' });
 });
 
 function shallowRender(

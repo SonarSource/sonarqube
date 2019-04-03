@@ -67,6 +67,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -108,6 +109,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -153,6 +155,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -194,6 +197,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -239,6 +243,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -280,6 +285,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -325,6 +331,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -379,6 +386,7 @@ exports[`should correctly handle a WS failure 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -485,6 +493,7 @@ exports[`should render correctly for a failed QG 1`] = `
             "base": "master",
             "branch": "feature/foo/bar",
             "key": "1001",
+            "target": "master",
             "title": "Foo Bar feature",
           }
         }
@@ -548,6 +557,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -628,6 +638,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -712,6 +723,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -792,6 +804,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -876,6 +889,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -956,6 +970,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1040,6 +1055,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1172,6 +1188,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1363,6 +1380,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1443,6 +1461,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1527,6 +1546,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1607,6 +1627,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1691,6 +1712,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1771,6 +1793,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1855,6 +1878,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }
@@ -1987,6 +2011,7 @@ exports[`should render correctly for a passed QG 1`] = `
                 "base": "master",
                 "branch": "feature/foo/bar",
                 "key": "1001",
+                "target": "master",
                 "title": "Foo Bar feature",
               }
             }

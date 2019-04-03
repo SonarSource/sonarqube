@@ -23,6 +23,7 @@ import { Location } from 'history';
 import { App } from '../App';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getMeasuresAndMeta } from '../../../../api/measures';
+import { mockPullRequest, mockMainBranch } from '../../../../helpers/testMocks';
 
 jest.mock('../../../../api/metrics', () => ({
   getAllMetrics: jest.fn().mockResolvedValue([
@@ -64,7 +65,7 @@ jest.mock('../../../../api/measures', () => ({
 const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
 
 const PROPS: App['props'] = {
-  branchLike: { isMain: true, name: 'master' },
+  branchLike: mockMainBranch(),
   component: COMPONENT,
   location: { pathname: '/component_measures', query: { metric: 'coverage' } } as Location,
   params: {},
@@ -109,8 +110,7 @@ it('should render a message when there are no measures', async () => {
 });
 
 it('should not render drilldown for estimated duplications', async () => {
-  const pullRequest = { base: 'master', branch: 'feature-x', key: '5', title: '' };
-  const wrapper = shallow(<App {...PROPS} branchLike={pullRequest} />);
+  const wrapper = shallow(<App {...PROPS} branchLike={mockPullRequest({ title: '' })} />);
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });

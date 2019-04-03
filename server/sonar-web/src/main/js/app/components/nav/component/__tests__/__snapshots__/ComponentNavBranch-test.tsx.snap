@@ -15,12 +15,14 @@ exports[`renders main branch 1`] = `
           branchLikes={
             Array [
               Object {
+                "analysisDate": "2018-01-01",
                 "isMain": true,
                 "name": "master",
               },
               Object {
+                "analysisDate": "2018-01-01",
                 "isMain": false,
-                "name": "foo",
+                "name": "branch-6.7",
                 "type": "LONG",
               },
             ]
@@ -28,6 +30,7 @@ exports[`renders main branch 1`] = `
           component={Object {}}
           currentBranchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": true,
               "name": "master",
             }
@@ -44,6 +47,7 @@ exports[`renders main branch 1`] = `
         <BranchIcon
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": true,
               "name": "master",
             }
@@ -92,15 +96,18 @@ exports[`renders pull request 1`] = `
           branchLikes={
             Array [
               Object {
+                "analysisDate": "2018-01-01",
                 "base": "master",
-                "branch": "feature",
-                "key": "1234",
-                "title": "Feature PR",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "target": "feature/foo",
+                "title": "Foo Bar feature",
                 "url": "https://example.com/pull/1234",
               },
               Object {
+                "analysisDate": "2018-01-01",
                 "isMain": false,
-                "name": "foo",
+                "name": "branch-6.7",
                 "type": "LONG",
               },
             ]
@@ -108,10 +115,12 @@ exports[`renders pull request 1`] = `
           component={Object {}}
           currentBranchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "base": "master",
-              "branch": "feature",
-              "key": "1234",
-              "title": "Feature PR",
+              "branch": "feature/foo/bar",
+              "key": "1001",
+              "target": "feature/foo",
+              "title": "Foo Bar feature",
               "url": "https://example.com/pull/1234",
             }
           }
@@ -127,10 +136,12 @@ exports[`renders pull request 1`] = `
         <BranchIcon
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "base": "master",
-              "branch": "feature",
-              "key": "1234",
-              "title": "Feature PR",
+              "branch": "feature/foo/bar",
+              "key": "1001",
+              "target": "feature/foo",
+              "title": "Foo Bar feature",
               "url": "https://example.com/pull/1234",
             }
           }
@@ -138,9 +149,9 @@ exports[`renders pull request 1`] = `
         />
         <span
           className="text-limited text-top"
-          title="1234 – Feature PR"
+          title="1001 – Foo Bar feature"
         >
-          1234 – Feature PR
+          1001 – Foo Bar feature
         </span>
         <DropdownIcon
           className="little-spacer-left"
@@ -156,11 +167,11 @@ exports[`renders pull request 1`] = `
       id="branches.pull_request.for_merge_into_x_from_y"
       values={
         Object {
-          "base": <strong>
-            master
-          </strong>,
           "branch": <strong>
-            feature
+            feature/foo/bar
+          </strong>,
+          "target": <strong>
+            feature/foo
           </strong>,
         }
       }
@@ -184,17 +195,19 @@ exports[`renders short-living branch 1`] = `
           branchLikes={
             Array [
               Object {
+                "analysisDate": "2018-01-01",
                 "isMain": false,
                 "mergeBranch": "master",
-                "name": "foo",
+                "name": "feature/foo",
                 "status": Object {
                   "qualityGateStatus": "OK",
                 },
                 "type": "SHORT",
               },
               Object {
+                "analysisDate": "2018-01-01",
                 "isMain": false,
-                "name": "foo",
+                "name": "branch-6.7",
                 "type": "LONG",
               },
             ]
@@ -202,9 +215,10 @@ exports[`renders short-living branch 1`] = `
           component={Object {}}
           currentBranchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": false,
               "mergeBranch": "master",
-              "name": "foo",
+              "name": "feature/foo",
               "status": Object {
                 "qualityGateStatus": "OK",
               },
@@ -223,9 +237,10 @@ exports[`renders short-living branch 1`] = `
         <BranchIcon
           branchLike={
             Object {
+              "analysisDate": "2018-01-01",
               "isMain": false,
               "mergeBranch": "master",
-              "name": "foo",
+              "name": "feature/foo",
               "status": Object {
                 "qualityGateStatus": "OK",
               },
@@ -236,9 +251,9 @@ exports[`renders short-living branch 1`] = `
         />
         <span
           className="text-limited text-top"
-          title="foo"
+          title="feature/foo"
         >
-          foo
+          feature/foo
         </span>
         <DropdownIcon
           className="little-spacer-left"

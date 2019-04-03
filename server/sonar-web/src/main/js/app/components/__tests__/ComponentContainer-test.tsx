@@ -27,33 +27,30 @@ import { getComponentNavigation } from '../../../api/nav';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { isSonarCloud } from '../../../helpers/system';
-import { mockLocation, mockRouter, mockComponent } from '../../../helpers/testMocks';
+import {
+  mockLocation,
+  mockRouter,
+  mockComponent,
+  mockPullRequest,
+  mockLongLivingBranch,
+  mockShortLivingBranch,
+  mockMainBranch
+} from '../../../helpers/testMocks';
 
-jest.mock('../../../api/branches', () => ({
-  getBranches: jest.fn().mockResolvedValue([
-    {
-      isMain: true,
-      name: 'master',
-      type: 'LONG',
-      status: { qualityGateStatus: 'OK' }
-    }
-  ]),
-  getPullRequests: jest.fn().mockResolvedValue([
-    {
-      base: 'feature',
-      branch: 'feature',
-      key: 'pr-89',
-      title: 'PR Feature',
-      status: { qualityGateStatus: 'ERROR' }
-    },
-    {
-      base: 'feature',
-      branch: 'feature',
-      key: 'pr-90',
-      title: 'PR Feature 2'
-    }
-  ])
-}));
+jest.mock('../../../api/branches', () => {
+  const { mockMainBranch, mockPullRequest } = require.requireActual('../../../helpers/testMocks');
+  return {
+    getBranches: jest
+      .fn()
+      .mockResolvedValue([mockMainBranch({ status: { qualityGateStatus: 'OK' } })]),
+    getPullRequests: jest
+      .fn()
+      .mockResolvedValue([
+        mockPullRequest({ key: 'pr-89', status: { qualityGateStatus: 'ERROR' } }),
+        mockPullRequest({ key: 'pr-90', title: 'PR Feature 2' })
+      ])
+  };
+});
 
 jest.mock('../../../api/ce', () => ({
   getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
@@ -152,30 +149,16 @@ it('fetches status', async () => {
 it('filters correctly the pending tasks for a main branch', () => {
   const wrapper = shallowRender();
   const component = wrapper.instance();
-  const mainBranch: T.MainBranch = { isMain: true, name: 'master' };
-  const shortBranch: T.ShortLivingBranch = {
-    isMain: false,
-    mergeBranch: 'master',
-    name: 'feature',
-    type: 'SHORT'
-  };
-  const longBranch: T.LongLivingBranch = {
-    isMain: false,
-    name: 'branch-7.2',
-    type: 'LONG'
-  };
-  const pullRequest: T.PullRequest = {
-    base: 'feature',
-    branch: 'feature',
-    key: 'pr-89',
-    title: 'PR Feature'
-  };
+  const mainBranch = mockMainBranch();
+  const shortBranch = mockShortLivingBranch();
+  const longBranch = mockLongLivingBranch();
+  const pullRequest = mockPullRequest();
 
   expect(component.isSameBranch({}, undefined)).toBeTruthy();
   expect(component.isSameBranch({}, mainBranch)).toBeTruthy();
   expect(component.isSameBranch({}, shortBranch)).toBeFalsy();
   expect(
-    component.isSameBranch({ branch: 'feature', branchType: 'SHORT' }, shortBranch)
+    component.isSameBranch({ branch: shortBranch.name, branchType: 'SHORT' }, shortBranch)
   ).toBeTruthy();
   expect(
     component.isSameBranch({ branch: 'feature', branchType: 'SHORT' }, longBranch)
@@ -184,18 +167,21 @@ it('filters correctly the pending tasks for a main branch', () => {
     component.isSameBranch({ branch: 'feature', branchType: 'SHORT' }, longBranch)
   ).toBeFalsy();
   expect(
-    component.isSameBranch({ branch: 'branch-7.1', branchType: 'LONG' }, longBranch)
+    component.isSameBranch({ branch: 'branch-6.6', branchType: 'LONG' }, longBranch)
   ).toBeFalsy();
   expect(
-    component.isSameBranch({ branch: 'branch-7.2', branchType: 'LONG' }, pullRequest)
+    component.isSameBranch({ branch: longBranch.name, branchType: 'LONG' }, longBranch)
+  ).toBeTruthy();
+  expect(
+    component.isSameBranch({ branch: 'branch-6.7', branchType: 'LONG' }, pullRequest)
   ).toBeFalsy();
-  expect(component.isSameBranch({ pullRequest: 'pr-89' }, pullRequest)).toBeTruthy();
+  expect(component.isSameBranch({ pullRequest: pullRequest.key }, pullRequest)).toBeTruthy();
 
-  const currentTask = { pullRequest: 'pr-89', status: STATUSES.IN_PROGRESS } as T.Task;
+  const currentTask = { pullRequest: pullRequest.key, status: STATUSES.IN_PROGRESS } as T.Task;
   const failedTask = { ...currentTask, status: STATUSES.FAILED };
   const pendingTasks = [
     currentTask,
-    { branch: 'feature', branchType: 'SHORT' } as T.Task,
+    { branch: shortBranch.name, branchType: 'SHORT' } as T.Task,
     {} as T.Task
   ];
   expect(component.getCurrentTask(currentTask, undefined)).toBe(undefined);

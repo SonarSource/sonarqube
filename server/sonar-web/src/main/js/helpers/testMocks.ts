@@ -303,6 +303,7 @@ export function mockPullRequest(overrides: Partial<T.PullRequest> = {}): T.PullR
     base: 'master',
     branch: 'feature/foo/bar',
     key: '1001',
+    target: 'master',
     title: 'Foo Bar feature',
     ...overrides
   };
@@ -416,7 +417,7 @@ export function mockShortLivingBranch(
   return {
     analysisDate: '2018-01-01',
     isMain: false,
-    name: 'release-1.0',
+    name: 'feature/foo',
     mergeBranch: 'master',
     type: 'SHORT',
     ...overrides
@@ -429,7 +430,7 @@ export function mockLongLivingBranch(
   return {
     analysisDate: '2018-01-01',
     isMain: false,
-    name: 'master',
+    name: 'branch-6.7',
     type: 'LONG',
     ...overrides
   };

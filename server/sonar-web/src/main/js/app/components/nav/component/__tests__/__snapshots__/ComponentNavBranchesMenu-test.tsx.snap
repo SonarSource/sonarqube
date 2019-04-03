@@ -21,6 +21,7 @@ exports[`renders list 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": true,
           "name": "master",
         }
@@ -43,12 +44,14 @@ exports[`renders list 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "base": "master",
-          "branch": "feature",
-          "key": "1234",
+          "branch": "feature/foo/bar",
+          "key": "1001",
           "status": Object {
             "qualityGateStatus": "OK",
           },
+          "target": "master",
           "title": "qux",
         }
       }
@@ -58,7 +61,7 @@ exports[`renders list 1`] = `
         }
       }
       innerRef={[Function]}
-      key="pull-request-1234"
+      key="pull-request-1001"
       onSelect={[Function]}
       selected={false}
     />
@@ -81,6 +84,7 @@ exports[`renders list 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "isOrphan": true,
           "mergeBranch": "master",
@@ -104,6 +108,7 @@ exports[`renders list 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "isOrphan": undefined,
           "mergeBranch": "master",
@@ -130,6 +135,7 @@ exports[`renders list 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "name": "bar",
           "type": "LONG",
@@ -164,6 +170,7 @@ exports[`renders list 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "isOrphan": true,
           "mergeBranch": "master",
@@ -214,6 +221,7 @@ exports[`searches 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "isOrphan": undefined,
           "mergeBranch": "master",
@@ -240,6 +248,7 @@ exports[`searches 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "name": "BARBAZ",
           "type": "LONG",
@@ -261,6 +270,7 @@ exports[`searches 1`] = `
     <ComponentNavBranchesMenuItem
       branchLike={
         Object {
+          "analysisDate": "2018-01-01",
           "isMain": false,
           "name": "bar",
           "type": "LONG",
