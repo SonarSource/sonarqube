@@ -37,11 +37,11 @@ import static org.mockito.Mockito.when;
 
 public class RedirectFilterTest {
 
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private FilterChain chain = mock(FilterChain.class);
+  HttpServletRequest request = mock(HttpServletRequest.class);
+  HttpServletResponse response = mock(HttpServletResponse.class);
+  FilterChain chain = mock(FilterChain.class);
 
-  private RedirectFilter underTest = new RedirectFilter();
+  RedirectFilter underTest = new RedirectFilter();
 
   @Before
   public void setUp() throws Exception {
@@ -52,6 +52,23 @@ public class RedirectFilterTest {
   public void send_redirect_when_url_contains_only_api() throws Exception {
     verifyRedirection("/api", null, "/sonarqube/api/webservices/list");
     verifyRedirection("/api/", null, "/sonarqube/api/webservices/list");
+  }
+
+  @Test
+  public void send_redirect_when_url_contains_batch_with_jar() throws Exception {
+    verifyRedirection("/batch/file.jar", null, "/sonarqube/batch/file?name=file.jar");
+  }
+
+  @Test
+  public void send_redirect_when_url_contains_batch_bootstrap() throws Exception {
+    verifyRedirection("/batch_bootstrap/index", null, "/sonarqube/batch/index");
+    verifyRedirection("/batch_bootstrap/index/", null, "/sonarqube/batch/index");
+  }
+
+  @Test
+  public void send_redirect_when_url_contains_profiles_export() throws Exception {
+    verifyRedirection("/profiles/export", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");
+    verifyRedirection("/profiles/export/", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");
   }
 
   @Test

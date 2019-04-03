@@ -41,7 +41,10 @@ public class RedirectFilter implements Filter {
   private static final String EMPTY = "";
 
   private static final List<Redirect> REDIRECTS = ImmutableList.of(
-    newSimpleRedirect("/api", "/api/webservices/list"));
+    newSimpleRedirect("/api", "/api/webservices/list"),
+    new BatchRedirect(),
+    new BatchBootstrapRedirect(),
+    new ProfilesExportRedirect());
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
@@ -95,6 +98,60 @@ public class RedirectFilter implements Filter {
 
     @Override
     String apply(HttpServletRequest request);
+  }
+
+  /**
+   * Old scanners were using /batch/file.jar url (see SCANNERAPI-167)
+   */
+  private static class BatchRedirect implements Redirect {
+
+    private static final String BATCH_WS = "/batch";
+
+    @Override
+    public boolean test(String path) {
+      return path.startsWith(BATCH_WS + "/") && path.endsWith(".jar");
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      String path = extractPath(request);
+      return format("%s%s/file?name=%s", request.getContextPath(), BATCH_WS, path.replace(BATCH_WS + "/", EMPTY));
+    }
+  }
+
+  /**
+   * Old scanners were using /batch_bootstrap url (see SCANNERAPI-167)
+   */
+  private static class BatchBootstrapRedirect implements Redirect {
+
+    @Override
+    public boolean test(String path) {
+      return "/batch_bootstrap/index".equals(path);
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      return format("%s%s/index", request.getContextPath(), "/batch");
+    }
+  }
+
+  /**
+   * Old scanners were using /profiles/export url (see SVS-130)
+   */
+  private static class ProfilesExportRedirect implements Redirect {
+
+    private static final String PROFILES_EXPORT = "/profiles/export";
+    private static final String API_QUALITY_PROFILE_EXPORT = "/api/qualityprofiles/export";
+
+    @Override
+    public boolean test(String path) {
+      return PROFILES_EXPORT.equals(path);
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      return format("%s%s?%s", request.getContextPath(), API_QUALITY_PROFILE_EXPORT, request.getQueryString());
+    }
   }
 
   private static String extractPath(HttpServletRequest request) {
