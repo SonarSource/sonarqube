@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import ConciseIssueLocations from './ConciseIssueLocations';
 import ConciseIssueLocationsNavigator from './ConciseIssueLocationsNavigator';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
+import LocationNavigationKeyboardShortcuts from '../components/LocationNavigationKeyboardShortcuts';
 import TypeHelper from '../../../components/shared/TypeHelper';
 
 interface Props {
@@ -51,16 +51,16 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
     }
   }
 
+  handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    this.props.onClick(this.props.issue.key);
+  };
+
   handleScroll = () => {
     const { selectedFlowIndex } = this.props;
     const { flows, secondaryLocations } = this.props.issue;
 
-    const locations =
-      selectedFlowIndex !== undefined
-        ? flows[selectedFlowIndex]
-        : flows.length > 0
-        ? flows[0]
-        : secondaryLocations;
+    const locations = flows.length > 0 ? flows[selectedFlowIndex || 0] : secondaryLocations;
 
     if (!locations || locations.length < 15) {
       // if there are no locations, or there are just few
@@ -70,11 +70,6 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
       // otherwise scroll until the the message element is located on top
       this.props.scroll(this.messageElement, window.innerHeight - 250);
     }
-  };
-
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClick(this.props.issue.key);
   };
 
   render() {
@@ -100,8 +95,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
           {issue.message}
         </div>
         <div className="concise-issue-box-attributes">
-          <TypeHelper type={issue.type} />
-          <SeverityHelper className="big-spacer-left" severity={issue.severity} />
+          <TypeHelper className="display-block little-spacer-right" type={issue.type} />
           <ConciseIssueLocations
             issue={issue}
             onFlowSelect={this.props.onFlowSelect}
@@ -109,13 +103,16 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
           />
         </div>
         {selected && (
-          <ConciseIssueLocationsNavigator
-            issue={issue}
-            onLocationSelect={this.props.onLocationSelect}
-            scroll={this.props.scroll}
-            selectedFlowIndex={this.props.selectedFlowIndex}
-            selectedLocationIndex={this.props.selectedLocationIndex}
-          />
+          <>
+            <ConciseIssueLocationsNavigator
+              issue={issue}
+              onLocationSelect={this.props.onLocationSelect}
+              scroll={this.props.scroll}
+              selectedFlowIndex={this.props.selectedFlowIndex}
+              selectedLocationIndex={this.props.selectedLocationIndex}
+            />
+            <LocationNavigationKeyboardShortcuts issue={issue} />
+          </>
         )}
       </div>
     );

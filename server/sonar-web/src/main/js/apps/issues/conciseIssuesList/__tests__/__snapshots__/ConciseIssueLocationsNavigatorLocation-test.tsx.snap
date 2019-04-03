@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="little-spacer-top"
+>
+  <a
+    className="concise-issue-locations-navigator-location"
+    href="#"
+    onClick={[Function]}
+  >
+    <LocationIndex
+      selected={true}
+    >
+      1
+    </LocationIndex>
+    <LocationMessage
+      selected={true}
+    />
+  </a>
+</div>
+`;
+
+exports[`should render vulnerabilities correctly 1`] = `
+<div
+  className="little-spacer-top"
+>
+  <a
+    className="concise-issue-locations-navigator-location"
+    href="#"
+    onClick={[Function]}
+  >
+    <LocationIndex
+      selected={true}
+    >
+      1
+    </LocationIndex>
+    <LocationMessage
+      selected={true}
+    >
+      source: 
+    </LocationMessage>
+  </a>
+</div>
+`;
+
+exports[`should render vulnerabilities correctly 2`] = `
+<div
+  className="little-spacer-top"
+>
+  <a
+    className="concise-issue-locations-navigator-location"
+    href="#"
+    onClick={[Function]}
+  >
+    <LocationIndex
+      selected={true}
+    >
+      2
+    </LocationIndex>
+    <LocationMessage
+      selected={true}
+    />
+  </a>
+</div>
+`;
+
+exports[`should render vulnerabilities correctly 3`] = `
+<div
+  className="little-spacer-top"
+>
+  <a
+    className="concise-issue-locations-navigator-location"
+    href="#"
+    onClick={[Function]}
+  >
+    <LocationIndex
+      selected={true}
+    >
+      4
+    </LocationIndex>
+    <LocationMessage
+      selected={true}
+    >
+      sink: 
+    </LocationMessage>
+  </a>
+</div>
+`;

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
+import { Button } from '../../../components/ui/buttons';
 
 interface Props {
   issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>;
@@ -30,21 +31,22 @@ interface State {
   collapsed: boolean;
 }
 
-const LIMIT = 3;
+const LIMIT = 8;
 
 export default class ConciseIssueLocations extends React.PureComponent<Props, State> {
   state: State = { collapsed: true };
 
-  handleExpandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  handleExpandClick = () => {
     this.setState({ collapsed: false });
   };
 
   renderExpandButton() {
     return (
-      <a className="little-spacer-left link-no-underline" href="#" onClick={this.handleExpandClick}>
+      <Button
+        className="concise-issue-expand location-index link-no-underline"
+        onClick={this.handleExpandClick}>
         ...
-      </a>
+      </Button>
     );
   }
 
@@ -74,13 +76,15 @@ export default class ConciseIssueLocations extends React.PureComponent<Props, St
       );
     });
 
-    return this.state.collapsed ? (
-      <div className="concise-issue-locations pull-right">
-        {badges.slice(0, LIMIT)}
-        {badges.length > LIMIT && this.renderExpandButton()}
-      </div>
-    ) : (
-      <div className="concise-issue-locations spacer-top">{badges}</div>
+    if (!this.state.collapsed || badges.length <= LIMIT) {
+      return badges;
+    }
+
+    return (
+      <>
+        {badges.slice(0, LIMIT - 1)}
+        {this.renderExpandButton()}
+      </>
     );
   }
 }

@@ -1036,29 +1036,6 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderShortcutsForLocations() {
-    const { openIssue } = this.state;
-    if (!openIssue || (!openIssue.secondaryLocations.length && !openIssue.flows.length)) {
-      return null;
-    }
-    const hasSeveralFlows = openIssue.flows.length > 1;
-    return (
-      <div className="pull-right note">
-        <span className="shortcut-button little-spacer-right">alt</span>
-        <span className="little-spacer-right">{'+'}</span>
-        <span className="shortcut-button little-spacer-right">↑</span>
-        <span className="shortcut-button little-spacer-right">↓</span>
-        {hasSeveralFlows && (
-          <span>
-            <span className="shortcut-button little-spacer-right">←</span>
-            <span className="shortcut-button little-spacer-right">→</span>
-          </span>
-        )}
-        {translate('issues.to_navigate_issue_locations')}
-      </div>
-    );
-  }
-
   renderPage() {
     const { checkAll, loading, openIssue, paging } = this.state;
     return (
@@ -1134,7 +1111,6 @@ export class App extends React.PureComponent<Props, State> {
                     selectedIndex={selectedIndex}
                   />
                 )}
-                {this.renderShortcutsForLocations()}
               </div>
             </div>
           </div>

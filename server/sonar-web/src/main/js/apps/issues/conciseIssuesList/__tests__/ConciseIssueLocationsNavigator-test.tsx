@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssueLocationsNavigator from '../ConciseIssueLocationsNavigator';
+import { mockIssue } from '../../../../helpers/testMocks';
 
 const location1: T.FlowLocation = {
   component: 'foo',
@@ -43,12 +44,12 @@ const location3: T.FlowLocation = {
 };
 
 it('should render secondary locations in the same file', () => {
-  const issue = {
+  const issue = mockIssue(false, {
     component: 'foo',
     key: '',
     flows: [],
     secondaryLocations: [location1, location2]
-  };
+  });
   expect(
     shallow(
       <ConciseIssueLocationsNavigator
@@ -63,12 +64,12 @@ it('should render secondary locations in the same file', () => {
 });
 
 it('should render flow locations in the same file', () => {
-  const issue = {
+  const issue = mockIssue(false, {
     component: 'foo',
     key: '',
     flows: [[location1, location2]],
     secondaryLocations: []
-  };
+  });
   expect(
     shallow(
       <ConciseIssueLocationsNavigator
@@ -83,12 +84,12 @@ it('should render flow locations in the same file', () => {
 });
 
 it('should render selected flow locations in the same file', () => {
-  const issue = {
+  const issue = mockIssue(false, {
     component: 'foo',
     key: '',
     flows: [[location1, location2]],
     secondaryLocations: [location1]
-  };
+  });
   expect(
     shallow(
       <ConciseIssueLocationsNavigator
@@ -103,12 +104,12 @@ it('should render selected flow locations in the same file', () => {
 });
 
 it('should render flow locations in different file', () => {
-  const issue = {
+  const issue = mockIssue(false, {
     component: 'foo',
     key: '',
     flows: [[location1, location3]],
     secondaryLocations: []
-  };
+  });
   expect(
     shallow(
       <ConciseIssueLocationsNavigator
@@ -123,7 +124,12 @@ it('should render flow locations in different file', () => {
 });
 
 it('should not render locations', () => {
-  const issue = { component: 'foo', key: '', flows: [], secondaryLocations: [] };
+  const issue = mockIssue(false, {
+    component: 'foo',
+    key: '',
+    flows: [],
+    secondaryLocations: []
+  });
   const wrapper = shallow(
     <ConciseIssueLocationsNavigator
       issue={issue}

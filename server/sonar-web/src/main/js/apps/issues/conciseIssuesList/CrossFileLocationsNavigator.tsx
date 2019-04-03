@@ -23,7 +23,7 @@ import { translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
 
 interface Props {
-  issue: Pick<T.Issue, 'key'>;
+  issue: Pick<T.Issue, 'key' | 'type'>;
   locations: T.FlowLocation[];
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
@@ -111,11 +111,13 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
     return (
       <ConciseIssueLocationsNavigatorLocation
         index={index}
+        issueType={this.props.issue.type}
         key={index}
         message={message}
         onClick={this.props.onLocationSelect}
         scroll={this.props.scroll}
         selected={index === this.props.selectedLocationIndex}
+        totalCount={this.props.locations.length}
       />
     );
   };

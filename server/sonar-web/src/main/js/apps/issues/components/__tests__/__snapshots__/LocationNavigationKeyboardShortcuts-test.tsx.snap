@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="navigation-keyboard-shortcuts big-spacer-top text-center"
+>
+  <span>
+    alt + ↑ ↓ 
+    issues.to_navigate_issue_locations
+  </span>
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="navigation-keyboard-shortcuts big-spacer-top text-center"
+>
+  <span>
+    alt + ↑ ↓ 
+    issues.to_navigate_issue_locations
+  </span>
+</div>
+`;

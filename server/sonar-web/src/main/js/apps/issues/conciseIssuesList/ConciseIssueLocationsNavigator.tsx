@@ -24,7 +24,7 @@ import CrossFileLocationsNavigator from './CrossFileLocationsNavigator';
 import { getLocations } from '../utils';
 
 interface Props {
-  issue: Pick<T.Issue, 'component' | 'key' | 'flows' | 'secondaryLocations'>;
+  issue: Pick<T.Issue, 'component' | 'key' | 'flows' | 'secondaryLocations' | 'type'>;
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
   selectedFlowIndex: number | undefined;
@@ -61,11 +61,13 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent<
           {locations.map((location, index) => (
             <ConciseIssueLocationsNavigatorLocation
               index={index}
+              issueType={this.props.issue.type}
               key={index}
               message={location.msg}
               onClick={this.props.onLocationSelect}
               scroll={this.props.scroll}
               selected={index === this.props.selectedLocationIndex}
+              totalCount={locations.length}
             />
           ))}
         </div>

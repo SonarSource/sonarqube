@@ -211,12 +211,7 @@ export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {
     type: 'BUG'
   };
 
-  function loc(): T.FlowLocation {
-    return {
-      component: 'main.js',
-      textRange: { startLine: 1, startOffset: 1, endLine: 2, endOffset: 2 }
-    };
-  }
+  const loc = mockFlowLocation;
 
   if (withLocations) {
     issue.flows = [[loc(), loc(), loc()], [loc(), loc()]];
@@ -514,6 +509,19 @@ export function mockLanguage(overrides: Partial<T.Language> = {}): T.Language {
   return {
     key: 'css',
     name: 'CSS',
+    ...overrides
+  };
+}
+
+export function mockFlowLocation(overrides: Partial<T.FlowLocation> = {}): T.FlowLocation {
+  return {
+    component: 'main.js',
+    textRange: {
+      startLine: 1,
+      startOffset: 1,
+      endLine: 2,
+      endOffset: 2
+    },
     ...overrides
   };
 }

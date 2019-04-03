@@ -46,7 +46,7 @@ const location3: T.FlowLocation = {
 it('should render', () => {
   const wrapper = shallow(
     <CrossFileLocationsNavigator
-      issue={{ key: 'abcd' }}
+      issue={{ key: 'abcd', type: 'BUG' }}
       locations={[location1, location2, location3]}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
@@ -63,7 +63,7 @@ it('should render', () => {
 it('should render all locations', () => {
   const wrapper = shallow(
     <CrossFileLocationsNavigator
-      issue={{ key: 'abcd' }}
+      issue={{ key: 'abcd', type: 'BUG' }}
       locations={[location1, location2]}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
@@ -76,7 +76,7 @@ it('should render all locations', () => {
 it('should expand all locations', () => {
   const wrapper = shallow(
     <CrossFileLocationsNavigator
-      issue={{ key: 'abcd' }}
+      issue={{ key: 'abcd', type: 'BUG' }}
       locations={[location1, location2, location3]}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
@@ -92,7 +92,7 @@ it('should expand all locations', () => {
 it('should collapse locations when issue changes', () => {
   const wrapper = shallow(
     <CrossFileLocationsNavigator
-      issue={{ key: 'abcd' }}
+      issue={{ key: 'abcd', type: 'BUG' }}
       locations={[location1, location2, location3]}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}

@@ -24,9 +24,17 @@ import {
   mockLoggedInUser,
   mockRouter,
   mockIssue,
-  mockLocation
+  mockLocation,
+  mockEvent
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import {
+  enableLocationsNavigator,
+  selectNextLocation,
+  selectPreviousLocation,
+  selectNextFlow,
+  selectPreviousFlow
+} from '../../actions';
 
 const ISSUES = [
   { key: 'foo' } as T.Issue,
@@ -179,6 +187,37 @@ it('should fetch issues until defined', async () => {
   const result = await instance.fetchIssuesUntil(1, mockDone);
   expect(result.issues).toHaveLength(6);
   expect(result.paging.pageIndex).toBe(3);
+});
+
+describe('keydown event handler', () => {
+  const wrapper = shallowRender();
+  const instance = wrapper.instance();
+  jest.spyOn(instance, 'setState');
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('should handle alt', () => {
+    instance.handleKeyDown(mockEvent({ keyCode: 18 }));
+    expect(instance.setState).toHaveBeenCalledWith(enableLocationsNavigator);
+  });
+  it('should handle alt+↓', () => {
+    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 40 }));
+    expect(instance.setState).toHaveBeenCalledWith(selectNextLocation);
+  });
+  it('should handle alt+↑', () => {
+    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 38 }));
+    expect(instance.setState).toHaveBeenCalledWith(selectPreviousLocation);
+  });
+  it('should handle alt+←', () => {
+    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 37 }));
+    expect(instance.setState).toHaveBeenCalledWith(selectPreviousFlow);
+  });
+  it('should handle alt+→', () => {
+    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 39 }));
+    expect(instance.setState).toHaveBeenCalledWith(selectNextFlow);
+  });
 });
 
 function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {

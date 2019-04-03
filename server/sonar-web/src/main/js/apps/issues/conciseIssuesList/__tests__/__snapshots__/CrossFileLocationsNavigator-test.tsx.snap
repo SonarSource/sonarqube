@@ -21,11 +21,13 @@ exports[`should render 1`] = `
     >
       <ConciseIssueLocationsNavigatorLocation
         index={0}
+        issueType="BUG"
         key="0"
         message="Do not use foo"
         onClick={[MockFunction]}
         scroll={[MockFunction]}
         selected={false}
+        totalCount={3}
       />
     </div>
   </div>
@@ -64,11 +66,13 @@ exports[`should render 1`] = `
     >
       <ConciseIssueLocationsNavigatorLocation
         index={2}
+        issueType="BUG"
         key="2"
         message="Do not use bar"
         onClick={[MockFunction]}
         scroll={[MockFunction]}
         selected={false}
+        totalCount={3}
       />
     </div>
   </div>

@@ -37,6 +37,8 @@ module.exports = {
   lineCoverageRed: '#a4030f',
   purple: '#9139d4',
 
+  conciseIssueRed: '#d18582',
+
   gray94: '#efefef',
   gray80: '#cdcdcd',
   gray71: '#b4b4b4',
@@ -45,6 +47,7 @@ module.exports = {
   gray40: '#404040',
 
   transparentWhite: 'rgba(255,255,255,0.62)',
+  transparentGray: 'rgba(200, 200, 200, 0.5)',
 
   disableGrayText: '#bbb',
   disableGrayBorder: '#ddd',
