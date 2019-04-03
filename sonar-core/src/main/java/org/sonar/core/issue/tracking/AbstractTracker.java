@@ -56,17 +56,6 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     });
   }
 
-  private int statusRank(BASE i) {
-    switch (i.getStatus()) {
-      case Issue.STATUS_RESOLVED:
-        return 2;
-      case Issue.STATUS_CONFIRMED:
-        return 1;
-      default:
-        return 0;
-    }
-  }
-
   protected interface SearchKey {
   }
 

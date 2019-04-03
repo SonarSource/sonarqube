@@ -62,7 +62,7 @@ public class BranchPersisterImplTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder);
+  private BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), treeRootHolder, analysisMetadataHolder);
 
   @Test
   public void persist_fails_with_ISE_if_no_component_for_main_branches() {

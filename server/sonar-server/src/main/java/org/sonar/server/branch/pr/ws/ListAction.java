@@ -108,6 +108,7 @@ public class ListAction implements PullRequestWsAction {
       Map<String, BranchDto> mergeBranchesByUuid = dbClient.branchDao()
         .selectByUuids(dbSession, pullRequests.stream().map(BranchDto::getMergeBranchUuid).filter(Objects::nonNull).collect(toList()))
         .stream().collect(uniqueIndex(BranchDto::getUuid));
+
       Map<String, BranchStatistics> branchStatisticsByBranchUuid = issueIndex.searchBranchStatistics(project.uuid(), pullRequestUuids).stream()
         .collect(uniqueIndex(BranchStatistics::getBranchUuid, Function.identity()));
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
