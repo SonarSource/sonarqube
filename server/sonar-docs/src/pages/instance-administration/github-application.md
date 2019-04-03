@@ -27,10 +27,8 @@ From the "Register new GitHub App" page, follow these steps to create your GitHu
 
 After creating your app, you'll be prompted with a link to "generate a private key" at the top of the page. Click the link to download your .pem private key file. You can also download your .pem file by scrolling down to "Private Key" and clicking **Generate Private Key**.
 
-After downloading your .pem file, you'll need to set your private key at a global level in SonarQube by following these steps:
-
-1. Generate a base64 encoded string with your .pem private key file using `base64 -w0 /path/to/key.pem` on Linux or `base64 -i /path/to/key.pem` on MacOS.
-2. Copy and paste the base64-encoded content of your private key file into the text box at [**Administration > Pull Requests > GitHub > GitHub App private key**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
+After downloading your .pem file, you'll need to set your private key at a global level in SonarQube.
+Simply copy and paste the content of your private key file into the text box at [**Administration > Pull Requests > GitHub > GitHub App private key**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
 
 ### Configuring Your SonarQube Instance
 
