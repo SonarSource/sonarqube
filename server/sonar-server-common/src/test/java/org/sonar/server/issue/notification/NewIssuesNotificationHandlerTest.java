@@ -66,10 +66,10 @@ public class NewIssuesNotificationHandlerTest {
   }
 
   @Test
-  public void myNewIssues_notification_is_enable_at_global_level() {
+  public void myNewIssues_notification_is_disabled_at_global_level() {
     NotificationDispatcherMetadata metadata = NewIssuesNotificationHandler.newMetadata();
 
-    assertThat(metadata.getProperty(GLOBAL_NOTIFICATION)).isEqualTo("true");
+    assertThat(metadata.getProperty(GLOBAL_NOTIFICATION)).isEqualTo("false");
   }
 
   @Test

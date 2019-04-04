@@ -39,7 +39,7 @@ public class NewIssuesNotificationHandler extends EmailNotificationHandler<NewIs
 
   public static final String KEY = "NewIssues";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
-    .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+    .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(false))
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
   private final NotificationManager notificationManager;

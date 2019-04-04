@@ -70,10 +70,10 @@ public class DoNotFixNotificationHandlerTest {
   }
 
   @Test
-  public void changeOnMyIssues_notification_is_enable_at_global_level() {
+  public void changeOnMyIssues_notification_is_disabled_at_global_level() {
     NotificationDispatcherMetadata metadata = DoNotFixNotificationHandler.newMetadata();
 
-    assertThat(metadata.getProperty(GLOBAL_NOTIFICATION)).isEqualTo("true");
+    assertThat(metadata.getProperty(GLOBAL_NOTIFICATION)).isEqualTo("false");
   }
 
   @Test
