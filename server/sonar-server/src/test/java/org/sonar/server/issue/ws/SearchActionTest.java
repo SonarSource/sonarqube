@@ -82,6 +82,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -90,6 +91,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
+import static org.sonarqube.ws.Common.RuleType.BUG;
+import static org.sonarqube.ws.Common.RuleType.SECURITY_HOTSPOT;
+import static org.sonarqube.ws.Common.RuleType.VULNERABILITY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -148,6 +152,7 @@ public class SearchActionTest {
       .setStatus(STATUS_RESOLVED)
       .setResolution(RESOLUTION_FIXED)
       .setSeverity("MAJOR")
+      .setType(CODE_SMELL)
       .setAuthorLogin("John")
       .setAssigneeUuid(simon.getUuid())
       .setTags(asList("bug", "owasp"))
@@ -333,7 +338,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule().getDefinition();
-    db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(simon.getUuid()));
+    db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(simon.getUuid()).setType(CODE_SMELL));
     indexIssues();
     userSession.logIn("john");
 
@@ -355,7 +360,8 @@ public class SearchActionTest {
     IssueDto issue = newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin(fabrice.getLogin())
-      .setAssigneeUuid(simon.getUuid());
+      .setAssigneeUuid(simon.getUuid())
+      .setType(CODE_SMELL);
     dbClient.issueDao().insert(session, issue);
     session.commit();
     indexIssues();
@@ -677,13 +683,13 @@ public class SearchActionTest {
   }
 
   @Test
-  public void security_hotspot_type_excluded_by_default() {
+  public void security_hotspots_are_returned_by_default() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG));
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY));
-    db.issues().insert(rule, project, file, i -> i.setType(RuleType.CODE_SMELL));
+    db.issues().insert(rule, project, file, i -> i.setType(CODE_SMELL));
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
     indexPermissions();
     indexIssues();
@@ -692,7 +698,7 @@ public class SearchActionTest {
 
     assertThat(result.getIssuesList())
       .extracting(Issue::getType)
-      .containsExactlyInAnyOrder(Common.RuleType.BUG, Common.RuleType.VULNERABILITY, Common.RuleType.CODE_SMELL);
+      .containsExactlyInAnyOrder(BUG, VULNERABILITY, Common.RuleType.CODE_SMELL, SECURITY_HOTSPOT);
   }
 
   @Test
@@ -702,7 +708,7 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newRule().getDefinition();
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG));
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY));
-    db.issues().insert(rule, project, file, i -> i.setType(RuleType.CODE_SMELL));
+    db.issues().insert(rule, project, file, i -> i.setType(CODE_SMELL));
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
     indexPermissions();
     indexIssues();
@@ -711,13 +717,13 @@ public class SearchActionTest {
       .setParam("types", RuleType.SECURITY_HOTSPOT.toString())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getType)
-        .containsExactlyInAnyOrder(Common.RuleType.SECURITY_HOTSPOT);
+        .containsExactlyInAnyOrder(SECURITY_HOTSPOT);
 
     assertThat(ws.newRequest()
       .setParam("types", String.format("%s,%s", RuleType.BUG, RuleType.SECURITY_HOTSPOT))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getType)
-        .containsExactlyInAnyOrder(Common.RuleType.BUG, Common.RuleType.SECURITY_HOTSPOT);
+        .containsExactlyInAnyOrder(BUG, SECURITY_HOTSPOT);
   }
 
   @Test
@@ -727,7 +733,7 @@ public class SearchActionTest {
     RuleDefinitionDto rule = db.rules().insert();
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG).setSeverity(Severity.MAJOR.name()));
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setSeverity(Severity.MAJOR.name()));
-    db.issues().insert(rule, project, file, i -> i.setType(RuleType.CODE_SMELL).setSeverity(Severity.MAJOR.name()));
+    db.issues().insert(rule, project, file, i -> i.setType(CODE_SMELL).setSeverity(Severity.MAJOR.name()));
     db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.MAJOR.name()));
     indexPermissions();
     indexIssues();
@@ -739,7 +745,7 @@ public class SearchActionTest {
 
     assertThat(result.getIssuesList())
       .extracting(Issue::getType)
-      .containsExactlyInAnyOrder(Common.RuleType.BUG, Common.RuleType.VULNERABILITY, Common.RuleType.CODE_SMELL);
+      .containsExactlyInAnyOrder(BUG, VULNERABILITY, Common.RuleType.CODE_SMELL);
     assertThat(result.getFacets().getFacets(0).getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactlyInAnyOrder(tuple("MAJOR", 3L), tuple("INFO", 0L), tuple("MINOR", 0L), tuple("CRITICAL", 0L), tuple("BLOCKER", 0L));
@@ -762,8 +768,8 @@ public class SearchActionTest {
     assertThat(result.getIssuesList())
       .extracting(Issue::getType, Issue::hasSeverity)
       .containsExactlyInAnyOrder(
-        tuple(Common.RuleType.BUG, true),
-        tuple(Common.RuleType.SECURITY_HOTSPOT, false));
+        tuple(BUG, true),
+        tuple(SECURITY_HOTSPOT, false));
   }
 
   @Test

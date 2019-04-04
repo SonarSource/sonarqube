@@ -66,6 +66,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -116,7 +117,7 @@ public class DoTransitionActionTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn(db.users().insertUser()).addProjectPermission(USER, project, file);
 
     call(issue.getKey(), "confirm");
@@ -133,7 +134,7 @@ public class DoTransitionActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
-    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(USER, project, file);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -163,7 +164,7 @@ public class DoTransitionActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(USER, project, file);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -175,7 +176,7 @@ public class DoTransitionActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     expectedException.expect(ForbiddenException.class);
@@ -188,7 +189,7 @@ public class DoTransitionActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(USER, project, file);
 
     // False-positive transition is requiring issue admin permission

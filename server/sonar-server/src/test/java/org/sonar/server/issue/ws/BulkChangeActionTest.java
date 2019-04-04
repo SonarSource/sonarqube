@@ -86,6 +86,7 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -147,12 +148,12 @@ public class BulkChangeActionTest {
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issue.getKey()))
-      .setSetType(RuleType.CODE_SMELL.name())
+      .setSetType(CODE_SMELL.name())
       .build());
 
     checkResponse(response, 1, 1, 0, 0);
     IssueDto reloaded = getIssueByKeys(issue.getKey()).get(0);
-    assertThat(reloaded.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
+    assertThat(reloaded.getType()).isEqualTo(CODE_SMELL.getDbConstant());
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
     verifyPostProcessorCalled(file);
@@ -166,7 +167,7 @@ public class BulkChangeActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setSeverity(MAJOR)
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -270,11 +271,11 @@ public class BulkChangeActionTest {
     UserDto userToAssign = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), userToAssign);
     IssueDto issue1 = db.issues().insert(rule, project, file,
-      i -> i.setAssigneeUuid(oldAssignee.getUuid())).setType(BUG).setSeverity(MINOR).setStatus(STATUS_OPEN).setResolution(null);
+      i -> i.setAssigneeUuid(oldAssignee.getUuid()).setType(BUG).setSeverity(MINOR).setStatus(STATUS_OPEN).setResolution(null));
     IssueDto issue2 = db.issues().insert(rule, project, file,
-      i -> i.setAssigneeUuid(userToAssign.getUuid())).setType(BUG).setSeverity(MAJOR).setStatus(STATUS_OPEN).setResolution(null);
+      i -> i.setAssigneeUuid(userToAssign.getUuid()).setType(CODE_SMELL).setSeverity(MAJOR).setStatus(STATUS_OPEN).setResolution(null));
     IssueDto issue3 = db.issues().insert(rule, project, file,
-      i -> i.setAssigneeUuid(null)).setType(VULNERABILITY).setSeverity(MAJOR).setStatus(STATUS_OPEN).setResolution(null);
+      i -> i.setAssigneeUuid(null).setType(VULNERABILITY).setSeverity(MAJOR).setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -559,9 +560,9 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
-    IssueDto externalIssue = db.issues().insert(externalRule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue.getKey(), externalIssue.getKey()))
@@ -645,12 +646,12 @@ public class BulkChangeActionTest {
     addUserProjectPermissions(user, project2, USER);
     RuleDefinitionDto rule = db.rules().insert();
     IssueDto authorizedIssue1 = db.issues().insert(rule, project1, project1, i -> i.setSeverity(MAJOR)
-      .setStatus(STATUS_OPEN).setResolution(null));
+      .setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     // User has not issue admin permission on these 2 issues
     IssueDto notAuthorizedIssue1 = db.issues().insert(rule, project2, project2, i -> i.setSeverity(MAJOR)
-      .setStatus(STATUS_OPEN).setResolution(null));
+      .setStatus(STATUS_OPEN).setResolution(null).setType(BUG));
     IssueDto notAuthorizedIssue2 = db.issues().insert(rule, project2, project2, i -> i.setSeverity(MAJOR)
-      .setStatus(STATUS_OPEN).setResolution(null));
+      .setStatus(STATUS_OPEN).setResolution(null).setType(VULNERABILITY));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(authorizedIssue1.getKey(), notAuthorizedIssue1.getKey(), notAuthorizedIssue2.getKey()))

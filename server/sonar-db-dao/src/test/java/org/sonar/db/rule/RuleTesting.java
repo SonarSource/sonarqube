@@ -72,8 +72,7 @@ public class RuleTesting {
       .setName("name_" + randomAlphanumeric(5))
       .setDescription("description_" + randomAlphanumeric(5))
       .setDescriptionFormat(Format.HTML)
-      // exclude security hotspots
-      .setType(RuleType.values()[nextInt(RuleType.values().length - 1)])
+      .setType(RuleType.values()[nextInt(RuleType.values().length)])
       .setStatus(RuleStatus.READY)
       .setConfigKey("configKey_" + randomAlphanumeric(5))
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))

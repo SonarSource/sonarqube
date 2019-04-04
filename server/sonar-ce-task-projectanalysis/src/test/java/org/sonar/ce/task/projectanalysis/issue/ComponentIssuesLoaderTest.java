@@ -38,7 +38,6 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -57,6 +56,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 
@@ -66,24 +66,24 @@ public class ComponentIssuesLoaderTest {
   private static final Date DATE_LIMIT_30_DAYS_BACK_MIDNIGHT = parseDateTime("2018-07-18T00:00:00+0000");
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
   private System2 system2 = mock(System2.class);
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_by_issue_based_on_first_row() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
-    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 3), 20));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
+    IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+    db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
+    db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 3), 20));
+    db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
     when(system2.now()).thenReturn(NOW.getTime());
 
     ComponentIssuesLoader underTest = newComponentIssuesLoader(newEmptySettings());
@@ -95,15 +95,15 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_with_null_line_if_first_row_has_no_line_diff() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
-    IssueDto issue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 2), null));
-    dbTester.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
+    IssueDto issue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+    db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(issueDate, 10));
+    db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 2), null));
+    db.issues().insertFieldDiffs(issue, newToClosedDiffsWithLine(addDays(issueDate, 1), 30));
     when(system2.now()).thenReturn(NOW.getTime());
 
     ComponentIssuesLoader underTest = newComponentIssuesLoader(newEmptySettings());
@@ -115,15 +115,15 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadClosedIssues_returns_only_closed_issues_with_close_date() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date issueDate = addDays(NOW, -10);
-    IssueDto closedIssue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
-    dbTester.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
-    IssueDto issueNoCloseDate = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
-    dbTester.issues().insertFieldDiffs(issueNoCloseDate, newToClosedDiffsWithLine(issueDate, 10));
+    IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+    db.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
+    IssueDto issueNoCloseDate = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIsFromHotspot(false));
+    db.issues().insertFieldDiffs(issueNoCloseDate, newToClosedDiffsWithLine(issueDate, 10));
     when(system2.now()).thenReturn(NOW.getTime());
 
     ComponentIssuesLoader underTest = newComponentIssuesLoader(newEmptySettings());
@@ -184,10 +184,10 @@ public class ComponentIssuesLoaderTest {
   }
 
   private void loadClosedIssues_returns_only_closed_issues_with_close_date_is_from_30_days_ago(ComponentIssuesLoader underTest) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(RuleType.CODE_SMELL));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
     Date[] issueDates = new Date[] {
       addDays(NOW, -10),
       addDays(NOW, -31),
@@ -198,8 +198,8 @@ public class ComponentIssuesLoaderTest {
     };
     IssueDto[] issues = Arrays.stream(issueDates)
       .map(issueDate -> {
-        IssueDto closedIssue = dbTester.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setIsFromHotspot(false));
-        dbTester.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
+        IssueDto closedIssue = db.issues().insert(rule, project, file, t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIsFromHotspot(false));
+        db.issues().insertFieldDiffs(closedIssue, newToClosedDiffsWithLine(issueDate, 10));
         return closedIssue;
       })
       .toArray(IssueDto[]::new);
@@ -240,13 +240,13 @@ public class ComponentIssuesLoaderTest {
   @Test
   @UseDataProvider("statusOrResolutionFieldName")
   public void loadLatestDiffChangesForReopeningOfClosedIssues_add_diff_change_with_most_recent_status_or_resolution(String statusOrResolutionFieldName) {
-    ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    IssueDto issue = dbTester.issues().insert(rule, project, file);
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val1")).setIssueChangeCreationDate(5));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val2")).setIssueChangeCreationDate(20));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val3")).setIssueChangeCreationDate(13));
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file);
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val1")).setIssueChangeCreationDate(5));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val2")).setIssueChangeCreationDate(20));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val3")).setIssueChangeCreationDate(13));
     ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
       null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
     DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
@@ -263,14 +263,14 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadLatestDiffChangesForReopeningOfClosedIssues_add_single_diff_change_when_most_recent_status_and_resolution_is_the_same_diff() {
-    ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    IssueDto issue = dbTester.issues().insert(rule, project, file);
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2")).setIssueChangeCreationDate(19));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3", "resolution", "valRes3")).setIssueChangeCreationDate(20));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file);
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2")).setIssueChangeCreationDate(19));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3", "resolution", "valRes3")).setIssueChangeCreationDate(20));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
     ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
       null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
     DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
@@ -291,14 +291,14 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadLatestDiffChangesForReopeningOfClosedIssues_adds_2_diff_changes_if_most_recent_status_and_resolution_are_not_the_same_diff() {
-    ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    IssueDto issue = dbTester.issues().insert(rule, project, file);
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2", "resolution", "valRes2")).setIssueChangeCreationDate(19));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3")).setIssueChangeCreationDate(20));
-    dbTester.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file);
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2", "resolution", "valRes2")).setIssueChangeCreationDate(19));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3")).setIssueChangeCreationDate(20));
+    db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
     ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
       null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
     DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());

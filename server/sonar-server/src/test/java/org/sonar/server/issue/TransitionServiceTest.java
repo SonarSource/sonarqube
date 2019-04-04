@@ -39,6 +39,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -66,7 +67,7 @@ public class TransitionServiceTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
@@ -79,7 +80,7 @@ public class TransitionServiceTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
-    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
     List<Transition> result = underTest.listTransitions(externalIssue.toDefaultIssue());
@@ -92,7 +93,7 @@ public class TransitionServiceTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn();
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
@@ -105,7 +106,7 @@ public class TransitionServiceTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -117,7 +118,7 @@ public class TransitionServiceTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     DefaultIssue defaultIssue = issue.toDefaultIssue();
     boolean result = underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
@@ -131,7 +132,7 @@ public class TransitionServiceTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
-    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
+    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
 
     expectedException.expect(IllegalArgumentException.class);

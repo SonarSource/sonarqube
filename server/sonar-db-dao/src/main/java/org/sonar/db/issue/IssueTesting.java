@@ -52,8 +52,7 @@ public class IssueTesting {
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))
       .setRule(rule)
-      // exclude security hotspots
-      .setType(RuleType.values()[nextInt(RuleType.values().length - 1)])
+      .setType(RuleType.values()[nextInt(RuleType.values().length)])
       .setProject(project)
       .setComponent(file)
       .setStatus(Issue.STATUS_OPEN)

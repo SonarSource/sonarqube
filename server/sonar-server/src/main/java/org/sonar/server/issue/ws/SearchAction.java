@@ -186,6 +186,7 @@ public class SearchAction implements IssuesWsAction, Startable {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS)
       .setSince("3.6")
       .setChangelog(
+        new Change("7.8", "Security hotspots are returned by default"),
         new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT_KEYS)),
         new Change("7.4", "The facet 'projectUuids' is dropped in favour of the new facet 'projects'. " +
@@ -244,7 +245,6 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
       .setPossibleValues((Object[]) RuleType.values())
-      .setDefaultValue(format("%s,%s,%s", RuleType.BUG, RuleType.VULNERABILITY, RuleType.CODE_SMELL))
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_TOP_10)
       .setDescription("Comma-separated list of OWASP Top 10 lowercase categories. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any OWASP Top 10 category.")
