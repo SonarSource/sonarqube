@@ -721,6 +721,52 @@ public class SearchActionTest {
   }
 
   @Test
+  public void security_hotspot_are_ignored_when_filtering_by_severities() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG).setSeverity(Severity.MAJOR.name()));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setSeverity(Severity.MAJOR.name()));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.CODE_SMELL).setSeverity(Severity.MAJOR.name()));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.MAJOR.name()));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("severities", Severity.MAJOR.name())
+      .setParam(FACETS, "severities")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getType)
+      .containsExactlyInAnyOrder(Common.RuleType.BUG, Common.RuleType.VULNERABILITY, Common.RuleType.CODE_SMELL);
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(tuple("MAJOR", 3L), tuple("INFO", 0L), tuple("MINOR", 0L), tuple("CRITICAL", 0L), tuple("BLOCKER", 0L));
+  }
+
+  @Test
+  public void do_not_return_severity_on_security_hotspots() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.BUG).setSeverity(Severity.MAJOR.name()));
+    db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.MAJOR.name()));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("types", String.format("%s,%s", RuleType.BUG, RuleType.SECURITY_HOTSPOT))
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getType, Issue::hasSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(Common.RuleType.BUG, true),
+        tuple(Common.RuleType.SECURITY_HOTSPOT, false));
+  }
+
+  @Test
   public void return_total_effort() {
     UserDto john = db.users().insertUser();
     userSession.logIn(john);

@@ -53,11 +53,11 @@ import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuil
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
@@ -95,6 +95,8 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
@@ -356,18 +358,27 @@ public class IssueIndex {
     filters.put(FIELD_ISSUE_RULE_ID, createTermsFilter(
       FIELD_ISSUE_RULE_ID,
       query.rules().stream().map(RuleDefinitionDto::getId).collect(Collectors.toList())));
-    filters.put(FIELD_ISSUE_SEVERITY, createTermsFilter(FIELD_ISSUE_SEVERITY, query.severities()));
     filters.put(FIELD_ISSUE_STATUS, createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
     filters.put(FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
     filters.put(FIELD_ISSUE_OWASP_TOP_10, createTermsFilter(FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10()));
     filters.put(FIELD_ISSUE_SANS_TOP_25, createTermsFilter(FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
     filters.put(FIELD_ISSUE_CWE, createTermsFilter(FIELD_ISSUE_CWE, query.cwe()));
+    addSeverityFilter(query, filters);
 
     addComponentRelatedFilters(query, filters);
-
     addDatesFilter(filters, query);
     addCreatedAfterByProjectsFilter(filters, query);
     return filters;
+  }
+
+  private static void addSeverityFilter(IssueQuery query, Map<String, QueryBuilder> filters) {
+    QueryBuilder severityFieldFilter = createTermsFilter(FIELD_ISSUE_SEVERITY, query.severities());
+    if (severityFieldFilter != null) {
+      filters.put(FIELD_ISSUE_SEVERITY, boolQuery()
+        .must(severityFieldFilter)
+        // Ignore severity of Security HotSpots
+        .mustNot(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name())));
+    }
   }
 
   private static void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
@@ -452,6 +463,19 @@ public class IssueIndex {
     return FACET_MODE_EFFORT.equals(query.facetMode());
   }
 
+  private static AggregationBuilder createSeverityFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
+    String fieldName = SEVERITIES.getFieldName();
+    String facetName = SEVERITIES.getName();
+    StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, filters, queryBuilder);
+    BoolQueryBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(fieldName)
+      // Ignore severity of Security HotSpots
+      .mustNot(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()));
+    FilterAggregationBuilder facetTopAggregation = stickyFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, SEVERITIES.getSize());
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(facetTopAggregation);
+  }
+
   private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
     String fieldName = ASSIGNEES.getFieldName();
     String facetName = ASSIGNEES.getName();
@@ -460,11 +484,11 @@ public class IssueIndex {
     Map<String, QueryBuilder> assigneeFilters = Maps.newHashMap(filters);
     assigneeFilters.remove(IS_ASSIGNED_FILTER);
     assigneeFilters.remove(fieldName);
-    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
-    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, ASSIGNEES.getSize());
+    StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
+    BoolQueryBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(fieldName);
+    FilterAggregationBuilder facetTopAggregation = stickyFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, ASSIGNEES.getSize());
     if (!query.assignees().isEmpty()) {
-      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t, query.assignees().toArray());
+      facetTopAggregation = stickyFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t, query.assignees().toArray());
     }
 
     // Add missing facet for unassigned issues
@@ -486,10 +510,10 @@ public class IssueIndex {
     Map<String, QueryBuilder> resolutionFilters = Maps.newHashMap(filters);
     resolutionFilters.remove("__isResolved");
     resolutionFilters.remove(fieldName);
-    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
-    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, RESOLUTIONS.getSize());
-    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t);
+    StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
+    BoolQueryBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(fieldName);
+    FilterAggregationBuilder facetTopAggregation = stickyFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, RESOLUTIONS.getSize());
+    facetTopAggregation = stickyFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t);
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
@@ -570,7 +594,6 @@ public class IssueIndex {
   private void configureStickyFacets(IssueQuery query, SearchOptions options, Map<String, QueryBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (!options.getFacets().isEmpty()) {
       StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, filters, esQuery);
-      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, SEVERITIES);
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, STATUSES);
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, PROJECT_UUIDS, query.projectUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, MODULE_UUIDS, query.moduleUuids().toArray());
@@ -585,6 +608,9 @@ public class IssueIndex {
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, OWASP_TOP_10, query.owaspTop10().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, SANS_TOP_25, query.sansTop25().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, CWE, query.cwe().toArray());
+      if (options.getFacets().contains(PARAM_SEVERITIES)) {
+        esSearch.addAggregation(createSeverityFacet(query, filters, esQuery));
+      }
       if (options.getFacets().contains(PARAM_RESOLUTIONS)) {
         esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
       }
@@ -756,7 +782,7 @@ public class IssueIndex {
         boolQuery()
           .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION))
           .filter(termQuery(FIELD_ISSUE_ASSIGNEE_UUID, assigneeUuid))
-          .mustNot(termQuery(FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name())))
+          .mustNot(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name())))
       .setSize(0);
     IntStream.range(0, projectUuids.size()).forEach(i -> {
       String projectUuid = projectUuids.get(i);
@@ -890,25 +916,25 @@ public class IssueIndex {
     return categoryAggs
       .subAggregation(
         AggregationBuilders.filter("vulnerabilities", boolQuery()
-          .filter(termQuery(FIELD_ISSUE_TYPE, RuleType.VULNERABILITY.name()))
+          .filter(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name()))
           .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)))
           .subAggregation(
             AggregationBuilders.terms("severity").field(FIELD_ISSUE_SEVERITY)
               .subAggregation(
                 AggregationBuilders.count(COUNT).field(FIELD_ISSUE_KEY))))
       .subAggregation(AggregationBuilders.filter("openSecurityHotspots", boolQuery()
-        .filter(termQuery(FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
+        .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
         .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)))
         .subAggregation(
           AggregationBuilders.count(COUNT).field(FIELD_ISSUE_KEY)))
       .subAggregation(AggregationBuilders.filter("toReviewSecurityHotspots", boolQuery()
-        .filter(termQuery(FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
+        .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
         .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
         .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED)))
         .subAggregation(
           AggregationBuilders.count(COUNT).field(FIELD_ISSUE_KEY)))
       .subAggregation(AggregationBuilders.filter("wontFixSecurityHotspots", boolQuery()
-        .filter(termQuery(FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name()))
+        .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
         .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
         .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_WONT_FIX)))
         .subAggregation(
@@ -931,7 +957,7 @@ public class IssueIndex {
     return client.prepareSearch(TYPE_ISSUE.getMainType())
       .setQuery(
         componentFilter
-          .filter(termsQuery(FIELD_ISSUE_TYPE, RuleType.SECURITY_HOTSPOT.name(), RuleType.VULNERABILITY.name()))
+          .filter(termsQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name(), VULNERABILITY.name()))
           .mustNot(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED)))
       .setSize(0);
   }

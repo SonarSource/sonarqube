@@ -29,6 +29,7 @@ import java.util.Set;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
@@ -162,7 +163,7 @@ public class SearchResponseFormat {
 
   private void formatIssue(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
-    ofNullable(dto.getType()).map(Common.RuleType::forNumber).ifPresent(issueBuilder::setType);
+    issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
@@ -182,7 +183,9 @@ public class SearchResponseFormat {
       issueBuilder.setExternalRuleEngine(engineNameFrom(dto.getRuleKey()));
     }
     issueBuilder.setFromHotspot(dto.isFromHotspot());
-    issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
+    if (dto.getType() != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
+      issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
+    }
     ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());

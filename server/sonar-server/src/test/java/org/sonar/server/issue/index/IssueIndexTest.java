@@ -48,7 +48,6 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.ImmutableSortedSet.of;
 import static java.util.Arrays.asList;
@@ -86,7 +85,6 @@ public class IssueIndexTest {
   public DbTester db = DbTester.create(system2);
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
-  private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
 

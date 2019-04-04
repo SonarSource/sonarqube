@@ -23,10 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.assertj.core.api.Fail;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +38,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -56,7 +53,6 @@ import static java.util.Collections.singletonList;
 import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -472,19 +468,6 @@ public class IssueIndexFiltersTest {
   }
 
   @Test
-  public void facets_on_severities() {
-    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto file = newFileDto(project, null);
-
-    indexIssues(
-      newDoc("I1", file).setSeverity(Severity.INFO),
-      newDoc("I2", file).setSeverity(Severity.INFO),
-      newDoc("I3", file).setSeverity(Severity.MAJOR));
-
-    assertThatFacetHasOnly(IssueQuery.builder(), "severities", entry("INFO", 2L), entry("MAJOR", 1L));
-  }
-
-  @Test
   public void filter_by_statuses() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
@@ -788,13 +771,5 @@ public class IssueIndexFiltersTest {
   private void assertThatSearchReturnsEmpty(IssueQuery.Builder query) {
     List<String> keys = searchAndReturnKeys(query);
     assertThat(keys).isEmpty();
-  }
-
-  @SafeVarargs
-  private final void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
-    Facets facets = new Facets(result, system2.getDefaultTimeZone());
-    assertThat(facets.getNames()).containsOnly(facet, "effort");
-    assertThat(facets.get(facet)).containsOnly(expectedEntries);
   }
 }
