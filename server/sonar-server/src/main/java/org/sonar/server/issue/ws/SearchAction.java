@@ -85,6 +85,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_COUNT;
@@ -95,7 +96,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_ROOTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_ROOT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
@@ -113,6 +117,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_1
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REPORTERS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLVED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
@@ -135,8 +140,10 @@ public class SearchAction implements IssuesWsAction, Startable {
     PARAM_SEVERITIES,
     PARAM_STATUSES,
     PARAM_RESOLUTIONS,
+    DEPRECATED_PARAM_ACTION_PLANS,
     PARAM_RULES,
     PARAM_ASSIGNEES,
+    PARAM_REPORTERS,
     DEPRECATED_PARAM_AUTHORS,
     PARAM_AUTHOR,
     PARAM_DIRECTORIES,
@@ -181,9 +188,9 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setHandler(this)
       .setDescription(
         "Search for issues.<br>" +
-          "At most one of the following parameters can be provided at the same time: %s and %s.<br>" +
+          "At most one of the following parameters can be provided at the same time: %s, %s, %s, %s, %s.<br>" +
           "Requires the 'Browse' permission on the specified project(s).",
-        PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS)
+        PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
       .setChangelog(
         new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
@@ -300,7 +307,9 @@ public class SearchAction implements IssuesWsAction, Startable {
   private static void addComponentRelatedParams(WebService.NewAction action) {
     action.createParam(PARAM_ON_COMPONENT_ONLY)
       .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
-        "This parameter is only considered when componentKeys or componentUuids is set.")
+        "This parameter is only considered when componentKeys or componentUuids is set. " +
+        "Using the deprecated componentRoots or componentRootUuids parameters will set this parameter to false. " +
+        "Using the deprecated components parameter will set this parameter to true.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
 
@@ -309,12 +318,24 @@ public class SearchAction implements IssuesWsAction, Startable {
         "A component can be a portfolio, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
+    action.createParam(PARAM_COMPONENTS)
+      .setDeprecatedSince("5.1")
+      .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
+
     action.createParam(PARAM_COMPONENT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "A component can be a project, module, directory or file.")
       .setDeprecatedSince("6.5")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+
+    action.createParam(PARAM_COMPONENT_ROOTS)
+      .setDeprecatedSince("5.1")
+      .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
+
+    action.createParam(PARAM_COMPONENT_ROOT_UUIDS)
+      .setDeprecatedSince("5.1")
+      .setDescription("If used, will have the same meaning as componentUuids AND onComponentOnly=false.");
 
     action.createParam(PARAM_PROJECTS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
@@ -511,7 +532,10 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
       .setAuthors(request.hasParam(PARAM_AUTHOR) ? request.multiParam(PARAM_AUTHOR) : request.paramAsStrings(DEPRECATED_PARAM_AUTHORS))
       .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
+      .setComponentRootUuids(request.paramAsStrings(PARAM_COMPONENT_ROOT_UUIDS))
+      .setComponentRoots(request.paramAsStrings(PARAM_COMPONENT_ROOTS))
       .setComponentUuids(request.paramAsStrings(PARAM_COMPONENT_UUIDS))
+      .setComponents(request.paramAsStrings(PARAM_COMPONENTS))
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
       .setCreatedAt(request.param(PARAM_CREATED_AT))
       .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))

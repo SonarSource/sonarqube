@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -378,14 +377,6 @@ public class CreateActionTest {
 
     expectedException.expect(ForbiddenException.class);
     executeRequest("john");
-  }
-
-  @Test
-  public void test_definition() {
-    WebService.Action action = tester.getDef();
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(7);
   }
 
   private CreateWsResponse executeRequest(String login) {

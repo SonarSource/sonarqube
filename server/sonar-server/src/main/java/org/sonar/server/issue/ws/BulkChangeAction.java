@@ -55,8 +55,8 @@ import org.sonar.server.issue.Action;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.IssueChangePostProcessor;
-import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.WebIssueStorage;
+import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.user.UserSession;
@@ -94,6 +94,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLAN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REMOVE_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEND_NOTIFICATIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_SEVERITY;
@@ -154,6 +155,9 @@ public class BulkChangeAction implements IssuesWsAction {
       .setPossibleValues(RuleType.names())
       .setSince("5.5")
       .setDeprecatedKey("set_type.type", "6.2");
+    action.createParam(PARAM_PLAN)
+      .setDescription("In 5.5, action plans are dropped. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
+      .setDeprecatedSince("5.5");
     action.createParam(PARAM_DO_TRANSITION)
       .setDescription("Transition")
       .setExampleValue(REOPEN)

@@ -39,7 +39,10 @@ public class SearchRequest {
   private List<String> authors;
   private String branch;
   private List<String> componentKeys;
+  private String componentRootUuids;
+  private String componentRoots;
   private List<String> componentUuids;
+  private String components;
   private String createdAfter;
   private String createdAt;
   private String createdBefore;
@@ -192,6 +195,32 @@ public class SearchRequest {
   }
 
   /**
+   * @deprecated since 5.1
+   */
+  @Deprecated
+  public SearchRequest setComponentRootUuids(String componentRootUuids) {
+    this.componentRootUuids = componentRootUuids;
+    return this;
+  }
+
+  public String getComponentRootUuids() {
+    return componentRootUuids;
+  }
+
+  /**
+   * @deprecated since 5.1
+   */
+  @Deprecated
+  public SearchRequest setComponentRoots(String componentRoots) {
+    this.componentRoots = componentRoots;
+    return this;
+  }
+
+  public String getComponentRoots() {
+    return componentRoots;
+  }
+
+  /**
    * Example value: "584a89f2-8037-4f7b-b82c-8b45d2d63fb2"
    * @deprecated since 6.5
    */
@@ -203,6 +232,19 @@ public class SearchRequest {
 
   public List<String> getComponentUuids() {
     return componentUuids;
+  }
+
+  /**
+   * @deprecated since 5.1
+   */
+  @Deprecated
+  public SearchRequest setComponents(String components) {
+    this.components = components;
+    return this;
+  }
+
+  public String getComponents() {
+    return components;
   }
 
   /**

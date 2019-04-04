@@ -44,6 +44,7 @@ import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.plugins.PluginsService;
+import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbadges.ProjectBadgesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
@@ -55,6 +56,7 @@ import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
+import org.sonarqube.ws.client.resources.ResourcesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.securityreports.SecurityReportsService;
@@ -142,6 +144,8 @@ public interface WsClient {
 
   PluginsService plugins();
 
+  ProfilesService profiles();
+
   ProjectAnalysesService projectAnalyses();
 
   ProjectBadgesService projectBadges();
@@ -163,6 +167,8 @@ public interface WsClient {
   QualitygatesService qualitygates();
 
   QualityprofilesService qualityprofiles();
+
+  ResourcesService resources();
 
   RootsService roots();
 

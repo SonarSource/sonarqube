@@ -25,6 +25,7 @@ public class ComponentsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      ResourcesWs.class,
       ComponentsWs.class,
       // actions
       AppAction.class,

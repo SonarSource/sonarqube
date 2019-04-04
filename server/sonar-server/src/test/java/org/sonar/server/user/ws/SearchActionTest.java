@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -290,18 +289,51 @@ public class SearchActionTest {
     userSession.logIn(user);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-        .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalIdentity, User::getExternalProvider,
-          User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate)
-        .containsExactlyInAnyOrder(
-          tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true));
+      .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalIdentity, User::getExternalProvider,
+        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true));
 
     userSession.logIn(otherUser);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
       .executeProtobuf(SearchWsResponse.class).getUsersList())
-        .extracting(User::getLogin, User::getName, User::hasEmail, User::hasExternalIdentity, User::hasExternalProvider,
-          User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasTokensCount, User::hasLastConnectionDate)
-        .containsExactlyInAnyOrder(
-          tuple(user.getLogin(), user.getName(), false, false, true, true, true, false, false, false));
+      .extracting(User::getLogin, User::getName, User::hasEmail, User::hasExternalIdentity, User::hasExternalProvider,
+        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasTokensCount, User::hasLastConnectionDate)
+      .containsExactlyInAnyOrder(
+        tuple(user.getLogin(), user.getName(), false, false, true, true, true, false, false, false));
+  }
+
+  @Test
+  public void search_with_fields() {
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
+    db.users().insertMember(group, user);
+    userIndexer.indexOnStartup(null);
+    userSession.logIn().setSystemAdministrator();
+
+    assertThat(ws.newRequest()
+      .setParam(Param.FIELDS, "scmAccounts")
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false, true, false, false));
+    assertThat(ws.newRequest()
+      .setParam(Param.FIELDS, "groups")
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), false, false, false, true));
+    assertThat(ws.newRequest()
+      .setParam(Param.FIELDS, "")
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), true, true, true, true));
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class)
+      .getUsersList())
+        .extracting(User::getLogin, User::hasName, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), true, true, true, true));
   }
 
   @Test
@@ -370,15 +402,6 @@ public class SearchActionTest {
     String response = ws.newRequest().execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("search-example.json"));
-  }
-
-  @Test
-  public void test_definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(3);
   }
 
 }

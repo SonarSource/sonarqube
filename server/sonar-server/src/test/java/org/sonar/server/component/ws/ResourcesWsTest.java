@@ -19,17 +19,39 @@
  */
 package org.sonar.server.component.ws;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.RemovedWebServiceHandler;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class ComponentsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ComponentsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 8);
+public class ResourcesWsTest {
+
+  WebService.Controller controller;
+
+  @Before
+  public void setUp() {
+    WsTester tester = new WsTester(new ResourcesWs());
+    controller = tester.controller("api/resources");
   }
+
+  @Test
+  public void define_controller() {
+    assertThat(controller).isNotNull();
+    assertThat(controller.since()).isEqualTo("2.10");
+    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(1);
+  }
+
+  @Test
+  public void define_index_action() {
+    WebService.Action action = controller.action("index");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isInstanceOf(RemovedWebServiceHandler.class);
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).isEmpty();
+  }
+
 }

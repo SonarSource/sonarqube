@@ -52,8 +52,11 @@ public class IssuesWsParameters {
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_RESOLUTIONS = "resolutions";
   public static final String PARAM_RESOLVED = "resolved";
+  public static final String PARAM_COMPONENTS = "components";
   public static final String PARAM_COMPONENT_KEYS = "componentKeys";
   public static final String PARAM_COMPONENT_UUIDS = "componentUuids";
+  public static final String PARAM_COMPONENT_ROOTS = "componentRoots";
+  public static final String PARAM_COMPONENT_ROOT_UUIDS = "componentRootUuids";
   public static final String PARAM_MODULE_UUIDS = "moduleUuids";
   public static final String PARAM_PROJECTS = "projects";
   public static final String PARAM_PROJECT_KEYS = "projectKeys";
@@ -67,10 +70,23 @@ public class IssuesWsParameters {
   public static final String PARAM_ASSIGN = "assign";
   public static final String PARAM_SET_SEVERITY = "set_severity";
   public static final String PARAM_SET_TYPE = "set_type";
+  public static final String PARAM_PLAN = "plan";
   public static final String PARAM_DO_TRANSITION = "do_transition";
   public static final String PARAM_ADD_TAGS = "add_tags";
   public static final String PARAM_REMOVE_TAGS = "remove_tags";
   public static final String PARAM_SEND_NOTIFICATIONS = "sendNotifications";
+
+  /**
+   * @deprecated since 5.5, action plan feature has been removed
+   */
+  @Deprecated
+  public static final String DEPRECATED_PARAM_ACTION_PLANS = "actionPlans";
+
+  /**
+   * @deprecated since 5.5, manual issue feature has been dropped.
+   */
+  @Deprecated
+  public static final String PARAM_REPORTERS = "reporters";
   public static final String PARAM_ASSIGNEES = "assignees";
 
   /**
@@ -87,6 +103,12 @@ public class IssuesWsParameters {
   public static final String PARAM_SANS_TOP_25 = "sansTop25";
   public static final String PARAM_CWE = "cwe";
   public static final String PARAM_ASSIGNED = "assigned";
+
+  /**
+   * @deprecated since 5.5, action plan feature has been removed
+   */
+  @Deprecated
+  public static final String PARAM_PLANNED = "planned";
   public static final String PARAM_HIDE_COMMENTS = "hideComments";
   public static final String PARAM_CREATED_AFTER = "createdAfter";
   public static final String PARAM_CREATED_AT = "createdAt";

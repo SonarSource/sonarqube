@@ -92,7 +92,7 @@ import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_INDEX;
@@ -430,7 +430,7 @@ public class SearchActionTest {
     session.commit();
     indexIssues();
 
-    ws.newRequest().setParam(PARAM_COMPONENT_KEYS, file.getKey()).execute()
+    ws.newRequest().setParam(PARAM_COMPONENTS, file.getDbKey()).execute()
       .assertJson(this.getClass(), "apply_paging_with_one_component.json");
   }
 
@@ -850,7 +850,7 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "componentUuids", "branch",
+      "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components", "branch",
       "pullRequest", "organization",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",

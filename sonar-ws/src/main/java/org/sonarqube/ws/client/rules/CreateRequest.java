@@ -32,6 +32,7 @@ import javax.annotation.Generated;
 public class CreateRequest {
 
   private String customKey;
+  private String manualKey;
   private String markdownDescription;
   private String name;
   private List<String> params;
@@ -52,6 +53,20 @@ public class CreateRequest {
 
   public String getCustomKey() {
     return customKey;
+  }
+
+  /**
+   * Example value: "Error_handling"
+   * @deprecated since 5.5
+   */
+  @Deprecated
+  public CreateRequest setManualKey(String manualKey) {
+    this.manualKey = manualKey;
+    return this;
+  }
+
+  public String getManualKey() {
+    return manualKey;
   }
 
   /**

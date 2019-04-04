@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -272,14 +271,6 @@ public class UpdateActionTest {
       .setParam("login", "john")
       .setParam("email", "invalid-email")
       .execute();
-  }
-
-  @Test
-  public void test_definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(5);
   }
 
   private void createUser() {

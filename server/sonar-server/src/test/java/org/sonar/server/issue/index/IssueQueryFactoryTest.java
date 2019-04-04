@@ -212,11 +212,11 @@ public class IssueQueryFactoryTest {
   @Test
   public void fail_if_components_and_components_uuid_params_are_set_at_the_same_time() {
     SearchRequest request = new SearchRequest()
-      .setComponentKeys(singletonList("foo"))
-      .setComponentUuids(singletonList("bar"));
+      .setComponentKeys(asList("foo"))
+      .setComponentUuids(asList("bar"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys and componentUuids");
+    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
 
     underTest.create(request);
   }
@@ -224,11 +224,11 @@ public class IssueQueryFactoryTest {
   @Test
   public void fail_if_both_componentRoots_and_componentRootUuids_params_are_set() {
     SearchRequest request = new SearchRequest()
-      .setComponentRoots(singletonList("foo"))
-      .setComponentRootUuids(singletonList("bar"));
+      .setComponentRoots(asList("foo"))
+      .setComponentRootUuids(asList("bar"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys and componentUuids");
+    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
 
     underTest.create(request);
   }

@@ -50,6 +50,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.rule.ws.CreateAction.KEY_MAXIMUM_LENGTH;
 import static org.sonar.server.rule.ws.CreateAction.NAME_MAXIMUM_LENGTH;
@@ -61,8 +62,11 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_MARKDOWN_NOTE = "markdown_note";
   public static final String PARAM_REMEDIATION_FN_TYPE = "remediation_fn_type";
+  public static final String DEPRECATED_PARAM_REMEDIATION_FN_TYPE = "debt_remediation_fn_type";
   public static final String PARAM_REMEDIATION_FN_BASE_EFFORT = "remediation_fn_base_effort";
+  public static final String DEPRECATED_PARAM_REMEDIATION_FN_OFFSET = "debt_remediation_fn_offset";
   public static final String PARAM_REMEDIATION_FN_GAP_MULTIPLIER = "remediation_fy_gap_multiplier";
+  public static final String DEPRECATED_PARAM_REMEDIATION_FN_COEFF = "debt_remediation_fy_coeff";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_DESCRIPTION = "markdown_description";
   public static final String PARAM_SEVERITY = "severity";
@@ -120,15 +124,25 @@ public class UpdateAction implements RulesWsAction {
       .setPossibleValues(DebtRemediationFunction.Type.values())
       .setSince("5.5");
 
+    action.createParam(DEPRECATED_PARAM_REMEDIATION_FN_TYPE)
+      .setDeprecatedSince("5.5")
+      .setPossibleValues(DebtRemediationFunction.Type.values());
+
     action.createParam(PARAM_REMEDIATION_FN_BASE_EFFORT)
       .setDescription("Base effort of the remediation function of the rule")
       .setExampleValue("1d")
       .setSince("5.5");
 
+    action.createParam(DEPRECATED_PARAM_REMEDIATION_FN_OFFSET)
+      .setDeprecatedSince("5.5");
+
     action.createParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER)
       .setDescription("Gap multiplier of the remediation function of the rule")
       .setExampleValue("3min")
       .setSince("5.5");
+
+    action.createParam(DEPRECATED_PARAM_REMEDIATION_FN_COEFF)
+      .setDeprecatedSince("5.5");
 
     action
       .createParam(PARAM_NAME)
@@ -237,15 +251,15 @@ public class UpdateAction implements RulesWsAction {
   }
 
   private static void readDebt(Request request, RuleUpdate update) {
-    String value = request.param(PARAM_REMEDIATION_FN_TYPE);
+    String value = defaultIfEmpty(request.param(PARAM_REMEDIATION_FN_TYPE), request.param(DEPRECATED_PARAM_REMEDIATION_FN_TYPE));
     if (value != null) {
       if (StringUtils.isBlank(value)) {
         update.setDebtRemediationFunction(null);
       } else {
         DebtRemediationFunction fn = new DefaultDebtRemediationFunction(
           DebtRemediationFunction.Type.valueOf(value),
-          request.param(PARAM_REMEDIATION_FN_GAP_MULTIPLIER),
-          request.param(PARAM_REMEDIATION_FN_BASE_EFFORT));
+          defaultIfEmpty(request.param(PARAM_REMEDIATION_FN_GAP_MULTIPLIER), request.param(DEPRECATED_PARAM_REMEDIATION_FN_COEFF)),
+          defaultIfEmpty(request.param(PARAM_REMEDIATION_FN_BASE_EFFORT), request.param(DEPRECATED_PARAM_REMEDIATION_FN_OFFSET)));
         update.setDebtRemediationFunction(fn);
       }
     }

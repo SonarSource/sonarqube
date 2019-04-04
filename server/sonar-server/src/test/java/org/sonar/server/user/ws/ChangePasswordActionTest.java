@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbTester;
@@ -195,14 +194,6 @@ public class ChangePasswordActionTest {
       .setParam("login", "john")
       .setParam("password", "Valar Morghulis")
       .execute();
-  }
-
-  @Test
-  public void test_definition() {
-    WebService.Action action = tester.getDef();
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(3);
   }
 
   private void createLocalUser() {

@@ -68,6 +68,7 @@ public class RulesService extends BaseService {
     call(
       new PostRequest(path("create"))
         .setParam("custom_key", request.getCustomKey())
+        .setParam("manual_key", request.getManualKey())
         .setParam("markdown_description", request.getMarkdownDescription())
         .setParam("name", request.getName())
         .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
@@ -203,6 +204,10 @@ public class RulesService extends BaseService {
   public void update(UpdateRequest request) {
     call(
       new PostRequest(path("update"))
+        .setParam("debt_remediation_fn_offset", request.getDebtRemediationFnOffset())
+        .setParam("debt_remediation_fn_type", request.getDebtRemediationFnType())
+        .setParam("debt_remediation_fy_coeff", request.getDebtRemediationFyCoeff())
+        .setParam("debt_sub_characteristic", request.getDebtSubCharacteristic())
         .setParam("key", request.getKey())
         .setParam("markdown_description", request.getMarkdownDescription())
         .setParam("markdown_note", request.getMarkdownNote())
