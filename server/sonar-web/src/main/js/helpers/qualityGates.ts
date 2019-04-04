@@ -34,12 +34,10 @@ export function extractStatusConditionsFromProjectStatus(
 }
 
 export function isSameStatusConditionList(
-  conditions?: T.QualityGateStatusCondition[],
-  prevConditions?: T.QualityGateStatusCondition[]
+  conditions: T.QualityGateStatusCondition[] = [],
+  prevConditions: T.QualityGateStatusCondition[] = []
 ): boolean {
-  if (conditions === undefined || prevConditions === undefined) {
-    return !(prevConditions || conditions);
-  } else if (conditions.length !== prevConditions.length) {
+  if (conditions.length !== prevConditions.length) {
     return false;
   } else {
     const filtered = conditions.filter(c1 => {
