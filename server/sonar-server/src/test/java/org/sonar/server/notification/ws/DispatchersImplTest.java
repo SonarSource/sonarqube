@@ -41,12 +41,12 @@ public class DispatchersImplTest {
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
       NotificationDispatcherMetadata.create(NewIssuesNotificationHandler.KEY)
-        .setProperty(GLOBAL_NOTIFICATION, "true"),
+        .setProperty(GLOBAL_NOTIFICATION, "false"),
       NotificationDispatcherMetadata.create(QGChangeNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
       NotificationDispatcherMetadata.create(DoNotFixNotificationHandler.KEY)
-        .setProperty(GLOBAL_NOTIFICATION, "true")
+        .setProperty(GLOBAL_NOTIFICATION, "false")
         .setProperty(PER_PROJECT_NOTIFICATION, "true")
     },
     new NotificationChannel[] {});
@@ -60,11 +60,11 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getGlobalDispatchers()).containsExactly(
-      QGChangeNotificationHandler.KEY, DoNotFixNotificationHandler.KEY, NewIssuesNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
+      QGChangeNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
-  public void get_global_dispatchers_on_sonar_cloud() {
+  public void get_global_dispatchers_on_sonarcloud() {
     settings.setProperty("sonar.sonarcloud.enabled", "true");
 
     underTest.start();
@@ -81,7 +81,7 @@ public class DispatchersImplTest {
   }
 
   @Test
-  public void get_project_dispatchers_on_sonar_cloud() {
+  public void get_project_dispatchers_on_sonarcloud() {
     settings.setProperty("sonar.sonarcloud.enabled", "true");
 
     underTest.start();
