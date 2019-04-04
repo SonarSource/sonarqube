@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
@@ -52,7 +51,7 @@ public class AssignAction extends Action {
     super(ASSIGN_KEY);
     this.dbClient = dbClient;
     this.issueFieldsSetter = issueFieldsSetter;
-    super.setConditions(new IsUnResolved(), issue -> ((DefaultIssue) issue).type() != RuleType.SECURITY_HOTSPOT);
+    super.setConditions(new IsUnResolved());
   }
 
   @Override

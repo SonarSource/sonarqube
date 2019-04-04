@@ -232,9 +232,7 @@ public class SearchResponseLoader {
     if (issue.getResolution() != null) {
       return availableActions;
     }
-    if (ruleType != RuleType.SECURITY_HOTSPOT) {
-      availableActions.add(ASSIGN_KEY);
-    }
+    availableActions.add(ASSIGN_KEY);
     availableActions.add("set_tags");
     if (!issue.isFromHotspot() && userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
       availableActions.add(SET_TYPE_KEY);

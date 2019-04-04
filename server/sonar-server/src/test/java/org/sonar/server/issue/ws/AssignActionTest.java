@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,6 +42,7 @@ import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -53,7 +53,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
@@ -79,6 +84,7 @@ public class AssignActionTest {
   public DbTester db = DbTester.create(system2);
   public DbClient dbClient = db.getDbClient();
   private DbSession session = db.getSession();
+  private NotificationManager notificationManager = mock(NotificationManager.class);
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
@@ -88,7 +94,7 @@ public class AssignActionTest {
   private AssignAction underTest = new AssignAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer),
-      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
+      notificationManager, issueChangePostProcessor, issuesChangesSerializer),
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -99,7 +105,7 @@ public class AssignActionTest {
 
     ws.newRequest()
       .setParam("issue", issue.getKey())
-      .setParam("assignee", "arthur")
+      .setParam("assignee", arthur.getLogin())
       .execute();
 
     checkIssueAssignee(issue.getKey(), arthur.getUuid());
@@ -174,6 +180,36 @@ public class AssignActionTest {
   }
 
   @Test
+  public void send_notification() {
+    IssueDto issue = newIssueWithBrowsePermission();
+    UserDto arthur = insertUser("arthur");
+
+    ws.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", arthur.getLogin())
+      .execute();
+
+    verify(notificationManager).scheduleForSending(any(IssuesChangesNotification.class));
+  }
+
+  @Test
+  public void do_not_send_notification_on_security_hotspot() {
+    IssueDto issue = db.issues().insertIssue(
+      issueDto -> issueDto
+        .setAssigneeUuid(null)
+        .setType(SECURITY_HOTSPOT));
+    setUserWithBrowsePermission(issue);
+    UserDto arthur = insertUser("arthur");
+
+    ws.newRequest()
+      .setParam("issue", issue.getKey())
+      .setParam("assignee", arthur.getLogin())
+      .execute();
+
+    verifyZeroInteractions(notificationManager);
+  }
+
+  @Test
   public void fail_when_assignee_does_not_exist() {
     IssueDto issue = newIssueWithBrowsePermission();
 
@@ -182,21 +218,6 @@ public class AssignActionTest {
     ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "unknown")
-      .execute();
-  }
-
-  @Test
-  public void fail_when_trying_to_assign_hotspot() {
-    IssueDto issueDto = db.issues().insertIssue(i -> i.setType(RuleType.SECURITY_HOTSPOT));
-    setUserWithBrowsePermission(issueDto);
-    UserDto arthur = insertUser("arthur");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Assigning security hotspots is not allowed");
-
-    ws.newRequest()
-      .setParam("issue", issueDto.getKey())
-      .setParam("assignee", "arthur")
       .execute();
   }
 
@@ -242,7 +263,7 @@ public class AssignActionTest {
   @Test
   public void fail_when_assignee_is_not_member_of_organization_of_project_issue() {
     OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
-    IssueDto issueDto = db.issues().insertIssue(org, i -> i.setType(RuleType.CODE_SMELL));
+    IssueDto issueDto = db.issues().insertIssue(org, i -> i.setType(CODE_SMELL));
     setUserWithBrowsePermission(issueDto);
     OrganizationDto otherOrganization = db.organizations().insert();
     UserDto assignee = db.users().insertUser("arthur");
@@ -269,7 +290,7 @@ public class AssignActionTest {
         .setAssigneeUuid(assignee)
         .setCreatedAt(PAST).setIssueCreationTime(PAST)
         .setUpdatedAt(PAST).setIssueUpdateTime(PAST)
-        .setType(RuleType.CODE_SMELL));
+        .setType(CODE_SMELL));
     return issue;
   }
 
