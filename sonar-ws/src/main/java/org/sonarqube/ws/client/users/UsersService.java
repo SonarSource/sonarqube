@@ -149,7 +149,6 @@ public class UsersService extends BaseService {
   public SearchWsResponse search(SearchRequest request) {
     return call(
       new GetRequest(path("search"))
-        .setParam("f", request.getF() == null ? null : request.getF().stream().collect(Collectors.joining(",")))
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ()),

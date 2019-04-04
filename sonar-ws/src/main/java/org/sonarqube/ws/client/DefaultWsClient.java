@@ -44,7 +44,6 @@ import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.plugins.PluginsService;
-import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbadges.ProjectBadgesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
@@ -56,7 +55,6 @@ import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
-import org.sonarqube.ws.client.resources.ResourcesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.securityreports.SecurityReportsService;
@@ -109,7 +107,6 @@ class DefaultWsClient implements WsClient {
   private final OrganizationsService organizationsService;
   private final PermissionsService permissionsService;
   private final PluginsService pluginsService;
-  private final ProfilesService profilesService;
   private final ProjectAnalysesService projectAnalysesService;
   private final ProjectBadgesService projectBadgesService;
   private final ProjectBranchesService projectBranchesService;
@@ -121,7 +118,6 @@ class DefaultWsClient implements WsClient {
   private final PropertiesService propertiesService;
   private final QualitygatesService qualitygatesService;
   private final QualityprofilesService qualityprofilesService;
-  private final ResourcesService resourcesService;
   private final RootsService rootsService;
   private final RulesService rulesService;
   private final ServerService serverService;
@@ -167,7 +163,6 @@ class DefaultWsClient implements WsClient {
     this.organizationsService = new OrganizationsService(wsConnector);
     this.permissionsService = new PermissionsService(wsConnector);
     this.pluginsService = new PluginsService(wsConnector);
-    this.profilesService = new ProfilesService(wsConnector);
     this.projectAnalysesService = new ProjectAnalysesService(wsConnector);
     this.projectBadgesService = new ProjectBadgesService(wsConnector);
     this.projectBranchesService = new ProjectBranchesService(wsConnector);
@@ -179,7 +174,6 @@ class DefaultWsClient implements WsClient {
     this.propertiesService = new PropertiesService(wsConnector);
     this.qualitygatesService = new QualitygatesService(wsConnector);
     this.qualityprofilesService = new QualityprofilesService(wsConnector);
-    this.resourcesService = new ResourcesService(wsConnector);
     this.rootsService = new RootsService(wsConnector);
     this.rulesService = new RulesService(wsConnector);
     this.serverService = new ServerService(wsConnector);
@@ -322,11 +316,6 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public ProfilesService profiles() {
-    return profilesService;
-  }
-
-  @Override
   public ProjectAnalysesService projectAnalyses() {
     return projectAnalysesService;
   }
@@ -379,11 +368,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public QualityprofilesService qualityprofiles() {
     return qualityprofilesService;
-  }
-
-  @Override
-  public ResourcesService resources() {
-    return resourcesService;
   }
 
   @Override

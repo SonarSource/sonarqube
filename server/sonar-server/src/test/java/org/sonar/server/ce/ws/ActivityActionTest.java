@@ -63,6 +63,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
@@ -74,7 +75,6 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
@@ -290,7 +290,7 @@ public class ActivityActionTest {
     insertActivity("T2", zookeeper, SUCCESS);
     insertActivity("T3", eclipse, SUCCESS);
 
-    ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
+    ActivityResponse activityResponse = call(ws.newRequest().setParam(TEXT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T1", "T2");
   }
@@ -302,7 +302,7 @@ public class ActivityActionTest {
     logInAsSystemAdministrator();
     insertActivity("T2", apacheView, SUCCESS);
 
-    ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
+    ActivityResponse activityResponse = call(ws.newRequest().setParam(TEXT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T2");
   }
@@ -314,7 +314,7 @@ public class ActivityActionTest {
     logInAsSystemAdministrator();
     insertActivity("T2", apacheApp, SUCCESS);
 
-    ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
+    ActivityResponse activityResponse = call(ws.newRequest().setParam(TEXT_QUERY, "apac"));
 
     assertThat(activityResponse.getTasksList()).extracting(Task::getId).containsOnly("T2");
   }
@@ -459,11 +459,11 @@ public class ActivityActionTest {
   @Test
   public void fail_if_both_filters_on_component_id_and_name() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("componentId and componentQuery must not be set at the same time");
+    expectedException.expectMessage("componentId and q must not be set at the same time");
 
     ws.newRequest()
       .setParam("componentId", "ID1")
-      .setParam("componentQuery", "apache")
+      .setParam("q", "apache")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
   }

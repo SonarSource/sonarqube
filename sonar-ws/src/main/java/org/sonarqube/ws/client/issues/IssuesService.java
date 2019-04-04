@@ -75,8 +75,7 @@ public class IssuesService extends BaseService {
     return call(
       new PostRequest(path("assign"))
         .setParam("assignee", request.getAssignee())
-        .setParam("issue", request.getIssue())
-        .setParam("me", request.getMe()),
+        .setParam("issue", request.getIssue()),
       AssignResponse.parser());
   }
 
@@ -112,7 +111,6 @@ public class IssuesService extends BaseService {
         .setParam("comment", request.getComment() == null ? null : request.getComment().stream().collect(Collectors.joining(",")))
         .setParam("do_transition", request.getDoTransition())
         .setParam("issues", request.getIssues() == null ? null : request.getIssues().stream().collect(Collectors.joining(",")))
-        .setParam("plan", request.getPlan() == null ? null : request.getPlan().stream().collect(Collectors.joining(",")))
         .setParam("remove_tags", request.getRemoveTags())
         .setParam("sendNotifications", request.getSendNotifications())
         .setParam("set_severity", request.getSetSeverity() == null ? null : request.getSetSeverity().stream().collect(Collectors.joining(",")))
@@ -214,10 +212,7 @@ public class IssuesService extends BaseService {
         .setParam("authors", request.getAuthors() == null ? null : request.getAuthors().stream().collect(Collectors.joining(",")))
         .setParam("branch", request.getBranch())
         .setParam("componentKeys", request.getComponentKeys() == null ? null : request.getComponentKeys().stream().collect(Collectors.joining(",")))
-        .setParam("componentRootUuids", request.getComponentRootUuids())
-        .setParam("componentRoots", request.getComponentRoots())
         .setParam("componentUuids", request.getComponentUuids() == null ? null : request.getComponentUuids().stream().collect(Collectors.joining(",")))
-        .setParam("components", request.getComponents())
         .setParam("createdAfter", request.getCreatedAfter())
         .setParam("createdAt", request.getCreatedAt())
         .setParam("createdBefore", request.getCreatedBefore())

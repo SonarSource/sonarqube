@@ -57,11 +57,9 @@ public class CeService extends BaseService {
     return call(
       new GetRequest(path("activity"))
         .setParam("componentId", request.getComponentId())
-        .setParam("componentQuery", request.getComponentQuery())
         .setParam("maxExecutedAt", request.getMaxExecutedAt())
         .setParam("minSubmittedAt", request.getMinSubmittedAt())
         .setParam("onlyCurrents", request.getOnlyCurrents())
-        .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
         .setParam("status", request.getStatus() == null ? null : request.getStatus().stream().collect(Collectors.joining(",")))

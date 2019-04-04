@@ -31,35 +31,9 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class SearchRequest {
 
-  private List<String> f;
   private String p;
   private String ps;
   private String q;
-
-  /**
-   * Possible values:
-   * <ul>
-   *   <li>"name"</li>
-   *   <li>"email"</li>
-   *   <li>"avatart"</li>
-   *   <li>"scmAccounts"</li>
-   *   <li>"groups"</li>
-   *   <li>"active"</li>
-   *   <li>"local"</li>
-   *   <li>"externalIdentity"</li>
-   *   <li>"externalProvider"</li>
-   * </ul>
-   * @deprecated since 5.4
-   */
-  @Deprecated
-  public SearchRequest setF(List<String> f) {
-    this.f = f;
-    return this;
-  }
-
-  public List<String> getF() {
-    return f;
-  }
 
   /**
    * Example value: "42"

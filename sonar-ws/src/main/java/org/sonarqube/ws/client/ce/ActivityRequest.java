@@ -32,11 +32,9 @@ import javax.annotation.Generated;
 public class ActivityRequest {
 
   private String componentId;
-  private String componentQuery;
   private String maxExecutedAt;
   private String minSubmittedAt;
   private String onlyCurrents;
-  private String p;
   private String ps;
   private String q;
   private List<String> status;
@@ -52,20 +50,6 @@ public class ActivityRequest {
 
   public String getComponentId() {
     return componentId;
-  }
-
-  /**
-   * Example value: "Apache"
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public ActivityRequest setComponentQuery(String componentQuery) {
-    this.componentQuery = componentQuery;
-    return this;
-  }
-
-  public String getComponentQuery() {
-    return componentQuery;
   }
 
   /**
@@ -108,19 +92,6 @@ public class ActivityRequest {
 
   public String getOnlyCurrents() {
     return onlyCurrents;
-  }
-
-  /**
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public ActivityRequest setP(String p) {
-    this.p = p;
-    return this;
-  }
-
-  public String getP() {
-    return p;
   }
 
   /**

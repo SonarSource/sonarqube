@@ -38,9 +38,9 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
+import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
@@ -124,21 +124,6 @@ public class AssignActionTest {
   }
 
   @Test
-  public void assign_to_me_using_deprecated_me_param() {
-    IssueDto issue = newIssueWithBrowsePermission();
-
-    ws.newRequest()
-      .setParam("issue", issue.getKey())
-      .setParam("me", "true")
-      .execute();
-
-    checkIssueAssignee(issue.getKey(), CURRENT_USER_UUID);
-    Optional<IssueDto> optionalIssueDto = dbClient.issueDao().selectByKey(session, issue.getKey());
-    assertThat(optionalIssueDto).isPresent();
-    assertThat(optionalIssueDto.get().getAssigneeUuid()).isEqualTo(CURRENT_USER_UUID);
-  }
-
-  @Test
   public void unassign() {
     IssueDto issue = newIssueWithBrowsePermission();
 
@@ -205,7 +190,7 @@ public class AssignActionTest {
     UserDto arthur = insertUser("arthur");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("It is not allowed to assign a security hotspot");
+    expectedException.expectMessage("Assigning security hotspots is not allowed");
 
     ws.newRequest()
       .setParam("issue", issueDto.getKey())
