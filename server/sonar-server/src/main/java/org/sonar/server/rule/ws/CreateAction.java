@@ -96,12 +96,6 @@ public class CreateAction implements RulesWsAction {
       .setExampleValue("Todo_should_not_be_used");
 
     action
-      .createParam("manual_key")
-      .setDescription("Manual rules are no more supported. This parameter is ignored")
-      .setExampleValue("Error_handling")
-      .setDeprecatedSince("5.5");
-
-    action
       .createParam(PARAM_TEMPLATE_KEY)
       .setDescription("Key of the template rule in order to create a custom rule (mandatory for custom rule)")
       .setExampleValue("java:XPath");

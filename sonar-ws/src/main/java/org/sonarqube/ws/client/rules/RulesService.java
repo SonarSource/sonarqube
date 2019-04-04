@@ -22,15 +22,15 @@ package org.sonarqube.ws.client.rules;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Rules.CreateResponse;
 import org.sonarqube.ws.Rules.ListResponse;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.Rules.ShowResponse;
 import org.sonarqube.ws.Rules.UpdateResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules">Further information about this web service online</a>
@@ -68,7 +68,6 @@ public class RulesService extends BaseService {
     call(
       new PostRequest(path("create"))
         .setParam("custom_key", request.getCustomKey())
-        .setParam("manual_key", request.getManualKey())
         .setParam("markdown_description", request.getMarkdownDescription())
         .setParam("name", request.getName())
         .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
@@ -204,10 +203,6 @@ public class RulesService extends BaseService {
   public void update(UpdateRequest request) {
     call(
       new PostRequest(path("update"))
-        .setParam("debt_remediation_fn_offset", request.getDebtRemediationFnOffset())
-        .setParam("debt_remediation_fn_type", request.getDebtRemediationFnType())
-        .setParam("debt_remediation_fy_coeff", request.getDebtRemediationFyCoeff())
-        .setParam("debt_sub_characteristic", request.getDebtSubCharacteristic())
         .setParam("key", request.getKey())
         .setParam("markdown_description", request.getMarkdownDescription())
         .setParam("markdown_note", request.getMarkdownNote())

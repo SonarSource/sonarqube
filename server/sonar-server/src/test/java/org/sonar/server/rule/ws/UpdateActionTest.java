@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
@@ -60,9 +59,6 @@ import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR_OFFS
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
-import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_COEFF;
-import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_OFFSET;
-import static org.sonar.server.rule.ws.UpdateAction.DEPRECATED_PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_KEY;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_MARKDOWN_NOTE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_ORGANIZATION;
@@ -106,7 +102,7 @@ public class UpdateActionTest {
     assertThat(ws.getDef().responseExampleAsString()).isNotNull();
     assertThat(ws.getDef().description()).isNotNull();
   }
-  
+
   @Test
   public void update_custom_rule() {
     logInAsQProfileAdministrator();
@@ -247,46 +243,6 @@ public class UpdateActionTest {
     assertThat(metadataOfSpecificOrg.getRemediationFunction()).isEqualTo(newOffset);
     assertThat(metadataOfSpecificOrg.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
     assertThat(metadataOfSpecificOrg.getRemediationBaseEffort()).isEqualTo(newEffort);
-  }
-
-  @Test
-  public void update_custom_rule_with_deprecated_remediation_function_parameters() {
-    logInAsQProfileAdministrator();
-
-    RuleDefinitionDto rule = RuleTesting.newRule()
-      .setDefRemediationFunction(LINEAR_OFFSET.toString())
-      .setDefRemediationGapMultiplier("10d")
-      .setDefRemediationBaseEffort("5min");
-    db.rules().insert(rule);
-
-    String newType = LINEAR_OFFSET.toString();
-    String newCoeff = "11d";
-    String newOffset = "6min";
-
-    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, rule.getKey().toString())
-      .setParam(DEPRECATED_PARAM_REMEDIATION_FN_TYPE, newType)
-      .setParam(DEPRECATED_PARAM_REMEDIATION_FN_COEFF, newCoeff)
-      .setParam(DEPRECATED_PARAM_REMEDIATION_FN_OFFSET, newOffset)
-      .executeProtobuf(Rules.UpdateResponse.class);
-
-    Rules.Rule updatedRule = result.getRule();
-    assertThat(updatedRule).isNotNull();
-
-    assertThat(updatedRule.getKey()).isEqualTo(rule.getKey().toString());
-    assertThat(updatedRule.getDefaultRemFnType()).isEqualTo(rule.getDefRemediationFunction());
-    assertThat(updatedRule.getDefaultRemFnGapMultiplier()).isEqualTo(rule.getDefRemediationGapMultiplier());
-    assertThat(updatedRule.getDefaultRemFnBaseEffort()).isEqualTo(rule.getDefRemediationBaseEffort());
-    assertThat(updatedRule.getEffortToFixDescription()).isEqualTo(rule.getGapDescription());
-
-    assertThat(updatedRule.getRemFnType()).isEqualTo(newType);
-    assertThat(updatedRule.getDebtRemFnCoeff()).isEqualTo(newCoeff);
-    assertThat(updatedRule.getDebtRemFnOffset()).isEqualTo(newOffset);
-
-    assertThat(updatedRule.getRemFnType()).isEqualTo(newType);
-    assertThat(updatedRule.getRemFnGapMultiplier()).isEqualTo(newCoeff);
-    assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newOffset);
-    assertThat(updatedRule.getGapDescription()).isEqualTo(rule.getGapDescription());
   }
 
   @Test

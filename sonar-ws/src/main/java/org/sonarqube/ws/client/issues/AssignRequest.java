@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.issues;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -33,7 +32,6 @@ public class AssignRequest {
 
   private String assignee;
   private String issue;
-  private String me;
 
   /**
    * Example value: "admin"
@@ -60,23 +58,4 @@ public class AssignRequest {
     return issue;
   }
 
-  /**
-   * Possible values:
-   * <ul>
-   *   <li>"true"</li>
-   *   <li>"false"</li>
-   *   <li>"yes"</li>
-   *   <li>"no"</li>
-   * </ul>
-   * @deprecated since 5.2
-   */
-  @Deprecated
-  public AssignRequest setMe(String me) {
-    this.me = me;
-    return this;
-  }
-
-  public String getMe() {
-    return me;
-  }
 }

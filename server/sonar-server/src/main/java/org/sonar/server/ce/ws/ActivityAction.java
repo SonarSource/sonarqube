@@ -55,14 +55,12 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -105,21 +103,12 @@ public class ActivityAction implements CeWsAction {
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
         new Change("7.1", "field \"pullRequest\" added"),
-        new Change("7.6", String.format("The use of module keys in parameters '%s' and '%s' is deprecated", TEXT_QUERY, PARAM_COMPONENT_QUERY)))
+        new Change("7.6", format("The use of module keys in parameters '%s' is deprecated", TEXT_QUERY)))
       .setSince("5.2");
 
     action.createParam(PARAM_COMPONENT_ID)
       .setDescription("Id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
-    action.createParam(PARAM_COMPONENT_QUERY)
-      .setDescription(format("Limit search to: <ul>" +
-        "<li>component names that contain the supplied string</li>" +
-        "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>" +
-        "Must not be set together with %s.<br />" +
-        "Deprecated and replaced by '%s'", PARAM_COMPONENT_ID, TEXT_QUERY))
-      .setExampleValue("Apache")
-      .setDeprecatedSince("5.5");
     action.createParam(TEXT_QUERY)
       .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
@@ -152,10 +141,6 @@ public class ActivityAction implements CeWsAction {
     action.createParam(PARAM_MAX_EXECUTED_AT)
       .setDescription("Maximum date of end of task processing (inclusive)")
       .setExampleValue("2017-10-19T13:00:00+0200");
-    action.createParam(Param.PAGE)
-      .setDescription("Deprecated parameter")
-      .setDeprecatedSince("5.5")
-      .setDeprecatedKey("pageIndex", "5.4");
     action.createPageSize(100, MAX_PAGE_SIZE);
   }
 
@@ -290,7 +275,7 @@ public class ActivityAction implements CeWsAction {
   private static Request toSearchWsRequest(org.sonar.api.server.ws.Request request) {
     Request activityWsRequest = new Request()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setQ(defaultString(request.param(TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
+      .setQ(request.param(TEXT_QUERY))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
       .setType(request.param(PARAM_TYPE))
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
@@ -299,7 +284,7 @@ public class ActivityAction implements CeWsAction {
       .setPs(String.valueOf(request.mandatoryParamAsInt(Param.PAGE_SIZE)));
 
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
-      PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
+      PARAM_COMPONENT_ID, TEXT_QUERY);
     return activityWsRequest;
   }
 
@@ -314,14 +299,19 @@ public class ActivityAction implements CeWsAction {
     private List<String> status;
     private String type;
 
+    Request() {
+      // Nothing to do
+    }
+
     /**
      * Example value: "AU-TpxcA-iU5OvuD2FL0"
      */
-    private Request setComponentId(String componentId) {
+    private Request setComponentId(@Nullable String componentId) {
       this.componentId = componentId;
       return this;
     }
 
+    @CheckForNull
     private String getComponentId() {
       return componentId;
     }
@@ -329,11 +319,12 @@ public class ActivityAction implements CeWsAction {
     /**
      * Example value: "2017-10-19T13:00:00+0200"
      */
-    private Request setMaxExecutedAt(String maxExecutedAt) {
+    private Request setMaxExecutedAt(@Nullable String maxExecutedAt) {
       this.maxExecutedAt = maxExecutedAt;
       return this;
     }
 
+    @CheckForNull
     private String getMaxExecutedAt() {
       return maxExecutedAt;
     }
@@ -341,11 +332,12 @@ public class ActivityAction implements CeWsAction {
     /**
      * Example value: "2017-10-19T13:00:00+0200"
      */
-    private Request setMinSubmittedAt(String minSubmittedAt) {
+    private Request setMinSubmittedAt(@Nullable String minSubmittedAt) {
       this.minSubmittedAt = minSubmittedAt;
       return this;
     }
 
+    @CheckForNull
     private String getMinSubmittedAt() {
       return minSubmittedAt;
     }
@@ -383,11 +375,12 @@ public class ActivityAction implements CeWsAction {
     /**
      * Example value: "Apache"
      */
-    private Request setQ(String q) {
+    private Request setQ(@Nullable String q) {
       this.q = q;
       return this;
     }
 
+    @CheckForNull
     private String getQ() {
       return q;
     }
@@ -403,11 +396,12 @@ public class ActivityAction implements CeWsAction {
      *   <li>"IN_PROGRESS"</li>
      * </ul>
      */
-    private Request setStatus(List<String> status) {
+    private Request setStatus(@Nullable List<String> status) {
       this.status = status;
       return this;
     }
 
+    @CheckForNull
     private List<String> getStatus() {
       return status;
     }
@@ -419,11 +413,12 @@ public class ActivityAction implements CeWsAction {
      *   <li>"REPORT"</li>
      * </ul>
      */
-    private Request setType(String type) {
+    private Request setType(@Nullable String type) {
       this.type = type;
       return this;
     }
 
+    @CheckForNull
     private String getType() {
       return type;
     }

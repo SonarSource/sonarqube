@@ -75,7 +75,6 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
@@ -289,12 +288,12 @@ public class SearchActionComponentsTest {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENTS, file.getDbKey())
+      .setParam(PARAM_COMPONENT_KEYS, file.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_file_key.json");
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENTS, unitTest.getDbKey())
+      .setParam(PARAM_COMPONENT_KEYS, unitTest.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_test_key.json");
   }

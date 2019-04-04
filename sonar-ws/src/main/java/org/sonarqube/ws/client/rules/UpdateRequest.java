@@ -31,10 +31,6 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class UpdateRequest {
 
-  private String debtRemediationFnOffset;
-  private String debtRemediationFnType;
-  private String debtRemediationFyCoeff;
-  private String debtSubCharacteristic;
   private String key;
   private String markdownDescription;
   private String markdownNote;
@@ -47,64 +43,6 @@ public class UpdateRequest {
   private String severity;
   private String status;
   private List<String> tags;
-
-  /**
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public UpdateRequest setDebtRemediationFnOffset(String debtRemediationFnOffset) {
-    this.debtRemediationFnOffset = debtRemediationFnOffset;
-    return this;
-  }
-
-  public String getDebtRemediationFnOffset() {
-    return debtRemediationFnOffset;
-  }
-
-  /**
-   * Possible values:
-   * <ul>
-   *   <li>"LINEAR"</li>
-   *   <li>"LINEAR_OFFSET"</li>
-   *   <li>"CONSTANT_ISSUE"</li>
-   * </ul>
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public UpdateRequest setDebtRemediationFnType(String debtRemediationFnType) {
-    this.debtRemediationFnType = debtRemediationFnType;
-    return this;
-  }
-
-  public String getDebtRemediationFnType() {
-    return debtRemediationFnType;
-  }
-
-  /**
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public UpdateRequest setDebtRemediationFyCoeff(String debtRemediationFyCoeff) {
-    this.debtRemediationFyCoeff = debtRemediationFyCoeff;
-    return this;
-  }
-
-  public String getDebtRemediationFyCoeff() {
-    return debtRemediationFyCoeff;
-  }
-
-  /**
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public UpdateRequest setDebtSubCharacteristic(String debtSubCharacteristic) {
-    this.debtSubCharacteristic = debtSubCharacteristic;
-    return this;
-  }
-
-  public String getDebtSubCharacteristic() {
-    return debtSubCharacteristic;
-  }
 
   /**
    * This is a mandatory parameter.

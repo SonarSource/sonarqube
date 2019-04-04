@@ -36,7 +36,6 @@ public class BulkChangeRequest {
   private List<String> comment;
   private String doTransition;
   private List<String> issues;
-  private List<String> plan;
   private String removeTags;
   private String sendNotifications;
   private List<String> setSeverity;
@@ -111,19 +110,6 @@ public class BulkChangeRequest {
 
   public List<String> getIssues() {
     return issues;
-  }
-
-  /**
-   * @deprecated since 5.5
-   */
-  @Deprecated
-  public BulkChangeRequest setPlan(List<String> plan) {
-    this.plan = plan;
-    return this;
-  }
-
-  public List<String> getPlan() {
-    return plan;
   }
 
   /**

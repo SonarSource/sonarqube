@@ -166,7 +166,6 @@ import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.QProfileTreeImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
@@ -198,7 +197,6 @@ import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataLoader;
-import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ui.DeprecatedViews;
 import org.sonar.server.ui.PageDecorations;
@@ -288,7 +286,6 @@ public class PlatformLevel4 extends PlatformLevel {
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,
       QProfileComparison.class,
-      ProfilesWs.class,
       QProfileTreeImpl.class,
       QProfileRulesImpl.class,
       RuleActivator.class,
@@ -470,9 +467,6 @@ public class PlatformLevel4 extends PlatformLevel {
       NotificationModule.class,
       NotificationWsModule.class,
       EmailsWsModule.class,
-
-      // Tests
-      TestsWs.class,
 
       // Settings
       PersistentSettings.class,
