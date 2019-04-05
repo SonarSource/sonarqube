@@ -36,6 +36,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
@@ -73,6 +74,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
@@ -284,7 +286,7 @@ public class BulkChangeActionTest {
   public void send_notification() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();
@@ -331,11 +333,11 @@ public class BulkChangeActionTest {
   }
 
   @Test
-  public void send_notification_on_branch() {
+  public void send_notification_on_long_branch() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature"));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.LONG));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();
@@ -358,6 +360,39 @@ public class BulkChangeActionTest {
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isEqualTo("feature");
+    verifyPostProcessorCalled(fileOnBranch);
+  }
+
+  @Test
+  public void send_notification_on_short_branch() {
+    BranchType branchType = BranchType.SHORT;
+    verifySendNoNotification(branchType);
+  }
+
+  @Test
+  public void send_no_notification_on_PR() {
+    verifySendNoNotification(BranchType.PULL_REQUEST);
+  }
+
+  private void verifySendNoNotification(BranchType branchType) {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(branchType));
+    ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
+    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, branch, fileOnBranch, i -> i.setType(BUG)
+      .setStatus(STATUS_OPEN).setResolution(null));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(singletonList(issue.getKey()))
+      .setDoTransition("confirm")
+      .setSendNotifications(true)
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+    verifyZeroInteractions(notificationManager);
     verifyPostProcessorCalled(fileOnBranch);
   }
 

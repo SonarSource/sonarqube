@@ -63,7 +63,7 @@ public class IssueDbTester {
   @SafeVarargs
   public final IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto project = db.components().insertMainBranch(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));

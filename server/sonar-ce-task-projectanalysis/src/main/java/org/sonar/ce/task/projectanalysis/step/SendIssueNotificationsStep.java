@@ -53,6 +53,7 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
@@ -67,6 +68,7 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.BranchType.SHORT;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
@@ -103,6 +105,11 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
+    BranchType branchType = analysisMetadataHolder.getBranch().getType();
+    if (branchType == PULL_REQUEST || branchType == SHORT) {
+      return;
+    }
+
     Component project = treeRootHolder.getRoot();
     NotificationStatistics notificationStatistics = new NotificationStatistics();
     if (service.hasProjectSubscribersForTypes(analysisMetadataHolder.getProject().getUuid(), NOTIF_TYPES)) {

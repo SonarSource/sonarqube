@@ -200,7 +200,7 @@ public class SetTypeActionTest {
 
   private IssueDto newIssue() {
     RuleDto rule = dbTester.rules().insertRule(newRuleDto());
-    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project = dbTester.components().insertMainBranch();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     return newDto(rule, file, project);
   }

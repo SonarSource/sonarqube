@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -47,6 +48,8 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -253,15 +256,22 @@ public class BulkChangeAction implements IssuesWsAction {
   private Consumer<DefaultIssue> sendNotification(BulkChangeData bulkChangeData, Map<String, UserDto> userDtoByUuid, UserDto author) {
     return issue -> {
       if (bulkChangeData.sendNotification && issue.type() != RuleType.SECURITY_HOTSPOT) {
-        notificationService.scheduleForSending(new IssueChangeNotification()
-          .setIssue(issue)
-          .setAssignee(userDtoByUuid.get(issue.assignee()))
-          .setChangeAuthor(author)
-          .setRuleName(bulkChangeData.rulesByKey.get(issue.ruleKey()).getName())
-          .setProject(bulkChangeData.projectsByUuid.get(issue.projectUuid()))
-          .setComponent(bulkChangeData.componentsByUuid.get(issue.componentUuid())));
+        BranchDto branch = bulkChangeData.branchesByProjectUuid.get(issue.projectUuid());
+        if (hasNotificationSupport(branch)) {
+          notificationService.scheduleForSending(new IssueChangeNotification()
+            .setIssue(issue)
+            .setAssignee(userDtoByUuid.get(issue.assignee()))
+            .setChangeAuthor(author)
+            .setRuleName(bulkChangeData.rulesByKey.get(issue.ruleKey()).getName())
+            .setProject(bulkChangeData.projectsByUuid.get(issue.projectUuid()))
+            .setComponent(bulkChangeData.componentsByUuid.get(issue.componentUuid())));
+        }
       }
     };
+  }
+
+  private static boolean hasNotificationSupport(@Nullable BranchDto branch) {
+    return branch != null && branch.getBranchType() != BranchType.PULL_REQUEST && branch.getBranchType() != BranchType.SHORT;
   }
 
   private static Issues.BulkChangeWsResponse toWsResponse(BulkChangeResult result) {
@@ -305,6 +315,7 @@ public class BulkChangeAction implements IssuesWsAction {
     private final boolean sendNotification;
     private final Collection<DefaultIssue> issues;
     private final Map<String, ComponentDto> projectsByUuid;
+    private final Map<String, BranchDto> branchesByProjectUuid;
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<RuleKey, RuleDefinitionDto> rulesByKey;
     private final List<Action> availableActions;
@@ -319,6 +330,8 @@ public class BulkChangeAction implements IssuesWsAction {
 
       List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
       this.projectsByUuid = getAuthorizedProjects(allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, projectsByUuid.keySet()).stream()
+        .collect(uniqueIndex(BranchDto::getUuid, identity()));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()

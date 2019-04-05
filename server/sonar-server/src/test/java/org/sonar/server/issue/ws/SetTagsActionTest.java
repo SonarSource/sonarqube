@@ -68,6 +68,7 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 
 public class SetTagsActionTest {
 
@@ -236,7 +237,7 @@ public class SetTagsActionTest {
 
   private IssueDto newIssue() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto project = db.components().insertMainBranch(newPublicProjectDto(db.getDefaultOrganization()));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return IssueTesting.newIssue(rule, project, file);
   }

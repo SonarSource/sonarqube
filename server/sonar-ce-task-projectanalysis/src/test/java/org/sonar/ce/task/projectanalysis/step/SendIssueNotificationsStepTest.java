@@ -52,6 +52,7 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
@@ -81,11 +82,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.step.SendIssueNotificationsStep.NOTIF_TYPES;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -232,14 +236,14 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_global_new_issues_notification_on_branch() {
+  public void send_global_new_issues_notification_on_long_branch() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = setUpBranch(project);
+    ComponentDto branch = setUpBranch(project, LONG);
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
-    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
+    when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
-    analysisMetadataHolder.setBranch(newBranch());
+    analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -253,9 +257,25 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_global_new_issues_notification_on_pull_request() {
+  public void do_not_send_global_new_issues_notification_on_short_branch() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = setUpBranch(project);
+    ComponentDto branch = setUpBranch(project, SHORT);
+    issueCache.newAppender().append(
+      new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
+    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
+    analysisMetadataHolder.setProject(Project.from(project));
+    analysisMetadataHolder.setBranch(newBranch(SHORT));
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    verifyZeroInteractions(notificationService, newIssuesNotificationMock);
+  }
+
+  @Test
+  public void do_not_send_global_new_issues_notification_on_pull_request() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto branch = setUpBranch(project, PULL_REQUEST);
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
@@ -266,23 +286,18 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), null, PULL_REQUEST_ID);
-    verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
-    verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
-    verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
-    verifyStatistics(context, 1, 0, 0);
+    verifyZeroInteractions(notificationService, newIssuesNotificationMock);
   }
 
   @Test
-  public void do_not_send_global_new_issues_notification_on_branch_if_issue_has_been_backdated() {
+  public void do_not_send_global_new_issues_notification_on_long_branch_if_issue_has_been_backdated() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
-    ComponentDto branch = setUpBranch(project);
+    ComponentDto branch = setUpBranch(project, LONG);
     issueCache.newAppender().append(
       new DefaultIssue().setType(randomRuleType).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE - FIVE_MINUTES_IN_MS))).close();
     when(notificationService.hasProjectSubscribersForTypes(branch.uuid(), NOTIF_TYPES)).thenReturn(true);
     analysisMetadataHolder.setProject(Project.from(project));
-    analysisMetadataHolder.setBranch(newBranch());
+    analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
@@ -535,16 +550,16 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_issues_change_notification_on_branch() {
-    sendIssueChangeNotificationOnBranch(ANALYSE_DATE);
+  public void send_issues_change_notification_on_long_branch() {
+    sendIssueChangeNotificationOnLongBranch(ANALYSE_DATE);
   }
 
   @Test
-  public void send_issues_change_notification_on_branch_even_if_issue_is_backdated() {
-    sendIssueChangeNotificationOnBranch(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
+  public void send_issues_change_notification_on_long_branch_even_if_issue_is_backdated() {
+    sendIssueChangeNotificationOnLongBranch(ANALYSE_DATE - FIVE_MINUTES_IN_MS);
   }
 
-  private void sendIssueChangeNotificationOnBranch(long issueCreatedAt) {
+  private void sendIssueChangeNotificationOnLongBranch(long issueCreatedAt) {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
@@ -561,7 +576,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
     issueCache.newAppender().append(issue).close();
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
-    analysisMetadataHolder.setBranch(newBranch());
+    analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -623,10 +638,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     return notification;
   }
 
-  private static Branch newBranch() {
+  private static Branch newBranch(BranchType type) {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
     when(branch.getName()).thenReturn(BRANCH_NAME);
+    when(branch.getType()).thenReturn(type);
     return branch;
   }
 
@@ -639,8 +655,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     return branch;
   }
 
-  private ComponentDto setUpBranch(ComponentDto project) {
-    ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey(BRANCH_NAME));
+  private ComponentDto setUpBranch(ComponentDto project, BranchType branchType) {
+    ComponentDto branch = newProjectBranch(project, newBranchDto(project, branchType).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch);
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getDbKey()).setPublicKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build()).build());

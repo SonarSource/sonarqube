@@ -31,6 +31,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
@@ -53,8 +54,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class IssueUpdaterTest {
@@ -98,7 +101,7 @@ public class IssueUpdaterTest {
   public void verify_notification() {
     UserDto assignee = db.users().insertUser();
     RuleDto rule = db.rules().insertRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
@@ -131,7 +134,7 @@ public class IssueUpdaterTest {
   public void verify_no_notification_on_hotspot() {
     UserDto assignee = db.users().insertUser();
     RuleDto rule = db.rules().insertRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
       .setType(RuleType.SECURITY_HOTSPOT))
@@ -148,10 +151,10 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void verify_notification_on_branch() {
+  public void verify_notification_on_long_branch() {
     RuleDto rule = db.rules().insertRule();
     ComponentDto project = db.components().insertMainBranch();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(LONG));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)
@@ -170,9 +173,43 @@ public class IssueUpdaterTest {
   }
 
   @Test
+  public void verify_no_notification_on_short_branch() {
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.SHORT));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)
+      .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
+
+    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+
+    verifyZeroInteractions(notificationManager);
+  }
+
+  @Test
+  public void verify_no_notification_on_pr() {
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(BranchType.PULL_REQUEST));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)
+      .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
+
+    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+
+    verifyZeroInteractions(notificationManager);
+  }
+
+  @Test
   public void verify_notification_when_issue_is_linked_on_removed_rule() {
     RuleDto rule = db.rules().insertRule(r -> r.setStatus(RuleStatus.REMOVED));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
@@ -190,7 +227,7 @@ public class IssueUpdaterTest {
   public void verify_notification_when_assignee_has_changed() {
     UserDto oldAssignee = db.users().insertUser();
     RuleDto rule = db.rules().insertRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
@@ -215,7 +252,7 @@ public class IssueUpdaterTest {
   @Test
   public void saveIssue_populates_specified_SearchResponseData_with_rule_project_and_component_retrieved_from_DB() {
     RuleDto rule = db.rules().insertRule();
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
     DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
@@ -240,7 +277,7 @@ public class IssueUpdaterTest {
   @Test
   public void saveIssue_populates_specified_SearchResponseData_with_no_rule_but_with_project_and_component_if_rule_is_removed() {
     RuleDto rule = db.rules().insertRule(r -> r.setStatus(RuleStatus.REMOVED));
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
     DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();

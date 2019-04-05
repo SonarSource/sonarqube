@@ -30,6 +30,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -41,6 +42,8 @@ import org.sonar.server.notification.NotificationManager;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.BranchType.SHORT;
 
 public class IssueUpdater {
 
@@ -66,8 +69,9 @@ public class IssueUpdater {
 
     Optional<RuleDefinitionDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
+    BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
     ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
-    IssueDto issueDto = doSaveIssue(dbSession, issue, context, comment, rule, project, component);
+    IssueDto issueDto = doSaveIssue(dbSession, issue, context, comment, rule, project, branch, component);
 
     SearchResponseData result = new SearchResponseData(issueDto);
     rule.ifPresent(r -> result.addRules(singletonList(r)));
@@ -85,14 +89,15 @@ public class IssueUpdater {
   public IssueDto saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
     Optional<RuleDefinitionDto> rule = getRuleByKey(session, issue.getRuleKey());
     ComponentDto project = getComponent(session, issue, issue.projectUuid());
+    BranchDto branch = getBranch(session, issue, issue.projectUuid());
     ComponentDto component = getComponent(session, issue, issue.componentUuid());
-    return doSaveIssue(session, issue, context, comment, rule, project, component);
+    return doSaveIssue(session, issue, context, comment, rule, project, branch, component);
   }
 
   private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment,
-    Optional<RuleDefinitionDto> rule, ComponentDto project, ComponentDto component) {
+    Optional<RuleDefinitionDto> rule, ComponentDto project, BranchDto branch, ComponentDto component) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
-    if (issue.type() != RuleType.SECURITY_HOTSPOT) {
+    if (issue.type() != RuleType.SECURITY_HOTSPOT && hasNotificationSupport(branch)) {
       String assigneeUuid = issue.assignee();
       UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);
       String authorUuid = context.userUuid();
@@ -109,11 +114,23 @@ public class IssueUpdater {
     return issueDto;
   }
 
+  private static boolean hasNotificationSupport(BranchDto branch) {
+    return branch.getBranchType() != PULL_REQUEST && branch.getBranchType() != SHORT;
+  }
+
   private ComponentDto getComponent(DbSession dbSession, DefaultIssue issue, @Nullable String componentUuid) {
     String issueKey = issue.key();
     checkState(componentUuid != null, "Issue '%s' has no component", issueKey);
     ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orElse(null);
     checkState(component != null, "Component uuid '%s' for issue key '%s' cannot be found", componentUuid, issueKey);
+    return component;
+  }
+
+  private BranchDto getBranch(DbSession dbSession, DefaultIssue issue, @Nullable String projectUuid) {
+    String issueKey = issue.key();
+    checkState(projectUuid != null, "Issue '%s' has no project", issueKey);
+    BranchDto component = dbClient.branchDao().selectByUuid(dbSession, projectUuid).orElse(null);
+    checkState(component != null, "Branch uuid '%s' for issue key '%s' cannot be found", projectUuid, issueKey);
     return component;
   }
 
