@@ -127,17 +127,15 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               togglePopup={this.props.togglePopup}
             />
           </li>
-          {!isSecurityHotspot && (
-            <li className="issue-meta">
-              <IssueAssign
-                canAssign={canAssign}
-                isOpen={this.props.currentPopup === 'assign' && canAssign}
-                issue={issue}
-                onAssign={this.props.onAssign}
-                togglePopup={this.props.togglePopup}
-              />
-            </li>
-          )}
+          <li className="issue-meta">
+            <IssueAssign
+              canAssign={canAssign}
+              isOpen={this.props.currentPopup === 'assign' && canAssign}
+              issue={issue}
+              onAssign={this.props.onAssign}
+              togglePopup={this.props.togglePopup}
+            />
+          </li>
           {!isSecurityHotspot && issue.effort && (
             <li className="issue-meta">
               <span className="issue-meta-label">
