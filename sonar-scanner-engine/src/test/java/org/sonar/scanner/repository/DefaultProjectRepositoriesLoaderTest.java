@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,20 +55,29 @@ public class DefaultProjectRepositoriesLoaderTest {
     wsClient = mock(ScannerWsClient.class);
     InputStream is = mockData();
     WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F", is);
+    InputStream isIssueMode = mockData();
+    WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F&issues_mode=true", isIssueMode);
     loader = new DefaultProjectRepositoriesLoader(wsClient);
   }
 
   @Test
-  public void continueOnError() {
+  public void continueOnHttp404Exception() {
+    when(wsClient.call(any(WsRequest.class))).thenThrow(new HttpException("/batch/project.protobuf?key=foo%3F", HttpURLConnection.HTTP_NOT_FOUND, ""));
+    ProjectRepositories proj = loader.load(PROJECT_KEY, false, null);
+    assertThat(proj.exists()).isEqualTo(false);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void failOnNonHttp404Exception() {
     when(wsClient.call(any(WsRequest.class))).thenThrow(IllegalStateException.class);
     ProjectRepositories proj = loader.load(PROJECT_KEY, false, null);
     assertThat(proj.exists()).isEqualTo(false);
   }
 
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void parsingError() throws IOException {
     InputStream is = mock(InputStream.class);
-    when(is.read()).thenThrow(IOException.class);
+    when(is.read(any(byte[].class), anyInt(), anyInt())).thenThrow(IOException.class);
     WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F", is);
     loader.load(PROJECT_KEY, false, null);
   }
@@ -100,7 +111,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   }
 
   @Test
-  public void deserializeResponse() throws IOException {
+  public void deserializeResponse() {
     loader.load(PROJECT_KEY, false, null);
   }
 
