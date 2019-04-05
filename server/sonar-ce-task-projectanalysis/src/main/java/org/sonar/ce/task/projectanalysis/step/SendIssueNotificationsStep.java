@@ -105,7 +105,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   public void execute(ComputationStep.Context context) {
     Component project = treeRootHolder.getRoot();
     NotificationStatistics notificationStatistics = new NotificationStatistics();
-    if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
+    if (service.hasProjectSubscribersForTypes(analysisMetadataHolder.getProject().getUuid(), NOTIF_TYPES)) {
       doExecute(notificationStatistics, project);
     }
     notificationStatistics.dumpTo(context);
