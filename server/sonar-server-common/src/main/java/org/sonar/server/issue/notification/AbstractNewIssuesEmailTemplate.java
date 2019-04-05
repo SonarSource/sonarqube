@@ -31,8 +31,6 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static com.google.common.base.Preconditions.checkNotNull;

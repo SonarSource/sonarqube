@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.server.l18n.I18nRule;
 
 import static org.assertj.core.api.Assertions.assertThat;

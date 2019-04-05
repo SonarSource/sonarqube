@@ -23,8 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+import org.sonar.server.issue.notification.EmailMessage;
+import org.sonar.server.issue.notification.EmailTemplate;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 

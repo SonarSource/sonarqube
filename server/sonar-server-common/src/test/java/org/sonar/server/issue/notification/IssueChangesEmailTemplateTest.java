@@ -29,7 +29,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;

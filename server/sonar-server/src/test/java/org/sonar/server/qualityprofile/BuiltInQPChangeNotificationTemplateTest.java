@@ -23,7 +23,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;

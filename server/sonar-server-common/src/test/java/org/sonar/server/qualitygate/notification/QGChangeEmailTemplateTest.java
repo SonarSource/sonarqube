@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.server.issue.notification.EmailMessage;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;

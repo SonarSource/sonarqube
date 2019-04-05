@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications.api;
+package org.sonar.server.issue.notification;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.notifications.Notification;
 
-/**
- * @since 2.10
- */
 @ServerSide
 @ExtensionPoint
 public abstract class EmailTemplate {

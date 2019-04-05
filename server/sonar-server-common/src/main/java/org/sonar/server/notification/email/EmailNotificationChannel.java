@@ -38,8 +38,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+import org.sonar.server.issue.notification.EmailMessage;
+import org.sonar.server.issue.notification.EmailTemplate;
 
 import static java.util.Objects.requireNonNull;
 

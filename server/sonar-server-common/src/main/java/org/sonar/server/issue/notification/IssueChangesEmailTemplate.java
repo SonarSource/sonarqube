@@ -29,8 +29,6 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
 import static java.net.URLEncoder.encode;
 import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;

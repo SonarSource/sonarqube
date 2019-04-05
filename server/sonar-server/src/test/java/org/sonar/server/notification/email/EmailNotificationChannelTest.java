@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.server.issue.notification.EmailMessage;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 

@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications.api;
+package org.sonar.server.issue.notification;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-/**
- * @since 2.10
- */
 public class EmailMessage {
 
   private String from;

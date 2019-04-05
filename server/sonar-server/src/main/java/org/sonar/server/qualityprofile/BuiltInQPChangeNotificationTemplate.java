@@ -25,8 +25,8 @@ import java.util.Comparator;
 import java.util.Date;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+import org.sonar.server.issue.notification.EmailMessage;
+import org.sonar.server.issue.notification.EmailTemplate;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.utils.DateUtils.formatDate;

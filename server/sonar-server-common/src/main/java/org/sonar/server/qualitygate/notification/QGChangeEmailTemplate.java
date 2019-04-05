@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+import org.sonar.server.issue.notification.EmailMessage;
+import org.sonar.server.issue.notification.EmailTemplate;
 
 /**
  * Creates email message for notification "alerts".
