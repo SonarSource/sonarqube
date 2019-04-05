@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { difference } from 'lodash';
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
 import { formatMeasure } from '../../helpers/measures';
@@ -274,4 +275,16 @@ export function scrollToIssue(issue: string, smooth = true) {
   if (element) {
     scrollToElement(element, { topOffset: 250, bottomOffset: 100, smooth });
   }
+}
+
+export function shouldOpenStandardFacet(types?: string[]) {
+  return Boolean(
+    types &&
+      types.length > 0 &&
+      difference(types, ['VULNERABILITY', 'SECURITY_HOTSPOT']).length === 0
+  );
+}
+
+export function shouldOpenSeverityFacet(types?: string[]) {
+  return !types || !(types.length === 1 && types[0] === 'SECURITY_HOTSPOT');
 }

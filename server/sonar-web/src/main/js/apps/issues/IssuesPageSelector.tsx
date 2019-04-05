@@ -18,28 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import AppContainer from './components/AppContainer';
-import { RawQuery } from '../../helpers/query';
-import { getCurrentUser, Store } from '../../store/rootReducer';
 import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
+import { withCurrentUser } from '../../components/hoc/withCurrentUser';
+import { Location } from '../../components/hoc/withRouter';
 
-interface StateProps {
+export interface Props {
   currentUser: T.CurrentUser;
+  location: Location;
 }
 
-interface Props extends StateProps {
-  location: { pathname: string; query: RawQuery };
-}
-
-function IssuesPage({ currentUser, location }: Props) {
+export function IssuesPage({ currentUser, location }: Props) {
   const myIssues = (isLoggedIn(currentUser) && isSonarCloud()) || undefined;
   return <AppContainer location={location} myIssues={myIssues} />;
 }
 
-const stateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(stateToProps)(IssuesPage);
+export default withCurrentUser(IssuesPage);

@@ -22,9 +22,14 @@ import { shallow } from 'enzyme';
 import IssueView from '../IssueView';
 import { mockIssue } from '../../../helpers/testMocks';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+it('should render issues correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should render hotspots correctly', () => {
+  expect(
+    shallowRender({ issue: mockIssue(false, { type: 'SECURITY_HOTSPOT' }) })
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<IssueView['props']> = {}) {

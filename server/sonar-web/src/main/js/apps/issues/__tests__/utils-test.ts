@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { scrollToElement } from '../../../helpers/scrolling';
-import { scrollToIssue } from '../utils';
+import { shouldOpenSeverityFacet, shouldOpenStandardFacet, scrollToIssue } from '../utils';
 
 jest.mock('../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
@@ -53,5 +53,31 @@ describe('scrollToIssue', () => {
         topOffset: 250
       }
     );
+  });
+});
+
+describe('shouldOpenStandardFacet', () => {
+  it('should open standard facet', () => {
+    expect(shouldOpenStandardFacet(['VULNERABILITY'])).toBe(true);
+    expect(shouldOpenStandardFacet(['SECURITY_HOTSPOT'])).toBe(true);
+    expect(shouldOpenStandardFacet(['VULNERABILITY', 'SECURITY_HOTSPOT'])).toBe(true);
+  });
+
+  it('should NOT open standard facet', () => {
+    expect(shouldOpenStandardFacet([])).toBe(false);
+    expect(shouldOpenStandardFacet(['BUGS'])).toBe(false);
+    expect(shouldOpenStandardFacet(['BUGS', 'SECURITY_HOTSPOT'])).toBe(false);
+  });
+});
+
+describe('shouldDisableSeverityFacet', () => {
+  it('should open severity facet', () => {
+    expect(shouldOpenSeverityFacet([])).toBe(true);
+    expect(shouldOpenSeverityFacet(['SECURITY'])).toBe(true);
+    expect(shouldOpenSeverityFacet(['BUGS', 'SECURITY_HOTSPOT'])).toBe(true);
+  });
+
+  it('should NOT open severity facet', () => {
+    expect(shouldOpenSeverityFacet(['SECURITY_HOTSPOT'])).toBe(false);
   });
 });

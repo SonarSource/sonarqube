@@ -64,6 +64,10 @@ module.exports = {
 
   snippetFontColor: '#f0f0f0',
 
+  //issues
+  issueBgColor: '#ffeaea',
+  hotspotBgColor: '#eeeff4',
+
   // alerts
   warningIconColor: '#e2bf41',
 

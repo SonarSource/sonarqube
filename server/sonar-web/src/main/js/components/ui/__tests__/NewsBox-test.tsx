@@ -18,26 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Icon, { IconProps } from './Icon';
+import { shallow } from 'enzyme';
+import NewsBox, { Props } from '../NewsBox';
+import { click } from '../../../helpers/testUtils';
 
-interface Props extends IconProps {
-  thin?: boolean;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export default function ClearIcon({ className, fill = 'currentColor', size, thin }: Props) {
-  return (
-    <Icon className={className} size={size}>
-      {thin ? (
-        <path
-          d="M14 3.209l-1.209-1.209-4.791 4.791-4.791-4.791-1.209 1.209 4.791 4.791-4.791 4.791 1.209 1.209 4.791-4.791 4.791 4.791 1.209-1.209-4.791-4.791z"
-          style={{ fill }}
-        />
-      ) : (
-        <path
-          d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
-          style={{ fill }}
-        />
-      )}
-    </Icon>
+it('should call onClose', () => {
+  const onClose = jest.fn();
+  const wrapper = shallowRender({ onClose });
+  click(wrapper.find('ButtonIcon'));
+  expect(onClose).toBeCalled();
+});
+
+function shallowRender(props: Partial<Props> = {}) {
+  return shallow(
+    <NewsBox onClose={jest.fn()} title="title" {...props}>
+      <div>description</div>
+    </NewsBox>
   );
 }

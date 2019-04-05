@@ -46,12 +46,14 @@ import {
   RawFacet,
   ReferencedComponent,
   ReferencedLanguage,
+  ReferencedRule,
   ReferencedUser,
   saveMyIssues,
   serializeQuery,
-  STANDARDS,
-  ReferencedRule,
-  scrollToIssue
+  scrollToIssue,
+  shouldOpenSeverityFacet,
+  shouldOpenStandardFacet,
+  STANDARDS
 } from '../utils';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { Alert } from '../../../components/ui/Alert';
@@ -144,6 +146,7 @@ export class App extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const query = parseQuery(props.location.query);
     this.state = {
       bulkChangeModal: false,
       checked: [],
@@ -154,8 +157,12 @@ export class App extends React.PureComponent<Props, State> {
       loadingMore: false,
       locationsNavigator: false,
       myIssues: props.myIssues || areMyIssuesSelected(props.location.query),
-      openFacets: { severities: true, types: true },
-      query: parseQuery(props.location.query),
+      openFacets: {
+        severities: shouldOpenSeverityFacet(query.types),
+        standards: shouldOpenStandardFacet(query.types),
+        types: true
+      },
+      query,
       referencedComponentsById: {},
       referencedComponentsByKey: {},
       referencedLanguages: {},
@@ -644,7 +651,6 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleFilterChange = (changes: Partial<Query>) => {
-    this.setState({ loading: true });
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
@@ -654,6 +660,14 @@ export class App extends React.PureComponent<Props, State> {
         myIssues: this.state.myIssues ? 'true' : undefined
       }
     });
+    this.setState(({ openFacets }) => ({
+      loading: true,
+      openFacets: {
+        ...openFacets,
+        severities: openFacets.severities || shouldOpenSeverityFacet(changes.types),
+        standards: openFacets.standards || shouldOpenStandardFacet(changes.types)
+      }
+    }));
   };
 
   handleMyIssuesChange = (myIssues: boolean) => {

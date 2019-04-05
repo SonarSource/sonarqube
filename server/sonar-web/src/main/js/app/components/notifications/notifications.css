@@ -65,13 +65,14 @@
   height: 28px;
   background-color: #000;
   border-radius: 0 3px 3px 0;
-  padding: 9px var(--gridSize) !important;
+  padding: var(--gridSize) 7px !important;
   margin-left: 1px;
   margin-right: var(--gridSize);
+  color: var(--sonarcloudBlack500) !important;
 }
 
-.navbar-latest-notification-dismiss .navbar-icon:hover path {
-  fill: var(--sonarcloudBlack300) !important;
+.navbar-latest-notification-dismiss .navbar-icon:hover {
+  color: var(--sonarcloudBlack300) !important;
 }
 
 .notifications-sidebar {
@@ -87,6 +88,9 @@
 
 .notifications-sidebar-top {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: calc(2 * var(--gridSize));
   border-bottom: 1px solid var(--sonarcloudBlack250);
   background-color: var(--sonarcloudBlack100);
@@ -95,14 +99,6 @@
 .notifications-sidebar-top h3 {
   font-weight: normal;
   font-size: var(--bigFontSize);
-}
-
-.notifications-sidebar-top .close {
-  position: absolute;
-  top: calc(2 * var(--gridSize));
-  right: calc(2 * var(--gridSize));
-  border: 0;
-  color: var(--sonarcloudBlack500);
 }
 
 .notifications-sidebar-content {

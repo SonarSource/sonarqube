@@ -30,8 +30,8 @@ exports[`should render correctly if there are new features, and the user has not
       onClick={[Function]}
     >
       <ClearIcon
-        fill="#8a8c8f"
-        size={10}
+        size={12}
+        thin={true}
       />
     </a>
   </li>

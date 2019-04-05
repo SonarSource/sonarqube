@@ -135,13 +135,17 @@ exports[`#NotificationSidebar should render correctly if there are new features 
       <h3>
         embed_docs.whats_new
       </h3>
-      <a
-        className="close"
-        href="#"
+      <ButtonIcon
+        className="button-tiny"
+        color="#cdcdcd"
         onClick={[MockFunction]}
       >
-        <ClearIcon />
-      </a>
+        <ClearIcon
+          fill="#444"
+          size={12}
+          thin={true}
+        />
+      </ButtonIcon>
     </div>
     <div
       className="notifications-sidebar-content"
@@ -172,13 +176,17 @@ exports[`#NotificationSidebar should render correctly if there are new features 
       <h3>
         embed_docs.whats_new
       </h3>
-      <a
-        className="close"
-        href="#"
+      <ButtonIcon
+        className="button-tiny"
+        color="#cdcdcd"
         onClick={[MockFunction]}
       >
-        <ClearIcon />
-      </a>
+        <ClearIcon
+          fill="#444"
+          size={12}
+          thin={true}
+        />
+      </ButtonIcon>
     </div>
     <div
       className="notifications-sidebar-content"

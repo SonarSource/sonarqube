@@ -77,7 +77,7 @@ a.badge {
 
 .badge-tiny-height {
   height: var(--tinyControlHeight) !important;
-  line-height: calc(var(--tinyControlHeight) - 1px) !important;
+  line-height: var(--tinyControlHeight) !important;
 }
 
 .badge-new {
@@ -86,6 +86,7 @@ a.badge {
   text-transform: uppercase;
   background-color: var(--lightBlue);
   color: var(--darkBlue);
+  font-weight: 600;
 }
 
 .badge-muted {
@@ -115,9 +116,9 @@ a.badge {
 }
 
 .badge-danger-light {
-  border: 1px solid #ebccd1 !important;
+  border: 1px solid var(--alertBorderError) !important;
   border-radius: 3px;
-  background-color: #f2dede;
+  background-color: var(--alertBackgroundError);
   color: #a94442;
 }
 

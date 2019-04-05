@@ -20,7 +20,6 @@
 import * as React from 'react';
 import ClearIcon from '../../../components/icons-components/ClearIcon';
 import NotificationIcon from '../../../components/icons-components/NotificationIcon';
-import { sonarcloudBlack500 } from '../../theme';
 import { PrismicFeatureNews } from '../../../api/news';
 import { differenceInSeconds, parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
@@ -77,7 +76,7 @@ export default class NavLatestNotification extends React.PureComponent<Props> {
             </li>
             <li className="navbar-latest-notification-dismiss">
               <a className="navbar-icon" href="#" onClick={this.handleDismiss}>
-                <ClearIcon fill={sonarcloudBlack500} size={10} />
+                <ClearIcon size={12} thin={true} />
               </a>
             </li>
           </>

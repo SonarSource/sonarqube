@@ -38,7 +38,7 @@
 }
 
 .location-index.muted {
-  background-color: #ccc;
+  background-color: var(--gray80);
 }
 
 .location-index.is-leading {

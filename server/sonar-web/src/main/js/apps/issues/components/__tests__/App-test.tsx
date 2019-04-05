@@ -131,6 +131,38 @@ it('should fetch issues for component', async () => {
   expect(wrapper.state('issues')).toHaveLength(6);
 });
 
+it('should display the right facets open', () => {
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { types: 'SECURITY_HOTSPOT' } })
+    }).state('openFacets')
+  ).toEqual({ severities: false, standards: true, types: true });
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { types: 'VULNERABILITY,SECURITY_HOTSPOT' } })
+    }).state('openFacets')
+  ).toEqual({ severities: true, standards: true, types: true });
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { types: 'BUGS,SECURITY_HOTSPOT' } })
+    }).state('openFacets')
+  ).toEqual({ severities: true, standards: false, types: true });
+});
+
+it('should correctly handle filter changes', () => {
+  const push = jest.fn();
+  const instance = shallowRender({ router: mockRouter({ push }) }).instance();
+  instance.setState({ openFacets: { types: true } });
+  instance.handleFilterChange({ types: ['VULNERABILITY'] });
+  expect(instance.state.openFacets).toEqual({ types: true, severities: true, standards: true });
+  expect(push).toBeCalled();
+  instance.handleFilterChange({ types: ['BUGS'] });
+  expect(instance.state.openFacets).toEqual({ types: true, severities: true, standards: true });
+  instance.setState({ openFacets: { types: true } });
+  instance.handleFilterChange({ types: ['SECURITY_HOTSPOT'] });
+  expect(instance.state.openFacets).toEqual({ types: true, severities: false, standards: true });
+});
+
 it('should fetch issues until defined', async () => {
   const mockDone = (_lastIssue: T.Issue, paging: T.Paging) =>
     paging.total <= paging.pageIndex * paging.pageSize;

@@ -70,6 +70,7 @@ export default class IssueView extends React.PureComponent<Props> {
     const hasCheckbox = this.props.onCheck != null;
 
     const issueClass = classNames('issue', {
+      hotspot: issue.type === 'SECURITY_HOTSPOT',
       'issue-with-checkbox': hasCheckbox,
       selected: this.props.selected
     });

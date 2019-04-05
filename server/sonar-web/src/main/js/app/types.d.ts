@@ -225,7 +225,10 @@ declare namespace T {
     value: string;
   }
 
-  type CurrentUserSettingNames = 'notifications.optOut' | 'notifications.readDate';
+  type CurrentUserSettingNames =
+    | 'notifications.optOut'
+    | 'notifications.readDate'
+    | 'newsbox.dismiss.hotspots';
 
   export interface CustomMeasure {
     createdAt?: string;

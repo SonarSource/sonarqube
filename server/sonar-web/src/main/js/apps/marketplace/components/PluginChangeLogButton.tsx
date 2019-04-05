@@ -34,7 +34,7 @@ export default function PluginChangeLogButton({ release, update }: Props) {
     <Dropdown
       className="display-inline-block little-spacer-left"
       overlay={<PluginChangeLog release={release} update={update} />}>
-      <ButtonLink className="js-changelog issue-rule">
+      <ButtonLink className="js-changelog">
         <EllipsisIcon />
       </ButtonLink>
     </Dropdown>

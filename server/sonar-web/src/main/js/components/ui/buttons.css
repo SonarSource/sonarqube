@@ -109,7 +109,7 @@
 .button-grey:hover,
 .button-grey.active {
   background: var(--gray71);
-  color: #ffffff;
+  color: #fff;
 }
 
 .button-grey:focus {
@@ -145,7 +145,8 @@
   color: var(--blue);
 }
 
-.button-link:active {
+.button-link:active,
+.button-link:focus {
   box-shadow: none;
   outline: thin dotted #ccc;
 }
@@ -166,6 +167,12 @@
   line-height: 18px;
   padding: 0 6px;
   font-size: 11px;
+}
+
+.button-tiny {
+  height: var(--tinyControlHeight);
+  line-height: var(--tinyControlHeight);
+  padding: 0 calc(var(--gridSize) / 2);
 }
 
 .button-large {

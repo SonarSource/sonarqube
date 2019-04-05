@@ -90,4 +90,4 @@ const mapDispatchToProps = { fetchIssues: fetchIssues as any } as DispatchProps;
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(lazyLoad(() => import('./App')));
+)(lazyLoad(() => import('./App'), 'IssuesAppContainer'));

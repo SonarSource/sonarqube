@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render normal issues page 1`] = `
+<Connect(IssuesAppContainer)
+  location={
+    Object {
+      "action": "PUSH",
+      "hash": "",
+      "key": "key",
+      "pathname": "/path",
+      "query": Object {},
+      "search": "",
+      "state": Object {},
+    }
+  }
+/>
+`;

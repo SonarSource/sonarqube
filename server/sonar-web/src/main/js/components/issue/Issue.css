@@ -19,16 +19,19 @@
  */
 .issue {
   position: relative;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  background-color: #ffeaea;
-  box-shadow: inset 0px 0px 0px 1px #ffeaea;
-  transition: all 0.3s ease, border 0 ease;
+  padding-top: var(--gridSize);
+  padding-bottom: var(--gridSize);
+  background-color: var(--issueBgColor);
+  transition: all 0.3s ease, border 0s ease;
+}
+
+.issue.hotspot {
+  background-color: var(--hotspotBgColor);
 }
 
 .issue.selected {
   box-shadow: none;
-  border: 1px solid #dd4040 !important;
+  border: 2px solid var(--blue) !important;
 }
 
 .issue + .issue,
@@ -55,27 +58,10 @@
   flex-grow: 1;
   padding-left: var(--gridSize);
   padding-right: var(--gridSize);
-  line-height: 1.5;
+  line-height: 18px;
   font-size: var(--baseFontSize);
   font-weight: 600;
   text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.issue-message .button-link {
-  height: 16px;
-}
-
-.issue-rule {
-  vertical-align: top;
-  margin-top: 2px;
-  padding: 0 3px;
-  background: rgba(75, 159, 213, 0.3);
-  opacity: 0.5;
-}
-
-.issue-rule:hover {
-  background: rgba(75, 159, 213, 0.3);
 }
 
 .issue-actions {
@@ -215,7 +201,7 @@
 .issue-checkbox-container {
   display: none;
   position: absolute;
-  width: 29px;
+  width: 28px;
   top: 0;
   bottom: 0;
   left: 0;
@@ -227,7 +213,7 @@
 }
 
 .issue:not(.selected) .location-index {
-  background-color: #ccc;
+  background-color: var(--gray80);
 }
 
 .issue .menu:not(.issues-similar-issues-menu):not(.issue-changelog) {

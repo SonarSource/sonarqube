@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="news-box"
+  role="alert"
+>
+  <div
+    className="news-box-header"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="badge badge-new spacer-right"
+      >
+        new
+      </span>
+      <strong>
+        title
+      </strong>
+    </div>
+    <ButtonIcon
+      className="button-tiny"
+      color="#cdcdcd"
+      onClick={[MockFunction]}
+    >
+      <ClearIcon
+        fill="#444"
+        size={12}
+        thin={true}
+      />
+    </ButtonIcon>
+  </div>
+  <div
+    className="big-spacer-top note"
+  >
+    <div>
+      description
+    </div>
+  </div>
+</div>
+`;

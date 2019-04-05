@@ -29,7 +29,7 @@ export interface Props {
   onClick: (x: string, multiple?: boolean) => void;
   stat?: React.ReactNode;
   /** Textual version of `name` */
-  tooltip: string;
+  tooltip?: string;
   value: string;
 }
 

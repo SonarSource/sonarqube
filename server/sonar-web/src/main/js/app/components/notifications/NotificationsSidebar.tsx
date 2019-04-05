@@ -19,10 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import * as theme from '../../../app/theme';
 import ClearIcon from '../../../components/icons-components/ClearIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import Modal from '../../../components/controls/Modal';
+import { ButtonIcon } from '../../../components/ui/buttons';
 import { PrismicFeatureNews } from '../../../api/news';
 import { differenceInSeconds } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
@@ -44,9 +46,9 @@ export default function NotificationsSidebar(props: Props) {
       <div className="notifications-sidebar">
         <div className="notifications-sidebar-top">
           <h3>{translate('embed_docs.whats_new')}</h3>
-          <a className="close" href="#" onClick={props.onClose}>
-            <ClearIcon />
-          </a>
+          <ButtonIcon className="button-tiny" color={theme.gray80} onClick={props.onClose}>
+            <ClearIcon fill={theme.baseFontColor} size={12} thin={true} />
+          </ButtonIcon>
         </div>
         <div className="notifications-sidebar-content">
           {loading ? (

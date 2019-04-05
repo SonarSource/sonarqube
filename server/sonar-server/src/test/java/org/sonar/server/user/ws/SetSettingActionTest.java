@@ -91,11 +91,17 @@ public class SetSettingActionTest {
       .setParam("value", "true")
       .execute();
 
+    ws.newRequest()
+      .setParam("key", "newsbox.dismiss.hotspots")
+      .setParam("value", "true")
+      .execute();
+
     assertThat(db.getDbClient().userPropertiesDao().selectByUser(db.getSession(), user))
       .extracting(UserPropertyDto::getKey, UserPropertyDto::getValue)
       .containsExactlyInAnyOrder(
         tuple("notifications.readDate", "1234"),
-        tuple("notifications.optOut", "true"));
+        tuple("notifications.optOut", "true"),
+        tuple("newsbox.dismiss.hotspots", "true"));
   }
 
   @Test
@@ -125,7 +131,8 @@ public class SetSettingActionTest {
 
     assertThat(definition.param("key").possibleValues()).containsExactlyInAnyOrder(
       "notifications.optOut",
-      "notifications.readDate");
+      "notifications.readDate",
+      "newsbox.dismiss.hotspots");
   }
 
 }
