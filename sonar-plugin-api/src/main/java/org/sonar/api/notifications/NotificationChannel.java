@@ -35,10 +35,12 @@ import org.sonar.api.server.ServerSide;
  * </ul>
  * 
  * @since 2.10
+ * @deprecated in 7.8. This API is not usable, incomplete and suffers from significant performance hotspots.
  */
 @ServerSide
 @ComputeEngineSide
 @ExtensionPoint
+@Deprecated
 public abstract class NotificationChannel {
 
   /**

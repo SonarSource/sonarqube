@@ -35,7 +35,9 @@ import javax.annotation.Nullable;
  * 
  *
  * @since 2.10
+ * @deprecated in 7.8. See {@link NotificationChannel}.
  */
+@Deprecated
 public class Notification implements Serializable {
 
   private static final String DEFAULT_MESSAGE_KEY = "default_message";
