@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.WsBatch;
@@ -83,16 +82,12 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
   private static boolean shouldThrow(Exception e) {
     for (Throwable t : Throwables.getCausalChain(e)) {
-      if (t instanceof HttpException) {
-        HttpException http = (HttpException) t;
-        return http.code() != HttpURLConnection.HTTP_NOT_FOUND;
-      }
-      if (t instanceof MessageException) {
-        return true;
+      if (t instanceof HttpException && ((HttpException) t).code() == HttpURLConnection.HTTP_NOT_FOUND) {
+        return false;
       }
     }
 
-    return false;
+    return true;
   }
 
   private static ProjectRepositories processStream(InputStream is, String projectKey) {
