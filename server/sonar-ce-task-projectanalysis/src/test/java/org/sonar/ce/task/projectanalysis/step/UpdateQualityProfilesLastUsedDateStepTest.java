@@ -52,9 +52,9 @@ import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfil
 public class UpdateQualityProfilesLastUsedDateStepTest {
   static final long ANALYSIS_DATE = 1_123_456_789L;
   private static final Component PROJECT = ReportComponent.DUMB_PROJECT;
-  private QProfileDto sonarWayJava = newQualityProfileDto().setKee("sonar-way-java");
-  private QProfileDto sonarWayPhp = newQualityProfileDto().setKee("sonar-way-php");
-  private QProfileDto myQualityProfile = newQualityProfileDto().setKee("my-qp");
+  private QProfileDto sonarWayJava = newProfile("sonar-way-java");
+  private QProfileDto sonarWayPhp = newProfile("sonar-way-php");
+  private QProfileDto myQualityProfile = newProfile("my-qp");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -74,9 +74,9 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
 
   UpdateQualityProfilesLastUsedDateStep underTest = new UpdateQualityProfilesLastUsedDateStep(dbClient, analysisMetadataHolder, treeRootHolder, metricRepository,
     measureRepository);
@@ -109,12 +109,12 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   @Test
   public void ancestor_profiles_are_updated() {
     // Parent profiles should be updated
-    QProfileDto rootProfile = newQualityProfileDto().setKee("root");
-    QProfileDto parentProfile = newQualityProfileDto().setKee("parent").setParentKee(rootProfile.getKee());
+    QProfileDto rootProfile = newProfile("root");
+    QProfileDto parentProfile = newProfile("parent").setParentKee(rootProfile.getKee());
     // Current profile => should be updated
-    QProfileDto currentProfile = newQualityProfileDto().setKee("current").setParentKee(parentProfile.getKee());
+    QProfileDto currentProfile = newProfile("current").setParentKee(parentProfile.getKee());
     // Child of current profile => should not be updated
-    QProfileDto childProfile = newQualityProfileDto().setKee("child").setParentKee(currentProfile.getKee());
+    QProfileDto childProfile = newProfile("child").setParentKee(currentProfile.getKee());
     qualityProfileDb.insert(rootProfile, parentProfile, currentProfile, childProfile);
 
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
@@ -129,7 +129,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
 
   @Test
   public void fail_when_profile_is_linked_to_unknown_parent() {
-    QProfileDto currentProfile = newQualityProfileDto().setKee("current").setParentKee("unknown");
+    QProfileDto currentProfile = newProfile("current").setParentKee("unknown");
     qualityProfileDb.insert(currentProfile);
 
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
@@ -141,6 +141,12 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   @Test
   public void test_description() {
     assertThat(underTest.getDescription()).isEqualTo("Update last usage date of quality profiles");
+  }
+
+  private static QProfileDto newProfile(String key) {
+    return newQualityProfileDto().setKee(key)
+      // profile has been used before the analysis
+      .setLastUsed(ANALYSIS_DATE - 10_000);
   }
 
   private void assertQualityProfileIsUpdated(QProfileDto qp) {

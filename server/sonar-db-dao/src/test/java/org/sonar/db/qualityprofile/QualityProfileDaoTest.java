@@ -149,6 +149,32 @@ public class QualityProfileDaoTest {
   }
 
   @Test
+  public void test_updateLastUsedDate() {
+    QProfileDto initial = QualityProfileTesting.newQualityProfileDto()
+      .setLastUsed(10_000L);
+    underTest.insert(dbSession, initial);
+
+    int count = underTest.updateLastUsedDate(dbSession, initial, 15_000L);
+
+    assertThat(count).isEqualTo(1);
+    QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded.getLastUsed()).isEqualTo(15_000L);
+  }
+
+  @Test
+  public void updateLastUsedDate_does_not_touch_row_if_last_used_is_more_recent() {
+    QProfileDto initial = QualityProfileTesting.newQualityProfileDto()
+      .setLastUsed(10_000L);
+    underTest.insert(dbSession, initial);
+
+    int count = underTest.updateLastUsedDate(dbSession, initial, 8_000L);
+
+    assertThat(count).isZero();
+    QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded.getLastUsed()).isEqualTo(10_000L);
+  }
+
+  @Test
   public void selectRuleProfile() {
     RulesProfileDto rp = insertRulesProfile();
 

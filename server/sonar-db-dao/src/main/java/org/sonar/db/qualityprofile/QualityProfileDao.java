@@ -121,6 +121,10 @@ public class QualityProfileDao implements Dao {
     }
   }
 
+  public int updateLastUsedDate(DbSession dbSession, QProfileDto profile, long lastUsedDate) {
+    return mapper(dbSession).updateLastUsedDate(profile.getKee(), lastUsedDate, system.now());
+  }
+
   public void update(DbSession dbSession, RulesProfileDto rulesProfile) {
     QualityProfileMapper mapper = mapper(dbSession);
     long now = system.now();

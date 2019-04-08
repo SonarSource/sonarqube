@@ -135,4 +135,9 @@ public interface QualityProfileMapper {
   void renameRuleProfiles(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("uuids") Collection<String> uuids);
 
   List<QProfileDto> selectQProfilesByRuleProfileUuid(@Param("rulesProfileUuid") String rulesProfileUuid);
+
+  int updateLastUsedDate(
+    @Param("uuid") String uuid,
+    @Param("lastUsedDate") long lastUsedDate,
+    @Param("now") long now);
 }

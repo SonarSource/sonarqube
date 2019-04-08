@@ -91,6 +91,16 @@
       uuid = #{dto.uuid, jdbcType=VARCHAR}
   </update>
 
+  <update id="updateLastUsedDate" parameterType="map">
+    update org_qprofiles
+    set
+      last_used = #{lastUsedDate, jdbcType=BIGINT},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+      and last_used &lt; #{lastUsedDate, jdbcType=BIGINT}
+  </update>
+
   <delete id="deleteRuleProfilesByUuids" parameterType="String">
     delete from rules_profiles
     where kee in
@@ -120,7 +130,7 @@
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
-    where 
+    where
       oqp.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     order by rp.name, rp.language
   </select>
@@ -183,7 +193,7 @@
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
-    where 
+    where
       rp.name = #{name, jdbcType=VARCHAR}
       and rp.language = #{language, jdbcType=VARCHAR}
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
@@ -198,7 +208,7 @@
     rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
     and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
-    
+
   <select id="selectByNameAndLanguages" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>

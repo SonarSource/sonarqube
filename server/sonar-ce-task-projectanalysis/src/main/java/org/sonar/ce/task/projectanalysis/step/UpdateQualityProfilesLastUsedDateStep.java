@@ -19,11 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -50,7 +47,7 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
   private final MeasureRepository measureRepository;
 
   public UpdateQualityProfilesLastUsedDateStep(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder, MetricRepository metricRepository,
-                                               MeasureRepository measureRepository) {
+    MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.treeRootHolder = treeRootHolder;
@@ -60,38 +57,33 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
+    Component root = treeRootHolder.getRoot();
+    Metric metric = metricRepository.getByKey(QUALITY_PROFILES_KEY);
+    Set<QualityProfile> qualityProfiles = parseQualityProfiles(measureRepository.getRawMeasure(root, metric));
     try (DbSession dbSession = dbClient.openSession(true)) {
-      Component root = treeRootHolder.getRoot();
-      Metric metric = metricRepository.getByKey(QUALITY_PROFILES_KEY);
-      Set<QualityProfile> qualityProfiles = parseQualityProfiles(measureRepository.getRawMeasure(root, metric));
-      if (qualityProfiles.isEmpty()) {
-        return;
+      for (QualityProfile qualityProfile : qualityProfiles) {
+        updateDate(dbSession, qualityProfile.getQpKey(), analysisMetadataHolder.getAnalysisDate());
       }
-
-      List<QProfileDto> dtos = dbClient.qualityProfileDao().selectByUuids(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).collect(Collectors.toList()));
-      dtos.addAll(getAncestors(dbSession, dtos));
-      long analysisDate = analysisMetadataHolder.getAnalysisDate();
-      dtos.forEach(dto -> {
-        dto.setLastUsed(analysisDate);
-        dbClient.qualityProfileDao().update(dbSession, dto);
-      });
-
       dbSession.commit();
     }
   }
 
-  private List<QProfileDto> getAncestors(DbSession dbSession, List<QProfileDto> dtos) {
-    List<QProfileDto> ancestors = new ArrayList<>();
-    dtos.forEach(dto -> incrementAncestors(dbSession, dto, ancestors));
-    return ancestors;
-  }
-
-  private void incrementAncestors(DbSession session, QProfileDto profile, List<QProfileDto> ancestors) {
-    String parentKey = profile.getParentKee();
-    if (parentKey != null) {
-      QProfileDto parentDto = dbClient.qualityProfileDao().selectOrFailByUuid(session, parentKey);
-      ancestors.add(parentDto);
-      incrementAncestors(session, parentDto, ancestors);
+  private void updateDate(DbSession dbSession, String qProfileUuid, long lastUsedDate) {
+    // Traverse profiles from bottom to up in order to avoid DB deadlocks between multiple transactions.
+    // Example of hierarchy of profiles:
+    // A
+    // |- B
+    //    |- C1
+    //    |- C2
+    // Transaction #1 updates C1 then B then A
+    // Transaction #2 updates C2 then B then A
+    // Transaction #3 updates B then A
+    // No cross-dependencies are possible.
+    QProfileDto dto = dbClient.qualityProfileDao().selectOrFailByUuid(dbSession, qProfileUuid);
+    dbClient.qualityProfileDao().updateLastUsedDate(dbSession, dto, lastUsedDate);
+    String parentUuid = dto.getParentKee();
+    if (parentUuid != null) {
+      updateDate(dbSession, parentUuid, lastUsedDate);
     }
   }
 
