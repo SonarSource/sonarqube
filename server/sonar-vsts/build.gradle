@@ -14,7 +14,7 @@ yarn_run {
   ['config', 'public', 'scripts', 'src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
-  ['.babelrc', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
+  ['babel.config.js', 'package.json', 'tsconfig.json', 'yarn.lock'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir('build/webapp')
