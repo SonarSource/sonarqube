@@ -82,6 +82,7 @@ export interface Props {
   onIssueUnselect?: () => void;
   scroll?: (element: HTMLElement) => void;
   selectedIssue?: string;
+  showMeasures?: boolean;
 }
 
 interface State {
@@ -710,7 +711,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
             {({ openComponent }) => (
               <SourceViewerHeader
                 branchLike={this.props.branchLike}
+                issues={this.state.issues}
                 openComponent={openComponent}
+                showMeasures={this.props.showMeasures}
                 sourceViewerFile={component}
               />
             )}

@@ -54,6 +54,7 @@ export class SourceViewerWrapper extends React.PureComponent<Props> {
         component={component}
         highlightedLine={finalLine}
         onLoaded={this.scrollToLine}
+        showMeasures={true}
       />
     );
   }

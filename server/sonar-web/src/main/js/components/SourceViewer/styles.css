@@ -285,7 +285,6 @@
 }
 
 .source-viewer-header-component {
-  float: left;
   padding-top: 4px;
 }
 
@@ -304,19 +303,13 @@
   border-bottom: none;
 }
 
-.source-viewer-header-measures {
-  float: right;
-}
-
 .source-viewer-header-measures-scope {
   position: relative;
   float: left;
 }
 
 .source-viewer-header-measure {
-  display: inline-block;
   vertical-align: middle;
-  padding: 3px 0;
   font-size: var(--baseFontSize);
 }
 
@@ -324,13 +317,18 @@
   font-size: 18px;
 }
 
+.source-viewer-header-measure-separator {
+  margin: 0 calc(3 * var(--gridSize));
+  height: 30px;
+  border-right: 1px solid var(--gray80);
+}
+
 .source-viewer-header-measure + .source-viewer-header-measure {
-  margin-left: 25px;
+  margin-left: calc(3 * var(--gridSize));
 }
 
 .source-viewer-header-measure-label {
   display: block;
-  margin-top: 4px;
   line-height: var(--smallFontSize);
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);
@@ -338,16 +336,16 @@
 
 .source-viewer-header-measure-value {
   display: block;
+  margin-top: 2px;
   line-height: 18px;
   color: var(--baseFontColor);
   font-size: var(--bigFontSize);
 }
 
 .source-viewer-header-actions {
-  float: right;
   display: block;
-  margin-left: 25px;
-  padding: 8px 5px;
+  margin-left: calc(3 * var(--gridSize));
+  padding: var(--gridSize) calc(var(--gridSize) / 2);
 }
 
 .source-viewer-header-actions svg {

@@ -28,13 +28,7 @@ import ListIcon from '../icons-components/ListIcon';
 import { ButtonIcon } from '../ui/buttons';
 import { PopupPlacement } from '../ui/popups';
 import { WorkspaceContextShape } from '../workspace/context';
-import {
-  getPathUrlAsString,
-  getBranchLikeUrl,
-  getComponentIssuesUrl,
-  getBaseUrl,
-  getCodeUrl
-} from '../../helpers/urls';
+import { getPathUrlAsString, getBranchLikeUrl, getBaseUrl, getCodeUrl } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
 import { getBranchLikeQuery, isMainBranch } from '../../helpers/branches';
@@ -43,7 +37,9 @@ import { omitNil } from '../../helpers/request';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
+  issues?: T.Issue[];
   openComponent: WorkspaceContextShape['openComponent'];
+  showMeasures?: boolean;
   sourceViewerFile: T.SourceViewerFile;
 }
 
@@ -70,6 +66,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
   };
 
   render() {
+    const { issues, showMeasures } = this.props;
     const {
       key,
       measures,
@@ -78,8 +75,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
       projectName,
       q,
       subProject,
-      subProjectName,
-      uuid
+      subProjectName
     } = this.props.sourceViewerFile;
     const isUnitTest = q === 'UTS';
     const workspace = false;
@@ -90,8 +86,8 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
 
     // TODO favorite
     return (
-      <div className="source-viewer-header">
-        <div className="source-viewer-header-component">
+      <div className="source-viewer-header display-flex-center">
+        <div className="source-viewer-header-component flex-1">
           <div className="component-name">
             <div className="component-name-parent">
               <a
@@ -123,8 +119,86 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
           </div>
         </div>
 
+        {this.state.measuresOverlay && (
+          <MeasuresOverlay
+            branchLike={this.props.branchLike}
+            onClose={this.handleMeasuresOverlayClose}
+            sourceViewerFile={this.props.sourceViewerFile}
+          />
+        )}
+
+        {showMeasures && (
+          <div className="display-flex-center">
+            {isUnitTest && (
+              <div className="source-viewer-header-measure">
+                <span className="source-viewer-header-measure-label">
+                  {translate('metric.tests.name')}
+                </span>
+                <span className="source-viewer-header-measure-value">
+                  {formatMeasure(measures.tests, 'SHORT_INT')}
+                </span>
+              </div>
+            )}
+
+            {!isUnitTest && (
+              <div className="source-viewer-header-measure">
+                <span className="source-viewer-header-measure-label">
+                  {translate('metric.lines.name')}
+                </span>
+                <span className="source-viewer-header-measure-value">
+                  {formatMeasure(measures.lines, 'SHORT_INT')}
+                </span>
+              </div>
+            )}
+
+            {measures.coverage !== undefined && (
+              <div className="source-viewer-header-measure">
+                <span className="source-viewer-header-measure-label">
+                  {translate('metric.coverage.name')}
+                </span>
+                <span className="source-viewer-header-measure-value">
+                  {formatMeasure(measures.coverage, 'PERCENT')}
+                </span>
+              </div>
+            )}
+
+            {measures.duplicationDensity !== undefined && (
+              <div className="source-viewer-header-measure">
+                <span className="source-viewer-header-measure-label">
+                  {translate('duplications')}
+                </span>
+                <span className="source-viewer-header-measure-value">
+                  {formatMeasure(measures.duplicationDensity, 'PERCENT')}
+                </span>
+              </div>
+            )}
+
+            {issues && issues.length > 0 && (
+              <>
+                <div className="source-viewer-header-measure-separator" />
+
+                {['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'].map(
+                  (type: T.IssueType) => {
+                    const total = issues.filter(issue => issue.type === type).length;
+                    return (
+                      <div className="source-viewer-header-measure" key={type}>
+                        <span className="source-viewer-header-measure-label">
+                          {translate('issue.type', type)}
+                        </span>
+                        <span className="source-viewer-header-measure-value">
+                          {formatMeasure(total, 'INT')}
+                        </span>
+                      </div>
+                    );
+                  }
+                )}
+              </>
+            )}
+          </div>
+        )}
+
         <Dropdown
-          className="source-viewer-header-actions"
+          className="source-viewer-header-actions flex-0"
           overlay={
             <ul className="menu">
               <li>
@@ -164,76 +238,6 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             <ListIcon />
           </ButtonIcon>
         </Dropdown>
-
-        {this.state.measuresOverlay && (
-          <MeasuresOverlay
-            branchLike={this.props.branchLike}
-            onClose={this.handleMeasuresOverlayClose}
-            sourceViewerFile={this.props.sourceViewerFile}
-          />
-        )}
-
-        <div className="source-viewer-header-measures">
-          {isUnitTest && (
-            <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">
-                {formatMeasure(measures.tests, 'SHORT_INT')}
-              </span>
-              <span className="source-viewer-header-measure-label">
-                {translate('metric.tests.name')}
-              </span>
-            </div>
-          )}
-
-          {!isUnitTest && (
-            <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">
-                {formatMeasure(measures.lines, 'SHORT_INT')}
-              </span>
-              <span className="source-viewer-header-measure-label">
-                {translate('metric.lines.name')}
-              </span>
-            </div>
-          )}
-
-          <div className="source-viewer-header-measure">
-            <span className="source-viewer-header-measure-value">
-              <Link
-                to={getComponentIssuesUrl(project, {
-                  resolved: 'false',
-                  fileUuids: uuid,
-                  ...getBranchLikeQuery(this.props.branchLike)
-                })}>
-                {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}
-              </Link>
-            </span>
-            <span className="source-viewer-header-measure-label">
-              {translate('metric.violations.name')}
-            </span>
-          </div>
-
-          {measures.coverage != null && (
-            <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">
-                {formatMeasure(measures.coverage, 'PERCENT')}
-              </span>
-              <span className="source-viewer-header-measure-label">
-                {translate('metric.coverage.name')}
-              </span>
-            </div>
-          )}
-
-          {measures.duplicationDensity != null && (
-            <div className="source-viewer-header-measure">
-              <span className="source-viewer-header-measure-value">
-                {formatMeasure(measures.duplicationDensity, 'PERCENT')}
-              </span>
-              <span className="source-viewer-header-measure-label">
-                {translate('duplications')}
-              </span>
-            </div>
-          )}
-        </div>
       </div>
     );
   }

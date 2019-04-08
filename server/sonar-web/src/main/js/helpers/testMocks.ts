@@ -441,6 +441,26 @@ export function mockShortLivingBranch(
   };
 }
 
+export function mockSourceViewerFile(
+  overrides: Partial<T.SourceViewerFile> = {}
+): T.SourceViewerFile {
+  return {
+    key: 'foo',
+    measures: {
+      coverage: '85.2',
+      duplicationDensity: '1.0',
+      issues: '12',
+      lines: '56'
+    },
+    path: 'foo/bar.ts',
+    project: 'my-project',
+    projectName: 'MyProject',
+    q: 'FIL',
+    uuid: 'foo-bar',
+    ...overrides
+  };
+}
+
 export function mockLongLivingBranch(
   overrides: Partial<T.LongLivingBranch> = {}
 ): T.LongLivingBranch {
