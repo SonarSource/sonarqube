@@ -118,7 +118,7 @@ public class PopulateInitialSchemaTest {
       "from users where login='admin'");
     assertThat(cols.get("login")).isEqualTo("admin");
     assertThat(cols.get("name")).isEqualTo("Administrator");
-    assertThat(cols.get("email")).isEqualTo("");
+    assertThat(cols.get("email")).isNull();
     assertThat(cols.get("user_local")).isEqualTo(true);
     assertThat(cols.get("crypted_password")).isEqualTo("a373a0e667abb2604c1fd571eb4ad47fe8cc0878");
     assertThat(cols.get("salt")).isEqualTo("48bc4b0d93179b5103fd3885ea9119498e9d161b");

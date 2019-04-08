@@ -98,7 +98,7 @@ public class PopulateInitialSchema extends DataChange {
     context.prepareUpsert("insert into users " +
       "(login, name, email, external_identity, external_identity_provider, user_local, crypted_password, salt, " +
       "created_at, updated_at, remember_token, remember_token_expires_at) " +
-      "values ('" + ADMIN_USER + "', 'Administrator', '', 'admin', 'sonarqube', ?, " +
+      "values ('" + ADMIN_USER + "', 'Administrator', null, 'admin', 'sonarqube', ?, " +
       "'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', ?, ?, null, null)")
       .setBoolean(1, true)
       .setLong(2, now)
