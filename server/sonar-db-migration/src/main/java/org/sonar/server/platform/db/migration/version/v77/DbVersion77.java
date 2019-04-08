@@ -32,15 +32,12 @@ public class DbVersion77 implements DbVersion {
       .add(2602, "Add column LAST_CONNECTION_DATE to USERS table", AddLastConnectionDateToUsers.class)
       .add(2603, "Add column LAST_USED_DATE to USER_TOKENS table", AddLastConnectionDateToUserTokens.class)
       .add(2604, "Add baseline columns in PROJECT_BRANCHES", AddManualBaselineToProjectBranches.class)
-      .add(2605, "Add SNAPSHOTS.PROJECT_VERSION", AddProjectVersionToSnapshot.class)
       .add(2606, "Drop DATA_TYPE column from FILE_SOURCES table", DropDataTypeFromFileSources.class)
       .add(2607, "Add MEMBERS_SYNC_ENABLED column to ORGANIZATIONS_ALM_BINDING table", AddMembersSyncFlagToOrgAlmBinding.class)
       .add(2608, "Delete favorites on not supported components", DeleteFavouritesOnNotSupportedComponentQualifiers.class)
       .add(2609, "Delete exceeding favorites when there are more than 100 for a user", DeleteFavoritesExceedingOneHundred.class)
       .add(2610, "Truncate ES_QUEUE table content", TruncateEsQueue.class)
       .add(2611, "Add SNAPSHOTS.BUILD_STRING", AddBuildStringToSnapshot.class)
-      // FIXME after deployment on SonarCloud, drop this and "Add SNAPSHOTS.PROJECT_VERSION" above as they cancel out each other
-      .add(2612, "Drop SNAPSHOTS.PROJECT_VERSION", DropProjectVersionFromSnapshots.class)
     ;
   }
 }
