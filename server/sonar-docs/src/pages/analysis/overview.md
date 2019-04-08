@@ -55,7 +55,7 @@ A project is created in the platform automatically on its first analysis. Howeve
 * On all languages, "blame" data will automatically be imported from supported SCM providers. [Git and SVN are supported automatically](/analysis/scm-integration/). Other providers require additional plugins.
 * On all languages, a static analysis of source code is performed (Java files, COBOL programs, etc.)
 * A static analysis of compiled code can be performed for certain languages (.class files in Java, .dll files in C#, etc.)
-* A dynamic analysis of code can be performed on certain languages.
+
 
 ## Will all files be analyzed?
 By default, only files that are recognized by a language analyzer are loaded into the project during analysis. 
