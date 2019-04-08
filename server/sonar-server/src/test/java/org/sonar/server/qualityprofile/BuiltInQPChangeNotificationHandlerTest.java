@@ -117,13 +117,13 @@ public class BuiltInQPChangeNotificationHandlerTest {
       .flatMap(notification -> emailSubscribers.stream().map(subscriber -> new EmailNotificationChannel.EmailDeliveryRequest(subscriber.getEmail(), notification)))
       .collect(toSet());
     int deliveries = new Random().nextInt(expectedRequests.size());
-    when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveries);
+    when(emailNotificationChannel.deliverAll(expectedRequests)).thenReturn(deliveries);
 
     int deliver = underTest.deliver(notifications);
 
     assertThat(deliver).isEqualTo(deliveries);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
     verify(dbClient).openSession(false);
     verify(dbClient).authorizationDao();

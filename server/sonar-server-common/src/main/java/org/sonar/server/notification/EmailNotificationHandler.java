@@ -42,7 +42,7 @@ public abstract class EmailNotificationHandler<T extends Notification> implement
     if (requests.isEmpty()) {
       return 0;
     }
-    return emailChannel.deliver(requests);
+    return emailChannel.deliverAll(requests);
   }
 
   protected abstract Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<T> notifications);

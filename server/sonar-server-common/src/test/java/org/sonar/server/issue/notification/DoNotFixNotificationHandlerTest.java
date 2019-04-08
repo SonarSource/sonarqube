@@ -242,7 +242,7 @@ public class DoNotFixNotificationHandlerTest {
       .flatMap(t -> t)
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
-    when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
+    when(emailNotificationChannel.deliverAll(expectedRequests)).thenReturn(deliveredCount);
 
     Set<IssueChangeNotification> notifications = Stream.of(
       subscriber1Notifications.stream(),
@@ -256,7 +256,7 @@ public class DoNotFixNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(DO_NOT_FIX_ISSUE_CHANGE_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 

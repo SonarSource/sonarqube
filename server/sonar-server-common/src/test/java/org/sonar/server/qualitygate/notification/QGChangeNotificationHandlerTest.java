@@ -172,7 +172,7 @@ public class QGChangeNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(QG_CHANGE_DISPATCHER_KEY, projectKey, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 
@@ -210,7 +210,7 @@ public class QGChangeNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(QG_CHANGE_DISPATCHER_KEY, projectKey2, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 

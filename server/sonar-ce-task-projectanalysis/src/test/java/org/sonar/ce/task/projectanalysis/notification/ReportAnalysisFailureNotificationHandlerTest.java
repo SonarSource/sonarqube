@@ -176,7 +176,7 @@ public class ReportAnalysisFailureNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(REPORT_FAILURE_DISPATCHER_KEY, projectKey, REQUIRED_SUBSCRIBER_PERMISSIONS);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 
@@ -214,7 +214,7 @@ public class ReportAnalysisFailureNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(REPORT_FAILURE_DISPATCHER_KEY, projectKey2, REQUIRED_SUBSCRIBER_PERMISSIONS);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 

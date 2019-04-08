@@ -19,7 +19,18 @@
  */
 package org.sonar.server.notification.email;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.mail.EmailException;
 import org.junit.After;
@@ -27,18 +38,30 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.notifications.Notification;
 import org.sonar.server.issue.notification.EmailMessage;
+import org.sonar.server.issue.notification.EmailTemplate;
+import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static junit.framework.Assert.fail;
 import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class EmailNotificationChannelTest {
+
+  private static final String SUBJECT_PREFIX = "[SONARQUBE]";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -212,12 +235,134 @@ public class EmailNotificationChannelTest {
     }
   }
 
+  @Test
+  public void deliverAll_has_no_effect_if_set_is_empty() {
+    EmailSettings emailSettings = mock(EmailSettings.class);
+    EmailNotificationChannel underTest = new EmailNotificationChannel(emailSettings, null, null);
+
+    int count = underTest.deliverAll(Collections.emptySet());
+
+    assertThat(count).isZero();
+    verifyZeroInteractions(emailSettings);
+    assertThat(smtpServer.getMessages()).isEmpty();
+  }
+
+  @Test
+  public void deliverAll_has_no_effect_if_smtp_host_is_null() {
+    EmailSettings emailSettings = mock(EmailSettings.class);
+    when(emailSettings.getSmtpHost()).thenReturn(null);
+    Set<EmailDeliveryRequest> requests = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> new EmailDeliveryRequest("foo" + i + "@moo", mock(Notification.class)))
+      .collect(toSet());
+    EmailNotificationChannel underTest = new EmailNotificationChannel(emailSettings, null, null);
+
+    int count = underTest.deliverAll(requests);
+
+    assertThat(count).isZero();
+    verify(emailSettings).getSmtpHost();
+    verifyNoMoreInteractions(emailSettings);
+    assertThat(smtpServer.getMessages()).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("emptyStrings")
+  public void deliverAll_ignores_requests_which_recipient_is_empty(String emptyString) {
+    EmailSettings emailSettings = mock(EmailSettings.class);
+    when(emailSettings.getSmtpHost()).thenReturn(null);
+    Set<EmailDeliveryRequest> requests = IntStream.range(0, 1 + new Random().nextInt(10))
+      .mapToObj(i -> new EmailDeliveryRequest(emptyString, mock(Notification.class)))
+      .collect(toSet());
+    EmailNotificationChannel underTest = new EmailNotificationChannel(emailSettings, null, null);
+
+    int count = underTest.deliverAll(requests);
+
+    assertThat(count).isZero();
+    verify(emailSettings).getSmtpHost();
+    verifyNoMoreInteractions(emailSettings);
+    assertThat(smtpServer.getMessages()).isEmpty();
+  }
+
+  @Test
+  public void deliverAll_returns_count_of_request_for_which_at_least_one_formatter_accept_it() throws MessagingException, IOException {
+    String recipientEmail = "foo@donut";
+    configure();
+    Notification notification1 = mock(Notification.class);
+    Notification notification2 = mock(Notification.class);
+    Notification notification3 = mock(Notification.class);
+    EmailTemplate template1 = mock(EmailTemplate.class);
+    EmailTemplate template3 = mock(EmailTemplate.class);
+    EmailMessage emailMessage1 = new EmailMessage().setTo(recipientEmail).setSubject("sub11").setMessage("msg11");
+    EmailMessage emailMessage3 = new EmailMessage().setTo(recipientEmail).setSubject("sub3").setMessage("msg3");
+    when(template1.format(notification1)).thenReturn(emailMessage1);
+    when(template3.format(notification3)).thenReturn(emailMessage3);
+    Set<EmailDeliveryRequest> requests = Stream.of(notification1, notification2, notification3)
+      .map(t -> new EmailDeliveryRequest(recipientEmail, t))
+      .collect(toSet());
+    EmailNotificationChannel underTest = new EmailNotificationChannel(configuration, new EmailTemplate[] {template1, template3}, null);
+
+    int count = underTest.deliverAll(requests);
+
+    assertThat(count).isEqualTo(2);
+    assertThat(smtpServer.getMessages()).hasSize(2);
+    Map<String, MimeMessage> messagesBySubject = smtpServer.getMessages().stream()
+      .map(t -> {
+        try {
+          return t.getMimeMessage();
+        } catch (MessagingException e) {
+          throw new RuntimeException(e);
+        }
+      })
+      .collect(toMap(t -> {
+        try {
+          return t.getSubject();
+        } catch (MessagingException e) {
+          throw new RuntimeException(e);
+        }
+      }, t -> t));
+
+    assertThat((String) messagesBySubject.get(SUBJECT_PREFIX + " " + emailMessage1.getSubject()).getContent())
+      .contains(emailMessage1.getMessage());
+    assertThat((String) messagesBySubject.get(SUBJECT_PREFIX + " " + emailMessage3.getSubject()).getContent())
+      .contains(emailMessage3.getMessage());
+  }
+
+  @Test
+  public void deliverAll_ignores_multiple_templates_by_notification_and_takes_the_first_one_only() throws MessagingException, IOException {
+    String recipientEmail = "foo@donut";
+    configure();
+    Notification notification1 = mock(Notification.class);
+    EmailTemplate template11 = mock(EmailTemplate.class);
+    EmailTemplate template12 = mock(EmailTemplate.class);
+    EmailMessage emailMessage11 = new EmailMessage().setTo(recipientEmail).setSubject("sub11").setMessage("msg11");
+    EmailMessage emailMessage12 = new EmailMessage().setTo(recipientEmail).setSubject("sub12").setMessage("msg12");
+    when(template11.format(notification1)).thenReturn(emailMessage11);
+    when(template12.format(notification1)).thenReturn(emailMessage12);
+    EmailDeliveryRequest request = new EmailDeliveryRequest(recipientEmail, notification1);
+    EmailNotificationChannel underTest = new EmailNotificationChannel(configuration, new EmailTemplate[] {template11, template12}, null);
+
+    int count = underTest.deliverAll(Collections.singleton(request));
+
+    assertThat(count).isEqualTo(1);
+    assertThat(smtpServer.getMessages()).hasSize(1);
+    assertThat((String) smtpServer.getMessages().iterator().next().getMimeMessage().getContent())
+      .contains(emailMessage11.getMessage());
+  }
+
+  @DataProvider
+  public static Object[][] emptyStrings() {
+    return new Object[][] {
+      {""},
+      {"  "},
+      {" \n "}
+    };
+  }
+
   private void configure() {
     when(configuration.getSmtpHost()).thenReturn("localhost");
     when(configuration.getSmtpPort()).thenReturn(smtpServer.getServer().getPort());
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getFromName()).thenReturn("SonarQube from NoWhere");
-    when(configuration.getPrefix()).thenReturn("[SONARQUBE]");
+    when(configuration.getPrefix()).thenReturn(SUBJECT_PREFIX);
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
   }
 

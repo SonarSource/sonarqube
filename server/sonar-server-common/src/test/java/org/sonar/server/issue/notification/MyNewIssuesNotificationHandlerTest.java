@@ -198,7 +198,7 @@ public class MyNewIssuesNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 
@@ -230,7 +230,7 @@ public class MyNewIssuesNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 
@@ -275,7 +275,7 @@ public class MyNewIssuesNotificationHandlerTest {
       .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
-    when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
+    when(emailNotificationChannel.deliverAll(expectedRequests)).thenReturn(deliveredCount);
 
     int deliver = underTest.deliver(Stream.concat(assignee1Notifications.stream(), assignee2Notifications.stream()).collect(toSet()));
 
@@ -283,7 +283,7 @@ public class MyNewIssuesNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 
@@ -318,7 +318,7 @@ public class MyNewIssuesNotificationHandlerTest {
       .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
-    when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
+    when(emailNotificationChannel.deliverAll(expectedRequests)).thenReturn(deliveredCount);
 
     Set<MyNewIssuesNotification> notifications = Stream.of(
       assignee1Project1.stream(), assignee1Project2.stream(),
@@ -334,7 +334,7 @@ public class MyNewIssuesNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(MY_NEW_ISSUES_DISPATCHER_KEY, projectKey3, of(assignee2, assignee3), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 

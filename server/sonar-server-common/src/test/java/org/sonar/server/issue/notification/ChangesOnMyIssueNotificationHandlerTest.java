@@ -218,7 +218,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
       .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
-    when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
+    when(emailNotificationChannel.deliverAll(expectedRequests)).thenReturn(deliveredCount);
 
     int deliver = underTest.deliver(Stream.concat(assignee1Notifications.stream(), assignee2Notifications.stream()).collect(toSet()));
 
@@ -226,7 +226,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, ImmutableSet.of(assignee1, assignee2), ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 
@@ -257,7 +257,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
       .map(t -> new EmailDeliveryRequest(emailOf(t.getAssignee()), t))
       .collect(toSet());
     int deliveredCount = new Random().nextInt(expectedRequests.size());
-    when(emailNotificationChannel.deliver(expectedRequests)).thenReturn(deliveredCount);
+    when(emailNotificationChannel.deliverAll(expectedRequests)).thenReturn(deliveredCount);
 
     Set<IssueChangeNotification> notifications = Stream.of(
       assignee1ChangeAuthor.stream(),
@@ -270,7 +270,7 @@ public class ChangesOnMyIssueNotificationHandlerTest {
     verify(notificationManager).findSubscribedEmailRecipients(CHANGE_ON_MY_ISSUES_DISPATCHER_KEY, projectKey, assigneesChangeAuthor, ALL_MUST_HAVE_ROLE_USER);
     verifyNoMoreInteractions(notificationManager);
     verify(emailNotificationChannel).isActivated();
-    verify(emailNotificationChannel).deliver(expectedRequests);
+    verify(emailNotificationChannel).deliverAll(expectedRequests);
     verifyNoMoreInteractions(emailNotificationChannel);
   }
 

@@ -167,22 +167,23 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
   }
 
-  public int deliver(Set<EmailDeliveryRequest> deliveries) {
-    if (!isActivated()) {
+  public int deliverAll(Set<EmailDeliveryRequest> deliveries) {
+    if (deliveries.isEmpty() || !isActivated()) {
       LOG.debug(SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG);
       return 0;
     }
 
     return (int) deliveries.stream()
+      .filter(t -> !t.getRecipientEmail().trim().isEmpty())
       .map(t -> {
         EmailMessage emailMessage = format(t.getNotification());
         if (emailMessage != null) {
           emailMessage.setTo(t.getRecipientEmail());
           return deliver(emailMessage);
         }
-        return null;
+        return false;
       })
-      .filter(Objects::nonNull)
+      .filter(Boolean::booleanValue)
       .count();
   }
 
