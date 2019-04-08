@@ -45,6 +45,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.KeyType;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -151,7 +152,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch1"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
@@ -170,7 +171,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch1"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
@@ -192,7 +193,7 @@ public class SiblingsIssueMergerTest {
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
 
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch2"));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch2"));
 
     assertThat(issueToMerge.getValue().key()).isEqualTo("issue2");
     assertThat(issueToMerge.getValue().defaultIssueComments()).isNotEmpty();

@@ -293,7 +293,8 @@
       i.issue_update_date as issueUpdateDate,
       r.plugin_rule_key as ruleKey,
       r.plugin_name as ruleRepo,
-      b.kee as branchName
+      b.kee as branchKey,
+      b.key_type as keyType
     from issues i
     inner join rules r on r.id = i.rule_id
     inner join project_branches b on i.project_uuid = b.uuid

@@ -31,6 +31,7 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.component.KeyType;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 
@@ -92,10 +93,11 @@ public class IssueLifecycle {
     raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_LONG_BRANCH, fromLongBranchName, analysisMetadataHolder.getBranch().getName());
   }
 
-  public void mergeConfirmedOrResolvedFromShortLivingBranch(DefaultIssue raw, DefaultIssue base, String fromShortBranchName) {
+  public void mergeConfirmedOrResolvedFromShortLivingBranchOrPr(DefaultIssue raw, DefaultIssue base, KeyType branchType, String fromShortBranchNameOrPR) {
     copyAttributesOfIssueFromOtherBranch(raw, base);
-    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, fromShortBranchName,
-      analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getPullRequestKey() : analysisMetadataHolder.getBranch().getName());
+    String from = (branchType == KeyType.PULL_REQUEST ? "#" : "") + fromShortBranchNameOrPR;
+    String to = analysisMetadataHolder.isPullRequest() ? ("#" + analysisMetadataHolder.getPullRequestKey()) : analysisMetadataHolder.getBranch().getName();
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, from, to);
   }
 
   private void copyAttributesOfIssueFromOtherBranch(DefaultIssue to, DefaultIssue from) {

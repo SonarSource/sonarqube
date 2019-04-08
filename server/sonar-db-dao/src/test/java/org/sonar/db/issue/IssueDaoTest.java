@@ -37,6 +37,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.KeyType;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -234,7 +235,8 @@ public class IssueDaoTest {
     assertThat(fp.getChecksum()).isNotEmpty();
     assertThat(fp.getRuleKey()).isNotNull();
     assertThat(fp.getStatus()).isNotNull();
-    assertThat(fp.getBranchName()).isEqualTo("feature/foo");
+    assertThat(fp.getBranchKey()).isEqualTo("feature/foo");
+    assertThat(fp.getKeyType()).isEqualTo(KeyType.BRANCH);
     assertThat(fp.getIssueUpdateDate()).isNotNull();
   }
 

@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.component.KeyType;
 
 public final class ShortBranchIssueDto implements Serializable {
 
@@ -38,7 +39,8 @@ public final class ShortBranchIssueDto implements Serializable {
   // joins
   private String ruleKey;
   private String ruleRepo;
-  private String branchName;
+  private String branchKey;
+  private KeyType keyType;
 
   public String getKey() {
     return kee;
@@ -69,12 +71,24 @@ public final class ShortBranchIssueDto implements Serializable {
     return this;
   }
 
-  public String getBranchName() {
-    return branchName;
+  /**
+   * Branch name for SLB, PR key for PR
+   */
+  public String getBranchKey() {
+    return branchKey;
   }
 
-  public ShortBranchIssueDto setBranchName(String s) {
-    this.branchName = s;
+  public ShortBranchIssueDto setBranchKey(String s) {
+    this.branchKey = s;
+    return this;
+  }
+
+  public KeyType getKeyType() {
+    return keyType;
+  }
+
+  public ShortBranchIssueDto setKeyType(KeyType s) {
+    this.keyType = s;
     return this;
   }
 

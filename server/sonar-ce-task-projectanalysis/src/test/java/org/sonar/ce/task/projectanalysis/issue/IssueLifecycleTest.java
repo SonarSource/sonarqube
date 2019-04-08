@@ -32,6 +32,8 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.component.KeyType;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.IssueFieldsSetter;
@@ -117,7 +119,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void mergeIssueFromShortLivingBranch() {
+  public void mergeIssueFromShortLivingBranchIntoLLB() {
     DefaultIssue raw = new DefaultIssue()
       .setKey("raw");
     DefaultIssue fromShort = new DefaultIssue()
@@ -151,7 +153,7 @@ public class IssueLifecycleTest {
     when(branch.getName()).thenReturn("master");
     analysisMetadataHolder.setBranch(branch);
 
-    underTest.mergeConfirmedOrResolvedFromShortLivingBranch(raw, fromShort, "feature/foo");
+    underTest.mergeConfirmedOrResolvedFromShortLivingBranchOrPr(raw, fromShort, KeyType.BRANCH, "feature/foo");
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
@@ -166,6 +168,113 @@ public class IssueLifecycleTest {
     assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
     assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_SHORT_BRANCH);
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).oldValue()).isEqualTo("feature/foo");
+    assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).newValue()).isEqualTo("master");
+  }
+
+  @Test
+  public void mergeIssueFromShortLivingBranchIntoPR() {
+    DefaultIssue raw = new DefaultIssue()
+      .setKey("raw");
+    DefaultIssue fromShort = new DefaultIssue()
+      .setKey("short");
+    fromShort.setResolution("resolution");
+    fromShort.setStatus("status");
+
+    Date commentDate = new Date();
+    fromShort.addComment(new DefaultIssueComment()
+      .setIssueKey("short")
+      .setCreatedAt(commentDate)
+      .setUserUuid("user_uuid")
+      .setMarkdownText("A comment"));
+
+    Date diffDate = new Date();
+    // file diff alone
+    fromShort.addChange(new FieldDiffs()
+      .setCreationDate(diffDate)
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setDiff("file", "uuidA1", "uuidB1"));
+    // file diff with another field
+    fromShort.addChange(new FieldDiffs()
+      .setCreationDate(diffDate)
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setDiff("severity", "MINOR", "MAJOR")
+      .setDiff("file", "uuidA2", "uuidB2"));
+
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    analysisMetadataHolder.setBranch(branch);
+    analysisMetadataHolder.setPullRequestKey("3");
+
+    underTest.mergeConfirmedOrResolvedFromShortLivingBranchOrPr(raw, fromShort, KeyType.BRANCH, "feature/foo");
+
+    assertThat(raw.resolution()).isEqualTo("resolution");
+    assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.defaultIssueComments())
+      .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
+      .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
+    assertThat(raw.changes()).hasSize(2);
+    assertThat(raw.changes().get(0).creationDate()).isEqualTo(diffDate);
+    assertThat(raw.changes().get(0).userUuid()).isEqualTo("user_uuid");
+    assertThat(raw.changes().get(0).issueKey()).isEqualTo("raw");
+    assertThat(raw.changes().get(0).diffs()).containsOnlyKeys("severity");
+    assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
+    assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_SHORT_BRANCH);
+    assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).oldValue()).isEqualTo("feature/foo");
+    assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).newValue()).isEqualTo("#3");
+  }
+
+  @Test
+  public void mergeIssueFromPRIntoLLB() {
+    DefaultIssue raw = new DefaultIssue()
+      .setKey("raw");
+    DefaultIssue fromShort = new DefaultIssue()
+      .setKey("short");
+    fromShort.setResolution("resolution");
+    fromShort.setStatus("status");
+
+    Date commentDate = new Date();
+    fromShort.addComment(new DefaultIssueComment()
+      .setIssueKey("short")
+      .setCreatedAt(commentDate)
+      .setUserUuid("user_uuid")
+      .setMarkdownText("A comment"));
+
+    Date diffDate = new Date();
+    // file diff alone
+    fromShort.addChange(new FieldDiffs()
+      .setCreationDate(diffDate)
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setDiff("file", "uuidA1", "uuidB1"));
+    // file diff with another field
+    fromShort.addChange(new FieldDiffs()
+      .setCreationDate(diffDate)
+      .setIssueKey("short")
+      .setUserUuid("user_uuid")
+      .setDiff("severity", "MINOR", "MAJOR")
+      .setDiff("file", "uuidA2", "uuidB2"));
+
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn("master");
+    analysisMetadataHolder.setBranch(branch);
+
+    underTest.mergeConfirmedOrResolvedFromShortLivingBranchOrPr(raw, fromShort, KeyType.PULL_REQUEST, "1");
+
+    assertThat(raw.resolution()).isEqualTo("resolution");
+    assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.defaultIssueComments())
+      .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
+      .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
+    assertThat(raw.changes()).hasSize(2);
+    assertThat(raw.changes().get(0).creationDate()).isEqualTo(diffDate);
+    assertThat(raw.changes().get(0).userUuid()).isEqualTo("user_uuid");
+    assertThat(raw.changes().get(0).issueKey()).isEqualTo("raw");
+    assertThat(raw.changes().get(0).diffs()).containsOnlyKeys("severity");
+    assertThat(raw.changes().get(1).userUuid()).isEqualTo("default_user_uuid");
+    assertThat(raw.changes().get(1).diffs()).containsOnlyKeys(IssueFieldsSetter.FROM_SHORT_BRANCH);
+    assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).oldValue()).isEqualTo("#1");
     assertThat(raw.changes().get(1).get(IssueFieldsSetter.FROM_SHORT_BRANCH).newValue()).isEqualTo("master");
   }
 

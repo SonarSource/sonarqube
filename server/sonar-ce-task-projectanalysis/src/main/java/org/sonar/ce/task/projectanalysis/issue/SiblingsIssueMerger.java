@@ -55,7 +55,7 @@ public class SiblingsIssueMerger {
 
     for (Map.Entry<DefaultIssue, SiblingIssue> e : matchedRaws.entrySet()) {
       SiblingIssue issue = e.getValue();
-      issueLifecycle.mergeConfirmedOrResolvedFromShortLivingBranch(e.getKey(), defaultIssues.get(issue), issue.getBranchName());
+      issueLifecycle.mergeConfirmedOrResolvedFromShortLivingBranchOrPr(e.getKey(), defaultIssues.get(issue), issue.getBranchType(), issue.getBranchKey());
     }
   }
 }

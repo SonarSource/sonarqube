@@ -67,7 +67,7 @@ public class SiblingsIssuesLoader {
   }
 
   private static SiblingIssue toSiblingIssue(ShortBranchIssueDto dto) {
-    return new SiblingIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchName(),
+    return new SiblingIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchKey(), dto.getKeyType(),
       longToDate(dto.getIssueUpdateDate()));
   }
 

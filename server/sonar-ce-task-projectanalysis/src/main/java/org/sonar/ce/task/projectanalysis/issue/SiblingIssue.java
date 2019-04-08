@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.tracking.Trackable;
+import org.sonar.db.component.KeyType;
 
 @Immutable
 public class SiblingIssue implements Trackable {
@@ -34,17 +35,20 @@ public class SiblingIssue implements Trackable {
   private final String lineHash;
   private final RuleKey ruleKey;
   private final String status;
-  private final String branchName;
+  private final String branchKey;
+  private final KeyType branchType;
   private final Date updateDate;
 
-  public SiblingIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchName, Date updateDate) {
+  public SiblingIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchKey, KeyType branchType,
+    Date updateDate) {
     this.key = key;
     this.line = line;
     this.message = message;
     this.lineHash = lineHash;
     this.ruleKey = ruleKey;
     this.status = status;
-    this.branchName = branchName;
+    this.branchKey = branchKey;
+    this.branchType = branchType;
     this.updateDate = updateDate;
   }
 
@@ -79,8 +83,12 @@ public class SiblingIssue implements Trackable {
     return status;
   }
 
-  public String getBranchName() {
-    return branchName;
+  public String getBranchKey() {
+    return branchKey;
+  }
+
+  public KeyType getBranchType() {
+    return branchType;
   }
 
   @Override
