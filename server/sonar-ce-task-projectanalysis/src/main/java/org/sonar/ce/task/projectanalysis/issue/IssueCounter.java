@@ -26,7 +26,6 @@ import com.google.common.collect.Multiset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -44,6 +43,8 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONFIRMED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
@@ -51,20 +52,30 @@ import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES_KEY;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 /**
@@ -73,7 +84,7 @@ import static org.sonar.api.utils.DateUtils.truncateToSeconds;
  * <li>issues per status (open, reopen, confirmed)</li>
  * <li>issues per resolution (unresolved, false-positives, won't fix)</li>
  * <li>issues per severity (from info to blocker)</li>
- * <li>issues per type (code smell, bug, vulnerability)</li>
+ * <li>issues per type (code smell, bug, vulnerability, security hotspots)</li>
  * </ul>
  * For each value, the variation on configured periods is also computed.
  */
@@ -94,14 +105,16 @@ public class IssueCounter extends IssueVisitor {
     INFO, NEW_INFO_VIOLATIONS_KEY);
 
   private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
-    .put(RuleType.CODE_SMELL, CoreMetrics.CODE_SMELLS_KEY)
-    .put(RuleType.BUG, CoreMetrics.BUGS_KEY)
-    .put(RuleType.VULNERABILITY, CoreMetrics.VULNERABILITIES_KEY)
+    .put(CODE_SMELL, CODE_SMELLS_KEY)
+    .put(BUG, BUGS_KEY)
+    .put(VULNERABILITY, VULNERABILITIES_KEY)
+    .put(SECURITY_HOTSPOT, SECURITY_HOTSPOTS_KEY)
     .build();
   private static final Map<RuleType, String> TYPE_TO_NEW_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
-    .put(RuleType.CODE_SMELL, CoreMetrics.NEW_CODE_SMELLS_KEY)
-    .put(RuleType.BUG, CoreMetrics.NEW_BUGS_KEY)
-    .put(RuleType.VULNERABILITY, CoreMetrics.NEW_VULNERABILITIES_KEY)
+    .put(CODE_SMELL, NEW_CODE_SMELLS_KEY)
+    .put(BUG, NEW_BUGS_KEY)
+    .put(VULNERABILITY, NEW_VULNERABILITIES_KEY)
+    .put(SECURITY_HOTSPOT, NEW_SECURITY_HOTSPOTS_KEY)
     .build();
 
   private final PeriodHolder periodHolder;
@@ -135,10 +148,6 @@ public class IssueCounter extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.type() == RuleType.SECURITY_HOTSPOT) {
-      return;
-    }
-
     currentCounters.add(issue);
     if (analysisMetadataHolder.isSLBorPR()) {
       currentCounters.addOnPeriod(issue);
@@ -244,6 +253,10 @@ public class IssueCounter extends IssueVisitor {
     }
 
     void add(DefaultIssue issue) {
+      if (issue.type() == SECURITY_HOTSPOT) {
+        typeBag.add(SECURITY_HOTSPOT);
+        return;
+      }
       if (issue.resolution() == null) {
         unresolved++;
         typeBag.add(issue.type());

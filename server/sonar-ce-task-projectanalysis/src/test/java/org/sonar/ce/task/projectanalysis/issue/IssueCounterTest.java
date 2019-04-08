@@ -21,21 +21,18 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import javax.annotation.Nullable;
-import org.assertj.core.data.Offset;
+import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.ce.task.projectanalysis.metric.Metric;
-import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
@@ -43,7 +40,9 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.rule.RuleTesting;
 
+import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
@@ -53,59 +52,66 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.BUGS;
+import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
+import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
+import static org.sonar.api.measures.CoreMetrics.CONFIRMED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.CONFIRMED_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS;
+import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES_KEY;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
-import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.INT;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
+import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class IssueCounterTest {
 
-  static final Component FILE1 = builder(Component.Type.FILE, 1).build();
-  static final Component FILE2 = builder(Component.Type.FILE, 2).build();
-  static final Component FILE3 = builder(Component.Type.FILE, 3).build();
-  static final Component PROJECT = builder(Component.Type.PROJECT, 4).addChildren(FILE1, FILE2, FILE3).build();
-
-  static final Metric ISSUES_METRIC = new MetricImpl(1, VIOLATIONS_KEY, VIOLATIONS_KEY, INT);
-  static final Metric OPEN_ISSUES_METRIC = new MetricImpl(2, OPEN_ISSUES_KEY, OPEN_ISSUES_KEY, INT);
-  static final Metric REOPENED_ISSUES_METRIC = new MetricImpl(3, REOPENED_ISSUES_KEY, REOPENED_ISSUES_KEY, INT);
-  static final Metric CONFIRMED_ISSUES_METRIC = new MetricImpl(4, CONFIRMED_ISSUES_KEY, CONFIRMED_ISSUES_KEY, INT);
-  static final Metric BLOCKER_ISSUES_METRIC = new MetricImpl(5, BLOCKER_VIOLATIONS_KEY, BLOCKER_VIOLATIONS_KEY, INT);
-  static final Metric CRITICAL_ISSUES_METRIC = new MetricImpl(6, CRITICAL_VIOLATIONS_KEY, CRITICAL_VIOLATIONS_KEY, INT);
-  static final Metric MAJOR_ISSUES_METRIC = new MetricImpl(7, MAJOR_VIOLATIONS_KEY, MAJOR_VIOLATIONS_KEY, INT);
-  static final Metric MINOR_ISSUES_METRIC = new MetricImpl(8, MINOR_VIOLATIONS_KEY, MINOR_VIOLATIONS_KEY, INT);
-  static final Metric INFO_ISSUES_METRIC = new MetricImpl(9, INFO_VIOLATIONS_KEY, INFO_VIOLATIONS_KEY, INT);
-  static final Metric NEW_ISSUES_METRIC = new MetricImpl(10, NEW_VIOLATIONS_KEY, NEW_VIOLATIONS_KEY, INT);
-  static final Metric NEW_BLOCKER_ISSUES_METRIC = new MetricImpl(11, NEW_BLOCKER_VIOLATIONS_KEY, NEW_BLOCKER_VIOLATIONS_KEY, INT);
-  static final Metric NEW_CRITICAL_ISSUES_METRIC = new MetricImpl(12, NEW_CRITICAL_VIOLATIONS_KEY, NEW_CRITICAL_VIOLATIONS_KEY, INT);
-  static final Metric NEW_MAJOR_ISSUES_METRIC = new MetricImpl(13, NEW_MAJOR_VIOLATIONS_KEY, NEW_MAJOR_VIOLATIONS_KEY, INT);
-  static final Metric NEW_MINOR_ISSUES_METRIC = new MetricImpl(14, NEW_MINOR_VIOLATIONS_KEY, NEW_MINOR_VIOLATIONS_KEY, INT);
-  static final Metric NEW_INFO_ISSUES_METRIC = new MetricImpl(15, NEW_INFO_VIOLATIONS_KEY, NEW_INFO_VIOLATIONS_KEY, INT);
-  static final Metric FALSE_POSITIVE_ISSUES_METRIC = new MetricImpl(16, FALSE_POSITIVE_ISSUES_KEY, FALSE_POSITIVE_ISSUES_KEY, INT);
-  static final Metric WONT_FIX_ISSUES_METRIC = new MetricImpl(23, WONT_FIX_ISSUES_KEY, WONT_FIX_ISSUES_KEY, INT);
-  static final Metric CODE_SMELLS_METRIC = new MetricImpl(17, CoreMetrics.CODE_SMELLS_KEY, CoreMetrics.CODE_SMELLS_KEY, INT);
-  static final Metric BUGS_METRIC = new MetricImpl(18, CoreMetrics.BUGS_KEY, CoreMetrics.BUGS_KEY, INT);
-  static final Metric VULNERABILITIES_METRIC = new MetricImpl(19, CoreMetrics.VULNERABILITIES_KEY, CoreMetrics.VULNERABILITIES_KEY, INT);
-  static final Metric NEW_CODE_SMELLS_METRIC = new MetricImpl(20, CoreMetrics.NEW_CODE_SMELLS_KEY, CoreMetrics.NEW_CODE_SMELLS_KEY, INT);
-  static final Metric NEW_BUGS_METRIC = new MetricImpl(21, CoreMetrics.NEW_BUGS_KEY, CoreMetrics.NEW_BUGS_KEY, INT);
-  static final Metric NEW_VULNERABILITIES_METRIC = new MetricImpl(22, CoreMetrics.NEW_VULNERABILITIES_KEY, CoreMetrics.NEW_VULNERABILITIES_KEY, INT);
+  private static final Component FILE1 = builder(Component.Type.FILE, 1).build();
+  private static final Component FILE2 = builder(Component.Type.FILE, 2).build();
+  private static final Component FILE3 = builder(Component.Type.FILE, 3).build();
+  private static final Component PROJECT = builder(Component.Type.PROJECT, 4).addChildren(FILE1, FILE2, FILE3).build();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -121,29 +127,31 @@ public class IssueCounterTest {
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(ISSUES_METRIC)
-    .add(OPEN_ISSUES_METRIC)
-    .add(REOPENED_ISSUES_METRIC)
-    .add(CONFIRMED_ISSUES_METRIC)
-    .add(BLOCKER_ISSUES_METRIC)
-    .add(CRITICAL_ISSUES_METRIC)
-    .add(MAJOR_ISSUES_METRIC)
-    .add(MINOR_ISSUES_METRIC)
-    .add(INFO_ISSUES_METRIC)
-    .add(NEW_ISSUES_METRIC)
-    .add(NEW_BLOCKER_ISSUES_METRIC)
-    .add(NEW_CRITICAL_ISSUES_METRIC)
-    .add(NEW_MAJOR_ISSUES_METRIC)
-    .add(NEW_MINOR_ISSUES_METRIC)
-    .add(NEW_INFO_ISSUES_METRIC)
-    .add(FALSE_POSITIVE_ISSUES_METRIC)
-    .add(WONT_FIX_ISSUES_METRIC)
-    .add(CODE_SMELLS_METRIC)
-    .add(BUGS_METRIC)
-    .add(VULNERABILITIES_METRIC)
-    .add(NEW_CODE_SMELLS_METRIC)
-    .add(NEW_BUGS_METRIC)
-    .add(NEW_VULNERABILITIES_METRIC);
+    .add(VIOLATIONS)
+    .add(OPEN_ISSUES)
+    .add(REOPENED_ISSUES)
+    .add(CONFIRMED_ISSUES)
+    .add(BLOCKER_VIOLATIONS)
+    .add(CRITICAL_VIOLATIONS)
+    .add(MAJOR_VIOLATIONS)
+    .add(MINOR_VIOLATIONS)
+    .add(INFO_VIOLATIONS)
+    .add(NEW_VIOLATIONS)
+    .add(NEW_BLOCKER_VIOLATIONS)
+    .add(NEW_CRITICAL_VIOLATIONS)
+    .add(NEW_MAJOR_VIOLATIONS)
+    .add(NEW_MINOR_VIOLATIONS)
+    .add(NEW_INFO_VIOLATIONS)
+    .add(FALSE_POSITIVE_ISSUES)
+    .add(WONT_FIX_ISSUES)
+    .add(CODE_SMELLS)
+    .add(BUGS)
+    .add(VULNERABILITIES)
+    .add(SECURITY_HOTSPOTS)
+    .add(NEW_CODE_SMELLS)
+    .add(NEW_BUGS)
+    .add(NEW_VULNERABILITIES)
+    .add(NEW_SECURITY_HOTSPOTS);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -172,19 +180,10 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertThat(measureRepository.getRawMeasure(FILE1, ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE1, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE1, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(FILE2, ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getRawMeasure(FILE2, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE2, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
-
-    assertThat(measureRepository.getRawMeasure(FILE3, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC).get().getIntValue()).isEqualTo(3);
-    assertThat(measureRepository.getRawMeasure(PROJECT, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(PROJECT, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
+    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 1), entry(OPEN_ISSUES_KEY, 1), entry(CONFIRMED_ISSUES_KEY, 0));
+    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 2), entry(OPEN_ISSUES_KEY, 0), entry(CONFIRMED_ISSUES_KEY, 2));
+    assertMeasures(FILE3, entry(VIOLATIONS_KEY, 0));
+    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 3), entry(OPEN_ISSUES_KEY, 1), entry(CONFIRMED_ISSUES_KEY, 2));
   }
 
   @Test
@@ -211,18 +210,10 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertThat(measureRepository.getRawMeasure(FILE1, ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE1, FALSE_POSITIVE_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE1, WONT_FIX_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-
-    assertThat(measureRepository.getRawMeasure(FILE2, ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getRawMeasure(FILE2, FALSE_POSITIVE_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE2, WONT_FIX_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-
-    assertThat(measureRepository.getRawMeasure(FILE3, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, FALSE_POSITIVE_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(PROJECT, WONT_FIX_ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
+    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 1), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(WONT_FIX_ISSUES_KEY, 1));
+    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 2), entry(FALSE_POSITIVE_ISSUES_KEY, 0), entry(WONT_FIX_ISSUES_KEY, 1));
+    assertMeasures(FILE3, entry(VIOLATIONS_KEY, 0));
+    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 3), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(WONT_FIX_ISSUES_KEY, 2));
   }
 
   @Test
@@ -244,17 +235,9 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertThat(measureRepository.getRawMeasure(FILE1, BLOCKER_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE1, CRITICAL_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE1, MAJOR_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(FILE2, BLOCKER_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE2, CRITICAL_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE2, MAJOR_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, BLOCKER_ISSUES_METRIC).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getRawMeasure(PROJECT, CRITICAL_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(PROJECT, MAJOR_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
+    assertMeasures(FILE1, entry(BLOCKER_VIOLATIONS_KEY, 1), entry(CRITICAL_VIOLATIONS_KEY, 0), entry(MAJOR_VIOLATIONS_KEY, 0));
+    assertMeasures(FILE2, entry(BLOCKER_VIOLATIONS_KEY, 1), entry(CRITICAL_VIOLATIONS_KEY, 0), entry(MAJOR_VIOLATIONS_KEY, 1));
+    assertMeasures(PROJECT, entry(BLOCKER_VIOLATIONS_KEY, 2), entry(CRITICAL_VIOLATIONS_KEY, 0), entry(MAJOR_VIOLATIONS_KEY, 1));
   }
 
   @Test
@@ -273,20 +256,18 @@ public class IssueCounterTest {
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(RuleType.BUG));
     underTest.afterComponent(FILE2);
 
+    // file3 : one security hotspot
+    underTest.beforeComponent(FILE3);
+    underTest.onIssue(FILE3, createSecurityHotspot());
+    underTest.afterComponent(FILE3);
+
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertThat(measureRepository.getRawMeasure(FILE1, CODE_SMELLS_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE1, BUGS_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE1, VULNERABILITIES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(FILE2, CODE_SMELLS_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE2, BUGS_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(FILE2, VULNERABILITIES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, CODE_SMELLS_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(PROJECT, BUGS_METRIC).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getRawMeasure(PROJECT, VULNERABILITIES_METRIC).get().getIntValue()).isEqualTo(0);
+    assertMeasures(FILE1, entry(CODE_SMELLS_KEY, 1), entry(BUGS_KEY, 0), entry(VULNERABILITIES_KEY, 0), entry(SECURITY_HOTSPOTS_KEY, 0));
+    assertMeasures(FILE2, entry(CODE_SMELLS_KEY, 0), entry(BUGS_KEY, 1), entry(VULNERABILITIES_KEY, 0), entry(SECURITY_HOTSPOTS_KEY, 0));
+    assertMeasures(FILE3, entry(CODE_SMELLS_KEY, 0), entry(BUGS_KEY, 0), entry(VULNERABILITIES_KEY, 0), entry(SECURITY_HOTSPOTS_KEY, 1));
+    assertMeasures(PROJECT, entry(CODE_SMELLS_KEY, 1), entry(BUGS_KEY, 1), entry(VULNERABILITIES_KEY, 0), entry(SECURITY_HOTSPOTS_KEY, 1));
   }
 
   @Test
@@ -299,10 +280,11 @@ public class IssueCounterTest {
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(RuleType.CODE_SMELL));
     // created during the first analysis starting the period -> existing issues (so ignored)
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(RuleType.BUG));
-    // created after -> 3 new issues but 1 is closed
+    // created after -> 4 new issues but 1 is closed
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.CODE_SMELL));
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.BUG));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
@@ -311,21 +293,10 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(FILE1, NEW_ISSUES_METRIC, 2);
-    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, 2);
-    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, 1);
-    assertVariation(FILE1, NEW_BUGS_METRIC, 1);
-    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
-
-    assertVariation(PROJECT, NEW_ISSUES_METRIC, 2);
-    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 2);
-    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, 1);
-    assertVariation(PROJECT, NEW_BUGS_METRIC, 1);
-    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
+    assertVariations(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+      entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
+    assertVariations(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+      entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
   }
 
   @Test
@@ -349,21 +320,10 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(FILE1, NEW_ISSUES_METRIC, 4);
-    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, 2);
-    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 2);
-    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, 2);
-    assertVariation(FILE1, NEW_BUGS_METRIC, 2);
-    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
-
-    assertVariation(PROJECT, NEW_ISSUES_METRIC, 4);
-    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 2);
-    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 2);
-    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, 2);
-    assertVariation(PROJECT, NEW_BUGS_METRIC, 2);
-    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
+    assertVariations(FILE1, entry(NEW_VIOLATIONS_KEY, 4), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 2), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+      entry(NEW_CODE_SMELLS_KEY, 2), entry(NEW_BUGS_KEY, 2), entry(NEW_VULNERABILITIES_KEY, 0));
+    assertVariations(PROJECT, entry(NEW_VIOLATIONS_KEY, 4), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 2), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+      entry(NEW_CODE_SMELLS_KEY, 2), entry(NEW_BUGS_KEY, 2), entry(NEW_VULNERABILITIES_KEY, 0));
   }
 
   @Test
@@ -386,19 +346,10 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertThat(measureRepository.getRawMeasure(FILE1, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE1, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE1, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(FILE2, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE2, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(FILE2, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(FILE3, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(PROJECT, OPEN_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getRawMeasure(PROJECT, CONFIRMED_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
+    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 0), entry(OPEN_ISSUES_KEY, 0), entry(CONFIRMED_ISSUES_KEY, 0));
+    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 0), entry(OPEN_ISSUES_KEY, 0), entry(CONFIRMED_ISSUES_KEY, 0));
+    assertMeasures(FILE3, entry(VIOLATIONS_KEY, 0));
+    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 0), entry(OPEN_ISSUES_KEY, 0), entry(CONFIRMED_ISSUES_KEY, 0));
   }
 
   @Test
@@ -428,22 +379,26 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(FILE1, NEW_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
-    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
-
-    assertVariation(PROJECT, NEW_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
-    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
+    assertVariations(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+      entry(NEW_VULNERABILITIES_KEY, 0));
+    assertVariations(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+      entry(NEW_VULNERABILITIES_KEY, 0));
   }
 
-  private void assertVariation(Component component, Metric metric, int expectedVariation) {
-    Measure measure = measureRepository.getRawMeasure(component, metric).get();
-    assertThat(measure.getVariation()).isEqualTo((double) expectedVariation, Offset.offset(0.01));
+  @SafeVarargs
+  private final void assertVariations(Component componentRef, MapEntry<String, Integer>... entries) {
+    assertThat(measureRepository.getRawMeasures(componentRef).entries()
+      .stream()
+      .filter(e -> e.getValue().hasVariation())
+      .map(e -> entry(e.getKey(), (int) e.getValue().getVariation())))
+        .contains(entries);
+  }
+
+  @SafeVarargs
+  private final void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
+    assertThat(toEntries(measureRepository.getRawMeasures(componentRef)))
+      .containsAll(stream(entries).map(e -> entryOf(e.getKey(), newMeasureBuilder().create(e.getValue())))
+        .collect(toList()));
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity) {
