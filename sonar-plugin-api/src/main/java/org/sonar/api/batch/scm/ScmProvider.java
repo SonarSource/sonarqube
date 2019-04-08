@@ -82,11 +82,15 @@ public abstract class ScmProvider {
 
   /**
    * The relative path from SCM root
+   * @since 7.0
    */
   public Path relativePathFromScmRoot(Path path) {
     throw new UnsupportedOperationException(formatUnsupportedMessage("Getting relative path from SCM root"));
   }
 
+  /**
+   * @since 7.7
+   */
   public IgnoreCommand ignoreCommand() {
     throw new UnsupportedOperationException(formatUnsupportedMessage("Checking for ignored files"));
   }
@@ -94,6 +98,7 @@ public abstract class ScmProvider {
   /**
    * The current revision id of the analyzed code,
    * for example the SHA1 of the current HEAD in a Git branch.
+   * @since 7.0
    */
   public String revisionId(Path path) {
     throw new UnsupportedOperationException(formatUnsupportedMessage("Getting revision id"));
