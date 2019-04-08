@@ -477,6 +477,16 @@ export function mockStore(state: any = {}, reducer = (state: any) => state): Sto
   return createStore(reducer, state);
 }
 
+export function mockSourceLine(overrides: Partial<T.SourceLine> = {}): T.SourceLine {
+  return {
+    code: 'function fooBar() {',
+    coverageStatus: 'covered',
+    coveredConditions: 2,
+    line: 5,
+    ...overrides
+  };
+}
+
 export function mockDocumentationEntry(
   overrides: Partial<DocumentationEntry> = {}
 ): DocumentationEntry {

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<IssueIcon
+  type="BUG"
+/>
+`;
+
+exports[`should render correctly 2`] = `
+<span
+  className="my-class"
+>
+  <IssueIcon
+    type="SECURITY_HOTSPOT"
+  />
+</span>
+`;
+
+exports[`should render correctly 3`] = `
+<IssueIcon
+  type="CODE_SMELL"
+/>
+`;
+
+exports[`should render correctly 4`] = `
+<IssueIcon
+  type="VULNERABILITY"
+/>
+`;

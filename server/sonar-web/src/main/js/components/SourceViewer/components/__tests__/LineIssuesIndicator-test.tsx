@@ -19,56 +19,40 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
 import LineIssuesIndicator from '../LineIssuesIndicator';
+import { click } from '../../../../helpers/testUtils';
+import { mockIssue } from '../../../../helpers/testMocks';
 
-const issueBase: T.Issue = {
-  actions: [],
-  component: '',
-  componentLongName: '',
-  componentQualifier: '',
-  componentUuid: '',
-  creationDate: '',
-  key: '',
-  flows: [],
-  fromHotspot: false,
-  message: '',
-  organization: '',
-  project: '',
-  projectName: '',
-  projectOrganization: '',
-  projectKey: '',
-  rule: '',
-  ruleName: '',
-  secondaryLocations: [],
-  severity: '',
-  status: '',
-  transitions: [],
-  type: 'BUG'
-};
-
-it('render highest severity', () => {
-  const line = { line: 3 };
-  const issues = [
-    { ...issueBase, key: 'foo', severity: 'MINOR' },
-    { ...issueBase, key: 'bar', severity: 'CRITICAL' }
-  ];
+it('should render correctly', () => {
   const onClick = jest.fn();
-  const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
+  const wrapper = shallowRender({ onClick });
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper);
   expect(onClick).toHaveBeenCalled();
 
-  const nextIssues = [{ severity: 'MINOR' }, { severity: 'INFO' }];
+  const nextIssues = [
+    mockIssue(false, { key: 'foo', type: 'VULNERABILITY' }),
+    mockIssue(false, { key: 'bar', type: 'SECURITY_HOTSPOT' })
+  ];
   wrapper.setProps({ issues: nextIssues });
   expect(wrapper).toMatchSnapshot();
 });
 
-it('no issues', () => {
-  const line = { line: 3 };
-  const issues: T.Issue[] = [];
-  const onClick = jest.fn();
-  const wrapper = shallow(<LineIssuesIndicator issues={issues} line={line} onClick={onClick} />);
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly for no issues', () => {
+  expect(shallowRender({ issues: [] })).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<LineIssuesIndicator['props']> = {}) {
+  return shallow(
+    <LineIssuesIndicator
+      issues={[
+        mockIssue(false, { key: 'foo', type: 'CODE_SMELL' }),
+        mockIssue(false, { key: 'bar', type: 'BUG' })
+      ]}
+      line={{ line: 3 }}
+      onClick={jest.fn()}
+      {...props}
+    />
+  );
+}

@@ -123,7 +123,13 @@ export default class Line extends React.PureComponent<Props> {
           previousLine={this.props.previousLine}
         />
 
-        {this.props.displayCoverage && <LineCoverage line={line} />}
+        {this.props.displayIssues && !this.props.displayAllIssues && (
+          <LineIssuesIndicator
+            issues={this.props.issues}
+            line={line}
+            onClick={this.handleIssuesIndicatorClick}
+          />
+        )}
 
         {this.props.displayDuplications && (
           <LineDuplications line={line} onClick={this.props.loadDuplications} />
@@ -141,13 +147,7 @@ export default class Line extends React.PureComponent<Props> {
           />
         ))}
 
-        {this.props.displayIssues && !this.props.displayAllIssues && (
-          <LineIssuesIndicator
-            issues={this.props.issues}
-            line={line}
-            onClick={this.handleIssuesIndicatorClick}
-          />
-        )}
+        {this.props.displayCoverage && <LineCoverage line={line} />}
 
         <LineCode
           branchLike={this.props.branchLike}

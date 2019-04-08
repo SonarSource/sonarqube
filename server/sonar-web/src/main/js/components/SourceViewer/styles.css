@@ -174,14 +174,19 @@
   position: relative;
   padding: 0 2px;
   background-color: var(--barBackgroundColor);
+  white-space: nowrap;
+}
+
+.source-line-with-issues {
+  padding-right: 4px;
 }
 
 .source-line-issues-counter {
   position: absolute;
-  top: -1px;
-  right: -1px;
+  left: 17px;
   line-height: 8px;
   font-size: 8px;
+  z-index: 900;
 }
 
 .source-line-coverage {

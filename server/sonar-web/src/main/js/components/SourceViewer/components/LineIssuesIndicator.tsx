@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import SeverityIcon from '../../icons-components/SeverityIcon';
-import { sortBySeverity } from '../../../helpers/issues';
+import IssueIcon from '../../icons-components/IssueIcon';
+import { sortByType } from '../../../helpers/issues';
 
 interface Props {
   issues: T.Issue[];
@@ -40,7 +40,7 @@ export default class LineIssuesIndicator extends React.PureComponent<Props> {
     const className = classNames('source-meta', 'source-line-issues', {
       'source-line-with-issues': hasIssues
     });
-    const mostImportantIssue = hasIssues ? sortBySeverity(issues)[0] : null;
+    const mostImportantIssue = hasIssues ? sortByType(issues)[0] : null;
 
     return (
       <td
@@ -49,7 +49,7 @@ export default class LineIssuesIndicator extends React.PureComponent<Props> {
         onClick={hasIssues ? this.handleClick : undefined}
         role={hasIssues ? 'button' : undefined}
         tabIndex={hasIssues ? 0 : undefined}>
-        {mostImportantIssue != null && <SeverityIcon severity={mostImportantIssue.severity} />}
+        {mostImportantIssue != null && <IssueIcon type={mostImportantIssue.type} />}
         {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
       </td>
     );

@@ -18,41 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import IssueIcon from '../icons-components/IssueIcon';
+import BugIcon from '../icons-components/BugIcon';
+import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
+import CodeSmellIcon from '../icons-components/CodeSmellIcon';
+import SecurityHotspotIcon from '../icons-components/SecurityHotspotIcon';
 
-export interface Props {
+interface Props {
   className?: string;
-  query: string;
+  type: T.IssueType;
   size?: number;
 }
 
-export default function IssueTypeIcon({ className, query, size }: Props) {
-  let type: T.IssueType;
-
-  switch (query.toLowerCase()) {
-    case 'bug':
-    case 'bugs':
-    case 'new_bugs':
-      type = 'BUG';
-      break;
-    case 'vulnerability':
-    case 'vulnerabilities':
-    case 'new_vulnerabilities':
-      type = 'VULNERABILITY';
-      break;
-    case 'code_smell':
-    case 'code_smells':
-    case 'new_code_smells':
-      type = 'CODE_SMELL';
-      break;
-    case 'security_hotspot':
-    case 'security_hotspots':
-      type = 'SECURITY_HOTSPOT';
-      break;
+export default function IssueIcon({ className, type, size }: Props) {
+  switch (type) {
+    case 'BUG':
+      return <BugIcon className={className} size={size} />;
+    case 'VULNERABILITY':
+      return <VulnerabilityIcon className={className} size={size} />;
+    case 'CODE_SMELL':
+      return <CodeSmellIcon className={className} size={size} />;
+    case 'SECURITY_HOTSPOT':
+      return <SecurityHotspotIcon className={className} size={size} />;
     default:
       return null;
   }
-
-  const icon = <IssueIcon size={size} type={type} />;
-  return className ? <span className={className}>{icon}</span> : icon;
 }

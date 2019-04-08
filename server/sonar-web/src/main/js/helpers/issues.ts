@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { flatten, sortBy } from 'lodash';
-import { SEVERITIES } from './constants';
+import { ISSUE_TYPES } from './constants';
 
 interface Comment {
   login: string;
@@ -59,8 +59,8 @@ export interface RawIssue extends IssueBase {
   textRange?: T.TextRange;
 }
 
-export function sortBySeverity(issues: T.Issue[]): T.Issue[] {
-  return sortBy(issues, issue => SEVERITIES.indexOf(issue.severity));
+export function sortByType(issues: T.Issue[]): T.Issue[] {
+  return sortBy(issues, issue => ISSUE_TYPES.indexOf(issue.type));
 }
 
 function injectRelational(
