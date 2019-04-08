@@ -32,7 +32,7 @@ import org.sonar.server.issue.notification.EmailTemplate;
  *
  * @since 3.5
  */
-public class QGChangeEmailTemplate extends EmailTemplate {
+public class QGChangeEmailTemplate implements EmailTemplate {
 
   private EmailSettings configuration;
 

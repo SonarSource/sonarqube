@@ -33,7 +33,7 @@ import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 import static org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.parse;
 
-public class BuiltInQPChangeNotificationTemplate extends EmailTemplate {
+public class BuiltInQPChangeNotificationTemplate implements EmailTemplate {
 
   private final Server server;
 

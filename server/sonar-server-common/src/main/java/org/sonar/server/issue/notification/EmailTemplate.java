@@ -25,8 +25,8 @@ import org.sonar.api.notifications.Notification;
 
 @ServerSide
 @ExtensionPoint
-public abstract class EmailTemplate {
+public interface EmailTemplate {
 
-  public abstract EmailMessage format(Notification notification);
+  EmailMessage format(Notification notification);
 
 }

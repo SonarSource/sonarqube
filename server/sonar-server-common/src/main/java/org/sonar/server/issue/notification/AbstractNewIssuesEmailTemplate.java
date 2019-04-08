@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Base class to create emails for new issues
  */
-public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
+public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
 
   protected static final char NEW_LINE = '\n';
   protected static final String TAB = "    ";

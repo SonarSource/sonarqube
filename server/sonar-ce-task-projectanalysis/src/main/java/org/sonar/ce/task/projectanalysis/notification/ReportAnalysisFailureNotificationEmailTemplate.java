@@ -28,7 +28,7 @@ import org.sonar.server.issue.notification.EmailTemplate;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
-public class ReportAnalysisFailureNotificationEmailTemplate extends EmailTemplate {
+public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemplate {
   private static final char LINE_RETURN = '\n';
   private static final char TAB = '\t';
 

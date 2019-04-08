@@ -37,7 +37,7 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 /**
  * Creates email message for notification "issue-changes".
  */
-public class IssueChangesEmailTemplate extends EmailTemplate {
+public class IssueChangesEmailTemplate implements EmailTemplate {
 
   private static final char NEW_LINE = '\n';
   private final DbClient dbClient;
