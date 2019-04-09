@@ -268,6 +268,23 @@ export function mockMeasure(overrides: Partial<T.Measure> = {}): T.Measure {
   };
 }
 
+export function mockMeasureEnhanced(overrides: Partial<T.MeasureEnhanced> = {}): T.MeasureEnhanced {
+  return {
+    bestValue: true,
+    leak: '1',
+    metric: mockMetric({ ...(overrides.metric || {}) }),
+    periods: [
+      {
+        bestValue: true,
+        index: 1,
+        value: '1.0'
+      }
+    ],
+    value: '1.0',
+    ...overrides
+  };
+}
+
 export function mockOrganization(overrides: Partial<T.Organization> = {}): T.Organization {
   return { key: 'foo', name: 'Foo', ...overrides };
 }

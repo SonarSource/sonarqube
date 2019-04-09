@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import enhance, { ComposedProps } from './enhance';
+import DocTooltip from '../../../components/docs/DocTooltip';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getMetricName } from '../utils';
 import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
@@ -35,7 +36,13 @@ export class Duplications extends React.PureComponent<ComposedProps> {
   }
 
   renderDuplicatedBlocks() {
-    return this.props.renderMeasure('duplicated_blocks');
+    return this.props.renderMeasure(
+      'duplicated_blocks',
+      <DocTooltip
+        className="little-spacer-left"
+        doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/duplicated-blocks.md')}
+      />
+    );
   }
 
   renderDuplications() {
@@ -49,7 +56,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
 
     return (
       <div className="overview-domain-measure">
-        <div className="display-inline-block text-middle big-spacer-right">
+        <div className="display-inline-block text-middle big-spacer-right neg-offset-left">
           <DuplicationsRating size="big" value={duplications} />
         </div>
 
@@ -63,10 +70,14 @@ export class Duplications extends React.PureComponent<ComposedProps> {
             </DrilldownLink>
           </div>
 
-          <div className="overview-domain-measure-label offset-left">
+          <div className="overview-domain-measure-label display-flex-center display-flex-justify-center">
             {getMetricName('duplications')}
-            {this.props.renderHistoryLink('duplicated_lines_density')}
+            <DocTooltip
+              className="little-spacer-left"
+              doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/duplications.md')}
+            />
           </div>
+          {this.props.renderHistoryLink('duplicated_lines_density')}
         </div>
       </div>
     );
@@ -131,7 +142,7 @@ export class Duplications extends React.PureComponent<ComposedProps> {
   renderNutshell() {
     return (
       <div className="overview-domain-nutshell">
-        <div className="overview-domain-measures">
+        <div className="overview-domain-measures overview-domain-measures-big">
           {this.renderDuplications()}
           {this.renderDuplicatedBlocks()}
         </div>

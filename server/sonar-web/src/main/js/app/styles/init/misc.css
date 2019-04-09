@@ -307,6 +307,11 @@ td.big-spacer-top {
   align-items: center;
 }
 
+.display-flex-justify-center {
+  display: flex !important;
+  justify-content: center;
+}
+
 .display-flex-space-around {
   display: flex !important;
   justify-content: space-around;

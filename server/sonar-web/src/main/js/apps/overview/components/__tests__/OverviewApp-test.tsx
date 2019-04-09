@@ -50,22 +50,12 @@ jest.mock('../../../../helpers/dates', () => ({
 jest.mock('../../../../api/time-machine', () => ({
   getAllTimeMachineData: jest.fn().mockResolvedValue({
     measures: [
-      {
-        metric: 'sqale_index',
-        history: [{ date: '2019-01-01', value: '1.0' }]
-      },
-      {
-        metric: 'duplicated_lines_density',
-        history: [{ date: '2019-01-02', value: '1.0' }]
-      },
-      {
-        metric: 'ncloc',
-        history: [{ date: '2019-01-03', value: '10000' }]
-      },
-      {
-        metric: 'coverage',
-        history: [{ date: '2019-01-04', value: '95.5' }]
-      }
+      { metric: 'bugs', history: [{ date: '2019-01-05', value: '2.0' }] },
+      { metric: 'vulnerabilities', history: [{ date: '2019-01-05', value: '0' }] },
+      { metric: 'sqale_index', history: [{ date: '2019-01-01', value: '1.0' }] },
+      { metric: 'duplicated_lines_density', history: [{ date: '2019-01-02', value: '1.0' }] },
+      { metric: 'ncloc', history: [{ date: '2019-01-03', value: '10000' }] },
+      { metric: 'coverage', history: [{ date: '2019-01-04', value: '95.5' }] }
     ]
   })
 }));

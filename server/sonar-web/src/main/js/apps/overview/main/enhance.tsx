@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from '../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import Tooltip from '../../../components/controls/Tooltip';
+import { getWrappedDisplayName } from '../../../components/hoc/utils';
 import {
   formatMeasure,
   isDiffMetric,
@@ -32,7 +32,7 @@ import {
   getShortType,
   getRatingTooltip
 } from '../../../helpers/measures';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
@@ -54,8 +54,8 @@ export interface EnhanceProps {
 
 export interface ComposedProps extends EnhanceProps {
   getValue: (measure: T.MeasureEnhanced) => string | undefined;
-  renderHeader: (domain: string, label: string) => React.ReactNode;
-  renderMeasure: (metricKey: string) => React.ReactNode;
+  renderHeader: (domain: string, label?: string) => React.ReactNode;
+  renderMeasure: (metricKey: string, tooltip?: React.ReactNode) => React.ReactNode;
   renderRating: (metricKey: string) => React.ReactNode;
   renderIssues: (metric: string, type: T.IssueType) => React.ReactNode;
   renderHistoryLink: (metricKey: string) => React.ReactNode;
@@ -64,7 +64,7 @@ export interface ComposedProps extends EnhanceProps {
 
 export default function enhance(ComposedComponent: React.ComponentType<ComposedProps>) {
   return class extends React.PureComponent<EnhanceProps> {
-    static displayName = `enhance(${ComposedComponent.displayName})}`;
+    static displayName = getWrappedDisplayName(ComposedComponent, 'enhance');
 
     getValue = (measure: T.MeasureEnhanced) => {
       const { leakPeriod } = this.props;
@@ -76,27 +76,28 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
         : measure.value;
     };
 
-    renderHeader = (domain: string, label: string) => {
+    renderHeader = (domain: string, label?: string) => {
       const { branchLike, component } = this.props;
+      label = label !== undefined ? label : translate('metric_domain', domain);
       return (
         <div className="overview-card-header">
           <div className="overview-title">
             <span>{label}</span>
             <Link
-              className="button button-small spacer-left text-text-bottom"
+              className="spacer-left small"
               to={getComponentDrilldownUrl({
                 componentKey: component.key,
                 metric: domain,
                 branchLike
               })}>
-              <BubblesIcon size={14} />
+              {translate('layout.measures')}
             </Link>
           </div>
         </div>
       );
     };
 
-    renderMeasure = (metricKey: string) => {
+    renderMeasure = (metricKey: string, tooltip?: React.ReactNode) => {
       const { branchLike, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
       if (!measure) {
@@ -113,8 +114,9 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
             </DrilldownLink>
           </div>
 
-          <div className="overview-domain-measure-label offset-left">
+          <div className="overview-domain-measure-label display-flex-center display-flex-justify-center">
             {getLocalizedMetricName(measure.metric)}
+            {tooltip}
             {this.renderHistoryLink(measure.metric.key)}
           </div>
         </div>
@@ -149,7 +151,7 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
       const { branchLike, measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
       if (!measure) {
-        return null;
+        return <span>—</span>;
       }
 
       const value = this.getValue(measure);
@@ -166,12 +168,13 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
     };
 
     renderHistoryLink = (metricKey: string) => {
-      const linkClass = 'button button-small spacer-left overview-domain-measure-history-link';
+      const linkClass = 'overview-domain-measure-history-link';
       return (
         <Link
           className={linkClass}
           to={getMeasureHistoryUrl(this.props.component.key, metricKey, this.props.branchLike)}>
           <HistoryIcon />
+          <span>{translate('project_activity.page')}</span>
         </Link>
       );
     };

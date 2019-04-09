@@ -40,6 +40,8 @@ export const METRICS = [
   'new_vulnerabilities',
   'security_rating',
   'new_security_rating',
+  'security_hotspots',
+  'new_security_hotspots',
 
   // code smells
   'code_smells',
@@ -84,6 +86,8 @@ export const PR_METRICS = [
 ];
 
 export const HISTORY_METRICS_LIST = [
+  'bugs',
+  'vulnerabilities',
   'sqale_index',
   'duplicated_lines_density',
   'ncloc',

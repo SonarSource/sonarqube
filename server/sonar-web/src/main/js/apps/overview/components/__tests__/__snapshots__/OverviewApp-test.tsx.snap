@@ -96,7 +96,7 @@ exports[`should render correctly 2`] = `
       <div
         className="overview-domains-list"
       >
-        <enhance(undefined)}
+        <enhance(Bugs)
           branchLike={
             Object {
               "analysisDate": "2018-01-01",
@@ -129,6 +129,12 @@ exports[`should render correctly 2`] = `
           }
           history={
             Object {
+              "bugs": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "2.0",
+                },
+              ],
               "coverage": Array [
                 Object {
                   "date": "2019-01-04",
@@ -153,9 +159,15 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
+              "vulnerabilities": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "0",
+                },
+              ],
             }
           }
-          historyStartDate="2019-01-01"
+          historyStartDate="2019-01-05"
           measures={
             Array [
               Object {
@@ -195,7 +207,7 @@ exports[`should render correctly 2`] = `
             ]
           }
         />
-        <enhance(undefined)}
+        <enhance(VulnerabiltiesAndHotspots)
           branchLike={
             Object {
               "analysisDate": "2018-01-01",
@@ -228,6 +240,12 @@ exports[`should render correctly 2`] = `
           }
           history={
             Object {
+              "bugs": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "2.0",
+                },
+              ],
               "coverage": Array [
                 Object {
                   "date": "2019-01-04",
@@ -252,9 +270,15 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
+              "vulnerabilities": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "0",
+                },
+              ],
             }
           }
-          historyStartDate="2019-01-01"
+          historyStartDate="2019-01-05"
           measures={
             Array [
               Object {
@@ -294,7 +318,7 @@ exports[`should render correctly 2`] = `
             ]
           }
         />
-        <enhance(undefined)}
+        <enhance(CodeSmells)
           branchLike={
             Object {
               "analysisDate": "2018-01-01",
@@ -327,6 +351,12 @@ exports[`should render correctly 2`] = `
           }
           history={
             Object {
+              "bugs": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "2.0",
+                },
+              ],
               "coverage": Array [
                 Object {
                   "date": "2019-01-04",
@@ -351,9 +381,15 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
+              "vulnerabilities": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "0",
+                },
+              ],
             }
           }
-          historyStartDate="2019-01-01"
+          historyStartDate="2019-01-05"
           measures={
             Array [
               Object {
@@ -393,7 +429,7 @@ exports[`should render correctly 2`] = `
             ]
           }
         />
-        <enhance(undefined)}
+        <enhance(Coverage)
           branchLike={
             Object {
               "analysisDate": "2018-01-01",
@@ -426,6 +462,12 @@ exports[`should render correctly 2`] = `
           }
           history={
             Object {
+              "bugs": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "2.0",
+                },
+              ],
               "coverage": Array [
                 Object {
                   "date": "2019-01-04",
@@ -450,9 +492,126 @@ exports[`should render correctly 2`] = `
                   "value": "1.0",
                 },
               ],
+              "vulnerabilities": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "0",
+                },
+              ],
             }
           }
-          historyStartDate="2019-01-01"
+          historyStartDate="2019-01-05"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "ncloc",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+        />
+        <enhance(Duplications)
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "foo",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          history={
+            Object {
+              "bugs": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "2.0",
+                },
+              ],
+              "coverage": Array [
+                Object {
+                  "date": "2019-01-04",
+                  "value": "95.5",
+                },
+              ],
+              "duplicated_lines_density": Array [
+                Object {
+                  "date": "2019-01-02",
+                  "value": "1.0",
+                },
+              ],
+              "ncloc": Array [
+                Object {
+                  "date": "2019-01-03",
+                  "value": "10000",
+                },
+              ],
+              "sqale_index": Array [
+                Object {
+                  "date": "2019-01-01",
+                  "value": "1.0",
+                },
+              ],
+              "vulnerabilities": Array [
+                Object {
+                  "date": "2019-01-05",
+                  "value": "0",
+                },
+              ],
+            }
+          }
+          historyStartDate="2019-01-05"
           measures={
             Array [
               Object {
@@ -530,6 +689,12 @@ exports[`should render correctly 2`] = `
         }
         history={
           Object {
+            "bugs": Array [
+              Object {
+                "date": "2019-01-05",
+                "value": "2.0",
+              },
+            ],
             "coverage": Array [
               Object {
                 "date": "2019-01-04",
@@ -552,6 +717,12 @@ exports[`should render correctly 2`] = `
               Object {
                 "date": "2019-01-01",
                 "value": "1.0",
+              },
+            ],
+            "vulnerabilities": Array [
+              Object {
+                "date": "2019-01-05",
+                "value": "0",
               },
             ],
           }
@@ -664,6 +835,12 @@ exports[`should render correctly if no measures are found 1`] = `
         }
         history={
           Object {
+            "bugs": Array [
+              Object {
+                "date": "2019-01-05",
+                "value": "2.0",
+              },
+            ],
             "coverage": Array [
               Object {
                 "date": "2019-01-04",
@@ -686,6 +863,12 @@ exports[`should render correctly if no measures are found 1`] = `
               Object {
                 "date": "2019-01-01",
                 "value": "1.0",
+              },
+            ],
+            "vulnerabilities": Array [
+              Object {
+                "date": "2019-01-05",
+                "value": "0",
               },
             ],
           }

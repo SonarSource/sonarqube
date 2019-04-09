@@ -21,10 +21,11 @@ import * as React from 'react';
 import { uniq } from 'lodash';
 import { connect } from 'react-redux';
 import ApplicationQualityGate from '../qualityGate/ApplicationQualityGate';
-import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
+import Bugs from '../main/Bugs';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
+import VulnerabilitiesAndHotspots from '../main/VulnerabilitiesAndHotspots';
 import MetaContainer from '../meta/MetaContainer';
 import QualityGate from '../qualityGate/QualityGate';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -213,7 +214,8 @@ export class OverviewApp extends React.PureComponent<Props, State> {
         )}
 
         <div className="overview-domains-list">
-          <BugsAndVulnerabilities {...domainProps} />
+          <Bugs {...domainProps} />
+          <VulnerabilitiesAndHotspots {...domainProps} />
           <CodeSmells {...domainProps} />
           <Coverage {...domainProps} />
           <Duplications {...domainProps} />

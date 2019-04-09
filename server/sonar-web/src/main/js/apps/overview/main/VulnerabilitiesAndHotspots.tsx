@@ -20,30 +20,17 @@
 import * as React from 'react';
 import enhance, { ComposedProps } from './enhance';
 import DocTooltip from '../../../components/docs/DocTooltip';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { getMetricName } from '../utils';
-import { formatMeasure } from '../../../helpers/measures';
-import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
-import DrilldownLink from '../../../components/shared/DrilldownLink';
+import SecurityHotspotIcon from '../../../components/icons-components/SecurityHotspotIcon';
 
-export class CodeSmells extends React.PureComponent<ComposedProps> {
+export class VulnerabiltiesAndHotspots extends React.PureComponent<ComposedProps> {
   renderHeader() {
-    return this.props.renderHeader('Maintainability');
-  }
-
-  renderDebt(metric: string) {
-    const { branchLike, measures, component } = this.props;
-    const measure = measures.find(measure => measure.metric.key === metric);
-    const value = measure ? this.props.getValue(measure) : undefined;
-
-    return (
-      <DrilldownLink branchLike={branchLike} component={component.key} metric={metric}>
-        {formatMeasure(value, 'SHORT_WORK_DUR')}
-      </DrilldownLink>
-    );
+    return this.props.renderHeader('Security');
   }
 
   renderTimeline(range: string) {
-    return this.props.renderTimeline('sqale_index', range);
+    return this.props.renderTimeline('vulnerabilities', range);
   }
 
   renderLeak() {
@@ -57,18 +44,23 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              <span className="offset-left">{this.renderDebt('new_technical_debt')}</span>
-              {this.props.renderRating('new_maintainability_rating')}
-            </div>
-            <div className="overview-domain-measure-label">{getMetricName('new_effort')}</div>
-          </div>
-          <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value">
-              {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
+              <span className="offset-left">
+                {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
+              </span>
+              {this.props.renderRating('new_security_rating')}
             </div>
             <div className="overview-domain-measure-label">
-              <CodeSmellIcon className="little-spacer-right" />
-              {getMetricName('new_code_smells')}
+              <VulnerabilityIcon className="little-spacer-right" />
+              {getMetricName('new_vulnerabilities')}
+            </div>
+          </div>
+          <div className="overview-domain-measure">
+            <div className="overview-domain-measure-value overview-domain-measure-value-small">
+              <span>{this.props.renderIssues('new_security_hotspots', 'SECURITY_HOTSPOT')}</span>
+            </div>
+            <div className="overview-domain-measure-label">
+              <SecurityHotspotIcon className="little-spacer-right" />
+              {getMetricName('new_security_hotspots')}
             </div>
           </div>
         </div>
@@ -83,31 +75,34 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              <span className="offset-left">{this.renderDebt('sqale_index')}</span>
-              {this.props.renderRating('sqale_rating')}
+              <span className="offset-left">
+                {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
+              </span>
+              {this.props.renderRating('security_rating')}
             </div>
             <div className="overview-domain-measure-label display-flex-center display-flex-justify-center">
-              {getMetricName('effort')}
+              <VulnerabilityIcon className="little-spacer-right" />
+              {getMetricName('vulnerabilities')}
               <DocTooltip
                 className="little-spacer-left"
-                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/debt.md')}
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/vulnerabilities.md')}
               />
             </div>
-            {this.props.renderHistoryLink('sqale_index')}
+            {this.props.renderHistoryLink('vulnerabilities')}
           </div>
           <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value">
-              {this.props.renderIssues('code_smells', 'CODE_SMELL')}
+            <div className="overview-domain-measure-value overview-domain-measure-value-small">
+              {this.props.renderIssues('security_hotspots', 'SECURITY_HOTSPOT')}
             </div>
             <div className="overview-domain-measure-label display-flex-center display-flex-justify-center">
-              <CodeSmellIcon className="little-spacer-right " />
-              {getMetricName('code_smells')}
+              <SecurityHotspotIcon className="little-spacer-right" />
+              {getMetricName('security_hotspots')}
               <DocTooltip
                 className="little-spacer-left"
-                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/code-smells.md')}
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
               />
             </div>
-            {this.props.renderHistoryLink('code_smells')}
+            {this.props.renderHistoryLink('security_hotspots')}
           </div>
         </div>
         {this.renderTimeline('before')}
@@ -116,13 +111,8 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
   }
 
   render() {
-    const { measures } = this.props;
-    const codeSmellsMeasure = measures.find(measure => measure.metric.key === 'code_smells');
-    if (!codeSmellsMeasure) {
-      return null;
-    }
     return (
-      <div className="overview-card" id="overview-code-smells">
+      <div className="overview-card">
         {this.renderHeader()}
 
         <div className="overview-domain-panel">
@@ -134,4 +124,4 @@ export class CodeSmells extends React.PureComponent<ComposedProps> {
   }
 }
 
-export default enhance(CodeSmells);
+export default enhance(VulnerabiltiesAndHotspots);

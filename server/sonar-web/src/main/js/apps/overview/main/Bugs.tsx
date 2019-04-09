@@ -18,47 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import enhance, { ComposedProps } from './enhance';
 import ApplicationLeakPeriodLegend from '../components/ApplicationLeakPeriodLegend';
-import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import BugIcon from '../../../components/icons-components/BugIcon';
+import DocTooltip from '../../../components/docs/DocTooltip';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
-import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { getMetricName } from '../utils';
-import { getComponentDrilldownUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
 import { isLongLivingBranch } from '../../../helpers/branches';
+import { translateWithParameters } from '../../../helpers/l10n';
 
-export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
+export class Bugs extends React.PureComponent<ComposedProps> {
   renderHeader() {
-    const { branchLike, component } = this.props;
+    return this.props.renderHeader('Reliability');
+  }
+
+  renderTimelineStartDate(historyStartDate?: Date) {
+    if (!historyStartDate) {
+      return undefined;
+    }
     return (
-      <div className="overview-card-header">
-        <div className="overview-title">
-          <span>{translate('metric.bugs.name')}</span>
-          <Link
-            className="button button-small spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl({
-              componentKey: component.key,
-              metric: 'Reliability',
-              branchLike
-            })}>
-            <BubblesIcon size={14} />
-          </Link>
-          <span className="big-spacer-left">{translate('metric.vulnerabilities.name')}</span>
-          <Link
-            className="button button-small spacer-left text-text-bottom"
-            to={getComponentDrilldownUrl({
-              componentKey: component.key,
-              metric: 'Security',
-              branchLike
-            })}>
-            <BubblesIcon size={14} />
-          </Link>
-        </div>
-      </div>
+      <DateFromNow date={historyStartDate}>
+        {fromNow => (
+          <span className="overview-domain-timeline-date">
+            {translateWithParameters('overview.started_x', fromNow)}
+          </span>
+        )}
+      </DateFromNow>
     );
+  }
+
+  renderTimeline(range: string, historyStartDate?: Date) {
+    return this.props.renderTimeline('bugs', range, this.renderTimelineStartDate(historyStartDate));
   }
 
   renderLeak() {
@@ -81,7 +72,7 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              <span style={{ marginLeft: 30 }}>{this.props.renderIssues('new_bugs', 'BUG')}</span>
+              <span className="offset-left">{this.props.renderIssues('new_bugs', 'BUG')}</span>
               {this.props.renderRating('new_reliability_rating')}
             </div>
             <div className="overview-domain-measure-label">
@@ -89,19 +80,8 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
               {getMetricName('new_bugs')}
             </div>
           </div>
-          <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value">
-              <span style={{ marginLeft: 30 }}>
-                {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
-              </span>
-              {this.props.renderRating('new_security_rating')}
-            </div>
-            <div className="overview-domain-measure-label">
-              <VulnerabilityIcon className="little-spacer-right" />
-              {getMetricName('new_vulnerabilities')}
-            </div>
-          </div>
         </div>
+        {this.renderTimeline('after')}
       </div>
     );
   }
@@ -112,27 +92,21 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
         <div className="overview-domain-measures">
           <div className="overview-domain-measure">
             <div className="overview-domain-measure-value">
-              {this.props.renderIssues('bugs', 'BUG')}
+              <span className="offset-left">{this.props.renderIssues('bugs', 'BUG')}</span>
               {this.props.renderRating('reliability_rating')}
             </div>
-            <div className="overview-domain-measure-label">
+            <div className="overview-domain-measure-label display-flex-center display-flex-justify-center">
               <BugIcon className="little-spacer-right " />
               {getMetricName('bugs')}
-              {this.props.renderHistoryLink('bugs')}
+              <DocTooltip
+                className="little-spacer-left"
+                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/bugs.md')}
+              />
             </div>
-          </div>
-          <div className="overview-domain-measure">
-            <div className="overview-domain-measure-value">
-              {this.props.renderIssues('vulnerabilities', 'VULNERABILITY')}
-              {this.props.renderRating('security_rating')}
-            </div>
-            <div className="overview-domain-measure-label">
-              <VulnerabilityIcon className="little-spacer-right " />
-              {getMetricName('vulnerabilities')}
-              {this.props.renderHistoryLink('vulnerabilities')}
-            </div>
+            {this.props.renderHistoryLink('bugs')}
           </div>
         </div>
+        {this.renderTimeline('before', this.props.historyStartDate)}
       </div>
     );
   }
@@ -144,7 +118,7 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
       return null;
     }
     return (
-      <div className="overview-card overview-card-special">
+      <div className="overview-card">
         {this.renderHeader()}
 
         <div className="overview-domain-panel">
@@ -156,4 +130,4 @@ export class BugsAndVulnerabilities extends React.PureComponent<ComposedProps> {
   }
 }
 
-export default enhance(BugsAndVulnerabilities);
+export default enhance(Bugs);
