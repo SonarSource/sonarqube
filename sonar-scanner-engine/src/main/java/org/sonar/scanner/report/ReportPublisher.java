@@ -246,11 +246,9 @@ public class ReportPublisher implements Startable {
 
     if (onPullRequest(branchConfiguration)) {
       return httpUrl.newBuilder()
-        .addPathSegment("project")
-        .addPathSegment("issues")
+        .addPathSegment(DASHBOARD)
         .addEncodedQueryParameter(ID, encoded(effectiveKey))
         .addEncodedQueryParameter("pullRequest", encoded(branchConfiguration.pullRequestKey()))
-        .addQueryParameter(RESOLVED, "false")
         .build()
         .url();
     }

@@ -201,14 +201,14 @@ public class ReportPublisherTest {
     underTest.logSuccess("TASK-123");
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/project/issues?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105&resolved=false")
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105")
       .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
       "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
         "serverUrl=https://publicserver/sonarqube\n" +
         "serverVersion=6.4\n" +
-        "dashboardUrl=https://publicserver/sonarqube/project/issues?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105&resolved=false\n" +
+        "dashboardUrl=https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube&pullRequest=105\n" +
         "ceTaskId=TASK-123\n" +
         "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
   }
