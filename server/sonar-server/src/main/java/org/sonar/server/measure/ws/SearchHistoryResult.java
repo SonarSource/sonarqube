@@ -38,7 +38,7 @@ import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.metric.MetricDtoFunctions.isOptimizedForBestValue;
 import static org.sonar.server.measure.ws.MetricDtoWithBestValue.isEligibleForBestValue;
 
-class SearchHistoryResult {
+public class SearchHistoryResult {
   private final int page;
   private final int pageSize;
   private List<SnapshotDto> analyses;
@@ -47,7 +47,7 @@ class SearchHistoryResult {
   private Common.Paging paging;
   private ComponentDto component;
 
-  SearchHistoryResult(int page, int pageSize) {
+  public SearchHistoryResult(int page, int pageSize) {
     this.page = page;
     this.pageSize = pageSize;
   }
@@ -56,37 +56,37 @@ class SearchHistoryResult {
     return requireNonNull(component);
   }
 
-  SearchHistoryResult setComponent(ComponentDto component) {
+  public SearchHistoryResult setComponent(ComponentDto component) {
     this.component = component;
 
     return this;
   }
 
-  List<SnapshotDto> getAnalyses() {
+  public List<SnapshotDto> getAnalyses() {
     return requireNonNull(analyses);
   }
 
-  SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
+  public SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
     this.paging = Common.Paging.newBuilder().setPageIndex(page).setPageSize(pageSize).setTotal(analyses.size()).build();
     this.analyses = analyses.stream().skip(offset(page, pageSize)).limit(pageSize).collect(MoreCollectors.toList());
 
     return this;
   }
 
-  List<MetricDto> getMetrics() {
+  public List<MetricDto> getMetrics() {
     return requireNonNull(metrics);
   }
 
-  SearchHistoryResult setMetrics(List<MetricDto> metrics) {
+  public SearchHistoryResult setMetrics(List<MetricDto> metrics) {
     this.metrics = metrics;
     return this;
   }
 
-  List<MeasureDto> getMeasures() {
+  public List<MeasureDto> getMeasures() {
     return requireNonNull(measures);
   }
 
-  SearchHistoryResult setMeasures(List<MeasureDto> measures) {
+  public SearchHistoryResult setMeasures(List<MeasureDto> measures) {
     Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(MoreCollectors.toHashSet());
     ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
     List<MeasureDto> filteredMeasures = measures.stream()
