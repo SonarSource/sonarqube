@@ -44,11 +44,13 @@ export const domains: Domains = {
       'new_vulnerabilities',
       'new_security_rating',
       'new_security_remediation_effort',
+      'new_security_hotspots',
 
       'overall_category',
       'vulnerabilities',
       'security_rating',
-      'security_remediation_effort'
+      'security_remediation_effort',
+      'security_hotspots'
     ]
   },
 
