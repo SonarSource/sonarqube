@@ -26,23 +26,30 @@ import { getFacet } from '../../../../api/issues';
 import { mockLocation, mockAppState, mockCurrentUser } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 
+jest.mock('../../../../components/icons-components/BugIcon');
+jest.mock('../../../../components/icons-components/VulnerabilityIcon');
+jest.mock('../../../../components/icons-components/CodeSmellIcon');
+jest.mock('../../../../components/icons-components/SecurityHotspotIcon');
+jest.mock('../../../../components/icons-components/TagsIcon');
+
 jest.mock('../../../../helpers/pages', () => ({
   addWhitePageClass: jest.fn(),
   removeWhitePageClass: jest.fn()
 }));
 
 jest.mock('../../../../api/components', () => ({
-  searchProjects: jest.fn().mockResolvedValue(5)
+  searchProjects: jest.fn().mockResolvedValue({ paging: { total: 5 } })
 }));
 
 jest.mock('../../../../api/issues', () => ({
-  getFacet: jest
-    .fn()
-    .mockResolvedValue([
-      { facet: { count: 5, val: 'CODE_SMELL' } },
-      { facet: { count: 10, val: 'BUG' } },
-      { facet: { count: 0, val: 'VULNERABILITY' } }
-    ])
+  getFacet: jest.fn().mockResolvedValue({
+    facet: [
+      { count: 5, val: 'CODE_SMELL' },
+      { count: 10, val: 'BUG' },
+      { count: 0, val: 'VULNERABILITY' },
+      { count: 5, val: 'SECURITY_HOTSPOT' }
+    ]
+  })
 }));
 
 jest.mock('../../../../app/components/GlobalContainer', () => ({
@@ -79,7 +86,7 @@ function mountRender(props: Partial<AboutApp['props']> = {}) {
       appState={mockAppState()}
       currentUser={mockCurrentUser()}
       customText="Lorem ipsum"
-      fetchAboutPageSettings={jest.fn()}
+      fetchAboutPageSettings={jest.fn().mockResolvedValue('')}
       location={mockLocation()}
       {...props}
     />

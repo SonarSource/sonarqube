@@ -28,6 +28,22 @@ import {
   mockMetric
 } from '../../../../helpers/testMocks';
 
+jest.mock('../../../../components/icons-components/VulnerabilityIcon', () => ({
+  default: ({ className }: any) => (
+    <svg className={className} data-mocked-icon="VulnerabilityIcon" />
+  )
+}));
+
+jest.mock('../../../../components/icons-components/SecurityHotspotIcon', () => ({
+  default: ({ className }: any) => (
+    <svg className={className} data-mocked-icon="SecurityHotspotIcon" />
+  )
+}));
+
+jest.mock('../../../../components/icons-components/HistoryIcon', () => ({
+  default: ({ className }: any) => <svg className={className} data-mocked-icon="HistoryIcon" />
+}));
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });

@@ -115,10 +115,12 @@ export class AboutApp extends React.PureComponent<Props, State> {
     let bugs;
     let vulnerabilities;
     let codeSmells;
+    let securityHotspots;
     if (!loading && issueTypes) {
       bugs = issueTypes['BUG'] && issueTypes['BUG'].count;
       vulnerabilities = issueTypes['VULNERABILITY'] && issueTypes['VULNERABILITY'].count;
       codeSmells = issueTypes['CODE_SMELL'] && issueTypes['CODE_SMELL'].count;
+      securityHotspots = issueTypes['SECURITY_HOTSPOT'] && issueTypes['SECURITY_HOTSPOT'].count;
     }
 
     return (
@@ -149,6 +151,7 @@ export class AboutApp extends React.PureComponent<Props, State> {
                 bugs={bugs}
                 codeSmells={codeSmells}
                 loading={loading}
+                securityHotspots={securityHotspots}
                 vulnerabilities={vulnerabilities}
               />
             </div>

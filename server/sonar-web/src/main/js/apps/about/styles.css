@@ -35,6 +35,12 @@
   padding-top: 25px;
 }
 
+.about-page .boxed-group h3 {
+  font-weight: normal;
+  font-size: var(--bigFontSize);
+  padding-bottom: calc(1.5 * var(--gridSize));
+}
+
 .about-page .boxed-group-inner {
   padding-left: 0;
   padding-right: 0;

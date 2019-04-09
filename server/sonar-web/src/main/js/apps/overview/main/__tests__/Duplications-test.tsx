@@ -28,6 +28,14 @@ import {
   mockMetric
 } from '../../../../helpers/testMocks';
 
+jest.mock('../../../../components/ui/DuplicationsRating', () => ({
+  default: () => <svg data-mocked-element="DuplicationsRating" />
+}));
+
+jest.mock('../../../../components/icons-components/HistoryIcon', () => ({
+  default: ({ className }: any) => <svg className={className} data-mocked-icon="HistoryIcon" />
+}));
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });

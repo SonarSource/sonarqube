@@ -21,6 +21,8 @@ import * as React from 'react';
 import { shallow, mount } from 'enzyme';
 import SysInfoItem from '../SysInfoItem';
 
+jest.mock('../../../../../components/icons-components/AlertSuccessIcon');
+
 it('should render string', () => {
   const wrapper = shallow(<SysInfoItem name="foo" value="/some/path/as/an/example" />);
   expect(wrapper.find('code').text()).toBe('/some/path/as/an/example');

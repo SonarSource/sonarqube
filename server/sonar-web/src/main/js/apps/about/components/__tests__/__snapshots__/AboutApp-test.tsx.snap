@@ -28,7 +28,7 @@ exports[`should render correctly 1`] = `
       "results": Array [
         Object {
           "type": "return",
-          "value": undefined,
+          "value": Promise {},
         },
       ],
     }
@@ -113,7 +113,7 @@ exports[`should render correctly 1`] = `
           className="about-page-instance"
         >
           <AboutProjects
-            count={0}
+            count={5}
             loading={false}
           >
             <div
@@ -132,7 +132,7 @@ exports[`should render correctly 1`] = `
                       onClick={[Function]}
                       style={Object {}}
                     >
-                      0
+                      5
                     </a>
                   </Link>
                 </div>
@@ -143,7 +143,11 @@ exports[`should render correctly 1`] = `
             </div>
           </AboutProjects>
           <EntryIssueTypes
+            bugs={10}
+            codeSmells={5}
             loading={false}
+            securityHotspots={5}
+            vulnerabilities={0}
           >
             <div
               className="about-page-projects"
@@ -175,42 +179,16 @@ exports[`should render correctly 1`] = `
                           className="about-page-issue-type-link"
                           onClick={[Function]}
                           style={Object {}}
-                        />
+                        >
+                          10
+                        </a>
                       </Link>
                     </td>
                     <td>
                       <span
                         className="little-spacer-right"
                       >
-                        <BugIcon>
-                          <Icon>
-                            <svg
-                              height={16}
-                              style={
-                                Object {
-                                  "clipRule": "evenodd",
-                                  "fillRule": "evenodd",
-                                  "strokeLinejoin": "round",
-                                  "strokeMiterlimit": 1.41421,
-                                }
-                              }
-                              version="1.1"
-                              viewBox="0 0 16 16"
-                              width={16}
-                              xmlSpace="preserve"
-                              xmlnsXlink="http://www.w3.org/1999/xlink"
-                            >
-                              <path
-                                d="M11 9h1.3l.5.8.8-.5-.8-1.3H11v-.3l2-2.3V3h-1v2l-1 1.2V5c-.1-.8-.7-1.5-1.4-1.9L11 1.8l-.7-.7-1.8 1.6-1.8-1.6-.7.7 1.5 1.3C6.7 3.5 6.1 4.2 6 5v1.1L5 5V3H4v2.3l2 2.3V8H4.2l-.7 1.2.8.5.4-.7H6v.3l-2 1.9V14h1v-2.4l1-1C6 12 7.1 13 8.4 13h.8c.7 0 1.4-.3 1.8-.9.3-.4.3-.9.2-1.4l.9.9V14h1v-2.8l-2-1.9V9zm-2 2H8V6h1v5z"
-                                style={
-                                  Object {
-                                    "fill": "currentColor",
-                                  }
-                                }
-                              />
-                            </svg>
-                          </Icon>
-                        </BugIcon>
+                        <BugIcon />
                       </span>
                       issue.type.BUG.plural
                     </td>
@@ -238,42 +216,16 @@ exports[`should render correctly 1`] = `
                           className="about-page-issue-type-link"
                           onClick={[Function]}
                           style={Object {}}
-                        />
+                        >
+                          0
+                        </a>
                       </Link>
                     </td>
                     <td>
                       <span
                         className="little-spacer-right"
                       >
-                        <VulnerabilityIcon>
-                          <Icon>
-                            <svg
-                              height={16}
-                              style={
-                                Object {
-                                  "clipRule": "evenodd",
-                                  "fillRule": "evenodd",
-                                  "strokeLinejoin": "round",
-                                  "strokeMiterlimit": 1.41421,
-                                }
-                              }
-                              version="1.1"
-                              viewBox="0 0 16 16"
-                              width={16}
-                              xmlSpace="preserve"
-                              xmlnsXlink="http://www.w3.org/1999/xlink"
-                            >
-                              <path
-                                d="M10.8 5H6V3.9a2.28 2.28 0 0 1 2-2.5 2.22 2.22 0 0 1 1.8 1.2.48.48 0 0 0 .7.2.48.48 0 0 0 .2-.7A3 3 0 0 0 8 .4a3.34 3.34 0 0 0-3 3.5v1.2a2.16 2.16 0 0 0-2 2.1v4.4a2.22 2.22 0 0 0 2.2 2.2h5.6a2.22 2.22 0 0 0 2.2-2.2V7.2A2.22 2.22 0 0 0 10.8 5zm-2.2 5.5v1.2H7.4v-1.2a1.66 1.66 0 0 1-1.1-1.6A1.75 1.75 0 0 1 8 7.2a1.71 1.71 0 0 1 .6 3.3z"
-                                style={
-                                  Object {
-                                    "fill": "currentColor",
-                                  }
-                                }
-                              />
-                            </svg>
-                          </Icon>
-                        </VulnerabilityIcon>
+                        <VulnerabilityIcon />
                       </span>
                       issue.type.VULNERABILITY.plural
                     </td>
@@ -301,44 +253,55 @@ exports[`should render correctly 1`] = `
                           className="about-page-issue-type-link"
                           onClick={[Function]}
                           style={Object {}}
-                        />
+                        >
+                          5
+                        </a>
                       </Link>
                     </td>
                     <td>
                       <span
                         className="little-spacer-right"
                       >
-                        <CodeSmellIcon>
-                          <Icon>
-                            <svg
-                              height={16}
-                              style={
-                                Object {
-                                  "clipRule": "evenodd",
-                                  "fillRule": "evenodd",
-                                  "strokeLinejoin": "round",
-                                  "strokeMiterlimit": 1.41421,
-                                }
-                              }
-                              version="1.1"
-                              viewBox="0 0 16 16"
-                              width={16}
-                              xmlSpace="preserve"
-                              xmlnsXlink="http://www.w3.org/1999/xlink"
-                            >
-                              <path
-                                d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm-.5 5.5h.9v.9h-.9v-.9zm-3.8.2c-.1 0-.2-.1-.2-.2 0-.4.1-1.2.6-2S5.3 4.2 5.6 4c.2 0 .3 0 .3.1l1.3 2.3c0 .1 0 .2-.1.2-.1.2-.2.3-.3.5-.1.2-.2.4-.2.5 0 .1-.1.2-.2.2l-2.7-.1zM9.9 12c-.3.2-1.1.5-2 .5-.9 0-1.7-.3-2-.5-.1 0-.1-.2-.1-.3l1.3-2.3c0-.1.1-.1.2-.1.2.1.3.1.5.1s.4 0 .5-.1c.1 0 .2 0 .2.1l1.3 2.3c.2.2.2.3.1.3zm2.5-4.1L9.7 8c-.1 0-.2-.1-.2-.2 0-.2-.1-.4-.2-.5 0-.1-.2-.3-.3-.4-.1 0-.1-.1-.1-.2l1.3-2.3c.1-.1.2-.1.3-.1.3.2 1 .7 1.5 1.5s.6 1.6.6 2c0 0-.1.1-.2.1z"
-                                style={
-                                  Object {
-                                    "fill": "currentColor",
-                                  }
-                                }
-                              />
-                            </svg>
-                          </Icon>
-                        </CodeSmellIcon>
+                        <CodeSmellIcon />
                       </span>
                       issue.type.CODE_SMELL.plural
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      className="about-page-issue-type-number"
+                    >
+                      <Link
+                        className="about-page-issue-type-link"
+                        onlyActiveOnIndex={false}
+                        style={Object {}}
+                        to={
+                          Object {
+                            "pathname": "/issues",
+                            "query": Object {
+                              "resolved": "false",
+                              "s": "CREATION_DATE",
+                              "types": "SECURITY_HOTSPOT",
+                            },
+                          }
+                        }
+                      >
+                        <a
+                          className="about-page-issue-type-link"
+                          onClick={[Function]}
+                          style={Object {}}
+                        >
+                          5
+                        </a>
+                      </Link>
+                    </td>
+                    <td>
+                      <span
+                        className="little-spacer-right"
+                      >
+                        <SecurityHotspotIcon />
+                      </span>
+                      issue.type.SECURITY_HOTSPOT.plural
                     </td>
                   </tr>
                 </tbody>
@@ -553,38 +516,13 @@ exports[`should render correctly 1`] = `
               <div
                 className="flex-column flex-column-third"
               >
+                <h3>
+                  metric_domain.Reliability
+                </h3>
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <BugIcon>
-                    <Icon>
-                      <svg
-                        height={16}
-                        style={
-                          Object {
-                            "clipRule": "evenodd",
-                            "fillRule": "evenodd",
-                            "strokeLinejoin": "round",
-                            "strokeMiterlimit": 1.41421,
-                          }
-                        }
-                        version="1.1"
-                        viewBox="0 0 16 16"
-                        width={16}
-                        xmlSpace="preserve"
-                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                      >
-                        <path
-                          d="M11 9h1.3l.5.8.8-.5-.8-1.3H11v-.3l2-2.3V3h-1v2l-1 1.2V5c-.1-.8-.7-1.5-1.4-1.9L11 1.8l-.7-.7-1.8 1.6-1.8-1.6-.7.7 1.5 1.3C6.7 3.5 6.1 4.2 6 5v1.1L5 5V3H4v2.3l2 2.3V8H4.2l-.7 1.2.8.5.4-.7H6v.3l-2 1.9V14h1v-2.4l1-1C6 12 7.1 13 8.4 13h.8c.7 0 1.4-.3 1.8-.9.3-.4.3-.9.2-1.4l.9.9V14h1v-2.8l-2-1.9V9zm-2 2H8V6h1v5z"
-                          style={
-                            Object {
-                              "fill": "currentColor",
-                            }
-                          }
-                        />
-                      </svg>
-                    </Icon>
-                  </BugIcon>
+                  <BugIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -599,38 +537,13 @@ exports[`should render correctly 1`] = `
               <div
                 className="flex-column flex-column-third"
               >
+                <h3>
+                  metric_domain.Security
+                </h3>
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <VulnerabilityIcon>
-                    <Icon>
-                      <svg
-                        height={16}
-                        style={
-                          Object {
-                            "clipRule": "evenodd",
-                            "fillRule": "evenodd",
-                            "strokeLinejoin": "round",
-                            "strokeMiterlimit": 1.41421,
-                          }
-                        }
-                        version="1.1"
-                        viewBox="0 0 16 16"
-                        width={16}
-                        xmlSpace="preserve"
-                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                      >
-                        <path
-                          d="M10.8 5H6V3.9a2.28 2.28 0 0 1 2-2.5 2.22 2.22 0 0 1 1.8 1.2.48.48 0 0 0 .7.2.48.48 0 0 0 .2-.7A3 3 0 0 0 8 .4a3.34 3.34 0 0 0-3 3.5v1.2a2.16 2.16 0 0 0-2 2.1v4.4a2.22 2.22 0 0 0 2.2 2.2h5.6a2.22 2.22 0 0 0 2.2-2.2V7.2A2.22 2.22 0 0 0 10.8 5zm-2.2 5.5v1.2H7.4v-1.2a1.66 1.66 0 0 1-1.1-1.6A1.75 1.75 0 0 1 8 7.2a1.71 1.71 0 0 1 .6 3.3z"
-                          style={
-                            Object {
-                              "fill": "currentColor",
-                            }
-                          }
-                        />
-                      </svg>
-                    </Icon>
-                  </VulnerabilityIcon>
+                  <VulnerabilityIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -641,42 +554,32 @@ exports[`should render correctly 1`] = `
                    
                   about_page.quality_model.vulnerabilities
                 </p>
+                <br />
+                <div
+                  className="pull-left little-spacer-right"
+                >
+                  <SecurityHotspotIcon />
+                </div>
+                <p
+                  className="about-page-text overflow-hidden"
+                >
+                  <strong>
+                    issue.type.SECURITY_HOTSPOT.plural
+                  </strong>
+                   
+                  about_page.quality_model.security_hotspots
+                </p>
               </div>
               <div
                 className="flex-column flex-column-third"
               >
+                <h3>
+                  metric_domain.Maintainability
+                </h3>
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <CodeSmellIcon>
-                    <Icon>
-                      <svg
-                        height={16}
-                        style={
-                          Object {
-                            "clipRule": "evenodd",
-                            "fillRule": "evenodd",
-                            "strokeLinejoin": "round",
-                            "strokeMiterlimit": 1.41421,
-                          }
-                        }
-                        version="1.1"
-                        viewBox="0 0 16 16"
-                        width={16}
-                        xmlSpace="preserve"
-                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                      >
-                        <path
-                          d="M8 2C4.7 2 2 4.7 2 8s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm-.5 5.5h.9v.9h-.9v-.9zm-3.8.2c-.1 0-.2-.1-.2-.2 0-.4.1-1.2.6-2S5.3 4.2 5.6 4c.2 0 .3 0 .3.1l1.3 2.3c0 .1 0 .2-.1.2-.1.2-.2.3-.3.5-.1.2-.2.4-.2.5 0 .1-.1.2-.2.2l-2.7-.1zM9.9 12c-.3.2-1.1.5-2 .5-.9 0-1.7-.3-2-.5-.1 0-.1-.2-.1-.3l1.3-2.3c0-.1.1-.1.2-.1.2.1.3.1.5.1s.4 0 .5-.1c.1 0 .2 0 .2.1l1.3 2.3c.2.2.2.3.1.3zm2.5-4.1L9.7 8c-.1 0-.2-.1-.2-.2 0-.2-.1-.4-.2-.5 0-.1-.2-.3-.3-.4-.1 0-.1-.1-.1-.2l1.3-2.3c.1-.1.2-.1.3-.1.3.2 1 .7 1.5 1.5s.6 1.6.6 2c0 0-.1.1-.2.1z"
-                          style={
-                            Object {
-                              "fill": "currentColor",
-                            }
-                          }
-                        />
-                      </svg>
-                    </Icon>
-                  </CodeSmellIcon>
+                  <CodeSmellIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -875,35 +778,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon>
-                            <Icon>
-                              <svg
-                                height={16}
-                                style={
-                                  Object {
-                                    "clipRule": "evenodd",
-                                    "fillRule": "evenodd",
-                                    "strokeLinejoin": "round",
-                                    "strokeMiterlimit": 1.41421,
-                                  }
-                                }
-                                version="1.1"
-                                viewBox="0 0 16 16"
-                                width={16}
-                                xmlSpace="preserve"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                              >
-                                <path
-                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
-                                  style={
-                                    Object {
-                                      "fill": "currentColor",
-                                    }
-                                  }
-                                />
-                              </svg>
-                            </Icon>
-                          </TagsIcon>
+                          <TagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -931,35 +806,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon>
-                            <Icon>
-                              <svg
-                                height={16}
-                                style={
-                                  Object {
-                                    "clipRule": "evenodd",
-                                    "fillRule": "evenodd",
-                                    "strokeLinejoin": "round",
-                                    "strokeMiterlimit": 1.41421,
-                                  }
-                                }
-                                version="1.1"
-                                viewBox="0 0 16 16"
-                                width={16}
-                                xmlSpace="preserve"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                              >
-                                <path
-                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
-                                  style={
-                                    Object {
-                                      "fill": "currentColor",
-                                    }
-                                  }
-                                />
-                              </svg>
-                            </Icon>
-                          </TagsIcon>
+                          <TagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -987,35 +834,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon>
-                            <Icon>
-                              <svg
-                                height={16}
-                                style={
-                                  Object {
-                                    "clipRule": "evenodd",
-                                    "fillRule": "evenodd",
-                                    "strokeLinejoin": "round",
-                                    "strokeMiterlimit": 1.41421,
-                                  }
-                                }
-                                version="1.1"
-                                viewBox="0 0 16 16"
-                                width={16}
-                                xmlSpace="preserve"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                              >
-                                <path
-                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
-                                  style={
-                                    Object {
-                                      "fill": "currentColor",
-                                    }
-                                  }
-                                />
-                              </svg>
-                            </Icon>
-                          </TagsIcon>
+                          <TagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -1043,35 +862,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon>
-                            <Icon>
-                              <svg
-                                height={16}
-                                style={
-                                  Object {
-                                    "clipRule": "evenodd",
-                                    "fillRule": "evenodd",
-                                    "strokeLinejoin": "round",
-                                    "strokeMiterlimit": 1.41421,
-                                  }
-                                }
-                                version="1.1"
-                                viewBox="0 0 16 16"
-                                width={16}
-                                xmlSpace="preserve"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                              >
-                                <path
-                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
-                                  style={
-                                    Object {
-                                      "fill": "currentColor",
-                                    }
-                                  }
-                                />
-                              </svg>
-                            </Icon>
-                          </TagsIcon>
+                          <TagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -1099,35 +890,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon>
-                            <Icon>
-                              <svg
-                                height={16}
-                                style={
-                                  Object {
-                                    "clipRule": "evenodd",
-                                    "fillRule": "evenodd",
-                                    "strokeLinejoin": "round",
-                                    "strokeMiterlimit": 1.41421,
-                                  }
-                                }
-                                version="1.1"
-                                viewBox="0 0 16 16"
-                                width={16}
-                                xmlSpace="preserve"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                              >
-                                <path
-                                  d="M4.303 5.36a.94.94 0 0 0-.944-.945.94.94 0 0 0-.944.944c0 .524.42.944.944.944a.94.94 0 0 0 .944-.944zm7.866 4.246a.95.95 0 0 1-.273.663l-3.62 3.627a.95.95 0 0 1-1.334 0L1.671 8.618C1.295 8.249 1 7.534 1 7.01V3.944A.95.95 0 0 1 1.944 3H5.01c.523 0 1.238.295 1.614.67l5.271 5.265a.98.98 0 0 1 .273.67zm2.831 0a.95.95 0 0 1-.273.663l-3.62 3.627a.98.98 0 0 1-.67.273c-.384 0-.575-.177-.826-.435l3.465-3.465a.95.95 0 0 0 0-1.334L7.805 3.67C7.429 3.295 6.714 3 6.19 3h1.651c.524 0 1.239.295 1.615.67l5.271 5.265a.98.98 0 0 1 .273.67z"
-                                  style={
-                                    Object {
-                                      "fill": "currentColor",
-                                    }
-                                  }
-                                />
-                              </svg>
-                            </Icon>
-                          </TagsIcon>
+                          <TagsIcon />
                           <span
                             className="little-spacer-left"
                           >
