@@ -33,6 +33,7 @@ const METRICS = [
   'bugs',
   'vulnerabilities',
   'code_smells',
+  'security_hotspots',
   'coverage',
   'duplicated_lines_density'
 ];
@@ -52,6 +53,7 @@ const LEAK_METRICS = [
   'bugs',
   'vulnerabilities',
   'code_smells',
+  'security_hotspots',
   'new_coverage',
   'new_duplicated_lines_density'
 ];

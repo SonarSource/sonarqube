@@ -46,7 +46,7 @@ it('renders correctly', () => {
 
 it('renders correctly for a search', () => {
   expect(
-    shallow(<Components components={[COMPONENT]} metrics={METRICS} rootComponent={COMPONENT} />)
+    shallow(<Components components={[COMPONENT]} metrics={{}} rootComponent={COMPONENT} />)
   ).toMatchSnapshot();
 });
 

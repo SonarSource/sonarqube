@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { intersection } from 'lodash';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getCodeMetrics } from '../utils';
-import { isDefined } from '../../../helpers/types';
 
 interface Props {
   baseComponent?: T.ComponentMeasure;
@@ -37,8 +37,12 @@ interface Props {
 export class Components extends React.PureComponent<Props> {
   render() {
     const { baseComponent, branchLike, components, rootComponent, selected } = this.props;
-    const metricKeys = getCodeMetrics(rootComponent.qualifier, branchLike);
-    const metrics = metricKeys.map(metric => this.props.metrics[metric]).filter(isDefined);
+    const metricKeys = intersection(
+      getCodeMetrics(rootComponent.qualifier, branchLike),
+      Object.keys(this.props.metrics)
+    );
+    const metrics = metricKeys.map(metric => this.props.metrics[metric]);
+    const colSpan = metrics.length + 4;
     return (
       <table className="data boxed-padding zebra">
         {baseComponent && (
@@ -59,7 +63,7 @@ export class Components extends React.PureComponent<Props> {
             />
             <tr className="blank">
               <td colSpan={3}>&nbsp;</td>
-              <td colSpan={10}>&nbsp;</td>
+              <td colSpan={colSpan}>&nbsp;</td>
             </tr>
           </tbody>
         )}
@@ -83,7 +87,7 @@ export class Components extends React.PureComponent<Props> {
 
           <tr className="blank">
             <td colSpan={3} />
-            <td colSpan={10} />
+            <td colSpan={colSpan} />
           </tr>
         </tbody>
       </table>

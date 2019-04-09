@@ -56,8 +56,7 @@
 }
 
 .code-components-cell {
-  min-width: 80px;
-  padding-left: 30px !important;
+  padding-left: calc(2 * var(--gridSize)) !important;
   box-sizing: border-box;
 }
 
