@@ -307,11 +307,6 @@ public interface BuiltInQualityProfilesDefinition {
       return param;
     }
 
-    @CheckForNull
-    public NewOverriddenParam getOverriddenParam(String paramKey) {
-      return paramsByKey.get(paramKey);
-    }
-
     public Collection<NewOverriddenParam> getOverriddenParams() {
       return paramsByKey.values();
     }

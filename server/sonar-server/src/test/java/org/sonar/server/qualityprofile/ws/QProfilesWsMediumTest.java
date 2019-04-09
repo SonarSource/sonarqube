@@ -411,13 +411,13 @@ public class QProfilesWsMediumTest {
   @Test
   public void reset() {
     QProfileDto profile = QProfileTesting.newXooP1(organization);
-    QProfileDto subProfile = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
-    dbClient.qualityProfileDao().insert(dbSession, profile, subProfile);
+    QProfileDto childProfile = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
+    dbClient.qualityProfileDao().insert(dbSession, profile, childProfile);
 
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "rule");
     ActiveRuleDto active1 = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
-    ActiveRuleDto active2 = ActiveRuleDto.createFor(subProfile, rule)
+    ActiveRuleDto active2 = ActiveRuleDto.createFor(childProfile, rule)
       .setSeverity("MINOR");
     dbClient.activeRuleDao().insert(dbSession, active1);
     dbClient.activeRuleDao().insert(dbSession, active2);
@@ -432,7 +432,7 @@ public class QProfilesWsMediumTest {
 
     // 1. reset child rule
     wsActivateRule.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, subProfile.getKee())
+      .setParam(PARAM_KEY, childProfile.getKee())
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_RESET, "true")
       .execute();

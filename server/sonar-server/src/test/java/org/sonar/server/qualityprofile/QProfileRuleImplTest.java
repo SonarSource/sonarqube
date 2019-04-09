@@ -893,7 +893,7 @@ public class QProfileRuleImplTest {
   }
 
   private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
-                                         String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
+    String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -928,7 +928,7 @@ public class QProfileRuleImplTest {
   }
 
   private void assertThatRuleIsUpdated(QProfileDto profile, RuleDefinitionDto rule,
-                                       String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
+    String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))

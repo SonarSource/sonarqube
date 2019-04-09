@@ -366,7 +366,7 @@ public class RuleActivator {
     // load rules
     List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleIds);
 
-    // load profiles
+    // load org profiles
     List<QProfileDto> aliasedBuiltInProfiles = db.qualityProfileDao().selectQProfilesByRuleProfile(dbSession, builtInProfile);
     List<QProfileDto> profiles = new ArrayList<>(aliasedBuiltInProfiles);
     profiles.addAll(db.qualityProfileDao().selectDescendants(dbSession, aliasedBuiltInProfiles));

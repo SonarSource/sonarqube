@@ -47,32 +47,33 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
-  public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfile) {
+  public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtInDefinition, RulesProfileDto initialRuleProfile) {
     // Keep reference to all the activated rules before update
-    Set<Integer> deactivatedRuleIds = dbClient.activeRuleDao().selectByRuleProfile(dbSession, rulesProfile)
+    Set<Integer> deactivatedRuleIds = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
       .stream()
       .map(ActiveRuleDto::getRuleId)
       .collect(MoreCollectors.toHashSet());
 
-    Set<Integer> ruleKeys = Stream.concat(
+    // all rules, including those which are removed from built-in profile
+    Set<Integer> ruleIds = Stream.concat(
       deactivatedRuleIds.stream(),
-      builtIn.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleId))
+      builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleId))
       .collect(toSet());
-    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, rulesProfile, ruleKeys);
 
     Collection<RuleActivation> activations = new ArrayList<>();
-    for (BuiltInQProfile.ActiveRule ar : builtIn.getActiveRules()) {
+    for (BuiltInQProfile.ActiveRule ar : builtInDefinition.getActiveRules()) {
       RuleActivation activation = convert(ar);
       activations.add(activation);
       deactivatedRuleIds.remove(activation.getRuleId());
     }
 
+    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, initialRuleProfile, ruleIds);
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleActivation activation : activations) {
       changes.addAll(ruleActivator.activate(dbSession, activation, context));
     }
 
-    // these rules are not part of the built-in profile anymore
+    // these rules are no longer part of the built-in profile
     deactivatedRuleIds.forEach(ruleKey -> changes.addAll(ruleActivator.deactivate(dbSession, context, ruleKey, false)));
 
     activeRuleIndexer.commitAndIndex(dbSession, changes);
