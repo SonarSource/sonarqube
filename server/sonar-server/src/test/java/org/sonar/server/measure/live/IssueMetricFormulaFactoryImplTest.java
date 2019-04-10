@@ -111,6 +111,19 @@ public class IssueMetricFormulaFactoryImplTest {
   }
 
   @Test
+  public void test_security_hotspots() {
+    withNoIssues().assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS, 0);
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.MAJOR).setCount(3),
+      newGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.CRITICAL).setCount(5),
+      // exclude resolved
+      newResolvedGroup(RuleType.SECURITY_HOTSPOT).setCount(7),
+      // not hotspots
+      newGroup(RuleType.BUG).setCount(11))
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS, 3 + 5);
+  }
+
+  @Test
   public void count_unresolved_by_severity() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.BLOCKER_VIOLATIONS, 0)
@@ -130,7 +143,8 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.BLOCKER).setInLeak(true).setCount(13),
       // exclude resolved
       newResolvedGroup(RuleType.VULNERABILITY).setSeverity(Severity.INFO).setCount(17),
-      newResolvedGroup(RuleType.BUG).setSeverity(Severity.MAJOR).setCount(19))
+      newResolvedGroup(RuleType.BUG).setSeverity(Severity.MAJOR).setCount(19),
+      newResolvedGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Severity.INFO).setCount(21))
         .assertThatValueIs(CoreMetrics.BLOCKER_VIOLATIONS, 11 + 13)
         .assertThatValueIs(CoreMetrics.CRITICAL_VIOLATIONS, 7)
         .assertThatValueIs(CoreMetrics.MAJOR_VIOLATIONS, 3 + 5)
@@ -423,6 +437,20 @@ public class IssueMetricFormulaFactoryImplTest {
   }
 
   @Test
+  public void test_new_security_hotspots() {
+    withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS, 0.0);
+
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setInLeak(false).setSeverity(Severity.MAJOR).setCount(3),
+      newGroup(RuleType.SECURITY_HOTSPOT).setInLeak(true).setSeverity(Severity.CRITICAL).setCount(5),
+      newGroup(RuleType.SECURITY_HOTSPOT).setInLeak(true).setSeverity(Severity.MINOR).setCount(7),
+      // not hotspots
+      newGroup(RuleType.BUG).setInLeak(true).setCount(9),
+      newGroup(RuleType.CODE_SMELL).setInLeak(true).setCount(11))
+        .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS, 5 + 7);
+  }
+
+  @Test
   public void test_new_violations() {
     withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_VIOLATIONS, 0.0);
 
@@ -468,7 +496,7 @@ public class IssueMetricFormulaFactoryImplTest {
       // not in leak
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.CRITICAL).setInLeak(false).setCount(11),
       newGroup(RuleType.BUG).setSeverity(Severity.CRITICAL).setInLeak(false).setCount(13))
-      .assertThatLeakValueIs(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 3 + 5 + 7);
+        .assertThatLeakValueIs(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 3 + 5 + 7);
   }
 
   @Test
@@ -485,7 +513,7 @@ public class IssueMetricFormulaFactoryImplTest {
       // not in leak
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.MAJOR).setInLeak(false).setCount(11),
       newGroup(RuleType.BUG).setSeverity(Severity.MAJOR).setInLeak(false).setCount(13))
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAJOR_VIOLATIONS, 3 + 5 + 7);
+        .assertThatLeakValueIs(CoreMetrics.NEW_MAJOR_VIOLATIONS, 3 + 5 + 7);
   }
 
   @Test
@@ -502,7 +530,7 @@ public class IssueMetricFormulaFactoryImplTest {
       // not in leak
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.MINOR).setInLeak(false).setCount(11),
       newGroup(RuleType.BUG).setSeverity(Severity.MINOR).setInLeak(false).setCount(13))
-      .assertThatLeakValueIs(CoreMetrics.NEW_MINOR_VIOLATIONS, 3 + 5 + 7);
+        .assertThatLeakValueIs(CoreMetrics.NEW_MINOR_VIOLATIONS, 3 + 5 + 7);
   }
 
   @Test
@@ -519,7 +547,7 @@ public class IssueMetricFormulaFactoryImplTest {
       // not in leak
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.INFO).setInLeak(false).setCount(11),
       newGroup(RuleType.BUG).setSeverity(Severity.INFO).setInLeak(false).setCount(13))
-      .assertThatLeakValueIs(CoreMetrics.NEW_INFO_VIOLATIONS, 3 + 5 + 7);
+        .assertThatLeakValueIs(CoreMetrics.NEW_INFO_VIOLATIONS, 3 + 5 + 7);
   }
 
   @Test
@@ -535,7 +563,7 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.BUG).setEffort(7.0).setInLeak(true),
       // exclude resolved
       newResolvedGroup(RuleType.CODE_SMELL).setEffort(17.0).setInLeak(true))
-      .assertThatLeakValueIs(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0);
+        .assertThatLeakValueIs(CoreMetrics.NEW_TECHNICAL_DEBT, 3.0);
   }
 
   @Test
@@ -550,7 +578,7 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.CODE_SMELL).setEffort(7.0).setInLeak(true),
       // exclude resolved
       newResolvedGroup(RuleType.BUG).setEffort(17.0).setInLeak(true))
-      .assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT, 3.0);
+        .assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT, 3.0);
   }
 
   @Test
@@ -565,7 +593,7 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.CODE_SMELL).setEffort(7.0).setInLeak(true),
       // exclude resolved
       newResolvedGroup(RuleType.VULNERABILITY).setEffort(17.0).setInLeak(true))
-      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT, 3.0);
+        .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT, 3.0);
   }
 
   @Test
@@ -581,8 +609,8 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.BLOCKER).setInLeak(true),
       // exclude resolved
       newResolvedGroup(RuleType.BUG).setSeverity(Severity.BLOCKER).setInLeak(true))
-      // highest severity of bugs on leak period is minor -> B
-      .assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_RATING, Rating.B);
+        // highest severity of bugs on leak period is minor -> B
+        .assertThatLeakValueIs(CoreMetrics.NEW_RELIABILITY_RATING, Rating.B);
   }
 
   @Test
@@ -598,8 +626,8 @@ public class IssueMetricFormulaFactoryImplTest {
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.BLOCKER).setInLeak(true),
       // exclude resolved
       newResolvedGroup(RuleType.VULNERABILITY).setSeverity(Severity.BLOCKER).setInLeak(true))
-      // highest severity of bugs on leak period is minor -> B
-      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_RATING, Rating.B);
+        // highest severity of bugs on leak period is minor -> B
+        .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_RATING, Rating.B);
   }
 
   @Test

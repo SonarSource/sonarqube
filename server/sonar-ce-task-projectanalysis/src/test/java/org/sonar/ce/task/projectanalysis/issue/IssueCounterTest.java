@@ -175,6 +175,8 @@ public class IssueCounterTest {
     underTest.afterComponent(FILE2);
 
     underTest.beforeComponent(FILE3);
+    // Security hotspot should be ignored
+    underTest.onIssue(FILE3, createSecurityHotspot().setStatus(STATUS_OPEN));
     underTest.afterComponent(FILE3);
 
     underTest.beforeComponent(PROJECT);
@@ -205,6 +207,8 @@ public class IssueCounterTest {
     underTest.afterComponent(FILE2);
 
     underTest.beforeComponent(FILE3);
+    // Security hotspot should be ignored
+    underTest.onIssue(FILE3, createSecurityHotspot().setResolution(RESOLUTION_WONT_FIX));
     underTest.afterComponent(FILE3);
 
     underTest.beforeComponent(PROJECT);
@@ -233,6 +237,8 @@ public class IssueCounterTest {
     underTest.afterComponent(FILE2);
 
     underTest.beforeComponent(PROJECT);
+    // Security hotspot should be ignored
+    underTest.onIssue(FILE3, createSecurityHotspot().setSeverity(MAJOR));
     underTest.afterComponent(PROJECT);
 
     assertMeasures(FILE1, entry(BLOCKER_VIOLATIONS_KEY, 1), entry(CRITICAL_VIOLATIONS_KEY, 0), entry(MAJOR_VIOLATIONS_KEY, 0));
@@ -256,9 +262,10 @@ public class IssueCounterTest {
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(RuleType.BUG));
     underTest.afterComponent(FILE2);
 
-    // file3 : one security hotspot
+    // file3 : one unresolved security hotspot
     underTest.beforeComponent(FILE3);
     underTest.onIssue(FILE3, createSecurityHotspot());
+    underTest.onIssue(FILE3, createSecurityHotspot().setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
     underTest.afterComponent(FILE3);
 
     underTest.beforeComponent(PROJECT);
@@ -285,6 +292,7 @@ public class IssueCounterTest {
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.BUG));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(RuleType.BUG));
     underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L).setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);

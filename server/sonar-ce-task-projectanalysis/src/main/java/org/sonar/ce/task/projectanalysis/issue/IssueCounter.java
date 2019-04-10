@@ -254,7 +254,9 @@ public class IssueCounter extends IssueVisitor {
 
     void add(DefaultIssue issue) {
       if (issue.type() == SECURITY_HOTSPOT) {
-        typeBag.add(SECURITY_HOTSPOT);
+        if (issue.resolution() == null) {
+          typeBag.add(SECURITY_HOTSPOT);
+        }
         return;
       }
       if (issue.resolution() == null) {

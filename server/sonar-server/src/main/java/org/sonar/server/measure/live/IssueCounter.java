@@ -45,6 +45,14 @@ class IssueCounter {
   IssueCounter(Collection<IssueGroupDto> groups) {
     for (IssueGroupDto group : groups) {
       RuleType ruleType = RuleType.valueOf(group.getRuleType());
+      if (ruleType.equals(SECURITY_HOTSPOT)) {
+        if (group.getResolution() == null) {
+          unresolvedByType
+            .computeIfAbsent(SECURITY_HOTSPOT, k -> new Count())
+            .add(group);
+        }
+        continue;
+      }
       if (group.getResolution() == null) {
         highestSeverityOfUnresolved
           .computeIfAbsent(ruleType, k -> new HighestSeverity())
@@ -117,11 +125,9 @@ class IssueCounter {
     private long leak = 0L;
 
     void add(IssueGroupDto group) {
-      if (group.getRuleType() != SECURITY_HOTSPOT.getDbConstant()) {
-        absolute += group.getCount();
-        if (group.isInLeak()) {
-          leak += group.getCount();
-        }
+      absolute += group.getCount();
+      if (group.isInLeak()) {
+        leak += group.getCount();
       }
     }
   }
