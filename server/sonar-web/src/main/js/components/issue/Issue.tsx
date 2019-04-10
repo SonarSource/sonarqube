@@ -27,8 +27,6 @@ import './Issue.css';
 interface Props {
   branchLike?: T.BranchLike;
   checked?: boolean;
-  displayLocationsCount?: boolean;
-  displayLocationsLink?: boolean;
   issue: T.Issue;
   onChange: (issue: T.Issue) => void;
   onCheck?: (issue: string) => void;
@@ -41,8 +39,6 @@ interface Props {
 
 export default class Issue extends React.PureComponent<Props> {
   static defaultProps = {
-    displayLocationsCount: true,
-    displayLocationsLink: true,
     selected: false
   };
 
@@ -134,8 +130,6 @@ export default class Issue extends React.PureComponent<Props> {
         branchLike={this.props.branchLike}
         checked={this.props.checked}
         currentPopup={this.props.openPopup}
-        displayLocationsCount={this.props.displayLocationsCount}
-        displayLocationsLink={this.props.displayLocationsLink}
         issue={this.props.issue}
         onAssign={this.handleAssignement}
         onChange={this.props.onChange}

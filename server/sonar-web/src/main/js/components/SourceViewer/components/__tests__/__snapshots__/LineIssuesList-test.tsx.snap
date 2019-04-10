@@ -5,8 +5,6 @@ exports[`render issues list 1`] = `
   className="issue-list"
 >
   <Issue
-    displayLocationsCount={true}
-    displayLocationsLink={true}
     issue={
       Object {
         "actions": Array [],
@@ -40,8 +38,6 @@ exports[`render issues list 1`] = `
     selected={true}
   />
   <Issue
-    displayLocationsCount={true}
-    displayLocationsLink={true}
     issue={
       Object {
         "actions": Array [],

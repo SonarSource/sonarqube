@@ -22,8 +22,6 @@ import Issue from '../../issue/Issue';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   issuePopup: { issue: string; name: string } | undefined;
   issues: T.Issue[];
   onIssueChange: (issue: T.Issue) => void;
@@ -40,8 +38,6 @@ export default function LineIssuesList(props: Props) {
       {props.issues.map(issue => (
         <Issue
           branchLike={props.branchLike}
-          displayLocationsCount={props.displayIssueLocationsCount}
-          displayLocationsLink={props.displayIssueLocationsLink}
           issue={issue}
           key={issue.key}
           onChange={props.onIssueChange}

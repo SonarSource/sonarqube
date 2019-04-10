@@ -33,8 +33,6 @@ interface Props {
   displayAllIssues?: boolean;
   displayCoverage: boolean;
   displayDuplications: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayIssues: boolean;
   displayLocationMarkers?: boolean;
   duplications: number[];
@@ -151,8 +149,6 @@ export default class Line extends React.PureComponent<Props> {
 
         <LineCode
           branchLike={this.props.branchLike}
-          displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-          displayIssueLocationsLink={this.props.displayIssueLocationsLink}
           displayLocationMarkers={this.props.displayLocationMarkers}
           highlightedLocationMessage={this.props.highlightedLocationMessage}
           highlightedSymbols={this.props.highlightedSymbols}

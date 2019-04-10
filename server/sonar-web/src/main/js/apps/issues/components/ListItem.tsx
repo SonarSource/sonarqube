@@ -114,7 +114,6 @@ export default class ListItem extends React.PureComponent<Props, State> {
         <Issue
           branchLike={branchLike}
           checked={this.props.checked}
-          displayLocationsLink={false}
           issue={issue}
           onChange={this.props.onChange}
           onCheck={this.props.onCheck}

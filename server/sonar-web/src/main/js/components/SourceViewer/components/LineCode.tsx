@@ -31,8 +31,6 @@ import {
 
 interface Props {
   branchLike: T.BranchLike | undefined;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
@@ -228,8 +226,6 @@ export default class LineCode extends React.PureComponent<Props, State> {
         {showIssues && issues.length > 0 && (
           <LineIssuesList
             branchLike={this.props.branchLike}
-            displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-            displayIssueLocationsLink={this.props.displayIssueLocationsLink}
             issuePopup={this.props.issuePopup}
             issues={issues}
             onIssueChange={this.props.onIssueChange}

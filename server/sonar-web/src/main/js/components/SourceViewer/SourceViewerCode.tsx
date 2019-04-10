@@ -37,8 +37,6 @@ interface Props {
   branchLike: T.BranchLike | undefined;
   componentKey: string;
   displayAllIssues?: boolean;
-  displayIssueLocationsCount?: boolean;
-  displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
   duplications: T.Duplication[] | undefined;
   duplicationsByLine: { [line: number]: number[] };
@@ -159,8 +157,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         displayAllIssues={this.props.displayAllIssues}
         displayCoverage={displayCoverage}
         displayDuplications={displayDuplications}
-        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
-        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         displayIssues={displayIssues}
         displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.getDuplicationsForLine(line)}
