@@ -51,6 +51,9 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+# ---- Linux
+.directory
+
 # ---- frontend
 node/
 node_modules/
