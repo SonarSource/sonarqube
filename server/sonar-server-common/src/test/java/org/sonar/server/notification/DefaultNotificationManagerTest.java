@@ -345,7 +345,7 @@ public class DefaultNotificationManagerTest {
     String projectKey = randomAlphabetic(6);
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(
-        newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
+        newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"), EmailSubscriberDto.create("user3", true, "user3@foo")));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
@@ -370,7 +370,7 @@ public class DefaultNotificationManagerTest {
     Set<String> logins = ImmutableSet.of("user1", "user2", "user3");
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
       .thenReturn(
-        newHashSet(new EmailSubscriberDto("user1", false, "user1@foo"), new EmailSubscriberDto("user3", false, "user3@foo"), new EmailSubscriberDto("user3", true, "user3@foo")));
+        newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"), EmailSubscriberDto.create("user3", true, "user3@foo")));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
@@ -393,7 +393,7 @@ public class DefaultNotificationManagerTest {
     String projectPermission = randomAlphanumeric(5);
     String projectKey = randomAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
-      .mapToObj(i -> new EmailSubscriberDto("user" + i, true, "user" + i + "@sonarsource.com"))
+      .mapToObj(i -> EmailSubscriberDto.create("user" + i, true, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
@@ -418,7 +418,7 @@ public class DefaultNotificationManagerTest {
     String projectPermission = randomAlphanumeric(5);
     String projectKey = randomAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
-      .mapToObj(i -> new EmailSubscriberDto("user" + i, true, "user" + i + "@sonarsource.com"))
+      .mapToObj(i -> EmailSubscriberDto.create("user" + i, true, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
@@ -443,7 +443,7 @@ public class DefaultNotificationManagerTest {
     String projectPermission = randomAlphanumeric(5);
     String projectKey = randomAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
-      .mapToObj(i -> new EmailSubscriberDto("user" + i, false, "user" + i + "@sonarsource.com"))
+      .mapToObj(i -> EmailSubscriberDto.create("user" + i, false, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
@@ -468,7 +468,7 @@ public class DefaultNotificationManagerTest {
     String projectPermission = randomAlphanumeric(5);
     String projectKey = randomAlphabetic(6);
     Set<EmailSubscriberDto> subscribers = IntStream.range(0, 1 + new Random().nextInt(10))
-      .mapToObj(i -> new EmailSubscriberDto("user" + i, false, "user" + i + "@sonarsource.com"))
+      .mapToObj(i -> EmailSubscriberDto.create("user" + i, false, "user" + i + "@sonarsource.com"))
       .collect(Collectors.toSet());
     Set<String> logins = subscribers.stream().map(EmailSubscriberDto::getLogin).collect(Collectors.toSet());
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))

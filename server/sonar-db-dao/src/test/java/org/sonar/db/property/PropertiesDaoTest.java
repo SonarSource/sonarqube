@@ -207,7 +207,7 @@ public class PropertiesDaoTest {
     insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectId, userId4);
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null))
-      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user2", true, emailOf("user2")));
+      .containsOnly(EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user2", true, emailOf("user2")));
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, otherChannelKey, null))
       .isEmpty();
@@ -240,13 +240,13 @@ public class PropertiesDaoTest {
     Set<String> allLogins = of("user1", "user2", "user3", "user4");
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, allLogins))
-      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user2", true, emailOf("user2")));
+      .containsOnly(EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user2", true, emailOf("user2")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of("user1", "user2")))
-      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user2", true, emailOf("user2")));
+      .containsOnly(EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user2", true, emailOf("user2")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of("user2")))
-      .containsOnly(new EmailSubscriberDto("user2", true, emailOf("user2")));
+      .containsOnly(EmailSubscriberDto.create("user2", true, emailOf("user2")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of("user1")))
-      .containsOnly(new EmailSubscriberDto("user1", true, emailOf("user1")));
+      .containsOnly(EmailSubscriberDto.create("user1", true, emailOf("user1")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, of()))
       .isEmpty();
 
@@ -283,14 +283,14 @@ public class PropertiesDaoTest {
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")),
-        new EmailSubscriberDto("user2", true, emailOf("user2")), new EmailSubscriberDto("user2", false, "user2@foo"),
-        new EmailSubscriberDto("user3", false, emailOf("user3")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")),
+        EmailSubscriberDto.create("user2", true, emailOf("user2")), EmailSubscriberDto.create("user2", false, "user2@foo"),
+        EmailSubscriberDto.create("user3", false, emailOf("user3")));
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, otherProjectKey))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")),
-        new EmailSubscriberDto("user2", true, emailOf("user2")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")),
+        EmailSubscriberDto.create("user2", true, emailOf("user2")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, otherChannelKey, otherProjectKey))
       .isEmpty();
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), otherDispatcherKey, channelKey, otherProjectKey))
@@ -323,24 +323,24 @@ public class PropertiesDaoTest {
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")),
-        new EmailSubscriberDto("user2", true, emailOf("user2")), new EmailSubscriberDto("user2", false, "user2@foo"),
-        new EmailSubscriberDto("user3", false, emailOf("user3")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")),
+        EmailSubscriberDto.create("user2", true, emailOf("user2")), EmailSubscriberDto.create("user2", false, "user2@foo"),
+        EmailSubscriberDto.create("user3", false, emailOf("user3")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of("user1")))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of("user2")))
       .containsOnly(
-        new EmailSubscriberDto("user2", true, emailOf("user2")), new EmailSubscriberDto("user2", false, "user2@foo"));
+        EmailSubscriberDto.create("user2", true, emailOf("user2")), EmailSubscriberDto.create("user2", false, "user2@foo"));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of("user3")))
-      .containsOnly(new EmailSubscriberDto("user3", false, emailOf("user3")));
+      .containsOnly(EmailSubscriberDto.create("user3", false, emailOf("user3")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, of()))
       .isEmpty();
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, otherProjectKey, allLogins))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")),
-        new EmailSubscriberDto("user2", true, emailOf("user2")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")),
+        EmailSubscriberDto.create("user2", true, emailOf("user2")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, otherChannelKey, otherProjectKey, allLogins))
       .isEmpty();
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), otherDispatcherKey, channelKey, otherProjectKey, allLogins))
@@ -368,12 +368,12 @@ public class PropertiesDaoTest {
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user1", false, emailOf("user1")),
-        new EmailSubscriberDto("user3", true, emailOf("user3")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user1", false, emailOf("user1")),
+        EmailSubscriberDto.create("user3", true, emailOf("user3")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")),
-        new EmailSubscriberDto("user3", true, emailOf("user3")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")),
+        EmailSubscriberDto.create("user3", true, emailOf("user3")));
   }
 
   @Test
@@ -398,12 +398,12 @@ public class PropertiesDaoTest {
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")), new EmailSubscriberDto("user1", false, emailOf("user1")),
-        new EmailSubscriberDto("user3", true, emailOf("user3")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user1", false, emailOf("user1")),
+        EmailSubscriberDto.create("user3", true, emailOf("user3")));
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, allLogins))
       .containsOnly(
-        new EmailSubscriberDto("user1", true, emailOf("user1")),
-        new EmailSubscriberDto("user3", true, emailOf("user3")));
+        EmailSubscriberDto.create("user1", true, emailOf("user1")),
+        EmailSubscriberDto.create("user3", true, emailOf("user3")));
   }
 
   @Test

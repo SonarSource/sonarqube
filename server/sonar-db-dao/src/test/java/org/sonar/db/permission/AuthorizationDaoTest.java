@@ -1261,7 +1261,7 @@ public class AuthorizationDaoTest {
   }
 
   private static EmailSubscriberDto globalEmailSubscriberOf(UserDto userDto) {
-    return new EmailSubscriberDto(userDto.getLogin(), true, emailOf(userDto));
+    return EmailSubscriberDto.create(userDto.getLogin(), true, emailOf(userDto));
   }
 
   private static Consumer<UserDto> withEmail(String login) {

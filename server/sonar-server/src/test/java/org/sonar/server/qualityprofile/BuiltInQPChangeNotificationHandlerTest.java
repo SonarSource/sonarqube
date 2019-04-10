@@ -109,7 +109,7 @@ public class BuiltInQPChangeNotificationHandlerTest {
       .mapToObj(i -> mock(BuiltInQPChangeNotification.class))
       .collect(toSet());
     Set<EmailSubscriberDto> emailSubscribers = IntStream.range(0, 1 + new Random().nextInt(10))
-      .mapToObj(i -> new EmailSubscriberDto("login_" + i, true, "login_" + i + "@foo"))
+      .mapToObj(i -> EmailSubscriberDto.create("login_" + i, true, "login_" + i + "@foo"))
       .collect(toSet());
     when(authorizationDao.selectQualityProfileAdministratorLogins(dbSession))
       .thenReturn(emailSubscribers);

@@ -20,19 +20,11 @@
 package org.sonar.db;
 
 import java.util.Objects;
-import javax.annotation.concurrent.Immutable;
 
-@Immutable
 public final class EmailSubscriberDto {
-  private final String login;
-  private final boolean global;
-  private final String email;
-
-  public EmailSubscriberDto(String login, boolean global, String email) {
-    this.login = login;
-    this.global = global;
-    this.email = email;
-  }
+  private String login;
+  private boolean global;
+  private String email;
 
   public String getLogin() {
     return login;
@@ -44,6 +36,21 @@ public final class EmailSubscriberDto {
 
   public String getEmail() {
     return email;
+  }
+
+  public EmailSubscriberDto setLogin(String login) {
+    this.login = login;
+    return this;
+  }
+
+  public EmailSubscriberDto setGlobal(boolean global) {
+    this.global = global;
+    return this;
+  }
+
+  public EmailSubscriberDto setEmail(String email) {
+    this.email = email;
+    return this;
   }
 
   @Override
@@ -72,5 +79,12 @@ public final class EmailSubscriberDto {
       ", global=" + global +
       ", email='" + email + '\'' +
       '}';
+  }
+
+  public static EmailSubscriberDto create(String login, boolean global, String email) {
+    return new EmailSubscriberDto()
+      .setLogin(login)
+      .setGlobal(global)
+      .setEmail(email);
   }
 }
