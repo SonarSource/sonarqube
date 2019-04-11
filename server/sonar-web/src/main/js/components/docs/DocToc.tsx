@@ -48,11 +48,11 @@ export default class DocToc extends React.PureComponent<Props, State> {
 
   state: State = { anchors: [] };
 
-  static getAnchors = memoize(content => {
+  static getAnchors = memoize((content: string) => {
     const file: { contents: JSX.Element } = remark()
       .use(reactRenderer)
       .use(onlyToc)
-      .processSync(content);
+      .processSync('\n## doctoc\n' + content);
 
     if (file && file.contents.props.children) {
       let list = file.contents;

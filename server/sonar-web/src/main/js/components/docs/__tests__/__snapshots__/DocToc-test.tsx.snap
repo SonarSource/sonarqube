@@ -3,9 +3,6 @@
 exports[`should render correctly 1`] = `
 <DocToc
   content="
-## toc
-
-
 ## Lorem ipsum
 
 Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
@@ -23,7 +20,6 @@ At cursus turpis. Aenean at elit fringilla, porttitor mi eget, dapibus nisi. Don
 ## Nam blandit 
 
 Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
-
 "
   onAnchorClick={[MockFunction]}
 >
@@ -63,29 +59,4 @@ Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, co
     </div>
   </div>
 </DocToc>
-`;
-
-exports[`should render correctly if no TOC is available 1`] = `
-<DocToc
-  content="
-## Lorem ipsum
-
-Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
-
-## Sit amet
-
-### Maecenas diam
-
-Velit, vestibulum nec ultrices id, mollis eget arcu. Sed dapibus, sapien ut auctor consectetur, mi tortor vestibulum ante, eget dapibus lacus risus.
-
-### Integer
-
-At cursus turpis. Aenean at elit fringilla, porttitor mi eget, dapibus nisi. Donec quis congue odio.
-
-## Nam blandit 
-
-Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
-"
-  onAnchorClick={[MockFunction]}
-/>
 `;

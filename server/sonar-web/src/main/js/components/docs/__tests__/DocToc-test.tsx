@@ -24,7 +24,7 @@ import { click, scrollTo } from '../../../helpers/testUtils';
 
 const OFFSET = 300;
 
-const CONTENT_NO_TOC = `
+const CONTENT = `
 ## Lorem ipsum
 
 Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
@@ -42,12 +42,6 @@ At cursus turpis. Aenean at elit fringilla, porttitor mi eget, dapibus nisi. Don
 ## Nam blandit 
 
 Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
-`;
-
-const CONTENT_WITH_TOC = `
-## toc
-
-${CONTENT_NO_TOC}
 `;
 
 jest.mock('remark', () => {
@@ -75,11 +69,6 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render correctly if no TOC is available', () => {
-  const wrapper = renderComponent({ content: CONTENT_NO_TOC });
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('should trigger the handler when an anchor is clicked', () => {
   const onAnchorClick = jest.fn();
   const wrapper = renderComponent({ onAnchorClick });
@@ -99,7 +88,7 @@ it('should highlight anchors when scrolling', () => {
 });
 
 function renderComponent(props: Partial<DocToc['props']> = {}) {
-  return mount(<DocToc content={CONTENT_WITH_TOC} onAnchorClick={jest.fn()} {...props} />);
+  return mount(<DocToc content={CONTENT} onAnchorClick={jest.fn()} {...props} />);
 }
 
 function mockDomEnv() {
@@ -109,11 +98,7 @@ function mockDomEnv() {
   parent.appendChild(element);
 
   let offset = OFFSET;
-  (CONTENT_WITH_TOC.match(/^## .+$/gm) as Array<string>).forEach(match => {
-    if (/toc/.test(match)) {
-      return;
-    }
-
+  (CONTENT.match(/^## .+$/gm) as Array<string>).forEach(match => {
     const slug = match
       .replace(/^#+ */, '')
       .replace(' ', '-')

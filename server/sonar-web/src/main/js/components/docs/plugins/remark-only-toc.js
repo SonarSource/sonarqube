@@ -30,7 +30,7 @@ export default function onlyToc() {
   return transformer;
 
   function transformer(node) {
-    const result = util(node, { heading: 'toc|table[ -]of[ -]contents?', maxDepth: 2 });
+    const result = util(node, { heading: 'doctoc', maxDepth: 2 });
 
     if (result.index === null || result.index === -1 || !result.map) {
       node.children = [];

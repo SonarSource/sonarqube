@@ -21,9 +21,7 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 
-const CONTENT_WITH_TOC = `
-## Table of Contents
-
+const CONTENT = `
 ## Lorem ipsum
 
 Quisque vitae tincidunt felis. Nam blandit risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, consequat neque eget, dignissim augue.
@@ -84,14 +82,8 @@ it('should render with custom props for links', () => {
   ).toMatchSnapshot();
 });
 
-it('should render a TOC if available', () => {
-  const wrapper = shallowRender({ content: CONTENT_WITH_TOC });
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('ul').exists()).toBe(true);
-});
-
 it('should render a sticky TOC if available', () => {
-  const wrapper = shallowRender({ content: CONTENT_WITH_TOC, stickyToc: true });
+  const wrapper = shallowRender({ content: CONTENT, stickyToc: true });
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('DocToc').exists()).toBe(true);
 });

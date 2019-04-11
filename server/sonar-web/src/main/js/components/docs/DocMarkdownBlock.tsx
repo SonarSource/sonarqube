@@ -27,7 +27,6 @@ import DocLink from './DocLink';
 import DocImg from './DocImg';
 import DocToc from './DocToc';
 import DocTooltipLink from './DocTooltipLink';
-import remarkToc from './plugins/remark-toc';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import { separateFrontMatter, filterContent } from '../../helpers/markdown';
 import { scrollToElement } from '../../helpers/scrolling';
@@ -60,8 +59,8 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
   render() {
     const { childProps, content, className, displayH1, stickyToc, isTooltip } = this.props;
     const parsed = separateFrontMatter(content || '');
-    let filteredContent = filterContent(parsed.content);
-    const tocContent = filteredContent;
+    const filteredContent = filterContent(parsed.content);
+
     const md = remark();
 
     // TODO find a way to replace these custom blocks with real Alert components
@@ -87,12 +86,6 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
       })
       .use(slug);
 
-    if (stickyToc) {
-      filteredContent = filteredContent.replace(/#*\s*(toc|table[ -]of[ -]contents?).*/i, '');
-    } else {
-      md.use(remarkToc, { maxDepth: 3 });
-    }
-
     return (
       <div
         className={classNames('markdown', className, { 'has-toc': stickyToc })}
@@ -101,7 +94,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
           {displayH1 && <h1 className="documentation-title">{parsed.frontmatter.title}</h1>}
           {md.processSync(filteredContent).contents}
         </div>
-        {stickyToc && <DocToc content={tocContent} onAnchorClick={this.handleAnchorClick} />}
+        {stickyToc && <DocToc content={filteredContent} onAnchorClick={this.handleAnchorClick} />}
       </div>
     );
   }
