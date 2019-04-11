@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getJSON } from '../../../helpers/request';
+
 export interface FeaturedProject {
   key: string;
   avatarUrl: string | null;
@@ -45,10 +47,6 @@ export interface HomepageData {
   newPullRequests7d: number;
 }
 
-export function requestHomepageData(): Promise<HomepageData> {
-  return fetch('/json/homepage.json').then(response => response.json());
-}
-
 export const LANGUAGES = [
   { name: 'Java', file: 'java.svg', width: 65 },
   { name: 'JavaScript', file: 'js.svg', width: 60 },
@@ -74,3 +72,7 @@ export const LANGUAGES = [
   { name: 'XML', file: 'xml.svg', width: 67 },
   { name: 'COBOL', file: 'cobol.svg', width: 65 }
 ];
+
+export function requestHomepageData(url: string): Promise<HomepageData> {
+  return getJSON(url);
+}

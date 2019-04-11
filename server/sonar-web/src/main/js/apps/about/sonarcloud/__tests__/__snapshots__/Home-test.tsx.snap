@@ -1,5 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render real Stats and Projects 1`] = `
+<div
+  className="sc-section sc-columns"
+>
+  <div
+    className="sc-column sc-column-full"
+  >
+    <h3>
+      Over 3,000 Projects
+      <br />
+      Continuously Analyzed
+    </h3>
+  </div>
+</div>
+`;
+
+exports[`should not render real Stats and Projects 2`] = `
+<div
+  className="sc-section sc-columns"
+>
+  <div
+    className="sc-column sc-column-full"
+  >
+    <h6
+      className="spacer-bottom"
+    >
+      Come join the fun, it’s entirely free for open-source projects!
+    </h6>
+    <div
+      className="sc-spacer-bottom"
+    >
+      <LoginButtons />
+    </div>
+  </div>
+</div>
+`;
+
 exports[`should render 1`] = `
 <div
   className="global-container"

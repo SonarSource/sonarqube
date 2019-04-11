@@ -21,6 +21,8 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import Home from '../Home';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockStore } from '../../../../helpers/testMocks';
+import { requestHomepageData } from '../utils';
 
 jest.mock('../utils', () => {
   const utils = require.requireActual('../utils');
@@ -53,8 +55,13 @@ jest.mock('../utils', () => {
   return utils;
 });
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 it('should render', async () => {
-  const wrapper = shallow(<Home />);
+  const wrapper = shallowRender('https://static.sonarcloud.io/homepage.json');
+  expect(requestHomepageData).toBeCalled();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('PageBackgroundHeader').dive()).toMatchSnapshot();
@@ -65,3 +72,24 @@ it('should render', async () => {
   expect(wrapper.find('Stats').dive()).toMatchSnapshot();
   expect(wrapper.find('Projects').dive()).toMatchSnapshot();
 });
+
+it('should not render real Stats and Projects', () => {
+  const wrapper = shallowRender(undefined);
+  expect(requestHomepageData).not.toBeCalled();
+  expect(wrapper.find('Stats').dive()).toMatchSnapshot();
+  expect(wrapper.find('Projects').dive()).toMatchSnapshot();
+});
+
+function shallowRender(homePageDataUrl: string | undefined) {
+  return shallow(<Home />, {
+    context: {
+      store: mockStore({
+        settingsApp: {
+          values: {
+            global: { 'sonar.homepage.url': { key: 'sonar.homepage.url', value: homePageDataUrl } }
+          }
+        }
+      })
+    }
+  }).dive();
+}

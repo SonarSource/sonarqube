@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import { FixedNavBar, TopNavBar } from './components/NavBars';
 import FeaturedProjects from './components/FeaturedProjects';
 import Footer from './components/Footer';
@@ -26,32 +27,48 @@ import { Languages } from './components/Languages';
 import LoginButtons from './components/LoginButtons';
 import Statistics from './components/Statistics';
 import { requestHomepageData, HomepageData, FeaturedProject } from './utils';
+import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { getBaseUrl } from '../../../helpers/urls';
 import './new_style.css';
+
+interface Props {
+  homePageDataUrl?: string;
+}
 
 interface State {
   data?: HomepageData;
 }
 
-export default class Home extends React.PureComponent<{}, State> {
+export class Home extends React.PureComponent<Props, State> {
+  mounted = false;
   state: State = {};
 
   componentDidMount() {
+    this.mounted = true;
     addWhitePageClass();
     this.fetchData();
   }
 
   componentWillUnmount() {
     removeWhitePageClass();
+    this.mounted = false;
   }
 
   fetchData = () => {
-    requestHomepageData()
-      .then(data => this.setState({ data }))
-      .catch(() => {
-        /* Fail silently */
-      });
+    const { homePageDataUrl } = this.props;
+    if (homePageDataUrl) {
+      requestHomepageData(homePageDataUrl).then(
+        data => {
+          if (this.mounted) {
+            this.setState({ data });
+          }
+        },
+        () => {
+          /* Fail silently */
+        }
+      );
+    }
   };
 
   render() {
@@ -83,6 +100,15 @@ export default class Home extends React.PureComponent<{}, State> {
     );
   }
 }
+
+const mapStateToProps = (state: Store) => {
+  const homePageDataUrl = getGlobalSettingValue(state, 'sonar.homepage.url');
+  return {
+    homePageDataUrl: homePageDataUrl && homePageDataUrl.value
+  };
+};
+
+export default connect(mapStateToProps)(Home);
 
 function PageBackgroundHeader() {
   return (
