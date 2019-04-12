@@ -57,7 +57,7 @@ final class AuthenticationError {
   private static String getPath(AuthenticationException e, String contextPath) {
     String publicMessage = e.getPublicMessage();
     if (publicMessage == null || publicMessage.isEmpty()) {
-      return UNAUTHORIZED_PATH;
+      return contextPath + UNAUTHORIZED_PATH;
     }
     return contextPath + format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(publicMessage));
   }
