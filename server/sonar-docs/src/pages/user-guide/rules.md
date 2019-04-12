@@ -2,8 +2,6 @@
 title: Rules
 url: /user-guide/rules/
 ---
-## Table of Contents
-
 ## Overview
 In {instance}, analyzers contribute rules which are executed on source code to generate issues. There are four types of rules:
 * Code Smell (Maintainability domain)

@@ -3,8 +3,6 @@ title: Monitoring
 url: /instance-administration/monitoring/
 ---
 
-## Table of Contents
-
 Monitoring your SonarQube instance is key to keeping it healthy and having happy users.
 
 As a start, you can use this Web API to get an overview of the health of your SonarQube installation:

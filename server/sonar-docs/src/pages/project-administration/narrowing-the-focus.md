@@ -3,8 +3,6 @@ title: Narrowing the Focus
 url: /project-administration/narrowing-the-focus/
 ---
 
-## Table of Contents
-
 If {instance}'s results aren't relevant, no one will want to use it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of objects.
 
 {instance} gives you several options for configuring exactly what will be analyzed. You can

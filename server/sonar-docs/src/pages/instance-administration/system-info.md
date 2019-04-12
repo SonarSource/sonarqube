@@ -3,8 +3,6 @@ title: Server Logs & System Info
 url: /instance-administration/system-info/
 ---
 
-## Table of Contents
-
 The System Info page is found at **[Administration > System](/#sonarqube-admin#/admin/system)**. It gives you access to detailed information on the state of your SonarQube instance. 
 
 ## System Info

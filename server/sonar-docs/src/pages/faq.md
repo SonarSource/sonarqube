@@ -3,8 +3,6 @@ title: Frequently Asked Questions
 url: /faq/
 ---
 
-## Table of Contents
-
 ## How do I get rid of issues that are False-Positives?
 **False-Positive and Won't Fix**  
 You can mark individual issues False Positive or Won't Fix through the issues interface. If you're using Short-lived branch and PR analysis provided by the Developer Edition, issues marked False Positive or Won't Fix will retain that status after merge. This is the preferred approach.

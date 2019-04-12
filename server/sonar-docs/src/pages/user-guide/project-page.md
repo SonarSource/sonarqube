@@ -3,8 +3,6 @@ title: Project Page
 url: /user-guide/project-page/
 ---
 
-## Table of Contents
-
 
 The Project Hompepage is the entry point of any project showing:
 * the releasability status of the project

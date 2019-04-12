@@ -5,8 +5,6 @@ url: /project-administration/configuring-portfolios-and-applications/
 
 *Portfolios and Applications are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
 
-## Table of Contents
-
 ## Permissions
 Users with the Create Portfolios or Create Applications permission have access to the creation interfaces from the "+" item in the top menu.  
 

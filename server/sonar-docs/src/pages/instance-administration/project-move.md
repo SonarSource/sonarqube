@@ -5,8 +5,6 @@ url: /instance-administration/project-move/
 
 _Project Move is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
-## Table of Contents
-
 Project Move allows you to export a project from one SonarQube instance and import it into another, identically configured SonarQube instance. To use Project Move, you must have the Administer permission on the project in the source instance, and access to the file systems of both instances.
 
 ## When to Use "Project Move"

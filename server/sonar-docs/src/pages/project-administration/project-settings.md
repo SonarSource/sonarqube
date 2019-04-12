@@ -3,8 +3,6 @@ title: Project Settings
 url: /project-administration/project-settings/
 ---
 
-## Table of Contents
-
 ## Tags
 
 Project tags allow you to categorize and group projects for easier selection on the **Projects** page. Project tags can be administered from the project home page. Administrators will see a dropdown menu indicator next to the project's list of current tags (or next to the "No tags" indicator). If the tag you want isn't visible in the dropdown, use the built in "search" input to find what you're looking for or create it on the fly.

@@ -3,8 +3,6 @@ title: Analysis Parameters
 url: /analysis/analysis-parameters/
 ---
 
-## Table of Contents
-
 Parameters to configure project analysis can be set in multiple places. Here is the hierarchy of parameters:
 
 <!-- sonarqube -->

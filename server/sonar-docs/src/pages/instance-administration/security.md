@@ -3,8 +3,6 @@ title: Security
 url: /instance-administration/security/
 ---
 
-## Table of Contents
-
 ## Overview
 
 SonarQube comes with a number of global security features:

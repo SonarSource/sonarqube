@@ -2,8 +2,6 @@
 title: Prerequisites and Overview
 url: /requirements/requirements/
 ---
-## Table of Contents
-
 ## Prerequisite
 The only prerequisite for running SonarQube is to have Java (Oracle JRE 8 or OpenJDK 8) installed on your machine.
 

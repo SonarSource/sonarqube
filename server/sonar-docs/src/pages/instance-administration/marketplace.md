@@ -3,8 +3,6 @@ title: Marketplace
 url: /instance-administration/marketplace/
 ---
 
-## Table of Contents
-
 Administrators can access the Marketplace via **[Administration > Marketplace](/#sonarqube-admin#/admin/marketplace)**. The Marketplace is the place for keeping the pieces of the SonarQube platform up to date. It lets you:
 
 See

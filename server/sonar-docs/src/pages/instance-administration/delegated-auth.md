@@ -3,8 +3,6 @@ title: Delegating Authentication
 url: /instance-administration/delegated-auth/
 ---
 
-## Table of Contents
-
 
 SonarQube comes with an onboard user database, as well as the ability to delegate authentication via HTTP Headers, or LDAP.
 

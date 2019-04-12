@@ -3,8 +3,6 @@ title: Metric Definitions
 url: /user-guide/metric-definitions/
 ---
 
-## Table of Contents
-
    
 ## Complexity
 **Complexity** (`complexity`)  

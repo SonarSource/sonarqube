@@ -3,8 +3,6 @@ title: Issues
 url: /user-guide/issues/
 ---
 
-## Table of Contents
-
 While running an analysis, {instance} raises an issue every time a piece of code breaks a coding rule. The set of coding rules is defined through the associated [quality profile](/instance-administration/quality-profiles/) for each language in the project. 
 
 Each issue has one of five severities:

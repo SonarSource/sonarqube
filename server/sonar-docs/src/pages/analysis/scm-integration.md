@@ -3,8 +3,6 @@ title: SCM Integration
 url: /analysis/scm-integration/
 ---
 
-## Table of Contents
-
 Collecting SCM data during code analysis can unlock a number of SonarQube features:
 
 * Automatic Issue Assignment
