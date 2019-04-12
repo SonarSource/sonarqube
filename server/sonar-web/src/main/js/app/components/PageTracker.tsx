@@ -60,7 +60,7 @@ export class PageTracker extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: Store): StateProps => {
-  const trackingId = getGlobalSettingValue(state, 'sonar.analytics.trackingId');
+  const trackingId = getGlobalSettingValue(state, 'sonar.analytics.ga.trackingId');
   return {
     trackingId: trackingId && trackingId.value
   };
