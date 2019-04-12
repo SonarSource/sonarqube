@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import * as theme from '../../app/theme';
 import ChevronRightIcon from '../icons-components/ChevronRightcon';
-import ClearIcon from '../icons-components/ClearIcon';
+import DeleteIcon from '../icons-components/DeleteIcon';
 import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
 import './buttons.css';
@@ -127,7 +127,7 @@ interface ActionButtonProps {
 export function DeleteButton(props: ActionButtonProps) {
   return (
     <ButtonIcon color={theme.red} {...props}>
-      <ClearIcon />
+      <DeleteIcon />
     </ButtonIcon>
   );
 }

@@ -27,7 +27,7 @@ jest.mock('../../../../api/components', () => ({
   deleteProject: () => Promise.resolve()
 }));
 
-jest.mock('../../../../components/icons-components/ClearIcon');
+jest.mock('../../../../components/icons-components/DeleteIcon');
 
 it('creates new project', async () => {
   const onDone = jest.fn();

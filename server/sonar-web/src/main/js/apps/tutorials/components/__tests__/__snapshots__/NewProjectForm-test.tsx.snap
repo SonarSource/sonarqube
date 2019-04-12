@@ -157,7 +157,7 @@ exports[`creates new project 3`] = `
               }
               type="button"
             >
-              <ClearIcon />
+              <DeleteIcon />
             </button>
           </Button>
         </ButtonIcon>
@@ -215,7 +215,7 @@ exports[`deletes project 1`] = `
               }
               type="button"
             >
-              <ClearIcon />
+              <DeleteIcon />
             </button>
           </Button>
         </ButtonIcon>
