@@ -69,10 +69,7 @@ function handleIncludes(content, fileNode) {
       );
     } else {
       const fileContent = loadNodeContentSync({ absolutePath, relativePath });
-      return fileContent
-        .replace(/^---[\w\W]+?---$/m, '')
-        .replace(/^#+ *(toc|table[ -]of[ -]contents?)$/gim, '')
-        .trim();
+      return fileContent.replace(/^---[\w\W]+?---$/m, '').trim();
     }
   });
 }
