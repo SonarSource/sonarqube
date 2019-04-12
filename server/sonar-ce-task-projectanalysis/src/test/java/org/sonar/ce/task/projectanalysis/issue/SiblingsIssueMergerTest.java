@@ -178,16 +178,11 @@ public class SiblingsIssueMergerTest {
 
   @Test
   public void lazy_load_changes() {
-    UserDto user1 = db.users().insertUser();
-    IssueDto issue1 = db.issues()
-      .insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum"));
-    db.issues().insertComment(issue1, user1, "A comment 1");
-    db.issues().insertFieldDiffs(issue1, FieldDiffs.parse("severity=BLOCKER|INFO,assignee=toto|titi").setCreationDate(new Date()));
-    UserDto user2 = db.users().insertUser();
-    IssueDto issue2 = db.issues()
-      .insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
-    db.issues().insertComment(issue2, user2, "A comment 2");
-    db.issues().insertFieldDiffs(issue2, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date()));
+    UserDto user = db.users().insertUser();
+    IssueDto issue = db.issues()
+      .insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    db.issues().insertComment(issue, user, "A comment 2");
+    db.issues().insertFieldDiffs(issue, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date()));
     DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
@@ -195,7 +190,7 @@ public class SiblingsIssueMergerTest {
     ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranchOrPr(eq(newIssue), issueToMerge.capture(), eq(KeyType.BRANCH), eq("myBranch2"));
 
-    assertThat(issueToMerge.getValue().key()).isEqualTo("issue2");
+    assertThat(issueToMerge.getValue().key()).isEqualTo("issue");
     assertThat(issueToMerge.getValue().defaultIssueComments()).isNotEmpty();
     assertThat(issueToMerge.getValue().changes()).isNotEmpty();
   }
