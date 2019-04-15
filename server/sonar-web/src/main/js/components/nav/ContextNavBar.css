@@ -74,7 +74,6 @@
 .navbar-context-meta {
   display: flex;
   align-items: center;
-  min-width: 0;
   height: calc(4 * var(--gridSize));
   padding-left: 20px;
   color: var(--secondFontColor);

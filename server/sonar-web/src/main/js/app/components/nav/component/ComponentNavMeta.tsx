@@ -50,7 +50,7 @@ export function ComponentNavMeta({ branchLike, component, currentUser, warnings 
   const displayVersion = component.version !== undefined && (mainBranch || longBranch);
 
   return (
-    <div className="navbar-context-meta">
+    <div className="navbar-context-meta flex-0">
       {warnings.length > 0 && <ComponentNavWarnings warnings={warnings} />}
       {component.analysisDate && (
         <div className="spacer-left text-ellipsis">
