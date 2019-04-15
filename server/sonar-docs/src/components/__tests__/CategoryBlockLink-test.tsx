@@ -27,15 +27,14 @@ it('should render correctly', () => {
 });
 
 it('should render correctly when closed', () => {
-  expect(shallowRender({ open: false })).toMatchSnapshot();
+  expect(shallowRender({ openByDefault: false })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<CategoryBlockLink['props']> = {}) {
   return shallow(
     <CategoryBlockLink
       location={{} as Location}
-      onToggle={jest.fn()}
-      open={true}
+      openByDefault={true}
       title="My category"
       {...props}>
       {[{ id: '1' }, { id: '2' }] as MarkdownRemark[]}

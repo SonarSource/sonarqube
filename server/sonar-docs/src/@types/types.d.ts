@@ -27,7 +27,7 @@ export type DocNavigationItem = string | DocsNavigationBlock | DocsNavigationExt
 
 export interface DocsNavigationBlock {
   title: string;
-  children: string[];
+  children: (DocNavigationItem | string)[];
 }
 
 export interface DocsNavigationExternalLink {

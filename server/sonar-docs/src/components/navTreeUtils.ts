@@ -29,26 +29,66 @@ export function getNavTree() {
   return NavigationTree as DocNavigationItem[];
 }
 
-export function getUrlsList(navTree: DocNavigationItem[]) {
+export function getUrlsList(navTree: DocNavigationItem[]): string[] {
   return flatten(
-    navTree.map(leave => {
-      if (isDocsNavigationBlock(leave)) {
-        return leave.children;
+    navTree.map(leaf => {
+      if (isDocsNavigationBlock(leaf)) {
+        return getUrlsList(leaf.children);
       }
-      if (isDocsNavigationExternalLink(leave)) {
-        return leave.url;
+      if (isDocsNavigationExternalLink(leaf)) {
+        return [leaf.url];
       }
-      return [leave];
+      return [leaf];
     })
   );
 }
 
-export function isDocsNavigationBlock(leave?: DocNavigationItem): leave is DocsNavigationBlock {
-  return typeof leave === 'object' && (leave as DocsNavigationBlock).children !== undefined;
+export function getOpenChainFromPath(pathname: string, navTree: DocNavigationItem[]) {
+  let chain: DocNavigationItem[] = [];
+
+  let found = false;
+  const walk = (leaf: DocNavigationItem, parents: DocNavigationItem[] = []) => {
+    if (found) {
+      return;
+    }
+
+    parents = parents.concat(leaf);
+
+    if (isDocsNavigationBlock(leaf)) {
+      leaf.children.forEach(child => {
+        if (typeof child === 'string' && testPathAgainstUrl(child, pathname)) {
+          chain = parents.concat(child);
+          found = true;
+        } else {
+          walk(child, parents);
+        }
+      });
+    } else if (typeof leaf === 'string' && testPathAgainstUrl(leaf, pathname)) {
+      chain = parents;
+      found = true;
+    }
+  };
+
+  navTree.forEach(leaf => walk(leaf));
+
+  return chain;
+}
+
+export function isDocsNavigationBlock(leaf?: DocNavigationItem): leaf is DocsNavigationBlock {
+  return typeof leaf === 'object' && (leaf as DocsNavigationBlock).children !== undefined;
 }
 
 export function isDocsNavigationExternalLink(
-  leave?: DocNavigationItem
-): leave is DocsNavigationExternalLink {
-  return typeof leave === 'object' && (leave as DocsNavigationExternalLink).url !== undefined;
+  leaf?: DocNavigationItem
+): leaf is DocsNavigationExternalLink {
+  return typeof leaf === 'object' && (leaf as DocsNavigationExternalLink).url !== undefined;
+}
+
+export function testPathAgainstUrl(path: string, url: string) {
+  const leadingRegEx = /^\//;
+  const trailingRegEx = /\/$/;
+  return (
+    path.replace(leadingRegEx, '').replace(trailingRegEx, '') ===
+    url.replace(leadingRegEx, '').replace(trailingRegEx, '')
+  );
 }

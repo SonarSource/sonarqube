@@ -40,7 +40,7 @@
       "/user-guide/security-hotspots/",
       "/user-guide/rules/",
       "/user-guide/security-rules/",
-      "/user-guide/built-in-rule-tags/",      
+      "/user-guide/built-in-rule-tags/",
       "/user-guide/quality-gates/",
       "/user-guide/metric-definitions/",
       "/user-guide/concepts/",
@@ -100,5 +100,4 @@
     ]
   },
   "/faq/"
-
 ]

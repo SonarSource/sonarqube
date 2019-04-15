@@ -53,23 +53,18 @@ it('should have valid links in trees files', () => {
   let hasErrors = false;
   trees.forEach(file => {
     const tree = JSON.parse(fs.readFileSync(path.join(rootPath, '..', 'static', file), 'utf8'));
-    tree.forEach(leaf => {
+    const walk = leaf => {
       if (typeof leaf === 'object') {
         if (leaf.children) {
-          leaf.children.forEach(child => {
-            // Check children markdown file path validity
-            if (!urlExists(parsedFiles, child)) {
-              console.log(`[${child}] is not a valid link, in ${file}`);
-              hasErrors = true;
-            }
-          });
+          leaf.children.forEach(walk);
         }
       } else if (!urlExists(parsedFiles, leaf)) {
         // Check markdown file path validity
         console.log(`[${leaf}] is not a valid link, in ${file}`);
         hasErrors = true;
       }
-    });
+    };
+    tree.forEach(walk);
   });
   expect(hasErrors).toBeFalsy();
 });

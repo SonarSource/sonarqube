@@ -25,22 +25,46 @@ import ChevronUpIcon from './icons/ChevronUpIcon';
 import { MarkdownRemark } from '../@types/graphql-types';
 
 interface Props {
-  children: MarkdownRemark[];
+  children: (MarkdownRemark | JSX.Element)[];
   location: Location;
-  onToggle: (title: string) => void;
-  open: boolean;
+  openByDefault: boolean;
   title: string;
 }
 
-export default class CategoryLink extends React.PureComponent<Props> {
+interface State {
+  open: boolean;
+}
+
+export default class CategoryLink extends React.PureComponent<Props, State> {
+  state: State;
+
+  static defaultProps = {
+    openByDefault: false
+  };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      open: props.openByDefault
+    };
+  }
+
   handleToggle = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    this.props.onToggle(this.props.title);
+    this.setState(prevState => ({
+      open: !prevState.open
+    }));
+  };
+
+  isMarkdownRemark = (child: any): child is MarkdownRemark => {
+    return child.id !== undefined;
   };
 
   render() {
-    const { children, location, title, open } = this.props;
+    const { children, location, title } = this.props;
+    const { open } = this.state;
     return (
       <div>
         <a
@@ -52,9 +76,20 @@ export default class CategoryLink extends React.PureComponent<Props> {
         </a>
         {children && open && (
           <div className="sub-menu">
-            {children.map(page => (
-              <PageLink className="sub-menu-link" key={page.id} location={location} node={page} />
-            ))}
+            {children.map((child, i) => {
+              if (this.isMarkdownRemark(child)) {
+                return (
+                  <PageLink
+                    className="sub-menu-link"
+                    key={child.id}
+                    location={location}
+                    node={child}
+                  />
+                );
+              } else {
+                return <React.Fragment key={`child-${i}`}>{child}</React.Fragment>;
+              }
+            })}
           </div>
         )}
       </div>

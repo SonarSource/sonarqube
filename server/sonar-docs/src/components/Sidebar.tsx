@@ -26,7 +26,13 @@ import Search from './Search';
 import SearchEntryResult from './SearchEntryResult';
 import VersionSelect from './VersionSelect';
 import DownloadIcon from './icons/DownloadIcon';
-import { getNavTree, isDocsNavigationBlock, isDocsNavigationExternalLink } from './navTreeUtils';
+import {
+  getNavTree,
+  isDocsNavigationBlock,
+  isDocsNavigationExternalLink,
+  getOpenChainFromPath,
+  testPathAgainstUrl
+} from './navTreeUtils';
 import { MarkdownRemark } from '../@types/graphql-types';
 import { SearchResult, DocVersion, DocNavigationItem } from '../@types/types';
 
@@ -39,7 +45,7 @@ interface Props {
 interface State {
   loaded: boolean;
   navTree: DocNavigationItem[];
-  openBlockTitle: string;
+  openChain?: DocNavigationItem[];
   query: string;
   results: SearchResult[];
   versions: DocVersion[];
@@ -52,7 +58,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
     this.state = {
       loaded: false,
       navTree,
-      openBlockTitle: this.getOpenBlockFromLocation(this.props.location, navTree),
+      openChain: getOpenChainFromPath(this.props.location.pathname, navTree),
       query: '',
       results: [],
       versions: []
@@ -66,18 +72,9 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (this.props.location.pathname !== prevProps.location.pathname) {
       this.setState(({ navTree }) => ({
-        openBlockTitle: this.getOpenBlockFromLocation(this.props.location, navTree)
+        openChain: getOpenChainFromPath(this.props.location.pathname, navTree)
       }));
     }
-  }
-
-  // A block is opened if the current page is set to one of his children
-  getOpenBlockFromLocation({ pathname }: Location, navTree: DocNavigationItem[]) {
-    const element = navTree.find(
-      leave =>
-        isDocsNavigationBlock(leave) && leave.children.some(child => pathname.endsWith(child))
-    );
-    return isDocsNavigationBlock(element) ? element.title : '';
   }
 
   loadVersions() {
@@ -90,57 +87,67 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   }
 
   getNodeFromUrl = (url: string) => {
-    return this.props.pages.find(p =>
-      Boolean(
-        (p.fields && p.fields.slug === url + '/') || (p.frontmatter && p.frontmatter.url === url)
-      )
-    );
-  };
+    return this.props.pages.find(p => {
+      if (p.fields && p.fields.slug) {
+        if (testPathAgainstUrl(p.fields.slug, url)) {
+          return true;
+        }
+      }
 
-  handleToggle = (title: string) => {
-    this.setState(state => ({ openBlockTitle: state.openBlockTitle === title ? '' : title }));
+      if (p.frontmatter && p.frontmatter.url) {
+        if (testPathAgainstUrl(p.frontmatter.url, url)) {
+          return true;
+        }
+      }
+
+      return false;
+    });
   };
 
   handleSearch = (results: SearchResult[], query: string) => {
     this.setState({ results, query });
   };
 
-  renderCategories = () => {
+  renderCategory = (leaf: DocNavigationItem) => {
+    if (isDocsNavigationBlock(leaf)) {
+      let children: (MarkdownRemark | JSX.Element)[] = [];
+      leaf.children.forEach(child => {
+        if (typeof child === 'string') {
+          const node = this.getNodeFromUrl(child);
+          if (node) {
+            children.push(node);
+          }
+        } else {
+          children = children.concat(this.renderCategory(child));
+        }
+      });
+      return (
+        <CategoryBlockLink
+          key={leaf.title}
+          location={this.props.location}
+          openByDefault={this.state.openChain && this.state.openChain.includes(leaf)}
+          title={leaf.title}>
+          {children}
+        </CategoryBlockLink>
+      );
+    }
+
+    if (isDocsNavigationExternalLink(leaf)) {
+      return <ExternalLink external={leaf.url} key={leaf.title} title={leaf.title} />;
+    }
+
     return (
-      <nav>
-        {this.state.navTree.map(leave => {
-          if (isDocsNavigationBlock(leave)) {
-            return (
-              <CategoryBlockLink
-                key={leave.title}
-                location={this.props.location}
-                onToggle={this.handleToggle}
-                open={leave.title === this.state.openBlockTitle}
-                title={leave.title}>
-                {
-                  leave.children
-                    .map(child => this.getNodeFromUrl(child))
-                    .filter(Boolean) as MarkdownRemark[]
-                }
-              </CategoryBlockLink>
-            );
-          }
-
-          if (isDocsNavigationExternalLink(leave)) {
-            return <ExternalLink external={leave.url} key={leave.title} title={leave.title} />;
-          }
-
-          return (
-            <PageLink
-              className="page-indexes-link"
-              key={leave}
-              location={this.props.location}
-              node={this.getNodeFromUrl(leave)}
-            />
-          );
-        })}
-      </nav>
+      <PageLink
+        className="page-indexes-link"
+        key={leaf}
+        location={this.props.location}
+        node={this.getNodeFromUrl(leaf)}
+      />
     );
+  };
+
+  renderCategories = () => {
+    return <nav>{this.state.navTree.map(this.renderCategory)}</nav>;
   };
 
   renderResults = () => {

@@ -283,6 +283,11 @@ a.search-result .note {
   display: block;
 }
 
+.sub-menu .page-indexes-link,
+.sub-menu .sub-menu {
+  margin-left: -10px;
+}
+
 .page-indexes-link svg {
   float: right;
   transform: translateY(9px);

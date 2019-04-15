@@ -47,6 +47,7 @@
     "glob-promise": "3.4.0",
     "graphql-code-generator": "0.5.2",
     "jest": "24.5.0",
+    "jest-fetch-mock": "2.1.2",
     "prettier": "1.16.4",
     "react-test-renderer": "16.8.5",
     "remark": "10.0.1",
@@ -92,7 +93,8 @@
       "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
     },
     "setupFiles": [
-      "<rootDir>/config/jest/SetupEnzyme.js"
+      "<rootDir>/config/jest/SetupEnzyme.js",
+      "<rootDir>/config/jest/SetupJest.ts"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"

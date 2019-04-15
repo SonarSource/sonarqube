@@ -1,0 +1,248 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page-sidebar"
+>
+  <div
+    className="sidebar-header"
+  >
+    <ForwardRef
+      to="/"
+    >
+      <img
+        alt="Continuous Code Quality"
+        className="sidebar-logo"
+        src="/2.0/images/SonarQubeIcon.svg"
+        title="Continuous Code Quality"
+        width="160"
+      />
+    </ForwardRef>
+    <VersionSelect
+      isOnCurrentVersion={true}
+      selectedVersionValue="2.0"
+      versions={Array []}
+    />
+  </div>
+  <div
+    className="page-indexes"
+  >
+    <Search
+      navigation={
+        Array [
+          "/foo/",
+          Object {
+            "children": Array [
+              "/foo/bar/",
+              "/foo/baz/",
+              Object {
+                "children": Array [
+                  "/foo/baz/bar/",
+                  "/foo/baz/foo/",
+                  Object {
+                    "children": Array [
+                      "/foo/baz/foo/bar/",
+                      "/foo/baz/foo/baz",
+                    ],
+                    "title": "Foo Baz Foo subs",
+                  },
+                ],
+                "title": "Foo Baz subs",
+              },
+            ],
+            "title": "Foo subs",
+          },
+          "/bar/",
+          Object {
+            "children": Array [
+              Object {
+                "title": "External link 1",
+                "url": "http://example.com/1",
+              },
+              "/bar/foo/",
+            ],
+            "title": "Bar subs",
+          },
+          Object {
+            "title": "External link 2",
+            "url": "http://example.com/2",
+          },
+        ]
+      }
+      onResultsChange={[Function]}
+      pages={
+        Array [
+          Object {
+            "fields": Object {
+              "slug": "/foo/",
+            },
+            "frontmatter": Object {
+              "title": "Foo",
+            },
+          },
+          Object {
+            "fields": Object {
+              "slug": "/foo/baz/bar",
+            },
+            "frontmatter": Object {
+              "title": "Foo Baz Bar",
+            },
+          },
+          Object {
+            "fields": Object {
+              "slug": "/bar/",
+            },
+            "frontmatter": Object {
+              "title": "Bar",
+            },
+          },
+        ]
+      }
+    />
+    <nav>
+      <PageLink
+        className="page-indexes-link"
+        key="/foo/"
+        location={
+          Object {
+            "pathname": "/foo/baz/foo/bar",
+          }
+        }
+        node={
+          Object {
+            "fields": Object {
+              "slug": "/foo/",
+            },
+            "frontmatter": Object {
+              "title": "Foo",
+            },
+          }
+        }
+      />
+      <CategoryLink
+        key="Foo subs"
+        location={
+          Object {
+            "pathname": "/foo/baz/foo/bar",
+          }
+        }
+        openByDefault={true}
+        title="Foo subs"
+      >
+        <CategoryLink
+          key="Foo Baz subs"
+          location={
+            Object {
+              "pathname": "/foo/baz/foo/bar",
+            }
+          }
+          openByDefault={true}
+          title="Foo Baz subs"
+        >
+          <Component />
+          <CategoryLink
+            key="Foo Baz Foo subs"
+            location={
+              Object {
+                "pathname": "/foo/baz/foo/bar",
+              }
+            }
+            openByDefault={true}
+            title="Foo Baz Foo subs"
+          />
+        </CategoryLink>
+      </CategoryLink>
+      <PageLink
+        className="page-indexes-link"
+        key="/bar/"
+        location={
+          Object {
+            "pathname": "/foo/baz/foo/bar",
+          }
+        }
+        node={
+          Object {
+            "fields": Object {
+              "slug": "/bar/",
+            },
+            "frontmatter": Object {
+              "title": "Bar",
+            },
+          }
+        }
+      />
+      <CategoryLink
+        key="Bar subs"
+        location={
+          Object {
+            "pathname": "/foo/baz/foo/bar",
+          }
+        }
+        openByDefault={false}
+        title="Bar subs"
+      >
+        <ExternalLink
+          external="http://example.com/1"
+          key="External link 1"
+          title="External link 1"
+        />
+      </CategoryLink>
+      <ExternalLink
+        external="http://example.com/2"
+        key="External link 2"
+        title="External link 2"
+      />
+    </nav>
+  </div>
+  <div
+    className="sidebar-footer"
+  >
+    <a
+      href="https://www.sonarqube.org/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <DownloadIcon />
+       SonarQube
+    </a>
+    <a
+      href="https://community.sonarsource.com/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <img
+        alt="Community"
+        src="/2.0/images/community.svg"
+      />
+       Community
+    </a>
+    <a
+      className="icon-only"
+      href="https://twitter.com/SonarQube"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <img
+        alt="Twitter"
+        src="/2.0/images/twitter.svg"
+      />
+    </a>
+    <a
+      className="icon-only"
+      href="https://www.sonarsource.com/resources/product-news/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <img
+        alt="Product News"
+        src="/2.0/images/newspaper.svg"
+      />
+      <span
+        className="tooltip"
+      >
+        Product News
+      </span>
+    </a>
+  </div>
+</div>
+`;
