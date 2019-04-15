@@ -16,6 +16,9 @@ Only the following scanner versions are compatible with SonarQube 7.8:
 * SonarQube Scanner Maven 3.3.0.603+
 * SonarQube Scanner Gradle 2.3+
 
+**Notifications changes**  
+The notifications algorithm has been replaced with one that offers better performance during background task processing. Additionally, issue change notifications spawned analysis or bulk change now generate only one email per event rather than one email per issue. 
+
 ## Release 7.7 Upgrade Notes
 **Deprecated parameters dropped**
 `sonar.language`, and  `sonar.profile`, both deprecated since 4.5, are dropped in this version as is `sonar.analysis.mode`, which as been deprecated since 6.6. These now-unrecognized parameters will simply be ignored, rather than failing analysis.
