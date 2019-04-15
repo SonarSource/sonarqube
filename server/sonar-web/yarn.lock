@@ -6208,7 +6208,7 @@ mdast-util-to-string@^1.0.0, mdast-util-to-string@^1.0.2:
   resolved "https://registry.yarnpkg.com/mdast-util-to-string/-/mdast-util-to-string-1.0.5.tgz#3552b05428af22ceda34f156afe62ec8e6d731ca"
   integrity sha512-2qLt/DEOo5F6nc2VFScQiHPzQ0XXcabquRJxKMhKte8nt42o08HUxNDPk7tt0YPxnWjAT11I1SYi0X0iPnfI5A==
 
-mdast-util-toc@2.1.0, mdast-util-toc@^2.0.0:
+mdast-util-toc@2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/mdast-util-toc/-/mdast-util-toc-2.1.0.tgz#82b6b218577bb0e67b23abf5c3f7ac73a4b5389f"
   integrity sha512-ove/QQWSrYOrf9G3xn2MTAjy7PKCtCmm261wpQwecoPAsUtkihkMVczxFqil7VihxgSz4ID9c8bBTsyXR30gQg==
@@ -8092,15 +8092,6 @@ remark-slug@5.1.0:
     mdast-util-to-string "^1.0.0"
     unist-util-visit "^1.0.0"
 
-remark-slug@^5.0.0:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/remark-slug/-/remark-slug-5.1.1.tgz#eb5dba0cf779487ef7ddf65c735ba4d4ca017542"
-  integrity sha512-r591rdoDPJkSSAVvEaTVUkqbMp7c7AyZfif14V0Dp66GQkOHzaPAS6wyhawSbqpS0ZdTnfJS+TltFoxzi6bdIA==
-  dependencies:
-    github-slugger "^1.0.0"
-    mdast-util-to-string "^1.0.0"
-    unist-util-visit "^1.0.0"
-
 remark-stringify@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/remark-stringify/-/remark-stringify-5.0.0.tgz#336d3a4d4a6a3390d933eeba62e8de4bd280afba"
@@ -8120,14 +8111,6 @@ remark-stringify@^5.0.0:
     stringify-entities "^1.0.1"
     unherit "^1.0.4"
     xtend "^4.0.1"
-
-remark-toc@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/remark-toc/-/remark-toc-5.0.0.tgz#f1e13ed11062ad4d102b02e70168bd85015bf129"
-  integrity sha512-j2A/fpio1nzNRJtY6nVaFUCtXNfFPxaj6I5UHFsFgo4xKmc0VokRRIzGqz4Vfs7u+dPrHjnoHkImu1Dia0jDSQ==
-  dependencies:
-    mdast-util-toc "^2.0.0"
-    remark-slug "^5.0.0"
 
 remark@9.0.0:
   version "9.0.0"
