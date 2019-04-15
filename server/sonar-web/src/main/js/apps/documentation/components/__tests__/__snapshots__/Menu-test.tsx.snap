@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render hierarchical menu 1`] = `
-Array [
+<Fragment>
   <MenuBlock
     block={
       Object {
@@ -13,8 +13,19 @@ Array [
       }
     }
     key="Block"
-    onToggle={[Function]}
-    open={true}
+    openByDefault={true}
+    openChain={
+      Array [
+        Object {
+          "children": Array [
+            "/lorem/index",
+            "/lorem/origin",
+          ],
+          "title": "Block",
+        },
+        "/lorem/origin",
+      ]
+    }
     pages={
       Array [
         Object {
@@ -45,11 +56,63 @@ Array [
     }
     splat="lorem/origin"
     title="Block"
-  />,
+  />
   <MenuItem
-    indent={false}
     key="foobar"
     splat="lorem/origin"
-  />,
-]
+  />
+</Fragment>
+`;
+
+exports[`should render hierarchical menu 2`] = `
+<Fragment>
+  <MenuBlock
+    block={
+      Object {
+        "children": Array [
+          "/lorem/index",
+          "/lorem/origin",
+        ],
+        "title": "Block",
+      }
+    }
+    key="Block"
+    openByDefault={false}
+    openChain={Array []}
+    pages={
+      Array [
+        Object {
+          "content": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+          "navTitle": undefined,
+          "relativeName": "lorem/index",
+          "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+          "title": "Lorem Ipsum",
+          "url": "/lorem/index",
+        },
+        Object {
+          "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
+          "navTitle": undefined,
+          "relativeName": "lorem/origin",
+          "text": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
+          "title": "Where does it come from?",
+          "url": "/lorem/origin",
+        },
+        Object {
+          "content": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "navTitle": undefined,
+          "relativeName": "foobar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed.",
+          "title": "Where does Foobar come from?",
+          "url": "/foobar",
+        },
+      ]
+    }
+    splat="baz/bar"
+    title="Block"
+  />
+  <MenuItem
+    key="foobar"
+    splat="baz/bar"
+  />
+</Fragment>
 `;

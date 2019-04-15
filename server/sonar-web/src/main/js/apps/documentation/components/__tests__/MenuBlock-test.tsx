@@ -20,57 +20,70 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import MenuBlock from '../MenuBlock';
-
-const block = {
-  title: 'Foo',
-  children: ['/bar/', '/baz/']
-};
-
-const pages = [
-  {
-    content: 'bar',
-    relativeName: '/bar/',
-    text: 'bar',
-    title: 'Bar',
-    navTitle: undefined,
-    url: '/bar/'
-  },
-  {
-    content: 'baz',
-    relativeName: '/baz/',
-    text: 'baz',
-    title: 'baz',
-    navTitle: 'baznav',
-    url: '/baz/'
-  }
-];
+import { click } from '../../../../helpers/testUtils';
 
 it('should render a closed menu block', () => {
-  expect(
-    shallow(
-      <MenuBlock
-        block={block}
-        onToggle={jest.fn()}
-        open={false}
-        pages={pages}
-        splat="/foobar/"
-        title="Foobarbaz"
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render an opened menu block', () => {
+  expect(shallowRender({ openByDefault: true })).toMatchSnapshot();
+});
+
+it('should not render a high depth differently than a depth of 3', () => {
   expect(
-    shallow(
-      <MenuBlock
-        block={block}
-        onToggle={jest.fn()}
-        open={true}
-        pages={pages}
-        splat="/foo/"
-        title="Foo"
-      />
-    )
+    shallowRender({ block: { title: 'Foo', children: ['/foo'] }, depth: 6 })
   ).toMatchSnapshot();
 });
+
+it('can be opened and closed', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.state('open')).toBe(false);
+  click(wrapper.find('ButtonLink'));
+  expect(wrapper.state('open')).toBe(true);
+});
+
+function shallowRender(props: Partial<MenuBlock['props']> = {}) {
+  return shallow(
+    <MenuBlock
+      block={{
+        title: 'Foo',
+        children: [
+          '/bar/',
+          '/baz/',
+          {
+            title: 'Baz',
+            children: ['/baz/foo']
+          },
+          {
+            title: 'Bar',
+            url: 'http://example.com'
+          }
+        ]
+      }}
+      openByDefault={false}
+      openChain={[]}
+      pages={[
+        {
+          content: 'bar',
+          relativeName: '/bar/',
+          text: 'bar',
+          title: 'Bar',
+          navTitle: undefined,
+          url: '/bar/'
+        },
+        {
+          content: 'baz',
+          relativeName: '/baz/',
+          text: 'baz',
+          title: 'baz',
+          navTitle: 'baznav',
+          url: '/baz/'
+        }
+      ]}
+      splat="/foo/"
+      title="Foo"
+      {...props}
+    />
+  );
+}

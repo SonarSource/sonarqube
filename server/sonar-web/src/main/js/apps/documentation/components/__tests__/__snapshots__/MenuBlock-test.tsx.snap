@@ -1,10 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render a closed menu block 1`] = `
+exports[`should not render a high depth differently than a depth of 3 1`] = `
 <Fragment>
-  <a
-    className="list-group-item"
-    href="#"
+  <ButtonLink
+    className="list-group-item depth-3"
     onClick={[Function]}
   >
     <h3
@@ -14,17 +13,35 @@ exports[`should render a closed menu block 1`] = `
         className="little-spacer-right"
         open={false}
       />
-      Foobarbaz
+      Foo
     </h3>
-  </a>
+  </ButtonLink>
+</Fragment>
+`;
+
+exports[`should render a closed menu block 1`] = `
+<Fragment>
+  <ButtonLink
+    className="list-group-item"
+    onClick={[Function]}
+  >
+    <h3
+      className="list-group-item-heading"
+    >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={false}
+      />
+      Foo
+    </h3>
+  </ButtonLink>
 </Fragment>
 `;
 
 exports[`should render an opened menu block 1`] = `
 <Fragment>
-  <a
+  <ButtonLink
     className="list-group-item"
-    href="#"
     onClick={[Function]}
   >
     <h3
@@ -36,9 +53,9 @@ exports[`should render an opened menu block 1`] = `
       />
       Foo
     </h3>
-  </a>
+  </ButtonLink>
   <MenuItem
-    indent={true}
+    depth={1}
     key="/bar/"
     node={
       Object {
@@ -53,7 +70,7 @@ exports[`should render an opened menu block 1`] = `
     splat="/foo/"
   />
   <MenuItem
-    indent={true}
+    depth={1}
     key="/baz/"
     node={
       Object {
@@ -66,6 +83,42 @@ exports[`should render an opened menu block 1`] = `
       }
     }
     splat="/foo/"
+  />
+  <MenuBlock
+    block={
+      Object {
+        "children": Array [
+          "/baz/foo",
+        ],
+        "title": "Baz",
+      }
+    }
+    depth={1}
+    key="Baz"
+    openByDefault={false}
+    openChain={Array []}
+    pages={
+      Array [
+        Object {
+          "content": "bar",
+          "navTitle": undefined,
+          "relativeName": "/bar/",
+          "text": "bar",
+          "title": "Bar",
+          "url": "/bar/",
+        },
+        Object {
+          "content": "baz",
+          "navTitle": "baznav",
+          "relativeName": "/baz/",
+          "text": "baz",
+          "title": "baz",
+          "url": "/baz/",
+        },
+      ]
+    }
+    splat="/foo/"
+    title="Baz"
   />
 </Fragment>
 `;

@@ -17,19 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy, flatten } from 'lodash';
+import { sortBy } from 'lodash';
 
 export type DocumentationEntryScope = 'sonarqube' | 'sonarcloud' | 'static';
-
-export interface DocsNavigationBlock {
-  title: string;
-  children: string[];
-}
-
-export interface DocsNavigationExternalLink {
-  title: string;
-  url: string;
-}
 
 export interface DocumentationEntry {
   content: string;
@@ -38,28 +28,6 @@ export interface DocumentationEntry {
   text: string;
   title: string;
   url: string;
-}
-
-export type DocsNavigationItem = string | DocsNavigationBlock | DocsNavigationExternalLink;
-
-export function isDocsNavigationBlock(item: DocsNavigationItem): item is DocsNavigationBlock {
-  return typeof item === 'object' && !(item as any).url;
-}
-
-export function isDocsNavigationExternalLink(
-  item: DocsNavigationItem
-): item is DocsNavigationExternalLink {
-  return typeof item === 'object' && (item as any).url;
-}
-
-export function getUrlsList(navigation: DocsNavigationItem[]): string[] {
-  return flatten(
-    navigation
-      .filter(item => !isDocsNavigationExternalLink(item))
-      .map((item: string | DocsNavigationBlock) =>
-        isDocsNavigationBlock(item) ? item.children : [item]
-      )
-  );
 }
 
 export function getNodeFromUrl(pages: DocumentationEntry[], url: string) {

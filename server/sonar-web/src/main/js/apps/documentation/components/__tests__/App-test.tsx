@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
 import App from '../App';
+import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
+import { isSonarCloud } from '../../../../helpers/system';
 
 jest.mock('../../../../components/common/ScreenPositionHelper', () => ({
   default: class ScreenPositionHelper extends React.Component<{
@@ -33,12 +34,29 @@ jest.mock('../../../../components/common/ScreenPositionHelper', () => ({
   }
 }));
 
+jest.mock('../../../../helpers/system', () => ({
+  isSonarCloud: jest.fn().mockReturnValue(false)
+}));
+
 jest.mock(
   'Docs/../static/SonarQubeNavigationTree.json',
   () => [
     {
       title: 'SonarQube',
-      children: ['/lorem/ipsum/']
+      children: [
+        '/lorem/ipsum/',
+        {
+          title: 'Child category',
+          children: [
+            '/lorem/ipsum/dolor',
+            {
+              title: 'Grandchild category',
+              children: ['/lorem/ipsum/sit']
+            },
+            '/lorem/ipsum/amet'
+          ]
+        }
+      ]
     }
   ],
   { virtual: true }
@@ -49,7 +67,20 @@ jest.mock(
   () => [
     {
       title: 'SonarCloud',
-      children: ['/lorem/ipsum/']
+      children: [
+        '/lorem/ipsum/',
+        {
+          title: 'Child category',
+          children: [
+            '/lorem/ipsum/dolor',
+            {
+              title: 'Grandchild category',
+              children: ['/lorem/ipsum/sit']
+            },
+            '/lorem/ipsum/amet'
+          ]
+        }
+      ]
     }
   ],
   { virtual: true }
@@ -67,7 +98,7 @@ jest.mock('../../pages', () => {
   };
 });
 
-it('should render correctly', () => {
+it('should render correctly for SonarQube', () => {
   const wrapper = shallowRender();
 
   expect(wrapper).toMatchSnapshot();
@@ -77,6 +108,11 @@ it('should render correctly', () => {
 
   wrapper.unmount();
   expect(removeSideBarClass).toBeCalled();
+});
+
+it('should render correctly for SonarCloud', () => {
+  (isSonarCloud as jest.Mock).mockReturnValue(true);
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it("should show a 404 if the page doesn't exist", () => {

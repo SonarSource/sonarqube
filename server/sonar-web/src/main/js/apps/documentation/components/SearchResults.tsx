@@ -20,11 +20,13 @@
 import * as React from 'react';
 import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
 import { sortBy } from 'lodash';
+import { getUrlsList } from 'Docs/components/navTreeUtils';
+import { DocNavigationItem } from 'Docs/@types/types';
 import SearchResultEntry, { SearchResult } from './SearchResultEntry';
-import { DocumentationEntry, getUrlsList, DocsNavigationItem } from '../utils';
+import { DocumentationEntry } from '../utils';
 
 interface Props {
-  navigation: DocsNavigationItem[];
+  navigation: DocNavigationItem[];
   pages: DocumentationEntry[];
   query: string;
   splat: string;

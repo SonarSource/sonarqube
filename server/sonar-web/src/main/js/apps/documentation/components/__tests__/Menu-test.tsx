@@ -44,13 +44,15 @@ const pages = [
 ];
 
 it('should render hierarchical menu', () => {
-  expect(
-    shallow(
-      <Menu
-        navigation={[{ title: 'Block', children: ['/lorem/index', '/lorem/origin'] }, 'foobar']}
-        pages={pages}
-        splat="lorem/origin"
-      />
-    )
-  ).toMatchSnapshot();
+  const wrapper = shallow(
+    <Menu
+      navigation={[{ title: 'Block', children: ['/lorem/index', '/lorem/origin'] }, 'foobar']}
+      pages={pages}
+      splat="lorem/origin"
+    />
+  );
+
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setProps({ splat: 'baz/bar' });
+  expect(wrapper).toMatchSnapshot();
 });

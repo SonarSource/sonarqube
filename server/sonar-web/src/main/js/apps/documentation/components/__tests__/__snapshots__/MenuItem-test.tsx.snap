@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render a high depth differently than a depth of 3 1`] = `
+<Link
+  className="list-group-item depth-3"
+  key="/bar"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/documentation/bar"
+>
+  <h3
+    className="list-group-item-heading"
+  />
+</Link>
+`;
+
+exports[`should render correctly 1`] = `
+<Link
+  className="list-group-item"
+  key="/bar"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/documentation/bar"
+>
+  <h3
+    className="list-group-item-heading"
+  />
+</Link>
+`;
+
+exports[`should render correctly if the current node matches the splat 1`] = `
+<Link
+  className="list-group-item active"
+  key="/bar"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/documentation/bar"
+>
+  <h3
+    className="list-group-item-heading"
+  />
+</Link>
+`;

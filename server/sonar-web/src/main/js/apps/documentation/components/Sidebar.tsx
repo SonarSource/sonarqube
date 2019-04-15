@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DocNavigationItem } from 'Docs/@types/types';
 import Menu from './Menu';
 import SearchResults from './SearchResults';
-import { DocumentationEntry, DocsNavigationItem } from '../utils';
+import { DocumentationEntry } from '../utils';
 import SearchBox from '../../../components/controls/SearchBox';
 
 interface Props {
-  navigation: DocsNavigationItem[];
+  navigation: DocNavigationItem[];
   pages: DocumentationEntry[];
   splat: string;
 }

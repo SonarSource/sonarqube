@@ -22,13 +22,29 @@
   padding-left: 0;
 }
 
-.list-group-item {
+.list-group-item,
+button.list-group-item {
   position: relative;
   z-index: var(--normalZIndex);
   display: block;
   margin-bottom: -1px;
   padding: 5px 10px;
   border: 1px solid transparent;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.list-group-item.depth-1 {
+  padding-left: 31px;
+}
+
+.list-group-item.depth-2 {
+  padding-left: 51px;
+}
+
+.list-group-item.depth-3 {
+  padding-left: 71px;
 }
 
 .list-group-item:last-child {

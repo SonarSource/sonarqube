@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
+import { DocNavigationItem } from 'Docs/@types/types';
 import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree.json';
 import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTree.json';
 import Sidebar from './Sidebar';
@@ -31,7 +32,6 @@ import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
-import { DocsNavigationItem } from '../utils';
 import '../styles.css';
 
 interface Props {
@@ -52,8 +52,8 @@ export default class App extends React.PureComponent<Props> {
 
   render() {
     const tree = isSonarCloud()
-      ? ((navigationTreeSonarCloud as any).default as DocsNavigationItem[])
-      : ((navigationTreeSonarQube as any).default as DocsNavigationItem[]);
+      ? ((navigationTreeSonarCloud as any).default as DocNavigationItem[])
+      : ((navigationTreeSonarQube as any).default as DocNavigationItem[]);
     const { splat = '' } = this.props.params;
     const page = this.pages.find(p => p.url === '/' + splat);
     const mainTitle = translate('documentation.page_title');

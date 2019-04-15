@@ -1,6 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly for SonarCloud 1`] = `
+<div
+  className="layout-page"
+>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="Lorem | documentation.page_title"
+  />
+  <ScreenPositionHelper
+    className="layout-page-side-outer"
+  >
+    <Component />
+  </ScreenPositionHelper>
+  <div
+    className="layout-page-main"
+  >
+    <div
+      className="layout-page-main-inner"
+    >
+      <div
+        className="boxed-group"
+      >
+        <A11ySkipTarget
+          anchor="documentation_main"
+        />
+        <DocMarkdownBlock
+          className="documentation-content cut-margins boxed-group-inner"
+          content="Lorem ipsum dolor sit amet fredum"
+          displayH1={true}
+          stickyToc={true}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly for SonarQube 1`] = `
 <div
   className="layout-page"
 >
@@ -43,7 +81,7 @@ exports[`should render correctly 1`] = `
 </div>
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly for SonarQube 2`] = `
 <div
   className="layout-page-side"
   style={

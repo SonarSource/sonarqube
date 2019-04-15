@@ -18,79 +18,71 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DocNavigationItem } from 'Docs/@types/types';
+import {
+  isDocsNavigationBlock,
+  isDocsNavigationExternalLink,
+  getOpenChainFromPath
+} from 'Docs/components/navTreeUtils';
 import MenuBlock from './MenuBlock';
 import { MenuItem } from './MenuItem';
 import { MenuExternalLink } from './MenuExternalLink';
-import {
-  DocumentationEntry,
-  DocsNavigationBlock,
-  getNodeFromUrl,
-  isDocsNavigationBlock,
-  isDocsNavigationExternalLink,
-  DocsNavigationItem
-} from '../utils';
+import { DocumentationEntry, getNodeFromUrl } from '../utils';
 
 interface Props {
-  navigation: DocsNavigationItem[];
+  navigation: DocNavigationItem[];
   pages: DocumentationEntry[];
   splat: string;
 }
 
 interface State {
-  openBlockTitle: string;
+  openChain: DocNavigationItem[];
 }
 
 export default class Menu extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      openBlockTitle: this.getOpenBlockFromLocation(this.props.splat)
+      openChain: getOpenChainFromPath(this.props.splat, this.props.navigation)
     };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.splat !== nextProps.splat) {
-      this.setState({ openBlockTitle: this.getOpenBlockFromLocation(nextProps.splat) });
+      this.setState({ openChain: getOpenChainFromPath(nextProps.splat, nextProps.navigation) });
     }
   }
 
-  getOpenBlockFromLocation(splat: string) {
-    const element = this.props.navigation.find(
-      item => isDocsNavigationBlock(item) && item.children.some(child => '/' + splat === child)
-    );
-    return element ? (element as DocsNavigationBlock).title : '';
-  }
-
-  toggleBlock = (title: string) => {
-    this.setState(state => ({ openBlockTitle: state.openBlockTitle === title ? '' : title }));
-  };
-
   render() {
-    return this.props.navigation.map(item => {
-      if (isDocsNavigationBlock(item)) {
-        return (
-          <MenuBlock
-            block={item}
-            key={item.title}
-            onToggle={this.toggleBlock}
-            open={this.state.openBlockTitle === item.title}
-            pages={this.props.pages}
-            splat={this.props.splat}
-            title={item.title}
-          />
-        );
-      }
-      if (isDocsNavigationExternalLink(item)) {
-        return <MenuExternalLink key={item.title} title={item.title} url={item.url} />;
-      }
-      return (
-        <MenuItem
-          indent={false}
-          key={item}
-          node={getNodeFromUrl(this.props.pages, item)}
-          splat={this.props.splat}
-        />
-      );
-    });
+    const { openChain } = this.state;
+    return (
+      <>
+        {this.props.navigation.map(item => {
+          if (isDocsNavigationBlock(item)) {
+            return (
+              <MenuBlock
+                block={item}
+                key={item.title}
+                openByDefault={openChain.includes(item)}
+                openChain={openChain}
+                pages={this.props.pages}
+                splat={this.props.splat}
+                title={item.title}
+              />
+            );
+          }
+          if (isDocsNavigationExternalLink(item)) {
+            return <MenuExternalLink key={item.title} title={item.title} url={item.url} />;
+          }
+          return (
+            <MenuItem
+              key={item}
+              node={getNodeFromUrl(this.props.pages, item)}
+              splat={this.props.splat}
+            />
+          );
+        })}
+      </>
+    );
   }
 }

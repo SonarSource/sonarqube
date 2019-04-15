@@ -18,40 +18,85 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
+import { DocsNavigationBlock, DocNavigationItem } from 'Docs/@types/types';
+import { isDocsNavigationBlock } from 'Docs/components/navTreeUtils';
 import { MenuItem } from './MenuItem';
-import { DocumentationEntry, DocsNavigationBlock, getNodeFromUrl } from '../utils';
 import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
+import { ButtonLink } from '../../../components/ui/buttons';
+import { DocumentationEntry, getNodeFromUrl } from '../utils';
 
 interface Props {
   block: DocsNavigationBlock;
-  onToggle: (title: string) => void;
-  open: boolean;
+  depth?: number;
+  openByDefault: boolean;
+  openChain: DocNavigationItem[];
   pages: DocumentationEntry[];
   splat: string;
   title: string;
 }
 
-export default class MenuBlock extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-    event.preventDefault();
-    this.props.onToggle(this.props.title);
+interface State {
+  open: boolean;
+}
+
+export default class MenuBlock extends React.PureComponent<Props, State> {
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      open: props.openByDefault !== undefined ? props.openByDefault : false
+    };
+  }
+
+  handleClick = () => {
+    this.setState(prevState => ({
+      open: !prevState.open
+    }));
+  };
+
+  renderMenuItems = (block: DocsNavigationBlock): React.ReactNode => {
+    const { depth = 0, openChain, pages, splat } = this.props;
+    return block.children.map(item => {
+      if (typeof item === 'string') {
+        return (
+          <MenuItem depth={depth + 1} key={item} node={getNodeFromUrl(pages, item)} splat={splat} />
+        );
+      } else if (isDocsNavigationBlock(item)) {
+        return (
+          <MenuBlock
+            block={item}
+            depth={depth + 1}
+            key={item.title}
+            openByDefault={openChain.includes(item)}
+            openChain={openChain}
+            pages={pages}
+            splat={splat}
+            title={item.title}
+          />
+        );
+      } else {
+        return null;
+      }
+    });
   };
 
   render() {
-    const { open, block, pages, title, splat } = this.props;
+    const { block, depth = 0, title } = this.props;
+    const { open } = this.state;
+    const maxDepth = Math.min(depth, 3);
     return (
       <>
-        <a className="list-group-item" href="#" onClick={this.handleClick}>
+        <ButtonLink
+          className={classNames('list-group-item', { [`depth-${maxDepth}`]: depth > 0 })}
+          onClick={this.handleClick}>
           <h3 className="list-group-item-heading">
-            <OpenCloseIcon className="little-spacer-right" open={this.props.open} />
+            <OpenCloseIcon className="little-spacer-right" open={open} />
             {title}
           </h3>
-        </a>
-        {open &&
-          block.children.map(item => (
-            <MenuItem indent={true} key={item} node={getNodeFromUrl(pages, item)} splat={splat} />
-          ))}
+        </ButtonLink>
+        {open && this.renderMenuItems(block)}
       </>
     );
   }

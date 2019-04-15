@@ -18,30 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import { Link } from 'react-router';
-import { testPathAgainstUrl } from 'Docs/components/navTreeUtils';
-import { DocumentationEntry } from '../utils';
+import { shallow } from 'enzyme';
+import { MenuItem } from '../MenuItem';
+import { DocumentationEntry } from '../../utils';
 
-interface Props {
-  depth?: number;
-  node: DocumentationEntry | undefined;
-  splat: string;
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export function MenuItem({ depth = 0, node, splat }: Props) {
-  if (!node) {
-    return null;
-  }
+it('should render correctly if the current node matches the splat', () => {
+  expect(shallowRender({ splat: 'bar' })).toMatchSnapshot();
+});
 
-  const active = testPathAgainstUrl(node.url, splat);
-  const maxDepth = Math.min(depth, 3);
-  return (
-    <Link
-      className={classNames('list-group-item', { active, [`depth-${maxDepth}`]: depth > 0 })}
-      key={node.url}
-      to={'/documentation' + node.url}>
-      <h3 className="list-group-item-heading">{node.navTitle || node.title}</h3>
-    </Link>
-  );
+it('should not render a high depth differently than a depth of 3', () => {
+  expect(shallowRender({ depth: 6 })).toMatchSnapshot();
+});
+
+function shallowRender(props = {}) {
+  return shallow(<MenuItem node={{ url: '/bar' } as DocumentationEntry} splat="foo" {...props} />);
 }
