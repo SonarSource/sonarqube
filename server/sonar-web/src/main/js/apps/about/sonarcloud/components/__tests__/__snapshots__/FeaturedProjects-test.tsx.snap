@@ -115,6 +115,19 @@ exports[`should render ProjectCard correctly 1`] = `
 </div>
 `;
 
+exports[`should render ProjectCard correctly when there is no coverage 1`] = `
+<li>
+  <span>
+    overview.metric.coverage
+  </span>
+  <span
+    className="huge little-spacer-right"
+  >
+    —
+  </span>
+</li>
+`;
+
 exports[`should render ProjectIssues correctly 1`] = `
 <li>
   <span>

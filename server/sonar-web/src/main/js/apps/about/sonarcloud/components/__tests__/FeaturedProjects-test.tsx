@@ -130,6 +130,16 @@ it('should render ProjectCard correctly', () => {
   ).toMatchSnapshot();
 });
 
+it('should render ProjectCard correctly when there is no coverage', () => {
+  expect(
+    shallow(
+      <ProjectCard order={1} project={{ ...PROJECTS[0], coverage: undefined }} viewable={true} />
+    )
+      .find('li')
+      .first()
+  ).toMatchSnapshot();
+});
+
 it('should render correctly', () => {
   const wrapper = shallow(<FeaturedProjects projects={PROJECTS} />);
   expect(wrapper).toMatchSnapshot();

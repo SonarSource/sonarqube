@@ -215,24 +215,28 @@ export function ProjectCard({ project, order, viewable }: ProjectCardProps) {
           />
           <li>
             <span>{getMetricName('coverage')}</span>
-            <div>
-              {viewable && (
-                <CountUp
-                  decimal="."
-                  decimals={1}
-                  delay={0}
-                  duration={4}
-                  end={project.coverage}
-                  suffix="%">
-                  {(data: { countUpRef?: React.RefObject<HTMLHeadingElement> }) => (
-                    <h6 className="display-inline-block big-spacer-right" ref={data.countUpRef}>
-                      0
-                    </h6>
-                  )}
-                </CountUp>
-              )}
-              <CoverageRating value={project.coverage} />
-            </div>
+            {project.coverage !== undefined ? (
+              <div>
+                {viewable && (
+                  <CountUp
+                    decimal="."
+                    decimals={1}
+                    delay={0}
+                    duration={4}
+                    end={project.coverage}
+                    suffix="%">
+                    {(data: { countUpRef?: React.RefObject<HTMLHeadingElement> }) => (
+                      <h6 className="display-inline-block big-spacer-right" ref={data.countUpRef}>
+                        0
+                      </h6>
+                    )}
+                  </CountUp>
+                )}
+                <CoverageRating value={project.coverage} />
+              </div>
+            ) : (
+              <span className="huge little-spacer-right">—</span>
+            )}
           </li>
           <li>
             <span>{getMetricName('duplications')}</span>

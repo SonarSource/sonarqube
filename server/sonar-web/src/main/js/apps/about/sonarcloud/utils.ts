@@ -27,7 +27,7 @@ export interface FeaturedProject {
   name: string;
   bugs: number;
   codeSmells: number;
-  coverage: number;
+  coverage?: number;
   duplications: number;
   gateStatus: string;
   languages: string[];
