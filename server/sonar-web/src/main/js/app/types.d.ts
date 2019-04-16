@@ -850,6 +850,12 @@ declare namespace T {
     uuid: string;
   }
 
+  export type Standards = {
+    [key in StandardType]: T.Dict<{ title: string; description?: string }>
+  };
+
+  export type StandardType = 'owaspTop10' | 'sansTop25' | 'cwe' | 'sonarsourceSecurity';
+
   export interface SubscriptionPlan {
     maxNcloc: number;
     price: number;

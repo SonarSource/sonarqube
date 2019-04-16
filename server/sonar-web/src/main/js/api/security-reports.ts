@@ -22,7 +22,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getSecurityHotspots(data: {
   project: string;
-  standard: 'owaspTop10' | 'sansTop25' | 'cwe';
+  standard: T.StandardType;
   includeDistribution?: boolean;
   branch?: string;
 }): Promise<{ categories: T.SecurityHotspot[] }> {

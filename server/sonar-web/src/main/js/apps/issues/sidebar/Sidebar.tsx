@@ -198,6 +198,11 @@ export default class Sidebar extends React.PureComponent<Props> {
           sansTop25={query.sansTop25}
           sansTop25Open={!!openFacets.sansTop25}
           sansTop25Stats={facets.sansTop25}
+          sonarsourceSecurity={
+            [
+              /* TODO */
+            ]
+          }
         />
         <TagFacet
           component={component}

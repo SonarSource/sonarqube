@@ -28,8 +28,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import {
   renderOwaspTop10Category,
   renderSansTop25Category,
-  renderCWECategory,
-  Standards
+  renderCWECategory
 } from '../../securityReports/utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
@@ -54,22 +53,23 @@ export interface Props {
   sansTop25: string[];
   sansTop25Open: boolean;
   sansTop25Stats: T.Dict<number> | undefined;
+  sonarsourceSecurity: string[];
 }
 
 interface State {
   cweQuery: string;
-  standards: Standards;
+  standards: T.Standards;
 }
 
 type StatsProp = 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats';
-type ValuesProp = 'owaspTop10' | 'sansTop25' | 'cwe';
+type ValuesProp = T.StandardType;
 
 export default class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
   property = STANDARDS;
   state: State = {
     cweQuery: '',
-    standards: { owaspTop10: {}, sansTop25: {}, cwe: {} }
+    standards: { owaspTop10: {}, sansTop25: {}, cwe: {}, sonarsourceSecurity: {} }
   };
 
   componentDidMount() {
@@ -100,9 +100,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     import('../../../helpers/standards.json')
       .then(x => x.default)
       .then(
-        ({ owaspTop10, sansTop25, cwe }: Standards) => {
+        ({ owaspTop10, sansTop25, cwe, sonarsourceSecurity }: T.Standards) => {
           if (this.mounted) {
-            this.setState({ standards: { owaspTop10, sansTop25, cwe } });
+            this.setState({ standards: { owaspTop10, sansTop25, cwe, sonarsourceSecurity } });
           }
         },
         () => {}
@@ -176,7 +176,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   renderList = (
     statsProp: StatsProp,
     valuesProp: ValuesProp,
-    renderName: (standards: Standards, category: string) => string,
+    renderName: (standards: T.Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
   ) => {
     const stats = this.props[statsProp];
@@ -193,8 +193,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     stats: any,
     values: string[],
     categories: string[],
-    renderName: (standards: Standards, category: string) => React.ReactNode,
-    renderTooltip: (standards: Standards, category: string) => string,
+    renderName: (standards: T.Standards, category: string) => React.ReactNode,
+    renderTooltip: (standards: T.Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
   ) => {
     if (!categories.length) {

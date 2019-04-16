@@ -30,7 +30,6 @@ import NotFound from '../../../app/components/NotFound';
 import { getSecurityHotspots } from '../../../api/security-reports';
 import { isLongLivingBranch } from '../../../helpers/branches';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { StandardType } from '../utils';
 import { Alert } from '../../../components/ui/Alert';
 import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
 import '../style.css';
@@ -47,7 +46,7 @@ interface State {
   loading: boolean;
   findings: T.SecurityHotspot[];
   hasVulnerabilities: boolean;
-  type: StandardType;
+  type: T.StandardType;
   showCWE: boolean;
 }
 
@@ -60,7 +59,7 @@ export class App extends React.PureComponent<Props, State> {
       loading: false,
       findings: [],
       hasVulnerabilities: false,
-      type: props.params.type === 'owasp_top_10' ? 'owaspTop10' : 'sansTop25',
+      type: this.getType(props.params.type),
       showCWE: props.location.query.showCWE === 'true'
     };
   }
@@ -73,7 +72,7 @@ export class App extends React.PureComponent<Props, State> {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const showCWE = newProps.location.query.showCWE === 'true';
-      const type = newProps.params.type === 'owasp_top_10' ? 'owaspTop10' : 'sansTop25';
+      const type = this.getType(newProps.params.type);
       this.setState({ type, showCWE }, this.fetchSecurityHotspots);
     }
   }
@@ -81,6 +80,16 @@ export class App extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  getType = (type: string): T.StandardType => {
+    if (type === 'owasp_top_10') {
+      return 'owaspTop10';
+    } else if (type === 'sans_top_25') {
+      return 'sansTop25';
+    } else {
+      return 'sonarsource';
+    }
+  };
 
   fetchSecurityHotspots = () => {
     const { branchLike, component } = this.props;

@@ -154,6 +154,7 @@ function shallowRender(props: Partial<Props> = {}) {
       sansTop25={[]}
       sansTop25Open={false}
       sansTop25Stats={{}}
+      sonarsourceSecurity={[]}
       {...props}
     />,
     // disable loading of standards.json

@@ -17,16 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export type StandardType = 'owaspTop10' | 'sansTop25' | 'cwe';
-
-export interface Standards {
-  owaspTop10: T.Dict<{ title: string; description?: string }>;
-  sansTop25: T.Dict<{ title: string; description?: string }>;
-  cwe: T.Dict<{ title: string; description?: string }>;
-}
-
 export function renderOwaspTop10Category(
-  standards: Standards,
+  standards: T.Standards,
   category: string,
   withPrefix = false
 ): string {
@@ -40,7 +32,7 @@ export function renderOwaspTop10Category(
   }
 }
 
-export function renderCWECategory(standards: Standards, category: string): string {
+export function renderCWECategory(standards: T.Standards, category: string): string {
   const record = standards.cwe[category];
   if (!record) {
     return `CWE-${category}`;
@@ -52,7 +44,7 @@ export function renderCWECategory(standards: Standards, category: string): strin
 }
 
 export function renderSansTop25Category(
-  standards: Standards,
+  standards: T.Standards,
   category: string,
   withPrefix = false
 ): string {
