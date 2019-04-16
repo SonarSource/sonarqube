@@ -36,25 +36,34 @@ public final class MimeMessageAssert extends AbstractAssert<MimeMessageAssert, M
     return new MimeMessageAssert(m);
   }
 
-  public HtmlFragmentAssert isHtml() {
+  public MultipartMessageAssert isMultipart() {
     isNotNull();
 
     try {
       Object content = actual.getContent();
       Assertions.assertThat(content).isInstanceOf(MimeMultipart.class);
       MimeMultipart m = (MimeMultipart) content;
-      Assertions.assertThat(m.getCount()).isEqualTo(1);
-      return new HtmlFragmentAssert((String) m.getBodyPart(0).getContent());
+      return new MultipartMessageAssert(m);
     } catch (MessagingException | IOException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  /**
+   * Convenience method for {@code isMultipart().isHtml()}.
+   */
+  public HtmlFragmentAssert isHtml() {
+    return isMultipart()
+      .isHtml();
   }
 
   public MimeMessageAssert hasRecipient(String userEmail) {
     isNotNull();
 
     try {
-      Assertions.assertThat(actual.getHeader("To", null)).isEqualTo(String.format("<%s>", userEmail));
+      Assertions
+        .assertThat(actual.getHeader("To", null))
+        .isEqualTo(String.format("<%s>", userEmail));
     } catch (MessagingException e) {
       throw new IllegalStateException(e);
     }

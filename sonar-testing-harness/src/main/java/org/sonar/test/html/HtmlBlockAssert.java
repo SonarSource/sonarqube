@@ -57,7 +57,7 @@ public abstract class HtmlBlockAssert<T extends HtmlBlockAssert<T>> extends Abst
 
     long count = as.stream().filter(t -> linkText.equals(t.text())).count();
     if (count != times) {
-      failWithMessage("link on text \"%s\" found %s times in bloc (expected %s). \n Got: %s", linkText, count, times, asyncToString(as));
+      failWithMessage("link on text \"%s\" found %s times in bloc (expected %s). \n Got: %s", linkText, count, times, asyncLinksToString(as));
     }
 
     return myself;
@@ -71,13 +71,13 @@ public abstract class HtmlBlockAssert<T extends HtmlBlockAssert<T>> extends Abst
 
     Elements as = actual.select("a");
     Assertions.assertThat(as)
-      .describedAs(NO_LINK_IN_BLOC)
+      .describedAs(NO_LINK_IN_BLOC + PRINT_FRAGMENT_TEMPLATE, actual)
       .isNotEmpty();
 
     if (as.stream().noneMatch(t -> linkText.equals(t.text()) && href.equals(t.attr("href")))) {
       failWithMessage(
-        "link with text \"%s\" and href \"%s\" not found in block. \n Got: %s",
-        linkText, href, asyncToString(as));
+        "link with text \"%s\" and href \"%s\" not found in block. \n Got: %s" + PRINT_FRAGMENT_TEMPLATE,
+        linkText, href, asyncLinksToString(as), actual);
     }
 
     return myself;
@@ -91,12 +91,12 @@ public abstract class HtmlBlockAssert<T extends HtmlBlockAssert<T>> extends Abst
     return myself;
   }
 
-  private static Object asyncToString(Elements as) {
+  private static Object asyncLinksToString(Elements linkElements) {
     return new Object() {
       @Override
       public String toString() {
-        return as.stream()
-          .map(a -> "< href=\"" + a.attr("href") + "\">" + a.text() + "<a>")
+        return linkElements.stream()
+          .map(a -> "<a href=\"" + a.attr("href") + "\">" + a.text() + "<a>")
           .collect(Collectors.joining("\n"));
       }
     };
