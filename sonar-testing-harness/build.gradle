@@ -10,12 +10,14 @@ dependencies {
   compile 'com.google.code.gson:gson'
   compile 'com.googlecode.json-simple:json-simple'
   compile 'commons-io:commons-io'
+  compile 'javax.mail:mail'
   compile 'junit:junit'
+  compile 'org.assertj:assertj-core'
   compile 'org.hamcrest:hamcrest-all'
+  compile 'org.jsoup:jsoup:1.11.3'
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'org.assertj:assertj-core'
 }
 
 artifactoryPublish.skip = false
