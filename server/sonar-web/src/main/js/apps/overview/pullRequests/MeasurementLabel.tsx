@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { translate } from '../../../helpers/l10n';
@@ -72,7 +73,7 @@ export default class MeasurementLabel extends React.Component<Props> {
     return (
       <>
         {value === undefined ? (
-          <span>—</span>
+          <span className={classNames(className, 'measure-empty')}>—</span>
         ) : (
           <>
             <span className="big-spacer-right">

@@ -36,7 +36,7 @@ export default function IssueRating({ branchLike, component, measures, type }: P
   const { rating } = ISSUETYPE_MAP[type];
   const measure = findMeasure(measures, rating);
 
-  if (measure === undefined) {
+  if (!rating || !measure) {
     return null;
   }
 

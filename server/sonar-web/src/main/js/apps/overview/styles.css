@@ -498,12 +498,12 @@
  */
 .pr-overview {
   display: flex;
-  max-width: 960px;
+  max-width: 1020px;
   margin: 0 auto;
 }
 
 .pr-overview.has-conditions {
-  max-width: 1180px;
+  max-width: 1260px;
 }
 
 .pr-overview h3 {
@@ -540,6 +540,11 @@
 .pr-overview-measurements-rating,
 .pr-overview-measurements-estimate {
   padding: calc(3 * var(--gridSize));
+}
+
+.pr-overview-measurements-value + .pr-overview-measurements-value {
+  padding-right: 0;
+  padding-left: 0;
 }
 
 .pr-overview-measurements-value .measure-empty {

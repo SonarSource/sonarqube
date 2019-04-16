@@ -52,6 +52,36 @@ exports[`should render correctly for code smells 1`] = `
 </Fragment>
 `;
 
+exports[`should render correctly for hotspots 1`] = `
+<Fragment>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/project/issues",
+        "query": Object {
+          "id": "my-project",
+          "pullRequest": "1001",
+          "resolved": "false",
+          "types": "SECURITY_HOTSPOT",
+        },
+      }
+    }
+  >
+    1
+  </Link>
+  <SecurityHotspotIcon
+    className="big-spacer-left little-spacer-right"
+  />
+  overview.metric.new_security_hotspots
+  <DocTooltip
+    className="little-spacer-left"
+    doc={Promise {}}
+  />
+</Fragment>
+`;
+
 exports[`should render correctly for vulnerabilities 1`] = `
 <Fragment>
   <Link

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import IssueLabel from '../IssueLabel';
+import IssueLabel, { Props } from '../IssueLabel';
 import { mockComponent, mockPullRequest, mockMeasure } from '../../../../helpers/testMocks';
 
 it('should render correctly for bugs', () => {
@@ -48,11 +48,21 @@ it('should render correctly for vulnerabilities', () => {
   ).toMatchSnapshot();
 });
 
+it('should render correctly for hotspots', () => {
+  expect(
+    shallowRender({
+      docTooltip: Promise.resolve({ default: 'tooltip text' }),
+      measures: [mockMeasure({ metric: 'new_security_hotspots' })],
+      type: 'SECURITY_HOTSPOT'
+    })
+  ).toMatchSnapshot();
+});
+
 it('should render correctly if no values are present', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props = {}) {
+function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <IssueLabel
       branchLike={mockPullRequest()}

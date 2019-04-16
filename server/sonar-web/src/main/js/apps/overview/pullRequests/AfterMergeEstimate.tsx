@@ -18,16 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import { formatMeasure, findMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { MEASUREMENTS_MAP, MeasurementType } from '../utils';
 
 interface Props {
+  className?: string;
   measures: T.Measure[];
   type: MeasurementType;
 }
 
-export default function AfterMergeEstimate({ measures, type }: Props) {
+export default function AfterMergeEstimate({ className, measures, type }: Props) {
   const { afterMergeMetric } = MEASUREMENTS_MAP[type];
 
   const measure = findMeasure(measures, afterMergeMetric);
@@ -37,11 +39,11 @@ export default function AfterMergeEstimate({ measures, type }: Props) {
   }
 
   return (
-    <>
+    <div className={classNames(className, 'display-flex-center')}>
       <span className="huge">{formatMeasure(measure.value, 'PERCENT')}</span>
       <span className="label flex-1">
         {translate('component_measures.facet_category.overall_category.estimated')}
       </span>
-    </>
+    </div>
   );
 }

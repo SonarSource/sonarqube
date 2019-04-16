@@ -188,6 +188,49 @@ exports[`should correctly handle a WS failure 1`] = `
           />
         </div>
         <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "target": "master",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="huge"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            docTooltip={Promise {}}
+            measures={Array []}
+            type="SECURITY_HOTSPOT"
+          />
+        </div>
+        <div
           className="pr-overview-measurements-rating display-flex-center"
         >
           <IssueRating
@@ -363,14 +406,11 @@ exports[`should correctly handle a WS failure 1`] = `
             type="COVERAGE"
           />
         </div>
-        <div
-          className="pr-overview-measurements-estimate display-flex-center"
-        >
-          <AfterMergeEstimate
-            measures={Array []}
-            type="COVERAGE"
-          />
-        </div>
+        <AfterMergeEstimate
+          className="pr-overview-measurements-estimate"
+          measures={Array []}
+          type="COVERAGE"
+        />
       </div>
       <div
         className="pr-overview-measurements-row display-flex-row"
@@ -418,14 +458,11 @@ exports[`should correctly handle a WS failure 1`] = `
             type="DUPLICATION"
           />
         </div>
-        <div
-          className="pr-overview-measurements-estimate display-flex-center"
-        >
-          <AfterMergeEstimate
-            measures={Array []}
-            type="DUPLICATION"
-          />
-        </div>
+        <AfterMergeEstimate
+          className="pr-overview-measurements-estimate"
+          measures={Array []}
+          type="DUPLICATION"
+        />
       </div>
     </div>
   </div>
@@ -623,6 +660,18 @@ exports[`should render correctly for a failed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
               ]
             }
             type="BUG"
@@ -694,6 +743,18 @@ exports[`should render correctly for a failed QG 1`] = `
                 Object {
                   "bestValue": true,
                   "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -789,9 +850,115 @@ exports[`should render correctly for a failed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
               ]
             }
             type="VULNERABILITY"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "target": "master",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="huge"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            docTooltip={Promise {}}
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="SECURITY_HOTSPOT"
           />
         </div>
         <div
@@ -860,6 +1027,18 @@ exports[`should render correctly for a failed QG 1`] = `
                 Object {
                   "bestValue": true,
                   "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -955,6 +1134,18 @@ exports[`should render correctly for a failed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
               ]
             }
             type="CODE_SMELL"
@@ -1026,6 +1217,18 @@ exports[`should render correctly for a failed QG 1`] = `
                 Object {
                   "bestValue": true,
                   "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1121,44 +1324,9 @@ exports[`should render correctly for a failed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
-              ]
-            }
-            type="COVERAGE"
-          />
-        </div>
-        <div
-          className="pr-overview-measurements-estimate display-flex-center"
-        >
-          <AfterMergeEstimate
-            measures={
-              Array [
                 Object {
                   "bestValue": true,
-                  "metric": "new_bugs ",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_vulnerabilities",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_code_smells",
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1173,6 +1341,62 @@ exports[`should render correctly for a failed QG 1`] = `
             type="COVERAGE"
           />
         </div>
+        <AfterMergeEstimate
+          className="pr-overview-measurements-estimate"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": "new_bugs ",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_vulnerabilities",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_code_smells",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_security_hotspots",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+        />
       </div>
       <div
         className="pr-overview-measurements-row display-flex-row"
@@ -1254,44 +1478,9 @@ exports[`should render correctly for a failed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
-              ]
-            }
-            type="DUPLICATION"
-          />
-        </div>
-        <div
-          className="pr-overview-measurements-estimate display-flex-center"
-        >
-          <AfterMergeEstimate
-            measures={
-              Array [
                 Object {
                   "bestValue": true,
-                  "metric": "new_bugs ",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_vulnerabilities",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_code_smells",
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1306,6 +1495,62 @@ exports[`should render correctly for a failed QG 1`] = `
             type="DUPLICATION"
           />
         </div>
+        <AfterMergeEstimate
+          className="pr-overview-measurements-estimate"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": "new_bugs ",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_vulnerabilities",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_code_smells",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_security_hotspots",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+        />
       </div>
     </div>
   </div>
@@ -1446,6 +1691,18 @@ exports[`should render correctly for a passed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
               ]
             }
             type="BUG"
@@ -1517,6 +1774,18 @@ exports[`should render correctly for a passed QG 1`] = `
                 Object {
                   "bestValue": true,
                   "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1612,9 +1881,115 @@ exports[`should render correctly for a passed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
               ]
             }
             type="VULNERABILITY"
+          />
+        </div>
+        <div
+          className="pr-overview-measurements-value flex-1 small display-flex-center"
+        >
+          <IssueLabel
+            branchLike={
+              Object {
+                "analysisDate": "2018-01-01",
+                "base": "master",
+                "branch": "feature/foo/bar",
+                "key": "1001",
+                "target": "master",
+                "title": "Foo Bar feature",
+              }
+            }
+            className="huge"
+            component={
+              Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              }
+            }
+            docTooltip={Promise {}}
+            measures={
+              Array [
+                Object {
+                  "bestValue": true,
+                  "metric": "new_bugs ",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_vulnerabilities",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+              ]
+            }
+            type="SECURITY_HOTSPOT"
           />
         </div>
         <div
@@ -1683,6 +2058,18 @@ exports[`should render correctly for a passed QG 1`] = `
                 Object {
                   "bestValue": true,
                   "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1778,6 +2165,18 @@ exports[`should render correctly for a passed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
               ]
             }
             type="CODE_SMELL"
@@ -1849,6 +2248,18 @@ exports[`should render correctly for a passed QG 1`] = `
                 Object {
                   "bestValue": true,
                   "metric": "new_code_smells",
+                  "periods": Array [
+                    Object {
+                      "bestValue": true,
+                      "index": 1,
+                      "value": "1.0",
+                    },
+                  ],
+                  "value": "1.0",
+                },
+                Object {
+                  "bestValue": true,
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1944,44 +2355,9 @@ exports[`should render correctly for a passed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
-              ]
-            }
-            type="COVERAGE"
-          />
-        </div>
-        <div
-          className="pr-overview-measurements-estimate display-flex-center"
-        >
-          <AfterMergeEstimate
-            measures={
-              Array [
                 Object {
                   "bestValue": true,
-                  "metric": "new_bugs ",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_vulnerabilities",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_code_smells",
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -1996,6 +2372,62 @@ exports[`should render correctly for a passed QG 1`] = `
             type="COVERAGE"
           />
         </div>
+        <AfterMergeEstimate
+          className="pr-overview-measurements-estimate"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": "new_bugs ",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_vulnerabilities",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_code_smells",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_security_hotspots",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="COVERAGE"
+        />
       </div>
       <div
         className="pr-overview-measurements-row display-flex-row"
@@ -2077,44 +2509,9 @@ exports[`should render correctly for a passed QG 1`] = `
                   ],
                   "value": "1.0",
                 },
-              ]
-            }
-            type="DUPLICATION"
-          />
-        </div>
-        <div
-          className="pr-overview-measurements-estimate display-flex-center"
-        >
-          <AfterMergeEstimate
-            measures={
-              Array [
                 Object {
                   "bestValue": true,
-                  "metric": "new_bugs ",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_vulnerabilities",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
-                  "value": "1.0",
-                },
-                Object {
-                  "bestValue": true,
-                  "metric": "new_code_smells",
+                  "metric": "new_security_hotspots",
                   "periods": Array [
                     Object {
                       "bestValue": true,
@@ -2129,6 +2526,62 @@ exports[`should render correctly for a passed QG 1`] = `
             type="DUPLICATION"
           />
         </div>
+        <AfterMergeEstimate
+          className="pr-overview-measurements-estimate"
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "metric": "new_bugs ",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_vulnerabilities",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_code_smells",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "metric": "new_security_hotspots",
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="DUPLICATION"
+        />
       </div>
     </div>
   </div>

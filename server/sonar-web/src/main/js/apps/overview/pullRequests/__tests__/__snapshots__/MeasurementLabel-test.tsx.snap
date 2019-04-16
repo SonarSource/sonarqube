@@ -123,7 +123,9 @@ exports[`should render correctly for duplications 1`] = `
 
 exports[`should render correctly with no value 1`] = `
 <Fragment>
-  <span>
+  <span
+    className="measure-empty"
+  >
     —
   </span>
   <span

@@ -164,6 +164,18 @@ export class ReviewApp extends React.Component<Props, State> {
                       type={type}
                     />
                   </div>
+                  {type === 'VULNERABILITY' && (
+                    <div className="pr-overview-measurements-value flex-1 small display-flex-center">
+                      <IssueLabel
+                        branchLike={branchLike}
+                        className="huge"
+                        component={component}
+                        docTooltip={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
+                        measures={measures}
+                        type="SECURITY_HOTSPOT"
+                      />
+                    </div>
+                  )}
                   <div className="pr-overview-measurements-rating display-flex-center">
                     <IssueRating
                       branchLike={branchLike}
@@ -186,9 +198,12 @@ export class ReviewApp extends React.Component<Props, State> {
                       type={type}
                     />
                   </div>
-                  <div className="pr-overview-measurements-estimate display-flex-center">
-                    <AfterMergeEstimate measures={measures} type={type} />
-                  </div>
+
+                  <AfterMergeEstimate
+                    className="pr-overview-measurements-estimate"
+                    measures={measures}
+                    type={type}
+                  />
                 </div>
               ))}
             </div>

@@ -33,7 +33,8 @@ jest.mock('../../../../api/measures', () => {
       .mockResolvedValue([
         mockMeasure({ metric: 'new_bugs ' }),
         mockMeasure({ metric: 'new_vulnerabilities' }),
-        mockMeasure({ metric: 'new_code_smells' })
+        mockMeasure({ metric: 'new_code_smells' }),
+        mockMeasure({ metric: 'new_security_hotspots' })
       ])
   };
 });
