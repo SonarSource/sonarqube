@@ -19,162 +19,190 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.SetMultimap;
 import java.io.UnsupportedEncodingException;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.notifications.Notification;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.user.UserDto;
+import org.sonar.api.i18n.I18n;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule;
 
 import static java.net.URLEncoder.encode;
-import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_BRANCH;
-import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate.FIELD_PULL_REQUEST;
+import static org.sonar.core.util.stream.MoreCollectors.index;
 
-/**
- * Creates email message for notification "issue-changes".
- */
-public class IssueChangesEmailTemplate implements EmailTemplate {
+public abstract class IssueChangesEmailTemplate implements EmailTemplate {
 
-  private static final char NEW_LINE = '\n';
-  private final DbClient dbClient;
+  private static final Comparator<Rule> RULE_COMPARATOR = Comparator.comparing(r -> r.getKey().toString());
+  private static final Comparator<Project> PROJECT_COMPARATOR = Comparator.comparing(Project::getProjectName)
+    .thenComparing(t -> t.getBranchName().orElse(""));
+  private static final Comparator<ChangedIssue> CHANGED_ISSUE_KEY_COMPARATOR = Comparator.comparing(ChangedIssue::getKey, Comparator.naturalOrder());
+  /**
+   * Assuming:
+   * <ul>
+   *   <li>UUID length of 40 chars</li>
+   *   <li>a max URL length of 2083 chars</li>
+   * </ul>
+   * This leaves ~850 chars for the rest of the URL (including other parameters such as the project key and the branch),
+   * which is reasonable to stay safe from the max URL length supported by some browsers and network devices.
+   */
+  private static final int MAX_ISSUES_BY_LINK = 40;
+  private static final String URL_ENCODED_COMMA = urlEncode(",");
+
+  private final I18n i18n;
   private final EmailSettings settings;
 
-  public IssueChangesEmailTemplate(DbClient dbClient, EmailSettings settings) {
-    this.dbClient = dbClient;
+  protected IssueChangesEmailTemplate(I18n i18n, EmailSettings settings) {
+    this.i18n = i18n;
     this.settings = settings;
   }
 
-  @Override
-  public EmailMessage format(Notification notif) {
-    if (!IssueChangeNotification.TYPE.equals(notif.getType())) {
-      return null;
-    }
-
-    StringBuilder sb = new StringBuilder();
-    appendHeader(notif, sb);
-    sb.append(NEW_LINE);
-    appendChanges(notif, sb);
-    sb.append(NEW_LINE);
-    appendFooter(sb, notif);
-
-    String projectName = notif.getFieldValue("projectName");
-    String issueKey = notif.getFieldValue("key");
-    String author = notif.getFieldValue("changeAuthor");
-
-    EmailMessage message = new EmailMessage()
-      .setMessageId("issue-changes/" + issueKey)
-      .setSubject(projectName + ", change on issue #" + issueKey)
-      .setMessage(sb.toString());
-    if (author != null) {
-      message.setFrom(getUserFullName(author));
-    }
-    return message;
-  }
-
-  private static void appendChanges(Notification notif, StringBuilder sb) {
-    appendField(sb, "Comment", null, notif.getFieldValue("comment"));
-    appendFieldWithoutHistory(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
-    appendField(sb, "Severity", notif.getFieldValue("old.severity"), notif.getFieldValue("new.severity"));
-    appendField(sb, "Type", notif.getFieldValue("old.type"), notif.getFieldValue("new.type"));
-    appendField(sb, "Resolution", notif.getFieldValue("old.resolution"), notif.getFieldValue("new.resolution"));
-    appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
-    appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
-    appendField(sb, "Author", notif.getFieldValue("old.author"), notif.getFieldValue("new.author"));
-    appendFieldWithoutHistory(sb, "Action Plan", notif.getFieldValue("old.actionPlan"), notif.getFieldValue("new.actionPlan"));
-    appendField(sb, "Tags", formatTagChange(notif.getFieldValue("old.tags")), formatTagChange(notif.getFieldValue("new.tags")));
-  }
-
-  @CheckForNull
-  private static String formatTagChange(@Nullable String tags) {
-    if (tags == null) {
-      return null;
+  /**
+   * Adds "projectName" or "projectName, branchName" if branchName is non null
+   */
+  protected static void toString(StringBuilder sb, Project project) {
+    Optional<String> branchName = project.getBranchName();
+    if (branchName.isPresent()) {
+      sb.append(project.getProjectName()).append(", ").append(branchName.get());
     } else {
-      return "[" + tags + "]";
+      sb.append(project.getProjectName());
     }
   }
 
-  private static void appendHeader(Notification notif, StringBuilder sb) {
-    appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
-    String branchName = notif.getFieldValue(FIELD_BRANCH);
-    if (branchName != null) {
-      appendField(sb, "Branch", null, branchName);
-    }
-    String pullRequest = notif.getFieldValue(FIELD_PULL_REQUEST);
-    if (pullRequest != null) {
-      appendField(sb, "Pull request", null, pullRequest);
-    }
-    appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
-    appendField(sb, "Message", null, notif.getFieldValue("message"));
+  static String toUrlParams(Project project) {
+    return "id=" + urlEncode(project.getKey()) +
+      project.getBranchName().map(branchName -> "&branch=" + urlEncode(branchName)).orElse("");
   }
 
-  private void appendFooter(StringBuilder sb, Notification notification) {
-    String issueKey = notification.getFieldValue("key");
-    try {
-      sb.append("More details at: ").append(settings.getServerBaseURL())
-        .append("/project/issues?id=").append(encode(notification.getFieldValue("projectKey"), "UTF-8"))
-        .append("&issues=").append(issueKey)
-        .append("&open=").append(issueKey);
-      String branchName = notification.getFieldValue(FIELD_BRANCH);
-      if (branchName != null) {
-        sb.append("&branch=").append(branchName);
+  void addIssuesByProjectThenRule(StringBuilder sb, SetMultimap<Project, ChangedIssue> issuesByProject) {
+    issuesByProject.keySet().stream()
+      .sorted(PROJECT_COMPARATOR)
+      .forEach(project -> {
+        String encodedProjectParams = toUrlParams(project);
+        paragraph(sb, s -> toString(s, project));
+        addIssuesByRule(sb, issuesByProject.get(project), projectIssuePageHref(encodedProjectParams));
+      });
+  }
+
+  void addIssuesByRule(StringBuilder sb, Collection<ChangedIssue> changedIssues, BiConsumer<StringBuilder, Collection<ChangedIssue>> issuePageHref) {
+    ListMultimap<Rule, ChangedIssue> issuesByRule = changedIssues.stream()
+      .collect(index(ChangedIssue::getRule, t -> t));
+
+    Iterator<Rule> rules = issuesByRule.keySet().stream()
+      .sorted(RULE_COMPARATOR)
+      .iterator();
+    if (!rules.hasNext()) {
+      return;
+    }
+
+    sb.append("<ul>");
+    while (rules.hasNext()) {
+      Rule rule = rules.next();
+      Collection<ChangedIssue> issues = issuesByRule.get(rule);
+
+      sb.append("<li>").append("Rule ").append(" <em>").append(rule.getName()).append("</em> - ");
+      appendIssueLinks(sb, issuePageHref, issues);
+      sb.append("</li>");
+    }
+    sb.append("</ul>");
+  }
+
+  private static void appendIssueLinks(StringBuilder sb, BiConsumer<StringBuilder, Collection<ChangedIssue>> issuePageHref, Collection<ChangedIssue> issues) {
+    SortedSet<ChangedIssue> sortedIssues = ImmutableSortedSet.copyOf(CHANGED_ISSUE_KEY_COMPARATOR, issues);
+    int issueCount = issues.size();
+    if (issueCount == 1) {
+      link(sb, s -> issuePageHref.accept(s, sortedIssues), s -> s.append("See the single issue"));
+    } else if (issueCount <= MAX_ISSUES_BY_LINK) {
+      link(sb, s -> issuePageHref.accept(s, sortedIssues), s -> s.append("See all ").append(issueCount).append(" issues"));
+    } else {
+      sb.append("See issues");
+      List<List<ChangedIssue>> issueGroups = Lists.partition(ImmutableList.copyOf(sortedIssues), MAX_ISSUES_BY_LINK);
+      Iterator<List<ChangedIssue>> issueGroupsIterator = issueGroups.iterator();
+      int[] groupIndex = new int[] {0};
+      while (issueGroupsIterator.hasNext()) {
+        List<ChangedIssue> issueGroup = issueGroupsIterator.next();
+        sb.append(' ');
+        link(sb, s -> issuePageHref.accept(s, issueGroup), issueGroupLabel(sb, groupIndex, issueGroup));
+        groupIndex[0]++;
       }
-      String pullRequest = notification.getFieldValue(FIELD_PULL_REQUEST);
-      if (pullRequest != null) {
-        sb.append("&pullRequest=").append(pullRequest);
-      }
-      sb.append(NEW_LINE);
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException("Encoding not supported", e);
     }
   }
 
-  private static void appendLine(StringBuilder sb, @Nullable String line) {
-    if (!Strings.isNullOrEmpty(line)) {
-      sb.append(line).append(NEW_LINE);
-    }
+  BiConsumer<StringBuilder, Collection<ChangedIssue>> projectIssuePageHref(String projectParams) {
+    return (s, issues) -> {
+      s.append(settings.getServerBaseURL()).append("/project/issues?").append(projectParams)
+        .append("&issues=");
+
+      Iterator<ChangedIssue> issueIterator = issues.iterator();
+      while (issueIterator.hasNext()) {
+        s.append(urlEncode(issueIterator.next().getKey()));
+        if (issueIterator.hasNext()) {
+          s.append(URL_ENCODED_COMMA);
+        }
+      }
+
+      if (issues.size() == 1) {
+        s.append("&open=").append(urlEncode(issues.iterator().next().getKey()));
+      }
+    };
   }
 
-  private static void appendField(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
-    if (oldValue != null || newValue != null) {
-      sb.append(name).append(": ");
-      if (newValue != null) {
-        sb.append(newValue);
-      }
-      if (oldValue != null) {
-        sb.append(" (was ").append(oldValue).append(")");
-      }
-      sb.append(NEW_LINE);
-    }
-  }
-
-  private static void appendFieldWithoutHistory(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
-    if (oldValue != null || newValue != null) {
-      sb.append(name);
-      if (newValue != null) {
-        sb.append(" changed to ");
-        sb.append(newValue);
+  private static Consumer<StringBuilder> issueGroupLabel(StringBuilder sb, int[] groupIndex, List<ChangedIssue> issueGroup) {
+    return s -> {
+      int firstIssueNumber = (groupIndex[0] * MAX_ISSUES_BY_LINK) + 1;
+      if (issueGroup.size() == 1) {
+        sb.append(firstIssueNumber);
       } else {
-        sb.append(" removed");
+        sb.append(firstIssueNumber).append("-").append(firstIssueNumber + issueGroup.size() - 1);
       }
-      sb.append(NEW_LINE);
-    }
+    };
   }
 
-  private String getUserFullName(@Nullable String login) {
-    if (login == null) {
-      return null;
-    }
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
-      if (userDto == null || !userDto.isActive()) {
-        // most probably user was deleted
-        return login;
-      }
-      return StringUtils.defaultIfBlank(userDto.getName(), login);
+  void addFooter(StringBuilder sb, String notificationI18nKey) {
+    paragraph(sb, s -> s.append("&nbsp;"));
+    paragraph(sb, s -> {
+      s.append("<small>");
+      s.append("You received this email because you are subscribed to ")
+        .append('"').append(i18n.message(Locale.ENGLISH, notificationI18nKey, notificationI18nKey)).append('"')
+        .append(" notifications from ").append(settings.getInstanceName()).append(".");
+      s.append(" Click ");
+      link(s, s1 -> s1.append(settings.getServerBaseURL()).append("/account/notifications"), s1 -> s1.append("here"));
+      s.append(" to edit your email preferences.");
+      s.append("</small>");
+    });
+  }
+
+  protected static void paragraph(StringBuilder sb, Consumer<StringBuilder> content) {
+    sb.append("<p>");
+    content.accept(sb);
+    sb.append("</p>");
+  }
+
+  protected static void link(StringBuilder sb, Consumer<StringBuilder> link, Consumer<StringBuilder> content) {
+    sb.append("<a href=\"");
+    link.accept(sb);
+    sb.append("\">");
+    content.accept(sb);
+    sb.append("</a>");
+  }
+
+  private static String urlEncode(String str) {
+    try {
+      return encode(str, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(e);
     }
   }
 

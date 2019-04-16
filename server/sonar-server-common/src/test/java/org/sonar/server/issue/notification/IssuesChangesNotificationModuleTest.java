@@ -19,16 +19,19 @@
  */
 package org.sonar.server.issue.notification;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.notifications.Notification;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-@ServerSide
-@ExtensionPoint
-public interface EmailTemplate {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-  @CheckForNull
-  EmailMessage format(Notification notification);
+public class IssuesChangesNotificationModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new IssuesChangesNotificationModule().configure(container);
+    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 7);
+  }
+
 
 }

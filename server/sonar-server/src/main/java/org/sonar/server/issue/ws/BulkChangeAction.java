@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
@@ -60,7 +62,12 @@ import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.IssueChangePostProcessor;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.WebIssueStorage;
-import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues;
@@ -72,12 +79,12 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
@@ -113,10 +120,11 @@ public class BulkChangeAction implements IssuesWsAction {
   private final NotificationManager notificationService;
   private final List<Action> actions;
   private final IssueChangePostProcessor issueChangePostProcessor;
+  private final IssuesChangesNotificationSerializer notificationSerializer;
 
   public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, WebIssueStorage issueStorage,
     NotificationManager notificationService, List<Action> actions,
-    IssueChangePostProcessor issueChangePostProcessor) {
+    IssueChangePostProcessor issueChangePostProcessor, IssuesChangesNotificationSerializer notificationSerializer) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -124,6 +132,7 @@ public class BulkChangeAction implements IssuesWsAction {
     this.notificationService = notificationService;
     this.actions = actions;
     this.issueChangePostProcessor = issueChangePostProcessor;
+    this.notificationSerializer = notificationSerializer;
   }
 
   @Override
@@ -200,12 +209,12 @@ public class BulkChangeAction implements IssuesWsAction {
 
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
-    Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(toSet());
+    Set<String> assigneeUuids = items.stream().map(DefaultIssue::assignee).filter(Objects::nonNull).collect(Collectors.toSet());
     Map<String, UserDto> userDtoByUuid = dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
     String authorUuid = requireNonNull(userSession.getUuid(), "User uuid cannot be null");
     UserDto author = dbClient.userDao().selectByUuid(dbSession, authorUuid);
     checkState(author != null, "User with uuid '%s' does not exist");
-    items.forEach(sendNotification(bulkChangeData, userDtoByUuid, author));
+    sendNotification(items, bulkChangeData, userDtoByUuid, author);
 
     return result;
   }
@@ -216,7 +225,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
     Set<String> touchedComponentUuids = result.success.stream()
       .map(DefaultIssue::componentUuid)
-      .collect(toSet());
+      .collect(Collectors.toSet());
     List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
       .map(data.componentsByUuid::get)
       .collect(MoreCollectors.toList(touchedComponentUuids.size()));
@@ -253,25 +262,68 @@ public class BulkChangeAction implements IssuesWsAction {
     bulkChangeData.getCommentAction().ifPresent(action -> action.execute(bulkChangeData.getProperties(action.key()), actionContext));
   }
 
-  private Consumer<DefaultIssue> sendNotification(BulkChangeData bulkChangeData, Map<String, UserDto> userDtoByUuid, UserDto author) {
-    return issue -> {
-      if (bulkChangeData.sendNotification && issue.type() != RuleType.SECURITY_HOTSPOT) {
-        BranchDto branch = bulkChangeData.branchesByProjectUuid.get(issue.projectUuid());
-        if (hasNotificationSupport(branch)) {
-          notificationService.scheduleForSending(new IssueChangeNotification()
-            .setIssue(issue)
-            .setAssignee(userDtoByUuid.get(issue.assignee()))
-            .setChangeAuthor(author)
-            .setRuleName(bulkChangeData.rulesByKey.get(issue.ruleKey()).getName())
-            .setProject(bulkChangeData.projectsByUuid.get(issue.projectUuid()))
-            .setComponent(bulkChangeData.componentsByUuid.get(issue.componentUuid())));
-        }
-      }
-    };
+  private void sendNotification(Collection<DefaultIssue> issues, BulkChangeData bulkChangeData, Map<String, UserDto> userDtoByUuid, UserDto author) {
+    if (!bulkChangeData.sendNotification) {
+      return;
+    }
+    Set<ChangedIssue> changedIssues = issues.stream()
+      .filter(issue -> issue.type() != RuleType.SECURITY_HOTSPOT)
+      // should not happen but filter it out anyway to avoid NPE in oldestUpdateDate call below
+      .filter(issue -> issue.updateDate() != null)
+      .map(issue -> toNotification(bulkChangeData, userDtoByUuid, issue))
+      .filter(Objects::nonNull)
+      .collect(toSet(issues.size()));
+
+    if (changedIssues.isEmpty()) {
+      return;
+    }
+
+    IssuesChangesNotificationBuilder builder = new IssuesChangesNotificationBuilder(
+      changedIssues,
+      new UserChange(oldestUpdateDate(issues), new User(author.getUuid(), author.getLogin(), author.getName())));
+    notificationService.scheduleForSending(notificationSerializer.serialize(builder));
+  }
+
+  @CheckForNull
+  private ChangedIssue toNotification(BulkChangeData bulkChangeData, Map<String, UserDto> userDtoByUuid, DefaultIssue issue) {
+    BranchDto branchDto = bulkChangeData.branchesByProjectUuid.get(issue.projectUuid());
+    if (!hasNotificationSupport(branchDto)) {
+      return null;
+    }
+
+    RuleDefinitionDto ruleDefinitionDto = bulkChangeData.rulesByKey.get(issue.ruleKey());
+    ComponentDto projectDto = bulkChangeData.projectsByUuid.get(issue.projectUuid());
+    if (ruleDefinitionDto == null || projectDto == null) {
+      return null;
+    }
+
+    Optional<UserDto> assignee = Optional.ofNullable(issue.assignee()).map(userDtoByUuid::get);
+    return new ChangedIssue.Builder(issue.key())
+      .setNewStatus(issue.status())
+      .setNewResolution(issue.resolution())
+      .setAssignee(assignee.map(u -> new User(u.getUuid(), u.getLogin(), u.getName())).orElse(null))
+      .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), ruleDefinitionDto.getName()))
+      .setProject(new Project.Builder(projectDto.uuid())
+        .setKey(projectDto.getKey())
+        .setProjectName(projectDto.name())
+        .setBranchName(branchDto.isMain() ? null : branchDto.getKey())
+        .build())
+      .build();
   }
 
   private static boolean hasNotificationSupport(@Nullable BranchDto branch) {
     return branch != null && branch.getBranchType() != BranchType.PULL_REQUEST && branch.getBranchType() != BranchType.SHORT;
+  }
+
+  private static long oldestUpdateDate(Collection<DefaultIssue> issues) {
+    long res = Long.MAX_VALUE;
+    for (DefaultIssue issue : issues) {
+      long issueUpdateDate = issue.updateDate().getTime();
+      if (issueUpdateDate < res) {
+        res = issueUpdateDate;
+      }
+    }
+    return res;
   }
 
   private static Issues.BulkChangeWsResponse toWsResponse(BulkChangeResult result) {

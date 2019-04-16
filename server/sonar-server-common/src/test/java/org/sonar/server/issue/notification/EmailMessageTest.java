@@ -19,16 +19,31 @@
  */
 package org.sonar.server.issue.notification;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.notifications.Notification;
+import org.junit.Test;
 
-@ServerSide
-@ExtensionPoint
-public interface EmailTemplate {
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @CheckForNull
-  EmailMessage format(Notification notification);
+public class EmailMessageTest {
+  private EmailMessage underTest = new EmailMessage();
 
+  @Test
+  public void setHtmlMessage_sets_message_and_html_to_true() {
+    String message = randomAlphabetic(12);
+
+    underTest.setHtmlMessage(message);
+
+    assertThat(underTest.getMessage()).isEqualTo(message);
+    assertThat(underTest.isHtml()).isTrue();
+  }
+
+  @Test
+  public void setPlainTextMessage_sets_message_and_html_to_false() {
+    String message = randomAlphabetic(12);
+
+    underTest.setPlainTextMessage(message);
+
+    assertThat(underTest.getMessage()).isEqualTo(message);
+    assertThat(underTest.isHtml()).isFalse();
+  }
 }

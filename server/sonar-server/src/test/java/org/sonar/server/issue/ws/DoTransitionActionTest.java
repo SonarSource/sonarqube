@@ -46,6 +46,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
@@ -96,9 +97,10 @@ public class DoTransitionActionTest {
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
     new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class),
-    issueChangePostProcessor);
+    issueChangePostProcessor, issuesChangesSerializer);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
@@ -115,7 +117,7 @@ public class DoTransitionActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(USER, project, file);
 
     call(issue.getKey(), "confirm");
 

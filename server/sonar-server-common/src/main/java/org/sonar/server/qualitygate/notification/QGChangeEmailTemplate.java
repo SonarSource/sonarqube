@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.notification;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
@@ -41,6 +42,7 @@ public class QGChangeEmailTemplate implements EmailTemplate {
   }
 
   @Override
+  @CheckForNull
   public EmailMessage format(Notification notification) {
     if (!"alerts".equals(notification.getType())) {
       return null;
@@ -66,7 +68,7 @@ public class QGChangeEmailTemplate implements EmailTemplate {
     return new EmailMessage()
       .setMessageId("alerts/" + projectId)
       .setSubject(subject)
-      .setMessage(messageBody);
+      .setPlainTextMessage(messageBody);
   }
 
   private static String computeFullProjectName(String projectName, @Nullable String branchName) {

@@ -47,6 +47,7 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -94,10 +95,11 @@ public class SetTypeActionTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class),
-      issueChangePostProcessor),
+      issueChangePostProcessor, issuesChangesSerializer),
     responseWriter, system2));
 
   @Test
@@ -207,7 +209,7 @@ public class SetTypeActionTest {
 
   private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {
     ComponentDto project = dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
-    userSession.logIn("john")
+    userSession.logIn(dbTester.users().insertUser("john"))
       .addProjectPermission(ISSUE_ADMIN, project)
       .addProjectPermission(USER, project);
   }

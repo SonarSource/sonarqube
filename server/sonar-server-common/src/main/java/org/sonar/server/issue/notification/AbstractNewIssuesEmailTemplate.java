@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.i18n.I18n;
@@ -71,6 +72,7 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
   }
 
   @Override
+  @CheckForNull
   public EmailMessage format(Notification notification) {
     if (shouldNotFormat(notification)) {
       return null;
@@ -102,7 +104,7 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
     return new EmailMessage()
       .setMessageId(notification.getType() + "/" + notification.getFieldValue(FIELD_PROJECT_KEY))
       .setSubject(subject(notification, computeFullProjectName(projectName, branchName)))
-      .setMessage(message.toString());
+      .setPlainTextMessage(message.toString());
   }
 
   private static String computeFullProjectName(String projectName, @Nullable String branchName) {

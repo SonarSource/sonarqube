@@ -100,6 +100,10 @@ public class EmailSettings {
       .orElse(SERVER_BASE_URL_DEFAULT_VALUE);
   }
 
+  public String getInstanceName() {
+    return config.getBoolean("sonar.sonarcloud.enabled").orElse(false) ? "SonarCloud" : "SonarQube";
+  }
+
   private String get(String key, String defaultValue) {
     return config.get(key).orElse(defaultValue);
   }

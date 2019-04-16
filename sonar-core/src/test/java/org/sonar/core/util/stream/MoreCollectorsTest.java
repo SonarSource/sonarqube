@@ -22,7 +22,8 @@ package org.sonar.core.util.stream;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -48,6 +50,8 @@ import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
+import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
 
 public class MoreCollectorsTest {
 
@@ -57,9 +61,16 @@ public class MoreCollectorsTest {
   private static final MyObj MY_OBJ_1_C = new MyObj(1, "C");
   private static final MyObj MY_OBJ_2_B = new MyObj(2, "B");
   private static final MyObj MY_OBJ_3_C = new MyObj(3, "C");
+  private static final MyObj2 MY_OBJ2_1_A_X = new MyObj2(1, "A", "X");
+  private static final MyObj2 MY_OBJ2_1_C = new MyObj2(1, "C");
+  private static final MyObj2 MY_OBJ2_2_B = new MyObj2(2, "B");
+  private static final MyObj2 MY_OBJ2_3_C = new MyObj2(3, "C");
   private static final List<MyObj> SINGLE_ELEMENT_LIST = Arrays.asList(MY_OBJ_1_A);
+  private static final List<MyObj2> SINGLE_ELEMENT2_LIST = Arrays.asList(MY_OBJ2_1_A_X);
   private static final List<MyObj> LIST_WITH_DUPLICATE_ID = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_1_C);
+  private static final List<MyObj2> LIST2_WITH_DUPLICATE_ID = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_1_C);
   private static final List<MyObj> LIST = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_3_C);
+  private static final List<MyObj2> LIST2 = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_3_C);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -357,6 +368,15 @@ public class MoreCollectorsTest {
   }
 
   @Test
+  public void uniqueIndex_supports_duplicate_keys() {
+    ListMultimap<Integer, String> multimap = LIST_WITH_DUPLICATE_ID.stream().collect(index(MyObj::getId, MyObj::getText));
+
+    assertThat(multimap.keySet()).containsOnly(1, 2);
+    assertThat(multimap.get(1)).containsOnly("A", "C");
+    assertThat(multimap.get(2)).containsOnly("B");
+  }
+
+  @Test
   public void index_empty_stream_returns_empty_map() {
     assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId)).size()).isEqualTo(0);
     assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId, MyObj::getText)).size()).isEqualTo(0);
@@ -409,7 +429,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void index_supports_duplicate_keys() {
-    Multimap<Integer, MyObj> multimap = LIST_WITH_DUPLICATE_ID.stream().collect(index(MyObj::getId));
+    ListMultimap<Integer, MyObj> multimap = LIST_WITH_DUPLICATE_ID.stream().collect(index(MyObj::getId));
 
     assertThat(multimap.keySet()).containsOnly(1, 2);
     assertThat(multimap.get(1)).containsOnly(MY_OBJ_1_A, MY_OBJ_1_C);
@@ -417,17 +437,8 @@ public class MoreCollectorsTest {
   }
 
   @Test
-  public void uniqueIndex_supports_duplicate_keys() {
-    Multimap<Integer, String> multimap = LIST_WITH_DUPLICATE_ID.stream().collect(index(MyObj::getId, MyObj::getText));
-
-    assertThat(multimap.keySet()).containsOnly(1, 2);
-    assertThat(multimap.get(1)).containsOnly("A", "C");
-    assertThat(multimap.get(2)).containsOnly("B");
-  }
-
-  @Test
-  public void index_returns_multimap() {
-    Multimap<Integer, MyObj> multimap = LIST.stream().collect(index(MyObj::getId));
+  public void index_returns_ListMultimap() {
+    ListMultimap<Integer, MyObj> multimap = LIST.stream().collect(index(MyObj::getId));
 
     assertThat(multimap.size()).isEqualTo(3);
     Map<Integer, Collection<MyObj>> map = multimap.asMap();
@@ -437,8 +448,8 @@ public class MoreCollectorsTest {
   }
 
   @Test
-  public void index_with_valueFunction_returns_multimap() {
-    Multimap<Integer, String> multimap = LIST.stream().collect(index(MyObj::getId, MyObj::getText));
+  public void index_with_valueFunction_returns_ListMultimap() {
+    ListMultimap<Integer, String> multimap = LIST.stream().collect(index(MyObj::getId, MyObj::getText));
 
     assertThat(multimap.size()).isEqualTo(3);
     Map<Integer, Collection<String>> map = multimap.asMap();
@@ -449,17 +460,207 @@ public class MoreCollectorsTest {
 
   @Test
   public void index_parallel_stream() {
-    Multimap<String, String> multimap = HUGE_LIST.parallelStream().collect(index(identity()));
+    ListMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(index(identity()));
 
     assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
   }
 
   @Test
   public void index_with_valueFunction_parallel_stream() {
-    Multimap<String, String> multimap = HUGE_LIST.parallelStream().collect(index(identity(), identity()));
+    ListMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(index(identity(), identity()));
 
     assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
   }
+
+  @Test
+  public void unorderedIndex_empty_stream_returns_empty_map() {
+    assertThat(Collections.<MyObj>emptyList().stream().collect(unorderedIndex(MyObj::getId)).size()).isEqualTo(0);
+    assertThat(Collections.<MyObj>emptyList().stream().collect(unorderedIndex(MyObj::getId, MyObj::getText)).size()).isEqualTo(0);
+  }
+
+  @Test
+  public void unorderedIndex_fails_if_key_function_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Key function can't be null");
+
+    unorderedIndex(null);
+  }
+
+  @Test
+  public void unorderedIndex_with_valueFunction_fails_if_key_function_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Key function can't be null");
+
+    unorderedIndex(null, MyObj::getText);
+  }
+
+  @Test
+  public void unorderedIndex_with_valueFunction_fails_if_value_function_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Value function can't be null");
+
+    unorderedIndex(MyObj::getId, null);
+  }
+
+  @Test
+  public void unorderedIndex_fails_if_key_function_returns_null() {
+    expectKeyFunctionCantReturnNullNPE();
+
+    SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(s -> null));
+  }
+
+  @Test
+  public void unorderedIndex_with_valueFunction_fails_if_key_function_returns_null() {
+    expectKeyFunctionCantReturnNullNPE();
+
+    SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(s -> null, MyObj::getText));
+  }
+
+  @Test
+  public void unorderedIndex_with_valueFunction_fails_if_value_function_returns_null() {
+    expectValueFunctionCantReturnNullNPE();
+
+    SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(MyObj::getId, s -> null));
+  }
+
+  @Test
+  public void unorderedIndex_supports_duplicate_keys() {
+    SetMultimap<Integer, MyObj> multimap = LIST_WITH_DUPLICATE_ID.stream().collect(unorderedIndex(MyObj::getId));
+
+    assertThat(multimap.keySet()).containsOnly(1, 2);
+    assertThat(multimap.get(1)).containsOnly(MY_OBJ_1_A, MY_OBJ_1_C);
+    assertThat(multimap.get(2)).containsOnly(MY_OBJ_2_B);
+  }
+
+  @Test
+  public void unorderedIndex_returns_SetMultimap() {
+    SetMultimap<Integer, MyObj> multimap = LIST.stream().collect(unorderedIndex(MyObj::getId));
+
+    assertThat(multimap.size()).isEqualTo(3);
+    Map<Integer, Collection<MyObj>> map = multimap.asMap();
+    assertThat(map.get(1)).containsOnly(MY_OBJ_1_A);
+    assertThat(map.get(2)).containsOnly(MY_OBJ_2_B);
+    assertThat(map.get(3)).containsOnly(MY_OBJ_3_C);
+  }
+
+  @Test
+  public void unorderedIndex_with_valueFunction_returns_SetMultimap() {
+    SetMultimap<Integer, String> multimap = LIST.stream().collect(unorderedIndex(MyObj::getId, MyObj::getText));
+
+    assertThat(multimap.size()).isEqualTo(3);
+    Map<Integer, Collection<String>> map = multimap.asMap();
+    assertThat(map.get(1)).containsOnly("A");
+    assertThat(map.get(2)).containsOnly("B");
+    assertThat(map.get(3)).containsOnly("C");
+  }
+
+  @Test
+  public void unorderedIndex_parallel_stream() {
+    SetMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(unorderedIndex(identity()));
+
+    assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
+  }
+
+  @Test
+  public void unorderedIndex_with_valueFunction_parallel_stream() {
+    SetMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(unorderedIndex(identity(), identity()));
+
+    assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
+  }
+
+
+
+
+
+
+  @Test
+  public void unorderedFlattenIndex_empty_stream_returns_empty_map() {
+    assertThat(Collections.<MyObj2>emptyList().stream()
+      .collect(unorderedFlattenIndex(MyObj2::getId, MyObj2::getTexts))
+      .size()).isEqualTo(0);
+  }
+
+  @Test
+  public void unorderedFlattenIndex_with_valueFunction_fails_if_key_function_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Key function can't be null");
+
+    unorderedFlattenIndex(null, MyObj2::getTexts);
+  }
+
+  @Test
+  public void unorderedFlattenIndex_with_valueFunction_fails_if_value_function_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Value function can't be null");
+
+    unorderedFlattenIndex(MyObj2::getId, null);
+  }
+
+  @Test
+  public void unorderedFlattenIndex_with_valueFunction_fails_if_key_function_returns_null() {
+    expectKeyFunctionCantReturnNullNPE();
+
+    SINGLE_ELEMENT2_LIST.stream().collect(unorderedFlattenIndex(s -> null, MyObj2::getTexts));
+  }
+
+  @Test
+  public void unorderedFlattenIndex_with_valueFunction_fails_if_value_function_returns_null() {
+    expectValueFunctionCantReturnNullNPE();
+
+    SINGLE_ELEMENT2_LIST.stream().collect(unorderedFlattenIndex(MyObj2::getId, s -> null));
+  }
+
+  @Test
+  public void unorderedFlattenIndex_supports_duplicate_keys() {
+    SetMultimap<Integer, String> multimap = LIST2_WITH_DUPLICATE_ID.stream()
+      .collect(unorderedFlattenIndex(MyObj2::getId, MyObj2::getTexts));
+
+    assertThat(multimap.keySet()).containsOnly(1, 2);
+    assertThat(multimap.get(1)).containsOnly("A", "X", "C");
+    assertThat(multimap.get(2)).containsOnly("B");
+  }
+
+  @Test
+  public void unorderedFlattenIndex_with_valueFunction_returns_SetMultimap() {
+    SetMultimap<Integer, String> multimap = LIST2.stream()
+      .collect(unorderedFlattenIndex(MyObj2::getId, MyObj2::getTexts));
+
+    assertThat(multimap.size()).isEqualTo(4);
+    Map<Integer, Collection<String>> map = multimap.asMap();
+    assertThat(map.get(1)).containsOnly("A", "X");
+    assertThat(map.get(2)).containsOnly("B");
+    assertThat(map.get(3)).containsOnly("C");
+  }
+
+  @Test
+  public void unorderedFlattenIndex_with_valueFunction_parallel_stream() {
+    SetMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(unorderedFlattenIndex(identity(), Stream::of));
+
+    assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   @Test
   public void join_on_empty_stream_returns_empty_string() {
@@ -529,6 +730,24 @@ public class MoreCollectorsTest {
 
     public String getText() {
       return text;
+    }
+  }
+
+  private static final class MyObj2 {
+    private final int id;
+    private final List<String> texts;
+
+    public MyObj2(int id, String... texts) {
+      this.id = id;
+      this.texts = Arrays.stream(texts).collect(Collectors.toList());
+    }
+
+    public int getId() {
+      return id;
+    }
+
+    public Stream<String> getTexts() {
+      return texts.stream();
     }
   }
 

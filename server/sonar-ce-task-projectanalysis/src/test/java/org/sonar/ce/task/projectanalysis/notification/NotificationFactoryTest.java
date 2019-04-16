@@ -20,7 +20,13 @@
 package org.sonar.ce.task.projectanalysis.notification;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,36 +35,58 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Durations;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.issue.DumbRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.issue.notification.IssuesChangesNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification.DetailsSupplier;
 import org.sonar.server.issue.notification.NewIssuesNotification.RuleDefinition;
 
 import static java.util.Collections.emptyMap;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
-public class NewIssuesNotificationFactoryTest {
+@RunWith(DataProviderRunner.class)
+public class NotificationFactoryTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
   @Rule
+  public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
+  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private Durations durations = new Durations();
-  private NewIssuesNotificationFactory underTest = new NewIssuesNotificationFactory(treeRootHolder, ruleRepository, durations);
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = mock(IssuesChangesNotificationSerializer.class);
+  private NotificationFactory underTest = new NotificationFactory(treeRootHolder, analysisMetadata, ruleRepository, durations, issuesChangesSerializer);
 
   @Test
   public void newMyNewIssuesNotification_throws_NPE_if_assigneesByUuid_is_null() {
@@ -390,6 +418,375 @@ public class NewIssuesNotificationFactoryTest {
       .contains(new RuleDefinition(rule3.getName(), null));
     assertThat(detailsSupplier.getRuleDefinitionByRuleKey(RuleKey.of("donut", "foo")))
       .isEmpty();
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_ISE_if_analysis_date_has_not_been_set() {
+    Set<DefaultIssue> issues = IntStream.range(0, 1 + new Random().nextInt(2))
+      .mapToObj(i -> new DefaultIssue())
+      .collect(Collectors.toSet());
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Analysis date has not been set");
+
+    underTest.newIssuesChangesNotification(issues, assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_IAE_if_issues_is_empty() {
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("issues can't be empty");
+
+    underTest.newIssuesChangesNotification(Collections.emptySet(), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_NPE_if_issue_has_no_rule() {
+    DefaultIssue issue = new DefaultIssue();
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+
+    expectedException.expect(NullPointerException.class);
+
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_ISE_if_rule_of_issue_does_not_exist_in_repository() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can not find rule " + ruleKey + " in RuleRepository");
+
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_ISE_if_treeRootHolder_is_empty() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ruleRepository.add(ruleKey);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Holder has not been initialized yet");
+
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_ISE_if_branch_has_not_been_set() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ruleRepository.add(ruleKey);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).build());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Branch has not been set");
+
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_NPE_if_issue_has_no_key() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).build());
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(mock(Branch.class));
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("key can't be null");
+
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_NPE_if_issue_has_no_status() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey");
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).build());
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(mock(Branch.class));
+
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("newStatus can't be null");
+
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  @UseDataProvider("noBranchNameBranches")
+  public void newIssuesChangesNotification_creates_project_from_TreeRootHolder_and_branch_name_only_on_long_non_main_branches(Branch branch) {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey")
+      .setStatus(STATUS_OPEN);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(branch);
+    IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
+    when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
+
+    IssuesChangesNotification notification = underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+
+    assertThat(notification).isSameAs(expected);
+
+    IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changeIssue = builder.getIssues().iterator().next();
+    assertThat(changeIssue.getProject().getUuid()).isEqualTo(project.getUuid());
+    assertThat(changeIssue.getProject().getKey()).isEqualTo(project.getKey());
+    assertThat(changeIssue.getProject().getProjectName()).isEqualTo(project.getName());
+    assertThat(changeIssue.getProject().getBranchName()).isEmpty();
+  }
+
+  @DataProvider
+  public static Object[][] noBranchNameBranches() {
+    Branch mainBranch = mock(Branch.class);
+    when(mainBranch.isMain()).thenReturn(true);
+    when(mainBranch.isLegacyFeature()).thenReturn(false);
+    when(mainBranch.getType()).thenReturn(BranchType.LONG);
+    Branch legacyBranch = mock(Branch.class);
+    when(legacyBranch.isLegacyFeature()).thenReturn(true);
+    Branch shortBranch = mock(Branch.class);
+    when(shortBranch.isLegacyFeature()).thenReturn(false);
+    when(shortBranch.isMain()).thenReturn(false);
+    when(shortBranch.getType()).thenReturn(BranchType.SHORT);
+    Branch pr = mock(Branch.class);
+    when(pr.isLegacyFeature()).thenReturn(false);
+    when(pr.isMain()).thenReturn(false);
+    when(pr.getType()).thenReturn(BranchType.PULL_REQUEST);
+    return new Object[][] {
+      {mainBranch},
+      {legacyBranch},
+      {shortBranch},
+      {pr}
+    };
+  }
+
+  @Test
+  public void newIssuesChangesNotification_creates_project_from_TreeRootHolder_and_branch_name_from_long_branch() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey")
+      .setStatus(STATUS_OPEN);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    String branchName = randomAlphabetic(12);
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(newBranch(BranchType.LONG, branchName));
+    IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
+    when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
+
+    IssuesChangesNotification notification = underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+
+    assertThat(notification).isSameAs(expected);
+
+    IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changeIssue = builder.getIssues().iterator().next();
+    assertThat(changeIssue.getProject().getUuid()).isEqualTo(project.getUuid());
+    assertThat(changeIssue.getProject().getKey()).isEqualTo(project.getKey());
+    assertThat(changeIssue.getProject().getProjectName()).isEqualTo(project.getName());
+    assertThat(changeIssue.getProject().getBranchName()).contains(branchName);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_creates_rule_from_RuleRepository() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey")
+      .setStatus(STATUS_OPEN);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    String branchName = randomAlphabetic(12);
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(newBranch(BranchType.LONG, branchName));
+    IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
+    when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
+
+    IssuesChangesNotification notification = underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+
+    assertThat(notification).isSameAs(expected);
+    IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changeIssue = builder.getIssues().iterator().next();
+    assertThat(changeIssue.getRule().getKey()).isEqualTo(ruleKey);
+    assertThat(changeIssue.getRule().getName()).isEqualTo(ruleRepository.getByKey(ruleKey).getName());
+  }
+
+  @Test
+  public void newIssuesChangesNotification_fails_with_ISE_if_issue_has_assignee_not_in_assigneesByUuid() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    String assigneeUuid = randomAlphabetic(40);
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey")
+      .setStatus(STATUS_OPEN)
+      .setAssigneeUuid(assigneeUuid);
+    Map<String, UserDto> assigneesByUuid = Collections.emptyMap();
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can not find DTO for assignee uuid " + assigneeUuid);
+    
+    underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_creates_assignee_from_UserDto() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    String assigneeUuid = randomAlphabetic(40);
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey")
+      .setStatus(STATUS_OPEN)
+      .setAssigneeUuid(assigneeUuid);
+    UserDto userDto = UserTesting.newUserDto();
+    Map<String, UserDto> assigneesByUuid = ImmutableMap.of(assigneeUuid, userDto);
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(new Random().nextLong());
+    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
+    when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
+
+    IssuesChangesNotification notification = underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+
+    assertThat(notification).isSameAs(expected);
+    IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changeIssue = builder.getIssues().iterator().next();
+    assertThat(changeIssue.getAssignee()).isPresent();
+    IssuesChangesNotificationBuilder.User assignee = changeIssue.getAssignee().get();
+    assertThat(assignee.getUuid()).isEqualTo(userDto.getUuid());
+    assertThat(assignee.getName()).contains(userDto.getName());
+    assertThat(assignee.getLogin()).isEqualTo(userDto.getLogin());
+  }
+
+  @Test
+  public void newIssuesChangesNotification_creates_AnalysisChange_with_analysis_date() {
+    RuleKey ruleKey = RuleKey.of("foo", "bar");
+    DefaultIssue issue = new DefaultIssue()
+      .setRuleKey(ruleKey)
+      .setKey("issueKey")
+      .setStatus(STATUS_OPEN);
+    Map<String, UserDto> assigneesByUuid = nonEmptyAssigneesByUuid();
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    long analysisDate = new Random().nextLong();
+    ruleRepository.add(ruleKey);
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(analysisDate);
+    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
+    when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
+
+    IssuesChangesNotification notification = underTest.newIssuesChangesNotification(ImmutableSet.of(issue), assigneesByUuid);
+
+    assertThat(notification).isSameAs(expected);
+    IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
+    assertThat(builder.getIssues()).hasSize(1);
+    assertThat(builder.getChange())
+      .isInstanceOf(AnalysisChange.class)
+      .extracting(IssuesChangesNotificationBuilder.Change::getDate)
+      .containsOnly(analysisDate);
+  }
+
+  @Test
+  public void newIssuesChangesNotification_maps_all_issues() {
+    Set<DefaultIssue> issues = IntStream.range(0, 3 + new Random().nextInt(5))
+      .mapToObj(i -> new DefaultIssue()
+        .setRuleKey(RuleKey.of("repo_" + i, "rule_" + i))
+        .setKey("issue_key_" + i)
+        .setStatus("status_" + i))
+      .collect(Collectors.toSet());
+    ReportComponent project = ReportComponent.builder(PROJECT, 1).build();
+    long analysisDate = new Random().nextLong();
+    issues.stream()
+      .map(DefaultIssue::ruleKey)
+      .forEach(ruleKey -> ruleRepository.add(ruleKey));
+    treeRootHolder.setRoot(project);
+    analysisMetadata.setAnalysisDate(analysisDate);
+    analysisMetadata.setBranch(newBranch(BranchType.LONG, randomAlphabetic(12)));
+    IssuesChangesNotification expected = mock(IssuesChangesNotification.class);
+    when(issuesChangesSerializer.serialize(any(IssuesChangesNotificationBuilder.class))).thenReturn(expected);
+
+    IssuesChangesNotification notification = underTest.newIssuesChangesNotification(issues, emptyMap());
+
+    assertThat(notification).isSameAs(expected);
+    IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
+    assertThat(builder.getIssues()).hasSize(issues.size());
+    Map<String, ChangedIssue> changedIssuesByKey = builder.getIssues().stream()
+      .collect(uniqueIndex(ChangedIssue::getKey));
+    issues.forEach(
+      issue -> {
+        ChangedIssue changedIssue = changedIssuesByKey.get(issue.key());
+        assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
+        assertThat(changedIssue.getNewResolution()).isEmpty();
+        assertThat(changedIssue.getAssignee()).isEmpty();
+        assertThat(changedIssue.getRule().getKey()).isEqualTo(issue.ruleKey());
+        assertThat(changedIssue.getRule().getName()).isEqualTo(ruleRepository.getByKey(issue.ruleKey()).getName());
+      }
+    );
+  }
+
+  private static Map<String, UserDto> nonEmptyAssigneesByUuid() {
+    return IntStream.range(0, 1 + new Random().nextInt(3))
+      .boxed()
+      .collect(uniqueIndex(i -> "uuid_" + i, i -> new UserDto()));
+  }
+
+  private IssuesChangesNotificationBuilder verifyAndCaptureIssueChangeNotificationBuilder() {
+    ArgumentCaptor<IssuesChangesNotificationBuilder> builderCaptor = ArgumentCaptor.forClass(IssuesChangesNotificationBuilder.class);
+    verify(issuesChangesSerializer).serialize(builderCaptor.capture());
+    verifyNoMoreInteractions(issuesChangesSerializer);
+
+    return builderCaptor.getValue();
+  }
+
+  private static Branch newBranch(BranchType branchType, String branchName) {
+    Branch longBranch = mock(Branch.class);
+    when(longBranch.isLegacyFeature()).thenReturn(false);
+    when(longBranch.isMain()).thenReturn(false);
+    when(longBranch.getType()).thenReturn(branchType);
+    when(longBranch.getName()).thenReturn(branchName);
+    return longBranch;
   }
 
   private static Durations readDurationsField(NewIssuesNotification notification) {

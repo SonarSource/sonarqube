@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Comparator;
 import java.util.Date;
+import javax.annotation.CheckForNull;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
 import org.sonar.server.issue.notification.EmailMessage;
@@ -42,6 +43,7 @@ public class BuiltInQPChangeNotificationTemplate implements EmailTemplate {
   }
 
   @Override
+  @CheckForNull
   public EmailMessage format(Notification notification) {
     if (!BuiltInQPChangeNotification.TYPE.equals(notification.getType())) {
       return null;
@@ -94,7 +96,7 @@ public class BuiltInQPChangeNotificationTemplate implements EmailTemplate {
     return new EmailMessage()
       .setMessageId(BuiltInQPChangeNotification.TYPE)
       .setSubject("Built-in quality profiles have been updated")
-      .setMessage(message.toString());
+      .setPlainTextMessage(message.toString());
   }
 
   private static String plural(int count) {

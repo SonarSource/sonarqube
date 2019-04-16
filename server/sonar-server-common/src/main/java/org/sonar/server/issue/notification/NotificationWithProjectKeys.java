@@ -19,16 +19,29 @@
  */
 package org.sonar.server.issue.notification;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.notifications.Notification;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Change;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 
-@ServerSide
-@ExtensionPoint
-public interface EmailTemplate {
+final class NotificationWithProjectKeys {
+  private final IssuesChangesNotificationBuilder builder;
+  private final Set<String> projectKeys;
 
-  @CheckForNull
-  EmailMessage format(Notification notification);
+  protected NotificationWithProjectKeys(IssuesChangesNotificationBuilder builder) {
+    this.builder = builder;
+    this.projectKeys = builder.getIssues().stream().map(t -> t.getProject().getKey()).collect(Collectors.toSet());
+  }
 
+  public Set<ChangedIssue> getIssues() {
+    return builder.getIssues();
+  }
+
+  public Change getChange() {
+    return builder.getChange();
+  }
+
+  public Set<String> getProjectKeys() {
+    return projectKeys;
+  }
 }

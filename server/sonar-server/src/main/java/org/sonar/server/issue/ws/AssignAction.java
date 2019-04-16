@@ -116,7 +116,7 @@ public class AssignAction implements IssuesWsAction {
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
       if (issueFieldsSetter.assign(issue, user, context)) {
-        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, null, false);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, false);
       }
       return new SearchResponseData(issueDto);
     }

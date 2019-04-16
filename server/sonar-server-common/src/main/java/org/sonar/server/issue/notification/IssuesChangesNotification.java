@@ -19,16 +19,14 @@
  */
 package org.sonar.server.issue.notification;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.notifications.Notification;
 
-@ServerSide
-@ExtensionPoint
-public interface EmailTemplate {
+public class IssuesChangesNotification extends Notification {
 
-  @CheckForNull
-  EmailMessage format(Notification notification);
+  public static final String TYPE = "issues-changes";
+
+  public IssuesChangesNotification() {
+    super(TYPE);
+  }
 
 }

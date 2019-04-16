@@ -22,7 +22,7 @@ package org.sonar.server.notification.ws;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
+import org.sonar.server.issue.notification.FPOrWontFixNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationCenter;
@@ -45,7 +45,7 @@ public class DispatchersImplTest {
       NotificationDispatcherMetadata.create(QGChangeNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
-      NotificationDispatcherMetadata.create(DoNotFixNotificationHandler.KEY)
+      NotificationDispatcherMetadata.create(FPOrWontFixNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "false")
         .setProperty(PER_PROJECT_NOTIFICATION, "true")
     },
@@ -77,7 +77,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsExactly(
-      QGChangeNotificationHandler.KEY, DoNotFixNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
+      QGChangeNotificationHandler.KEY, FPOrWontFixNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
   @Test
@@ -87,6 +87,6 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsOnly(
-      MyNewIssuesNotificationHandler.KEY, QGChangeNotificationHandler.KEY, DoNotFixNotificationHandler.KEY);
+      MyNewIssuesNotificationHandler.KEY, QGChangeNotificationHandler.KEY, FPOrWontFixNotificationHandler.KEY);
   }
 }

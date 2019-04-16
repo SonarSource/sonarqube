@@ -19,14 +19,18 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
@@ -35,6 +39,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -45,8 +51,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.issue.IssueCache;
-import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryRule;
-import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
+import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -57,7 +62,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.DistributedMetricStatsInt;
-import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
@@ -67,6 +72,7 @@ import org.sonar.server.project.Project;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -75,6 +81,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -121,8 +129,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     .setBranch(new DefaultBranchImpl())
     .setAnalysisDate(new Date(ANALYSE_DATE));
   @Rule
-  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
-  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -132,9 +138,15 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private final RuleType randomRuleType = RULE_TYPES_EXCEPT_HOTSPOTS[random.nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)];
   @SuppressWarnings("unchecked")
   private Class<Map<String, UserDto>> assigneeCacheType = (Class<Map<String, UserDto>>) (Object) Map.class;
+  @SuppressWarnings("unchecked")
+  private Class<Set<DefaultIssue>> setType = (Class<Set<DefaultIssue>>) (Class<?>) Set.class;
+  @SuppressWarnings("unchecked")
+  private Class<Map<String, UserDto>> mapType = (Class<Map<String, UserDto>>) (Class<?>) Map.class;
   private ArgumentCaptor<Map<String, UserDto>> assigneeCacheCaptor = ArgumentCaptor.forClass(assigneeCacheType);
+  private ArgumentCaptor<Set<DefaultIssue>> issuesSetCaptor = forClass(setType);
+  private ArgumentCaptor<Map<String, UserDto>> assigneeByUuidCaptor = forClass(mapType);
   private NotificationService notificationService = mock(NotificationService.class);
-  private NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class);
+  private NotificationFactory notificationFactory = mock(NotificationFactory.class);
   private NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();
   private MyNewIssuesNotification myNewIssuesNotificationMock = createMyNewIssuesNotificationMock();
 
@@ -144,10 +156,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder,
-      newIssuesNotificationFactory, db.getDbClient());
-    when(newIssuesNotificationFactory.newNewIssuesNotification(any(assigneeCacheType))).thenReturn(newIssuesNotificationMock);
-    when(newIssuesNotificationFactory.newMyNewIssuesNotification(any(assigneeCacheType))).thenReturn(myNewIssuesNotificationMock);
+    underTest = new SendIssueNotificationsStep(issueCache, treeRootHolder, notificationService, analysisMetadataHolder,
+      notificationFactory, db.getDbClient());
+    when(notificationFactory.newNewIssuesNotification(any(assigneeCacheType))).thenReturn(newIssuesNotificationMock);
+    when(notificationFactory.newMyNewIssuesNotification(any(assigneeCacheType))).thenReturn(myNewIssuesNotificationMock);
   }
 
   @Test
@@ -360,19 +372,19 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
-    NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class);
+    NotificationFactory notificationFactory = mock(NotificationFactory.class);
     NewIssuesNotification newIssuesNotificationMock = createNewIssuesNotificationMock();
-    when(newIssuesNotificationFactory.newNewIssuesNotification(assigneeCacheCaptor.capture()))
+    when(notificationFactory.newNewIssuesNotification(assigneeCacheCaptor.capture()))
       .thenReturn(newIssuesNotificationMock);
 
     MyNewIssuesNotification myNewIssuesNotificationMock1 = createMyNewIssuesNotificationMock();
     MyNewIssuesNotification myNewIssuesNotificationMock2 = createMyNewIssuesNotificationMock();
-    when(newIssuesNotificationFactory.newMyNewIssuesNotification(any(assigneeCacheType)))
+    when(notificationFactory.newMyNewIssuesNotification(any(assigneeCacheType)))
       .thenReturn(myNewIssuesNotificationMock1)
       .thenReturn(myNewIssuesNotificationMock2);
 
     TestComputationStepContext context = new TestComputationStepContext();
-    new SendIssueNotificationsStep(issueCache, ruleRepository, treeRootHolder, notificationService, analysisMetadataHolder, newIssuesNotificationFactory, db.getDbClient())
+    new SendIssueNotificationsStep(issueCache, treeRootHolder, notificationService, analysisMetadataHolder, notificationFactory, db.getDbClient())
       .execute(context);
 
     verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock1, myNewIssuesNotificationMock2));
@@ -380,9 +392,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verify(notificationService).deliver(myNewIssuesNotificationMock1);
     verify(notificationService).deliver(myNewIssuesNotificationMock2);
 
-    verify(newIssuesNotificationFactory).newNewIssuesNotification(assigneeCacheCaptor.capture());
-    verify(newIssuesNotificationFactory, times(2)).newMyNewIssuesNotification(assigneeCacheCaptor.capture());
-    verifyNoMoreInteractions(newIssuesNotificationFactory);
+    verify(notificationFactory).newNewIssuesNotification(assigneeCacheCaptor.capture());
+    verify(notificationFactory, times(2)).newMyNewIssuesNotification(assigneeCacheCaptor.capture());
+    verifyNoMoreInteractions(notificationFactory);
     verifyAssigneeCache(assigneeCacheCaptor, perceval, arthur);
 
     Map<String, MyNewIssuesNotification> myNewIssuesNotificationMocksByUsersName = new HashMap<>();
@@ -439,10 +451,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     // old API compatibility
     verify(notificationService).deliver(myNewIssuesNotificationMock);
 
-
-    verify(newIssuesNotificationFactory).newNewIssuesNotification(assigneeCacheCaptor.capture());
-    verify(newIssuesNotificationFactory).newMyNewIssuesNotification(assigneeCacheCaptor.capture());
-    verifyNoMoreInteractions(newIssuesNotificationFactory);
+    verify(notificationFactory).newNewIssuesNotification(assigneeCacheCaptor.capture());
+    verify(notificationFactory).newMyNewIssuesNotification(assigneeCacheCaptor.capture());
+    verifyNoMoreInteractions(notificationFactory);
     verifyAssigneeCache(assigneeCacheCaptor, user);
 
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
@@ -499,7 +510,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
-    DefaultIssue issue = prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
+    prepareIssue(ANALYSE_DATE, user, project, file, ruleDefinitionDto, RuleType.SECURITY_HOTSPOT);
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
     when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
 
@@ -521,29 +532,33 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     analysisMetadataHolder.setProject(Project.from(project));
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
+    treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(project.getDbKey()).setPublicKey(project.getKey()).setName(project.longName()).setUuid(project.uuid())
+      .addChildren(
+        builder(Type.FILE, 11).setKey(file.getDbKey()).setPublicKey(file.getKey()).setName(file.longName()).build())
+      .build());
     RuleDefinitionDto ruleDefinitionDto = newRule();
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = prepareIssue(issueCreatedAt, user, project, file, ruleDefinitionDto, randomTypeExceptHotspot);
+    IssuesChangesNotification issuesChangesNotification = mock(IssuesChangesNotification.class);
+    when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
+    when(notificationFactory.newIssuesChangesNotification(anySet(), anyMap())).thenReturn(issuesChangesNotification);
 
     underTest.execute(new TestComputationStepContext());
 
-    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = forClass(IssueChangeNotification.class);
-    verify(notificationService).deliver(issueChangeNotificationCaptor.capture());
-    IssueChangeNotification issueChangeNotification = issueChangeNotificationCaptor.getValue();
-    assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
-    assertThat(issueChangeNotification.getFieldValue("message")).isEqualTo(issue.message());
-    assertThat(issueChangeNotification.getFieldValue("ruleName")).isEqualTo(ruleDefinitionDto.getName());
-    assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(project.longName());
-    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.getKey());
-    assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getKey());
-    assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
-    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(user.getLogin());
+    verify(notificationFactory).newIssuesChangesNotification(issuesSetCaptor.capture(), assigneeByUuidCaptor.capture());
+    assertThat(issuesSetCaptor.getValue()).hasSize(1);
+    assertThat(issuesSetCaptor.getValue().iterator().next()).isEqualTo(issue);
+    assertThat(assigneeByUuidCaptor.getValue()).hasSize(1);
+    assertThat(assigneeByUuidCaptor.getValue().get(user.getUuid())).isNotNull();
+    verify(notificationService).hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES);
+    verify(notificationService).deliverEmails(singleton(issuesChangesNotification));
+    verify(notificationService).deliver(issuesChangesNotification);
+    verifyNoMoreInteractions(notificationService);
   }
 
   private DefaultIssue prepareIssue(long issueCreatedAt, UserDto user, ComponentDto project, ComponentDto file, RuleDefinitionDto ruleDefinitionDto, RuleType type) {
     DefaultIssue issue = newIssue(ruleDefinitionDto, project, file).setType(type).toDefaultIssue()
       .setNew(false).setChanged(true).setSendNotifications(true).setCreationDate(new Date(issueCreatedAt)).setAssigneeUuid(user.getUuid());
-    ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
     issueCache.newAppender().append(issue).close();
     when(notificationService.hasProjectSubscribersForTypes(project.projectUuid(), NOTIF_TYPES)).thenReturn(true);
     return issue;
@@ -573,48 +588,85 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
       .setChanged(true)
       .setSendNotifications(true)
       .setCreationDate(new Date(issueCreatedAt));
-    ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
     issueCache.newAppender().append(issue).close();
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
+    IssuesChangesNotification issuesChangesNotification = mock(IssuesChangesNotification.class);
+    when(notificationFactory.newIssuesChangesNotification(anySet(), anyMap())).thenReturn(issuesChangesNotification);
     analysisMetadataHolder.setBranch(newBranch(BranchType.LONG));
 
     underTest.execute(new TestComputationStepContext());
 
-    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = forClass(IssueChangeNotification.class);
-    verify(notificationService).deliver(issueChangeNotificationCaptor.capture());
-    IssueChangeNotification issueChangeNotification = issueChangeNotificationCaptor.getValue();
-    assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(branch.longName());
-    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(branch.getKey());
-    assertThat(issueChangeNotification.getFieldValue("branch")).isEqualTo(BRANCH_NAME);
-    assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getKey());
-    assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
+    verify(notificationFactory).newIssuesChangesNotification(issuesSetCaptor.capture(), assigneeByUuidCaptor.capture());
+    assertThat(issuesSetCaptor.getValue()).hasSize(1);
+    assertThat(issuesSetCaptor.getValue().iterator().next()).isEqualTo(issue);
+    assertThat(assigneeByUuidCaptor.getValue()).isEmpty();
+    verify(notificationService).hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES);
+    verify(notificationService).deliverEmails(singleton(issuesChangesNotification));
+    verify(notificationService).deliver(issuesChangesNotification);
+    verifyNoMoreInteractions(notificationService);
   }
 
   @Test
-  public void send_issue_change_notification_in_bulks_of_1000() {
+  public void sends_one_issue_change_notification_every_1000_issues() {
     UserDto user = db.users().insertUser();
     ComponentDto project = newPrivateProjectDto(newOrganizationDto()).setDbKey(PROJECT.getDbKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setDbKey(FILE.getDbKey()).setLongName(FILE.getName());
     RuleDefinitionDto ruleDefinitionDto = newRule();
-    ruleRepository.add(ruleDefinitionDto.getKey()).setName(ruleDefinitionDto.getName());
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
-    List<DefaultIssue> issues = IntStream.range(0, 1001 + new Random().nextInt(10))
-      .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setType(randomTypeExceptHotspot).toDefaultIssue()
+    List<DefaultIssue> issues = IntStream.range(0, 2001 + new Random().nextInt(10))
+      .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setKee("uuid_" + i).setType(randomTypeExceptHotspot).toDefaultIssue()
         .setNew(false).setChanged(true).setSendNotifications(true).setAssigneeUuid(user.getUuid()))
       .collect(toList());
     DiskCache<DefaultIssue>.DiskAppender diskAppender = issueCache.newAppender();
     issues.forEach(diskAppender::append);
     diskAppender.close();
     analysisMetadataHolder.setProject(Project.from(project));
+    NewIssuesFactoryCaptor newIssuesFactoryCaptor = new NewIssuesFactoryCaptor(() -> mock(IssuesChangesNotification.class));
+    when(notificationFactory.newIssuesChangesNotification(anySet(), anyMap())).thenAnswer(newIssuesFactoryCaptor);
+    when(notificationService.hasProjectSubscribersForTypes(PROJECT.getUuid(), NOTIF_TYPES)).thenReturn(true);
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
 
     underTest.execute(new TestComputationStepContext());
 
+    verify(notificationFactory, times(3)).newIssuesChangesNotification(anySet(), anyMap());
+    assertThat(newIssuesFactoryCaptor.issuesSetCaptor).hasSize(3);
+    assertThat(newIssuesFactoryCaptor.issuesSetCaptor.get(0)).hasSize(1000);
+    assertThat(newIssuesFactoryCaptor.issuesSetCaptor.get(1)).hasSize(1000);
+    assertThat(newIssuesFactoryCaptor.issuesSetCaptor.get(2)).hasSize(issues.size() - 2000);
+    assertThat(newIssuesFactoryCaptor.assigneeCacheCaptor).hasSize(3);
+    assertThat(newIssuesFactoryCaptor.assigneeCacheCaptor).containsOnly(newIssuesFactoryCaptor.assigneeCacheCaptor.iterator().next());
     ArgumentCaptor<Collection> collectionCaptor = forClass(Collection.class);
-    verify(notificationService, times(2)).deliverEmails(collectionCaptor.capture());
-    verify(notificationService, times(issues.size())).deliver(any(IssueChangeNotification.class));
-    assertThat(collectionCaptor.getAllValues().get(0)).hasSize(1000);
-    assertThat(collectionCaptor.getAllValues().get(1)).hasSize(issues.size() - 1000);
+    verify(notificationService, times(3)).deliverEmails(collectionCaptor.capture());
+    assertThat(collectionCaptor.getAllValues()).hasSize(3);
+    assertThat(collectionCaptor.getAllValues().get(0)).hasSize(1);
+    assertThat(collectionCaptor.getAllValues().get(1)).hasSize(1);
+    assertThat(collectionCaptor.getAllValues().get(2)).hasSize(1);
+    verify(notificationService, times(3)).deliver(any(IssuesChangesNotification.class));
+  }
+
+  /**
+   * Since the very same Set object is passed to {@link NotificationFactory#newIssuesChangesNotification(Set, Map)} and
+   * reset between each call. We must make a copy of each argument to capture what's been passed to the factory.
+   * This is of course not supported by Mockito's {@link ArgumentCaptor} and we implement this ourselves with a
+   * {@link Answer}.
+   */
+  private static class NewIssuesFactoryCaptor implements Answer<Object> {
+    private final Supplier<IssuesChangesNotification> delegate;
+    private final List<Set<DefaultIssue>> issuesSetCaptor = new ArrayList<>();
+    private final List<Map<String, UserDto>> assigneeCacheCaptor = new ArrayList<>();
+
+    private NewIssuesFactoryCaptor(Supplier<IssuesChangesNotification> delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public Object answer(InvocationOnMock t) {
+      Set<DefaultIssue> issuesSet = t.getArgument(0);
+      Map<String, UserDto> assigneeCatch = t.getArgument(1);
+      issuesSetCaptor.add(ImmutableSet.copyOf(issuesSet));
+      assigneeCacheCaptor.add(ImmutableMap.copyOf(assigneeCatch));
+      return delegate.get();
+    }
   }
 
   private NewIssuesNotification createNewIssuesNotificationMock() {

@@ -46,6 +46,7 @@ public class DumbRule implements Rule {
   public DumbRule(RuleKey key) {
     this.key = key;
     this.id = key.hashCode();
+    this.name = "name_" + key;
   }
 
   @Override

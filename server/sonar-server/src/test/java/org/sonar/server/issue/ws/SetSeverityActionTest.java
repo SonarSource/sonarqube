@@ -37,6 +37,7 @@ import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -47,6 +48,7 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -91,9 +93,10 @@ public class SetSeverityActionTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer =  new IssuesChangesNotificationSerializer();
   private WsActionTester tester = new WsActionTester(new SetSeverityAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class), issueChangePostProcessor),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
     responseWriter));
 
   @Test
@@ -187,12 +190,15 @@ public class SetSeverityActionTest {
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
-    userSession.logIn("john").addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
+    UserDto user = dbTester.users().insertUser("john");
+    userSession.logIn(user)
+      .addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {
     ComponentDto project = dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
-    userSession.logIn("john")
+    UserDto user = dbTester.users().insertUser("john");
+    userSession.logIn(user)
       .addProjectPermission(ISSUE_ADMIN, project)
       .addProjectPermission(USER, project);
   }

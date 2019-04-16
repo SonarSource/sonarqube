@@ -19,16 +19,17 @@
  */
 package org.sonar.server.issue.notification;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.notifications.Notification;
+import org.junit.Test;
 
-@ServerSide
-@ExtensionPoint
-public interface EmailTemplate {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @CheckForNull
-  EmailMessage format(Notification notification);
+public class IssuesChangesNotificationTest {
+
+  private IssuesChangesNotification notification = new IssuesChangesNotification();
+
+  @Test
+  public void verify_type() {
+    assertThat(notification.getType()).isEqualTo("issues-changes");
+  }
 
 }

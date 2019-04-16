@@ -39,6 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -49,6 +50,7 @@ import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -88,10 +90,12 @@ public class SetTagsActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
 
   private WsActionTester ws = new WsActionTester(new SetTagsAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class), issueChangePostProcessor),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class),
+      issueChangePostProcessor, issuesChangesSerializer),
     responseWriter));
 
   @Test
@@ -243,13 +247,17 @@ public class SetTagsActionTest {
   }
 
   private void logIn(IssueDto issueDto) {
-    userSession.logIn("john").registerComponents(
-      dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get(),
-      dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getComponentUuid()).get());
+    UserDto user = db.users().insertUser("john");
+    userSession.logIn(user)
+      .registerComponents(
+        dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get(),
+        dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getComponentUuid()).get());
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
-    userSession.logIn("john").addProjectPermission(permission, dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
+    UserDto user = db.users().insertUser("john");
+    userSession.logIn(user)
+      .addProjectPermission(permission, dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
   }
 
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {

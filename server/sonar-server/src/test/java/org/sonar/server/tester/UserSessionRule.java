@@ -375,5 +375,4 @@ public class UserSessionRule implements TestRule, UserSession {
     ensureAbstractMockUserSession().addOrganizationMembership(organization);
     return this;
   }
-
 }

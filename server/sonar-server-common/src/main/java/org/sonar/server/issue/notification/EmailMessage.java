@@ -23,11 +23,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class EmailMessage {
 
-  private String from;
-  private String to;
-  private String subject;
-  private String message;
-  private String messageId;
+  private String from = null;
+  private String to = null;
+  private String subject = null;
+  private String message = null;
+  private boolean html = false;
+  private String messageId = null;
 
   /**
    * @param from full name of user, who initiated this message or null, if message was initiated by Sonar
@@ -77,13 +78,25 @@ public class EmailMessage {
   /**
    * @param message message body
    */
-  public EmailMessage setMessage(String message) {
+  public EmailMessage setPlainTextMessage(String message) {
     this.message = message;
+    this.html = false;
     return this;
   }
 
   /**
-   * @see #setMessage(String)
+   * @param message HTML message body
+   */
+  public EmailMessage setHtmlMessage(String message) {
+    this.message = message;
+    this.html = true;
+    return this;
+  }
+
+  /**
+   * Either plain text or HTML.
+   * @see #setPlainTextMessage(String) (String)
+   * @see #setHtmlMessage(String) (String) (String)
    */
   public String getMessage() {
     return message;
@@ -102,6 +115,10 @@ public class EmailMessage {
    */
   public String getMessageId() {
     return messageId;
+  }
+
+  public boolean isHtml() {
+    return html;
   }
 
   @Override

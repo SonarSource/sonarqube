@@ -79,9 +79,7 @@ import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationHandler;
-import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
-import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
+import org.sonar.server.issue.notification.IssuesChangesNotificationModule;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
@@ -151,10 +149,10 @@ import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
-import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
-import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationHandler;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationTemplate;
+import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
+import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
@@ -408,15 +406,11 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueWsModule.class,
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
-      IssueChangesEmailTemplate.class,
-      ChangesOnMyIssueNotificationHandler.class,
-      ChangesOnMyIssueNotificationHandler.newMetadata(),
+      IssuesChangesNotificationModule.class,
       NewIssuesNotificationHandler.class,
       NewIssuesNotificationHandler.newMetadata(),
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
-      DoNotFixNotificationHandler.class,
-      DoNotFixNotificationHandler.newMetadata(),
 
       // Security reports
       SecurityReportsWsModule.class,

@@ -139,7 +139,7 @@ public class EmailNotificationChannelTest {
     EmailMessage emailMessage = new EmailMessage()
       .setTo("user@nowhere")
       .setSubject("Foo")
-      .setMessage("Bar");
+      .setPlainTextMessage("Bar");
     boolean delivered = underTest.deliver(emailMessage);
     assertThat(smtpServer.getMessages()).isEmpty();
     assertThat(delivered).isFalse();
@@ -153,7 +153,7 @@ public class EmailNotificationChannelTest {
       .setFrom("Full Username")
       .setTo("user@nowhere")
       .setSubject("Review #3")
-      .setMessage("I'll take care of this violation.");
+      .setPlainTextMessage("I'll take care of this violation.");
     boolean delivered = underTest.deliver(emailMessage);
 
     List<WiserMessage> messages = smtpServer.getMessages();
@@ -182,7 +182,7 @@ public class EmailNotificationChannelTest {
     EmailMessage emailMessage = new EmailMessage()
       .setTo("user@nowhere")
       .setSubject("Foo")
-      .setMessage("Bar");
+      .setPlainTextMessage("Bar");
     boolean delivered = underTest.deliver(emailMessage);
 
     List<WiserMessage> messages = smtpServer.getMessages();
@@ -213,7 +213,7 @@ public class EmailNotificationChannelTest {
     EmailMessage emailMessage = new EmailMessage()
       .setTo("user@nowhere")
       .setSubject("Foo")
-      .setMessage("Bar");
+      .setPlainTextMessage("Bar");
     boolean delivered = underTest.deliver(emailMessage);
 
     assertThat(delivered).isFalse();
@@ -291,8 +291,8 @@ public class EmailNotificationChannelTest {
     Notification notification3 = mock(Notification.class);
     EmailTemplate template1 = mock(EmailTemplate.class);
     EmailTemplate template3 = mock(EmailTemplate.class);
-    EmailMessage emailMessage1 = new EmailMessage().setTo(recipientEmail).setSubject("sub11").setMessage("msg11");
-    EmailMessage emailMessage3 = new EmailMessage().setTo(recipientEmail).setSubject("sub3").setMessage("msg3");
+    EmailMessage emailMessage1 = new EmailMessage().setTo(recipientEmail).setSubject("sub11").setPlainTextMessage("msg11");
+    EmailMessage emailMessage3 = new EmailMessage().setTo(recipientEmail).setSubject("sub3").setPlainTextMessage("msg3");
     when(template1.format(notification1)).thenReturn(emailMessage1);
     when(template3.format(notification3)).thenReturn(emailMessage3);
     Set<EmailDeliveryRequest> requests = Stream.of(notification1, notification2, notification3)
@@ -333,8 +333,8 @@ public class EmailNotificationChannelTest {
     Notification notification1 = mock(Notification.class);
     EmailTemplate template11 = mock(EmailTemplate.class);
     EmailTemplate template12 = mock(EmailTemplate.class);
-    EmailMessage emailMessage11 = new EmailMessage().setTo(recipientEmail).setSubject("sub11").setMessage("msg11");
-    EmailMessage emailMessage12 = new EmailMessage().setTo(recipientEmail).setSubject("sub12").setMessage("msg12");
+    EmailMessage emailMessage11 = new EmailMessage().setTo(recipientEmail).setSubject("sub11").setPlainTextMessage("msg11");
+    EmailMessage emailMessage12 = new EmailMessage().setTo(recipientEmail).setSubject("sub12").setPlainTextMessage("msg12");
     when(template11.format(notification1)).thenReturn(emailMessage11);
     when(template12.format(notification1)).thenReturn(emailMessage12);
     EmailDeliveryRequest request = new EmailDeliveryRequest(recipientEmail, notification1);

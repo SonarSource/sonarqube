@@ -36,6 +36,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -47,6 +48,7 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -94,7 +96,7 @@ public class AddCommentActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private WebIssueStorage serverIssueStorage = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
-  private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor);
+  private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor, new IssuesChangesNotificationSerializer());
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
@@ -210,7 +212,9 @@ public class AddCommentActionTest {
   }
 
   private void loginWithBrowsePermission(IssueDto issueDto, String permission) {
-    userSession.logIn("john").addProjectPermission(permission,
+    UserDto user = dbTester.users().insertUser("john");
+    userSession.logIn(user)
+      .addProjectPermission(permission,
       dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
       dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
   }

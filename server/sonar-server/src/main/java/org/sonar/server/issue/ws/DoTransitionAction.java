@@ -104,7 +104,7 @@ public class DoTransitionAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null, true);
+      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, true);
     }
     return new SearchResponseData(issueDto);
   }

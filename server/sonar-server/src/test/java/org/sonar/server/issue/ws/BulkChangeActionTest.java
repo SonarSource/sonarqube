@@ -51,7 +51,11 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
@@ -77,6 +81,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
@@ -87,6 +92,10 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectBranchOf;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectOf;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.ruleOf;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.userOf;
 
 public class BulkChangeActionTest {
 
@@ -112,9 +121,12 @@ public class BulkChangeActionTest {
     new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient)));
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
+  private ArgumentCaptor<IssuesChangesNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssuesChangesNotification.class);
   private List<Action> actions = new ArrayList<>();
 
-  private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions, issueChangePostProcessor));
+  private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions,
+    issueChangePostProcessor, issuesChangesSerializer));
 
   @Before
   public void setUp() {
@@ -300,22 +312,30 @@ public class BulkChangeActionTest {
       .build());
 
     checkResponse(response, 1, 1, 0, 0);
-    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
     verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issue.getKey());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("componentName")).isEqualTo(file.longName());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.name());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectKey")).isEqualTo(project.getDbKey());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isNull();
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotificationCaptor.getValue());
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
+    assertThat(changedIssue.getProject().getUuid()).isEqualTo(project.uuid());
+    assertThat(changedIssue.getProject().getKey()).isEqualTo(project.getKey());
+    assertThat(changedIssue.getProject().getProjectName()).isEqualTo(project.name());
+    assertThat(changedIssue.getProject().getBranchName()).isEmpty();
+    assertThat(changedIssue.getRule().getKey()).isEqualTo(rule.getKey());
+    assertThat(changedIssue.getRule().getName()).isEqualTo(rule.getName());
+    assertThat(builder.getChange().getDate()).isEqualTo(NOW);
+    assertThat(builder.getChange()).isInstanceOf(UserChange.class);
+    UserChange userChange = (UserChange) builder.getChange();
+    assertThat(userChange.getUser().getUuid()).isEqualTo(user.getUuid());
+    assertThat(userChange.getUser().getLogin()).isEqualTo(user.getLogin());
+    assertThat(userChange.getUser().getName()).contains(user.getName());
   }
 
   @Test
   public void hotspots_are_ignored_and_no_notification_is_sent() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
     RuleDefinitionDto rule = db.rules().insert();
@@ -351,22 +371,23 @@ public class BulkChangeActionTest {
       .build());
 
     checkResponse(response, 1, 1, 0, 0);
-    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
     verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issue.getKey());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("componentName")).isEqualTo(fileOnBranch.longName());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectName")).isEqualTo(project.name());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("projectKey")).isEqualTo(project.getDbKey());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isEqualTo("feature");
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotificationCaptor.getValue());
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_CONFIRMED);
+    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getAssignee()).isEmpty();
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(changedIssue.getProject()).isEqualTo(projectBranchOf(db, branch));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(NOW, userOf(user)));
     verifyPostProcessorCalled(fileOnBranch);
   }
 
   @Test
-  public void send_notification_on_short_branch() {
-    BranchType branchType = BranchType.SHORT;
-    verifySendNoNotification(branchType);
+  public void send_no_notification_on_short_branch() {
+    verifySendNoNotification(BranchType.SHORT);
   }
 
   @Test
@@ -418,11 +439,18 @@ public class BulkChangeActionTest {
       .build());
 
     checkResponse(response, 3, 1, 2, 0);
-    ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
     verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
     assertThat(issueChangeNotificationCaptor.getAllValues()).hasSize(1);
-    assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issue3.getKey());
-    verifyPostProcessorCalled(file);
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotificationCaptor.getValue());
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue3.getKey());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_OPEN);
+    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getAssignee()).isEmpty();
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(NOW, userOf(user)));
   }
 
   @Test

@@ -113,7 +113,7 @@ public class SetTypeAction implements IssuesWsAction {
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null, true);
+      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, true);
     }
     return new SearchResponseData(issueDto);
   }

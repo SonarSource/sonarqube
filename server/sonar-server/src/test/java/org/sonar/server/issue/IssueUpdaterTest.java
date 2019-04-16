@@ -41,7 +41,11 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.ws.SearchResponseData;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -55,10 +59,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectBranchOf;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectOf;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.ruleOf;
+import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.userOf;
 
 public class IssueUpdaterTest {
 
@@ -78,27 +87,29 @@ public class IssueUpdaterTest {
 
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private NotificationManager notificationManager = mock(NotificationManager.class);
-  private ArgumentCaptor<IssueChangeNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
+  private ArgumentCaptor<IssuesChangesNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(IssuesChangesNotification.class);
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), notificationManager, issueChangePostProcessor);
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), notificationManager, issueChangePostProcessor, issuesChangesSerializer);
 
   @Test
   public void update_issue() {
     DefaultIssue issue = db.issues().insertIssue(i -> i.setSeverity(MAJOR)).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    UserDto user = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), user.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, null);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issue.key()).get();
     assertThat(issueReloaded.getSeverity()).isEqualTo(BLOCKER);
   }
 
   @Test
-  public void verify_notification() {
+  public void verify_notification_without_resolution() {
     UserDto assignee = db.users().insertUser();
     RuleDto rule = db.rules().insertRule();
     ComponentDto project = db.components().insertMainBranch();
@@ -113,21 +124,52 @@ public class IssueUpdaterTest {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
-    IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
-    assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
-    assertThat(issueChangeNotification.getFieldValue("old.severity")).isEqualTo(MAJOR);
-    assertThat(issueChangeNotification.getFieldValue("new.severity")).isEqualTo(BLOCKER);
-    assertThat(issueChangeNotification.getFieldValue("componentKey")).isEqualTo(file.getDbKey());
-    assertThat(issueChangeNotification.getFieldValue("componentName")).isEqualTo(file.longName());
-    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.getDbKey());
-    assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(project.name());
-    assertThat(issueChangeNotification.getFieldValue("ruleName")).isEqualTo(rule.getName());
-    assertThat(issueChangeNotification.getFieldValue("changeAuthor")).isEqualTo(changeAuthor.getLogin());
-    assertThat(issueChangeNotification.getFieldValue("comment")).isEqualTo("increase severity");
-    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(assignee.getLogin());
+    IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotification);
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.key());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
+    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getAssignee()).contains(userOf(assignee));
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(issue.updateDate().getTime(), userOf(changeAuthor)));
+  }
+
+  @Test
+  public void verify_notification_with_resolution() {
+    UserDto assignee = db.users().insertUser();
+    RuleDto rule = db.rules().insertRule();
+    ComponentDto project = db.components().insertMainBranch();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
+      .setType(randomTypeExceptHotspot))
+      .setSeverity(MAJOR)
+      .setAssigneeUuid(assignee.getUuid())
+      .toDefaultIssue();
+    UserDto changeAuthor = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
+    issueFieldsSetter.setResolution(issue, RESOLUTION_FIXED, context);
+
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
+
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotification);
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.key());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
+    assertThat(changedIssue.getNewResolution()).contains(RESOLUTION_FIXED);
+    assertThat(changedIssue.getAssignee()).contains(userOf(assignee));
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(issue.updateDate().getTime(), userOf(changeAuthor)));
   }
 
   @Test
@@ -145,7 +187,7 @@ public class IssueUpdaterTest {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     verify(notificationManager, never()).scheduleForSending(any());
   }
@@ -159,17 +201,24 @@ public class IssueUpdaterTest {
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), branch, file)
       .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    UserDto changeAuthor = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
-    IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
-    assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
-    assertThat(issueChangeNotification.getFieldValue("projectKey")).isEqualTo(project.getDbKey());
-    assertThat(issueChangeNotification.getFieldValue("projectName")).isEqualTo(project.name());
-    assertThat(issueChangeNotification.getFieldValue("branch")).isEqualTo(branch.getBranch());
+    IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotification);
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.key());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
+    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getAssignee()).isEmpty();
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(changedIssue.getProject()).isEqualTo(projectBranchOf(db, branch));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(issue.updateDate().getTime(), userOf(changeAuthor)));
   }
 
   @Test
@@ -184,7 +233,7 @@ public class IssueUpdaterTest {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     verifyZeroInteractions(notificationManager);
   }
@@ -201,7 +250,7 @@ public class IssueUpdaterTest {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, "increase severity");
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     verifyZeroInteractions(notificationManager);
   }
@@ -213,14 +262,13 @@ public class IssueUpdaterTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
-    .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
+      .setType(randomTypeExceptHotspot)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, null);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
-    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
-    assertThat(notificationArgumentCaptor.getValue().getFieldValue("ruleName")).isNull();
+    verifyZeroInteractions(notificationManager);
   }
 
   @Test
@@ -231,7 +279,7 @@ public class IssueUpdaterTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = db.issues().insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)
-    .setType(randomTypeExceptHotspot))
+      .setType(randomTypeExceptHotspot))
       .setAssigneeUuid(oldAssignee.getUuid())
       .toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
@@ -239,14 +287,20 @@ public class IssueUpdaterTest {
     UserDto newAssignee = db.users().insertUser();
     issueFieldsSetter.assign(issue, newAssignee, context);
 
-    underTest.saveIssue(db.getSession(), issue, context, null);
+    underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
-    IssueChangeNotification issueChangeNotification = notificationArgumentCaptor.getValue();
-    assertThat(issueChangeNotification.getFieldValue("key")).isEqualTo(issue.key());
-    assertThat(issueChangeNotification.getFieldValue("new.assignee")).isEqualTo(newAssignee.getName());
-    assertThat(issueChangeNotification.getFieldValue("old.assignee")).isNull();
-    assertThat(issueChangeNotification.getFieldValue("assignee")).isEqualTo(newAssignee.getLogin());
+    IssuesChangesNotification issueChangeNotification = notificationArgumentCaptor.getValue();
+    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotification);
+    assertThat(builder.getIssues()).hasSize(1);
+    ChangedIssue changedIssue = builder.getIssues().iterator().next();
+    assertThat(changedIssue.getKey()).isEqualTo(issue.key());
+    assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
+    assertThat(changedIssue.getNewResolution()).isEmpty();
+    assertThat(changedIssue.getAssignee()).contains(userOf(newAssignee));
+    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
+    assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
+    assertThat(builder.getChange()).isEqualTo(new UserChange(issue.updateDate().getTime(), userOf(changeAuthor)));
   }
 
   @Test
@@ -256,10 +310,11 @@ public class IssueUpdaterTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
     DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
+    UserDto changeAuthor = db.users().insertUser();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, null, true);
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, true);
 
     assertThat(preloadedSearchResponseData.getIssues())
       .hasSize(1);
@@ -284,7 +339,7 @@ public class IssueUpdaterTest {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
-    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, null, false);
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(db.getSession(), issue, context, false);
 
     assertThat(preloadedSearchResponseData.getIssues())
       .hasSize(1);

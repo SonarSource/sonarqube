@@ -35,7 +35,13 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
+import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.issue.ws.SearchResponseData;
 import org.sonar.server.notification.NotificationManager;
 
@@ -51,27 +57,25 @@ public class IssueUpdater {
   private final WebIssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final IssueChangePostProcessor issueChangePostProcessor;
+  private final IssuesChangesNotificationSerializer notificationSerializer;
 
   public IssueUpdater(DbClient dbClient, WebIssueStorage issueStorage, NotificationManager notificationService,
-    IssueChangePostProcessor issueChangePostProcessor) {
+    IssueChangePostProcessor issueChangePostProcessor, IssuesChangesNotificationSerializer notificationSerializer) {
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.notificationService = notificationService;
     this.issueChangePostProcessor = issueChangePostProcessor;
+    this.notificationSerializer = notificationSerializer;
   }
 
-  /**
-   * Same as {@link #saveIssue(DbSession, DefaultIssue, IssueChangeContext, String)} but populates the specified
-   * {@link SearchResponseData} with the DTOs (rule and components) retrieved from DB to save the issue.
-   */
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context,
-    @Nullable String comment, boolean refreshMeasures) {
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue,
+    IssueChangeContext context, boolean refreshMeasures) {
 
     Optional<RuleDefinitionDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
     BranchDto branch = getBranch(dbSession, issue, issue.projectUuid());
     ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
-    IssueDto issueDto = doSaveIssue(dbSession, issue, context, comment, rule, project, branch, component);
+    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule, project, branch);
 
     SearchResponseData result = new SearchResponseData(issueDto);
     rule.ifPresent(r -> result.addRules(singletonList(r)));
@@ -86,31 +90,38 @@ public class IssueUpdater {
     return result;
   }
 
-  public IssueDto saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
-    Optional<RuleDefinitionDto> rule = getRuleByKey(session, issue.getRuleKey());
-    ComponentDto project = getComponent(session, issue, issue.projectUuid());
-    BranchDto branch = getBranch(session, issue, issue.projectUuid());
-    ComponentDto component = getComponent(session, issue, issue.componentUuid());
-    return doSaveIssue(session, issue, context, comment, rule, project, branch, component);
-  }
-
-  private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment,
-    Optional<RuleDefinitionDto> rule, ComponentDto project, BranchDto branch, ComponentDto component) {
+  private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
+    Optional<RuleDefinitionDto> rule, ComponentDto project, BranchDto branchDto) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
-    if (issue.type() != RuleType.SECURITY_HOTSPOT && hasNotificationSupport(branch)) {
-      String assigneeUuid = issue.assignee();
-      UserDto assignee = assigneeUuid == null ? null : dbClient.userDao().selectByUuid(session, assigneeUuid);
-      String authorUuid = context.userUuid();
-      UserDto author = authorUuid == null ? null : dbClient.userDao().selectByUuid(session, authorUuid);
-      notificationService.scheduleForSending(new IssueChangeNotification()
-        .setIssue(issue)
-        .setAssignee(assignee)
-        .setChangeAuthor(author)
-        .setRuleName(rule.map(RuleDefinitionDto::getName).orElse(null))
-        .setProject(project)
-        .setComponent(component)
-        .setComment(comment));
+    if (issue.type() == RuleType.SECURITY_HOTSPOT
+      // since this method is called after an update of the issue, date should never be null
+      || issue.updateDate() == null
+      // name of rule is displayed in notification, rule must therefor be present
+      || !rule.isPresent()
+      // notification are not supported on PRs and short lived branches
+      || !hasNotificationSupport(branchDto)) {
+      return issueDto;
     }
+
+    Optional<UserDto> assignee = Optional.ofNullable(issue.assignee())
+      .map(assigneeUuid -> dbClient.userDao().selectByUuid(session, assigneeUuid));
+    UserDto author = Optional.ofNullable(context.userUuid())
+      .map(authorUuid -> dbClient.userDao().selectByUuid(session, authorUuid))
+      .orElseThrow(() -> new IllegalStateException("Can not find dto for change author " + context.userUuid()));
+    IssuesChangesNotificationBuilder notificationBuilder = new IssuesChangesNotificationBuilder(singleton(
+      new ChangedIssue.Builder(issue.key())
+        .setNewResolution(issue.resolution())
+        .setNewStatus(issue.status())
+        .setAssignee(assignee.map(assigneeDto -> new User(assigneeDto.getUuid(), assigneeDto.getLogin(), assigneeDto.getName())).orElse(null))
+        .setRule(rule.map(r -> new Rule(r.getKey(), r.getName())).get())
+        .setProject(new Project.Builder(project.uuid())
+          .setKey(project.getKey())
+          .setProjectName(project.name())
+          .setBranchName(branchDto.isMain() ? null : branchDto.getKey())
+          .build())
+        .build()),
+      new UserChange(issue.updateDate().getTime(), new User(author.getUuid(), author.getLogin(), author.getName())));
+    notificationService.scheduleForSending(notificationSerializer.serialize(notificationBuilder));
     return issueDto;
   }
 

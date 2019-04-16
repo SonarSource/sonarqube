@@ -19,16 +19,19 @@
  */
 package org.sonar.server.issue.notification;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.notifications.Notification;
+import org.sonar.core.platform.Module;
 
-@ServerSide
-@ExtensionPoint
-public interface EmailTemplate {
-
-  @CheckForNull
-  EmailMessage format(Notification notification);
-
+public class IssuesChangesNotificationModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      ChangesOnMyIssueNotificationHandler.class,
+      ChangesOnMyIssueNotificationHandler.newMetadata(),
+      ChangesOnMyIssuesEmailTemplate.class,
+      FPOrWontFixNotificationHandler.class,
+      FPOrWontFixNotificationHandler.newMetadata(),
+      IssuesChangesNotificationSerializer.class,
+      FpOrWontFixEmailTemplate.class
+    );
+  }
 }

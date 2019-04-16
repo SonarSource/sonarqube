@@ -98,9 +98,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationHandler;
-import org.sonar.server.issue.notification.DoNotFixNotificationHandler;
-import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
+import org.sonar.server.issue.notification.IssuesChangesNotificationModule;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
@@ -402,15 +400,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       IssueWorkflow.class, // used in Web Services and CE's DebtCalculator
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
-      IssueChangesEmailTemplate.class,
-      ChangesOnMyIssueNotificationHandler.class,
-      ChangesOnMyIssueNotificationHandler.newMetadata(),
       NewIssuesNotificationHandler.class,
       NewIssuesNotificationHandler.newMetadata(),
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
-      DoNotFixNotificationHandler.class,
-      DoNotFixNotificationHandler.newMetadata(),
+      IssuesChangesNotificationModule.class,
 
       // Notifications
       QGChangeEmailTemplate.class,

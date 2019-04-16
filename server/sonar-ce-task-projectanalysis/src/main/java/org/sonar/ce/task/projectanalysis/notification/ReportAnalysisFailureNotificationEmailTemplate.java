@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.notification;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.issue.notification.EmailMessage;
@@ -41,6 +42,7 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
   }
 
   @Override
+  @CheckForNull
   public EmailMessage format(Notification notification) {
     if (!(notification instanceof ReportAnalysisFailureNotification)) {
       return null;
@@ -53,7 +55,7 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
     return new EmailMessage()
       .setMessageId(notification.getType() + "/" + projectUuid)
       .setSubject(subject(projectFullName))
-      .setMessage(message(projectFullName, taskFailureNotification));
+      .setPlainTextMessage(message(projectFullName, taskFailureNotification));
   }
 
   private static String computeProjectFullName(ReportAnalysisFailureNotificationBuilder.Project project) {

@@ -99,7 +99,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureComputersVisitor;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.MetricModule;
-import org.sonar.ce.task.projectanalysis.notification.NewIssuesNotificationFactory;
+import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
 import org.sonar.ce.task.projectanalysis.organization.DefaultOrganizationLoader;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
@@ -306,7 +306,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       WebhookPostTask.class,
 
       // notifications
-      NewIssuesNotificationFactory.class);
+      NotificationFactory.class);
   }
 
 }

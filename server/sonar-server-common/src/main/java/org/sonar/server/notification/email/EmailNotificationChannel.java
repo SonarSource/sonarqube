@@ -26,7 +26,9 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
@@ -227,46 +229,13 @@ public class EmailNotificationChannel extends NotificationChannel {
 
     try {
       LOG.trace("Sending email: {}", emailMessage);
-      String host = null;
-      try {
-        host = new URL(configuration.getServerBaseURL()).getHost();
-      } catch (MalformedURLException e) {
-        // ignore
-      }
+      String host = resolveHost();
 
-      SimpleEmail email = new SimpleEmail();
-      if (StringUtils.isNotBlank(host)) {
-        /*
-         * Set headers for proper threading: GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and
-         * "References" headers. TODO investigate threading in other clients like KMail, Thunderbird, Outlook
-         */
-        if (StringUtils.isNotEmpty(emailMessage.getMessageId())) {
-          String messageId = "<" + emailMessage.getMessageId() + "@" + host + ">";
-          email.addHeader(IN_REPLY_TO_HEADER, messageId);
-          email.addHeader(REFERENCES_HEADER, messageId);
-        }
-        // Set headers for proper filtering
-        email.addHeader(LIST_ID_HEADER, "SonarQube <sonar." + host + ">");
-        email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
-      }
-      // Set general information
-      email.setCharset("UTF-8");
-      String fromName = configuration.getFromName();
-      String from = StringUtils.isBlank(emailMessage.getFrom()) ? fromName : (emailMessage.getFrom() + " (" + fromName + ")");
-      email.setFrom(configuration.getFrom(), from);
-      email.addTo(emailMessage.getTo(), " ");
-      String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
-        + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
-      email.setSubject(subject);
-      email.setMsg(emailMessage.getMessage());
-      // Send
-      email.setHostName(configuration.getSmtpHost());
-      configureSecureConnection(email);
-      if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
-        email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
-      }
-      email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
-      email.setSocketTimeout(SOCKET_TIMEOUT);
+      Email email = createEmailWithMessage(emailMessage);
+      setHeaders(email, emailMessage, host);
+      setConnectionDetails(email);
+      setToAndFrom(email, emailMessage);
+      setSubject(email, emailMessage);
       email.send();
 
     } finally {
@@ -274,7 +243,66 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
   }
 
-  private void configureSecureConnection(SimpleEmail email) {
+  private static Email createEmailWithMessage(EmailMessage emailMessage) throws EmailException {
+    if (emailMessage.isHtml()) {
+      return new HtmlEmail().setHtmlMsg(emailMessage.getMessage());
+    }
+    return new SimpleEmail().setMsg(emailMessage.getMessage());
+  }
+
+  private void setSubject(Email email, EmailMessage emailMessage) {
+    String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
+      + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
+    email.setSubject(subject);
+  }
+
+  private void setToAndFrom(Email email, EmailMessage emailMessage) throws EmailException {
+    String fromName = configuration.getFromName();
+    String from = StringUtils.isBlank(emailMessage.getFrom()) ? fromName : (emailMessage.getFrom() + " (" + fromName + ")");
+    email.setFrom(configuration.getFrom(), from);
+    email.addTo(emailMessage.getTo(), " ");
+  }
+
+  @CheckForNull
+  private String resolveHost() {
+    try {
+      return new URL(configuration.getServerBaseURL()).getHost();
+    } catch (MalformedURLException e) {
+      // ignore
+      return null;
+    }
+  }
+
+  private void setHeaders(Email email, EmailMessage emailMessage, @CheckForNull String host) {
+    // Set general information
+    email.setCharset("UTF-8");
+    if (StringUtils.isNotBlank(host)) {
+      /*
+       * Set headers for proper threading: GMail will not group messages, even if they have same subject, but don't have "In-Reply-To" and
+       * "References" headers. TODO investigate threading in other clients like KMail, Thunderbird, Outlook
+       */
+      if (StringUtils.isNotEmpty(emailMessage.getMessageId())) {
+        String messageId = "<" + emailMessage.getMessageId() + "@" + host + ">";
+        email.addHeader(IN_REPLY_TO_HEADER, messageId);
+        email.addHeader(REFERENCES_HEADER, messageId);
+      }
+      // Set headers for proper filtering
+      email.addHeader(LIST_ID_HEADER, "SonarQube <sonar." + host + ">");
+      email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
+    }
+  }
+
+  private void setConnectionDetails(Email email) {
+    email.setHostName(configuration.getSmtpHost());
+    configureSecureConnection(email);
+    if (StringUtils.isNotBlank(configuration.getSmtpUsername()) || StringUtils.isNotBlank(configuration.getSmtpPassword())) {
+      email.setAuthentication(configuration.getSmtpUsername(), configuration.getSmtpPassword());
+    }
+    email.setSocketConnectionTimeout(SOCKET_TIMEOUT);
+    email.setSocketTimeout(SOCKET_TIMEOUT);
+  }
+
+  private void configureSecureConnection(Email email) {
     if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "ssl")) {
       email.setSSLOnConnect(true);
       email.setSSLCheckServerIdentity(true);
@@ -305,7 +333,7 @@ public class EmailNotificationChannel extends NotificationChannel {
       EmailMessage emailMessage = new EmailMessage();
       emailMessage.setTo(toAddress);
       emailMessage.setSubject(subject);
-      emailMessage.setMessage(message);
+      emailMessage.setPlainTextMessage(message);
       send(emailMessage);
     } catch (EmailException e) {
       LOG.debug("Fail to send test email to {}: {}", toAddress, e);

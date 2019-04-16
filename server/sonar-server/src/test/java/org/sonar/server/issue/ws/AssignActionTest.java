@@ -43,6 +43,7 @@ import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -83,10 +84,11 @@ public class AssignActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private AssignAction underTest = new AssignAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer),
-      mock(NotificationManager.class), issueChangePostProcessor),
+      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -282,8 +284,8 @@ public class AssignActionTest {
   }
 
   private void setUserWithPermission(IssueDto issue, String permission) {
-    insertUser(CURRENT_USER_LOGIN);
-    userSession.logIn(CURRENT_USER_LOGIN)
+    UserDto user = insertUser(CURRENT_USER_LOGIN);
+    userSession.logIn(user)
       .addProjectPermission(permission,
         dbClient.componentDao().selectByUuid(db.getSession(), issue.getProjectUuid()).get(),
         dbClient.componentDao().selectByUuid(db.getSession(), issue.getComponentUuid()).get());
