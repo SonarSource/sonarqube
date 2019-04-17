@@ -461,9 +461,12 @@ public class QProfileRuleImplTest {
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto grandChildProfile = createChildProfile(childProfile);
 
+    System.out.println("ACTIVATE ON " + childProfile.getName());
     RuleActivation initialActivation = RuleActivation.create(rule.getId(), MAJOR, of(param.getName(), "foo"));
     activate(childProfile, initialActivation);
 
+    System.out.println("---------------");
+    System.out.println("ACTIVATE ON " + childProfile.getName());
     RuleActivation updateActivation = RuleActivation.create(rule.getId(), CRITICAL, of(param.getName(), "bar"));
     List<ActiveRuleChange> changes = activate(childProfile, updateActivation);
 

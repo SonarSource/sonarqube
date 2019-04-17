@@ -131,6 +131,12 @@ public class QualityProfileDao implements Dao {
     mapper.updateRuleProfile(rulesProfile, new Date(now));
   }
 
+  public void update(DbSession dbSession, OrgQProfileDto profile) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    long now = system.now();
+    mapper.updateOrgQProfile(profile, now);
+  }
+
   private static void doUpdate(QualityProfileMapper mapper, QProfileDto profile, long now) {
     mapper.updateRuleProfile(RulesProfileDto.from(profile), new Date(now));
     mapper.updateOrgQProfile(OrgQProfileDto.from(profile), now);

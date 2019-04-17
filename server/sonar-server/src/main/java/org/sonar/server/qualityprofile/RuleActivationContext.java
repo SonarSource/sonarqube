@@ -22,14 +22,12 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -56,34 +54,29 @@ class RuleActivationContext {
 
   private final long date;
 
-  // the profiles
-  private RulesProfileDto baseRulesProfile;
-  @Nullable
-  private QProfileDto baseProfile;
+  // The profile that is initially targeted by the operation
+  private final RulesProfileDto baseRulesProfile;
+
   private final Map<String, QProfileDto> profilesByUuid = new HashMap<>();
   private final ListMultimap<String, QProfileDto> profilesByParentUuid = ArrayListMultimap.create();
-  private final List<QProfileDto> builtInAliases = new ArrayList<>();
 
-  // the rules
+  // The rules/active rules involved in the group of activations/de-activations
   private final Map<Integer, RuleWrapper> rulesById;
   private final Map<ActiveRuleKey, ActiveRuleWrapper> activeRulesByKey;
 
-  // cursor, moved in the tree of profiles
-  private boolean cascading = false;
+  // Cursors used to move in the rules and in the tree of profiles.
+
   private RulesProfileDto currentRulesProfile;
-  @Nullable
-  private QProfileDto currentProfile;
-  @Nullable
+  // Cardinality is zero-to-many when cursor is on a built-in rules profile,
+  // otherwise it's always one, and only one (cursor on descendants or on non-built-in base profile).
+  private Collection<QProfileDto> currentProfiles;
   private RuleWrapper currentRule;
-  @Nullable
   private ActiveRuleWrapper currentActiveRule;
-  @Nullable
   private ActiveRuleWrapper currentParentActiveRule;
 
   private RuleActivationContext(Builder builder) {
     this.date = builder.date;
 
-    // rules
     this.rulesById = Maps.newHashMapWithExpectedSize(builder.rules.size());
     ListMultimap<Integer, RuleParamDto> paramsByRuleId = builder.ruleParams.stream().collect(index(RuleParamDto::getRuleId));
     for (RuleDefinitionDto rule : builder.rules) {
@@ -91,19 +84,14 @@ class RuleActivationContext {
       rulesById.put(rule.getId(), wrapper);
     }
 
-    // profiles
-    this.baseProfile = builder.baseProfile;
     this.baseRulesProfile = builder.baseRulesProfile;
     for (QProfileDto profile : builder.profiles) {
       profilesByUuid.put(profile.getKee(), profile);
-      if (profile.isBuiltIn()) {
-        builtInAliases.add(profile);
-      } else if (profile.getParentKee() != null) {
+      if (profile.getParentKee() != null) {
         profilesByParentUuid.put(profile.getParentKee(), profile);
       }
     }
 
-    // active rules
     this.activeRulesByKey = Maps.newHashMapWithExpectedSize(builder.activeRules.size());
     ListMultimap<Integer, ActiveRuleParamDto> paramsByActiveRuleId = builder.activeRuleParams.stream().collect(index(ActiveRuleParamDto::getActiveRuleId));
     for (ActiveRuleDto activeRule : builder.activeRules) {
@@ -116,7 +104,11 @@ class RuleActivationContext {
     return date;
   }
 
+  /**
+   * The rule currently selected.
+   */
   RuleWrapper getRule() {
+    checkState(currentRule != null, "Rule has not been set yet");
     return currentRule;
   }
 
@@ -132,83 +124,103 @@ class RuleActivationContext {
     return request.hasParameter(key);
   }
 
+  /**
+   * The rules profile being selected.
+   */
   RulesProfileDto getRulesProfile() {
+    checkState(currentRulesProfile != null, "Rule profile has not been set yet");
     return currentRulesProfile;
   }
 
+  /**
+   * The active rule related to the selected profile and rule.
+   * @return null if the selected rule is not activated on the selected profile.
+   * @see #getRulesProfile()
+   * @see #getRule()
+   */
   @CheckForNull
   ActiveRuleWrapper getActiveRule() {
     return currentActiveRule;
   }
 
+  /**
+   * The active rule related to the rule and the parent of the selected profile.
+   * @return null if the selected rule is not activated on the parent profile.
+   * @see #getRule()
+   */
   @CheckForNull
   ActiveRuleWrapper getParentActiveRule() {
     return currentParentActiveRule;
   }
 
+  /**
+   * Whether the profile cursor is on the base profile or not.
+   */
   boolean isCascading() {
-    return cascading;
+    return currentRulesProfile != null && !currentRulesProfile.getKee().equals(baseRulesProfile.getKee());
   }
 
-  @CheckForNull
-  QProfileDto getProfile() {
-    return currentProfile;
+  /**
+   * The profiles being selected. Can be zero or many if {@link #getRulesProfile()} is built-in.
+   * Else the collection always contains a single profile.
+   */
+  Collection<QProfileDto> getProfiles() {
+    checkState(currentProfiles != null, "Profiles have not been set yet");
+    return currentProfiles;
   }
 
+  /**
+   * The children of {@link #getProfiles()}
+   */
   Collection<QProfileDto> getChildProfiles() {
-    if (currentProfile != null) {
-      return profilesByParentUuid.get(currentProfile.getKee());
-    }
-    // on built-in profile
-    checkState(currentRulesProfile.isBuiltIn());
-    return builtInAliases.stream()
-      .flatMap(a -> profilesByParentUuid.get(a.getKee()).stream())
+    return getProfiles().stream()
+      .flatMap(p -> profilesByParentUuid.get(p.getKee()).stream())
       .collect(Collectors.toList());
   }
 
+  /**
+   * Move the cursor to the given rule and back to the base profile.
+   */
   public void reset(int ruleId) {
-    this.cascading = false;
-    doSwitch(this.baseProfile, this.baseRulesProfile, ruleId);
+    doSwitch(this.baseRulesProfile, ruleId);
   }
 
   /**
    * Moves cursor to a child profile
    */
-  void switchToChild(QProfileDto to) {
+  void selectChild(QProfileDto to) {
     checkState(!to.isBuiltIn());
-    requireNonNull(this.currentRule, "can not switch profile if rule is not set");
-    RuleDefinitionDto rule = this.currentRule.get();
-
     QProfileDto qp = requireNonNull(this.profilesByUuid.get(to.getKee()), () -> "No profile with uuid " + to.getKee());
-    RulesProfileDto rulesProfile = RulesProfileDto.from(qp);
 
-    this.cascading = true;
-    doSwitch(qp, rulesProfile, rule.getId());
+    RulesProfileDto ruleProfile = RulesProfileDto.from(qp);
+    doSwitch(ruleProfile, getRule().get().getId());
   }
 
-  private void doSwitch(@Nullable QProfileDto qp, RulesProfileDto rulesProfile, int ruleId) {
+  private void doSwitch(RulesProfileDto ruleProfile, int ruleId) {
     this.currentRule = rulesById.get(ruleId);
-    checkRequest(this.currentRule != null, "Rule not found: %s", ruleId);
+    checkRequest(this.currentRule != null, "Rule with ID %s not found", ruleId);
     RuleKey ruleKey = currentRule.get().getKey();
-    checkRequest(rulesProfile.getLanguage().equals(currentRule.get().getLanguage()),
-      "%s rule %s cannot be activated on %s profile %s", currentRule.get().getLanguage(), ruleKey, rulesProfile.getLanguage(), rulesProfile.getName());
-    this.currentRulesProfile = rulesProfile;
-    this.currentProfile = qp;
-    this.currentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(rulesProfile, ruleKey));
-    this.currentParentActiveRule = null;
-    if (this.currentProfile != null) {
-      String parentUuid = this.currentProfile.getParentKee();
-      if (parentUuid != null) {
-        QProfileDto parent = requireNonNull(this.profilesByUuid.get(parentUuid), () -> "No profile with uuid " + parentUuid);
-        this.currentParentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(parent, ruleKey));
-      }
-    }
+
+    checkRequest(ruleProfile.getLanguage().equals(currentRule.get().getLanguage()),
+      "%s rule %s cannot be activated on %s profile %s", currentRule.get().getLanguage(), ruleKey, ruleProfile.getLanguage(), ruleProfile.getName());
+    this.currentRulesProfile = ruleProfile;
+    this.currentProfiles = profilesByUuid.values().stream()
+      .filter(p -> p.getRulesProfileUuid().equals(ruleProfile.getKee()))
+      .collect(Collectors.toList());
+    this.currentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(ruleProfile, ruleKey));
+    this.currentParentActiveRule = this.currentProfiles.stream()
+      .map(QProfileDto::getParentKee)
+      .filter(Objects::nonNull)
+      .map(profilesByUuid::get)
+      .filter(Objects::nonNull)
+      .findFirst()
+      .map(profile -> activeRulesByKey.get(ActiveRuleKey.of(profile, ruleKey)))
+      .orElse(null);
   }
 
   static final class Builder {
     private long date = System.currentTimeMillis();
     private RulesProfileDto baseRulesProfile;
-    private QProfileDto baseProfile;
     private Collection<RuleDefinitionDto> rules;
     private Collection<RuleParamDto> ruleParams;
     private Collection<QProfileDto> profiles;
@@ -222,13 +234,6 @@ class RuleActivationContext {
 
     Builder setBaseProfile(RulesProfileDto p) {
       this.baseRulesProfile = p;
-      this.baseProfile = null;
-      return this;
-    }
-
-    Builder setBaseProfile(QProfileDto p) {
-      this.baseRulesProfile = RulesProfileDto.from(p);
-      this.baseProfile = p;
       return this;
     }
 
@@ -269,6 +274,7 @@ class RuleActivationContext {
       requireNonNull(profiles, "profiles is null");
       requireNonNull(activeRules, "activeRules is null");
       requireNonNull(activeRuleParams, "activeRuleParams is null");
+      requireNonNull(descendantProfilesSupplier, "descendantProfilesSupplier is null");
       return new RuleActivationContext(this);
     }
   }

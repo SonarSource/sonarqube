@@ -40,6 +40,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.OrgQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -142,19 +143,12 @@ public class RuleActivator {
   }
 
   private void updateProfileDates(DbSession dbSession, RuleActivationContext context) {
-    QProfileDto profile = context.getProfile();
-    if (profile != null) {
-      profile.setRulesUpdatedAtAsDate(new Date(context.getDate()));
-      if (userSession.isLoggedIn()) {
-        profile.setUserUpdatedAt(context.getDate());
-      }
-      db.qualityProfileDao().update(dbSession, profile);
+    RulesProfileDto ruleProfile = context.getRulesProfile();
+    ruleProfile.setRulesUpdatedAtAsDate(new Date(context.getDate()));
+    db.qualityProfileDao().update(dbSession, ruleProfile);
 
-    } else {
-      // built-in profile, change rules_profiles.rules_updated_at
-      RulesProfileDto rulesProfile = context.getRulesProfile();
-      rulesProfile.setRulesUpdatedAtAsDate(new Date(context.getDate()));
-      db.qualityProfileDao().update(dbSession, rulesProfile);
+    if (userSession.isLoggedIn()) {
+      context.getProfiles().forEach(p -> db.qualityProfileDao().update(dbSession, OrgQProfileDto.from(p).setUserUpdatedAt(context.getDate())));
     }
   }
 
@@ -225,7 +219,7 @@ public class RuleActivator {
 
     // get all inherited profiles
     context.getChildProfiles().forEach(child -> {
-      context.switchToChild(child);
+      context.selectChild(child);
       changes.addAll(doActivate(dbSession, activation, context));
     });
     return changes;
@@ -333,7 +327,7 @@ public class RuleActivator {
 
     // get all inherited profiles (they are not built-in by design)
     context.getChildProfiles().forEach(child -> {
-      context.switchToChild(child);
+      context.selectChild(child);
       changes.addAll(doDeactivate(dbSession, context, force));
     });
 
@@ -396,7 +390,7 @@ public class RuleActivator {
       profiles.add(db.qualityProfileDao().selectByUuid(dbSession, profile.getParentKee()));
     }
     builder.setProfiles(profiles);
-    builder.setBaseProfile(profile);
+    builder.setBaseProfile(RulesProfileDto.from(profile));
 
     // load active rules
     Collection<String> ruleProfileUuids = profiles.stream()
