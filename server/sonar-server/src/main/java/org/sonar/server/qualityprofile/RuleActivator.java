@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -51,7 +52,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.singleton;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -198,16 +198,16 @@ public class RuleActivator {
         String parentValue = parentActiveRule != null ? parentActiveRule.getParamValue(paramKey) : null;
         String activeRuleValue = activeRule == null ? null : activeRule.getParamValue(paramKey);
         paramValue = context.hasRequestedParamValue(request, paramKey) ?
-          // If the request contains the parameter then we're using either value from request, or parent value, or default value
+        // If the request contains the parameter then we're using either value from request, or parent value, or default value
           firstNonNull(
             context.getRequestedParamValue(request, paramKey),
             parentValue,
             rule.getParamDefaultValue(paramKey))
           // If the request doesn't contain the parameter, then we're using either value in DB, or parent value, or default value
           : firstNonNull(
-          activeRuleValue,
-          parentValue,
-          rule.getParamDefaultValue(paramKey));
+            activeRuleValue,
+            parentValue,
+            rule.getParamDefaultValue(paramKey));
       }
 
       change.setParameter(paramKey, validateParam(ruleParamDto, paramValue));
@@ -356,14 +356,13 @@ public class RuleActivator {
     checkArgument(builtInProfile.isBuiltIn(), "Rules profile with UUID %s is not built-in", builtInProfile.getKee());
 
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
+    builder.setDescendantProfilesSupplier(createDescendantProfilesSupplier(dbSession));
 
     // load rules
     List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleIds);
 
-    // load org profiles
-    List<QProfileDto> aliasedBuiltInProfiles = db.qualityProfileDao().selectQProfilesByRuleProfile(dbSession, builtInProfile);
-    List<QProfileDto> profiles = new ArrayList<>(aliasedBuiltInProfiles);
-    profiles.addAll(db.qualityProfileDao().selectDescendants(dbSession, aliasedBuiltInProfiles));
+    // load org profiles. Their parents are null by nature.
+    List<QProfileDto> profiles = db.qualityProfileDao().selectQProfilesByRuleProfile(dbSession, builtInProfile);
     builder.setProfiles(profiles);
     builder.setBaseProfile(builtInProfile);
 
@@ -371,20 +370,20 @@ public class RuleActivator {
     Collection<String> ruleProfileUuids = Stream
       .concat(Stream.of(builtInProfile.getKee()), profiles.stream().map(QProfileDto::getRulesProfileUuid))
       .collect(MoreCollectors.toHashSet(profiles.size() + 1));
-    completeWithActiveRules(dbSession, builder, rules, ruleProfileUuids);
-
+    completeWithActiveRules(dbSession, builder, ruleIds, ruleProfileUuids);
     return builder.build();
   }
 
   public RuleActivationContext createContextForUserProfile(DbSession dbSession, QProfileDto profile, Collection<Integer> ruleIds) {
     checkArgument(!profile.isBuiltIn(), "Profile with UUID %s is built-in", profile.getKee());
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
+    builder.setDescendantProfilesSupplier(createDescendantProfilesSupplier(dbSession));
 
     // load rules
-    List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleIds);
+    completeWithRules(dbSession, builder, ruleIds);
 
-    // load descendant profiles
-    List<QProfileDto> profiles = new ArrayList<>(db.qualityProfileDao().selectDescendants(dbSession, singleton(profile)));
+    // load profiles
+    List<QProfileDto> profiles = new ArrayList<>();
     profiles.add(profile);
     if (profile.getParentKee() != null) {
       profiles.add(db.qualityProfileDao().selectByUuid(dbSession, profile.getParentKee()));
@@ -396,9 +395,22 @@ public class RuleActivator {
     Collection<String> ruleProfileUuids = profiles.stream()
       .map(QProfileDto::getRulesProfileUuid)
       .collect(MoreCollectors.toHashSet(profiles.size()));
-    completeWithActiveRules(dbSession, builder, rules, ruleProfileUuids);
+    completeWithActiveRules(dbSession, builder, ruleIds, ruleProfileUuids);
 
     return builder.build();
+  }
+
+  private DescendantProfilesSupplier createDescendantProfilesSupplier(DbSession dbSession) {
+    return (parents, ruleIds) -> {
+      Collection<QProfileDto> profiles = db.qualityProfileDao().selectDescendants(dbSession, parents);
+      Set<String> ruleProfileUuids = profiles.stream()
+        .map(QProfileDto::getRulesProfileUuid)
+        .collect(MoreCollectors.toHashSet());
+      Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleIds, ruleProfileUuids);
+      List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(MoreCollectors.toArrayList(activeRules.size()));
+      List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
+      return new DescendantProfilesSupplier.Result(profiles, activeRules, activeRuleParams);
+    };
   }
 
   private List<RuleDefinitionDto> completeWithRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds) {
@@ -408,8 +420,8 @@ public class RuleActivator {
     return rules;
   }
 
-  private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<RuleDefinitionDto> rules, Collection<String> ruleProfileUuids) {
-    Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, rules, ruleProfileUuids);
+  private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds, Collection<String> ruleProfileUuids) {
+    Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleIds, ruleProfileUuids);
     builder.setActiveRules(activeRules);
     List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(MoreCollectors.toArrayList(activeRules.size()));
     builder.setActiveRuleParams(db.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds));

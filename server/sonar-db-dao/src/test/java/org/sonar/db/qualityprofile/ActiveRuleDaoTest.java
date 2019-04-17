@@ -21,7 +21,6 @@ package org.sonar.db.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -236,25 +235,25 @@ public class ActiveRuleDaoTest {
     assertThat(result).isEmpty();
 
     // empty profiles
-    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1), emptyList());
+    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1.getId()), emptyList());
     assertThat(result).isEmpty();
 
     // match
-    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1), asList(profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid()));
+    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1.getId()), asList(profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid()));
     assertThat(result)
       .extracting(ActiveRuleDto::getId)
       .containsExactlyInAnyOrder(rule1P1.getId(), rule1P2.getId());
 
-    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1, rule2), asList(profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid()));
+    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1.getId(), rule2.getId()), asList(profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid()));
     assertThat(result)
       .extracting(ActiveRuleDto::getId)
       .containsExactlyInAnyOrder(rule1P1.getId(), rule1P2.getId(), rule2P1.getId());
 
     // do not match
-    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule3), asList(profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid()));
+    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule3.getId()), asList(profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid()));
     assertThat(result).isEmpty();
 
-    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1), asList("unknown"));
+    result = underTest.selectByRulesAndRuleProfileUuids(dbSession, asList(rule1.getId()), asList("unknown"));
     assertThat(result).isEmpty();
   }
 

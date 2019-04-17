@@ -25,12 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -84,11 +82,10 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getKee());
   }
 
-  public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<RuleDefinitionDto> rules, Collection<String> ruleProfileUuids) {
-    if (rules.isEmpty() || ruleProfileUuids.isEmpty()) {
+  public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<Integer> ruleIds, Collection<String> ruleProfileUuids) {
+    if (ruleIds.isEmpty() || ruleProfileUuids.isEmpty()) {
       return emptyList();
     }
-    List<Integer> ruleIds = rules.stream().map(RuleDefinitionDto::getId).collect(MoreCollectors.toArrayList(rules.size()));
     ActiveRuleMapper mapper = mapper(dbSession);
     return executeLargeInputs(ruleIds, ruleIdsChunk -> executeLargeInputs(ruleProfileUuids, chunk -> mapper.selectByRuleIdsAndRuleProfileUuids(ruleIdsChunk, chunk)));
   }

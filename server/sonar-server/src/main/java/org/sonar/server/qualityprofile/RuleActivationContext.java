@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +40,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.index;
+import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -61,8 +61,8 @@ class RuleActivationContext {
   private final ListMultimap<String, QProfileDto> profilesByParentUuid = ArrayListMultimap.create();
 
   // The rules/active rules involved in the group of activations/de-activations
-  private final Map<Integer, RuleWrapper> rulesById;
-  private final Map<ActiveRuleKey, ActiveRuleWrapper> activeRulesByKey;
+  private final Map<Integer, RuleWrapper> rulesById = new HashMap<>();
+  private final Map<ActiveRuleKey, ActiveRuleWrapper> activeRulesByKey = new HashMap<>();
 
   // Cursors used to move in the rules and in the tree of profiles.
 
@@ -74,10 +74,13 @@ class RuleActivationContext {
   private ActiveRuleWrapper currentActiveRule;
   private ActiveRuleWrapper currentParentActiveRule;
 
+  private boolean descendantsLoaded = false;
+  private final DescendantProfilesSupplier descendantProfilesSupplier;
+
   private RuleActivationContext(Builder builder) {
     this.date = builder.date;
+    this.descendantProfilesSupplier = builder.descendantProfilesSupplier;
 
-    this.rulesById = Maps.newHashMapWithExpectedSize(builder.rules.size());
     ListMultimap<Integer, RuleParamDto> paramsByRuleId = builder.ruleParams.stream().collect(index(RuleParamDto::getRuleId));
     for (RuleDefinitionDto rule : builder.rules) {
       RuleWrapper wrapper = new RuleWrapper(rule, paramsByRuleId.get(rule.getId()));
@@ -85,16 +88,22 @@ class RuleActivationContext {
     }
 
     this.baseRulesProfile = builder.baseRulesProfile;
-    for (QProfileDto profile : builder.profiles) {
+    register(builder.profiles);
+    register(builder.activeRules, builder.activeRuleParams);
+  }
+
+  private void register(Collection<QProfileDto> profiles) {
+    for (QProfileDto profile : profiles) {
       profilesByUuid.put(profile.getKee(), profile);
       if (profile.getParentKee() != null) {
         profilesByParentUuid.put(profile.getParentKee(), profile);
       }
     }
+  }
 
-    this.activeRulesByKey = Maps.newHashMapWithExpectedSize(builder.activeRules.size());
-    ListMultimap<Integer, ActiveRuleParamDto> paramsByActiveRuleId = builder.activeRuleParams.stream().collect(index(ActiveRuleParamDto::getActiveRuleId));
-    for (ActiveRuleDto activeRule : builder.activeRules) {
+  private void register(Collection<ActiveRuleDto> activeRules, Collection<ActiveRuleParamDto> activeRuleParams) {
+    ListMultimap<Integer, ActiveRuleParamDto> paramsByActiveRuleId = activeRuleParams.stream().collect(index(ActiveRuleParamDto::getActiveRuleId));
+    for (ActiveRuleDto activeRule : activeRules) {
       ActiveRuleWrapper wrapper = new ActiveRuleWrapper(activeRule, paramsByActiveRuleId.get(activeRule.getId()));
       this.activeRulesByKey.put(activeRule.getKey(), wrapper);
     }
@@ -173,9 +182,23 @@ class RuleActivationContext {
    * The children of {@link #getProfiles()}
    */
   Collection<QProfileDto> getChildProfiles() {
+    loadDescendants();
     return getProfiles().stream()
       .flatMap(p -> profilesByParentUuid.get(p.getKee()).stream())
       .collect(Collectors.toList());
+  }
+
+  private void loadDescendants() {
+    if (descendantsLoaded) {
+      return;
+    }
+    Collection<QProfileDto> baseProfiles = profilesByUuid.values().stream()
+      .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getKee()))
+      .collect(toArrayList(profilesByUuid.size()));
+    DescendantProfilesSupplier.Result result = descendantProfilesSupplier.get(baseProfiles, rulesById.keySet());
+    register(result.getProfiles());
+    register(result.getActiveRules(), result.getActiveRuleParams());
+    descendantsLoaded = true;
   }
 
   /**
@@ -226,6 +249,7 @@ class RuleActivationContext {
     private Collection<QProfileDto> profiles;
     private Collection<ActiveRuleDto> activeRules;
     private Collection<ActiveRuleParamDto> activeRuleParams;
+    private DescendantProfilesSupplier descendantProfilesSupplier;
 
     Builder setDate(long l) {
       this.date = l;
@@ -263,6 +287,11 @@ class RuleActivationContext {
 
     Builder setActiveRuleParams(Collection<ActiveRuleParamDto> activeRuleParams) {
       this.activeRuleParams = activeRuleParams;
+      return this;
+    }
+
+    Builder setDescendantProfilesSupplier(DescendantProfilesSupplier d) {
+      this.descendantProfilesSupplier = d;
       return this;
     }
 
