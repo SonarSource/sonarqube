@@ -160,6 +160,16 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
         <li>
           <Link
             activeClassName="active"
+            to={{
+              pathname: '/project/security_reports/sonarsource_security',
+              query: this.getQuery()
+            }}>
+            {translate('security_reports.sonarsourceSecurity.page')}
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
             to={{ pathname: '/project/security_reports/owasp_top_10', query: this.getQuery() }}>
             {translate('security_reports.owaspTop10.page')}
           </Link>

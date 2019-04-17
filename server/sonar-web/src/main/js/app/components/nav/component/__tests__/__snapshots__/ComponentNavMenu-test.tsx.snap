@@ -50,6 +50,23 @@ exports[`should work for all qualifiers 1`] = `
             style={Object {}}
             to={
               Object {
+                "pathname": "/project/security_reports/sonarsource_security",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sonarsourceSecurity.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
                 "pathname": "/project/security_reports/owasp_top_10",
                 "query": Object {
                   "id": "foo",
@@ -267,6 +284,23 @@ exports[`should work for all qualifiers 2`] = `
             style={Object {}}
             to={
               Object {
+                "pathname": "/project/security_reports/sonarsource_security",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sonarsourceSecurity.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
                 "pathname": "/project/security_reports/owasp_top_10",
                 "query": Object {
                   "id": "foo",
@@ -433,6 +467,23 @@ exports[`should work for all qualifiers 3`] = `
             style={Object {}}
             to={
               Object {
+                "pathname": "/project/security_reports/sonarsource_security",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sonarsourceSecurity.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
                 "pathname": "/project/security_reports/owasp_top_10",
                 "query": Object {
                   "id": "foo",
@@ -563,6 +614,23 @@ exports[`should work for all qualifiers 4`] = `
       <ul
         className="menu"
       >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sonarsource_security",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sonarsourceSecurity.page
+          </Link>
+        </li>
         <li>
           <Link
             activeClassName="active"
@@ -738,6 +806,24 @@ exports[`should work for long-living branches 1`] = `
             style={Object {}}
             to={
               Object {
+                "pathname": "/project/security_reports/sonarsource_security",
+                "query": Object {
+                  "branch": "release",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sonarsourceSecurity.page
+          </Link>
+        </li>
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
                 "pathname": "/project/security_reports/owasp_top_10",
                 "query": Object {
                   "branch": "release",
@@ -875,6 +961,24 @@ exports[`should work for long-living branches 2`] = `
       <ul
         className="menu"
       >
+        <li>
+          <Link
+            activeClassName="active"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/security_reports/sonarsource_security",
+                "query": Object {
+                  "branch": "release",
+                  "id": "foo",
+                },
+              }
+            }
+          >
+            security_reports.sonarsourceSecurity.page
+          </Link>
+        </li>
         <li>
           <Link
             activeClassName="active"

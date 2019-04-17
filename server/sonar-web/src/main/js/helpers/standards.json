@@ -3619,8 +3619,72 @@
     },
     "99": {
       "title": "Improper Control of Resource Identifiers ('Resource Injection')",
-      "description":
-        "The software receives input from an upstream component, but it does not restrict or incorrectly restricts the input before it is used as an identifier for a resource that may be outside the intended sphere of control."
+      "description": "The software receives input from an upstream component, but it does not restrict or incorrectly restricts the input before it is used as an identifier for a resource that may be outside the intended sphere of control."
+    }
+  },
+  "sonarsourceSecurity": {
+    "sql-injection": {
+      "title": "SQL Injection"
+    },
+    "rce": {
+      "title": "Code Injection (RCE)"
+    },
+    "object-injection": {
+      "title": "Object Injection"
+    },
+    "command-injection": {
+      "title": "Command Injection"
+    },
+    "path-traversal-injection": {
+      "title": "Path Traversal Injection"
+    },
+    "ldap-injection": {
+      "title": "LDAP Injection"
+    },
+    "xpath-injection": {
+      "title": "XPath Injection"
+    },
+    "expression-lang-injection": {
+      "title": "Expression Language Injection"
+    },
+    "log-injection": {
+      "title": "Log Injection"
+    },
+    "xxe": {
+      "title": "XML External Entity (XXE)"
+    },
+    "xss": {
+      "title": "Cross-Site Scripting (XSS)"
+    },
+    "dos": {
+      "title": "Denial of Service (DoS)"
+    },
+    "ssrf": {
+      "title": "Server-Side Request Forgery (SSRF)"
+    },
+    "csrf": {
+      "title": "Cross-Site Request Forgery (CSRF)"
+    },
+    "http-response-splitting": {
+      "title": "HTTP Response Splitting"
+    },
+    "open-redirect": {
+      "title": "Open Redirect"
+    },
+    "weak-cryptography": {
+      "title": "Weak Cryptography"
+    },
+    "auth": {
+      "title": "Authentication"
+    },
+    "insecure-conf": {
+      "title": "Insecure Configuration"
+    },
+    "file-manipulation": {
+      "title": "File Manipulation"
+    },
+    "others": {
+      "title": "Others"
     }
   }
 }

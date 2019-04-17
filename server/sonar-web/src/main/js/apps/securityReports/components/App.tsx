@@ -21,17 +21,18 @@ import * as React from 'react';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import VulnerabilityList from './VulnerabilityList';
-import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { translate } from '../../../helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import Checkbox from '../../../components/controls/Checkbox';
-import NotFound from '../../../app/components/NotFound';
-import { getSecurityHotspots } from '../../../api/security-reports';
-import { isLongLivingBranch } from '../../../helpers/branches';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { Alert } from '../../../components/ui/Alert';
+import Checkbox from '../../../components/controls/Checkbox';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import DocTooltip from '../../../components/docs/DocTooltip';
+import NotFound from '../../../app/components/NotFound';
+import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { withRouter, Location, Router } from '../../../components/hoc/withRouter';
+import { translate } from '../../../helpers/l10n';
+import { isLongLivingBranch } from '../../../helpers/branches';
+import { getSecurityHotspots } from '../../../api/security-reports';
+import { getType } from '../utils';
 import '../style.css';
 
 interface Props {
@@ -59,7 +60,7 @@ export class App extends React.PureComponent<Props, State> {
       loading: false,
       findings: [],
       hasVulnerabilities: false,
-      type: this.getType(props.params.type),
+      type: getType(props.params.type),
       showCWE: props.location.query.showCWE === 'true'
     };
   }
@@ -72,7 +73,7 @@ export class App extends React.PureComponent<Props, State> {
   componentWillReceiveProps(newProps: Props) {
     if (newProps.location.pathname !== this.props.location.pathname) {
       const showCWE = newProps.location.query.showCWE === 'true';
-      const type = this.getType(newProps.params.type);
+      const type = getType(newProps.params.type);
       this.setState({ type, showCWE }, this.fetchSecurityHotspots);
     }
   }
@@ -80,16 +81,6 @@ export class App extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  getType = (type: string): T.StandardType => {
-    if (type === 'owasp_top_10') {
-      return 'owaspTop10';
-    } else if (type === 'sans_top_25') {
-      return 'sansTop25';
-    } else {
-      return 'sonarsource';
-    }
-  };
 
   fetchSecurityHotspots = () => {
     const { branchLike, component } = this.props;
@@ -150,7 +141,7 @@ export class App extends React.PureComponent<Props, State> {
   render() {
     const { branchLike, component, params } = this.props;
     const { loading, findings, showCWE, type } = this.state;
-    if (params.type !== 'owasp_top_10' && params.type !== 'sans_top_25') {
+    if (!['owasp_top_10', 'sans_top_25', 'sonarsource_security'].includes(params.type)) {
       return <NotFound withContainer={false} />;
     }
     return (

@@ -89,6 +89,7 @@ const location = { pathname: 'foo', query: {} };
 const locationWithCWE = { pathname: 'foo', query: { showCWE: 'true' } };
 const owaspParams = { type: 'owasp_top_10' };
 const sansParams = { type: 'sans_top_25' };
+const sonarParams = { type: 'sonarsource_security' };
 const wrongParams = { type: 'foo' };
 
 beforeEach(() => {
@@ -185,6 +186,25 @@ it('renders sansTop25', () => {
   expect(getSecurityHotspots).toBeCalledWith({
     project: 'foo',
     standard: 'sansTop25',
+    includeDistribution: false,
+    branch: undefined
+  });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('renders sonarsourceSecurity', async () => {
+  const wrapper = shallow(
+    <App
+      component={component}
+      location={location}
+      params={sonarParams}
+      router={{ push: jest.fn() }}
+    />
+  );
+  await waitAndUpdate(wrapper);
+  expect(getSecurityHotspots).toBeCalledWith({
+    project: 'foo',
+    standard: 'sonarsourceSecurity',
     includeDistribution: false,
     branch: undefined
   });

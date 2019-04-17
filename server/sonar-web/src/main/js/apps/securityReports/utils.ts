@@ -52,6 +52,25 @@ export function renderSansTop25Category(
   return addPrefix(record ? record.title : category, 'SANS', withPrefix);
 }
 
+export function renderSonarSourceCategory(
+  standards: T.Standards,
+  category: string,
+  withPrefix = false
+): string {
+  const record = standards.sonarsourceSecurity[category];
+  return addPrefix(record ? record.title : category, 'SONAR', withPrefix);
+}
+
 function addPrefix(title: string, prefix: string, withPrefix: boolean) {
   return withPrefix ? `${prefix} ${title}` : title;
+}
+
+const TYPES_MAP: T.Dict<T.StandardType> = {
+  owasp_top_10: 'owaspTop10',
+  sans_top_25: 'sansTop25',
+  sonarsource_security: 'sonarsourceSecurity'
+};
+
+export function getType(type: string): T.StandardType {
+  return TYPES_MAP[type] || 'sonarsourceSecurity';
 }
