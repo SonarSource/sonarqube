@@ -43,14 +43,9 @@ interface Props {
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: ((index: number) => void) | undefined;
   onSymbolClick: (symbols: Array<string>) => void;
+  padding?: number;
   scroll?: (element: HTMLElement) => void;
-  secondaryIssueLocations: Array<{
-    from: number;
-    to: number;
-    line: number;
-    index: number;
-    startLine: number;
-  }>;
+  secondaryIssueLocations: T.LinearIssueLocation[];
   selectedIssue: string | undefined;
   showIssues?: boolean;
 }
@@ -94,7 +89,9 @@ export default class LineCode extends React.PureComponent<Props, State> {
     this.attachEvents();
     if (
       this.props.highlightedLocationMessage &&
-      prevProps.highlightedLocationMessage !== this.props.highlightedLocationMessage &&
+      (!prevProps.highlightedLocationMessage ||
+        prevProps.highlightedLocationMessage.index !==
+          this.props.highlightedLocationMessage.index) &&
       this.activeMarkerNode &&
       this.props.scroll
     ) {
@@ -159,6 +156,7 @@ export default class LineCode extends React.PureComponent<Props, State> {
       issueLocations,
       line,
       onIssueSelect,
+      padding,
       secondaryIssueLocations,
       selectedIssue,
       showIssues
@@ -204,7 +202,8 @@ export default class LineCode extends React.PureComponent<Props, State> {
         token.markers.forEach(marker => {
           const selected =
             highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
-          const message = selected ? highlightedLocationMessage!.text : undefined;
+          const loc = secondaryIssueLocations.find(loc => loc.index === marker);
+          const message = loc && loc.text;
           renderedTokens.push(this.renderMarker(marker, message, selected, leadingMarker));
         });
       }
@@ -218,8 +217,14 @@ export default class LineCode extends React.PureComponent<Props, State> {
       leadingMarker = (index === 0 ? true : leadingMarker) && !token.text.trim().length;
     });
 
+    const style = padding
+      ? {
+          paddingBottom: padding + 'px'
+        }
+      : undefined;
+
     return (
-      <td className={className} data-line-number={line.line}>
+      <td className={className} data-line-number={line.line} style={style}>
         <div className="source-line-code-inner">
           <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
         </div>
@@ -228,6 +233,17 @@ export default class LineCode extends React.PureComponent<Props, State> {
             branchLike={this.props.branchLike}
             issuePopup={this.props.issuePopup}
             issues={issues}
+            onIssueChange={this.props.onIssueChange}
+            onIssueClick={onIssueSelect}
+            onIssuePopupToggle={this.props.onIssuePopupToggle}
+            selectedIssue={selectedIssue}
+          />
+        )}
+        {selectedIssue && !showIssues && (
+          <LineIssuesList
+            branchLike={this.props.branchLike}
+            issuePopup={this.props.issuePopup}
+            issues={issues.filter(i => i.key === selectedIssue)}
             onIssueChange={this.props.onIssueChange}
             onIssueClick={onIssueSelect}
             onIssuePopupToggle={this.props.onIssuePopupToggle}

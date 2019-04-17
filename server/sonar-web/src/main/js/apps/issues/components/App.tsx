@@ -23,7 +23,6 @@ import * as key from 'keymaster';
 import Helmet from 'react-helmet';
 import { keyBy, omit, without } from 'lodash';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
-import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import MyIssuesFilter from './MyIssuesFilter';
@@ -802,7 +801,7 @@ export class App extends React.PureComponent<Props, State> {
     );
   };
 
-  selectLocation = (index?: number) => {
+  selectLocation = (index: number) => {
     this.setState(actions.selectLocation(index));
   };
 
@@ -1036,13 +1035,49 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
+  renderHeader({
+    openIssue,
+    paging,
+    selectedIndex
+  }: {
+    openIssue: T.Issue | undefined;
+    paging: T.Paging | undefined;
+    selectedIndex: number | undefined;
+  }) {
+    return openIssue ? (
+      <A11ySkipTarget anchor="issues_main" />
+    ) : (
+      <div className="layout-page-header-panel layout-page-main-header issues-main-header">
+        <div className="layout-page-header-panel-inner layout-page-main-header-inner">
+          <div className="layout-page-main-inner">
+            <A11ySkipTarget anchor="issues_main" />
+
+            {this.renderBulkChange(openIssue)}
+            <PageActions
+              canSetHome={Boolean(
+                !this.props.organization &&
+                  !this.props.component &&
+                  (!isSonarCloud() || this.props.myIssues)
+              )}
+              effortTotal={this.state.effortTotal}
+              onReload={this.handleReload}
+              paging={paging}
+              selectedIndex={selectedIndex}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   renderPage() {
-    const { checkAll, loading, openIssue, paging } = this.state;
+    const { checkAll, issues, loading, openIssue, paging } = this.state;
     return (
       <div className="layout-page-main-inner">
         {openIssue ? (
           <IssuesSourceViewer
             branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
+            issues={issues}
             loadIssues={this.fetchIssuesForComponent}
             locationsNavigator={this.state.locationsNavigator}
             onIssueChange={this.handleIssueChange}
@@ -1071,7 +1106,6 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { component } = this.props;
     const { openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     return (
@@ -1082,38 +1116,7 @@ export class App extends React.PureComponent<Props, State> {
         {this.renderSide(openIssue)}
 
         <div className="layout-page-main">
-          <div className="layout-page-header-panel layout-page-main-header issues-main-header">
-            <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-              <div className="layout-page-main-inner">
-                <A11ySkipTarget anchor="issues_main" />
-
-                {this.renderBulkChange(openIssue)}
-                {openIssue ? (
-                  <div className="pull-left width-60">
-                    <ComponentBreadcrumbs
-                      component={component}
-                      issue={openIssue}
-                      organization={this.props.organization}
-                      selectedFlowIndex={this.state.selectedFlowIndex}
-                      selectedLocationIndex={this.state.selectedLocationIndex}
-                    />
-                  </div>
-                ) : (
-                  <PageActions
-                    canSetHome={Boolean(
-                      !this.props.organization &&
-                        !this.props.component &&
-                        (!isSonarCloud() || this.props.myIssues)
-                    )}
-                    effortTotal={this.state.effortTotal}
-                    onReload={this.handleReload}
-                    paging={paging}
-                    selectedIndex={selectedIndex}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+          {this.renderHeader({ openIssue, paging, selectedIndex })}
 
           {this.renderPage()}
         </div>

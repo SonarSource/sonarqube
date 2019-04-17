@@ -17,41 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.component-name {
-  line-height: 16px;
-  font-size: var(--smallFontSize);
+.source-viewer-header-slim {
+  padding: 4px 10px 4px;
+  border-bottom: 1px solid var(--gray80);
+  background-color: var(--barBackgroundColor);
+  align-items: center;
+  min-height: 25px;
 }
 
-.component-name:before,
-.component-name:after {
-  display: table;
-  content: '';
-  line-height: 0;
-}
-
-.component-name:after {
-  clear: both;
-}
-
-.component-name-parent {
-  float: left;
-  margin-right: 20px;
-}
-
-.component-name-parent:last-child {
-  margin-right: 0;
-}
-
-.component-name-path {
-  float: left;
-  clear: left;
-}
-
-.component-name-parent + .component-name-path {
-  margin-top: 4px;
-}
-
-.component-name-favorite {
-  margin-left: 4px;
-  padding: 0;
+.source-viewer-header-slim-actions {
+  margin-left: calc(3 * var(--gridSize));
 }

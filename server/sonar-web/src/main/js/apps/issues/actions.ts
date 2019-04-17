@@ -43,27 +43,27 @@ export function disableLocationsNavigator() {
   return { locationsNavigator: false };
 }
 
-export function selectLocation(nextIndex: number | undefined) {
-  return (state: State) => {
+export function selectLocation(nextIndex: number) {
+  return (state: Pick<State, 'selectedLocationIndex' | 'openIssue'>) => {
     const { selectedLocationIndex: index, openIssue } = state;
     if (openIssue) {
-      if (!state.locationsNavigator) {
-        if (nextIndex !== undefined) {
-          return { locationsNavigator: true, selectedLocationIndex: nextIndex };
-        }
-      } else if (index !== undefined) {
+      if (index === nextIndex) {
         // disable locations when selecting (clicking) the same location
         return {
-          locationsNavigator: nextIndex !== index,
-          selectedLocationIndex: nextIndex
+          locationsNavigator: false,
+          selectedLocationIndex: undefined
         };
+      } else {
+        return { locationsNavigator: true, selectedLocationIndex: nextIndex };
       }
     }
     return null;
   };
 }
 
-export function selectNextLocation(state: State) {
+export function selectNextLocation(
+  state: Pick<State, 'selectedFlowIndex' | 'selectedLocationIndex' | 'openIssue'>
+) {
   const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
     const locations =

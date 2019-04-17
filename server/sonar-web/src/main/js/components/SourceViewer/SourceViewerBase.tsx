@@ -20,8 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { intersection, uniqBy } from 'lodash';
-import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
+import SourceViewerHeader from './SourceViewerHeader';
+import SourceViewerHeaderSlim from './SourceViewerHeaderSlim';
 import { SourceViewerContext } from './SourceViewerContext';
 import DuplicationPopup from './components/DuplicationPopup';
 import defaultLoadIssues from './helpers/loadIssues';
@@ -81,6 +82,7 @@ export interface Props {
   scroll?: (element: HTMLElement) => void;
   selectedIssue?: string;
   showMeasures?: boolean;
+  slimHeader?: boolean;
 }
 
 interface State {
@@ -667,6 +669,24 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   }
 
+  renderHeader(branchLike: T.BranchLike | undefined, sourceViewerFile: T.SourceViewerFile) {
+    return this.props.slimHeader ? (
+      <SourceViewerHeaderSlim branchLike={branchLike} sourceViewerFile={sourceViewerFile} />
+    ) : (
+      <WorkspaceContext.Consumer>
+        {({ openComponent }) => (
+          <SourceViewerHeader
+            branchLike={this.props.branchLike}
+            issues={this.state.issues}
+            openComponent={openComponent}
+            showMeasures={this.props.showMeasures}
+            sourceViewerFile={sourceViewerFile}
+          />
+        )}
+      </WorkspaceContext.Consumer>
+    );
+  }
+
   render() {
     const { component, loading, sources, notAccessible, sourceRemoved } = this.state;
 
@@ -701,17 +721,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     return (
       <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
         <div className={className} ref={node => (this.node = node)}>
-          <WorkspaceContext.Consumer>
-            {({ openComponent }) => (
-              <SourceViewerHeader
-                branchLike={this.props.branchLike}
-                issues={this.state.issues}
-                openComponent={openComponent}
-                showMeasures={this.props.showMeasures}
-                sourceViewerFile={component}
-              />
-            )}
-          </WorkspaceContext.Consumer>
+          {this.renderHeader(this.props.branchLike, component)}
           {sourceRemoved && (
             <Alert className="spacer-top" variant="warning">
               {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}

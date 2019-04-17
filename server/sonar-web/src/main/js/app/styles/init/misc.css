@@ -57,6 +57,10 @@ th.nowrap {
   font-size: var(--smallFontSize);
 }
 
+.nudged-up {
+  margin-top: -1px;
+}
+
 .spacer-left {
   margin-left: 8px !important;
 }

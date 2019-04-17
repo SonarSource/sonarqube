@@ -1,0 +1,257 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2019 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.source-line:hover .source-line-number,
+.source-line:hover .source-line-issues,
+.source-line:hover .source-line-coverage,
+.source-line:hover .source-line-duplications,
+.source-line:hover .source-line-duplications-extra,
+.source-line:hover .source-line-scm {
+  border-color: #e9e9e9;
+  background-color: #e9e9e9;
+}
+
+.source-line:hover .source-line-code {
+  background-color: #f5f5f5;
+}
+
+.source-line-highlighted .source-line-number,
+.source-line-highlighted:hover .source-line-number,
+.source-line-highlighted .source-line-issues,
+.source-line-highlighted:hover .source-line-issues,
+.source-line-highlighted .source-line-coverage,
+.source-line-highlighted:hover .source-line-coverage,
+.source-line-highlighted .source-line-duplications,
+.source-line-highlighted:hover .source-line-duplications,
+.source-line-highlighted .source-line-duplications-extra,
+.source-line-highlighted:hover .source-line-duplications-extra,
+.source-line-highlighted .source-line-scm,
+.source-line-highlighted:hover .source-line-scm {
+  border-color: #c4dfec !important;
+  background-color: #c4dfec;
+}
+
+.source-line-highlighted .source-line-code,
+.source-line-highlighted:hover .source-line-code {
+  background-color: #d9edf7;
+}
+
+.source-line-filtered .source-line-code {
+  background-color: var(--leakColor) !important;
+}
+
+.source-line-filtered.source-line-highlighted .source-line-code,
+.source-line-filtered.source-line-highlighted:hover .source-line-code {
+  background-color: #cdd9c4 !important;
+}
+
+.source-line-filtered:hover .source-line-code {
+  background-color: #f1e8cb !important;
+}
+
+.source-line-filtered.source-line-filtered-dark .source-line-code {
+  background-color: #f9ebb7 !important;
+}
+
+.source-line-filtered.source-line-filtered-dark:hover .source-line-code {
+  background-color: #eaddb2 !important;
+}
+
+.source-line-last .source-line-code {
+  padding-bottom: 160px;
+}
+
+.source-viewer pre {
+  height: 18px;
+  padding: 0;
+}
+
+.source-viewer pre,
+.source-line-number,
+.source-line-scm {
+  line-height: 18px;
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: var(--smallFontSize);
+}
+
+.source-line-code {
+  position: relative;
+  padding: 0 10px;
+}
+
+.source-line-code pre {
+  float: left;
+}
+
+.source-line-code .issue-list {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.source-line-code-inner {
+  min-height: 18px;
+}
+
+.source-line-code-inner:before,
+.source-line-code-inner:after {
+  display: table;
+  content: '';
+  line-height: 0;
+}
+
+.source-line-code-inner:after {
+  clear: both;
+}
+
+.source-line-code-issue {
+  display: inline-block;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1M0M2Rjk4M0M3QUYxMUUzODkzRUREMUM5OTNDMjY4QSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1M0M2Rjk4NEM3QUYxMUUzODkzRUREMUM5OTNDMjY4QSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjUzQzZGOTgxQzdBRjExRTM4OTNFREQxQzk5M0MyNjhBIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjUzQzZGOTgyQzdBRjExRTM4OTNFREQxQzk5M0MyNjhBIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+bcqJtQAAAEhJREFUeNpi+G+swwDGDAwgbAWlwZiJAQFCgfgwEIfDRaC67ID4NRDnQ2kQnwFZwgFqnANMAQOUYY9sF0wBiCGH5CBkrAgQYACuWi4sSGW8yAAAAABJRU5ErkJggg==);
+  background-repeat: repeat-x;
+  background-size: 4px;
+  background-position: bottom;
+}
+
+.source-meta {
+  position: relative;
+  vertical-align: top;
+  width: 1px;
+  background-clip: padding-box;
+  user-select: none;
+}
+
+.source-meta:focus {
+  outline: none;
+}
+
+.source-meta[role='button'] {
+  cursor: pointer;
+}
+
+.source-meta + .source-meta {
+  border-left: 1px solid var(--barBackgroundColor);
+}
+
+.source-line-number {
+  min-width: 18px;
+  padding: 0 10px;
+  background-color: var(--barBackgroundColor);
+  color: var(--secondFontColor);
+  text-align: right;
+}
+
+.source-line-number:before {
+  content: attr(data-line-number);
+}
+
+.source-line-issues {
+  position: relative;
+  padding: 0 2px;
+  background-color: var(--barBackgroundColor);
+  white-space: nowrap;
+}
+
+.source-line-with-issues {
+  padding-right: 4px;
+}
+
+.source-line-issues-counter {
+  position: absolute;
+  left: 17px;
+  line-height: 8px;
+  font-size: 8px;
+  z-index: 900;
+}
+
+.source-line-coverage {
+  background-color: var(--barBackgroundColor);
+}
+
+.source-line-duplications,
+.source-line-duplications-extra {
+  background-color: var(--barBackgroundColor);
+}
+
+.source-line-duplications-extra {
+  display: none;
+}
+
+.source-duplications-expanded .source-line-duplications {
+  display: none;
+}
+
+.source-duplications-expanded .source-line-duplications-extra {
+  display: table-cell;
+}
+
+.source-line-scm {
+  padding: 0 5px;
+  background-color: var(--barBackgroundColor);
+}
+
+.source-line-scm-inner {
+  max-width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-line-scm-inner:before {
+  content: attr(data-author);
+}
+
+.source-line-bar {
+  width: 5px;
+  height: 18px;
+}
+
+.source-line-bar[role='button'] {
+  cursor: pointer;
+}
+
+.source-line-bar:focus {
+  outline: none;
+}
+
+.source-line-covered {
+  background-color: var(--lineCoverageGreen) !important;
+}
+
+.source-line-uncovered {
+  background-color: var(--lineCoverageRed) !important;
+}
+
+.source-line-partially-covered {
+  background-color: var(--lineCoverageRed) !important;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.5) 4px,
+    transparent 4px,
+    transparent 8px,
+    rgba(255, 255, 255, 0.5) 8px,
+    rgba(255, 255, 255, 0.5) 12px,
+    transparent 12px,
+    transparent 16px,
+    rgba(255, 255, 255, 0.5) 16px,
+    rgba(255, 255, 255, 0.5) 20px
+  ) !important;
+}
+
+.source-line-duplicated {
+  background-color: #797979 !important;
+}

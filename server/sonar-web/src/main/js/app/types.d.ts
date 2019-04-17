@@ -273,6 +273,8 @@ declare namespace T {
 
   export type EditionKey = 'community' | 'developer' | 'enterprise' | 'datacenter';
 
+  export type ExpandDirection = 'up' | 'down';
+
   export interface Extension {
     key: string;
     name: string;
@@ -286,6 +288,7 @@ declare namespace T {
   export interface FlowLocation {
     component: string;
     componentName?: string;
+    index?: number;
     msg?: string;
     textRange: TextRange;
   }
@@ -400,6 +403,9 @@ declare namespace T {
 
   export type IssueType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT';
 
+  export interface IssuesByLine {
+    [key: number]: Issue[];
+  }
   export interface Language {
     key: string;
     name: string;
@@ -418,7 +424,12 @@ declare namespace T {
     index?: number;
     line: number;
     startLine?: number;
+    text?: string;
     to: number;
+  }
+
+  export interface LineMap {
+    [line: number]: SourceLine;
   }
 
   export interface LoggedInUser extends CurrentUser {
@@ -792,6 +803,14 @@ declare namespace T {
     isOrphan?: true;
     mergeBranch: string;
     type: 'SHORT';
+  }
+
+  export interface SnippetGroup extends SnippetsByComponent {
+    locations: T.FlowLocation[];
+  }
+  export interface SnippetsByComponent {
+    component: SourceViewerFile;
+    sources: { [line: number]: SourceLine };
   }
 
   export interface SourceLine {

@@ -41,9 +41,14 @@
 }
 
 .location-index > .location-message {
+  display: none;
   position: absolute;
   bottom: calc(100% + 4px);
   left: 0;
+}
+
+.location-index:hover > .location-message {
+  display: block;
 }
 
 .location-index > .location-message::after {

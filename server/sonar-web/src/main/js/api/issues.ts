@@ -20,6 +20,7 @@
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { RawIssue } from '../helpers/issues';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
 
 export interface IssueResponse {
   components?: Array<{ key: string; name: string }>;
@@ -165,4 +166,22 @@ export function searchIssueAuthors(data: {
   q?: string;
 }): Promise<string[]> {
   return getJSON('/api/issues/authors', data).then(r => r.authors, throwGlobalError);
+}
+
+export function getIssueFlowSnippets(issueKey: string): Promise<T.Dict<T.SnippetsByComponent>> {
+  return getJSON('/api/sources/issue_snippets', { issueKey }).then(result => {
+    Object.keys(result).forEach(k => {
+      if (result[k].sources) {
+        result[k].sources = result[k].sources.reduce(
+          (lineMap: T.Dict<T.SourceLine>, line: T.SourceLine) => {
+            line.coverageStatus = getCoverageStatus(line);
+            lineMap[line.line] = line;
+            return lineMap;
+          },
+          {}
+        );
+      }
+    });
+    return result;
+  }, throwGlobalError);
 }

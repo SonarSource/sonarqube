@@ -97,7 +97,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               </a>
             </div>
 
-            {subProject != null && (
+            {subProject !== undefined && (
               <div className="component-name-parent">
                 <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
               </div>

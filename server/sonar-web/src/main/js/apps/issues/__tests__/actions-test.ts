@@ -17,12 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { selectFlow } from '../actions';
 
-it('should select flow and enable locations navigator', () => {
-  expect(selectFlow(5)()).toEqual({
-    locationsNavigator: true,
-    selectedFlowIndex: 5,
-    selectedLocationIndex: 0
+import { selectFlow, selectLocation } from '../actions';
+import { mockIssue } from '../../../helpers/testMocks';
+
+describe('selectFlow', () => {
+  it('should select flow and enable locations navigator', () => {
+    expect(selectFlow(5)()).toEqual({
+      locationsNavigator: true,
+      selectedFlowIndex: 5,
+      selectedLocationIndex: 0
+    });
+  });
+});
+
+describe('selectLocation', () => {
+  it('should select location and enable locations navigator', () => {
+    expect(selectLocation(5)({ openIssue: mockIssue() })).toEqual({
+      locationsNavigator: true,
+      selectedLocationIndex: 5
+    });
+  });
+
+  it('should deselect location when clicked again', () => {
+    expect(selectLocation(5)({ openIssue: mockIssue(), selectedLocationIndex: 5 })).toEqual({
+      locationsNavigator: false,
+      selectedLocationIndex: undefined
+    });
+  });
+
+  it('should ignore if no open issue', () => {
+    expect(selectLocation(5)({ openIssue: undefined })).toBeNull();
   });
 });

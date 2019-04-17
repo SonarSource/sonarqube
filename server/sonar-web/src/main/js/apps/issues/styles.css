@@ -225,6 +225,45 @@
   border-color: rgba(209, 133, 130, 0.6);
 }
 
+.component-source-container {
+  border: 1px solid var(--gray80);
+}
+
+.component-source-container + .component-source-container {
+  margin-top: var(--gridSize);
+}
+
+.component-source-container-header {
+  background-color: var(--gray94);
+  padding: var(--gridSize);
+}
+
+.snippet {
+  margin: var(--gridSize);
+  border: 1px solid var(--gray80);
+  overflow-x: auto;
+}
+
+.snippet > .expand-block {
+  box-sizing: border-box;
+  color: var(--secondFontColor);
+  height: 20px;
+  width: 100%;
+  padding: calc(var(--gridSize) / 4);
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.snippet > .expand-block:hover {
+  color: var(--darkBlue);
+}
+.snippet > .expand-block-above {
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAADdJREFUCB1dzMEKADAIAlBd1v9/bcc2YgRjHh8qq2qTxCQzsX4wM6y30RARF3sy0Es1SIK7Y64OpCES1W69JS4AAAAASUVORK5CYII=');
+}
+.snippet > .expand-block-below {
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wQQBjQEQVd5jwAAADhJREFUCNddyTEKADEMA8GVA/7/Z+PGwUp1cGTaYe/tv5lxrLWoKj6SiMzkjZDEG7JtANt0N+ccLrB/KZxXTt7fAAAAAElFTkSuQmCC');
+}
+
 .issues-my-issues-filter {
   margin-bottom: 24px;
   text-align: center;

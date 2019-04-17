@@ -33,6 +33,18 @@ export function issuesByLine(issues: T.Issue[]) {
   return index;
 }
 
+export function issuesByComponentAndLine(
+  issues: T.Issue[] = []
+): { [component: string]: { [line: number]: T.Issue[] } } {
+  return issues.reduce((mapping: { [component: string]: { [line: number]: T.Issue[] } }, issue) => {
+    mapping[issue.component] = mapping[issue.component] || {};
+    const line = issue.textRange ? issue.textRange.endLine : 0;
+    mapping[issue.component][line] = mapping[issue.component][line] || [];
+    mapping[issue.component][line].push(issue);
+    return mapping;
+  }, {});
+}
+
 export function locationsByLine(issues: T.Issue[]) {
   const index: { [line: number]: T.LinearIssueLocation[] } = {};
   issues.forEach(issue => {

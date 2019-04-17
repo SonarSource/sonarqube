@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="component-source-container"
+>
+  <SourceViewerHeaderSlim
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    expandable={true}
+    loading={false}
+    onExpand={[Function]}
+    sourceViewerFile={
+      Object {
+        "key": "foo",
+        "measures": Object {
+          "coverage": "85.2",
+          "duplicationDensity": "1.0",
+          "issues": "12",
+          "lines": "56",
+        },
+        "path": "foo/bar.ts",
+        "project": "my-project",
+        "projectName": "MyProject",
+        "q": "FIL",
+        "uuid": "foo-bar",
+      }
+    }
+  />
+</div>
+`;

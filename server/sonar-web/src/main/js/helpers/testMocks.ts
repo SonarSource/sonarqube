@@ -155,6 +155,38 @@ export function mockQualityGateStatusCondition(
   };
 }
 
+export function mockSnippetsByComponent(
+  component = 'main.js',
+  lines: number[] = [16]
+): T.SnippetsByComponent {
+  const sources = lines.reduce((lines: { [key: number]: T.SourceLine }, line) => {
+    lines[line] = mockSourceLine({ line });
+    return lines;
+  }, {});
+  return {
+    component: mockSourceViewerFile({
+      key: component,
+      path: component
+    }),
+    sources
+  };
+}
+
+export function mockSourceLine(overrides: Partial<T.SourceLine> = {}): T.SourceLine {
+  return {
+    line: 16,
+    code: '<span class="k">import</span> java.util.<span class="sym-9 sym">ArrayList</span>;',
+    coverageStatus: 'covered',
+    coveredConditions: 2,
+    scmRevision: '80f564becc0c0a1c9abaa006eca83a4fd278c3f0',
+    scmAuthor: 'simon.brandhof@sonarsource.com',
+    scmDate: '2018-12-11T10:48:39+0100',
+    duplicated: false,
+    isNew: true,
+    ...overrides
+  };
+}
+
 export function mockCurrentUser(overrides: Partial<T.CurrentUser> = {}): T.CurrentUser {
   return {
     isLoggedIn: false,
@@ -470,16 +502,6 @@ export function mockLongLivingBranch(
 
 export function mockStore(state: any = {}, reducer = (state: any) => state): Store {
   return createStore(reducer, state);
-}
-
-export function mockSourceLine(overrides: Partial<T.SourceLine> = {}): T.SourceLine {
-  return {
-    code: 'function fooBar() {',
-    coverageStatus: 'covered',
-    coveredConditions: 2,
-    line: 5,
-    ...overrides
-  };
 }
 
 export function mockDocumentationEntry(

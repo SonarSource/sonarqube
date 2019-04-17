@@ -18,9 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { intersection } from 'lodash';
 import Line from './components/Line';
-import { getLinearLocations } from './helpers/issueLocations';
+import { getSecondaryIssueLocationsForLine } from './helpers/issueLocations';
+import {
+  optimizeSelectedIssue,
+  optimizeLocationMessage,
+  optimizeHighlightedSymbols
+} from './helpers/lines';
 import { translate } from '../../helpers/l10n';
 import { Button } from '../ui/buttons';
 
@@ -88,21 +92,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     return this.props.issueLocationsByLine[line.line] || EMPTY_ARRAY;
   };
 
-  getSecondaryIssueLocationsForLine = (line: T.SourceLine): T.LinearIssueLocation[] => {
-    const { highlightedLocations } = this.props;
-    if (!highlightedLocations) {
-      return EMPTY_ARRAY;
-    }
-    return highlightedLocations.reduce((locations, location, index) => {
-      const linearLocations: T.LinearIssueLocation[] = location
-        ? getLinearLocations(location.textRange)
-            .filter(l => l.line === line.line)
-            .map(l => ({ ...l, startLine: location.textRange.startLine, index }))
-        : [];
-      return [...locations, ...linearLocations];
-    }, []);
-  };
-
   renderLine = ({
     line,
     index,
@@ -116,40 +105,13 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     displayDuplications: boolean;
     displayIssues: boolean;
   }) => {
-    const { highlightedLocationMessage, selectedIssue, sources } = this.props;
+    const { highlightedLocationMessage, highlightedLocations, selectedIssue, sources } = this.props;
 
-    const secondaryIssueLocations = this.getSecondaryIssueLocationsForLine(line);
+    const secondaryIssueLocations = getSecondaryIssueLocationsForLine(line, highlightedLocations);
 
     const duplicationsCount = this.props.duplications ? this.props.duplications.length : 0;
 
     const issuesForLine = this.getIssuesForLine(line);
-
-    // for the following properties pass null if the line for sure is not impacted
-    const symbolsForLine = this.props.symbolsByLine[line.line] || [];
-    const { highlightedSymbols } = this.props;
-    let optimizedHighlightedSymbols: string[] | undefined = intersection(
-      symbolsForLine,
-      highlightedSymbols
-    );
-    if (!optimizedHighlightedSymbols.length) {
-      optimizedHighlightedSymbols = undefined;
-    }
-
-    const optimizedSelectedIssue =
-      selectedIssue !== undefined && issuesForLine.find(issue => issue.key === selectedIssue)
-        ? selectedIssue
-        : undefined;
-
-    const optimizedSecondaryIssueLocations =
-      secondaryIssueLocations.length > 0 ? secondaryIssueLocations : EMPTY_ARRAY;
-
-    const optimizedLocationMessage =
-      highlightedLocationMessage != null &&
-      optimizedSecondaryIssueLocations.some(
-        location => location.index === highlightedLocationMessage.index
-      )
-        ? highlightedLocationMessage
-        : undefined;
 
     return (
       <Line
@@ -162,8 +124,14 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
         highlighted={line.line === this.props.highlightedLine}
-        highlightedLocationMessage={optimizedLocationMessage}
-        highlightedSymbols={optimizedHighlightedSymbols}
+        highlightedLocationMessage={optimizeLocationMessage(
+          highlightedLocationMessage,
+          secondaryIssueLocations
+        )}
+        highlightedSymbols={optimizeHighlightedSymbols(
+          this.props.symbolsByLine[line.line],
+          this.props.highlightedSymbols
+        )}
         issueLocations={this.getIssueLocationsForLine(line)}
         issuePopup={this.props.issuePopup}
         issues={issuesForLine}
@@ -185,8 +153,8 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         previousLine={index > 0 ? sources[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}
         scroll={this.props.scroll}
-        secondaryIssueLocations={optimizedSecondaryIssueLocations}
-        selectedIssue={optimizedSelectedIssue}
+        secondaryIssueLocations={secondaryIssueLocations}
+        selectedIssue={optimizeSelectedIssue(selectedIssue, issuesForLine)}
       />
     );
   };

@@ -27,6 +27,7 @@ import LineDuplications from './LineDuplications';
 import LineDuplicationBlock from './LineDuplicationBlock';
 import LineIssuesIndicator from './LineIssuesIndicator';
 import LineCode from './LineCode';
+import './Line.css';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
@@ -60,15 +61,12 @@ interface Props {
   previousLine: T.SourceLine | undefined;
   renderDuplicationPopup: (index: number, line: number) => JSX.Element;
   scroll?: (element: HTMLElement) => void;
-  secondaryIssueLocations: Array<{
-    from: number;
-    to: number;
-    line: number;
-    index: number;
-    startLine: number;
-  }>;
+  secondaryIssueLocations: T.LinearIssueLocation[];
   selectedIssue: string | undefined;
+  verticalBuffer?: number;
 }
+
+const LINE_HEIGHT = 18;
 
 export default class Line extends React.PureComponent<Props> {
   isPopupOpen = (name: string, index?: number) => {
@@ -103,8 +101,12 @@ export default class Line extends React.PureComponent<Props> {
       'source-line-filtered-dark':
         displayCoverage &&
         (line.coverageStatus === 'uncovered' || line.coverageStatus === 'partially-covered'),
-      'source-line-last': this.props.last
+      'source-line-last': this.props.last === true
     });
+
+    const bottomPadding = this.props.verticalBuffer
+      ? this.props.verticalBuffer * LINE_HEIGHT
+      : undefined;
 
     return (
       <tr className={className} data-line-number={line.line}>
@@ -121,12 +123,14 @@ export default class Line extends React.PureComponent<Props> {
           previousLine={this.props.previousLine}
         />
 
-        {this.props.displayIssues && !this.props.displayAllIssues && (
+        {this.props.displayIssues && !this.props.displayAllIssues ? (
           <LineIssuesIndicator
             issues={this.props.issues}
             line={line}
             onClick={this.handleIssuesIndicatorClick}
           />
+        ) : (
+          <td className="source-meta source-line-issues" />
         )}
 
         {this.props.displayDuplications && (
@@ -161,6 +165,7 @@ export default class Line extends React.PureComponent<Props> {
           onIssueSelect={this.props.onIssueSelect}
           onLocationSelect={this.props.onLocationSelect}
           onSymbolClick={this.props.onSymbolClick}
+          padding={bottomPadding}
           scroll={this.props.scroll}
           secondaryIssueLocations={this.props.secondaryIssueLocations}
           selectedIssue={this.props.selectedIssue}

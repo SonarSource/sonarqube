@@ -32,3 +32,25 @@ export function getLinearLocations(textRange: T.TextRange | undefined): T.Linear
   }
   return locations;
 }
+
+export function getSecondaryIssueLocationsForLine(
+  line: T.SourceLine,
+  highlightedLocations: (T.FlowLocation | undefined)[] | undefined
+): T.LinearIssueLocation[] {
+  if (!highlightedLocations) {
+    return [];
+  }
+  return highlightedLocations.reduce((locations, location) => {
+    const linearLocations: T.LinearIssueLocation[] = location
+      ? getLinearLocations(location.textRange)
+          .filter(l => l.line === line.line)
+          .map(l => ({
+            ...l,
+            startLine: location.textRange.startLine,
+            index: location.index,
+            text: location.msg
+          }))
+      : [];
+    return [...locations, ...linearLocations];
+  }, []);
+}

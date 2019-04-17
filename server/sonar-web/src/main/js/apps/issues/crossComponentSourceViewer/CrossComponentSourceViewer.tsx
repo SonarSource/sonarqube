@@ -17,41 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.component-name {
-  line-height: 16px;
-  font-size: var(--smallFontSize);
-}
+import { lazyLoad } from '../../../components/lazyLoad';
 
-.component-name:before,
-.component-name:after {
-  display: table;
-  content: '';
-  line-height: 0;
-}
+const CrossComponentSourceViewer = lazyLoad(() =>
+  import(/* webpackPrefetch: true */ './CrossComponentSourceViewerWrapper')
+);
 
-.component-name:after {
-  clear: both;
-}
-
-.component-name-parent {
-  float: left;
-  margin-right: 20px;
-}
-
-.component-name-parent:last-child {
-  margin-right: 0;
-}
-
-.component-name-path {
-  float: left;
-  clear: left;
-}
-
-.component-name-parent + .component-name-path {
-  margin-top: 4px;
-}
-
-.component-name-favorite {
-  margin-left: 4px;
-  padding: 0;
-}
+export default CrossComponentSourceViewer;

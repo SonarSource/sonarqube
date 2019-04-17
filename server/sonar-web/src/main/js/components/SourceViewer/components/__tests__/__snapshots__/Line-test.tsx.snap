@@ -2,16 +2,21 @@
 
 exports[`should render correctly 1`] = `
 <tr
-  className="source-line"
-  data-line-number={5}
+  className="source-line source-line-filtered"
+  data-line-number={16}
 >
   <LineNumber
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -20,14 +25,22 @@ exports[`should render correctly 1`] = `
   <LineSCM
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
     popupOpen={false}
+  />
+  <td
+    className="source-meta source-line-issues"
   />
   <LineCode
     branchLike={
@@ -40,8 +53,6 @@ exports[`should render correctly 1`] = `
         "title": "Foo Bar feature",
       }
     }
-    displayIssueLocationsCount={false}
-    displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     issueLocations={Array []}
     issues={
@@ -112,10 +123,15 @@ exports[`should render correctly 1`] = `
     }
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onIssueChange={[MockFunction]}
@@ -133,16 +149,20 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly for last, new, and highlighted lines 1`] = `
 <tr
   className="source-line source-line-highlighted source-line-filtered source-line-last"
-  data-line-number={5}
+  data-line-number={16}
 >
   <LineNumber
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
+        "duplicated": false,
         "isNew": true,
-        "line": 5,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -151,15 +171,22 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
   <LineSCM
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
+        "duplicated": false,
         "isNew": true,
-        "line": 5,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
     popupOpen={false}
+  />
+  <td
+    className="source-meta source-line-issues"
   />
   <LineCode
     branchLike={
@@ -172,8 +199,6 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
         "title": "Foo Bar feature",
       }
     }
-    displayIssueLocationsCount={false}
-    displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     issueLocations={Array []}
     issues={
@@ -244,11 +269,15 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
     }
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
+        "duplicated": false,
         "isNew": true,
-        "line": 5,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onIssueChange={[MockFunction]}
@@ -265,16 +294,21 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
 
 exports[`should render correctly with coverage 1`] = `
 <tr
-  className="source-line"
-  data-line-number={5}
+  className="source-line source-line-filtered"
+  data-line-number={16}
 >
   <LineNumber
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -283,22 +317,35 @@ exports[`should render correctly with coverage 1`] = `
   <LineSCM
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
     popupOpen={false}
   />
+  <td
+    className="source-meta source-line-issues"
+  />
   <LineCoverage
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
   />
@@ -313,8 +360,6 @@ exports[`should render correctly with coverage 1`] = `
         "title": "Foo Bar feature",
       }
     }
-    displayIssueLocationsCount={false}
-    displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     issueLocations={Array []}
     issues={
@@ -385,10 +430,15 @@ exports[`should render correctly with coverage 1`] = `
     }
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onIssueChange={[MockFunction]}
@@ -405,16 +455,21 @@ exports[`should render correctly with coverage 1`] = `
 
 exports[`should render correctly with duplication information 1`] = `
 <tr
-  className="source-line"
-  data-line-number={5}
+  className="source-line source-line-filtered"
+  data-line-number={16}
 >
   <LineNumber
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -423,22 +478,35 @@ exports[`should render correctly with duplication information 1`] = `
   <LineSCM
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
     popupOpen={false}
   />
+  <td
+    className="source-meta source-line-issues"
+  />
   <LineDuplications
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onClick={[MockFunction]}
@@ -449,10 +517,15 @@ exports[`should render correctly with duplication information 1`] = `
     key="0"
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -465,10 +538,15 @@ exports[`should render correctly with duplication information 1`] = `
     key="1"
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -481,10 +559,15 @@ exports[`should render correctly with duplication information 1`] = `
     key="2"
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -502,8 +585,6 @@ exports[`should render correctly with duplication information 1`] = `
         "title": "Foo Bar feature",
       }
     }
-    displayIssueLocationsCount={false}
-    displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     issueLocations={Array []}
     issues={
@@ -574,10 +655,15 @@ exports[`should render correctly with duplication information 1`] = `
     }
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onIssueChange={[MockFunction]}
@@ -594,16 +680,21 @@ exports[`should render correctly with duplication information 1`] = `
 
 exports[`should render correctly with issues info 1`] = `
 <tr
-  className="source-line"
-  data-line-number={5}
+  className="source-line source-line-filtered"
+  data-line-number={16}
 >
   <LineNumber
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -612,10 +703,15 @@ exports[`should render correctly with issues info 1`] = `
   <LineSCM
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onPopupToggle={[MockFunction]}
@@ -690,10 +786,15 @@ exports[`should render correctly with issues info 1`] = `
     }
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onClick={[Function]}
@@ -709,8 +810,6 @@ exports[`should render correctly with issues info 1`] = `
         "title": "Foo Bar feature",
       }
     }
-    displayIssueLocationsCount={false}
-    displayIssueLocationsLink={false}
     displayLocationMarkers={false}
     issueLocations={Array []}
     issues={
@@ -781,10 +880,15 @@ exports[`should render correctly with issues info 1`] = `
     }
     line={
       Object {
-        "code": "function fooBar() {",
+        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
-        "line": 5,
+        "duplicated": false,
+        "isNew": true,
+        "line": 16,
+        "scmAuthor": "simon.brandhof@sonarsource.com",
+        "scmDate": "2018-12-11T10:48:39+0100",
+        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
     onIssueChange={[MockFunction]}
