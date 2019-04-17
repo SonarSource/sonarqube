@@ -27,6 +27,7 @@ public class DbVersion78 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(2700, "Drop overall subscriptions on notifications about new and resolved issues", DeleteOverallSubscriptionsOnNewAndResolvedIssuesNotifications.class);
+      .add(2700, "Drop overall subscriptions on notifications about new and resolved issues", DeleteOverallSubscriptionsOnNewAndResolvedIssuesNotifications.class)
+      .add(2701, "Add index to org_qprofile.parent_uuid", AddIndexToOrgQProfileParentUuid.class);
   }
 }

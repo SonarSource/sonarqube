@@ -19,23 +19,36 @@
  */
 package org.sonar.server.platform.db.migration.version.v78;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddIndexToOrgQProfileParentUuidTest {
 
-public class DbVersion78Test {
-  private DbVersion underTest = new DbVersion78();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddIndexToOrgQProfileParentUuidTest.class, "org_qprofiles.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DdlChange underTest = new AddIndexToOrgQProfileParentUuid(db.database());
 
   @Test
-  public void migrationNumber_starts_at_2700() {
-    verifyMinimumMigrationNumber(underTest, 2700);
+  public void creates_index() throws SQLException {
+    underTest.execute();
+
+    db.assertIndex("org_qprofiles", "org_qprofiles_parent_uuid", "parent_uuid");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }
