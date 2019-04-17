@@ -123,6 +123,7 @@ public class RuleActivator {
       }
       if (isSame(change, activeRule)) {
         change = null;
+        stopCascading = true;
       }
     }
 
@@ -359,7 +360,7 @@ public class RuleActivator {
     builder.setDescendantProfilesSupplier(createDescendantProfilesSupplier(dbSession));
 
     // load rules
-    List<RuleDefinitionDto> rules = completeWithRules(dbSession, builder, ruleIds);
+    completeWithRules(dbSession, builder, ruleIds);
 
     // load org profiles. Their parents are null by nature.
     List<QProfileDto> profiles = db.qualityProfileDao().selectQProfilesByRuleProfile(dbSession, builtInProfile);
@@ -400,7 +401,7 @@ public class RuleActivator {
     return builder.build();
   }
 
-  private DescendantProfilesSupplier createDescendantProfilesSupplier(DbSession dbSession) {
+  DescendantProfilesSupplier createDescendantProfilesSupplier(DbSession dbSession) {
     return (parents, ruleIds) -> {
       Collection<QProfileDto> profiles = db.qualityProfileDao().selectDescendants(dbSession, parents);
       Set<String> ruleProfileUuids = profiles.stream()
@@ -413,11 +414,10 @@ public class RuleActivator {
     };
   }
 
-  private List<RuleDefinitionDto> completeWithRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds) {
+  private void completeWithRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds) {
     List<RuleDefinitionDto> rules = db.ruleDao().selectDefinitionByIds(dbSession, ruleIds);
     builder.setRules(rules);
     builder.setRuleParams(db.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds));
-    return rules;
   }
 
   private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds, Collection<String> ruleProfileUuids) {

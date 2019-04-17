@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -49,6 +51,7 @@ import org.sonar.server.util.TypeValidations;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
@@ -249,7 +252,7 @@ public class BuiltInQProfileUpdateImplTest {
   }
 
   @Test
-  public void propagate_new_activation_to_descendant_profiles() {
+  public void propagate_activation_to_descendant_profiles() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
 
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
@@ -268,6 +271,69 @@ public class BuiltInQProfileUpdateImplTest {
     assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
     assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+  }
+
+  @Test
+  public void do_not_load_descendants_if_no_changes() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+      p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
+    QProfileDto childProfile = createChildProfile(profile);
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage());
+    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey());
+    newQp.done();
+
+    // first run
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
+    assertThat(changes).hasSize(2).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.ACTIVATED);
+
+    // second run, without any input changes
+    RuleActivator ruleActivatorWithoutDescendants = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession) {
+      @Override
+      DescendantProfilesSupplier createDescendantProfilesSupplier(DbSession dbSession) {
+        return (profiles, ruleIds) -> {
+          throw new IllegalStateException("BOOM - descendants should not be loaded");
+        };
+      }
+    };
+    changes = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivatorWithoutDescendants, activeRuleIndexer).update(db.getSession(), builtIn, RulesProfileDto.from(profile));
+    assertThat(changes).isEmpty();
+  }
+
+  @Test
+  public void propagate_deactivation_to_descendant_profiles() {
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
+
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+      p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
+    QProfileDto childProfile = createChildProfile(profile);
+    QProfileDto grandChildProfile = createChildProfile(childProfile);
+
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage());
+    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey());
+    newQp.done();
+
+    // first run to activate the rule
+    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
+    assertThat(changes).hasSize(3).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.ACTIVATED);
+
+    // second run to deactivate the rule
+    context = new BuiltInQualityProfilesDefinition.Context();
+    NewBuiltInQualityProfile updatedQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage());
+    updatedQp.done();
+    builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
+    changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
+    assertThat(changes).hasSize(3).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.DEACTIVATED);
+
+    assertThatRuleIsDeactivated(profile, rule);
+    assertThatRuleIsDeactivated(childProfile, rule);
+    assertThatRuleIsDeactivated(grandChildProfile, rule);
   }
 
   private QProfileDto createChildProfile(QProfileDto parent) {
@@ -304,31 +370,6 @@ public class BuiltInQProfileUpdateImplTest {
     }
   }
 
-  //
-  // @Test
-  // public void deactivateOnBuiltInProfile_activate_rule_on_child_profiles() {
-  // RuleDefinitionDto rule = createJavaRule();
-  // QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(),
-  // p -> p.setLanguage(rule.getLanguage())
-  // .setIsBuiltIn(true));
-  // QProfileDto childProfile = createChildProfile(profile);
-  // QProfileDto grandchildProfile = createChildProfile(childProfile);
-  //
-  // List<ActiveRuleChange> changes = underTest.activateOnBuiltInRulesProfile(db.getSession(), RuleActivation.create(rule.getKey()),
-  // RulesProfileDto.from(profile));
-  //
-  // assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
-  // assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-  // assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
-  //
-  // changes = underTest.deactivateOnBuiltInRulesProfile(db.getSession(), RulesProfileDto.from(profile), rule.getKey(), false);
-  //
-  // assertThat(changes).hasSize(3);
-  // assertThatRuleIsNotPresent(profile, rule);
-  // assertThatRuleIsNotPresent(childProfile, rule);
-  // assertThatRuleIsNotPresent(grandchildProfile, rule);
-  // }
-
   private static void assertThatRuleHasParams(DbTester db, ActiveRuleDto activeRule, Tuple... expectedParams) {
     assertThat(db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(db.getSession(), activeRule.getId()))
       .extracting(ActiveRuleParamDto::getKey, ActiveRuleParamDto::getValue)
@@ -360,6 +401,11 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(activeRule.getSeverityString()).isEqualTo(severity.name());
     assertThat(activeRule.getCreatedAt()).isEqualTo(PAST);
     assertThat(activeRule.getUpdatedAt()).isEqualTo(PAST);
+  }
+
+  private void assertThatRuleIsDeactivated(QProfileDto profile, RuleDefinitionDto rule) {
+    Collection<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRulesAndRuleProfileUuids(db.getSession(), singletonList(rule.getId()), singletonList(profile.getRulesProfileUuid()));
+    assertThat(activeRules).isEmpty();
   }
 
   private static void assertThatRuleIsDeactivated(List<ActiveRuleDto> activeRules, RuleDefinitionDto rule) {
