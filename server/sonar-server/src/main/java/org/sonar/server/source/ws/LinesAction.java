@@ -21,14 +21,12 @@ package org.sonar.server.source.ws;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Resources;
-import java.util.Date;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -38,7 +36,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
@@ -61,15 +58,15 @@ public class LinesAction implements SourcesWsAction {
 
   private final ComponentFinder componentFinder;
   private final SourceService sourceService;
-  private final HtmlSourceDecorator htmlSourceDecorator;
+  private final LinesJsonWriter linesJsonWriter;
   private final DbClient dbClient;
   private final UserSession userSession;
 
   public LinesAction(ComponentFinder componentFinder, DbClient dbClient, SourceService sourceService,
-    HtmlSourceDecorator htmlSourceDecorator, UserSession userSession) {
+    LinesJsonWriter linesJsonWriter, UserSession userSession) {
     this.componentFinder = componentFinder;
     this.sourceService = sourceService;
-    this.htmlSourceDecorator = htmlSourceDecorator;
+    this.linesJsonWriter = linesJsonWriter;
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
@@ -77,7 +74,7 @@ public class LinesAction implements SourcesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("lines")
-      .setDescription("Show source code with line oriented info. Require See Source Code permission on file's project<br/>" +
+      .setDescription("Show source code with line oriented info. Requires See Source Code permission on file's project<br/>" +
         "Each element of the result array is an object which contains:" +
         "<ol>" +
         "<li>Line number</li>" +
@@ -153,7 +150,7 @@ public class LinesAction implements SourcesWsAction {
       Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        writeSource(lines, json, isMemberOfOrganization(dbSession, file), periodDateSupplier);
+        linesJsonWriter.writeSource(lines, json, isMemberOfOrganization(dbSession, file), periodDateSupplier);
         json.endObject();
       }
     }
@@ -179,88 +176,4 @@ public class LinesAction implements SourcesWsAction {
     checkRequest(componentKey != null, "The '%s' parameter is missing", PARAM_KEY);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
-
-  private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json, boolean filterScmAuthors, Supplier<Optional<Long>> periodDateSupplier) {
-    Optional<Long> periodDate = null;
-
-    json.name("sources").beginArray();
-    for (DbFileSources.Line line : lines) {
-      json.beginObject()
-        .prop("line", line.getLine())
-        .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols()))
-        .prop("scmRevision", line.getScmRevision());
-      if (!filterScmAuthors) {
-        json.prop("scmAuthor", line.getScmAuthor());
-      }
-      if (line.hasScmDate()) {
-        json.prop("scmDate", DateUtils.formatDateTime(new Date(line.getScmDate())));
-      }
-      Optional<Integer> lineHits = getLineHits(line);
-      if (lineHits.isPresent()) {
-        json.prop("utLineHits", lineHits.get());
-        json.prop("lineHits", lineHits.get());
-      }
-      Optional<Integer> conditions = getConditions(line);
-      if (conditions.isPresent()) {
-        json.prop("utConditions", conditions.get());
-        json.prop("conditions", conditions.get());
-      }
-      Optional<Integer> coveredConditions = getCoveredConditions(line);
-      if (coveredConditions.isPresent()) {
-        json.prop("utCoveredConditions", coveredConditions.get());
-        json.prop("coveredConditions", coveredConditions.get());
-      }
-      json.prop("duplicated", line.getDuplicationCount() > 0);
-      if (line.hasIsNewLine()) {
-        json.prop("isNew", line.getIsNewLine());
-      } else {
-        if (periodDate == null) {
-          periodDate = periodDateSupplier.get();
-        }
-        json.prop("isNew", periodDate.isPresent() && line.getScmDate() > periodDate.get());
-      }
-      json.endObject();
-    }
-    json.endArray();
-  }
-
-  private static Optional<Integer> getLineHits(DbFileSources.Line line) {
-    if (line.hasLineHits()) {
-      return Optional.of(line.getLineHits());
-    } else if (line.hasDeprecatedOverallLineHits()) {
-      return Optional.of(line.getDeprecatedOverallLineHits());
-    } else if (line.hasDeprecatedUtLineHits()) {
-      return Optional.of(line.getDeprecatedUtLineHits());
-    } else if (line.hasDeprecatedItLineHits()) {
-      return Optional.of(line.getDeprecatedItLineHits());
-    }
-    return Optional.empty();
-  }
-
-  private static Optional<Integer> getConditions(DbFileSources.Line line) {
-    if (line.hasConditions()) {
-      return Optional.of(line.getConditions());
-    } else if (line.hasDeprecatedOverallConditions()) {
-      return Optional.of(line.getDeprecatedOverallConditions());
-    } else if (line.hasDeprecatedUtConditions()) {
-      return Optional.of(line.getDeprecatedUtConditions());
-    } else if (line.hasDeprecatedItConditions()) {
-      return Optional.of(line.getDeprecatedItConditions());
-    }
-    return Optional.empty();
-  }
-
-  private static Optional<Integer> getCoveredConditions(DbFileSources.Line line) {
-    if (line.hasCoveredConditions()) {
-      return Optional.of(line.getCoveredConditions());
-    } else if (line.hasDeprecatedOverallCoveredConditions()) {
-      return Optional.of(line.getDeprecatedOverallCoveredConditions());
-    } else if (line.hasDeprecatedUtCoveredConditions()) {
-      return Optional.of(line.getDeprecatedUtCoveredConditions());
-    } else if (line.hasDeprecatedItCoveredConditions()) {
-      return Optional.of(line.getDeprecatedItCoveredConditions());
-    }
-    return Optional.empty();
-  }
-
 }

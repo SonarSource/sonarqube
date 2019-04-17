@@ -20,9 +20,11 @@
 package org.sonar.server.source;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +54,7 @@ public class SourceServiceTest {
   SourceService underTest = new SourceService(dbTester.getDbClient(), htmlDecorator);
 
   @Before
-  public void injectFakeLines() throws IOException {
+  public void injectFakeLines() {
     FileSourceDto dto = new FileSourceDto();
     dto.setFileUuid(FILE_UUID).setProjectUuid("PROJECT_UUID");
     dto.setSourceData(FileSourceTesting.newFakeData(10).build());
@@ -62,6 +64,18 @@ public class SourceServiceTest {
 
   @Test
   public void get_range_of_lines() {
+    Set<Integer> lineNumbers = new HashSet<>(Arrays.asList(1, 5, 6));
+    Optional<Iterable<DbFileSources.Line>> linesOpt = underTest.getLines(dbTester.getSession(), FILE_UUID, lineNumbers);
+    assertThat(linesOpt.isPresent()).isTrue();
+    List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());
+    assertThat(lines).hasSize(3);
+    assertThat(lines.get(0).getLine()).isEqualTo(1);
+    assertThat(lines.get(1).getLine()).isEqualTo(5);
+    assertThat(lines.get(2).getLine()).isEqualTo(6);
+  }
+
+  @Test
+  public void get_set_of_lines() {
     Optional<Iterable<DbFileSources.Line>> linesOpt = underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 7);
     assertThat(linesOpt.isPresent()).isTrue();
     List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());

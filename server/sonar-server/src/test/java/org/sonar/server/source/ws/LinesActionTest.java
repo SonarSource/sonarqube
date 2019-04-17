@@ -73,9 +73,10 @@ public class LinesActionTest {
     HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).then((Answer<String>)
       invocationOnMock -> "<p>" + invocationOnMock.getArguments()[0] + "</p>");
+    LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
     SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);
     wsTester = new WsTester(new SourcesWs(
-      new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, htmlSourceDecorator, userSession)));
+      new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, linesJsonWriter, userSession)));
     organization = db.organizations().insert();
     privateProject = ComponentTesting.newPrivateProjectDto(organization);
   }

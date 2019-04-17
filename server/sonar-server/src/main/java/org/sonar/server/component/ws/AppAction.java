@@ -19,14 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.BooleanUtils;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,26 +28,10 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.property.PropertyDto;
-import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE;
-import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.LINES;
-import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.TESTS;
-import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
-import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
-import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
@@ -65,25 +41,20 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class AppAction implements ComponentsWsAction {
-
   private static final String PARAM_COMPONENT_ID = "componentId";
   private static final String PARAM_COMPONENT = "component";
-  private static final List<String> METRIC_KEYS = unmodifiableList(asList(
-    LINES_KEY,
-    VIOLATIONS_KEY,
-    COVERAGE_KEY,
-    DUPLICATED_LINES_DENSITY_KEY,
-    TESTS_KEY));
 
   private final DbClient dbClient;
 
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final ComponentViewerJsonWriter componentViewerJsonWriter;
 
-  public AppAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public AppAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, ComponentViewerJsonWriter componentViewerJsonWriter) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.componentViewerJsonWriter = componentViewerJsonWriter;
   }
 
   @Override
@@ -130,10 +101,9 @@ public class AppAction implements ComponentsWsAction {
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      Map<String, LiveMeasureDto> measuresByMetricKey = loadMeasuresGroupedByMetricKey(component, session);
-      appendComponent(json, component, userSession, session);
+      componentViewerJsonWriter.writeComponent(json, component, userSession, session);
       appendPermissions(json, userSession);
-      appendMeasures(json, measuresByMetricKey);
+      componentViewerJsonWriter.writeMeasures(json, component, session);
       json.endObject();
       json.close();
     }
@@ -151,97 +121,8 @@ public class AppAction implements ComponentsWsAction {
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, request.mandatoryParam(PARAM_COMPONENT), branch, pullRequest);
   }
 
-  private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
-    List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey("favourite")
-      .setComponentId(component.getId())
-      .setUserId(userSession.getUserId())
-      .build(),
-      session);
-    boolean isFavourite = propertyDtos.size() == 1;
-
-    json.prop("key", component.getKey());
-    json.prop("uuid", component.uuid());
-    json.prop("path", component.path());
-    json.prop("name", component.name());
-    json.prop("longName", component.longName());
-    json.prop("q", component.qualifier());
-
-    ComponentDto parentModule = retrieveParentModuleIfNotCurrentComponent(component, session);
-    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
-
-    // Do not display parent module if parent module and project are the same
-    boolean displayParentModule = parentModule != null && !parentModule.uuid().equals(project.uuid());
-    json.prop("subProject", displayParentModule ? parentModule.getKey() : null);
-    json.prop("subProjectName", displayParentModule ? parentModule.longName() : null);
-    json.prop("project", project.getKey());
-    json.prop("projectName", project.longName());
-    String branch = project.getBranch();
-    if (branch != null) {
-      json.prop("branch", branch);
-    }
-    String pullRequest = project.getPullRequest();
-    if (pullRequest != null) {
-      json.prop("pullRequest", pullRequest);
-    }
-
-    json.prop("fav", isFavourite);
-  }
-
   private static void appendPermissions(JsonWriter json, UserSession userSession) {
     json.prop("canMarkAsFavorite", userSession.isLoggedIn());
   }
 
-  private static void appendMeasures(JsonWriter json, Map<String, LiveMeasureDto> measuresByMetricKey) {
-    json.name("measures").beginObject();
-    json.prop("lines", formatMeasure(measuresByMetricKey, LINES));
-    json.prop("coverage", formatMeasure(measuresByMetricKey, COVERAGE));
-    json.prop("duplicationDensity", formatMeasure(measuresByMetricKey, DUPLICATED_LINES_DENSITY));
-    json.prop("issues", formatMeasure(measuresByMetricKey, VIOLATIONS));
-    json.prop("tests", formatMeasure(measuresByMetricKey, TESTS));
-    json.endObject();
-  }
-
-  private Map<String, LiveMeasureDto> loadMeasuresGroupedByMetricKey(ComponentDto component, DbSession dbSession) {
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, METRIC_KEYS);
-    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao()
-      .selectByComponentUuidsAndMetricIds(dbSession, Collections.singletonList(component.uuid()), metricsById.keySet());
-    return Maps.uniqueIndex(measures, m -> metricsById.get(m.getMetricId()).getKey());
-  }
-
-  @CheckForNull
-  private ComponentDto retrieveParentModuleIfNotCurrentComponent(ComponentDto componentDto, DbSession session) {
-    final String moduleUuid = componentDto.moduleUuid();
-    if (moduleUuid == null || componentDto.uuid().equals(moduleUuid)) {
-      return null;
-    }
-    return dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
-  }
-
-  @CheckForNull
-  private static String formatMeasure(Map<String, LiveMeasureDto> measuresByMetricKey, Metric metric) {
-    LiveMeasureDto measure = measuresByMetricKey.get(metric.getKey());
-    return formatMeasure(measure, metric);
-  }
-
-  private static String formatMeasure(@Nullable LiveMeasureDto measure, Metric metric) {
-    if (measure == null) {
-      return null;
-    }
-    Double value = getDoubleValue(measure, metric);
-    if (value != null) {
-      return Double.toString(value);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private static Double getDoubleValue(LiveMeasureDto measure, Metric metric) {
-    Double value = measure.getValue();
-    if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
-      value = metric.getBestValue();
-    }
-    return value;
-  }
 }

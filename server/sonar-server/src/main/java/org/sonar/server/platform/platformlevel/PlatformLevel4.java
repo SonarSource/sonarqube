@@ -49,6 +49,7 @@ import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
@@ -186,7 +187,9 @@ import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.HashAction;
 import org.sonar.server.source.ws.IndexAction;
+import org.sonar.server.source.ws.IssueSnippetsAction;
 import org.sonar.server.source.ws.LinesAction;
+import org.sonar.server.source.ws.LinesJsonWriter;
 import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
 import org.sonar.server.source.ws.SourcesWs;
@@ -390,6 +393,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentIndex.class,
       ComponentIndexer.class,
       LiveMeasureModule.class,
+      ComponentViewerJsonWriter.class,
 
       FavoriteModule.class,
 
@@ -432,9 +436,11 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // source
       HtmlSourceDecorator.class,
+      LinesJsonWriter.class,
       SourceService.class,
       SourcesWs.class,
       org.sonar.server.source.ws.ShowAction.class,
+      IssueSnippetsAction.class,
       LinesAction.class,
       HashAction.class,
       RawAction.class,

@@ -55,7 +55,10 @@ public class AppActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession, TestComponentFinder.from(db)));
+  private ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(db.getDbClient());
+
+  private WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession,
+    TestComponentFinder.from(db), componentViewerJsonWriter));
 
   @Test
   public void file_info() {

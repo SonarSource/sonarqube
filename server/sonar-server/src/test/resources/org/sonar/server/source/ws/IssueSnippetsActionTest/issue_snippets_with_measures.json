@@ -1,0 +1,91 @@
+{
+  "FILE_KEY_file": {
+    "component": {
+      "key": "FILE_KEY_file",
+      "uuid": "file",
+      "path": "null/NAME_file",
+      "name": "NAME_file",
+      "longName": "null/NAME_file",
+      "q": "FIL",
+      "project": "KEY_projectUuid",
+      "projectName": "LONG_NAME_projectUuid",
+      "measures": {
+        "lines": "200.0",
+        "coverage": "95.4",
+        "duplicationDensity": "7.4"
+      }
+    },
+    "sources": [
+      {
+        "line": 3,
+        "code": "\u003cp\u003eSOURCE_3\u003c/p\u003e",
+        "scmRevision": "REVISION_3",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 3,
+        "lineHits": 3,
+        "utConditions": 4,
+        "conditions": 4,
+        "utCoveredConditions": 5,
+        "coveredConditions": 5,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 4,
+        "code": "\u003cp\u003eSOURCE_4\u003c/p\u003e",
+        "scmRevision": "REVISION_4",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 4,
+        "lineHits": 4,
+        "utConditions": 5,
+        "conditions": 5,
+        "utCoveredConditions": 6,
+        "coveredConditions": 6,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 5,
+        "code": "\u003cp\u003eSOURCE_5\u003c/p\u003e",
+        "scmRevision": "REVISION_5",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 5,
+        "lineHits": 5,
+        "utConditions": 6,
+        "conditions": 6,
+        "utCoveredConditions": 7,
+        "coveredConditions": 7,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 6,
+        "code": "\u003cp\u003eSOURCE_6\u003c/p\u003e",
+        "scmRevision": "REVISION_6",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 6,
+        "lineHits": 6,
+        "utConditions": 7,
+        "conditions": 7,
+        "utCoveredConditions": 8,
+        "coveredConditions": 8,
+        "duplicated": true,
+        "isNew": true
+      },
+      {
+        "line": 7,
+        "code": "\u003cp\u003eSOURCE_7\u003c/p\u003e",
+        "scmRevision": "REVISION_7",
+        "scmDate": "1974-10-02T21:40:00-0500",
+        "utLineHits": 7,
+        "lineHits": 7,
+        "utConditions": 8,
+        "conditions": 8,
+        "utCoveredConditions": 9,
+        "coveredConditions": 9,
+        "duplicated": true,
+        "isNew": true
+      }
+    ]
+  }
+}

@@ -20,6 +20,7 @@
 package org.sonar.server.source;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -43,15 +44,21 @@ public class SourceService {
 
   /**
    * Returns a range of lines as raw db data. User permission is not verified.
-   * @param from starts from 1
+   *
+   * @param from        starts from 1
    * @param toInclusive starts from 1, must be greater than or equal param {@code from}
    */
   public Optional<Iterable<DbFileSources.Line>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive) {
     return getLines(dbSession, fileUuid, from, toInclusive, Function.identity());
   }
 
+  public Optional<Iterable<DbFileSources.Line>> getLines(DbSession dbSession, String fileUuid, Set<Integer> lines) {
+    return getLines(dbSession, fileUuid, lines, Function.identity());
+  }
+
   /**
    * Returns a range of lines as raw text.
+   *
    * @see #getLines(DbSession, String, int, int)
    */
   public Optional<Iterable<String>> getLinesAsRawText(DbSession dbSession, String fileUuid, int from, int toInclusive) {
@@ -72,6 +79,17 @@ public class SourceService {
     return Optional.of(dto.getSourceData().getLinesList().stream()
       .filter(line -> line.hasLine() && line.getLine() >= from)
       .limit((toInclusive - from) + 1L)
+      .map(function)
+      .collect(MoreCollectors.toList()));
+  }
+
+  private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, Set<Integer> lines, Function<DbFileSources.Line, E> function) {
+    FileSourceDto dto = dbClient.fileSourceDao().selectByFileUuid(dbSession, fileUuid);
+    if (dto == null) {
+      return Optional.empty();
+    }
+    return Optional.of(dto.getSourceData().getLinesList().stream()
+      .filter(line -> line.hasLine() && lines.contains(line.getLine()))
       .map(function)
       .collect(MoreCollectors.toList()));
   }

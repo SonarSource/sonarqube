@@ -58,6 +58,24 @@ public class FileSourceTester {
     return dto;
   }
 
+  @SafeVarargs
+  public final FileSourceDto insertFileSource(ComponentDto file, int numLines, Consumer<FileSourceDto>... dtoPopulators) {
+    FileSourceDto dto = new FileSourceDto()
+      .setProjectUuid(file.projectUuid())
+      .setFileUuid(file.uuid())
+      .setSrcHash(randomAlphanumeric(50))
+      .setDataHash(randomAlphanumeric(50))
+      .setLineHashes(IntStream.range(0, numLines).mapToObj(String::valueOf).collect(MoreCollectors.toList()))
+      .setRevision(randomAlphanumeric(100))
+      .setSourceData(newRandomData(numLines).build())
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
+    Arrays.stream(dtoPopulators).forEach(c -> c.accept(dto));
+    db.getDbClient().fileSourceDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
   private static DbFileSources.Data.Builder newRandomData(int numberOfLines) {
     DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     for (int i = 1; i <= numberOfLines; i++) {
