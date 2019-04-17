@@ -28,20 +28,23 @@ import FacetItem from '../../../components/facet/FacetItem';
 import {
   renderOwaspTop10Category,
   renderSansTop25Category,
-  renderCWECategory
+  renderCWECategory,
+  renderSonarSourceSecurityCategory
 } from '../../securityReports/utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import { highlightTerm } from '../../../helpers/search';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { getStandards } from '../../../helpers/security-standard';
 
-export interface Props {
+interface Props {
   cwe: string[];
   cweOpen: boolean;
   cweStats: T.Dict<number> | undefined;
+  fetchingCwe: boolean;
   fetchingOwaspTop10: boolean;
   fetchingSansTop25: boolean;
-  fetchingCwe: boolean;
+  fetchingSonarSourceSecurity: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -54,6 +57,8 @@ export interface Props {
   sansTop25Open: boolean;
   sansTop25Stats: T.Dict<number> | undefined;
   sonarsourceSecurity: string[];
+  sonarsourceSecurityOpen: boolean;
+  sonarsourceSecurityStats: T.Dict<number> | undefined;
 }
 
 interface State {
@@ -61,7 +66,7 @@ interface State {
   standards: T.Standards;
 }
 
-type StatsProp = 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats';
+type StatsProp = 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats' | 'sonarsourceSecurityStats';
 type ValuesProp = T.StandardType;
 
 export default class StandardFacet extends React.PureComponent<Props, State> {
@@ -80,7 +85,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       this.props.open ||
       this.props.owaspTop10.length > 0 ||
       this.props.cwe.length > 0 ||
-      this.props.sansTop25.length > 0
+      this.props.sansTop25.length > 0 ||
+      this.props.sonarsourceSecurity.length > 0
     ) {
       this.loadStandards();
     }
@@ -97,20 +103,21 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   }
 
   loadStandards = () => {
-    import('../../../helpers/standards.json')
-      .then(x => x.default)
-      .then(
-        ({ owaspTop10, sansTop25, cwe, sonarsourceSecurity }: T.Standards) => {
-          if (this.mounted) {
-            this.setState({ standards: { owaspTop10, sansTop25, cwe, sonarsourceSecurity } });
-          }
-        },
-        () => {}
-      );
+    getStandards().then(
+      ({ owaspTop10, sansTop25, cwe, sonarsourceSecurity }: T.Standards) => {
+        if (this.mounted) {
+          this.setState({ standards: { owaspTop10, sansTop25, cwe, sonarsourceSecurity } });
+        }
+      },
+      () => {}
+    );
   };
 
   getValues = () => {
     return [
+      ...this.props.sonarsourceSecurity.map(item =>
+        renderSonarSourceSecurityCategory(this.state.standards, item, true)
+      ),
       ...this.props.owaspTop10.map(item =>
         renderOwaspTop10Category(this.state.standards, item, true)
       ),
@@ -133,8 +140,18 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.props.onToggle('sansTop25');
   };
 
+  handleSonarSourceSecurityHeaderClick = () => {
+    this.props.onToggle('sonarsourceSecurity');
+  };
+
   handleClear = () => {
-    this.props.onChange({ [this.property]: [], owaspTop10: [], sansTop25: [], cwe: [] });
+    this.props.onChange({
+      [this.property]: [],
+      owaspTop10: [],
+      sansTop25: [],
+      cwe: [],
+      sonarsourceSecurity: []
+    });
   };
 
   handleItemClick = (prop: ValuesProp, itemValue: string, multiple: boolean) => {
@@ -159,6 +176,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     this.handleItemClick('sansTop25', itemValue, multiple);
   };
 
+  handleSonarSourceSecurityItemClick = (itemValue: string, multiple: boolean) => {
+    this.handleItemClick('sonarsourceSecurity', itemValue, multiple);
+  };
+
   handleCWESearch = (query: string) => {
     return Promise.resolve({
       results: Object.keys(this.state.standards.cwe).filter(cwe =>
@@ -170,7 +191,10 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   };
 
   loadCWESearchResultCount = (categories: string[]) => {
-    return this.props.loadSearchResultCount('cwe', { cwe: categories });
+    const { loadSearchResultCount } = this.props;
+    return loadSearchResultCount
+      ? loadSearchResultCount('cwe', { cwe: categories })
+      : Promise.resolve({});
   };
 
   renderList = (
@@ -258,9 +282,39 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     return this.renderHint('sansTop25Stats', 'sansTop25');
   }
 
+  renderSonarSourceSecurityList() {
+    return this.renderList(
+      'sonarsourceSecurityStats',
+      'sonarsourceSecurity',
+      renderSonarSourceSecurityCategory,
+      this.handleSonarSourceSecurityItemClick
+    );
+  }
+
+  renderSonarSourceSecurityHint() {
+    return this.renderHint('sonarsourceSecurityStats', 'sonarsourceSecurity');
+  }
+
   renderSubFacets() {
     return (
       <>
+        <FacetBox className="is-inner" property="sonarsourceSecurity">
+          <FacetHeader
+            name={translate('issues.facet.sonarsourceSecurity')}
+            onClick={this.handleSonarSourceSecurityHeaderClick}
+            open={this.props.sonarsourceSecurityOpen}
+            values={this.props.sonarsourceSecurity.map(item =>
+              renderSonarSourceSecurityCategory(this.state.standards, item)
+            )}
+          />
+          <DeferredSpinner loading={this.props.fetchingSonarSourceSecurity} />
+          {this.props.sonarsourceSecurityOpen && (
+            <>
+              {this.renderSonarSourceSecurityList()}
+              {this.renderSonarSourceSecurityHint()}
+            </>
+          )}
+        </FacetBox>
         <FacetBox className="is-inner" property="owaspTop10">
           <FacetHeader
             name={translate('issues.facet.owaspTop10')}

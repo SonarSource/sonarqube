@@ -58,6 +58,7 @@ export interface Query {
   sansTop25: string[];
   severities: string[];
   sinceLeakPeriod: boolean;
+  sonarsourceSecurity: string[];
   sort: string;
   statuses: string[];
   tags: string[];
@@ -93,6 +94,7 @@ export function parseQuery(query: RawQuery): Query {
     sansTop25: parseAsArray(query.sansTop25, parseAsString),
     severities: parseAsArray(query.severities, parseAsString),
     sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
+    sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     sort: parseAsSort(query.s),
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
@@ -130,6 +132,7 @@ export function serializeQuery(query: Query): RawQuery {
     sansTop25: serializeStringArray(query.sansTop25),
     severities: serializeStringArray(query.severities),
     sinceLeakPeriod: query.sinceLeakPeriod ? 'true' : undefined,
+    sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types)

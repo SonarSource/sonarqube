@@ -143,6 +143,33 @@ export default class Sidebar extends React.PureComponent<Props> {
           stats={facets.statuses}
           statuses={query.statuses}
         />
+        <StandardFacet
+          cwe={query.cwe}
+          cweOpen={!!openFacets.cwe}
+          cweStats={facets.cwe}
+          fetchingCwe={this.props.loadingFacets.cwe === true}
+          fetchingOwaspTop10={this.props.loadingFacets.owaspTop10 === true}
+          fetchingSansTop25={this.props.loadingFacets.sansTop25 === true}
+          fetchingSonarSourceSecurity={this.props.loadingFacets.sonarsourceSecurity === true}
+          loadSearchResultCount={this.props.loadSearchResultCount}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={
+            openFacets[STANDARDS] === undefined
+              ? query.types.includes('SECURITY_HOTSPOT') || query.types.includes('VULNERABILITY')
+              : openFacets[STANDARDS]
+          }
+          owaspTop10={query.owaspTop10}
+          owaspTop10Open={!!openFacets.owaspTop10}
+          owaspTop10Stats={facets.owaspTop10}
+          query={query}
+          sansTop25={query.sansTop25}
+          sansTop25Open={!!openFacets.sansTop25}
+          sansTop25Stats={facets.sansTop25}
+          sonarsourceSecurity={query.sonarsourceSecurity}
+          sonarsourceSecurityOpen={!!openFacets.sonarsourceSecurity}
+          sonarsourceSecurityStats={facets.sonarsourceSecurity}
+        />
         <CreationDateFacet
           component={component}
           createdAfter={query.createdAfter}
@@ -179,30 +206,6 @@ export default class Sidebar extends React.PureComponent<Props> {
           referencedRules={this.props.referencedRules}
           rules={query.rules}
           stats={facets.rules}
-        />
-        <StandardFacet
-          cwe={query.cwe}
-          cweOpen={!!openFacets.cwe}
-          cweStats={facets.cwe}
-          fetchingCwe={this.props.loadingFacets.cwe === true}
-          fetchingOwaspTop10={this.props.loadingFacets.owaspTop10 === true}
-          fetchingSansTop25={this.props.loadingFacets.sansTop25 === true}
-          loadSearchResultCount={this.props.loadSearchResultCount}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets[STANDARDS]}
-          owaspTop10={query.owaspTop10}
-          owaspTop10Open={!!openFacets.owaspTop10}
-          owaspTop10Stats={facets.owaspTop10}
-          query={query}
-          sansTop25={query.sansTop25}
-          sansTop25Open={!!openFacets.sansTop25}
-          sansTop25Stats={facets.sansTop25}
-          sonarsourceSecurity={
-            [
-              /* TODO */
-            ]
-          }
         />
         <TagFacet
           component={component}

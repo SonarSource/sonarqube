@@ -52,7 +52,7 @@ export function renderSansTop25Category(
   return addPrefix(record ? record.title : category, 'SANS', withPrefix);
 }
 
-export function renderSonarSourceCategory(
+export function renderSonarSourceSecurityCategory(
   standards: T.Standards,
   category: string,
   withPrefix = false
