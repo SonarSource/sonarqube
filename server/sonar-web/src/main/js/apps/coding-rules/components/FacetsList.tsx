@@ -29,13 +29,14 @@ import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TemplateFacet from './TemplateFacet';
 import TypeFacet from './TypeFacet';
-import { Facets, Query, FacetKey, OpenFacets } from '../query';
+import StandardFacet from '../../issues/sidebar/StandardFacet';
+import { Facets, Query, OpenFacets } from '../query';
 import { Profile } from '../../../api/quality-profiles';
 
 interface Props {
   facets?: Facets;
   hideProfileFacet?: boolean;
-  onFacetToggle: (facet: FacetKey) => void;
+  onFacetToggle: (facet: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: OpenFacets;
   organization: string | undefined;
@@ -104,6 +105,28 @@ export default function FacetsList(props: Props) {
         open={!!props.openFacets.statuses}
         stats={props.facets && props.facets.statuses}
         values={props.query.statuses}
+      />
+      <StandardFacet
+        cwe={props.query.cwe}
+        cweOpen={!!props.openFacets.cwe}
+        cweStats={props.facets && props.facets.cwe}
+        fetchingCwe={false}
+        fetchingOwaspTop10={false}
+        fetchingSansTop25={false}
+        fetchingSonarSourceSecurity={false}
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!props.openFacets.standards}
+        owaspTop10={props.query.owaspTop10}
+        owaspTop10Open={!!props.openFacets.owaspTop10}
+        owaspTop10Stats={props.facets && props.facets.owaspTop10}
+        query={props.query}
+        sansTop25={props.query.sansTop25}
+        sansTop25Open={!!props.openFacets.sansTop25}
+        sansTop25Stats={props.facets && props.facets.sansTop25}
+        sonarsourceSecurity={props.query.sonarsourceSecurity}
+        sonarsourceSecurityOpen={!!props.openFacets.sonarsourceSecurity}
+        sonarsourceSecurityStats={props.facets && props.facets.sonarsourceSecurity}
       />
       <AvailableSinceFacet
         onChange={props.onFilterChange}

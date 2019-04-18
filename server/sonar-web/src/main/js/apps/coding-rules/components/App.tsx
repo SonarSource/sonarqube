@@ -58,6 +58,12 @@ import {
   Store,
   getAppState
 } from '../../../store/rootReducer';
+import {
+  shouldOpenStandardsFacet,
+  shouldOpenSonarSourceSecurityFacet,
+  shouldOpenStandardsChildFacet,
+  STANDARDS
+} from '../../issues/utils';
 import { translate } from '../../../helpers/l10n';
 import { hasPrivateAccess } from '../../../helpers/organizations';
 import {
@@ -107,10 +113,18 @@ export class App extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const query = parseQuery(props.location.query);
     this.state = {
       loading: true,
-      openFacets: { languages: true, types: true },
-      query: parseQuery(props.location.query),
+      openFacets: {
+        languages: true,
+        owaspTop10: shouldOpenStandardsChildFacet({}, query, 'owaspTop10'),
+        sansTop25: shouldOpenStandardsChildFacet({}, query, 'sansTop25'),
+        sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
+        standards: shouldOpenStandardsFacet({}, query),
+        types: true
+      },
+      query,
       referencedProfiles: {},
       referencedRepositories: {},
       rules: []
@@ -184,11 +198,13 @@ export class App extends React.PureComponent<Props, State> {
     return open && rules.find(rule => rule.key === open);
   };
 
-  getFacetsToFetch = () =>
-    Object.keys(this.state.openFacets)
-      .filter((facet: FacetKey) => this.state.openFacets[facet])
+  getFacetsToFetch = () => {
+    const { openFacets } = this.state;
+    return Object.keys(openFacets)
+      .filter((facet: FacetKey) => openFacets[facet])
       .filter((facet: FacetKey) => shouldRequestFacet(facet))
       .map((facet: FacetKey) => getServerFacet(facet));
+  };
 
   getFieldsToFetch = () => {
     const fields = [
@@ -282,7 +298,6 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   fetchFacet = (facet: FacetKey) => {
-    this.setState({ loading: true });
     this.makeFetchRequest({ ps: 1, facets: getServerFacet(facet) }).then(({ facets }) => {
       if (this.mounted) {
         this.setState(state => ({ facets: { ...state.facets, ...facets }, loading: false }));
@@ -412,19 +427,46 @@ export class App extends React.PureComponent<Props, State> {
     this.closeRule();
   };
 
-  handleFilterChange = (changes: Partial<Query>) =>
+  handleFilterChange = (changes: Partial<Query>) => {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: serializeQuery({ ...this.state.query, ...changes })
     });
 
-  handleFacetToggle = (facet: keyof Query) => {
-    this.setState(state => ({
-      openFacets: { ...state.openFacets, [facet]: !state.openFacets[facet] }
+    this.setState(({ openFacets }) => ({
+      openFacets: {
+        ...openFacets,
+        sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet(openFacets, changes),
+        standards: shouldOpenStandardsFacet(openFacets, changes)
+      }
     }));
-    if (shouldRequestFacet(facet) && (!this.state.facets || !this.state.facets[facet])) {
-      this.fetchFacet(facet);
-    }
+  };
+
+  handleFacetToggle = (property: string) => {
+    this.setState(state => {
+      const willOpenProperty = !state.openFacets[property];
+      const newState = {
+        loading: state.loading,
+        openFacets: { ...state.openFacets, [property]: willOpenProperty }
+      };
+
+      // Try to open sonarsource security "subfacet" by default if the standard facet is open
+      if (willOpenProperty && property === STANDARDS) {
+        newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
+          newState.openFacets,
+          state.query
+        );
+        // Force loading of sonarsource security facet data
+        property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
+      }
+
+      if (shouldRequestFacet(property) && (!state.facets || !state.facets[property])) {
+        newState.loading = true;
+        this.fetchFacet(property);
+      }
+
+      return newState;
+    });
   };
 
   handleReload = () => this.fetchFirstRules();

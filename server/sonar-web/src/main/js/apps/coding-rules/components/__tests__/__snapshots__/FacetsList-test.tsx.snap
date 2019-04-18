@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <Connect(LanguageFacet)
+    disabled={false}
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <TypeFacet
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <TagFacet
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+    organization="foo"
+  />
+  <Connect(RepositoryFacet)
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+    referencedRepositories={Object {}}
+  />
+  <DefaultSeverityFacet
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <StatusFacet
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <StandardFacet
+    cweOpen={false}
+    fetchingCwe={false}
+    fetchingOwaspTop10={false}
+    fetchingSansTop25={false}
+    fetchingSonarSourceSecurity={false}
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+    owaspTop10Open={false}
+    query={Object {}}
+    sansTop25Open={false}
+    sonarsourceSecurityOpen={false}
+  />
+  <InjectIntl(AvailableSinceFacet)
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <TemplateFacet
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <ProfileFacet
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+    referencedProfiles={Object {}}
+  />
+  <InheritanceFacet
+    disabled={true}
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+  <ActivationSeverityFacet
+    disabled={true}
+    onChange={[MockFunction]}
+    onToggle={[MockFunction]}
+    open={false}
+  />
+</Fragment>
+`;

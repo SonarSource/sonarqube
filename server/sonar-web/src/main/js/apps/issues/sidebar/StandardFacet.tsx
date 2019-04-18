@@ -45,14 +45,14 @@ interface Props {
   fetchingOwaspTop10: boolean;
   fetchingSansTop25: boolean;
   fetchingSonarSourceSecurity: boolean;
-  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
+  loadSearchResultCount?: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   owaspTop10: string[];
   owaspTop10Open: boolean;
   owaspTop10Stats: T.Dict<number> | undefined;
-  query: Query;
+  query: Partial<Query>;
   sansTop25: string[];
   sansTop25Open: boolean;
   sansTop25Stats: T.Dict<number> | undefined;

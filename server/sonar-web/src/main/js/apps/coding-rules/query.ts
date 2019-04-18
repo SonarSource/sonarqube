@@ -37,13 +37,17 @@ export interface Query {
   activationSeverities: string[];
   availableSince: Date | undefined;
   compareToProfile: string | undefined;
+  cwe: string[];
   inheritance: T.RuleInheritance | undefined;
   languages: string[];
+  owaspTop10: string[];
   profile: string | undefined;
   repositories: string[];
   ruleKey: string | undefined;
+  sansTop25: string[];
   searchQuery: string | undefined;
   severities: string[];
+  sonarsourceSecurity: string[];
   statuses: string[];
   tags: string[];
   template: boolean | undefined;
@@ -58,7 +62,7 @@ export interface Facet {
 
 export type Facets = { [F in FacetKey]?: Facet };
 
-export type OpenFacets = { [F in FacetKey]?: boolean };
+export type OpenFacets = T.Dict<boolean>;
 
 export interface Activation {
   inherit: T.RuleInheritance;
@@ -77,13 +81,17 @@ export function parseQuery(query: RawQuery): Query {
     activationSeverities: parseAsArray(query.active_severities, parseAsString),
     availableSince: parseAsDate(query.available_since),
     compareToProfile: parseAsOptionalString(query.compareToProfile),
+    cwe: parseAsArray(query.cwe, parseAsString),
     inheritance: parseAsInheritance(query.inheritance),
     languages: parseAsArray(query.languages, parseAsString),
+    owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
     profile: parseAsOptionalString(query.qprofile),
     repositories: parseAsArray(query.repositories, parseAsString),
     ruleKey: parseAsOptionalString(query.rule_key),
+    sansTop25: parseAsArray(query.sansTop25, parseAsString),
     searchQuery: parseAsOptionalString(query.q),
     severities: parseAsArray(query.severities, parseAsString),
+    sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
     template: parseAsOptionalBoolean(query.is_template),
@@ -97,14 +105,18 @@ export function serializeQuery(query: Query): RawQuery {
     active_severities: serializeStringArray(query.activationSeverities),
     available_since: serializeDateShort(query.availableSince),
     compareToProfile: serializeString(query.compareToProfile),
+    cwe: serializeStringArray(query.cwe),
     inheritance: serializeInheritance(query.inheritance),
     is_template: serializeOptionalBoolean(query.template),
     languages: serializeStringArray(query.languages),
+    owaspTop10: serializeStringArray(query.owaspTop10),
     q: serializeString(query.searchQuery),
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
     rule_key: serializeString(query.ruleKey),
+    sansTop25: serializeStringArray(query.sansTop25),
     severities: serializeStringArray(query.severities),
+    sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types)
@@ -115,12 +127,17 @@ export function areQueriesEqual(a: RawQuery, b: RawQuery) {
   return queriesEqual(parseQuery(a), parseQuery(b));
 }
 
-export function shouldRequestFacet(facet: FacetKey) {
+export function shouldRequestFacet(facet: string): facet is FacetKey {
   const facetsToRequest = [
     'activationSeverities',
+    'cwe',
     'languages',
+    'owaspTop10',
     'repositories',
+    'sansTop25',
     'severities',
+    'sonarsourceSecurity',
+    'standard',
     'statuses',
     'tags',
     'types'
