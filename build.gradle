@@ -111,7 +111,7 @@ subprojects {
       dependency('commons-beanutils:commons-beanutils:1.8.3') {
         exclude 'commons-logging:commons-logging'
       }
-      dependency 'commons-codec:commons-codec:1.8'
+      dependency 'commons-codec:commons-codec:1.12'
       dependency 'commons-dbutils:commons-dbutils:1.5'
       dependency 'commons-io:commons-io:2.6'
       dependency 'commons-lang:commons-lang:2.6'
