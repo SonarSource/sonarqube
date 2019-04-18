@@ -306,6 +306,78 @@ public class ShowActionTest {
       .isSimilarTo(this.getClass().getResource("ShowActionTest/sansWithCwe.json"));
   }
 
+  @Test
+  public void sonarsource_security_without_cwe() {
+    userSessionRule.addProjectPermission(UserRole.USER, project);
+    indexPermissions();
+    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    IssueDto issue1 = newIssue(rule1, project, file)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.VULNERABILITY);
+    IssueDto issue2 = newIssue(rule1, project, file)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue3 = newIssue(rule1, project, file)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue4 = newIssue(rule1, project, file)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_WONT_FIX)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    dbClient.issueDao().insert(session, issue1, issue2, issue3, issue4);
+    session.commit();
+    indexIssues();
+
+    assertJson(ws.newRequest()
+      .setParam("standard", "sonarsourceSecurity")
+      .setParam("project", project.getKey())
+      .setParam("includeDistribution", "false")
+      .execute().getInput())
+      .withStrictArrayOrder()
+      .isSimilarTo(this.getClass().getResource("ShowActionTest/sonarsourceSecurityNoCwe.json"));
+  }
+
+  @Test
+  public void sonarsource_security_with_cwe() {
+    userSessionRule.addProjectPermission(UserRole.USER, project);
+    indexPermissions();
+    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    IssueDto issue1 = newIssue(rule1, project, file)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.VULNERABILITY);
+    IssueDto issue2 = newIssue(rule1, project, file)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue3 = newIssue(rule1, project, file)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue4 = newIssue(rule1, project, file)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_WONT_FIX)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    dbClient.issueDao().insert(session, issue1, issue2, issue3, issue4);
+    session.commit();
+    indexIssues();
+
+    assertJson(ws.newRequest()
+      .setParam("standard", "sonarsourceSecurity")
+      .setParam("project", project.getKey())
+      .setParam("includeDistribution", "true")
+      .execute().getInput())
+      .withStrictArrayOrder()
+      .isSimilarTo(this.getClass().getResource("ShowActionTest/sonarsourceSecurityWithCwe.json"));
+  }
+
   private RuleDefinitionDto newRule(Set tags) {
     RuleDefinitionDto rule = RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)

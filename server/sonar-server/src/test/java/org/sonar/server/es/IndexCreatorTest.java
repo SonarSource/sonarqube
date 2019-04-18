@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
@@ -39,7 +38,6 @@ import org.sonar.server.es.newindex.NewRegularIndex;
 import org.sonar.server.es.newindex.SettingsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
 import static org.sonar.server.es.IndexType.main;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
@@ -99,58 +97,8 @@ public class IndexCreatorTest {
     assertThat(metadataIndex.getInitialized(main(fakersIndex, "faker"))).isFalse();
   }
 
-  @Test
-  public void recreate_index_on_definition_changes() {
-    // v1
-    startNewCreator(new FakeIndexDefinition());
-
-    IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
-    String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
-
-    // v2
-    startNewCreator(new FakeIndexDefinitionV2());
-
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
-    MappingMetaData mapping = mappings.get("fakes").get("fake");
-    assertThat(countMappingFields(mapping)).isEqualTo(3);
-    assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
-    assertThat(field(mapping, "newField").get("type")).isEqualTo("integer");
-
-    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isFalse();
-  }
-
-  @Test
-  public void fail_to_recreate_index_on_definition_changes_if_blue_green_deployment() {
-    enableBlueGreenDeployment();
-
-    // v1
-    startNewCreator(new FakeIndexDefinition());
-
-    // v2
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Blue/green deployment is not supported. Elasticsearch index [fakes] changed and needs to be dropped.");
-
-    startNewCreator(new FakeIndexDefinitionV2());
-  }
-
   private void enableBlueGreenDeployment() {
     settings.setProperty("sonar.blueGreenEnabled", "true");
-  }
-
-  @Test
-  public void do_not_recreate_index_on_unchanged_definition() {
-    // v1
-    startNewCreator(new FakeIndexDefinition());
-    IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
-    String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(IMMEDIATE).get();
-    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
-
-    // v1
-    startNewCreator(new FakeIndexDefinition());
-    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
   }
 
   @Test
@@ -242,18 +190,6 @@ public class IndexCreatorTest {
       newIndex.createTypeMapping(IndexType.main(index, "fake"))
         .keywordFieldBuilder("key").build()
         .createDateTimeField("updatedAt");
-    }
-  }
-  private static class FakeIndexDefinitionV2 implements IndexDefinition {
-
-    @Override
-    public void define(IndexDefinitionContext context) {
-      Index index = Index.simple("fakes");
-      NewRegularIndex newIndex = context.create(index, SETTINGS_CONFIGURATION);
-      newIndex.createTypeMapping(IndexType.main(index, "fake"))
-        .keywordFieldBuilder("key").build()
-        .createDateTimeField("updatedAt")
-        .createIntegerField("newField");
     }
   }
 }

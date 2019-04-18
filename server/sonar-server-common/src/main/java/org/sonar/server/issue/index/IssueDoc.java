@@ -314,4 +314,13 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
+  public Collection<String> getSonarSourceSecurityCategories() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY);
+  }
+
+  public IssueDoc setSonarSourceSecurityCategories(@Nullable Collection<String> c) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY, c);
+    return this;
+  }
 }

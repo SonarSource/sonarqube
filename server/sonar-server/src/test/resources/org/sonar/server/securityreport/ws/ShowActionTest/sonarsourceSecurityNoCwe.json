@@ -1,0 +1,205 @@
+{
+  "categories": [
+    {
+      "category": "ldap-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "object-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "ssrf",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "insecure-conf",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "xxe",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "auth",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "xpath-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "weak-cryptography",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "dos",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "open-redirect",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "log-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "csrf",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "sql-injection",
+      "vulnerabilities": 1,
+      "vulnerabilityRating": 3,
+      "toReviewSecurityHotspots": 1,
+      "openSecurityHotspots": 1,
+      "wontFixSecurityHotspots": 1,
+      "distribution": [],
+      "activeRules": 1,
+      "totalRules": 1
+    },
+    {
+      "category": "file-manipulation",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "expression-lang-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "rce",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "xss",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "path-traversal-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 1,
+      "totalRules": 1
+    },
+    {
+      "category": "command-injection",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    },
+    {
+      "category": "http-response-splitting",
+      "vulnerabilities": 0,
+      "toReviewSecurityHotspots": 0,
+      "openSecurityHotspots": 0,
+      "wontFixSecurityHotspots": 0,
+      "distribution": [],
+      "activeRules": 0,
+      "totalRules": 0
+    }
+  ]
+}

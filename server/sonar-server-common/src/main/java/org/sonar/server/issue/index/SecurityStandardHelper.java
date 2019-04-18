@@ -47,6 +47,30 @@ public class SecurityStandardHelper {
   private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
   private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
 
+
+  public static final Map<String, List<String>> SONARSOURCE_CWE_MAPPING = ImmutableMap.<String, List<String>>builder()
+    .put("sql-injection", asList("89", "564"))
+    .put("command-injection", asList("78", "77"))
+    .put("path-traversal-injection", singletonList("22"))
+    .put("ldap-injection", singletonList("90"))
+    .put("xpath-injection", singletonList("643"))
+    .put("expression-lang-injection", singletonList("917"))
+    .put("rce", singletonList("94"))
+    .put("dos", singletonList("400"))
+    .put("ssrf", singletonList("918"))
+    .put("csrf", singletonList("352"))
+    .put("xss", asList("79", "80", "81", "82", "83", "84", "85", "86", "87"))
+    .put("log-injection", singletonList("117"))
+    .put("http-response-splitting", singletonList("113"))
+    .put("open-redirect", singletonList("601"))
+    .put("xxe", asList("611", "827"))
+    .put("object-injection", singletonList("470"))
+    .put("weak-cryptography", asList("326", "295", "326", "327", "297", "780", "328", "327"))
+    .put("auth", asList("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "522", "284"))
+    .put("insecure-conf", asList("102", "489"))
+    .put("file-manipulation", asList("97", "73"))
+    .build();
+
   public static final Map<String, Set<String>> SANS_TOP_25_CWE_MAPPING = ImmutableMap.of(
     SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
@@ -70,6 +94,14 @@ public class SecurityStandardHelper {
       .collect(toList());
   }
 
+  public static List<String> getSonarSourceSecurityCategories(Collection<String> cwe) {
+    return SONARSOURCE_CWE_MAPPING
+      .keySet()
+      .stream()
+      .filter(k -> cwe.stream().anyMatch(SONARSOURCE_CWE_MAPPING.get(k)::contains))
+      .collect(toList());
+  }
+
   public static List<String> getOwaspTop10(Collection<String> securityStandards) {
     List<String> result = securityStandards.stream()
       .filter(s -> s.startsWith(OWASP_TOP10_PREFIX))
@@ -88,6 +120,10 @@ public class SecurityStandardHelper {
 
   public static List<String> getSansTop25(String securityStandards) {
     return getSansTop25(getCwe(getSecurityStandards(securityStandards)));
+  }
+
+  public static List<String> getSonarSourceSecurityCategories(String securityStandards) {
+    return getSonarSourceSecurityCategories(getCwe(getSecurityStandards(securityStandards)));
   }
 
   public static List<String> getOwaspTop10(String securityStandards) {

@@ -38,6 +38,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.SecurityStandardCategoryStatistics;
+import org.sonar.server.issue.index.SecurityStandardHelper;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.user.UserSession;
@@ -54,12 +55,15 @@ import static org.sonar.server.issue.index.SecurityStandardHelper.UNKNOWN_STANDA
 import static org.sonar.server.issue.index.SecurityStandardHelper.getCwe;
 import static org.sonar.server.issue.index.SecurityStandardHelper.getOwaspTop10;
 import static org.sonar.server.issue.index.SecurityStandardHelper.getSansTop25;
+import static org.sonar.server.issue.index.SecurityStandardHelper.getSonarSourceSecurityCategories;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 
 public class ShowAction implements SecurityReportsWsAction {
 
+  private static final String UNSUPPORTED_STANDARD_MSG = "Unsupported standard: '%s'";
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_INCLUDE_DISTRIBUTION = "includeDistribution";
@@ -96,7 +100,7 @@ public class ShowAction implements SecurityReportsWsAction {
       .setExampleValue("branch-2.0");
     action.createParam(PARAM_STANDARD)
       .setDescription("Security standard")
-      .setPossibleValues(PARAM_OWASP_TOP_10, PARAM_SANS_TOP_25)
+      .setPossibleValues(PARAM_OWASP_TOP_10, PARAM_SANS_TOP_25, PARAM_SONARSOURCE_SECURITY)
       .setRequired(true);
     action.createParam(PARAM_INCLUDE_DISTRIBUTION)
       .setDescription("To return CWE distribution")
@@ -142,8 +146,13 @@ public class ShowAction implements SecurityReportsWsAction {
         completeStatistics(sansTop25Report, projectDto, standard, includeCwe);
         writeResponse(request, response, sansTop25Report);
         break;
+      case PARAM_SONARSOURCE_SECURITY:
+        List<SecurityStandardCategoryStatistics> sonarSourceReport = issueIndex.getSonarSourceReport(projectDto.uuid(), isViewOrApp, includeCwe);
+        completeStatistics(sonarSourceReport, projectDto, standard, includeCwe);
+        writeResponse(request, response, sonarSourceReport);
+        break;
       default:
-        throw new IllegalArgumentException("Unsupported standard: '" + standard + "'");
+        throw new IllegalArgumentException(String.format(UNSUPPORTED_STANDARD_MSG, standard));
     }
   }
 
@@ -157,27 +166,30 @@ public class ShowAction implements SecurityReportsWsAction {
       List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByTypeAndProfileUuids(dbSession,
         asList(RuleType.SECURITY_HOTSPOT.getDbConstant(), RuleType.VULNERABILITY.getDbConstant()),
         qualityProfiles.stream()
-        .map(QualityProfile::getQpKey)
-        .collect(toList()));
+          .map(QualityProfile::getQpKey)
+          .collect(toList()));
 
       Multimap<String, OrgActiveRuleDto> activeRulesByCategory = ArrayListMultimap.create();
       activeRuleDtos
         .forEach(r -> {
-            List<String> cwe = getCwe(r.getSecurityStandards());
-            if (includeCwe) {
-              cwe.forEach(s -> activeRulesByCategory.put(s, r));
-            }
-            switch (standard) {
-              case PARAM_OWASP_TOP_10:
-                getOwaspTop10(r.getSecurityStandards()).forEach(s -> activeRulesByCategory.put(s, r));
-                break;
-              case PARAM_SANS_TOP_25:
-                getSansTop25(cwe).forEach(s -> activeRulesByCategory.put(s, r));
-                break;
-              default:
-                throw new IllegalArgumentException("Unsupported standard: '" + standard + "'");
-            }
-          });
+          List<String> cwe = getCwe(r.getSecurityStandards());
+          if (includeCwe) {
+            cwe.forEach(s -> activeRulesByCategory.put(s, r));
+          }
+          switch (standard) {
+            case PARAM_OWASP_TOP_10:
+              getOwaspTop10(r.getSecurityStandards()).forEach(s -> activeRulesByCategory.put(s, r));
+              break;
+            case PARAM_SANS_TOP_25:
+              getSansTop25(cwe).forEach(s -> activeRulesByCategory.put(s, r));
+              break;
+            case PARAM_SONARSOURCE_SECURITY:
+              SecurityStandardHelper.getSonarSourceSecurityCategories(cwe).forEach(s -> activeRulesByCategory.put(s, r));
+              break;
+            default:
+              throw new IllegalArgumentException(String.format(UNSUPPORTED_STANDARD_MSG, standard));
+          }
+        });
 
       List<RuleDto> ruleDtos = dbClient.ruleDao().selectByTypeAndLanguages(dbSession,
         project.getOrganizationUuid(),
@@ -200,19 +212,22 @@ public class ShowAction implements SecurityReportsWsAction {
             case PARAM_SANS_TOP_25:
               getSansTop25(cwe).forEach(s -> rulesByCategory.put(s, r));
               break;
+            case PARAM_SONARSOURCE_SECURITY:
+              getSonarSourceSecurityCategories(cwe).forEach(s -> rulesByCategory.put(s, r));
+              break;
             default:
-              throw new IllegalArgumentException("Unsupported standard: '" + standard + "'");
+              throw new IllegalArgumentException(String.format(UNSUPPORTED_STANDARD_MSG, standard));
           }
         });
 
       input.forEach(c -> {
-          c.setTotalRules(rulesByCategory.get(c.getCategory()).size());
-          c.setActiveRules(activeRulesByCategory.get(c.getCategory()).size());
-          c.getChildren().forEach(child -> {
-            child.setTotalRules(rulesByCategory.get(child.getCategory()).size());
-            child.setActiveRules(activeRulesByCategory.get(child.getCategory()).size());
-          });
+        c.setTotalRules(rulesByCategory.get(c.getCategory()).size());
+        c.setActiveRules(activeRulesByCategory.get(c.getCategory()).size());
+        c.getChildren().forEach(child -> {
+          child.setTotalRules(rulesByCategory.get(child.getCategory()).size());
+          child.setActiveRules(activeRulesByCategory.get(child.getCategory()).size());
         });
+      });
     }
   }
 

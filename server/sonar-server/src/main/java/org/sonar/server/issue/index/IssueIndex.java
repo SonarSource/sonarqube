@@ -145,6 +145,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RULE
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SONARSOURCE_SECURITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
@@ -847,6 +848,17 @@ public class IssueIndex {
       AggregationBuilder sansCategoryAggs = AggregationBuilders
         .filter(sansCategory, boolQuery()
           .filter(termQuery(FIELD_ISSUE_SANS_TOP_25, sansCategory)));
+      request.addAggregation(addSecurityReportSubAggregations(sansCategoryAggs, includeCwe));
+    });
+    return processSecurityReportSearchResults(request, includeCwe);
+  }
+
+  public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
+    SearchRequestBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
+    SecurityStandardHelper.SONARSOURCE_CWE_MAPPING.keySet().forEach(sansCategory -> {
+      AggregationBuilder sansCategoryAggs = AggregationBuilders
+        .filter(sansCategory, boolQuery()
+          .filter(termQuery(FIELD_ISSUE_SONARSOURCE_SECURITY, sansCategory)));
       request.addAggregation(addSecurityReportSubAggregations(sansCategoryAggs, includeCwe));
     });
     return processSecurityReportSearchResults(request, includeCwe);

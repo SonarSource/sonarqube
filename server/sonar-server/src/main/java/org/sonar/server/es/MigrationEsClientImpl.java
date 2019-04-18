@@ -28,6 +28,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
+import static java.lang.String.format;
+
 public class MigrationEsClientImpl implements MigrationEsClient {
   private final EsClient client;
 
@@ -43,6 +45,18 @@ public class MigrationEsClientImpl implements MigrationEsClient {
       .distinct()
       .filter(existingIndices::contains)
       .forEach(this::deleteIndex);
+  }
+
+  @Override
+  public void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType) {
+    IndexStats stats = client.nativeClient().admin().indices().prepareStats().get().getIndex(index);
+    if (stats != null) {
+      Loggers.get(getClass()).info("Add mapping [{}] to Elasticsearch index [{}]", mappingName, index);
+      client.nativeClient().admin().indices().preparePutMapping(index)
+        .setType(type)
+        .setSource(mappingName, format("type=%s", mappingType))
+        .get();
+    }
   }
 
   private void deleteIndex(String index) {

@@ -20,6 +20,7 @@
 package org.sonar.server.es;
 
 import java.util.Iterator;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -64,6 +65,39 @@ public class MigrationEsClientImplTest {
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains("Drop Elasticsearch index [as]", "Drop Elasticsearch index [cs]")
       .doesNotContain("Drop Elasticsearch index [xxx]");
+  }
+
+  @Test
+  public void add_mapping_to_existing_index() {
+    underTest.addMappingToExistingIndex("as", "s", "newMapping", "keyword");
+
+    GetFieldMappingsResponse response = es.client().nativeClient().admin().indices().prepareGetFieldMappings("as")
+      .setTypes("s")
+      .setFields("newMapping")
+      .get();
+    assertThat(response).isNotNull();
+    assertThat(response.mappings()).hasSize(1);
+    assertThat(response.mappings().get("as")).isNotNull();
+    assertThat(response.mappings().get("as").get("s")).isNotNull();
+    assertThat(response.mappings().get("as").get("s").get("newMapping").fullName()).isEqualTo("newMapping");
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("Add mapping [newMapping] to Elasticsearch index [as]");
+  }
+
+  @Test
+  public void add_mapping_to_non_existing_index() {
+    underTest.addMappingToExistingIndex("yyyy", "s", "newMapping", "keyword");
+
+    GetFieldMappingsResponse response = es.client().nativeClient().admin().indices().prepareGetFieldMappings("as")
+      .setTypes("s")
+      .setFields("newMapping")
+      .get();
+    assertThat(response).isNotNull();
+    assertThat(response.mappings()).hasSize(1);
+    assertThat(response.mappings().get("as")).isNotNull();
+    assertThat(response.mappings().get("as").get("s")).isNotNull();
+    assertThat(response.mappings().get("as").get("s").get("newMapping").fullName()).isEqualTo("");
+    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
   }
 
   private Iterator<String> loadExistingIndices() {

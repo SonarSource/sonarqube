@@ -25,4 +25,14 @@ public interface MigrationEsClient {
    * This method is re-entrant and does not fail if indexName or otherIndexNames do not exist
    */
   void deleteIndexes(String name, String... otherNames);
+
+  /**
+   * Adds a new mapping to an existing elasticsearch index
+   *
+   * @param index name of the index that the mapping is added to
+   * @param type document type in the index
+   * @param mappingName name of the new mapping
+   * @param mappingType type of the new mapping
+   */
+  void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType);
 }

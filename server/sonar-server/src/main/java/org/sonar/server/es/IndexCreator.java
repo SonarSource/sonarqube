@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
@@ -34,7 +33,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
@@ -85,23 +83,10 @@ public class IndexCreator implements Startable {
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
     for (BuiltIndex<?> builtIndex : definitions.getIndices().values()) {
       Index index = builtIndex.getMainType().getIndex();
-      String indexName = index.getName();
       boolean exists = client.prepareIndicesExist(index).get().isExists();
-      if (exists && !builtIndex.getMainType().equals(metadataMainType) && hasDefinitionChange(builtIndex)) {
-        verifyNotBlueGreenDeployment(indexName);
-        LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
-        deleteIndex(indexName);
-        exists = false;
-      }
       if (!exists) {
         createIndex(builtIndex, true);
       }
-    }
-  }
-
-  private void verifyNotBlueGreenDeployment(String indexToBeDeleted) {
-    if (configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false)) {
-      throw new IllegalStateException("Blue/green deployment is not supported. Elasticsearch index [" + indexToBeDeleted + "] changed and needs to be dropped.");
     }
   }
 
@@ -143,14 +128,6 @@ public class IndexCreator implements Startable {
 
   private void deleteIndex(String indexName) {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
-  }
-
-  private boolean hasDefinitionChange(BuiltIndex<?> index) {
-    return metadataIndex.getHash(index.getMainType().getIndex())
-      .map(hash -> {
-        String defHash = IndexDefinitionHash.of(index);
-        return !StringUtils.equals(hash, defHash);
-      }).orElse(true);
   }
 
   private void checkDbCompatibility(Collection<BuiltIndex> definitions) {

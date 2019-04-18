@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v77;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+@SupportsBlueGreen
+public class AddSonarsourceSecurityElasticsearchMapping extends DdlChange {
 
-public class DbVersion77Test {
+  private final MigrationEsClient migrationEsClient;
 
-  private DbVersion77 underTest = new DbVersion77();
-
-  @Test
-  public void migrationNumber_starts_at_2600() {
-    verifyMinimumMigrationNumber(underTest, 2600);
+  public AddSonarsourceSecurityElasticsearchMapping(Database db, MigrationEsClient migrationEsClient) {
+    super(db);
+    this.migrationEsClient = migrationEsClient;
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
+  @Override
+  public void execute(Context context) throws SQLException {
+    migrationEsClient.addMappingToExistingIndex("issues", "auth", "sonarsourceSecurity", "keyword");
   }
 
 }

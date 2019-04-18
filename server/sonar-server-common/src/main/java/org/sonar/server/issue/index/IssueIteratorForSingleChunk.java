@@ -47,6 +47,7 @@ import static org.sonar.server.issue.index.SecurityStandardHelper.getCwe;
 import static org.sonar.server.issue.index.SecurityStandardHelper.getOwaspTop10;
 import static org.sonar.server.issue.index.SecurityStandardHelper.getSansTop25;
 import static org.sonar.server.issue.index.SecurityStandardHelper.getSecurityStandards;
+import static org.sonar.server.issue.index.SecurityStandardHelper.getSonarSourceSecurityCategories;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate
@@ -237,6 +238,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       List<String> cwe = getCwe(standards);
       doc.setCwe(cwe);
       doc.setSansTop25(getSansTop25(cwe));
+      doc.setSonarSourceSecurityCategories(getSonarSourceSecurityCategories(cwe));
       return doc;
     }
 
