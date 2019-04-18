@@ -3,7 +3,7 @@ title: SonarQube DB Copy Tool
 url: /instance-administration/db-copy/
 ---
 
-_The SonarQube DB Copy Tool is available to [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) customers and [above](https://www.sonarsource.com/plans-and-pricing/)._
+_The SonarQube DB Copy Tool is available to customers with [SonarSource support](https://www.sonarsource.com/support/)._
 
 This tool is provided to help you migrate your SonarQube database from one DB vendor to another. If, for instance, you've been using your SonarQube instance with Oracle and you want to migrate to PostgreSQL without loosing your analysis history, the SonarQube DB Copy Tool is what you need. 
 
@@ -17,9 +17,9 @@ The procedure is basically as follows:
 * recreate the sequences, index, ... on the target database
 
 ## Installation
-The SonarQube DB Copy Tool is provided as a standalone JAR file. **It must not be installed on your source or target SonarQube instances**. Put the JAR wherever your want on your machine, the only prerequisite is that this machine must be authorized to access your source and target SonarQube databases.
+The SonarQube DB Copy Tool is provided as a standalone JAR file. **It must not be installed in your source or target SonarQube instances**. Put the JAR wherever your want on your machine, the only prerequisite is that this machine must be authorized to access your source and target SonarQube databases.
 
-The version of the JAR to use must be at least **1.3.1.48**
+The version of the JAR to use must be at least **1.3.3.627**
 
 ## DB Copy Preparation Phase
 In the preparation phase, you ready the target database by setting up SonarQube schema and populating it with the necessary tables so that you end up with the same  database schema in the source and the target.
@@ -44,7 +44,7 @@ There are only four steps in this phase:
 
 ### Base command
 ```
-java -jar sonar-db-copy-1.3.1.480-jar-with-dependencies.jar
+java -jar sonar-db-copy-1.3.3.627-jar-with-dependencies.jar
 ```
 
 ### Parameters
@@ -92,7 +92,5 @@ If there are some missing tables:
 If errors appear during the copy, the process does NOT stop but the errors are displayed:  
 ![copy errors displayed](/images/db-copy/copy-errors-shown.png)
 
-At the end sonar-db-copy reiterates the difference between source and destination database.  
+At the end sonar-db-copy reiterates the difference between source and destination database. An error message is displayed if the databases are different. 
 ![final warning of remaining differences](/images/db-copy/summary-of-differences.png)
-
-
