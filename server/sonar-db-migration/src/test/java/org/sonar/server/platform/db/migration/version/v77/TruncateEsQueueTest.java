@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +38,7 @@ public class TruncateEsQueueTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TruncateEsQueue underTest = new TruncateEsQueue(db.database());
+  private DataChange underTest = new TruncateEsQueue(db.database());
 
   @Test
   public void migration_does_not_fail_on_empty_table() throws SQLException {
@@ -78,8 +79,7 @@ public class TruncateEsQueueTest {
         "UUID", "uuid_" + i,
         "DOC_TYPE", "doc_type_" + i,
         "DOC_ID", "doc_id_" + i,
-        "CREATED_AT", String.valueOf(i)
-      ));
+        "CREATED_AT", String.valueOf(i)));
     return count;
   }
 }

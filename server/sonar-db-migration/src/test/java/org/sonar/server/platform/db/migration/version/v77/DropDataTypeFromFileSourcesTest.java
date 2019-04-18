@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropDataTypeFromFileSourcesTest {
 
@@ -35,7 +36,7 @@ public class DropDataTypeFromFileSourcesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DropDataTypeFromFileSources underTest = new DropDataTypeFromFileSources(db.database());
+  private DdlChange underTest = new DropDataTypeFromFileSources(db.database());
 
   @Test
   public void drop_column_and_recreate_index() throws SQLException {

@@ -36,7 +36,6 @@ import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.async.AsyncExecution;
 
 import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
 
 @ServerSide
 @ComputeEngineSide
@@ -66,11 +65,11 @@ public class WebHooksImpl implements WebHooks {
   private Stream<WebhookDto> readWebHooksFrom(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      Optional<ComponentDto> optionalComponentDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orElse(null));
+      Optional<ComponentDto> optionalComponentDto = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
       ComponentDto componentDto = checkStateWithOptional(optionalComponentDto, "the requested project '%s' was not found", projectUuid);
 
       if (componentDto.getMainBranchProjectUuid() != null && !componentDto.uuid().equals(componentDto.getMainBranchProjectUuid())) {
-        Optional<ComponentDto> mainBranchComponentDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, componentDto.getMainBranchProjectUuid()).orElse(null));
+        Optional<ComponentDto> mainBranchComponentDto = dbClient.componentDao().selectByUuid(dbSession, componentDto.getMainBranchProjectUuid());
         componentDto = checkStateWithOptional(mainBranchComponentDto, "the requested project '%s' was not found", projectUuid);
       }
 
@@ -81,7 +80,7 @@ public class WebHooksImpl implements WebHooks {
     }
   }
 
-  private static <T> T checkStateWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
+  private static <T> T checkStateWithOptional(Optional<T> value, String message, Object... messageArguments) {
     if (!value.isPresent()) {
       throw new IllegalStateException(format(message, messageArguments));
     }

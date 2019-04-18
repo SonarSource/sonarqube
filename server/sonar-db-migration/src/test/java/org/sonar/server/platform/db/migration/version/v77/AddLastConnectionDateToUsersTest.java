@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class AddLastConnectionDateToUsersTest {
 
@@ -36,7 +37,7 @@ public class AddLastConnectionDateToUsersTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddLastConnectionDateToUsers underTest = new AddLastConnectionDateToUsers(db.database());
+  private DdlChange underTest = new AddLastConnectionDateToUsers(db.database());
 
   @Test
   public void add_column() throws SQLException {

@@ -24,6 +24,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ public class DeleteTestDataTypeFromFileSourcesTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteTestDataTypeFromFileSourcesTest.class, "file_sources.sql");
 
-  private DeleteTestDataTypeFromFileSources underTest = new DeleteTestDataTypeFromFileSources(db.database());
+  private DataChange underTest = new DeleteTestDataTypeFromFileSources(db.database());
 
   @Test
   public void remove_test_data_type() throws SQLException {

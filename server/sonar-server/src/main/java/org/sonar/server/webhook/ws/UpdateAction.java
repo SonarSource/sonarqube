@@ -89,7 +89,6 @@ public class UpdateAction implements WebhooksWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-
     userSession.checkLoggedIn();
 
     String webhookKey = request.param(KEY_PARAM);

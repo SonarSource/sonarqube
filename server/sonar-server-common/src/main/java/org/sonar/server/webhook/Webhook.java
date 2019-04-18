@@ -31,7 +31,9 @@ public class Webhook {
 
   private final String uuid;
   private final String componentUuid;
+  @Nullable
   private final String ceTaskUuid;
+  @Nullable
   private final String analysisUuid;
   private final String name;
   private final String url;

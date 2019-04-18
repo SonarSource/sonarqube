@@ -19,7 +19,6 @@
  */
 package org.sonar.server.webhook.ws;
 
-import com.google.common.io.Resources;
 import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -60,7 +59,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
       .setDescription("Get a webhook delivery by its id.<br/>" +
         "Require 'Administer System' permission.<br/>" +
         "Note that additional information are returned by api/webhooks/delivery.")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-delivery.json"))
+      .setResponseExample(getClass().getResource("example-delivery.json"))
       .setHandler(this);
 
     action.createParam(PARAM_ID)

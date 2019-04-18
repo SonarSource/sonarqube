@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -36,7 +37,7 @@ public class DeleteFavouritesOnNotSupportedComponentQualifiersTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteFavouritesOnNotSupportedComponentQualifiersTest.class, "schema.sql");
 
-  private DeleteFavouritesOnNotSupportedComponentQualifiers underTest = new DeleteFavouritesOnNotSupportedComponentQualifiers(db.database());
+  private DataChange underTest = new DeleteFavouritesOnNotSupportedComponentQualifiers(db.database());
 
   @Test
   public void delete_favorites_on_none_supported_component_qualifiers() throws SQLException {

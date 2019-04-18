@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v77.AddManualBaselineToProjectBranches.TABLE_NAME;
@@ -35,7 +36,7 @@ public class AddManualBaselineToProjectBranchesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddManualBaselineToProjectBranches underTest = new AddManualBaselineToProjectBranches(db.database());
+  private DdlChange underTest = new AddManualBaselineToProjectBranches(db.database());
 
   @Test
   public void adds_nullable_columns_to_existing_table() throws SQLException {

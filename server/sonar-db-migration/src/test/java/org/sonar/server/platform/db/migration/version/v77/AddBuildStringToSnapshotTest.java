@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static java.sql.Types.VARCHAR;
 
@@ -36,7 +37,7 @@ public class AddBuildStringToSnapshotTest {
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(AddBuildStringToSnapshotTest.class, "snapshots.sql");
 
-  private AddBuildStringToSnapshot underTest = new AddBuildStringToSnapshot(db.database());
+  private DdlChange underTest = new AddBuildStringToSnapshot(db.database());
 
   @Test
   public void creates_table_on_empty_db() throws SQLException {

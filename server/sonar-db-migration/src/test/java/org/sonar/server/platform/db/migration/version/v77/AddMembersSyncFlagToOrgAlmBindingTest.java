@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class AddMembersSyncFlagToOrgAlmBindingTest {
 
@@ -35,7 +36,7 @@ public class AddMembersSyncFlagToOrgAlmBindingTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddMembersSyncFlagToOrgAlmBinding underTest = new AddMembersSyncFlagToOrgAlmBinding(db.database());
+  private DdlChange underTest = new AddMembersSyncFlagToOrgAlmBinding(db.database());
 
   @Test
   public void add_column() throws SQLException {

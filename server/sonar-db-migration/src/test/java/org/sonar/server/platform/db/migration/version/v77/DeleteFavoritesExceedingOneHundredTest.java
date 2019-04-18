@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -36,7 +37,7 @@ public class DeleteFavoritesExceedingOneHundredTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteFavoritesExceedingOneHundredTest.class, "schema.sql");
 
-  private DeleteFavoritesExceedingOneHundred underTest = new DeleteFavoritesExceedingOneHundred(db.database());
+  private DataChange underTest = new DeleteFavoritesExceedingOneHundred(db.database());
 
   @Test
   public void delete_favorites_when_user_has_more_than_100() throws SQLException {

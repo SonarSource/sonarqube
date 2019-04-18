@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,7 +40,7 @@ public class DropElasticsearchIndexTestsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private MigrationEsClient esClient = mock(MigrationEsClient.class);
-  private DropElasticsearchIndexTests underTest = new DropElasticsearchIndexTests(db.database(), esClient);
+  private DdlChange underTest = new DropElasticsearchIndexTests(db.database(), esClient);
 
   @Test
   public void rename_column() throws SQLException {

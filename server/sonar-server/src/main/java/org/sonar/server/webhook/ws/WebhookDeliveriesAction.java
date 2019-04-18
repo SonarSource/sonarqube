@@ -19,7 +19,6 @@
  */
 package org.sonar.server.webhook.ws;
 
-import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -71,7 +70,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
       .setDescription("Get the recent deliveries for a specified project or Compute Engine task.<br/>" +
         "Require 'Administer' permission on the related project.<br/>" +
         "Note that additional information are returned by api/webhooks/delivery.")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-deliveries.json"))
+      .setResponseExample(getClass().getResource("example-deliveries.json"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT)

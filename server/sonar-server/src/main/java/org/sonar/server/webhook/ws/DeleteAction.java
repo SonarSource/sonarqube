@@ -52,7 +52,6 @@ public class DeleteAction implements WebhooksWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-
     WebService.NewAction action = controller.createAction(DELETE_ACTION)
       .setPost(true)
       .setDescription("Delete a Webhook.<br>" +
@@ -66,18 +65,15 @@ public class DeleteAction implements WebhooksWsAction {
       .setDescription("The key of the webhook to be deleted, "+
         "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-
     userSession.checkLoggedIn();
 
     String webhookKey = request.param(KEY_PARAM);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-
       Optional<WebhookDto> dtoOptional = dbClient.webhookDao().selectByUuid(dbSession, webhookKey);
       WebhookDto webhookDto = checkFoundWithOptional(dtoOptional, "No webhook with key '%s'", webhookKey);
 
