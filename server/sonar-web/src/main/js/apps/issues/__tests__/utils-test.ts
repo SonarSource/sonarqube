@@ -18,7 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { scrollToElement } from '../../../helpers/scrolling';
-import { shouldOpenSeverityFacet, shouldOpenStandardFacet, scrollToIssue } from '../utils';
+import {
+  shouldOpenSeverityFacet,
+  shouldOpenStandardsFacet,
+  scrollToIssue,
+  shouldOpenStandardsChildFacet,
+  shouldOpenSonarSourceSecurityFacet
+} from '../utils';
 
 jest.mock('../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
@@ -56,28 +62,106 @@ describe('scrollToIssue', () => {
   });
 });
 
-describe('shouldOpenStandardFacet', () => {
-  it('should open standard facet', () => {
-    expect(shouldOpenStandardFacet(['VULNERABILITY'])).toBe(true);
-    expect(shouldOpenStandardFacet(['SECURITY_HOTSPOT'])).toBe(true);
-    expect(shouldOpenStandardFacet(['VULNERABILITY', 'SECURITY_HOTSPOT'])).toBe(true);
-  });
-
-  it('should NOT open standard facet', () => {
-    expect(shouldOpenStandardFacet([])).toBe(false);
-    expect(shouldOpenStandardFacet(['BUGS'])).toBe(false);
-    expect(shouldOpenStandardFacet(['BUGS', 'SECURITY_HOTSPOT'])).toBe(false);
-  });
-});
-
-describe('shouldDisableSeverityFacet', () => {
+describe('shouldOpenSeverityFacet', () => {
   it('should open severity facet', () => {
-    expect(shouldOpenSeverityFacet([])).toBe(true);
-    expect(shouldOpenSeverityFacet(['SECURITY'])).toBe(true);
-    expect(shouldOpenSeverityFacet(['BUGS', 'SECURITY_HOTSPOT'])).toBe(true);
+    expect(shouldOpenSeverityFacet({ severities: true }, { types: [] })).toBe(true);
+    expect(shouldOpenSeverityFacet({}, { types: [] })).toBe(true);
+    expect(shouldOpenSeverityFacet({}, { types: ['VULNERABILITY'] })).toBe(true);
+    expect(shouldOpenSeverityFacet({ severities: false }, { types: ['VULNERABILITY'] })).toBe(true);
+    expect(shouldOpenSeverityFacet({ severities: false }, { types: [] })).toBe(true);
+    expect(shouldOpenSeverityFacet({}, { types: ['BUGS', 'SECURITY_HOTSPOT'] })).toBe(true);
+    expect(shouldOpenSeverityFacet({ severities: true }, { types: ['SECURITY_HOTSPOT'] })).toBe(
+      true
+    );
   });
 
   it('should NOT open severity facet', () => {
-    expect(shouldOpenSeverityFacet(['SECURITY_HOTSPOT'])).toBe(false);
+    expect(shouldOpenSeverityFacet({}, { types: ['SECURITY_HOTSPOT'] })).toBe(false);
+  });
+});
+
+describe('shouldOpenStandardsFacet', () => {
+  it('should open standard facet', () => {
+    expect(shouldOpenStandardsFacet({ standards: true }, { types: [] })).toBe(true);
+    expect(shouldOpenStandardsFacet({ owaspTop10: true }, { types: [] })).toBe(true);
+    expect(shouldOpenStandardsFacet({}, { types: ['VULNERABILITY'] })).toBe(true);
+    expect(shouldOpenStandardsFacet({}, { types: ['SECURITY_HOTSPOT'] })).toBe(true);
+    expect(shouldOpenStandardsFacet({}, { types: ['VULNERABILITY', 'SECURITY_HOTSPOT'] })).toBe(
+      true
+    );
+    expect(shouldOpenStandardsFacet({}, { types: ['BUGS', 'SECURITY_HOTSPOT'] })).toBe(true);
+    expect(shouldOpenStandardsFacet({ standards: false }, { types: ['VULNERABILITY'] })).toBe(true);
+  });
+
+  it('should NOT open standard facet', () => {
+    expect(shouldOpenStandardsFacet({ standards: false }, { types: ['BUGS'] })).toBe(false);
+    expect(shouldOpenStandardsFacet({}, { types: [] })).toBe(false);
+    expect(shouldOpenStandardsFacet({}, {})).toBe(false);
+    expect(shouldOpenStandardsFacet({}, { types: ['BUGS'] })).toBe(false);
+    expect(shouldOpenStandardsFacet({}, { types: ['BUGS'] })).toBe(false);
+  });
+});
+
+describe('shouldOpenStandardsChildFacet', () => {
+  it('should open standard child facet', () => {
+    expect(shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, 'owaspTop10')).toBe(true);
+    expect(shouldOpenStandardsChildFacet({ sansTop25: true }, {}, 'sansTop25')).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet({ sansTop25: true }, { owaspTop10: ['A1'] }, 'owaspTop10')
+    ).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet({ owaspTop10: false }, { owaspTop10: ['A1'] }, 'owaspTop10')
+    ).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet({}, { sansTop25: ['insecure-interactions'] }, 'sansTop25')
+    ).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet(
+        {},
+        { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
+        'sonarsourceSecurity'
+      )
+    ).toBe(true);
+  });
+
+  it('should NOT open standard child facet', () => {
+    expect(shouldOpenStandardsChildFacet({ standards: true }, {}, 'owaspTop10')).toBe(false);
+    expect(shouldOpenStandardsChildFacet({ sansTop25: true }, {}, 'owaspTop10')).toBe(false);
+    expect(shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, 'sansTop25')).toBe(
+      false
+    );
+    expect(
+      shouldOpenStandardsChildFacet({}, { types: ['SECURITY_HOTSPOT'] }, 'sonarsourceSecurity')
+    ).toBe(false);
+    expect(
+      shouldOpenStandardsChildFacet(
+        {},
+        { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
+        'owaspTop10'
+      )
+    ).toBe(false);
+  });
+});
+
+describe('shouldOpenSonarSourceSecurityFacet', () => {
+  it('should open sonarsourceSecurity facet', () => {
+    expect(shouldOpenSonarSourceSecurityFacet({}, { sonarsourceSecurity: ['xss'] })).toBe(true);
+    expect(shouldOpenSonarSourceSecurityFacet({ sonarsourceSecurity: true }, {})).toBe(true);
+    expect(shouldOpenSonarSourceSecurityFacet({ standards: true }, {})).toBe(true);
+    expect(shouldOpenSonarSourceSecurityFacet({}, { types: ['VULNERABILITY'] })).toBe(true);
+    expect(
+      shouldOpenSonarSourceSecurityFacet(
+        { sonarsourceSecurity: false },
+        { sonarsourceSecurity: ['xss'] }
+      )
+    ).toBe(true);
+  });
+
+  it('should NOT open sonarsourceSecurity facet', () => {
+    expect(shouldOpenSonarSourceSecurityFacet({ standards: false }, {})).toBe(false);
+    expect(shouldOpenSonarSourceSecurityFacet({ owaspTop10: true }, {})).toBe(false);
+    expect(shouldOpenSonarSourceSecurityFacet({ standards: true, sansTop25: true }, {})).toBe(
+      false
+    );
   });
 });

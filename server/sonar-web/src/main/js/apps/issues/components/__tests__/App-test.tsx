@@ -25,8 +25,10 @@ import {
   mockRouter,
   mockIssue,
   mockLocation,
-  mockEvent
+  mockEvent,
+  mockCurrentUser
 } from '../../../../helpers/testMocks';
+import handleRequiredAuthentication from '../../../../app/utils/handleRequiredAuthentication';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   enableLocationsNavigator,
@@ -35,6 +37,10 @@ import {
   selectNextFlow,
   selectPreviousFlow
 } from '../../actions';
+
+jest.mock('../../../../app/utils/handleRequiredAuthentication', () => ({
+  default: jest.fn()
+}));
 
 const ISSUES = [
   { key: 'foo' } as T.Issue,
@@ -53,6 +59,38 @@ it('should render a list of issue', async () => {
   expect(wrapper.state().issues.length).toBe(4);
   expect(wrapper.state().referencedComponentsById).toEqual({ 'foo-uuid': referencedComponent });
   expect(wrapper.state().referencedComponentsByKey).toEqual({ 'foo-key': referencedComponent });
+});
+
+it('should not render for anonymous user', () => {
+  shallowRender({
+    currentUser: mockCurrentUser({ isLoggedIn: false }),
+    myIssues: true
+  });
+  expect(handleRequiredAuthentication).toBeCalled();
+});
+
+it('should open standard facets for vulnerabilities and hotspots', () => {
+  const wrapper = shallowRender({
+    location: { pathname: '/issues', query: { types: 'VULNERABILITY' } }
+  });
+  const instance = wrapper.instance();
+  const fetchFacet = jest.spyOn(instance, 'fetchFacet');
+
+  expect(wrapper.state('openFacets').standards).toEqual(true);
+  expect(wrapper.state('openFacets').sonarsourceSecurity).toEqual(true);
+
+  instance.handleFacetToggle('standards');
+  expect(wrapper.state('openFacets').standards).toEqual(false);
+  expect(fetchFacet).not.toBeCalled();
+
+  instance.handleFacetToggle('standards');
+  expect(wrapper.state('openFacets').standards).toEqual(true);
+  expect(wrapper.state('openFacets').sonarsourceSecurity).toEqual(true);
+  expect(fetchFacet).lastCalledWith('sonarsourceSecurity');
+
+  instance.handleFacetToggle('owaspTop10');
+  expect(wrapper.state('openFacets').owaspTop10).toEqual(true);
+  expect(fetchFacet).lastCalledWith('owaspTop10');
 });
 
 it('should be able to uncheck all issue with global checkbox', async () => {
@@ -144,17 +182,38 @@ it('should display the right facets open', () => {
     shallowRender({
       location: mockLocation({ query: { types: 'SECURITY_HOTSPOT' } })
     }).state('openFacets')
-  ).toEqual({ severities: false, standards: true, types: true });
-  expect(
-    shallowRender({
-      location: mockLocation({ query: { types: 'VULNERABILITY,SECURITY_HOTSPOT' } })
-    }).state('openFacets')
-  ).toEqual({ severities: true, standards: true, types: true });
+  ).toEqual({
+    owaspTop10: false,
+    sansTop25: false,
+    severities: false,
+    standards: true,
+    sonarsourceSecurity: true,
+    types: true
+  });
   expect(
     shallowRender({
       location: mockLocation({ query: { types: 'BUGS,SECURITY_HOTSPOT' } })
     }).state('openFacets')
-  ).toEqual({ severities: true, standards: false, types: true });
+  ).toEqual({
+    owaspTop10: false,
+    sansTop25: false,
+    severities: true,
+    standards: true,
+    sonarsourceSecurity: true,
+    types: true
+  });
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { owaspTop10: 'a1' } })
+    }).state('openFacets')
+  ).toEqual({
+    owaspTop10: true,
+    sansTop25: false,
+    severities: true,
+    standards: true,
+    sonarsourceSecurity: false,
+    types: true
+  });
 });
 
 it('should correctly handle filter changes', () => {
@@ -162,13 +221,28 @@ it('should correctly handle filter changes', () => {
   const instance = shallowRender({ router: mockRouter({ push }) }).instance();
   instance.setState({ openFacets: { types: true } });
   instance.handleFilterChange({ types: ['VULNERABILITY'] });
-  expect(instance.state.openFacets).toEqual({ types: true, severities: true, standards: true });
+  expect(instance.state.openFacets).toEqual({
+    types: true,
+    severities: true,
+    sonarsourceSecurity: true,
+    standards: true
+  });
   expect(push).toBeCalled();
   instance.handleFilterChange({ types: ['BUGS'] });
-  expect(instance.state.openFacets).toEqual({ types: true, severities: true, standards: true });
+  expect(instance.state.openFacets).toEqual({
+    types: true,
+    severities: true,
+    sonarsourceSecurity: true,
+    standards: true
+  });
   instance.setState({ openFacets: { types: true } });
   instance.handleFilterChange({ types: ['SECURITY_HOTSPOT'] });
-  expect(instance.state.openFacets).toEqual({ types: true, severities: false, standards: true });
+  expect(instance.state.openFacets).toEqual({
+    types: true,
+    severities: false,
+    sonarsourceSecurity: true,
+    standards: true
+  });
 });
 
 it('should fetch issues until defined', async () => {

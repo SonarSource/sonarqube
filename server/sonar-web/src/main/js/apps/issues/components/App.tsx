@@ -49,10 +49,12 @@ import {
   ReferencedUser,
   saveMyIssues,
   serializeQuery,
+  STANDARDS,
   scrollToIssue,
   shouldOpenSeverityFacet,
-  shouldOpenStandardFacet,
-  STANDARDS
+  shouldOpenSonarSourceSecurityFacet,
+  shouldOpenStandardsFacet,
+  shouldOpenStandardsChildFacet
 } from '../utils';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { Alert } from '../../../components/ui/Alert';
@@ -157,8 +159,11 @@ export class App extends React.PureComponent<Props, State> {
       locationsNavigator: false,
       myIssues: props.myIssues || areMyIssuesSelected(props.location.query),
       openFacets: {
-        severities: shouldOpenSeverityFacet(query.types),
-        standards: shouldOpenStandardFacet(query.types),
+        owaspTop10: shouldOpenStandardsChildFacet({}, query, 'owaspTop10'),
+        sansTop25: shouldOpenStandardsChildFacet({}, query, 'sansTop25'),
+        severities: shouldOpenSeverityFacet({}, query),
+        sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
+        standards: shouldOpenStandardsFacet({}, query),
         types: true
       },
       query,
@@ -593,7 +598,6 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchFacet = (facet: string) => {
     const requestOrganizations = facet === 'projects';
-    this.setState(state => ({ loadingFacets: { ...state.loadingFacets, [facet]: true } }));
     return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }, false, requestOrganizations).then(
       ({ facets, ...other }) => {
         if (this.mounted) {
@@ -660,11 +664,11 @@ export class App extends React.PureComponent<Props, State> {
       }
     });
     this.setState(({ openFacets }) => ({
-      loading: true,
       openFacets: {
         ...openFacets,
-        severities: openFacets.severities || shouldOpenSeverityFacet(changes.types),
-        standards: openFacets.standards || shouldOpenStandardFacet(changes.types)
+        severities: shouldOpenSeverityFacet(openFacets, changes),
+        sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet(openFacets, changes),
+        standards: shouldOpenStandardsFacet(openFacets, changes)
       }
     }));
   };
@@ -719,12 +723,31 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleFacetToggle = (property: string) => {
-    this.setState(state => ({
-      openFacets: { ...state.openFacets, [property]: !state.openFacets[property] }
-    }));
-    if (property !== STANDARDS && !this.state.facets[property]) {
-      this.fetchFacet(property);
-    }
+    this.setState(state => {
+      const willOpenProperty = !state.openFacets[property];
+      const newState = {
+        loadingFacets: state.loadingFacets,
+        openFacets: { ...state.openFacets, [property]: willOpenProperty }
+      };
+
+      // Try to open sonarsource security "subfacet" by default if the standard facet is open
+      if (willOpenProperty && property === STANDARDS) {
+        newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
+          newState.openFacets,
+          state.query
+        );
+        // Force loading of sonarsource security facet data
+        property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
+      }
+
+      // No need to load facets data for standard facet
+      if (property !== STANDARDS && !state.facets[property]) {
+        newState.loadingFacets[property] = true;
+        this.fetchFacet(property);
+      }
+
+      return newState;
+    });
   };
 
   handleReset = () => {

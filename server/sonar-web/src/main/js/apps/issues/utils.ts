@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { difference } from 'lodash';
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
 import { formatMeasure } from '../../helpers/measures';
@@ -66,6 +65,12 @@ export interface Query {
 }
 
 export const STANDARDS = 'standards';
+export const STANDARD_TYPES: T.StandardType[] = [
+  'owaspTop10',
+  'sansTop25',
+  'cwe',
+  'sonarsourceSecurity'
+];
 
 // allow sorting by CREATION_DATE only
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
@@ -280,14 +285,57 @@ export function scrollToIssue(issue: string, smooth = true) {
   }
 }
 
-export function shouldOpenStandardFacet(types?: string[]) {
-  return Boolean(
-    types &&
-      types.length > 0 &&
-      difference(types, ['VULNERABILITY', 'SECURITY_HOTSPOT']).length === 0
+export function shouldOpenSeverityFacet(openFacets: T.Dict<boolean>, query: Partial<Query>) {
+  return (
+    openFacets.severities ||
+    !(query.types && query.types.length === 1 && query.types[0] === 'SECURITY_HOTSPOT')
   );
 }
 
-export function shouldOpenSeverityFacet(types?: string[]) {
-  return !types || !(types.length === 1 && types[0] === 'SECURITY_HOTSPOT');
+export function shouldOpenStandardsFacet(
+  openFacets: T.Dict<boolean>,
+  query: Partial<Query>
+): boolean {
+  return (
+    openFacets[STANDARDS] ||
+    isFilteredBySecurityIssueTypes(query) ||
+    isOneStandardChildFacetOpen(openFacets, query)
+  );
+}
+
+export function shouldOpenStandardsChildFacet(
+  openFacets: T.Dict<boolean>,
+  query: Partial<Query>,
+  standardType: T.StandardType
+): boolean {
+  const filter = query[standardType];
+  return (
+    openFacets[STANDARDS] !== false &&
+    (openFacets[standardType] ||
+      (standardType !== 'cwe' && filter !== undefined && filter.length > 0))
+  );
+}
+
+export function shouldOpenSonarSourceSecurityFacet(
+  openFacets: T.Dict<boolean>,
+  query: Partial<Query>
+): boolean {
+  // Open it by default if the parent is open, and no other standard is open.
+  return (
+    shouldOpenStandardsChildFacet(openFacets, query, 'sonarsourceSecurity') ||
+    (shouldOpenStandardsFacet(openFacets, query) && !isOneStandardChildFacetOpen(openFacets, query))
+  );
+}
+
+function isFilteredBySecurityIssueTypes(query: Partial<Query>): boolean {
+  return (
+    query.types !== undefined &&
+    (query.types.includes('SECURITY_HOTSPOT') || query.types.includes('VULNERABILITY'))
+  );
+}
+
+function isOneStandardChildFacetOpen(openFacets: T.Dict<boolean>, query: Partial<Query>): boolean {
+  return STANDARD_TYPES.some(standardType =>
+    shouldOpenStandardsChildFacet(openFacets, query, standardType)
+  );
 }

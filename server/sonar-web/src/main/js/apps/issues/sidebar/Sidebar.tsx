@@ -38,8 +38,7 @@ import {
   ReferencedComponent,
   ReferencedUser,
   ReferencedLanguage,
-  ReferencedRule,
-  STANDARDS
+  ReferencedRule
 } from '../utils';
 
 export interface Props {
@@ -154,11 +153,7 @@ export default class Sidebar extends React.PureComponent<Props> {
           loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
-          open={
-            openFacets[STANDARDS] === undefined
-              ? query.types.includes('SECURITY_HOTSPOT') || query.types.includes('VULNERABILITY')
-              : openFacets[STANDARDS]
-          }
+          open={!!openFacets.standards}
           owaspTop10={query.owaspTop10}
           owaspTop10Open={!!openFacets.owaspTop10}
           owaspTop10Stats={facets.owaspTop10}
