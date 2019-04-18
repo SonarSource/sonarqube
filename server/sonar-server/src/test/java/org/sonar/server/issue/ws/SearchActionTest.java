@@ -906,7 +906,7 @@ public class SearchActionTest {
       "pullRequest", "organization",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
-      "statuses", "tags", "types", "owaspTop10", "sansTop25", "cwe");
+      "statuses", "tags", "types", "owaspTop10", "sansTop25", "cwe", "sonarsourceSecurity");
 
     assertThat(def.param("organization"))
       .matches(WebService.Param::isInternal)

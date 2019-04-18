@@ -77,6 +77,7 @@ public class IssueQuery {
   private final Collection<String> owaspTop10;
   private final Collection<String> sansTop25;
   private final Collection<String> cwe;
+  private final Collection<String> sonarsourceSecurity;
   private final Map<String, PeriodStart> createdAfterByProjectUuids;
   private final Boolean onComponentOnly;
   private final Boolean assigned;
@@ -112,6 +113,7 @@ public class IssueQuery {
     this.owaspTop10 = defaultCollection(builder.owaspTop10);
     this.sansTop25 = defaultCollection(builder.sansTop25);
     this.cwe = defaultCollection(builder.cwe);
+    this.sonarsourceSecurity = defaultCollection(builder.sonarsourceSecurity);
     this.createdAfterByProjectUuids = defaultMap(builder.createdAfterByProjectUuids);
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
@@ -207,6 +209,10 @@ public class IssueQuery {
     return cwe;
   }
 
+  public Collection<String> sonarsourceSecurity() {
+    return sonarsourceSecurity;
+  }
+
   public Map<String, PeriodStart> createdAfterByProjectUuids() {
     return createdAfterByProjectUuids;
   }
@@ -299,6 +305,7 @@ public class IssueQuery {
     private Collection<String> owaspTop10;
     private Collection<String> sansTop25;
     private Collection<String> cwe;
+    private Collection<String> sonarsourceSecurity;
     private Map<String, PeriodStart> createdAfterByProjectUuids;
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
@@ -414,6 +421,11 @@ public class IssueQuery {
 
     public Builder cwe(@Nullable Collection<String> cwe) {
       this.cwe = cwe;
+      return this;
+    }
+
+    public Builder sonarsourceSecurity(@Nullable Collection<String> sonarsourceSecurity) {
+      this.sonarsourceSecurity = sonarsourceSecurity;
       return this;
     }
 

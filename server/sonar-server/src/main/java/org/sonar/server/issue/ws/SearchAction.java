@@ -79,6 +79,7 @@ import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.issue.index.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
+import static org.sonar.server.issue.index.SecurityStandardHelper.SONARSOURCE_CWE_MAPPING;
 import static org.sonar.server.issue.index.SecurityStandardHelper.UNKNOWN_STANDARD;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -119,6 +120,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
@@ -146,7 +148,8 @@ public class SearchAction implements IssuesWsAction, Startable {
     PARAM_OWASP_TOP_10,
     PARAM_SANS_TOP_25,
     PARAM_CWE,
-    PARAM_CREATED_AT);
+    PARAM_CREATED_AT,
+    PARAM_SONARSOURCE_SECURITY);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILE_UUIDS, PARAM_DIRECTORIES);
@@ -257,6 +260,10 @@ public class SearchAction implements IssuesWsAction, Startable {
     action.createParam(PARAM_CWE)
       .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select issues not associated to any CWE.")
       .setExampleValue("12,125," + UNKNOWN_STANDARD);
+    action.createParam(PARAM_SONARSOURCE_SECURITY)
+      .setDescription("Comma-separated list of SonarSource security categories.")
+      .setSince("7.8")
+      .setPossibleValues(SONARSOURCE_CWE_MAPPING.keySet());
     action.createParam(DEPRECATED_PARAM_AUTHORS)
       .setDeprecatedSince("7.7")
       .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_AUTHOR)
@@ -468,6 +475,7 @@ public class SearchAction implements IssuesWsAction, Startable {
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
+    addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
   }
 
   private static void addMandatoryValuesToFacet(Facets facets, String facetName, @Nullable Iterable<String> mandatoryValues) {
@@ -542,7 +550,8 @@ public class SearchAction implements IssuesWsAction, Startable {
       .setTypes(request.paramAsStrings(PARAM_TYPES))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
-      .setCwe(request.paramAsStrings(PARAM_CWE));
+      .setCwe(request.paramAsStrings(PARAM_CWE))
+      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
   }
 
   private List<String> getLogins(DbSession dbSession, @Nullable List<String> assigneeLogins) {

@@ -65,6 +65,7 @@ public class SearchRequest {
   private List<String> types;
   private List<String> owaspTop10;
   private List<String> sansTop25;
+  private List<String> sonarsourceSecurity;
   private List<String> cwe;
 
   @CheckForNull
@@ -422,6 +423,16 @@ public class SearchRequest {
 
   public SearchRequest setCwe(@Nullable List<String> cwe) {
     this.cwe = cwe;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getSonarsourceSecurity() {
+    return sonarsourceSecurity;
+  }
+
+  public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
+    this.sonarsourceSecurity = sonarsourceSecurity;
     return this;
   }
 

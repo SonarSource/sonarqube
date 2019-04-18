@@ -117,6 +117,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.RESOLUTIONS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SANS_TOP_25;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SEVERITIES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TYPES;
@@ -170,6 +171,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
@@ -206,7 +208,8 @@ public class IssueIndex {
     OWASP_TOP_10(PARAM_OWASP_TOP_10, FIELD_ISSUE_OWASP_TOP_10, DEFAULT_FACET_SIZE),
     SANS_TOP_25(PARAM_SANS_TOP_25, FIELD_ISSUE_SANS_TOP_25, DEFAULT_FACET_SIZE),
     CWE(PARAM_CWE, FIELD_ISSUE_CWE, DEFAULT_FACET_SIZE),
-    CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, DEFAULT_FACET_SIZE);
+    CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, DEFAULT_FACET_SIZE),
+    SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SONARSOURCE_SECURITY, DEFAULT_FACET_SIZE);
 
     private final String name;
     private final String fieldName;
@@ -365,6 +368,7 @@ public class IssueIndex {
     filters.put(FIELD_ISSUE_SANS_TOP_25, createTermsFilter(FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
     filters.put(FIELD_ISSUE_CWE, createTermsFilter(FIELD_ISSUE_CWE, query.cwe()));
     addSeverityFilter(query, filters);
+    filters.put(FIELD_ISSUE_SONARSOURCE_SECURITY, createTermsFilter(FIELD_ISSUE_SONARSOURCE_SECURITY, query.sonarsourceSecurity()));
 
     addComponentRelatedFilters(query, filters);
     addDatesFilter(filters, query);
@@ -612,6 +616,7 @@ public class IssueIndex {
       if (options.getFacets().contains(PARAM_SEVERITIES)) {
         esSearch.addAggregation(createSeverityFacet(query, filters, esQuery));
       }
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch, SONARSOURCE_SECURITY, query.sonarsourceSecurity().toArray());
       if (options.getFacets().contains(PARAM_RESOLUTIONS)) {
         esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
       }

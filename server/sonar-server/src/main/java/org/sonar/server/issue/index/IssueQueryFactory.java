@@ -109,6 +109,7 @@ public class IssueQueryFactory {
         .owaspTop10(request.getOwaspTop10())
         .sansTop25(request.getSansTop25())
         .cwe(request.getCwe())
+        .sonarsourceSecurity(request.getSonarsourceSecurity())
         .assigned(request.getAssigned())
         .createdAt(parseDateOrDateTime(request.getCreatedAt()))
         .createdBefore(parseEndingDateOrDateTime(request.getCreatedBefore()))
