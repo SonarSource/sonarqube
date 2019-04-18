@@ -59,15 +59,6 @@ If you want to use a custom schema and not the default "public" one, the Postgre
 ALTER USER mySonarUser SET search_path to mySonarQubeSchema
 ```
 
-### MySQL (not recommended)
-
-[[warning]]
-| MySQL is not supported for [Data Center Edition](https://www.sonarsource.com/plans-and-pricing/data-center/).
-
-There are two well-known engines that can be used in MySQL: MyISAM and InnoDB. MyISAM is the oldest of the two engines and is being progressively replaced by InnoDB. InnoDB is clearly faster and scales better with SonarQube as the number of projects under quality control increases. If you were an early adopter of SonarQube, you probably have a series of tables that are still using MyISAM. To improve performance, you should change the engine for all tables to InnoDB.
-
-Once all SonarQube tables are using the InnoDB engine, the first thing to do is allocate a maximum amount of RAM to your MySQL instance with the `innodb_buffer_pool_size` parameter and give at least 15Mb to the `query_cache_size` parameter. Read this article about [InnoDB Performance Optimization Basics](https://www.percona.com/blog/2007/11/01/innodb-performance-optimization-basics/) for more information.
-
 ## Installing the Web Server
 
 First, check the [requirements](/requirements/requirements/). Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 

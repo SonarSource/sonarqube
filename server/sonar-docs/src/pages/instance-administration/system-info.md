@@ -66,6 +66,9 @@ The best approach there is to query the database. The actual query varies based 
 
 [[collapse]]
 | ## MySQL
+|
+|**Note** – Starting with version 7.9, SonarQube will no longer support MySQL. To migrate from MySQL to a supported database, see the [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
+|
 | Global LOCs
 | ```
 | select sum(pm.value) as global_loc from projects p
@@ -226,6 +229,9 @@ The best approach there is to query the database. The actual query varies based 
 **SonarQube 6.0-6.6**
 [[collapse]]
 | ## MySQL
+|
+|**Note** – Starting with version 7.9, SonarQube will no longer support MySQL. To migrate from MySQL to a supported database, see the [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
+|
 | Global LOCs
 | ```
 | select sum(pm.value) as global_loc from projects p

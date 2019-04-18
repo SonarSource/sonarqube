@@ -4,19 +4,20 @@ url: /setup/upgrading/
 ---
 
 <!-- sonarqube -->
-Upgrading across multiple, non-LTS versions is handled automatically. However, if in your migration path you have an LTS version, you must first migrate to this LTS and then migrate to your target version.
+Upgrading across multiple, non-LTS versions is handled automatically. However, if you have an LTS version in your migration path, you must first migrate to this LTS and then migrate to your target version.
 
 Example 1 : 5.1 -> 7.0, migration path is 5.1 -> 5.6.7 LTS -> 6.7.x LTS -> 7.0
 Example 2 : 6.2 -> 6.7, migration path is 6.2 -> 6.7.x LTS (where x is the latest patch available for 6.7 - you don't need to install all the intermediary patches, just take the latest)
 
-## How to Upgrade?
+## Upgrade Guide
 
-This is a generic upgrade guide, please read carefully the Upgrade Notes of your target version and of each intermediate version, if any (below).
+This is a generic upgrade guide. Carefully read the [Release Upgrade Notes](/setup/upgrade-notes/) of your target version and of any intermediate version(s).
 
-![](/images/info.svg) Planning to Upgrade to a Commercial Editions?
-If you are targetting to move to 6.7 LTS and to install a commercial Edition, please read this [documentation](https://docs.sonarqube.org/display/SONARQUBE67/SonarSource+Editions).
+![](/images/info.svg) **Planning to Upgrade to a Commercial Edition?**
+If you are moving to 6.7 LTS and installing a Commercial Edition, please read this [documentation](https://docs.sonarqube.org/display/SONARQUBE67/SonarSource+Editions).
 
-Before you start, backup your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
+[[warning]]
+| ![](/images/exclamation.svg) Before you start, back up your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
 
 1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONARQUBE_HOME`
 2. Manually install the non-default plugins that are compatible with your version of SonarQube. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that the versions you install are compatible with your server version. Note that the most recent versions of all SonarSource code analyzers available in your edition are installed by default. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors.
@@ -27,11 +28,14 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/e
 6. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions
 7. Reanalyze your projects to get fresh data
 
-## Anything Else?
+## Additional Information
+
+### MySQL Deprecation and Migration
+Starting with version 7.9, SonarQube will no longer support MySQL. To migrate from MySQL to a supported database, see the [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
 
 ### Oracle Clean-up
 
-Starting with 6.6, there's an additional step you may want to perform if you're using Oracle. On Oracle the database columns to be dropped are now marked as UNUSED and are not physically dropped anymore. To reclaim disk space, Oracle administrators must drop these unused columns manually. The SQL request is `ALTER TABLE foo DROP UNUSED COLUMNS`. The relevant tables are listed in the system table `all_unused_col_tabs`.
+Starting with version 6.6, there's an additional step you may want to perform if you're using Oracle. On Oracle, the database columns to be dropped are now marked as UNUSED and are not physically dropped anymore. To reclaim disk space, Oracle administrators must drop these unused columns manually. The SQL request is `ALTER TABLE foo DROP UNUSED COLUMNS`. The relevant tables are listed in the system table `all_unused_col_tabs`.
 
 ### Additional Database Maintenance
 

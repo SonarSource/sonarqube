@@ -16,6 +16,9 @@ Only the following scanner versions are compatible with SonarQube 7.8:
 * SonarQube Scanner Maven 3.3.0.603+
 * SonarQube Scanner Gradle 2.3+
 
+**MySQL Deprecation and Migration**
+This is the last version that will support MySQL. To migrate from MySQL to a supported database, see the [MySQL Migrator tool](https://github.com/SonarSource/mysql-migrator).
+
 **Notifications changes**  
 The notifications algorithm has been replaced with one that offers better performance during background task processing. Additionally, issue change notifications spawned analysis or bulk change now generate only one email per event rather than one email per issue. 
 
