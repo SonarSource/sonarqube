@@ -19,16 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v78;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion78 implements DbVersion {
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+@SupportsBlueGreen
+public class AddWebhooksSecret extends DdlChange {
+
+  public AddWebhooksSecret(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(2700, "Drop overall subscriptions on notifications about new and resolved issues", DeleteOverallSubscriptionsOnNewAndResolvedIssuesNotifications.class)
-      .add(2701, "Add index to org_qprofile.parent_uuid", AddIndexToOrgQProfileParentUuid.class)
-      .add(2702, "Add column webhooks.secret", AddWebhooksSecret.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "webhooks")
+      .addColumn(newVarcharColumnDefBuilder()
+        .setColumnName("secret")
+        .setIsNullable(true)
+        .setLimit(200)
+        .build())
+      .build());
   }
 }

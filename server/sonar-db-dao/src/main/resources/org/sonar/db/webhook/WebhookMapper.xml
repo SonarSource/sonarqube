@@ -10,10 +10,10 @@
     url,
     organization_uuid as organizationUuid,
     project_uuid as projectUuid,
+    secret,
     created_at as createdAt,
     updated_at as updatedAt
   </sql>
-
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
     select <include refid="sqlColumns" />
@@ -42,6 +42,7 @@
     url,
     organization_uuid,
     project_uuid,
+    secret,
     created_at,
     updated_at
     ) values (
@@ -50,6 +51,7 @@
     #{url,jdbcType=VARCHAR},
     #{organizationUuid,jdbcType=VARCHAR},
     #{projectUuid,jdbcType=VARCHAR},
+    #{secret,jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}
     )
@@ -57,10 +59,11 @@
 
   <update id="update" parameterType="org.sonar.db.webhook.WebhookDto">
     update webhooks set
-    name=#{name},
-    url=#{url},
-    updated_at=#{updatedAt, jdbcType=BIGINT}
-    where uuid=#{uuid, jdbcType=VARCHAR}
+      name=#{name,jdbcType=VARCHAR},
+      url=#{url,jdbcType=VARCHAR},
+      secret=#{secret,jdbcType=VARCHAR},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    where uuid=#{uuid,jdbcType=VARCHAR}
   </update>
 
   <delete id="delete" parameterType="String">

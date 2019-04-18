@@ -60,12 +60,12 @@ public class WebhookDaoTest {
 
   @Test
   public void insert_row_with_organization() {
-
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")
       .setUrl("URL_1")
-      .setOrganizationUuid("UUID_2");
+      .setOrganizationUuid("UUID_2")
+      .setSecret("a_secret");
 
     underTest.insert(dbSession, dto);
 
@@ -76,18 +76,19 @@ public class WebhookDaoTest {
     assertThat(stored.getUrl()).isEqualTo(dto.getUrl());
     assertThat(stored.getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
     assertThat(stored.getProjectUuid()).isNull();
+    assertThat(stored.getSecret()).isEqualTo(dto.getSecret());
     assertThat(new Date(stored.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
     assertThat(new Date(stored.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
   }
 
   @Test
   public void insert_row_with_project() {
-
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")
       .setUrl("URL_1")
-      .setProjectUuid("UUID_2");
+      .setProjectUuid("UUID_2")
+      .setSecret("a_secret");
 
     underTest.insert(dbSession, dto);
 
@@ -98,17 +99,20 @@ public class WebhookDaoTest {
     assertThat(reloaded.getUrl()).isEqualTo(dto.getUrl());
     assertThat(reloaded.getOrganizationUuid()).isNull();
     assertThat(reloaded.getProjectUuid()).isEqualTo(dto.getProjectUuid());
+    assertThat(reloaded.getSecret()).isEqualTo(dto.getSecret());
     assertThat(new Date(reloaded.getCreatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
     assertThat(new Date(reloaded.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
   }
 
   @Test
-  public void update() {
-
+  public void update_with_only_required_fields() {
     OrganizationDto organization = organizationDbTester.insert();
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
-    underTest.update(dbSession, dto.setName("a-fancy-webhook").setUrl("http://www.fancy-webhook.io"));
+    underTest.update(dbSession, dto
+      .setName("a-fancy-webhook")
+      .setUrl("http://www.fancy-webhook.io")
+      .setSecret(null));
 
     WebhookDto reloaded = underTest.selectByUuid(dbSession, dto.getUuid()).get();
     assertThat(reloaded.getUuid()).isEqualTo(dto.getUuid());
@@ -116,13 +120,34 @@ public class WebhookDaoTest {
     assertThat(reloaded.getUrl()).isEqualTo("http://www.fancy-webhook.io");
     assertThat(reloaded.getProjectUuid()).isNull();
     assertThat(reloaded.getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
+    assertThat(reloaded.getSecret()).isNull();
+    assertThat(reloaded.getCreatedAt()).isEqualTo(dto.getCreatedAt());
+    assertThat(new Date(reloaded.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
+  }
+
+  @Test
+  public void update_with_all_fields() {
+    OrganizationDto organization = organizationDbTester.insert();
+    WebhookDto dto = webhookDbTester.insertWebhook(organization);
+
+    underTest.update(dbSession, dto
+      .setName("a-fancy-webhook")
+      .setUrl("http://www.fancy-webhook.io")
+      .setSecret("a_new_secret"));
+
+    WebhookDto reloaded = underTest.selectByUuid(dbSession, dto.getUuid()).get();
+    assertThat(reloaded.getUuid()).isEqualTo(dto.getUuid());
+    assertThat(reloaded.getName()).isEqualTo("a-fancy-webhook");
+    assertThat(reloaded.getUrl()).isEqualTo("http://www.fancy-webhook.io");
+    assertThat(reloaded.getProjectUuid()).isNull();
+    assertThat(reloaded.getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
+    assertThat(reloaded.getSecret()).isEqualTo("a_new_secret");
     assertThat(reloaded.getCreatedAt()).isEqualTo(dto.getCreatedAt());
     assertThat(new Date(reloaded.getUpdatedAt())).isInSameMinuteWindowAs(new Date(system2.now()));
   }
 
   @Test
   public void cleanWebhooksOfAProject() {
-
     OrganizationDto organization = organizationDbTester.insert();
     ComponentDto componentDto = componentDbTester.insertPrivateProject(organization);
     webhookDbTester.insertWebhook(componentDto);
@@ -138,7 +163,6 @@ public class WebhookDaoTest {
 
   @Test
   public void cleanWebhooksOfAnOrganization() {
-
     OrganizationDto organization = organizationDbTester.insert();
     webhookDbTester.insertWebhook(organization);
     webhookDbTester.insertWebhook(organization);
@@ -153,9 +177,7 @@ public class WebhookDaoTest {
 
   @Test
   public void delete() {
-
     OrganizationDto organization = organizationDbTester.insert();
-
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
     underTest.delete(dbSession, dto.getUuid());
@@ -164,10 +186,8 @@ public class WebhookDaoTest {
     assertThat(reloaded).isEmpty();
   }
 
-
   @Test
   public void fail_if_webhook_does_not_have_an_organization_nor_a_project() {
-
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("A webhook can not be created if not linked to an organization or a project.");
 
@@ -177,12 +197,10 @@ public class WebhookDaoTest {
       .setUrl("URL_1");
 
     underTest.insert(dbSession, dto);
-
   }
 
   @Test
   public void fail_if_webhook_have_both_an_organization_nor_a_project() {
-
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("A webhook can not be linked to both an organization and a project.");
 
@@ -194,7 +212,6 @@ public class WebhookDaoTest {
       .setProjectUuid("UUID_3");
 
     underTest.insert(dbSession, dto);
-
   }
 
   private WebhookDto selectByUuid(String uuid) {

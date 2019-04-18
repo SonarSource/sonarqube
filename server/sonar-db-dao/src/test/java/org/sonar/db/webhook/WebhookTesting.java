@@ -62,6 +62,7 @@ public class WebhookTesting {
       .setUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(64))
       .setUrl("https://www.random-site/" + randomAlphanumeric(256))
+      .setSecret(randomAlphanumeric(10))
       .setCreatedAt(Calendar.getInstance().getTimeInMillis());
     Arrays.stream(consumers).forEach(consumer -> consumer.accept(res));
     return res;

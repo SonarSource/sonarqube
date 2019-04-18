@@ -36,6 +36,12 @@ public class WebhookDto {
   @Nullable
   private String projectUuid;
 
+  /**
+   * The optional secret used to generate payload signature
+   */
+  @Nullable
+  private String secret;
+
   private long createdAt;
   private long updatedAt;
 
@@ -61,6 +67,11 @@ public class WebhookDto {
 
   public WebhookDto setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
+    return this;
+  }
+
+  public WebhookDto setSecret(@Nullable String s) {
+    this.secret = s;
     return this;
   }
 
@@ -94,6 +105,11 @@ public class WebhookDto {
   @Nullable
   public String getProjectUuid() {
     return projectUuid;
+  }
+
+  @Nullable
+  public String getSecret() {
+    return secret;
   }
 
   public long getCreatedAt() {
