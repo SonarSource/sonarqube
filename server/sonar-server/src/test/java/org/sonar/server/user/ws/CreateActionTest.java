@@ -224,7 +224,7 @@ public class CreateActionTest {
 
     assertThat(db.users().selectUserByLogin("john").get())
       .extracting(UserDto::getExternalLogin)
-      .containsOnly("john");
+      .isEqualTo("john");
   }
 
   @Test

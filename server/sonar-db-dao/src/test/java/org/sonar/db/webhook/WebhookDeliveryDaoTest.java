@@ -155,10 +155,10 @@ public class WebhookDeliveryDaoTest {
     Map<String, WebhookDeliveryLiteDto> map = underTest.selectLatestDeliveries(dbSession, of(webhook1, webhook2));
 
     assertThat(map).containsKeys(webhook1.getUuid());
-    assertThat(map.get(webhook1.getUuid())).extracting(WebhookDeliveryLiteDto::getUuid).contains("WH1-DELIVERY-2-UUID");
+    assertThat(map.get(webhook1.getUuid())).extracting(WebhookDeliveryLiteDto::getUuid).isEqualTo("WH1-DELIVERY-2-UUID");
 
     assertThat(map).containsKeys(webhook2.getUuid());
-    assertThat(map.get(webhook2.getUuid())).extracting(WebhookDeliveryLiteDto::getUuid).contains("WH2-DELIVERY-2-UUID");
+    assertThat(map.get(webhook2.getUuid())).extracting(WebhookDeliveryLiteDto::getUuid).isEqualTo("WH2-DELIVERY-2-UUID");
   }
 
   @Test
@@ -205,7 +205,8 @@ public class WebhookDeliveryDaoTest {
 
     underTest.deleteByWebhook(dbSession, webhookDto);
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(1);  }
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(1);
+  }
 
   @Test
   public void deleteComponentBeforeDate_deletes_rows_before_date() {

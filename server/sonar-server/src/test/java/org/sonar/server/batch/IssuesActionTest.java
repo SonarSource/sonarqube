@@ -160,6 +160,7 @@ public class IssuesActionTest {
     addPermissionTo(project);
     try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       assertThat(result)
+        .toIterable()
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
           tuple(issueOnFile.getKey(), module.getKey()),
@@ -188,6 +189,7 @@ public class IssuesActionTest {
     addPermissionTo(project);
     try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       assertThat(result)
+        .toIterable()
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
           tuple(issueOnFile.getKey(), module.getKey()),
@@ -210,6 +212,7 @@ public class IssuesActionTest {
     addPermissionTo(project);
     try (CloseableIterator<ServerIssue> result = callStream(module.getKey(), null)) {
       assertThat(result)
+        .toIterable()
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
           tuple(issueOnFile.getKey(), module.getKey()),
@@ -230,6 +233,7 @@ public class IssuesActionTest {
     addPermissionTo(project);
     try (CloseableIterator<ServerIssue> result = callStream(file.getKey(), null)) {
       assertThat(result)
+        .toIterable()
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(
           tuple(issueOnFile.getKey(), module.getKey()));
@@ -295,6 +299,7 @@ public class IssuesActionTest {
     try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       // Module key of removed file should be returned
       assertThat(result)
+        .toIterable()
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactly(tuple(issue.getKey(), module.getKey()));
     }
@@ -354,6 +359,7 @@ public class IssuesActionTest {
   private void assertResult(String componentKey, String branch, Tuple... tuples) {
     try (CloseableIterator<ServerIssue> result = callStream(componentKey, branch)) {
       assertThat(result)
+        .toIterable()
         .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
         .containsExactlyInAnyOrder(tuples);
     }

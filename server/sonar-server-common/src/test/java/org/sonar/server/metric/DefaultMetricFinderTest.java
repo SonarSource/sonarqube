@@ -66,7 +66,7 @@ public class DefaultMetricFinderTest {
     MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
     db.commit();
 
-    assertThat(underTest.findById(firstMetric.getId())).extracting(Metric::getKey).containsExactly(firstMetric.getKey());
+    assertThat(underTest.findById(firstMetric.getId())).extracting(Metric::getKey).isEqualTo(firstMetric.getKey());
   }
 
   @Test
@@ -75,6 +75,6 @@ public class DefaultMetricFinderTest {
     MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
     db.commit();
 
-    assertThat(underTest.findByKey(secondMetric.getKey())).extracting(Metric::getKey).containsExactly(secondMetric.getKey());
+    assertThat(underTest.findByKey(secondMetric.getKey())).extracting(Metric::getKey).isEqualTo(secondMetric.getKey());
   }
 }

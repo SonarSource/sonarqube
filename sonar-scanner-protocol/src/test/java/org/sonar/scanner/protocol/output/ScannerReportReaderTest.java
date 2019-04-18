@@ -99,8 +99,8 @@ public class ScannerReportReaderTest {
       .build();
     writer.writeComponentIssues(1, asList(issue));
 
-    assertThat(underTest.readComponentIssues(1)).hasSize(1);
-    assertThat(underTest.readComponentIssues(200)).isEmpty();
+    assertThat(underTest.readComponentIssues(1)).toIterable().hasSize(1);
+    assertThat(underTest.readComponentIssues(200)).isExhausted();
   }
 
   @Test
@@ -110,13 +110,13 @@ public class ScannerReportReaderTest {
       .build();
     writer.appendComponentExternalIssue(1, issue);
 
-    assertThat(underTest.readComponentExternalIssues(1)).hasSize(1);
-    assertThat(underTest.readComponentExternalIssues(200)).isEmpty();
+    assertThat(underTest.readComponentExternalIssues(1)).toIterable().hasSize(1);
+    assertThat(underTest.readComponentExternalIssues(200)).toIterable().isEmpty();
   }
 
   @Test
   public void empty_list_if_no_issue_found() {
-    assertThat(underTest.readComponentIssues(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentIssues(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
@@ -126,12 +126,12 @@ public class ScannerReportReaderTest {
       .setStringValue(StringValue.newBuilder().setValue("value_a"));
     writer.appendComponentMeasure(1, measure.build());
 
-    assertThat(underTest.readComponentMeasures(1)).hasSize(1);
+    assertThat(underTest.readComponentMeasures(1)).toIterable().hasSize(1);
   }
 
   @Test
   public void empty_list_if_no_measure_found() {
-    assertThat(underTest.readComponentMeasures(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentMeasures(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
@@ -175,12 +175,12 @@ public class ScannerReportReaderTest {
     writer.writeComponentDuplications(1, asList(duplication));
 
     ScannerReportReader sut = new ScannerReportReader(dir);
-    assertThat(sut.readComponentDuplications(1)).hasSize(1);
+    assertThat(sut.readComponentDuplications(1)).toIterable().hasSize(1);
   }
 
   @Test
   public void empty_list_if_no_duplication_found() {
-    assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
@@ -201,12 +201,12 @@ public class ScannerReportReaderTest {
     writer.writeCpdTextBlocks(1, singletonList(duplicationBlock));
 
     ScannerReportReader sut = new ScannerReportReader(dir);
-    assertThat(sut.readCpdTextBlocks(1)).hasSize(1);
+    assertThat(sut.readCpdTextBlocks(1)).toIterable().hasSize(1);
   }
 
   @Test
   public void empty_list_if_no_duplication_block_found() {
-    assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
@@ -238,7 +238,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void return_empty_if_no_highlighting_found() {
-    assertThat(underTest.readComponentSyntaxHighlighting(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentSyntaxHighlighting(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
@@ -266,12 +266,12 @@ public class ScannerReportReaderTest {
       .build()));
 
     underTest = new ScannerReportReader(dir);
-    assertThat(underTest.readComponentSymbols(1)).hasSize(1);
+    assertThat(underTest.readComponentSymbols(1)).toIterable().hasSize(1);
   }
 
   @Test
   public void empty_list_if_no_symbol_found() {
-    assertThat(underTest.readComponentSymbols(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentSymbols(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
@@ -309,7 +309,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void return_empty_iterator_if_no_coverage_found() {
-    assertThat(underTest.readComponentCoverage(UNKNOWN_COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentCoverage(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test

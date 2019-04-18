@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -54,7 +56,7 @@ public class ZipUtilsTest {
 
     assertThat(zip).exists().isFile();
     assertThat(zip.length()).isGreaterThan(1L);
-    Iterator<? extends ZipEntry> zipEntries = Iterators.forEnumeration(new ZipFile(zip).entries());
+    ArrayList<? extends ZipEntry> zipEntries = Collections.list(new ZipFile(zip).entries());
     assertThat(zipEntries).hasSize(4);
 
     File unzipDir = temp.newFolder();

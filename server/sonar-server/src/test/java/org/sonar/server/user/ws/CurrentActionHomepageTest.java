@@ -79,7 +79,7 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(CurrentWsResponse.HomepageType.MY_PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.MY_PROJECTS);
   }
 
   @Test
@@ -91,7 +91,7 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(CurrentWsResponse.HomepageType.PORTFOLIOS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PORTFOLIOS);
   }
 
   @Test
@@ -119,7 +119,7 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(CurrentWsResponse.HomepageType.PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PROJECTS);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(CurrentWsResponse.HomepageType.PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PROJECTS);
   }
 
   @Test
@@ -173,7 +173,7 @@ public class CurrentActionHomepageTest {
 
     assertThat(response.getHomepage())
       .extracting(CurrentWsResponse.Homepage::getType)
-      .containsExactly(CurrentWsResponse.HomepageType.PROJECTS);
+      .isEqualTo(CurrentWsResponse.HomepageType.PROJECTS);
   }
 
   @Test

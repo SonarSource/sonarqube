@@ -725,7 +725,7 @@ public class NotificationFactoryTest {
     assertThat(builder.getChange())
       .isInstanceOf(AnalysisChange.class)
       .extracting(IssuesChangesNotificationBuilder.Change::getDate)
-      .containsOnly(analysisDate);
+      .isEqualTo(analysisDate);
   }
 
   @Test

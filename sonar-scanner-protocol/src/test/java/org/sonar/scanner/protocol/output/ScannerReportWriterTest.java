@@ -301,7 +301,7 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.Symbol> read = Protobuf.readStream(file, ScannerReport.Symbol.parser())) {
-      assertThat(read).hasSize(1);
+      assertThat(read).toIterable().hasSize(1);
     }
   }
 

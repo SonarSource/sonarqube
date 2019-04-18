@@ -115,15 +115,15 @@ public class ListActionTest {
     List<Webhooks.ListResponseElement> elements = response.getWebhooksList();
     assertThat(elements.size()).isEqualTo(2);
 
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getKey).containsExactly(webhook1.getUuid());
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getName).containsExactly("aaa");
+    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook1.getUuid());
+    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("aaa");
     assertThat(elements.get(0).getLatestDelivery()).isNotNull();
-    assertThat(elements.get(0).getLatestDelivery()).extracting(Webhooks.LatestDelivery::getId).containsExactly("WH1-DELIVERY-2-UUID");
+    assertThat(elements.get(0).getLatestDelivery()).extracting(Webhooks.LatestDelivery::getId).isEqualTo("WH1-DELIVERY-2-UUID");
 
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getKey).containsExactly(webhook2.getUuid());
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getName).containsExactly("bbb");
+    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook2.getUuid());
+    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("bbb");
     assertThat(elements.get(1).getLatestDelivery()).isNotNull();
-    assertThat(elements.get(1).getLatestDelivery()).extracting(Webhooks.LatestDelivery::getId).containsExactly("WH2-DELIVERY-2-UUID");
+    assertThat(elements.get(1).getLatestDelivery()).extracting(Webhooks.LatestDelivery::getId).isEqualTo("WH2-DELIVERY-2-UUID");
   }
 
   @Test
@@ -138,12 +138,12 @@ public class ListActionTest {
     List<Webhooks.ListResponseElement> elements = response.getWebhooksList();
     assertThat(elements.size()).isEqualTo(2);
 
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getKey).containsExactly(webhook1.getUuid());
-    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getName).containsExactly("aaa");
+    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook1.getUuid());
+    assertThat(elements.get(0)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("aaa");
     assertThat(elements.get(0).hasLatestDelivery()).isFalse();
 
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getKey).containsExactly(webhook2.getUuid());
-    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getName).containsExactly("bbb");
+    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getKey).isEqualTo(webhook2.getUuid());
+    assertThat(elements.get(1)).extracting(Webhooks.ListResponseElement::getName).isEqualTo("bbb");
     assertThat(elements.get(1).hasLatestDelivery()).isFalse();
   }
 

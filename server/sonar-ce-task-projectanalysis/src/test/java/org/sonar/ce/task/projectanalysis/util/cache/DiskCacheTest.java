@@ -40,7 +40,7 @@ public class DiskCacheTest {
   public void write_and_read() throws Exception {
     DiskCache<String> cache = new DiskCache<>(temp.newFile(), System2.INSTANCE);
     try (CloseableIterator<String> traverse = cache.traverse()) {
-      assertThat(traverse).isEmpty();
+      assertThat(traverse).isExhausted();
     }
 
     cache.newAppender()
@@ -48,7 +48,7 @@ public class DiskCacheTest {
       .append("bar")
       .close();
     try (CloseableIterator<String> traverse = cache.traverse()) {
-      assertThat(traverse).containsExactly("foo", "bar");
+      assertThat(traverse).toIterable().containsExactly("foo", "bar");
     }
   }
 

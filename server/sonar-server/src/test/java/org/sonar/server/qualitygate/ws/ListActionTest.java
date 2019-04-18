@@ -156,7 +156,7 @@ public class ListActionTest {
 
     assertThat(response.getActions())
       .extracting(ListWsResponse.RootActions::getCreate)
-      .containsExactlyInAnyOrder(true);
+      .isEqualTo(true);
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getName,
         qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),
@@ -181,7 +181,7 @@ public class ListActionTest {
 
     assertThat(response.getActions())
       .extracting(ListWsResponse.RootActions::getCreate)
-      .containsExactlyInAnyOrder(false);
+      .isEqualTo(false);
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getName,
         qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),

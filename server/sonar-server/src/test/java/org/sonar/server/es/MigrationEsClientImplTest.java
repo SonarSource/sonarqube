@@ -46,6 +46,7 @@ public class MigrationEsClientImplTest {
     underTest.deleteIndexes("as");
 
     assertThat(loadExistingIndices())
+      .toIterable()
       .doesNotContain("as")
       .contains("bs", "cs");
     assertThat(logTester.logs(LoggerLevel.INFO))
@@ -57,6 +58,7 @@ public class MigrationEsClientImplTest {
     underTest.deleteIndexes("as", "xxx", "cs");
 
     assertThat(loadExistingIndices())
+      .toIterable()
       .doesNotContain("as", "cs")
       .contains("bs");
     assertThat(logTester.logs(LoggerLevel.INFO))

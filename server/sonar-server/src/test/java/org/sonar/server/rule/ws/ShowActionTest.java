@@ -98,7 +98,7 @@ public class ShowActionTest {
       .setParam(PARAM_KEY, rule.getKey().toString())
       .executeProtobuf(ShowResponse.class);
 
-    assertThat(result.getRule()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
+    assertThat(result.getRule()).extracting(Rule::getKey).isEqualTo(rule.getKey().toString());
   }
 
   @Test

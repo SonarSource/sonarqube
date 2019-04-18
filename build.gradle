@@ -170,8 +170,8 @@ subprojects {
           exclude 'org.eclipse.jdt.core.compiler:ecj'
         }
       }
-      dependency 'org.assertj:assertj-core:3.9.1'
-      dependency 'org.assertj:assertj-guava:3.2.0'
+      dependency 'org.assertj:assertj-core:3.12.2'
+      dependency 'org.assertj:assertj-guava:3.2.1'
       dependency('org.codehaus.sonar:sonar-channel:4.1') {
         exclude 'org.slf4j:slf4j-api'
       }

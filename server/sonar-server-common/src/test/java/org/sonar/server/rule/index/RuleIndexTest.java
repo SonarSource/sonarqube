@@ -1080,13 +1080,13 @@ public class RuleIndexTest {
     index();
 
     // key
-    assertThat(underTest.searchAll(new RuleQuery().setQueryText("X001"))).hasSize(2);
+    assertThat(underTest.searchAll(new RuleQuery().setQueryText("X001"))).toIterable().hasSize(2);
 
     // partial key does not match
-    assertThat(underTest.searchAll(new RuleQuery().setQueryText("X00"))).isEmpty();
+    assertThat(underTest.searchAll(new RuleQuery().setQueryText("X00"))).toIterable().isEmpty();
 
     // repo:key -> nice-to-have !
-    assertThat(underTest.searchAll(new RuleQuery().setQueryText("javascript:X001"))).hasSize(1);
+    assertThat(underTest.searchAll(new RuleQuery().setQueryText("javascript:X001"))).toIterable().hasSize(1);
   }
 
   @Test
@@ -1105,10 +1105,12 @@ public class RuleIndexTest {
     List<SearchHit> ruleDocs = es.getDocuments(TYPE_RULE);
     List<SearchHit> activeRuleDocs = es.getDocuments(TYPE_ACTIVE_RULE);
     assertThat(underTest.searchAll(new RuleQuery().setActivation(false).setQProfile(profile2)))
+      .toIterable()
       .containsOnly(rule2.getId(), rule3.getId());
 
     // active rules on profile
     assertThat(underTest.searchAll(new RuleQuery().setActivation(true).setQProfile(profile2)))
+      .toIterable()
       .containsOnly(rule1.getId());
   }
 

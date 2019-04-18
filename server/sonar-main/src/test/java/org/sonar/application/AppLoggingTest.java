@@ -90,7 +90,7 @@ public class AppLoggingTest {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) rootLogger.getAppender("APP_CONSOLE");
     verifyAppFormattedLogEncoder(consoleAppender.getEncoder());
-    assertThat(rootLogger.iteratorForAppenders()).hasSize(1);
+    assertThat(rootLogger.iteratorForAppenders()).toIterable().hasSize(1);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class AppLoggingTest {
 
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     verifyGobblerConsoleAppender(gobblerLogger);
-    assertThat(gobblerLogger.iteratorForAppenders()).hasSize(1);
+    assertThat(gobblerLogger.iteratorForAppenders()).toIterable().hasSize(1);
   }
 
   @Test
@@ -113,7 +113,7 @@ public class AppLoggingTest {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     verifyAppConsoleAppender(rootLogger.getAppender("APP_CONSOLE"));
     verifySonarLogFileAppender(rootLogger.getAppender("file_sonar"));
-    assertThat(rootLogger.iteratorForAppenders()).hasSize(2);
+    assertThat(rootLogger.iteratorForAppenders()).toIterable().hasSize(2);
 
     // verify no other logger writes to sonar.log
     ctx.getLoggerList()
@@ -130,7 +130,7 @@ public class AppLoggingTest {
 
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     verifyGobblerConsoleAppender(gobblerLogger);
-    assertThat(gobblerLogger.iteratorForAppenders()).hasSize(1);
+    assertThat(gobblerLogger.iteratorForAppenders()).toIterable().hasSize(1);
   }
 
   @Test
@@ -142,7 +142,7 @@ public class AppLoggingTest {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     verifyAppConsoleAppender(rootLogger.getAppender("APP_CONSOLE"));
     verifySonarLogFileAppender(rootLogger.getAppender("file_sonar"));
-    assertThat(rootLogger.iteratorForAppenders()).hasSize(2);
+    assertThat(rootLogger.iteratorForAppenders()).toIterable().hasSize(2);
 
     ctx.getLoggerList()
       .stream()
@@ -158,7 +158,7 @@ public class AppLoggingTest {
 
     Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     verifyGobblerConsoleAppender(gobblerLogger);
-    assertThat(gobblerLogger.iteratorForAppenders()).hasSize(1);
+    assertThat(gobblerLogger.iteratorForAppenders()).toIterable().hasSize(1);
   }
 
   @Test

@@ -223,8 +223,9 @@ public class IssueFieldsSetterTest {
     assertThat(issue.line()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
     assertThat(issue.currentChange())
-      .extracting(FieldDiffs::diffs)
-      .hasSize(1);
+      .extracting(f -> f.diffs().size())
+      .isEqualTo(1);
+
     FieldDiffs.Diff diff = issue.currentChange().diffs().get("line");
     assertThat(diff.oldValue()).isEqualTo(line);
     assertThat(diff.newValue()).isEqualTo("");

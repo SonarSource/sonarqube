@@ -540,7 +540,7 @@ public class QualityProfileDaoTest {
 
     assertThat(underTest.selectByRuleProfileUuid(dbSession, db.getDefaultOrganization().getUuid(), qprofile1.getRulesProfileUuid()))
       .extracting(QProfileDto::getName)
-      .containsOnly(qprofile1.getName());
+      .isEqualTo(qprofile1.getName());
 
     assertThat(underTest.selectByRuleProfileUuid(dbSession, "A", qprofile1.getRulesProfileUuid()))
       .isNull();

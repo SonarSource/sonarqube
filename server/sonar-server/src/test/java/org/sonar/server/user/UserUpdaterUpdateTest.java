@@ -390,7 +390,7 @@ public class UserUpdaterUpdateTest {
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
       .extracting(UserDto::getExternalId)
-      .containsOnly("ABCD");
+      .isEqualTo("ABCD");
   }
 
   @Test

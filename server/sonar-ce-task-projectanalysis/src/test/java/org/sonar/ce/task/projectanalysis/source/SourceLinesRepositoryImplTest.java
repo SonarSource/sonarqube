@@ -48,14 +48,14 @@ public class SourceLinesRepositoryImplTest {
   public void read_lines_from_report() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    assertThat(underTest.readLines(createComponent(2))).containsOnly("line1", "line2");
+    assertThat(underTest.readLines(createComponent(2))).toIterable().containsOnly("line1", "line2");
   }
 
   @Test
   public void read_lines_adds_one_extra_empty_line_when_sourceLine_has_elements_count_equals_to_lineCount_minus_1() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    assertThat(underTest.readLines(createComponent(3))).containsOnly("line1", "line2", "");
+    assertThat(underTest.readLines(createComponent(3))).toIterable().containsOnly("line1", "line2", "");
   }
 
   @Test

@@ -382,7 +382,7 @@ public class QProfilesWsMediumTest {
       .setQProfile(profile)
       .setKey(rule0.getKey().toString())
       .setActiveSeverities(Collections.singleton("MINOR"))
-      .setActivation(true))).hasSize(1);
+      .setActivation(true))).toIterable().hasSize(1);
   }
 
   @Test

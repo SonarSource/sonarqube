@@ -313,7 +313,7 @@ public class ServerIdManagerTest {
   private void verifyDb(ServerId expectedServerId, String expectedChecksum) {
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.SERVER_ID))
       .extracting(PropertyDto::getValue)
-      .containsExactly(expectedServerId.toString());
+      .isEqualTo(expectedServerId.toString());
     assertThat(dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.SERVER_ID_CHECKSUM))
       .hasValue(expectedChecksum);
   }

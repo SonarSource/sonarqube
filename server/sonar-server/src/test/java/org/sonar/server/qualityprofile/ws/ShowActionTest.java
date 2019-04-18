@@ -294,7 +294,7 @@ public class ShowActionTest {
 
     assertThat(result.getProfile())
       .extracting(QualityProfile::getKey)
-      .containsExactly(qualityProfile.getKee());
+      .isEqualTo(qualityProfile.getKee());
   }
 
   @Test

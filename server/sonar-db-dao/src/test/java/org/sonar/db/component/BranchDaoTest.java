@@ -499,7 +499,7 @@ public class BranchDaoTest {
 
     assertThat(underTest.selectByUuid(db.getSession(), branch1.uuid()).get())
       .extracting(BranchDto::getUuid)
-      .containsExactlyInAnyOrder(branch1.uuid());
+      .isEqualTo(branch1.uuid());
     assertThat(underTest.selectByUuid(db.getSession(), project.uuid())).isNotPresent();
     assertThat(underTest.selectByUuid(db.getSession(), "unknown")).isNotPresent();
   }

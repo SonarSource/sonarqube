@@ -83,7 +83,7 @@ public class BatchReportReaderImplTest {
     FileUtils.write(scannerLogFile, "log1\nlog2");
 
     CloseableIterator<String> logs = underTest.readScannerLogs();
-    assertThat(logs).containsExactly("log1", "log2");
+    assertThat(logs).toIterable().containsExactly("log1", "log2");
   }
 
   @Test
@@ -94,7 +94,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentMeasures_returns_empty_list_if_there_is_no_measure() {
-    assertThat(underTest.readComponentMeasures(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentMeasures(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -155,7 +155,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentIssues_returns_empty_list_if_file_does_not_exist() {
-    assertThat(underTest.readComponentIssues(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentIssues(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -177,7 +177,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentDuplications_returns_empty_list_if_file_does_not_exist() {
-    assertThat(underTest.readComponentDuplications(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentDuplications(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -199,7 +199,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentDuplicationBlocks_returns_empty_list_if_file_does_not_exist() {
-    assertThat(underTest.readCpdTextBlocks(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readCpdTextBlocks(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -221,7 +221,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentSymbols_returns_empty_list_if_file_does_not_exist() {
-    assertThat(underTest.readComponentSymbols(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentSymbols(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -243,7 +243,7 @@ public class BatchReportReaderImplTest {
 
   @Test
   public void readComponentSyntaxHighlighting_returns_empty_CloseableIterator_when_file_does_not_exist() {
-    assertThat(underTest.readComponentSyntaxHighlighting(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentSyntaxHighlighting(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -251,13 +251,13 @@ public class BatchReportReaderImplTest {
     writer.writeComponentSyntaxHighlighting(COMPONENT_REF, of(SYNTAX_HIGHLIGHTING_1, SYNTAX_HIGHLIGHTING_2));
 
     CloseableIterator<ScannerReport.SyntaxHighlightingRule> res = underTest.readComponentSyntaxHighlighting(COMPONENT_REF);
-    assertThat(res).containsExactly(SYNTAX_HIGHLIGHTING_1, SYNTAX_HIGHLIGHTING_2);
+    assertThat(res).toIterable().containsExactly(SYNTAX_HIGHLIGHTING_1, SYNTAX_HIGHLIGHTING_2);
     res.close();
   }
 
   @Test
   public void readComponentCoverage_returns_empty_CloseableIterator_when_file_does_not_exist() {
-    assertThat(underTest.readComponentCoverage(COMPONENT_REF)).isEmpty();
+    assertThat(underTest.readComponentCoverage(COMPONENT_REF)).isExhausted();
   }
 
   @Test
@@ -265,7 +265,7 @@ public class BatchReportReaderImplTest {
     writer.writeComponentCoverage(COMPONENT_REF, of(COVERAGE_1, COVERAGE_2));
 
     CloseableIterator<ScannerReport.LineCoverage> res = underTest.readComponentCoverage(COMPONENT_REF);
-    assertThat(res).containsExactly(COVERAGE_1, COVERAGE_2);
+    assertThat(res).toIterable().containsExactly(COVERAGE_1, COVERAGE_2);
     res.close();
   }
 
@@ -280,7 +280,7 @@ public class BatchReportReaderImplTest {
     FileUtils.writeLines(file, of("1", "2", "3"));
 
     CloseableIterator<String> res = underTest.readFileSource(COMPONENT_REF).get();
-    assertThat(res).containsExactly("1", "2", "3");
+    assertThat(res).toIterable().containsExactly("1", "2", "3");
     res.close();
   }
 
@@ -292,7 +292,7 @@ public class BatchReportReaderImplTest {
     writer.writeAnalysisWarnings(warnings);
 
     CloseableIterator<ScannerReport.AnalysisWarning> res = underTest.readAnalysisWarnings();
-    assertThat(res).containsExactlyElementsOf(warnings);
+    assertThat(res).toIterable().containsExactlyElementsOf(warnings);
     res.close();
   }
 }
