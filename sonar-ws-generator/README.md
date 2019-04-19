@@ -6,8 +6,8 @@ The generated sources are not compilable on their own, but require to be copied 
 # How do I use it?
 
 * Make your changes on the SonarQube Web API (protobuf specification of responses in sonar-ws or `WebService` implementations in sonar-server)
-* Build SonarQube (for example with `./quick-build.sh`)
-* Run this generator: `sonar-ws-generator/run.sh`
+* Build SonarQube with `./gradlew build -x test -x obfuscate`)
+* Run generator: `sonar-ws-generator/run.sh`
 * Check your git status: the generated sources are copied in `sonar-ws/src/main/java`. Please double check the changed code.
 * Now you can rebuild sonar-ws and use it in integration tests
 
