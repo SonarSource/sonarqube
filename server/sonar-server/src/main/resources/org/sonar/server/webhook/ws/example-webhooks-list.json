@@ -8,7 +8,8 @@
     {
       "key": "UUID-2",
       "name": "my 2nd webhook",
-      "url": "https://www.my-other-webhook-listener.com/fancy-listner"
+      "url": "https://www.my-other-webhook-listener.com/fancy-listner",
+      "secret": "your_secret"
     }
   ]
 }

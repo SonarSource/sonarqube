@@ -95,7 +95,7 @@ public class ListActionTest {
       .containsExactlyInAnyOrder(
         tuple("organization", false),
         tuple("project", false));
-
+    assertThat(action.changelog()).hasSize(1);
   }
 
   @Test

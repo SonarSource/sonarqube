@@ -19,11 +19,11 @@
  */
 package org.sonar.server.webhook.ws;
 
-import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -39,7 +39,6 @@ import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.Webhooks.ListResponse;
 import org.sonarqube.ws.Webhooks.ListResponseElement;
 
-import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
@@ -68,12 +67,11 @@ public class ListAction implements WebhooksWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-
     WebService.NewAction action = controller.createAction(LIST_ACTION)
       .setDescription("Search for global webhooks or project webhooks. Webhooks are ordered by name.<br>" +
         "Requires 'Administer' permission on the specified project, or global 'Administer' permission.")
       .setSince("7.1")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-webhooks-search.json"))
+      .setResponseExample(getClass().getResource("example-webhooks-list.json"))
       .setHandler(this);
 
     action.createParam(ORGANIZATION_KEY_PARAM)
@@ -87,11 +85,11 @@ public class ListAction implements WebhooksWsAction {
       .setRequired(false)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
+    action.setChangelog(new Change("7.8", "Field 'secret' added to response"));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-
     String projectKey = request.param(PROJECT_KEY_PARAM);
     String organizationKey = request.param(ORGANIZATION_KEY_PARAM);
 
@@ -109,7 +107,6 @@ public class ListAction implements WebhooksWsAction {
   }
 
   private List<WebhookDto> doHandle(DbSession dbSession, @Nullable String organizationKey, @Nullable String projectKey) {
-
     OrganizationDto organizationDto;
     if (isNotBlank(organizationKey)) {
       Optional<OrganizationDto> dtoOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
@@ -119,8 +116,7 @@ public class ListAction implements WebhooksWsAction {
     }
 
     if (isNotBlank(projectKey)) {
-
-      Optional<ComponentDto> optional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orElse(null));
+      Optional<ComponentDto> optional = dbClient.componentDao().selectByKey(dbSession, projectKey);
       ComponentDto componentDto = checkFoundWithOptional(optional, "project %s does not exist", projectKey);
       webhookSupport.checkPermission(componentDto);
       webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
@@ -128,12 +124,9 @@ public class ListAction implements WebhooksWsAction {
       return dbClient.webhookDao().selectByProject(dbSession, componentDto);
 
     } else {
-
       webhookSupport.checkPermission(organizationDto);
       return dbClient.webhookDao().selectByOrganization(dbSession, organizationDto);
-
     }
-
   }
 
   private static void writeResponse(Request request, Response response, List<WebhookDto> webhookDtos, Map<String, WebhookDeliveryLiteDto> lastDeliveries) {
@@ -145,6 +138,9 @@ public class ListAction implements WebhooksWsAction {
           .setKey(webhook.getUuid())
           .setName(webhook.getName())
           .setUrl(obfuscateCredentials(webhook.getUrl()));
+        if (webhook.getSecret() != null) {
+          responseElementBuilder.setSecret(webhook.getSecret());
+        }
         addLastDelivery(responseElementBuilder, webhook, lastDeliveries);
       });
     writeProtobuf(responseBuilder.build(), request, response);
@@ -172,5 +168,4 @@ public class ListAction implements WebhooksWsAction {
     Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, uuid);
     return checkStateWithOptional(organizationDto, "the default organization '%s' was not found", uuid);
   }
-
 }

@@ -39,6 +39,7 @@ message ListResponseElement {
   optional string name = 2;
   optional string url = 3;
   optional LatestDelivery latestDelivery = 4;
+  optional string secret = 5;
 }
 
 // GET api/webhooks/list
@@ -60,7 +61,6 @@ message CreateWsResponse {
 
 // WS api/webhooks/deliveries
 message DeliveriesWsResponse {
-
   optional sonarqube.ws.commons.Paging paging = 1;
 
   repeated Delivery deliveries = 2;
