@@ -144,7 +144,9 @@ subprojects {
       }
       dependency 'com.tngtech.java:junit-dataprovider:1.9.2'
       dependency 'info.picocli:picocli:3.6.1'
-      dependency 'io.jsonwebtoken:jjwt:0.9.0'
+      dependency 'io.jsonwebtoken:jjwt-api:0.10.5'
+      dependency 'io.jsonwebtoken:jjwt-impl:0.10.5'
+      dependency 'io.jsonwebtoken:jjwt-jackson:0.10.5'
       dependency 'javax.mail:mail:1.4.4'
       dependency 'javax.annotation:javax.annotation-api:1.3.1'
       dependency 'javax.servlet:javax.servlet-api:3.0.1'

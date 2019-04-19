@@ -33,7 +33,8 @@ dependencies {
   compile 'com.googlecode.java-diff-utils:diffutils'
   compile 'com.hazelcast:hazelcast-client'
   compile 'commons-dbutils:commons-dbutils'
-  compile 'io.jsonwebtoken:jjwt'
+  compile 'io.jsonwebtoken:jjwt-api'
+  compile 'io.jsonwebtoken:jjwt-impl'
   compile 'javax.xml.bind:jaxb-api'
   compile 'org.apache.httpcomponents:httpclient'
   compile 'org.apache.logging.log4j:log4j-api'
@@ -82,6 +83,8 @@ dependencies {
   testCompile 'org.subethamail:subethasmtp'
   testCompile project(':server:sonar-db-testing')
   testCompile project(path: ":server:sonar-server-common", configuration: "tests")
+
+  runtime 'io.jsonwebtoken:jjwt-jackson'
 }
 
 task testJar(type: Jar) {
