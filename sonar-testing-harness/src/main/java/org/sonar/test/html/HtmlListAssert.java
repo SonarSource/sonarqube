@@ -89,15 +89,25 @@ public class HtmlListAssert extends HtmlBlockAssert<HtmlListAssert> {
   }
 
   /**
-   * Convenience method.
-   * Sames as {@code hasParagraph().withText("")}.
+   * Verifies next paragraph is empty or contains only "&nbsp;"
    */
   public HtmlParagraphAssert hasEmptyParagraph() {
-    return hasParagraph()
-      .withText("");
+    Element paragraph = hasParagraphImpl();
+
+    Assertions.assertThat(paragraph.text())
+      .describedAs(PRINT_FRAGMENT_TEMPLATE, paragraph)
+      .isIn("", "\u00A0");
+
+    return new HtmlParagraphAssert(paragraph, nextBlocks);
   }
 
   public HtmlParagraphAssert hasParagraph() {
+    Element element = hasParagraphImpl();
+
+    return new HtmlParagraphAssert(element, nextBlocks);
+  }
+
+  private Element hasParagraphImpl() {
     isNotNull();
 
     Assertions.assertThat(nextBlocks.hasNext())
@@ -106,8 +116,7 @@ public class HtmlListAssert extends HtmlBlockAssert<HtmlListAssert> {
 
     Element element = nextBlocks.next();
     HtmlParagraphAssert.verifyIsParagraph(element);
-
-    return new HtmlParagraphAssert(element, nextBlocks);
+    return element;
   }
 
   /**

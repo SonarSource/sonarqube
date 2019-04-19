@@ -52,6 +52,10 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
    * Verify the next block exists, is a paragraph and returns an Assert on this block.
    */
   public HtmlParagraphAssert hasParagraph() {
+    return new HtmlParagraphAssert(hasParagraphImpl(), nextBlocks);
+  }
+
+  private Element hasParagraphImpl() {
     isNotNull();
 
     Assertions.assertThat(nextBlocks.hasNext())
@@ -60,8 +64,7 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
 
     Element element = nextBlocks.next();
     verifyIsParagraph(element);
-
-    return new HtmlParagraphAssert(element, nextBlocks);
+    return element;
   }
 
   /**
@@ -74,12 +77,16 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
   }
 
   /**
-   * Convenience method.
-   * Sames as {@code hasParagraph().withText("")}.
+   * Verifies next paragraph is empty or contains only "&nbsp;"
    */
   public HtmlParagraphAssert hasEmptyParagraph() {
-    return hasParagraph()
-      .withText("");
+    Element paragraph = hasParagraphImpl();
+
+    Assertions.assertThat(paragraph.text())
+      .describedAs(PRINT_FRAGMENT_TEMPLATE, paragraph)
+      .isIn("", "\u00A0");
+
+    return new HtmlParagraphAssert(paragraph, nextBlocks);
   }
 
   /**

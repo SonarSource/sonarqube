@@ -14,7 +14,7 @@ dependencies {
   compile 'junit:junit'
   compile 'org.assertj:assertj-core'
   compile 'org.hamcrest:hamcrest-all'
-  compile 'org.jsoup:jsoup:1.11.3'
+  compile 'org.jsoup:jsoup'
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
