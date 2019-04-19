@@ -18,7 +18,7 @@ SonarCloud uses its own Virtual Private Cloud (AWS VPC). Accesses to the infrast
 
 At the infrastructure level, access to data is controlled by virtue of being hosted in a network zone which only the Technology Operations have access to. 
 
-To insure data availability, a replica of the SonarCloud database is maintained real time in a different availability zone. In addition, the database is fully backed up everyday with a 7 days retention. 
+To insure data availability, the SonarCloud database is replicated in quasi real time between 2 availability zones both within the Frankfurt region. In addition, the database is fully backed up every day with a 7 days retention. 
 
 At the software level, SonarCloud ensures private source code is accessible to organization members only, in addition to SonarSource Technology Operations team for support purposes only.
 
