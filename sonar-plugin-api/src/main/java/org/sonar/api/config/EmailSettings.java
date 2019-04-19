@@ -20,15 +20,13 @@
 package org.sonar.api.config;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.CATEGORY_GENERAL;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.SUBCATEGORY_EMAIL;
 import static org.sonar.api.PropertyType.INTEGER;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
@@ -57,9 +55,11 @@ public class EmailSettings {
   public static final String PREFIX_DEFAULT = "[SONARQUBE]";
 
   private final Configuration config;
+  private final Server server;
 
-  public EmailSettings(Configuration config) {
+  public EmailSettings(Configuration config, Server server) {
     this.config = config;
+    this.server = server;
   }
 
   public String getSmtpHost() {
@@ -95,9 +95,7 @@ public class EmailSettings {
   }
 
   public String getServerBaseURL() {
-    return config.get(SERVER_BASE_URL)
-      .map(t -> StringUtils.removeEnd(t, "/"))
-      .orElse(SERVER_BASE_URL_DEFAULT_VALUE);
+    return server.getPublicRootUrl();
   }
 
   public String getInstanceName() {

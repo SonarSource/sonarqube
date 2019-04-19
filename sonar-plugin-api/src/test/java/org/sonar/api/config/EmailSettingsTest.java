@@ -21,16 +21,18 @@ package org.sonar.api.config;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.platform.Server;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EmailSettingsTest {
 
   private MapSettings settings = new MapSettings();
-  private EmailSettings underTest = new EmailSettings(settings.asConfig());
+  private Server server = mock(Server.class);
+  private EmailSettings underTest = new EmailSettings(settings.asConfig(), server);
 
   @Test
   public void should_return_default_values() {
@@ -42,22 +44,14 @@ public class EmailSettingsTest {
     assertThat(underTest.getFrom()).isEqualTo("noreply@nowhere");
     assertThat(underTest.getFromName()).isEqualTo("SonarQube");
     assertThat(underTest.getPrefix()).isEqualTo("[SONARQUBE]");
-    assertThat(underTest.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
 
   @Test
-  public void getServerBaseUrl_returns_property_value() {
+  public void getServerBaseUrl_returns_server_getPublicRootUrl() {
     String expected = RandomStringUtils.randomAlphabetic(15);
-    settings.setProperty(SERVER_BASE_URL, expected);
+    when(server.getPublicRootUrl()).thenReturn(expected);
 
     assertThat(underTest.getServerBaseURL()).isEqualTo(expected);
-  }
-
-  @Test
-  public void getServerBaseUrl_removes_trailing_slash_from_property_value() {
-    settings.setProperty(SERVER_BASE_URL, "http://www.acme.com/");
-
-    assertThat(underTest.getServerBaseURL()).isEqualTo("http://www.acme.com");
   }
 
   @Test

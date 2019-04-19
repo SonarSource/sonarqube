@@ -22,14 +22,18 @@ package org.sonar.server.issue.notification;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.server.l18n.I18nRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
@@ -43,10 +47,15 @@ public class MyNewIssuesEmailTemplateTest {
     .put("issue.type.BUG", "Bug")
     .put("issue.type.CODE_SMELL", "Code Smell")
     .put("issue.type.VULNERABILITY", "Vulnerability");
-  private MapSettings settings = new MapSettings()
-    .setProperty("sonar.core.serverBaseURL", "http://nemo.sonarsource.org");
+  private MapSettings settings = new MapSettings();
 
-  private MyNewIssuesEmailTemplate underTest = new MyNewIssuesEmailTemplate(new EmailSettings(settings.asConfig()), i18n);
+  private Server server = mock(Server.class);
+  private MyNewIssuesEmailTemplate underTest = new MyNewIssuesEmailTemplate(new EmailSettings(settings.asConfig(), server), i18n);
+
+  @Before
+  public void setUp() throws Exception {
+    when(server.getPublicRootUrl()).thenReturn("http://nemo.sonarsource.org");
+  }
 
   @Test
   public void no_format_if_not_the_correct_notif() {
