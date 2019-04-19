@@ -4,7 +4,6 @@ url: /project-administration/webhooks/
 ---
 
 Webhooks notify external services when a project analysis is complete. An HTTP POST request including a JSON payload is sent to each URL. URLs may be specified at both the project and global levels. Project-level specification does not replace global-level webhooks. All hooks at both levels are called.
-Plugins
 
 The HTTP(S) call:
 
@@ -24,7 +23,7 @@ If configured, all 20 will be executed.
 
 ### Delivery
 
-The Webhook administration console shows the result and timestamp of the most recent delivery of each webhook with the payload available via the list icon. Results and payloads of earlier deliveries are available from the tools menu to the right of each webhook
+The Webhook administration console shows the result and timestamp of the most recent delivery of each webhook with the payload available via the list icon. Results and payloads of earlier deliveries are available from the tools menu to the right of each webhook.
 
 Response records are purged after 30 days.
 
@@ -32,7 +31,7 @@ The URL must respond within 10 seconds or the delivery is marked as failed.
 
 ### Payload
 
-An HTTP header "X-SonarQube-Project" with the project key is sent to allow quick identification of the project involved
+An HTTP header "X-SonarQube-Project" with the project key is sent to allow quick identification of the project involved.
 
 The Payload is a JSON document which includes:
 
