@@ -19,60 +19,35 @@
  */
 package org.sonar.server.webhook;
 
-import java.util.Optional;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebhookTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
-  public void constructor_with_null_componentUuid_should_throw_NPE() {
-    expectedException.expect(NullPointerException.class);
+  public void webhook_with_only_required_fields() {
+    Webhook underTest = new Webhook("a_uuid", "a_component_uuid", null, null, "a_name", "an_url", null);
 
-    new Webhook(randomAlphanumeric(40), null, null, null, randomAlphanumeric(10), randomAlphanumeric(10));
+    assertThat(underTest.getUuid()).isEqualTo("a_uuid");
+    assertThat(underTest.getComponentUuid()).isEqualTo("a_component_uuid");
+    assertThat(underTest.getCeTaskUuid()).isEmpty();
+    assertThat(underTest.getAnalysisUuid()).isEmpty();
+    assertThat(underTest.getName()).isEqualTo("a_name");
+    assertThat(underTest.getUrl()).isEqualTo("an_url");
+    assertThat(underTest.getSecret()).isEmpty();
   }
 
   @Test
-  public void constructor_with_null_name_should_throw_NPE() {
-    expectedException.expect(NullPointerException.class);
+  public void webhook_with_all_fields() {
+    Webhook underTest = new Webhook("a_uuid", "a_component_uuid", "a_task_uuid", "an_analysis", "a_name", "an_url", "a_secret");
 
-    new Webhook(randomAlphanumeric(40), randomAlphanumeric(10), null, null, null, randomAlphanumeric(10));
-  }
-
-  @Test
-  public void constructor_with_null_url_should_throw_NPE() {
-    expectedException.expect(NullPointerException.class);
-
-    new Webhook(randomAlphanumeric(40), randomAlphanumeric(10), null, null, randomAlphanumeric(10), null);
-  }
-
-  @Test
-  public void constructor_with_null_ceTaskUuid_or_analysisUuidurl_should_return_Optional_empty() {
-    String componentUuid = randomAlphanumeric(10);
-    String name = randomAlphanumeric(10);
-    String url = randomAlphanumeric(10);
-    Webhook underTest = new Webhook(randomAlphanumeric(40), componentUuid, null, null, name, url);
-
-    assertThat(underTest.getComponentUuid()).isEqualTo(componentUuid);
-    assertThat(underTest.getName()).isEqualTo(name);
-    assertThat(underTest.getUrl()).isEqualTo(url);
-    assertThat(underTest.getCeTaskUuid()).isEqualTo(Optional.empty());
-    assertThat(underTest.getAnalysisUuid()).isEqualTo(Optional.empty());
-
-    String ceTaskUuid = randomAlphanumeric(10);
-    String analysisUuid = randomAlphanumeric(10);
-    underTest = new Webhook(randomAlphanumeric(40), componentUuid, ceTaskUuid, analysisUuid, name, url);
-    assertThat(underTest.getComponentUuid()).isEqualTo(componentUuid);
-    assertThat(underTest.getName()).isEqualTo(name);
-    assertThat(underTest.getUrl()).isEqualTo(url);
-    assertThat(underTest.getCeTaskUuid().get()).isEqualTo(ceTaskUuid);
-    assertThat(underTest.getAnalysisUuid().get()).isEqualTo(analysisUuid);
+    assertThat(underTest.getUuid()).isEqualTo("a_uuid");
+    assertThat(underTest.getComponentUuid()).isEqualTo("a_component_uuid");
+    assertThat(underTest.getCeTaskUuid()).hasValue("a_task_uuid");
+    assertThat(underTest.getAnalysisUuid()).hasValue("an_analysis");
+    assertThat(underTest.getName()).isEqualTo("a_name");
+    assertThat(underTest.getUrl()).isEqualTo("an_url");
+    assertThat(underTest.getSecret()).hasValue("a_secret");
   }
 }

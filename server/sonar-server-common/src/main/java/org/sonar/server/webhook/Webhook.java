@@ -37,14 +37,18 @@ public class Webhook {
   private final String analysisUuid;
   private final String name;
   private final String url;
+  @Nullable
+  private final String secret;
 
-  public Webhook(String uuid, String componentUuid, @Nullable String ceTaskUuid, @Nullable String analysisUuid, String name, String url) {
+  public Webhook(String uuid, String componentUuid, @Nullable String ceTaskUuid,
+    @Nullable String analysisUuid, String name, String url, @Nullable String secret) {
     this.uuid = uuid;
     this.componentUuid = requireNonNull(componentUuid);
     this.ceTaskUuid = ceTaskUuid;
     this.analysisUuid = analysisUuid;
     this.name = requireNonNull(name);
     this.url = requireNonNull(url);
+    this.secret = secret;
   }
 
   public String getComponentUuid() {
@@ -69,5 +73,9 @@ public class Webhook {
 
   public Optional<String> getAnalysisUuid() {
     return ofNullable(analysisUuid);
+  }
+
+  public Optional<String> getSecret() {
+    return ofNullable(secret);
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import java.io.IOException;
+import java.util.Optional;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -27,6 +28,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -69,7 +72,7 @@ public class WebhookCallerImpl implements WebhookCaller {
         throw new IllegalArgumentException("Webhook URL is not valid: " + webhook.getUrl());
       }
       builder.setEffectiveUrl(HttpUrlHelper.obfuscateCredentials(webhook.getUrl(), url));
-      Request request = buildHttpRequest(url, payload);
+      Request request = buildHttpRequest(url, webhook, payload);
       try (Response response = execute(request)) {
         builder.setHttpStatus(response.code());
       }
@@ -82,13 +85,14 @@ public class WebhookCallerImpl implements WebhookCaller {
       .build();
   }
 
-  private static Request buildHttpRequest(HttpUrl url, WebhookPayload payload) {
+  private static Request buildHttpRequest(HttpUrl url, Webhook webhook, WebhookPayload payload) {
     Request.Builder request = new Request.Builder();
     request.url(url);
     request.header(PROJECT_KEY_HEADER, payload.getProjectKey());
     if (isNotEmpty(url.username())) {
       request.header("Authorization", Credentials.basic(url.username(), url.password(), UTF_8));
     }
+    signatureOf(webhook, payload).ifPresent(signature -> request.header("X-Sonar-Webhook-HMAC-SHA256", signature));
 
     RequestBody body = RequestBody.create(JSON, payload.getJson());
     request.post(body);
@@ -140,5 +144,10 @@ public class WebhookCallerImpl implements WebhookCaller {
       .followRedirects(false)
       .followSslRedirects(false)
       .build();
+  }
+
+  private static Optional<String> signatureOf(Webhook webhook, WebhookPayload payload) {
+    return webhook.getSecret()
+      .map(secret -> new HmacUtils(HmacAlgorithms.HMAC_SHA_256, secret).hmacHex(payload.getJson()));
   }
 }

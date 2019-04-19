@@ -24,7 +24,6 @@ import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -39,6 +38,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.server.util.OkHttpClientProvider;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebhookCallerImplTest {
@@ -59,8 +59,9 @@ public class WebhookCallerImplTest {
   private System2 system = new TestSystem2().setNow(NOW);
 
   @Test
-  public void send_posts_payload_to_http_server() throws Exception {
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", server.url("/ping").toString());
+  public void post_payload_to_http_server() throws Exception {
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, randomAlphanumeric(40),
+      "my-webhook", server.url("/ping").toString(), null);
 
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
@@ -80,11 +81,25 @@ public class WebhookCallerImplTest {
     assertThat(recordedRequest.getHeader("User-Agent")).isEqualTo("SonarQube/6.2");
     assertThat(recordedRequest.getHeader("Content-Type")).isEqualTo("application/json; charset=utf-8");
     assertThat(recordedRequest.getHeader("X-SonarQube-Project")).isEqualTo(PAYLOAD.getProjectKey());
+    assertThat(recordedRequest.getHeader("X-Sonar-Webhook-HMAC-SHA256")).isNull();
+  }
+
+  @Test
+  public void sign_payload_if_secret_is_set() throws Exception {
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, randomAlphanumeric(40),
+      "my-webhook", server.url("/ping").toString(), "my_secret");
+    server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
+
+    newSender().call(webhook, PAYLOAD);
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("X-Sonar-Webhook-HMAC-SHA256")).isEqualTo("ef35d3420a3df3d05f8f7eb3b53384abc41395f164245d6c7e78a70e61703dde");
   }
 
   @Test
   public void silently_catch_error_when_external_server_does_not_answer() throws Exception {
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", server.url("/ping").toString());
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", server.url("/ping").toString(), null);
 
     server.shutdown();
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
@@ -100,7 +115,8 @@ public class WebhookCallerImplTest {
 
   @Test
   public void silently_catch_error_when_url_is_incorrect() {
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", "this_is_not_an_url");
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", "this_is_not_an_url", null);
 
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
@@ -118,7 +134,8 @@ public class WebhookCallerImplTest {
    */
   @Test
   public void redirects_should_be_followed_with_POST_method() throws Exception {
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", server.url("/redirect").toString());
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", server.url("/redirect").toString(), null);
 
     // /redirect redirects to /target
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
@@ -140,7 +157,8 @@ public class WebhookCallerImplTest {
   @Test
   public void credentials_are_propagated_to_POST_redirects() throws Exception {
     HttpUrl url = server.url("/redirect").newBuilder().username("theLogin").password("thePassword").build();
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", url.toString(), null);
 
     // /redirect redirects to /target
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
@@ -160,7 +178,8 @@ public class WebhookCallerImplTest {
   @Test
   public void redirects_throws_ISE_if_header_Location_is_missing() {
     HttpUrl url = server.url("/redirect");
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", url.toString(), null);
 
     server.enqueue(new MockResponse().setResponseCode(307));
 
@@ -175,7 +194,8 @@ public class WebhookCallerImplTest {
   @Test
   public void redirects_throws_ISE_if_header_Location_does_not_relate_to_a_supported_protocol() {
     HttpUrl url = server.url("/redirect");
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", url.toString(), null);
 
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "ftp://foo"));
 
@@ -190,7 +210,8 @@ public class WebhookCallerImplTest {
   @Test
   public void send_basic_authentication_header_if_url_contains_credentials() throws Exception {
     HttpUrl url = server.url("/ping").newBuilder().username("theLogin").password("thePassword").build();
-    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      randomAlphanumeric(40), "my-webhook", url.toString(), null);
     server.enqueue(new MockResponse().setBody("pong"));
 
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);

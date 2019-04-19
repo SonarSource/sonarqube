@@ -118,7 +118,7 @@ public class WebhookDeliveryStorageTest {
 
   private static WebhookDelivery.Builder newBuilderTemplate() {
     return new WebhookDelivery.Builder()
-      .setWebhook(new Webhook("WEBHOOK_UUID_1", "COMPONENT1", "TASK1", RandomStringUtils.randomAlphanumeric(40),"Jenkins", "http://jenkins"))
+      .setWebhook(new Webhook("WEBHOOK_UUID_1", "COMPONENT1", "TASK1", RandomStringUtils.randomAlphanumeric(40),"Jenkins", "http://jenkins", null))
       .setPayload(new WebhookPayload("my-project", "{json}"))
       .setAt(1_000_000L)
       .setHttpStatus(200)
