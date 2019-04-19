@@ -33,13 +33,15 @@ class WebhooksWsParameters {
   static final String ORGANIZATION_KEY_PARAM = "organization";
   static final int ORGANIZATION_KEY_PARAM_MAXIMUM_LENGTH = 255;
   static final String PROJECT_KEY_PARAM = "project";
-  static final int PROJECT_KEY_PARAM_MAXIMUN_LENGTH = 100;
+  static final int PROJECT_KEY_PARAM_MAXIMUM_LENGTH = 100;
   static final String NAME_PARAM = "name";
   static final int NAME_PARAM_MAXIMUM_LENGTH = 100;
   static final String URL_PARAM = "url";
   static final int URL_PARAM_MAXIMUM_LENGTH = 512;
   static final String KEY_PARAM = "webhook";
-  static final int KEY_PARAM_MAXIMUN_LENGTH = 40;
+  static final int KEY_PARAM_MAXIMUM_LENGTH = 40;
+  static final String SECRET_PARAM = "secret";
+  static final int SECRET_PARAM_MAXIMUM_LENGTH = 200;
 
   private WebhooksWsParameters() {
     // prevent instantiation

@@ -32,11 +32,9 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ACTION_CREATE;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
@@ -44,7 +42,9 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM_MAXIMU
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ORGANIZATION_KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM_MAXIMUN_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM_MAXIMUM_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
@@ -68,7 +68,7 @@ public class CreateAction implements WebhooksWsAction {
   private final WebhookSupport webhookSupport;
 
   public CreateAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider,
-                      UuidFactory uuidFactory, WebhookSupport webhookSupport) {
+    UuidFactory uuidFactory, WebhookSupport webhookSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
@@ -78,7 +78,6 @@ public class CreateAction implements WebhooksWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-
     WebService.NewAction action = controller.createAction(ACTION_CREATE)
       .setPost(true)
       .setDescription("Create a Webhook.<br>" +
@@ -103,7 +102,7 @@ public class CreateAction implements WebhooksWsAction {
 
     action.createParam(PROJECT_KEY_PARAM)
       .setRequired(false)
-      .setMaximumLength(PROJECT_KEY_PARAM_MAXIMUN_LENGTH)
+      .setMaximumLength(PROJECT_KEY_PARAM_MAXIMUM_LENGTH)
       .setDescription("The key of the project that will own the webhook")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
@@ -114,20 +113,26 @@ public class CreateAction implements WebhooksWsAction {
       .setDescription("The key of the organization that will own the webhook")
       .setExampleValue(KEY_ORG_EXAMPLE_001);
 
+    action.createParam(SECRET_PARAM)
+      .setRequired(false)
+      .setMinimumLength(1)
+      .setMaximumLength(SECRET_PARAM_MAXIMUM_LENGTH)
+      .setDescription("If provided, secret will be used as the key to generate the HMAC hex (lowercase) digest value in the 'X-Sonar-Webhook-HMAC-SHA256' header")
+      .setExampleValue("your_secret")
+      .setSince("7.8");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-
     userSession.checkLoggedIn();
 
     String name = request.mandatoryParam(NAME_PARAM);
     String url = request.mandatoryParam(URL_PARAM);
     String projectKey = request.param(PROJECT_KEY_PARAM);
     String organizationKey = request.param(ORGANIZATION_KEY_PARAM);
+    String secret = request.param(SECRET_PARAM);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-
       OrganizationDto organizationDto;
       if (isNotBlank(organizationKey)) {
         Optional<OrganizationDto> dtoOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
@@ -138,7 +143,7 @@ public class CreateAction implements WebhooksWsAction {
 
       ComponentDto projectDto = null;
       if (isNotBlank(projectKey)) {
-        Optional<ComponentDto> dtoOptional = ofNullable(dbClient.componentDao().selectByKey(dbSession, projectKey).orElse(null));
+        Optional<ComponentDto> dtoOptional = dbClient.componentDao().selectByKey(dbSession, projectKey);
         ComponentDto componentDto = checkFoundWithOptional(dtoOptional, "No project with key '%s'", projectKey);
         webhookSupport.checkThatProjectBelongsToOrganization(componentDto, organizationDto, "Project '%s' does not belong to organisation '%s'", projectKey, organizationKey);
         webhookSupport.checkPermission(componentDto);
@@ -149,18 +154,18 @@ public class CreateAction implements WebhooksWsAction {
 
       webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
 
-      WebhookDto webhookDto = doHandle(dbSession, organizationDto, projectDto, name, url);
-
-      dbClient.webhookDao().insert(dbSession, webhookDto);
+      WebhookDto dto = doHandle(dbSession, organizationDto, projectDto, name, url, secret);
+      dbClient.webhookDao().insert(dbSession, dto);
 
       dbSession.commit();
 
-      writeResponse(request, response, webhookDto);
+      writeResponse(request, response, dto);
     }
 
   }
 
-  private WebhookDto doHandle(DbSession dbSession, @Nullable OrganizationDto organization, @Nullable ComponentDto project, String name, String url) {
+  private WebhookDto doHandle(DbSession dbSession, @Nullable OrganizationDto organization,
+    @Nullable ComponentDto project, String name, String url, @Nullable String secret) {
 
     checkState(organization != null || project != null,
       "A webhook can not be created if not linked to an organization or a project.");
@@ -168,7 +173,8 @@ public class CreateAction implements WebhooksWsAction {
     WebhookDto dto = new WebhookDto()
       .setUuid(uuidFactory.create())
       .setName(name)
-      .setUrl(url);
+      .setUrl(url)
+      .setSecret(secret);
 
     if (project != null) {
       checkNumberOfWebhook(numberOfWebhookOf(dbSession, project), "Maximum number of webhook reached for project '%s'", project.getKey());
@@ -181,18 +187,20 @@ public class CreateAction implements WebhooksWsAction {
     return dto;
   }
 
-  private static void writeResponse(Request request, Response response, WebhookDto element) {
-    Webhooks.CreateWsResponse.Builder responseBuilder = newBuilder();
-    responseBuilder.setWebhook(Webhook.newBuilder()
-      .setKey(element.getUuid())
-      .setName(element.getName())
-      .setUrl(element.getUrl()));
-
-    writeProtobuf(responseBuilder.build(), request, response);
+  private static void writeResponse(Request request, Response response, WebhookDto dto) {
+    Webhook.Builder webhookBuilder = Webhook.newBuilder();
+    webhookBuilder
+      .setKey(dto.getUuid())
+      .setName(dto.getName())
+      .setUrl(dto.getUrl());
+    if (dto.getSecret() != null) {
+      webhookBuilder.setSecret(dto.getSecret());
+    }
+    writeProtobuf(newBuilder().setWebhook(webhookBuilder).build(), request, response);
   }
 
   private static void checkNumberOfWebhook(int nbOfWebhooks, String message, Object... messageArguments) {
-    if (nbOfWebhooks >= MAX_NUMBER_OF_WEBHOOKS){
+    if (nbOfWebhooks >= MAX_NUMBER_OF_WEBHOOKS) {
       throw new IllegalArgumentException(format(message, messageArguments));
     }
   }

@@ -54,6 +54,7 @@ message CreateWsResponse {
     optional string key = 1;
     optional string name = 2;
     optional string url = 3;
+    optional string secret = 4;
   }
 }
 

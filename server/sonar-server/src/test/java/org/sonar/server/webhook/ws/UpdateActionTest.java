@@ -49,9 +49,6 @@ import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.TestDefaultOrganizationProvider.from;
 import static org.sonar.server.tester.UserSessionRule.standalone;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
 
@@ -78,7 +75,6 @@ public class UpdateActionTest {
 
   @Test
   public void test_ws_definition() {
-
     WebService.Action action = wsActionTester.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
@@ -89,21 +85,20 @@ public class UpdateActionTest {
       .containsExactlyInAnyOrder(
         tuple("webhook", true),
         tuple("name", true),
-        tuple("url", true));
-
+        tuple("url", true),
+        tuple("secret", false));
   }
 
   @Test
-  public void update_a_project_webhook() {
-
+  public void update_a_project_webhook_with_required_fields() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -113,20 +108,43 @@ public class UpdateActionTest {
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getOrganizationUuid()).isNull();
     assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
+    assertThat(reloaded.get().getSecret()).isNull();
+  }
 
+  @Test
+  public void update_a_project_webhook_with_all_fields() {
+    ComponentDto project = componentDbTester.insertPrivateProject();
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
+    userSession.logIn().addProjectPermission(ADMIN, project);
+
+    TestResponse response = wsActionTester.newRequest()
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "a_new_secret")
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+    Optional<WebhookDto> reloaded = webhookDbTester.selectWebhook(dto.getUuid());
+    assertThat(reloaded.get()).isNotNull();
+    assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
+    assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
+    assertThat(reloaded.get().getOrganizationUuid()).isNull();
+    assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
+    assertThat(reloaded.get().getSecret()).isEqualTo("a_new_secret");
   }
 
   @Test
   public void update_an_organization_webhook() {
-
     OrganizationDto organization = organizationDbTester.insert();
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
     userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
 
     TestResponse response = wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "a_new_secret")
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -136,27 +154,25 @@ public class UpdateActionTest {
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
     assertThat(reloaded.get().getProjectUuid()).isNull();
-
+    assertThat(reloaded.get().getSecret()).isEqualTo("a_new_secret");
   }
 
   @Test
   public void fail_if_webhook_does_not_exist() {
-
     userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No webhook with key 'inexistent-webhook-uuid'");
 
     wsActionTester.newRequest()
-      .setParam(KEY_PARAM, "inexistent-webhook-uuid")
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("webhook", "inexistent-webhook-uuid")
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .execute();
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
-
+  public void fail_if_not_logged_in() {
     OrganizationDto organization = organizationDbTester.insert();
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
     userSession.anonymous();
@@ -164,16 +180,14 @@ public class UpdateActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_project() {
-
     ComponentDto project = componentDbTester.insertPrivateProject();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
 
@@ -183,16 +197,14 @@ public class UpdateActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
   public void fail_if_no_permission_on_webhook_scope_organization() {
-
     OrganizationDto organization = organizationDbTester.insert();
     WebhookDto dto = webhookDbTester.insertWebhook(organization);
 
@@ -202,16 +214,14 @@ public class UpdateActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
-  public void fail_if_url_is_not_valid() throws Exception {
-
+  public void fail_if_url_is_not_valid() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
@@ -219,16 +229,14 @@ public class UpdateActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, "htp://www.wrong-protocol.com/")
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", "htp://www.wrong-protocol.com/")
       .execute();
-
   }
 
   @Test
-  public void fail_if_credential_in_url_is_have_a_wrong_format() throws Exception {
-
+  public void fail_if_credential_in_url_is_have_a_wrong_format() {
     ComponentDto project = componentDbTester.insertPrivateProject();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
     userSession.logIn().addProjectPermission(ADMIN, project);
@@ -236,11 +244,10 @@ public class UpdateActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     wsActionTester.newRequest()
-      .setParam(KEY_PARAM, dto.getUuid())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, "http://:www.wrong-protocol.com/")
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", "http://:www.wrong-protocol.com/")
       .execute();
-
   }
 
 }

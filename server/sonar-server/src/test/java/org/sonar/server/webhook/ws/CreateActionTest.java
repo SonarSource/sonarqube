@@ -80,7 +80,6 @@ public class CreateActionTest {
 
   @Test
   public void test_ws_definition() {
-
     WebService.Action action = wsActionTester.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
@@ -93,92 +92,104 @@ public class CreateActionTest {
         tuple("organization", false),
         tuple("project", false),
         tuple("name", true),
-        tuple("url", true));
+        tuple("url", true),
+        tuple("secret", false));
 
+  }
+
+  @Test
+  public void create_a_webhook_with_secret() {
+    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+
+    CreateWsResponse response = wsActionTester.newRequest()
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "a_secret")
+      .executeProtobuf(CreateWsResponse.class);
+
+    assertThat(response.getWebhook()).isNotNull();
+    assertThat(response.getWebhook().getKey()).isNotNull();
+    assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
+    assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
+    assertThat(response.getWebhook().getSecret()).isEqualTo("a_secret");
   }
 
   @Test
   public void create_a_webhook_on_default_organization() {
-
     userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
 
     CreateWsResponse response = wsActionTester.newRequest()
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getWebhook()).isNotNull();
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-
+    assertThat(response.getWebhook().hasSecret()).isFalse();
   }
 
   @Test
   public void create_a_webhook_on_specific_organization() {
-
     OrganizationDto organization = organizationDbTester.insert();
-
     userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
 
     CreateWsResponse response = wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("organization", organization.getKey())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getWebhook()).isNotNull();
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-
+    assertThat(response.getWebhook().hasSecret()).isFalse();
   }
 
   @Test
   public void create_a_webhook_on_project() {
-
     ComponentDto project = componentDbTester.insertPrivateProject();
 
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     CreateWsResponse response = wsActionTester.newRequest()
-      .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("project", project.getKey())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getWebhook()).isNotNull();
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-
+    assertThat(response.getWebhook().hasSecret()).isFalse();
   }
 
   @Test
   public void create_a_webhook_on_a_project_belonging_to_an_organization() {
-
     OrganizationDto organization = organizationDbTester.insert();
     ComponentDto project = componentDbTester.insertPrivateProject(organization);
 
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     CreateWsResponse response = wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
-      .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("organization", organization.getKey())
+      .setParam("project", project.getKey())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getWebhook()).isNotNull();
     assertThat(response.getWebhook().getKey()).isNotNull();
     assertThat(response.getWebhook().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(response.getWebhook().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
-
+    assertThat(response.getWebhook().hasSecret()).isFalse();
   }
 
   @Test
   public void fail_if_project_does_not_belong_to_requested_organization() {
-
     OrganizationDto organization = organizationDbTester.insert();
     ComponentDto project = componentDbTester.insertPrivateProject();
 
@@ -188,17 +199,15 @@ public class CreateActionTest {
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     wsActionTester.newRequest()
-      .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
-      .setParam(PROJECT_KEY_PARAM, project.getKey())
-      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
-      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("organization", organization.getKey())
+      .setParam("project", project.getKey())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
-  public void fail_if_project_does_not_exists() {
-
+  public void fail_if_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No project with key 'inexistent-project-uuid'");
 
@@ -209,12 +218,10 @@ public class CreateActionTest {
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
   public void fail_if_crossing_maximum_quantity_of_webhooks_on_this_project() {
-
     ComponentDto project = componentDbTester.insertPrivateProject();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -230,12 +237,10 @@ public class CreateActionTest {
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
   public void fail_if_crossing_maximum_quantity_of_webhooks_on_this_organization() {
-
     OrganizationDto organization = organizationDbTester.insert();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -254,8 +259,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_if_organization_does_not_exists() {
-
+  public void fail_if_organization_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization with key 'inexistent-organization-uuid'");
 
@@ -266,12 +270,10 @@ public class CreateActionTest {
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
-  public void fail_if_url_is_not_valid() throws Exception {
-
+  public void fail_if_url_is_not_valid() {
     userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -280,12 +282,10 @@ public class CreateActionTest {
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, "htp://www.wrong-protocol.com/")
       .execute();
-
   }
 
   @Test
-  public void fail_if_credential_in_url_is_have_a_wrong_format() throws Exception {
-
+  public void fail_if_credential_in_url_is_have_a_wrong_format() {
     userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -294,12 +294,10 @@ public class CreateActionTest {
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, "http://:www.wrong-protocol.com/")
       .execute();
-
   }
 
   @Test
-  public void return_UnauthorizedException_if_not_logged_in() throws Exception {
-
+  public void return_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
     expectedException.expect(UnauthorizedException.class);
 
@@ -307,12 +305,10 @@ public class CreateActionTest {
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .execute();
-
   }
 
   @Test
   public void throw_ForbiddenException_if_no_organization_provided_and_user_is_not_system_administrator() {
-
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -326,7 +322,6 @@ public class CreateActionTest {
 
   @Test
   public void throw_ForbiddenException_if_organization_provided_but_user_is_not_organization_administrator() {
-
     OrganizationDto organization = organizationDbTester.insert();
 
     userSession.logIn();
@@ -339,14 +334,11 @@ public class CreateActionTest {
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
       .execute();
-
   }
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
-
     ComponentDto project = componentDbTester.insertPrivateProject();
-
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -357,7 +349,6 @@ public class CreateActionTest {
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
       .setParam(PROJECT_KEY_PARAM, project.getKey())
       .execute();
-
   }
 
 }

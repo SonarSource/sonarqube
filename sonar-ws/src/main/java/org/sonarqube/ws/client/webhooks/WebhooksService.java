@@ -53,6 +53,7 @@ public class WebhooksService extends BaseService {
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
+        .setParam("secret", request.getSecret())
         .setParam("url", request.getUrl()),
       CreateWsResponse.parser());
   }
@@ -68,8 +69,7 @@ public class WebhooksService extends BaseService {
     call(
       new PostRequest(path("delete"))
         .setParam("webhook", request.getWebhook())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -130,9 +130,9 @@ public class WebhooksService extends BaseService {
     call(
       new PostRequest(path("update"))
         .setParam("name", request.getName())
+        .setParam("secret", request.getSecret())
         .setParam("url", request.getUrl())
         .setParam("webhook", request.getWebhook())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 }

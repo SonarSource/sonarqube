@@ -33,7 +33,7 @@ import org.sonar.server.user.UserSession;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.DELETE_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUN_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkStateWithOptional;
@@ -61,7 +61,7 @@ public class DeleteAction implements WebhooksWsAction {
 
     action.createParam(KEY_PARAM)
       .setRequired(true)
-      .setMaximumLength(KEY_PARAM_MAXIMUN_LENGTH)
+      .setMaximumLength(KEY_PARAM_MAXIMUM_LENGTH)
       .setDescription("The key of the webhook to be deleted, "+
         "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);

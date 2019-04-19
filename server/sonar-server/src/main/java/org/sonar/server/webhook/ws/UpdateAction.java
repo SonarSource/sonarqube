@@ -20,6 +20,7 @@
 package org.sonar.server.webhook.ws;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,9 +33,11 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
-import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUN_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM_MAXIMUM_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.UPDATE_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM_LENGTH;
@@ -58,7 +61,6 @@ public class UpdateAction implements WebhooksWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-
     WebService.NewAction action = controller.createAction(UPDATE_ACTION)
       .setPost(true)
       .setDescription("Update a Webhook.<br>" +
@@ -68,8 +70,8 @@ public class UpdateAction implements WebhooksWsAction {
 
     action.createParam(KEY_PARAM)
       .setRequired(true)
-      .setMaximumLength(KEY_PARAM_MAXIMUN_LENGTH)
-      .setDescription("The key of the webhook to be updated, "+
+      .setMaximumLength(KEY_PARAM_MAXIMUM_LENGTH)
+      .setDescription("The key of the webhook to be updated, " +
         "auto-generated value can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
@@ -85,6 +87,13 @@ public class UpdateAction implements WebhooksWsAction {
       .setDescription("new url to be called by the webhook")
       .setExampleValue(URL_WEBHOOK_EXAMPLE_001);
 
+    action.createParam(SECRET_PARAM)
+      .setRequired(false)
+      .setMinimumLength(1)
+      .setMaximumLength(SECRET_PARAM_MAXIMUM_LENGTH)
+      .setDescription("If provided, secret will be used as the key to generate the HMAC hex (lowercase) digest value in the 'X-Sonar-Webhook-HMAC-SHA256' header")
+      .setExampleValue("your_secret")
+      .setSince("7.8");
   }
 
   @Override
@@ -94,6 +103,7 @@ public class UpdateAction implements WebhooksWsAction {
     String webhookKey = request.param(KEY_PARAM);
     String name = request.mandatoryParam(NAME_PARAM);
     String url = request.mandatoryParam(URL_PARAM);
+    String secret = request.param(SECRET_PARAM);
 
     webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
 
@@ -107,7 +117,7 @@ public class UpdateAction implements WebhooksWsAction {
         Optional<OrganizationDto> optionalDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
         OrganizationDto organizationDto = checkStateWithOptional(optionalDto, "the requested organization '%s' was not found", organizationUuid);
         webhookSupport.checkPermission(organizationDto);
-        updateWebhook(dbSession, webhookDto, name, url);
+        updateWebhook(dbSession, webhookDto, name, url, secret);
       }
 
       String projectUuid = webhookDto.getProjectUuid();
@@ -115,7 +125,7 @@ public class UpdateAction implements WebhooksWsAction {
         Optional<ComponentDto> optionalDto = ofNullable(dbClient.componentDao().selectByUuid(dbSession, projectUuid).orElse(null));
         ComponentDto componentDto = checkStateWithOptional(optionalDto, "the requested project '%s' was not found", projectUuid);
         webhookSupport.checkPermission(componentDto);
-        updateWebhook(dbSession, webhookDto, name, url);
+        updateWebhook(dbSession, webhookDto, name, url, secret);
       }
 
       dbSession.commit();
@@ -124,8 +134,12 @@ public class UpdateAction implements WebhooksWsAction {
     response.noContent();
   }
 
-  private void updateWebhook(DbSession dbSession, WebhookDto webhookDto, String name, String url) {
-    dbClient.webhookDao().update(dbSession, webhookDto.setName(name).setUrl(url));
+  private void updateWebhook(DbSession dbSession, WebhookDto dto, String name, String url, @Nullable String secret) {
+    dto
+      .setName(name)
+      .setUrl(url)
+      .setSecret(secret);
+    dbClient.webhookDao().update(dbSession, dto);
   }
 
 }

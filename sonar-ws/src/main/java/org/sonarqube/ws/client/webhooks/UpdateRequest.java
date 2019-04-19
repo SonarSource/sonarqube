@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -32,6 +31,7 @@ import javax.annotation.Generated;
 public class UpdateRequest {
 
   private String name;
+  private String secret;
   private String url;
   private String webhook;
 
@@ -46,6 +46,18 @@ public class UpdateRequest {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * Example value: "your_secret"
+   */
+  public UpdateRequest setSecret(String secret) {
+    this.secret = secret;
+    return this;
+  }
+
+  public String getSecret() {
+    return secret;
   }
 
   /**

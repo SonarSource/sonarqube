@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -34,6 +33,7 @@ public class CreateRequest {
   private String name;
   private String organization;
   private String project;
+  private String secret;
   private String url;
 
   /**
@@ -72,6 +72,18 @@ public class CreateRequest {
 
   public String getProject() {
     return project;
+  }
+
+  /**
+   * Example value: "your_secret"
+   */
+  public CreateRequest setSecret(String secret) {
+    this.secret = secret;
+    return this;
+  }
+
+  public String getSecret() {
+    return secret;
   }
 
   /**
