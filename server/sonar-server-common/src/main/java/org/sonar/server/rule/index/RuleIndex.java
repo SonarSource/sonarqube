@@ -89,6 +89,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CREATED_AT;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CWE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_EXTENSION_SCOPE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_EXTENSION_TAGS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
@@ -98,9 +99,12 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_IS_TEMP
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_LANGUAGE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_NAME;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_RULE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_SANS_TOP_25;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_SONARSOURCE_SECURITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_STATUS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TYPE;
@@ -123,6 +127,10 @@ public class RuleIndex {
   public static final String FACET_STATUSES = "statuses";
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
+  public static final String FACET_CWE = "cwe";
+  public static final String FACET_SANS_TOP_25 = "sansTop25";
+  public static final String FACET_OWASP_TOP_10 = "owaspTop10";
+  public static final String FACET_SONARSOURCE_SECURITY = "sonarsourceSecurity";
 
   private static final int MAX_FACET_SIZE = 100;
 
@@ -269,6 +277,26 @@ public class RuleIndex {
     if (isNotEmpty(query.getSeverities())) {
       filters.put(FIELD_RULE_SEVERITY,
         QueryBuilders.termsQuery(FIELD_RULE_SEVERITY, query.getSeverities()));
+    }
+
+    if (isNotEmpty(query.getCwe())) {
+      filters.put(FIELD_RULE_CWE,
+        QueryBuilders.termsQuery(FIELD_RULE_CWE, query.getCwe()));
+    }
+
+    if (isNotEmpty(query.getOwaspTop10())) {
+      filters.put(FIELD_RULE_OWASP_TOP_10,
+        QueryBuilders.termsQuery(FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10()));
+    }
+
+    if (isNotEmpty(query.getSansTop25())) {
+      filters.put(FIELD_RULE_SANS_TOP_25,
+        QueryBuilders.termsQuery(FIELD_RULE_SANS_TOP_25, query.getSansTop25()));
+    }
+
+    if (isNotEmpty(query.getSonarsourceSecurity())) {
+      filters.put(FIELD_RULE_SONARSOURCE_SECURITY,
+        QueryBuilders.termsQuery(FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity()));
     }
 
     if (StringUtils.isNotEmpty(query.getKey())) {
@@ -451,6 +479,36 @@ public class RuleIndex {
       aggregations.put(FACET_REPOSITORIES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_REPOSITORY, FACET_REPOSITORIES,
           (repositories == null) ? (new String[0]) : repositories.toArray()));
+    }
+
+    addDefaultSecurityFacets(query, options, aggregations, stickyFacetBuilder);
+  }
+
+  private static void addDefaultSecurityFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations,
+    StickyFacetBuilder stickyFacetBuilder) {
+    if (options.getFacets().contains(FACET_CWE)) {
+      Collection<String> categories = query.getCwe();
+      aggregations.put(FACET_CWE,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CWE, FACET_CWE,
+          (categories == null) ? (new String[0]) : categories.toArray()));
+    }
+    if (options.getFacets().contains(FACET_OWASP_TOP_10)) {
+      Collection<String> categories = query.getOwaspTop10();
+      aggregations.put(FACET_OWASP_TOP_10,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_TOP_10, FACET_OWASP_TOP_10,
+          (categories == null) ? (new String[0]) : categories.toArray()));
+    }
+    if (options.getFacets().contains(FACET_SANS_TOP_25)) {
+      Collection<String> categories = query.getSansTop25();
+      aggregations.put(FACET_SANS_TOP_25,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SANS_TOP_25, FACET_SANS_TOP_25,
+          (categories == null) ? (new String[0]) : categories.toArray()));
+    }
+    if (options.getFacets().contains(FACET_SONARSOURCE_SECURITY)) {
+      Collection<String> categories = query.getSonarsourceSecurity();
+      aggregations.put(FACET_SONARSOURCE_SECURITY,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SONARSOURCE_SECURITY, FACET_SONARSOURCE_SECURITY,
+          (categories == null) ? (new String[0]) : categories.toArray()));
     }
   }
 

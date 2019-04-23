@@ -102,7 +102,11 @@ public class ActivateRulesActionTest {
       "available_since",
       "activation",
       "severities",
-      "organization");
+      "organization",
+      "cwe",
+      "owaspTop10",
+      "sansTop25",
+      "sonarsourceSecurity");
     WebService.Param targetProfile = definition.param("targetKey");
     assertThat(targetProfile.deprecatedKey()).isEqualTo("profile_key");
     WebService.Param targetSeverity = definition.param("targetSeverity");

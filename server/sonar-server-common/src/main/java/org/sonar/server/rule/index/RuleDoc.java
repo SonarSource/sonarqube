@@ -21,6 +21,7 @@ package org.sonar.server.rule.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +35,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
+import org.sonar.server.security.SecurityStandardHelper;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
@@ -154,6 +156,46 @@ public class RuleDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<String> getOwaspTop10() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10);
+  }
+
+  public RuleDoc setOwaspTop10(@Nullable Collection<String> o) {
+    setField(RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10, o);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getSansTop25() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_SANS_TOP_25);
+  }
+
+  public RuleDoc setSansTop25(@Nullable Collection<String> s) {
+    setField(RuleIndexDefinition.FIELD_RULE_SANS_TOP_25, s);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getCwe() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_CWE);
+  }
+
+  public RuleDoc setCwe(@Nullable Collection<String> c) {
+    setField(RuleIndexDefinition.FIELD_RULE_CWE, c);
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getSonarSourceSecurityCategories() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_SONARSOURCE_SECURITY);
+  }
+
+  public RuleDoc setSonarSourceSecurityCategories(@Nullable Collection<String> c) {
+    setField(RuleIndexDefinition.FIELD_RULE_SONARSOURCE_SECURITY, c);
+    return this;
+  }
+
+  @CheckForNull
   public RuleStatus status() {
     return RuleStatus.valueOf(getField(RuleIndexDefinition.FIELD_RULE_STATUS));
   }
@@ -226,6 +268,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public static RuleDoc of(RuleForIndexingDto dto) {
+    Collection<String> cwe = SecurityStandardHelper.getCwe(dto.getSecurityStandardsAsSet());
     RuleDoc ruleDoc = new RuleDoc()
       .setId(dto.getId())
       .setKey(dto.getRuleKey().toString())
@@ -234,6 +277,10 @@ public class RuleDoc extends BaseDoc {
       .setIsTemplate(dto.isTemplate())
       .setIsExternal(dto.isExternal())
       .setLanguage(dto.getLanguage())
+      .setCwe(cwe)
+      .setOwaspTop10(SecurityStandardHelper.getOwaspTop10(dto.getSecurityStandardsAsSet()))
+      .setSansTop25(SecurityStandardHelper.getSansTop25(cwe))
+      .setSonarSourceSecurityCategories(SecurityStandardHelper.getSonarSourceSecurityCategories(cwe))
       .setName(dto.getName())
       .setRuleKey(dto.getPluginRuleKey())
       .setSeverity(dto.getSeverityAsString())

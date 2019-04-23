@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.security;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -47,7 +47,6 @@ public class SecurityStandardHelper {
   private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
   private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
 
-
   public static final Map<String, List<String>> SONARSOURCE_CWE_MAPPING = ImmutableMap.<String, List<String>>builder()
     .put("sql-injection", asList("89", "564"))
     .put("command-injection", asList("78", "77"))
@@ -66,7 +65,7 @@ public class SecurityStandardHelper {
     .put("xxe", asList("611", "827"))
     .put("object-injection", singletonList("470"))
     .put("weak-cryptography", asList("326", "295", "326", "327", "297", "780", "328", "327"))
-    .put("auth", asList("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "522", "284"))
+    .put("auth", asList("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284"))
     .put("insecure-conf", asList("102", "489"))
     .put("file-manipulation", asList("97", "73"))
     .build();

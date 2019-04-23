@@ -66,18 +66,26 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OLD_DEFAULT;
+import static org.sonar.server.rule.index.RuleIndex.FACET_OWASP_TOP_10;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_SANS_TOP_25;
 import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_SONARSOURCE_SECURITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
@@ -95,7 +103,11 @@ public class SearchAction implements RulesWsAction {
     FACET_ACTIVE_SEVERITIES,
     FACET_STATUSES,
     FACET_TYPES,
-    FACET_OLD_DEFAULT};
+    FACET_OLD_DEFAULT,
+    FACET_CWE,
+    FACET_OWASP_TOP_10,
+    FACET_SANS_TOP_25,
+    FACET_SONARSOURCE_SECURITY};
 
   private final RuleQueryFactory ruleQueryFactory;
   private final DbClient dbClient;
@@ -265,6 +277,10 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_TAGS, request.getTags());
     addMandatoryFacetValues(results, FACET_TYPES, RuleType.names());
+    addMandatoryFacetValues(results, FACET_CWE, request.getCwe());
+    addMandatoryFacetValues(results, FACET_OWASP_TOP_10, request.getOwaspTop10());
+    addMandatoryFacetValues(results, FACET_SANS_TOP_25, request.getSansTop25());
+    addMandatoryFacetValues(results, FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -276,6 +292,10 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_ACTIVE_SEVERITIES, request.getActiveSeverities());
     facetValuesByFacetKey.put(FACET_TAGS, request.getTags());
     facetValuesByFacetKey.put(FACET_TYPES, request.getTypes());
+    facetValuesByFacetKey.put(FACET_CWE, request.getCwe());
+    facetValuesByFacetKey.put(FACET_OWASP_TOP_10, request.getOwaspTop10());
+    facetValuesByFacetKey.put(FACET_SANS_TOP_25, request.getSansTop25());
+    facetValuesByFacetKey.put(FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
 
     for (String facetName : context.getFacets()) {
       facet.clear().setProperty(facetName);
@@ -333,7 +353,11 @@ public class SearchAction implements RulesWsAction {
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTypes(request.paramAsStrings(PARAM_TYPES));
+      .setTypes(request.paramAsStrings(PARAM_TYPES))
+      .setCwe(request.paramAsStrings(PARAM_CWE))
+      .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+      .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
+      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
   }
 
   static class SearchResult {
@@ -416,6 +440,10 @@ public class SearchAction implements RulesWsAction {
     private List<String> statuses;
     private List<String> tags;
     private List<String> types;
+    private List<String> cwe;
+    private List<String> owaspTop10;
+    private List<String> sansTop25;
+    private List<String> sonarsourceSecurity;
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -507,13 +535,49 @@ public class SearchAction implements RulesWsAction {
       return tags;
     }
 
-    private SearchRequest setTypes(List<String> types) {
+    private SearchRequest setTypes(@Nullable List<String> types) {
       this.types = types;
       return this;
     }
 
     private List<String> getTypes() {
       return types;
+    }
+
+    public List<String> getCwe() {
+      return cwe;
+    }
+
+    public SearchRequest setCwe(@Nullable List<String> cwe) {
+      this.cwe = cwe;
+      return this;
+    }
+
+    public List<String> getOwaspTop10() {
+      return owaspTop10;
+    }
+
+    public SearchRequest setOwaspTop10(@Nullable List<String> owaspTop10) {
+      this.owaspTop10 = owaspTop10;
+      return this;
+    }
+
+    public List<String> getSansTop25() {
+      return sansTop25;
+    }
+
+    public SearchRequest setSansTop25(@Nullable List<String> sansTop25) {
+      this.sansTop25 = sansTop25;
+      return this;
+    }
+
+    public List<String> getSonarsourceSecurity() {
+      return sonarsourceSecurity;
+    }
+
+    public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
+      this.sonarsourceSecurity = sonarsourceSecurity;
+      return this;
     }
   }
 }

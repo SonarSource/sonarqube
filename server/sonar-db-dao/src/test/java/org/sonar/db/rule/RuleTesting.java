@@ -21,6 +21,7 @@ package org.sonar.db.rule;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Date;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -319,9 +320,13 @@ public class RuleTesting {
   public static Consumer<RuleDefinitionDto> setType(RuleType type) {
     return rule -> rule.setType(type);
   }
-  
+
   public static Consumer<RuleDefinitionDto> setIsExternal(boolean isExternal) {
     return rule -> rule.setIsExternal(isExternal);
+  }
+
+  public static Consumer<RuleDefinitionDto> setSecurityStandards(Set<String> securityStandards) {
+    return rule -> rule.setSecurityStandards(securityStandards);
   }
 
   public static Consumer<RuleDefinitionDto> setIsTemplate(boolean isTemplate) {

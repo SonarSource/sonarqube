@@ -60,6 +60,10 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_TYPE = "type";
   public static final String FIELD_RULE_CREATED_AT = "createdAt";
   public static final String FIELD_RULE_UPDATED_AT = "updatedAt";
+  public static final String FIELD_RULE_CWE = "cwe";
+  public static final String FIELD_RULE_OWASP_TOP_10 = "owaspTop10";
+  public static final String FIELD_RULE_SANS_TOP_25 = "sansTop25";
+  public static final String FIELD_RULE_SONARSOURCE_SECURITY = "sonarsourceSecurity";
 
   public static final Set<String> SORT_FIELDS = ImmutableSet.of(
     FIELD_RULE_NAME,
@@ -142,6 +146,11 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);
+
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_CWE).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_OWASP_TOP_10).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_SANS_TOP_25).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_SONARSOURCE_SECURITY).disableNorms().build();
 
     // Active rule
     index.createTypeMapping(TYPE_ACTIVE_RULE)

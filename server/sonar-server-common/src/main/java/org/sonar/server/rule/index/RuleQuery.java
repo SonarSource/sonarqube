@@ -55,6 +55,10 @@ public class RuleQuery {
   private String ruleKey;
   private OrganizationDto organization;
   private boolean includeExternal;
+  private Collection<String> owaspTop10;
+  private Collection<String> sansTop25;
+  private Collection<String> cwe;
+  private Collection<String> sonarsourceSecurity;
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -291,6 +295,46 @@ public class RuleQuery {
 
   public RuleQuery setCompareToQProfile(@Nullable QProfileDto compareToQProfile) {
     this.compareToQProfile = compareToQProfile;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getCwe() {
+    return cwe;
+  }
+
+  public RuleQuery setCwe(@Nullable Collection<String> cwe) {
+    this.cwe = cwe;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getOwaspTop10() {
+    return owaspTop10;
+  }
+
+  public RuleQuery setOwaspTop10(@Nullable Collection<String> owaspTop10) {
+    this.owaspTop10 = owaspTop10;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getSansTop25() {
+    return sansTop25;
+  }
+
+  public RuleQuery setSansTop25(@Nullable Collection<String> sansTop25) {
+    this.sansTop25 = sansTop25;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getSonarsourceSecurity() {
+    return sonarsourceSecurity;
+  }
+
+  public RuleQuery setSonarsourceSecurity(@Nullable Collection<String> sonarsourceSecurity) {
+    this.sonarsourceSecurity = sonarsourceSecurity;
     return this;
   }
 }

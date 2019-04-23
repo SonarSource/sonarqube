@@ -69,6 +69,7 @@ import static org.sonar.db.rule.RuleTesting.setName;
 import static org.sonar.db.rule.RuleTesting.setOrganization;
 import static org.sonar.db.rule.RuleTesting.setRepositoryKey;
 import static org.sonar.db.rule.RuleTesting.setRuleKey;
+import static org.sonar.db.rule.RuleTesting.setSecurityStandards;
 import static org.sonar.db.rule.RuleTesting.setSeverity;
 import static org.sonar.db.rule.RuleTesting.setStatus;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
@@ -85,6 +86,8 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
+import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_INSECURE_INTERACTION;
+import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_RISKY_RESOURCE;
 
 public class RuleIndexTest {
 
@@ -122,7 +125,7 @@ public class RuleIndexTest {
     RuleDefinitionDto cobol1 = createRule(
       setRepositoryKey("cobol"),
       setRuleKey("X001"));
-    RuleDefinitionDto php2 = createRule(
+    createRule(
       setRepositoryKey("php"),
       setRuleKey("S002"));
     index();
@@ -449,6 +452,54 @@ public class RuleIndexTest {
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
     assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+  }
+
+  @Test
+  public void search_by_security_cwe() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")));
+    createRule(setSecurityStandards(of("owaspTop10:a1")));
+    index();
+
+    RuleQuery query = new RuleQuery().setCwe(of("543"));
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("cwe"));
+    assertThat(results.getIds()).containsOnly(rule1.getId(), rule2.getId());
+  }
+
+  @Test
+  public void search_by_security_owaspTop10() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")));
+    createRule(setSecurityStandards(of("cwe:543")));
+    index();
+
+    RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10"));
+    assertThat(results.getIds()).containsOnly(rule1.getId(), rule2.getId());
+  }
+
+  @Test
+  public void search_by_security_sansTop25() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")));
+    createRule(setSecurityStandards(of("cwe:306")));
+    index();
+
+    RuleQuery query = new RuleQuery().setSansTop25(of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE));
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("sansTop25"));
+    assertThat(results.getIds()).containsOnly(rule1.getId(), rule2.getId());
+  }
+
+  @Test
+  public void search_by_security_sonarsource() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")));
+    createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")));
+    RuleDefinitionDto rule3 = createRule(setSecurityStandards(of("cwe:601")));
+    index();
+
+    RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
+    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    assertThat(results.getIds()).containsOnly(rule1.getId(), rule3.getId());
   }
 
   @Test
@@ -842,7 +893,7 @@ public class RuleIndexTest {
 
   @Test
   public void languages_facet_should_return_top_100_items() {
-    rangeClosed(1, 101).forEach(i ->  db.rules().insert(r -> r.setLanguage("lang" + i)));
+    rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setLanguage("lang" + i)));
     index();
 
     SearchIdResult result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
@@ -852,7 +903,7 @@ public class RuleIndexTest {
 
   @Test
   public void repositories_facet_should_return_top_10_items() {
-    rangeClosed(1, 11).forEach(i ->  db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
+    rangeClosed(1, 11).forEach(i -> db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
     index();
 
     SearchIdResult result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));

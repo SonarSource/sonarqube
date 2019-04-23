@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.security.SecurityStandardHelper;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -49,19 +50,25 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.security.SecurityStandardHelper.SANS_TOP_25_CWE_MAPPING;
+import static org.sonar.server.security.SecurityStandardHelper.UNKNOWN_STANDARD;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
@@ -129,6 +136,28 @@ public class RuleWsSupport {
       .setDescription("Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.")
       .setPossibleValues(Severity.ALL)
       .setExampleValue("CRITICAL,BLOCKER");
+
+    action
+      .createParam(PARAM_CWE)
+      .setDescription("Comma-separated list of CWE identifiers. Use '" + UNKNOWN_STANDARD + "' to select rules not associated to any CWE.")
+      .setExampleValue("12,125," + UNKNOWN_STANDARD);
+
+    action.createParam(PARAM_OWASP_TOP_10)
+      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories. Use '" + UNKNOWN_STANDARD + "' to select rules not associated to any OWASP " +
+        "Top 10 category.")
+      .setSince("7.3")
+      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", UNKNOWN_STANDARD);
+
+    action.createParam(PARAM_SANS_TOP_25)
+      .setDescription("Comma-separated list of SANS Top 25 categories.")
+      .setSince("7.3")
+      .setPossibleValues(SANS_TOP_25_CWE_MAPPING.keySet());
+
+    action
+      .createParam(PARAM_SONARSOURCE_SECURITY)
+      .setDescription("Comma-separated list of SonarSource report categories.")
+      .setPossibleValues(SecurityStandardHelper.SONARSOURCE_CWE_MAPPING.keySet())
+      .setExampleValue("sql-injection,command-injection");
 
     action
       .createParam(PARAM_LANGUAGES)
@@ -230,6 +259,5 @@ public class RuleWsSupport {
       .setBooleanPossibleValues()
       .setSince("7.2");
   }
-
 
 }
