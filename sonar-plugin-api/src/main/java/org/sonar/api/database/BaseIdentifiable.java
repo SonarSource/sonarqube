@@ -19,6 +19,10 @@
  */
 package org.sonar.api.database;
 
+/**
+ * @deprecated since 7.8
+ */
+@Deprecated
 public class BaseIdentifiable<G> {
 
   private Integer id;

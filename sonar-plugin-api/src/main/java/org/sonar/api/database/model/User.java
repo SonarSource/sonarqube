@@ -23,7 +23,9 @@ import org.sonar.api.database.BaseIdentifiable;
 
 /**
  * @since 2.2
+ * @deprecated since 7.8
  */
+@Deprecated
 public class User extends BaseIdentifiable {
 
   private String login;
