@@ -37,11 +37,14 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
 import org.sonar.api.utils.ValidationMessages;
 
 /**
  * @since 2.3
+ * @deprecated since 7.8 use {@link BuiltInQualityProfileAnnotationLoader}
  */
+@Deprecated
 @ServerSide
 @ComputeEngineSide
 public class XMLProfileParser {
