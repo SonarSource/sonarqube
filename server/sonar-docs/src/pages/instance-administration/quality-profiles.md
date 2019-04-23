@@ -5,19 +5,24 @@ url: /instance-administration/quality-profiles/
 
 ## Overview
 
-The Quality Profiles service is central to {instance}, since it is where you define your requirements by defining sets of **rules** (ex: Methods should not have a Cognitive Complexity greater than 15).
+**Quality Profiles** are a core component of {instance}, since they are where you define sets of [**Rules**](/user-guide/rules/) that when violated should raise issues on your codebase (example: Methods should not have a Cognitive Complexity higher than 15). Quality Profiles are defined for individual languages.
 
-Ideally, all projects will be measured with the same profile for any given language, but that's not always practical. For instance, you may find that:
+To manage Quality Profiles, browse to the the [**Quality Profiles**](/#sonarqube#/profiles) page <!-- sonarcloud --> of your organization<!-- /sonarcloud --> where you'll find Quality Profiles grouped by language.
 
-* The technological implementation differs from one application to another (for example, different coding rules may apply when building threaded or non-threaded Java applications).
-* You want to ensure stronger requirements on some of your applications (internal frameworks for example).
-* Etc.
+Ideally all of your projects will be measured with the same Quality Profiles, but that is not _always_ practical. In some cases, you may find that:
 
-Which is why you can define as many quality profiles as you wish even though it is recommended to have as few Quality Profiles as possible to ensure consistency across the projects in your company. To manage quality profiles, go to <!-- sonarqube -->[**Quality Profiles**](/#sonarqube#/profiles)<!-- /sonarqube --><!-- sonarcloud -->**Quality Profiles** page of your organization<!-- /sonarcloud -->, where you'll find profiles grouped by language.
+- You have different technical requirements from one project to another (different rules might apply to a threaded/non-threaded Java application)
+- You want to ensure stronger requirements for some of your projects (internal frameworks, for example)
 
-Each language plugin comes with a predefined, built-in profile (usually called "Sonar way") so that you can get started very quickly with {instance} analyses. This is why as soon as you install a new language plugin, at least one quality profile will be available for you. Each language must have a default profile (marked with the Default tag). Projects that are not explicitly associated with a specific profile will be analyzed using the language's default profile.
+While it's recommended to have as few Quality Profiles as possible to ensure consistency across projects, you can define as many Quality Profiles as are necessary to fit your specific needs.
 
-When starting from a new installation, it's tempting to use Sonar way as your default profile because it contains all the rules that are generally applicable to most projects. But as a best practice, you should create a new profile (you can populate it by copying the contents of Sonar way) and use it instead. Why? First because Sonar way profiles aren't editable, so you won't be able to customize it to your needs. Also, that lets you treat Sonar way as a baseline against which you can track your own profile as you make changes to it (and you will). Plus, Sonar way is typically updated with each new version of the plugin to add rules and sometimes adjust rule severities. Any profile that inherits from the built-in Sonar Way will de-facto be automatically updated at the same time.
+Each language must have a default Quality Profile (marked with the Default tag). Projects that are not explicitly assigned to specific Quality Profiles will be analyzed using the default Quality Profiles. There is also at least one built-in Quality Profile (the **Sonar way**) per language. These Quality Profiles are designed by SonarSource with rules that are generally applicable for most projects. 
+
+The Sonar way Quality Profiles are a good starting-point as you begin analyzing code, and they start out as the default Quality Profiles for each language. That being said, we recommend that you **Copy** this profile and begin to fine-tune the contents. Why?
+
+- Default Quality Profiles are not editable, so you won't be able to customize the Sonar way to your needs
+- The Sonar way becomes a baseline against which you can track your own Quality Profiles
+- The Sonar way may be updated over time to adjust which rules are included and adjust rule severities.
 
 ## How do I...
 
@@ -44,6 +49,8 @@ Use the **Back up** feature on the source instance to export the profile to an X
 ### Apply a core set of rules plus additional rules to a project?
 
 Let's say your company has a minimum set of coding rules that all teams must follow, but you want to add rules that are specific to the in use technology in your project. Those rules are good for your team, but irrelevant or even misleading for others. This situation calls for inheritance. Set up a base profile, we'll call it _Root_ with your core set of rules. Then create a child profile, we'll call it _Sprout_. Once it's created, you can **Change parent** to inherit from _Root_, then add your missing rules.
+
+Any profile that inherits from another Quality Profile will be updated when the parent Quality Profile is updated.
 
 ### Make sure my non-default profile is used on a project?
 
