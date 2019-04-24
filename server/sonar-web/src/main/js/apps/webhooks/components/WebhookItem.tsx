@@ -20,6 +20,7 @@
 import * as React from 'react';
 import WebhookItemLatestDelivery from './WebhookItemLatestDelivery';
 import WebhookActions from './WebhookActions';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
@@ -32,6 +33,7 @@ export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
     <tr>
       <td>{webhook.name}</td>
       <td>{webhook.url}</td>
+      <td>{webhook.secret ? translate('yes') : translate('no')}</td>
       <td>
         <WebhookItemLatestDelivery webhook={webhook} />
       </td>

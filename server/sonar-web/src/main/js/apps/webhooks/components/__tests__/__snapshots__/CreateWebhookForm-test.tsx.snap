@@ -7,6 +7,7 @@ exports[`should render correctly when creating a new webhook 1`] = `
   initialValues={
     Object {
       "name": "",
+      "secret": "",
       "url": "",
     }
   }
@@ -20,13 +21,35 @@ exports[`should render correctly when creating a new webhook 1`] = `
 </ValidationModal>
 `;
 
-exports[`should render correctly when updating a webhook 1`] = `
+exports[`should render correctly when updating a webhook with a secret 1`] = `
+<ValidationModal
+  confirmButtonText="update_verb"
+  header="webhooks.update"
+  initialValues={
+    Object {
+      "name": "bar",
+      "secret": "sonar",
+      "url": "http://foo.bar",
+    }
+  }
+  isInitialValid={true}
+  onClose={[MockFunction]}
+  onSubmit={[MockFunction]}
+  size="small"
+  validate={[Function]}
+>
+  <Component />
+</ValidationModal>
+`;
+
+exports[`should render correctly when updating a webhook without secret 1`] = `
 <ValidationModal
   confirmButtonText="update_verb"
   header="webhooks.update"
   initialValues={
     Object {
       "name": "foo",
+      "secret": undefined,
       "url": "http://foo.bar",
     }
   }

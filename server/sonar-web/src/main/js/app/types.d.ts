@@ -923,6 +923,7 @@ declare namespace T {
     key: string;
     latestDelivery?: WebhookDelivery;
     name: string;
+    secret?: string;
     url: string;
   }
 

@@ -25,7 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   loading: boolean;
-  onCreate: (data: { name: string; url: string }) => Promise<void>;
+  onCreate: (data: { name: string; secret?: string; url: string }) => Promise<void>;
   webhooksCount: number;
 }
 

@@ -19,6 +19,9 @@ exports[`should correctly render the webhooks 1`] = `
         webhooks.url
       </th>
       <th>
+        webhooks.secret_header
+      </th>
+      <th>
         webhooks.last_execution
       </th>
       <th />

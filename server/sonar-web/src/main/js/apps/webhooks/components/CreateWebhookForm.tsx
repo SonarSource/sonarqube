@@ -32,6 +32,7 @@ interface Props {
 
 interface Values {
   name: string;
+  secret: string;
   url: string;
 }
 
@@ -43,8 +44,8 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
   };
 
   handleValidate = (data: Values) => {
-    const { name, url } = data;
-    const errors: { name?: string; url?: string } = {};
+    const { name, secret, url } = data;
+    const errors: { name?: string; secret?: string; url?: string } = {};
     if (!name.trim()) {
       errors.name = translate('webhooks.name.required');
     }
@@ -54,6 +55,9 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
       errors.url = translate('webhooks.url.bad_protocol');
     } else if (!isWebUri(url)) {
       errors.url = translate('webhooks.url.bad_format');
+    }
+    if (secret && secret.length > 200) {
+      errors.secret = translate('webhooks.secret.bad_format');
     }
     return errors;
   };
@@ -69,6 +73,7 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
         header={modalHeader}
         initialValues={{
           name: webhook ? webhook.name : '',
+          secret: webhook ? webhook.secret : '',
           url: webhook ? webhook.url : ''
         }}
         isInitialValid={isUpdate}
@@ -123,6 +128,20 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
               touched={touched.url}
               type="text"
               value={values.url}
+            />
+            <InputValidationField
+              description={translate('webhooks.secret.description')}
+              dirty={dirty}
+              disabled={isSubmitting}
+              error={errors.secret}
+              id="webhook-secret"
+              label={<label htmlFor="webhook-secret">{translate('webhooks.secret')}</label>}
+              name="secret"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              touched={touched.secret}
+              type="password"
+              value={values.secret}
             />
           </>
         )}

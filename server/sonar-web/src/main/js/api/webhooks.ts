@@ -24,6 +24,7 @@ export function createWebhook(data: {
   name: string;
   organization: string | undefined;
   project?: string;
+  secret?: string;
   url: string;
 }): Promise<{ webhook: T.Webhook }> {
   return postJSON('/api/webhooks/create', data).catch(throwGlobalError);
@@ -43,6 +44,7 @@ export function searchWebhooks(data: {
 export function updateWebhook(data: {
   webhook: string;
   name: string;
+  secret?: string;
   url: string;
 }): Promise<void | Response> {
   return post('/api/webhooks/update', data).catch(throwGlobalError);

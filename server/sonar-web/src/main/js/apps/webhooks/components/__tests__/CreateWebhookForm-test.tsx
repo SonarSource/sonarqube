@@ -21,14 +21,19 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import CreateWebhookForm from '../CreateWebhookForm';
 
-const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };
+const webhookWithoutSecret = { key: '1', name: 'foo', url: 'http://foo.bar' };
+const webhookWithSecret = { key: '2', name: 'bar', secret: 'sonar', url: 'http://foo.bar' };
 
 it('should render correctly when creating a new webhook', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should render correctly when updating a webhook', () => {
-  expect(getWrapper({ webhook })).toMatchSnapshot();
+it('should render correctly when updating a webhook without secret', () => {
+  expect(getWrapper({ webhook: webhookWithoutSecret })).toMatchSnapshot();
+});
+
+it('should render correctly when updating a webhook with a secret', () => {
+  expect(getWrapper({ webhook: webhookWithSecret })).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {

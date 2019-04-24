@@ -72,11 +72,15 @@ export default class App extends React.PureComponent<Props, State> {
     };
   };
 
-  handleCreate = (data: { name: string; url: string }) => {
-    return createWebhook({
-      ...data,
+  handleCreate = (data: { name: string; secret?: string; url: string }) => {
+    const createData = {
+      name: data.name,
+      url: data.url,
+      ...(data.secret && { secret: data.secret }),
       ...this.getScopeParams()
-    }).then(({ webhook }) => {
+    };
+
+    return createWebhook(createData).then(({ webhook }) => {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({ webhooks: [...webhooks, webhook] }));
       }
@@ -93,12 +97,21 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
-  handleUpdate = (data: { webhook: string; name: string; url: string }) => {
-    return updateWebhook(data).then(() => {
+  handleUpdate = (data: { webhook: string; name: string; secret?: string; url: string }) => {
+    const udpateData = {
+      webhook: data.webhook,
+      name: data.name,
+      url: data.url,
+      ...(data.secret && { secret: data.secret })
+    };
+
+    return updateWebhook(udpateData).then(() => {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({
           webhooks: webhooks.map(webhook =>
-            webhook.key === data.webhook ? { ...webhook, name: data.name, url: data.url } : webhook
+            webhook.key === data.webhook
+              ? { ...webhook, name: data.name, secret: data.secret, url: data.url }
+              : webhook
           )
         }));
       }

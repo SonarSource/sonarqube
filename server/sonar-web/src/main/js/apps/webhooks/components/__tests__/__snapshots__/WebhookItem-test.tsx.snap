@@ -9,6 +9,9 @@ exports[`should render correctly 1`] = `
     http://webhook.target
   </td>
   <td>
+    no
+  </td>
+  <td>
     <WebhookItemLatestDelivery
       webhook={
         Object {
