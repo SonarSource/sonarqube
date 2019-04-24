@@ -155,7 +155,7 @@ public class IntegrateIssuesVisitorTest {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, analysisMetadataHolder, trackingDelegator, issueStatusCopier, mergeAndTargetBranchComponentUuids);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier, mergeAndTargetBranchComponentUuids);
   }
 
   @Test

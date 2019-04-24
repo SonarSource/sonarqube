@@ -21,7 +21,6 @@ package org.sonar.scanner.rule;
 
 import com.google.common.collect.ImmutableSortedMap;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.stream.IntStream;
@@ -56,22 +55,21 @@ public class DefaultActiveRulesLoaderTest {
 
   private DefaultActiveRulesLoader loader;
   private ScannerWsClient wsClient;
-  private BranchConfiguration branchConfig;
 
   @Before
   public void setUp() {
     wsClient = mock(ScannerWsClient.class);
-    branchConfig = mock(BranchConfiguration.class);
+    BranchConfiguration branchConfig = mock(BranchConfiguration.class);
     when(branchConfig.isShortOrPullRequest()).thenReturn(false);
-    loader = new DefaultActiveRulesLoader(wsClient, branchConfig);
+    loader = new DefaultActiveRulesLoader(wsClient);
   }
 
   @Test
-  public void feed_real_response_encode_qp() throws IOException {
+  public void feed_real_response_encode_qp() {
     int total = PAGE_SIZE_1 + PAGE_SIZE_2;
 
-    WsTestUtil.mockStream(wsClient, urlOfPage(1, false), responseOfSize(PAGE_SIZE_1, total));
-    WsTestUtil.mockStream(wsClient, urlOfPage(2, false), responseOfSize(PAGE_SIZE_2, total));
+    WsTestUtil.mockStream(wsClient, urlOfPage(1), responseOfSize(PAGE_SIZE_1, total));
+    WsTestUtil.mockStream(wsClient, urlOfPage(2), responseOfSize(PAGE_SIZE_2, total));
 
     Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445");
     assertThat(activeRules).hasSize(total);
@@ -85,42 +83,15 @@ public class DefaultActiveRulesLoaderTest {
       .extracting(LoadedActiveRule::getSeverity)
       .containsExactly(SEVERITY_VALUE);
 
-    WsTestUtil.verifyCall(wsClient, urlOfPage(1, false));
-    WsTestUtil.verifyCall(wsClient, urlOfPage(2, false));
+    WsTestUtil.verifyCall(wsClient, urlOfPage(1));
+    WsTestUtil.verifyCall(wsClient, urlOfPage(2));
 
     verifyNoMoreInteractions(wsClient);
   }
 
-  @Test
-  public void no_hotspots_on_pr_or_short_branches() throws IOException {
-    when(branchConfig.isShortOrPullRequest()).thenReturn(true);
-    int total = PAGE_SIZE_1 + PAGE_SIZE_2;
-
-    WsTestUtil.mockStream(wsClient, urlOfPage(1, true), responseOfSize(PAGE_SIZE_1, total));
-    WsTestUtil.mockStream(wsClient, urlOfPage(2, true), responseOfSize(PAGE_SIZE_2, total));
-
-    Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445");
-    assertThat(activeRules).hasSize(total);
-    assertThat(activeRules)
-      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
-      .extracting(LoadedActiveRule::getParams)
-      .extracting(p -> p.get(FORMAT_KEY))
-      .containsExactly(FORMAT_VALUE);
-    assertThat(activeRules)
-      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
-      .extracting(LoadedActiveRule::getSeverity)
-      .containsExactly(SEVERITY_VALUE);
-
-    WsTestUtil.verifyCall(wsClient, urlOfPage(1, true));
-    WsTestUtil.verifyCall(wsClient, urlOfPage(2, true));
-
-    verifyNoMoreInteractions(wsClient);
-  }
-
-  private String urlOfPage(int page, boolean noHotspots) {
+  private String urlOfPage(int page) {
     return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt&activation=true"
-      + (noHotspots ? "&types=CODE_SMELL,BUG,VULNERABILITY" : "") + "&qprofile=c%2B-test_c%2B-values-17445&p=" + page
-      + "&ps=500";
+      + ("") + "&qprofile=c%2B-test_c%2B-values-17445&ps=500&p=" + page + "";
   }
 
   /**
