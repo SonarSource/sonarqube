@@ -45,12 +45,12 @@ it('should render dangerous links as plaintext', () => {
   expect(shallow(<MetaLink link={link} />)).toMatchSnapshot();
 });
 
-it('should expand and collapse link', () => {
+it('should expand and collapse dangerous link', () => {
   const link = {
     id: '1',
-    name: 'Foo',
-    url: 'scm:git:git@github.com',
-    type: 'foo'
+    name: 'Dangerous',
+    url: 'javascript:alert("hi")',
+    type: 'dangerous'
   };
 
   const wrapper = shallow(<MetaLink link={link} />);
@@ -63,4 +63,10 @@ it('should expand and collapse link', () => {
   // collapse
   click(wrapper.find('a'));
   expect(wrapper).toMatchSnapshot();
+
+  // collapse with button
+  click(wrapper.find('a'));
+  expect(wrapper.state('expanded')).toBe(true);
+  click(wrapper.find('ButtonIcon'));
+  expect(wrapper.state('expanded')).toBe(false);
 });

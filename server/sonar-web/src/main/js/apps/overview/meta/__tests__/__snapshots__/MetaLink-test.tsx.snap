@@ -1,55 +1,75 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should expand and collapse link 1`] = `
+exports[`should expand and collapse dangerous link 1`] = `
 <li>
   <a
     className="link-with-icon"
-    href="scm:git:git@github.com"
+    href="javascript:alert(\\"hi\\")"
+    onClick={[Function]}
     rel="nofollow noreferrer noopener"
     target="_blank"
-    title="Foo"
+    title="Dangerous"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
-      type="foo"
+      type="dangerous"
     />
-    Foo
+    Dangerous
   </a>
 </li>
 `;
 
-exports[`should expand and collapse link 2`] = `
+exports[`should expand and collapse dangerous link 2`] = `
 <li>
   <a
     className="link-with-icon"
-    href="scm:git:git@github.com"
+    href="javascript:alert(\\"hi\\")"
+    onClick={[Function]}
     rel="nofollow noreferrer noopener"
     target="_blank"
-    title="Foo"
+    title="Dangerous"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
-      type="foo"
+      type="dangerous"
     />
-    Foo
+    Dangerous
   </a>
+  <div
+    className="little-spacer-top"
+  >
+    <input
+      className="overview-key width-80"
+      onClick={[Function]}
+      readOnly={true}
+      type="text"
+      value="javascript:alert(\\"hi\\")"
+    />
+    <ButtonIcon
+      className="little-spacer-left"
+      onClick={[Function]}
+    >
+      <ClearIcon />
+    </ButtonIcon>
+  </div>
 </li>
 `;
 
-exports[`should expand and collapse link 3`] = `
+exports[`should expand and collapse dangerous link 3`] = `
 <li>
   <a
     className="link-with-icon"
-    href="scm:git:git@github.com"
+    href="javascript:alert(\\"hi\\")"
+    onClick={[Function]}
     rel="nofollow noreferrer noopener"
     target="_blank"
-    title="Foo"
+    title="Dangerous"
   >
     <ProjectLinkIcon
       className="little-spacer-right"
-      type="foo"
+      type="dangerous"
     />
-    Foo
+    Dangerous
   </a>
 </li>
 `;
