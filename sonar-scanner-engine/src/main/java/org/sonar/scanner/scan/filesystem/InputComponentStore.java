@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -50,6 +51,7 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
   private final Table<String, String, InputFile> inputFileByModuleCache = TreeBasedTable.create();
+  private final Map<InputFile, String> inputModuleKeyByFileCache = new HashMap<>();
   // indexed by key with branch
   private final Map<String, DefaultInputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
@@ -77,8 +79,7 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
 
   public Iterable<DefaultInputFile> allChangedFilesToPublish() {
     return allFilesToPublishStream()
-      .filter(f -> !branchConfiguration.isShortOrPullRequest() || f.status() != InputFile.Status.SAME)
-      ::iterator;
+      .filter(f -> !branchConfiguration.isShortOrPullRequest() || f.status() != InputFile.Status.SAME)::iterator;
   }
 
   @Override
@@ -98,6 +99,7 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     addToLanguageCache(moduleKey, file);
     inputFileByModuleCache.put(moduleKey, file.getModuleRelativePath(), inputFile);
+    inputModuleKeyByFileCache.put(inputFile, moduleKey);
     globalInputFileCache.put(file.getProjectRelativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(inputFile.filename(), inputFile);
@@ -129,15 +131,9 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
     return inputModuleCache.get(moduleKeyWithBranch);
   }
 
-  @CheckForNull
   public DefaultInputModule findModule(DefaultInputFile file) {
-    return inputFileByModuleCache
-      .cellSet()
-      .stream()
-      .filter(c -> c.getValue().equals(file))
-      .findFirst()
-      .map(c -> (DefaultInputModule) inputComponents.get(c.getRowKey()))
-      .orElse(null);
+    return Optional.ofNullable(inputModuleKeyByFileCache.get(file)).map(this::getModule)
+      .orElseThrow(() -> new IllegalStateException("No modules for file '" + file.toString() + "'"));
   }
 
   public void put(DefaultInputModule inputModule) {
