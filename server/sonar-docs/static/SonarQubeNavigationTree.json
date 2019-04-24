@@ -3,7 +3,6 @@
     "title": "Requirements",
     "children": [
       "/requirements/requirements/",
-      "/requirements/benchmark/",
       "/requirements/hardware-recommendations/"
     ]
   },
