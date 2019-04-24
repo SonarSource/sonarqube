@@ -101,6 +101,21 @@
       "/instance-administration/db-copy/"
     ]
   },
+  {
+    "title": "Extension Guide",
+    "children": [
+      "/extend/web-api/",
+      "/extend/adding-coding-rules/",
+      "/extend/developing-plugin/",
+      "/extend/new-languages/",
+      "/extend/executable-lines/",
+      "/extend/adding-scm/",
+      "/extend/extend-web-app/",
+      "/extend/i18n/",
+      "/extend/deploying-to-marketplace/",
+      "/extend/contributing/"
+    ]
+  },
   "/previous-versions/",
   "/faq/",
   {
@@ -110,9 +125,6 @@
   {
     "title": "Plugins",
     "url": "https://docs.sonarqube.org/display/PLUG"
-  },
-  {
-    "title": "Extension",
-    "url": "https://docs.sonarqube.org/display/DEV"
+  
   }
 ]

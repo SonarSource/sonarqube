@@ -85,6 +85,21 @@
       "/instance-administration/db-copy/"
     ]
   },
+  {
+    "title": "Extension Guide",
+    "children": [
+      "/extend/web-api/",
+      "/extend/adding-coding-rules/",
+      "/extend/developing-plugin/",
+      "/extend/new-languages/",
+      "/extend/executable-lines/",
+      "/extend/adding-scm/",
+      "/extend/extend-web-app/",
+      "/extend/i18n/",
+      "/extend/deploying-to-marketplace/",
+      "/extend/contributing/"
+    ]
+  },
   "/faq/"
 
 ]
