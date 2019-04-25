@@ -1,13 +1,45 @@
 These three `*.NavigationTree.json` files control the navigation trees of the three versions of the documentation.
 
-Each one contains a JSON array. Array elements may either be:
+Each one contains a JSON array. 
+
+**Array elements may either be:**
 
 * a path string
 * a node
 
-**Nodes contain two elements:**
+**Nodes contain two elements:**  
 * title - string. This is the "parent" node name to be used in the navigation tree
-* children - array of path strings
+* children - array 
+
+**Children may either be:**  
+* path string
+* node
+
+e.g.
+```
+  {
+    "title": "Analyzing Source Code",
+    "children": [
+      "/analysis/overview/",
+      "/analysis/analysis-parameters/",
+      "/analysis/coverage/",
+      "/analysis/external-issues/",
+      "/analysis/background-tasks/",
+      "/analysis/generic-issue/",
+      "/analysis/generic-test/",
+      "/analysis/pull-request/",
+      {
+        "title": "Sub child",
+        "children": [
+          "/analysis/supported-languages/",
+          {
+            "title": "Sub sub child",
+            "children": ["/analysis/background-tasks/"]
+          }
+    ]
+  }
+```
+
 
 **Paths**
 * begin with '/'
