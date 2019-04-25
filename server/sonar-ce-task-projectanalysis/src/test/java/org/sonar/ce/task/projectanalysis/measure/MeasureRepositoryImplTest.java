@@ -411,7 +411,7 @@ public class MeasureRepositoryImplTest {
 
     assertThat(rawMeasures.keySet()).hasSize(2);
     assertThat(rawMeasures.get(METRIC_KEY_1)).containsOnly(addedMeasure);
-    assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.newMeasureBuilder().create("some value"));
+    assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).containsOnly("some value");
   }
 
   private static MeasureDto createMeasureDto(int metricId, String componentUuid, String analysisUuid) {

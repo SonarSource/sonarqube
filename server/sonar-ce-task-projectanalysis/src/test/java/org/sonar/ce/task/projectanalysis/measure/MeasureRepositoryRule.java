@@ -35,8 +35,6 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentProvider;
-import org.sonar.ce.task.projectanalysis.component.Developer;
-import org.sonar.ce.task.projectanalysis.component.DumbDeveloper;
 import org.sonar.ce.task.projectanalysis.component.NoComponentProvider;
 import org.sonar.ce.task.projectanalysis.component.TreeComponentProvider;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -174,7 +172,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   public MeasureRepositoryRule addRawMeasure(int componentRef, String metricKey, Measure measure) {
     checkAndInitProvidersState();
 
-    InternalKey internalKey = new InternalKey(componentProvider.getByRef(componentRef), metricRepositoryRule.getByKey(metricKey), measure.getDeveloper());
+    InternalKey internalKey = new InternalKey(componentProvider.getByRef(componentRef), metricRepositoryRule.getByKey(metricKey));
     checkState(!rawMeasures.containsKey(internalKey), format(
       "A measure can only be set once for Component (ref=%s), Metric (key=%s)",
       componentRef, metricKey));
@@ -203,12 +201,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric)));
   }
 
-  public Optional<Measure> getRawMeasure(Component component, Metric metric, DumbDeveloper developer) {
-    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric, developer)));
-  }
-
   public Optional<Measure> getRawRuleMeasure(Component component, Metric metric, int ruleId) {
-    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric, null)));
+    return Optional.ofNullable(rawMeasures.get(new InternalKey(component, metric)));
   }
 
   @Override
@@ -232,7 +226,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   @Override
   public void add(Component component, Metric metric, Measure measure) {
     String ref = getRef(component);
-    InternalKey internalKey = new InternalKey(ref, metric.getKey(), measure.getDeveloper());
+    InternalKey internalKey = new InternalKey(ref, metric.getKey());
     if (rawMeasures.containsKey(internalKey)) {
       throw new UnsupportedOperationException(format(
         "A measure can only be set once for Component (ref=%s), Metric (key=%s)",
@@ -244,7 +238,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   @Override
   public void update(Component component, Metric metric, Measure measure) {
     String componentRef = getRef(component);
-    InternalKey internalKey = new InternalKey(componentRef, metric.getKey(), measure.getDeveloper());
+    InternalKey internalKey = new InternalKey(componentRef, metric.getKey());
     if (!rawMeasures.containsKey(internalKey)) {
       throw new UnsupportedOperationException(format(
         "A measure can only be updated if it has been added first for Component (ref=%s), Metric (key=%s)",
@@ -265,21 +259,14 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   private static final class InternalKey {
     private final String componentRef;
     private final String metricKey;
-    @Nullable
-    private final Developer developer;
 
     public InternalKey(Component component, Metric metric) {
-      this(getRef(component), metric.getKey(), null);
+      this(getRef(component), metric.getKey());
     }
 
-    public InternalKey(Component component, Metric metric, @Nullable Developer developer) {
-      this(getRef(component), metric.getKey(), developer);
-    }
-
-    private InternalKey(String componentRef, String metricKey, @Nullable Developer developer) {
+    private InternalKey(String componentRef, String metricKey) {
       this.componentRef = componentRef;
       this.metricKey = metricKey;
-      this.developer = developer;
     }
 
     public String getComponentRef() {
@@ -300,13 +287,12 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
       }
       InternalKey that = (InternalKey) o;
       return Objects.equals(componentRef, that.componentRef) &&
-        Objects.equals(metricKey, that.metricKey) &&
-        Objects.equals(developer, that.developer);
+        Objects.equals(metricKey, that.metricKey);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(componentRef, metricKey, developer);
+      return Objects.hash(componentRef, metricKey);
     }
 
     @Override
@@ -314,7 +300,6 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
       return "InternalKey{" +
         "component=" + componentRef +
         ", metric='" + metricKey + '\'' +
-        ", developer=" + developer +
         '}';
     }
   }

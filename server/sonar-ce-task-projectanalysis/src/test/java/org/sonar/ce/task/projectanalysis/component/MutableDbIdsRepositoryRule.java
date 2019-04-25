@@ -73,16 +73,6 @@ public class MutableDbIdsRepositoryRule extends ExternalResource implements Muta
   }
 
   @Override
-  public DbIdsRepository setDeveloperId(Developer developer, long developerId) {
-    return delegate.setDeveloperId(developer, developerId);
-  }
-
-  @Override
-  public long getDeveloperId(Developer developer) {
-    return delegate.getDeveloperId(developer);
-  }
-
-  @Override
   public long getComponentId(Component component) {
     return delegate.getComponentId(component);
   }

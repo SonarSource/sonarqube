@@ -28,8 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.ce.task.projectanalysis.component.Developer;
-import org.sonar.ce.task.projectanalysis.component.DumbDeveloper;
 import org.sonar.ce.task.projectanalysis.measure.Measure.ValueType;
 import org.sonar.server.util.WrapInSingleElementArray;
 
@@ -50,7 +48,6 @@ public class MeasureTest {
 
   private static final List<Measure> MEASURES = ImmutableList.of(
     INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE);
-  private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
@@ -95,19 +92,6 @@ public class MeasureTest {
       .filter(input -> input.getValueType() != valueType)
       .map(WrapInSingleElementArray.INSTANCE)
       .toArray(Object[][]::new);
-  }
-
-  @Test
-  public void getDeveloper_returns_dev_set_in_builder() {
-    assertThat(newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue().getDeveloper()).isEqualTo(SOME_DEVELOPER);
-  }
-
-  @Test
-  public void create_measure_for_dev() {
-    Measure measure = newMeasureBuilder()
-      .forDeveloper(SOME_DEVELOPER)
-      .createNoValue();
-    assertThat(measure.getDeveloper()).isEqualTo(SOME_DEVELOPER);
   }
 
   @Test(expected = NullPointerException.class)

@@ -20,11 +20,8 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import java.util.Objects;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.ce.task.projectanalysis.component.Developer;
-import org.sonar.ce.task.projectanalysis.component.Developer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -32,21 +29,13 @@ import static java.util.Objects.requireNonNull;
 public final class MeasureKey {
 
   private final String metricKey;
-  @CheckForNull
-  private final Developer developer;
 
-  public MeasureKey(String metricKey, @Nullable Developer developer) {
+  public MeasureKey(String metricKey) {
     this.metricKey = requireNonNull(metricKey, "MetricKey can not be null");
-    this.developer = developer;
   }
 
   public String getMetricKey() {
     return metricKey;
-  }
-
-  @CheckForNull
-  public Developer getDeveloper() {
-    return developer;
   }
 
   @Override
@@ -58,8 +47,7 @@ public final class MeasureKey {
       return false;
     }
     MeasureKey that = (MeasureKey) o;
-    return metricKey.equals(that.metricKey)
-      && developer == that.developer;
+    return metricKey.equals(that.metricKey);
   }
 
   @Override
@@ -71,7 +59,6 @@ public final class MeasureKey {
   public String toString() {
     return "MeasureKey{" +
       "metricKey='" + metricKey + '\'' +
-      ", developer=" + developer +
       '}';
   }
 }

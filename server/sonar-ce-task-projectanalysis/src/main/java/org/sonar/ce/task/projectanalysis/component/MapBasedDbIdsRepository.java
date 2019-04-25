@@ -35,7 +35,6 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
 
   private final Function<Component, T> componentToKey;
   private final Map<T, Long> componentIdsByRef = new HashMap<>();
-  private final Map<Developer, Long> developerIdsByKey = new HashMap<>();
 
   public MapBasedDbIdsRepository(Function<Component, T> componentToKey) {
     this.componentToKey = componentToKey;
@@ -59,18 +58,4 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
     return componentId;
   }
 
-  @Override
-  public DbIdsRepository setDeveloperId(Developer developer, long developerId) {
-    Long existingId = developerIdsByKey.get(developer);
-    checkState(existingId == null, "Id '%s' is already registered in repository for Developer '%s', can not set new id '%s'", existingId, developer, developerId);
-    developerIdsByKey.put(developer, developerId);
-    return this;
-  }
-
-  @Override
-  public long getDeveloperId(Developer developer) {
-    Long devId = developerIdsByKey.get(developer);
-    checkState(devId != null, "No id registered in repository for Developer '%s'", developer);
-    return devId;
-  }
 }

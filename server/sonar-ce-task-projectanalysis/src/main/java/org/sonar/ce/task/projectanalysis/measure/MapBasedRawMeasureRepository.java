@@ -72,7 +72,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     requireNonNull(component);
     checkValueTypeConsistency(metric, measure);
 
-    Optional<Measure> existingMeasure = find(component, metric, measure);
+    Optional<Measure> existingMeasure = find(component, metric);
     if (existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
@@ -88,7 +88,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     requireNonNull(component);
     checkValueTypeConsistency(metric, measure);
 
-    Optional<Measure> existingMeasure = find(component, metric, measure);
+    Optional<Measure> existingMeasure = find(component, metric);
     if (!existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
@@ -142,16 +142,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measuresPerMetric == null) {
       return Optional.empty();
     }
-    return Optional.ofNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), null)));
-  }
-
-  private Optional<Measure> find(Component component, Metric metric, Measure measure) {
-    T componentKey = componentToKey.apply(component);
-    Map<MeasureKey, Measure> measuresPerMetric = measures.get(componentKey);
-    if (measuresPerMetric == null) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getDeveloper())));
+    return Optional.ofNullable(measuresPerMetric.get(new MeasureKey(metric.getKey())));
   }
 
   public void add(Component component, Metric metric, Measure measure, OverridePolicy overridePolicy) {
@@ -162,7 +153,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
 
     T componentKey = componentToKey.apply(component);
     Map<MeasureKey, Measure> measuresPerMetric = measures.computeIfAbsent(componentKey, key -> new HashMap<>());
-    MeasureKey key = new MeasureKey(metric.getKey(), measure.getDeveloper());
+    MeasureKey key = new MeasureKey(metric.getKey());
     if (!measuresPerMetric.containsKey(key) || overridePolicy == OverridePolicy.OVERRIDE) {
       measuresPerMetric.put(key, measure);
     }

@@ -72,8 +72,7 @@ public final class MeasureRepoEntry {
   }
 
   public static boolean deepEquals(Measure measure, Measure measure1) {
-    return Objects.equals(measure, measure1)
-      && measure.getValueType() == measure1.getValueType()
+    return measure.getValueType() == measure1.getValueType()
       && equalsByValue(measure, measure1)
       && equalsByVariation(measure, measure1)
       && equalsByQualityGateStatus(measure, measure1)

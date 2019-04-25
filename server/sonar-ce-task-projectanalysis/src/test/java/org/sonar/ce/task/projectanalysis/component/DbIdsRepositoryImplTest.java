@@ -33,7 +33,6 @@ public class DbIdsRepositoryImplTest {
 
   private static final String SOME_COMPONENT_KEY = "SOME_COMPONENT_KEY";
   private static final Component SOME_COMPONENT = ReportComponent.builder(PROJECT, 1).setKey(SOME_COMPONENT_KEY).build();
-  private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   @Test
   public void add_and_get_component_id() {
@@ -59,32 +58,6 @@ public class DbIdsRepositoryImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Component id '10' is already registered in repository for Component '" + SOME_COMPONENT_KEY + "', can not set new id '11'");
     cache.setComponentId(SOME_COMPONENT, 11L);
-  }
-
-  @Test
-  public void add_and_get_developer_id() {
-    DbIdsRepositoryImpl cache = new DbIdsRepositoryImpl();
-    cache.setDeveloperId(SOME_DEVELOPER, 100L);
-
-    assertThat(cache.getDeveloperId(SOME_DEVELOPER)).isEqualTo(100L);
-  }
-
-  @Test
-  public void fail_to_get_developer_id_on_unknown_developer() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("No id registered in repository for Developer '" + SOME_DEVELOPER + "'");
-
-    new DbIdsRepositoryImpl().getDeveloperId(SOME_DEVELOPER);
-  }
-
-  @Test
-  public void fail_if_developer_id_already_set() {
-    DbIdsRepositoryImpl cache = new DbIdsRepositoryImpl();
-    cache.setDeveloperId(SOME_DEVELOPER, 10L);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Id '10' is already registered in repository for Developer '" + SOME_DEVELOPER + "', can not set new id '11'");
-    cache.setDeveloperId(SOME_DEVELOPER, 11L);
   }
 
 }

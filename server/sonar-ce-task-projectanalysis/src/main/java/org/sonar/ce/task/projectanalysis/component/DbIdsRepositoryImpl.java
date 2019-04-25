@@ -38,13 +38,4 @@ public class DbIdsRepositoryImpl implements MutableDbIdsRepository {
     return delegate.getComponentId(component);
   }
 
-  @Override
-  public DbIdsRepository setDeveloperId(Developer developer, long developerId) {
-    return delegate.setDeveloperId(developer, developerId);
-  }
-
-  @Override
-  public long getDeveloperId(Developer developer) {
-    return delegate.getDeveloperId(developer);
-  }
 }

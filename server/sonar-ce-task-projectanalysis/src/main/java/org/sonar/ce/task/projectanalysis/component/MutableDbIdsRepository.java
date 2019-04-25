@@ -24,9 +24,4 @@ public interface MutableDbIdsRepository extends DbIdsRepository {
    * @throws IllegalStateException if the component id for the specified component has already been set
    */
   DbIdsRepository setComponentId(Component component, long componentId);
-
-  /**
-   * @throws IllegalStateException if the id for the specified developer has already been set
-   */
-  DbIdsRepository setDeveloperId(Developer developer, long developerId);
 }

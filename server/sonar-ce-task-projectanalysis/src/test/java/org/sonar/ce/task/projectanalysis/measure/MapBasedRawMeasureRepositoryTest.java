@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,8 +34,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.Developer;
-import org.sonar.ce.task.projectanalysis.component.DumbDeveloper;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
@@ -78,7 +75,6 @@ public class MapBasedRawMeasureRepositoryTest {
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
 
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
-  private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
@@ -149,8 +145,7 @@ public class MapBasedRawMeasureRepositoryTest {
     Measure.newMeasureBuilder().create(false),
     Measure.newMeasureBuilder().create("sds"),
     Measure.newMeasureBuilder().create(Measure.Level.OK),
-    Measure.newMeasureBuilder().createNoValue()
-  );
+    Measure.newMeasureBuilder().createNoValue());
 
   @DataProvider
   public static Object[][] measures() {
@@ -265,17 +260,6 @@ public class MapBasedRawMeasureRepositoryTest {
   @Test
   public void getRawMeasures_for_metric_returns_empty_if_repository_is_empty() {
     assertThat(underTest.getRawMeasures(FILE_COMPONENT, metric1)).isEmpty();
-  }
-
-  @Test
-  public void getRawMeasures_for_metric_returns_developer_measure() {
-    Measure devMeasure = Measure.newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, devMeasure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(devMeasure);
   }
 
 }

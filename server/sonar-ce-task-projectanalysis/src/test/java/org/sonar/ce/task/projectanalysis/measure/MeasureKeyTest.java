@@ -22,8 +22,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.ce.task.projectanalysis.component.Developer;
-import org.sonar.ce.task.projectanalysis.component.DumbDeveloper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,42 +30,34 @@ public class MeasureKeyTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static final Developer DEVELOPER = new DumbDeveloper("DEV1");
-
   @Test
   public void fail_with_NPE_when_metric_key_is_null() {
     thrown.expect(NullPointerException.class);
 
-    new MeasureKey(null, DEVELOPER);
+    new MeasureKey(null);
   }
 
   @Test
   public void test_equals_and_hashcode() {
-    MeasureKey measureKey = new MeasureKey("metricKey", null);
-    MeasureKey measureKey2 = new MeasureKey("metricKey", null);
-    MeasureKey anotherMeasureKey = new MeasureKey("anotherMetricKey", null);
-
-    MeasureKey developerMeasureKey = new MeasureKey("metricKey", DEVELOPER);
-    MeasureKey developerMeasureKey2 = new MeasureKey("metricKey", DEVELOPER);
+    MeasureKey measureKey = new MeasureKey("metricKey");
+    MeasureKey measureKey2 = new MeasureKey("metricKey");
+    MeasureKey anotherMeasureKey = new MeasureKey("anotherMetricKey");
 
     assertThat(measureKey).isEqualTo(measureKey);
     assertThat(measureKey).isEqualTo(measureKey2);
     assertThat(measureKey).isNotEqualTo(null);
     assertThat(measureKey).isNotEqualTo(anotherMeasureKey);
 
-    assertThat(developerMeasureKey).isEqualTo(developerMeasureKey2);
 
     assertThat(measureKey.hashCode()).isEqualTo(measureKey.hashCode());
     assertThat(measureKey.hashCode()).isEqualTo(measureKey2.hashCode());
     assertThat(measureKey.hashCode()).isNotEqualTo(anotherMeasureKey.hashCode());
-
-    assertThat(developerMeasureKey.hashCode()).isEqualTo(developerMeasureKey2.hashCode());
   }
 
   @Test
   public void to_string() {
-    assertThat(new MeasureKey("metricKey", DEVELOPER).toString()).isEqualTo(
-      "MeasureKey{metricKey='metricKey', developer=Developer{key='DEV1'}}");
-    assertThat(new MeasureKey("metricKey", null).toString()).isEqualTo("MeasureKey{metricKey='metricKey', developer=null}");
+    assertThat(new MeasureKey("metricKey").toString()).isEqualTo(
+      "MeasureKey{metricKey='metricKey'}");
+    assertThat(new MeasureKey("metricKey").toString()).isEqualTo("MeasureKey{metricKey='metricKey'}");
   }
 }

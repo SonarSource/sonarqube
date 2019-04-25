@@ -22,11 +22,9 @@ package org.sonar.ce.task.projectanalysis.measure;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.ce.task.projectanalysis.component.Developer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -73,8 +71,6 @@ public final class Measure {
 
   private final ValueType valueType;
   @CheckForNull
-  private final Developer developer;
-  @CheckForNull
   private final Double value;
   @CheckForNull
   private final String data;
@@ -85,11 +81,10 @@ public final class Measure {
   @CheckForNull
   private final Double variation;
 
-  private Measure(ValueType valueType, @Nullable Developer developer,
+  private Measure(ValueType valueType,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
     @Nullable QualityGateStatus qualityGateStatus, @Nullable Double variation) {
     this.valueType = valueType;
-    this.developer = developer;
     this.value = value;
     this.data = data;
     this.dataLevel = dataLevel;
@@ -106,18 +101,8 @@ public final class Measure {
   }
 
   public static final class NewMeasureBuilder {
-    private Developer developer;
     private QualityGateStatus qualityGateStatus;
     private Double variation;
-
-    /**
-     * Sets the developer this measure is associated to.
-     *
-     */
-    public NewMeasureBuilder forDeveloper(Developer developer) {
-      this.developer = developer;
-      return this;
-    }
 
     public NewMeasureBuilder setQualityGateStatus(QualityGateStatus qualityGateStatus) {
       this.qualityGateStatus = requireNonNull(qualityGateStatus, "QualityGateStatus can not be set to null");
@@ -130,7 +115,7 @@ public final class Measure {
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0D : 0.0D, data, null, qualityGateStatus, variation);
+      return new Measure(ValueType.BOOLEAN, value ? 1.0D : 0.0D, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(boolean value) {
@@ -138,7 +123,7 @@ public final class Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return new Measure(ValueType.INT, developer, (double) value, data, null, qualityGateStatus, variation);
+      return new Measure(ValueType.INT, (double) value, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(int value) {
@@ -146,7 +131,7 @@ public final class Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return new Measure(ValueType.LONG, developer, (double) value, data, null, qualityGateStatus, variation);
+      return new Measure(ValueType.LONG, (double) value, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(long value) {
@@ -156,7 +141,7 @@ public final class Measure {
     public Measure create(double value, int decimalScale, @Nullable String data) {
       checkArgument(!Double.isNaN(value), "NaN is not allowed as a Measure value");
       double scaledValue = scale(value, decimalScale);
-      return new Measure(ValueType.DOUBLE, developer, scaledValue, data, null, qualityGateStatus, variation);
+      return new Measure(ValueType.DOUBLE, scaledValue, data, null, qualityGateStatus, variation);
     }
 
     public Measure create(double value, int decimalScale) {
@@ -164,15 +149,15 @@ public final class Measure {
     }
 
     public Measure create(String value) {
-      return new Measure(ValueType.STRING, developer, null, requireNonNull(value), null, qualityGateStatus, variation);
+      return new Measure(ValueType.STRING, null, requireNonNull(value), null, qualityGateStatus, variation);
     }
 
     public Measure create(Level level) {
-      return new Measure(ValueType.LEVEL, developer, null, null, requireNonNull(level), qualityGateStatus, variation);
+      return new Measure(ValueType.LEVEL, null, null, requireNonNull(level), qualityGateStatus, variation);
     }
 
     public Measure createNoValue() {
-      return new Measure(ValueType.NO_VALUE, developer, null, null, null, qualityGateStatus, variation);
+      return new Measure(ValueType.NO_VALUE, null, null, null, qualityGateStatus, variation);
     }
 
     private static double scale(double value, int decimalScale) {
@@ -218,16 +203,11 @@ public final class Measure {
     }
 
     public Measure create() {
-      return new Measure(source.valueType, source.developer,
+      return new Measure(source.valueType,
         source.value, source.data, source.dataLevel,
         source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
         source.variation == null ? variation : source.variation);
     }
-  }
-
-  @CheckForNull
-  public Developer getDeveloper() {
-    return developer;
   }
 
   /**
@@ -352,32 +332,10 @@ public final class Measure {
     return variation;
   }
 
-  /**
-   * a Metric is equal to another Metric if it has the same ruleId/characteristicId paar (both being potentially
-   * {@code null} but only one of them can be non {@code null}).
-   */
-  @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Measure measure = (Measure) o;
-    return Objects.equals(developer, measure.developer);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(developer);
-  }
-
   @Override
   public String toString() {
     return com.google.common.base.MoreObjects.toStringHelper(this)
       .add("valueType", valueType)
-      .add("developer", developer)
       .add("value", value)
       .add("data", data)
       .add("dataLevel", dataLevel)
