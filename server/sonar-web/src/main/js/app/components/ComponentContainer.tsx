@@ -114,28 +114,30 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       getComponentNavigation({ component: key, branch, pullRequest }),
       getComponentData({ component: key, branch, pullRequest })
     ])
-      .then(([nav, data]) => {
-        const component = this.addQualifier({ ...nav, ...data });
+      .then(([nav, { component }]) => {
+        const componentWithQualifier = this.addQualifier({ ...nav, ...component });
 
         if (isSonarCloud()) {
-          this.props.fetchOrganization(component.organization);
+          this.props.fetchOrganization(componentWithQualifier.organization);
         }
-        return component;
-      })
+        return componentWithQualifier;
+      }, onError)
       .then(this.fetchBranches)
-      .then(({ branchLike, branchLikes, component }) => {
-        if (this.mounted) {
-          this.setState({
-            branchLike,
-            branchLikes,
-            component,
-            loading: false
-          });
-          this.fetchStatus(component);
-          this.fetchWarnings(component, branchLike);
-        }
-      })
-      .catch(onError);
+      .then(
+        ({ branchLike, branchLikes, component }) => {
+          if (this.mounted) {
+            this.setState({
+              branchLike,
+              branchLikes,
+              component,
+              loading: false
+            });
+            this.fetchStatus(component);
+            this.fetchWarnings(component, branchLike);
+          }
+        },
+        () => {}
+      );
   }
 
   fetchBranches = (

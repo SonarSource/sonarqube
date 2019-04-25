@@ -58,7 +58,7 @@ jest.mock('../../../api/ce', () => ({
 }));
 
 jest.mock('../../../api/components', () => ({
-  getComponentData: jest.fn().mockResolvedValue({ analysisDate: '2018-07-30' })
+  getComponentData: jest.fn().mockResolvedValue({ component: { analysisDate: '2018-07-30' } })
 }));
 
 jest.mock('../../../api/nav', () => ({
@@ -130,7 +130,9 @@ it('updates branches on change', async () => {
 
 it('loads organization', async () => {
   (isSonarCloud as jest.Mock).mockReturnValue(true);
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { organization: 'org' }
+  });
 
   const fetchOrganization = jest.fn();
   shallowRender({ fetchOrganization });
@@ -139,7 +141,9 @@ it('loads organization', async () => {
 });
 
 it('fetches status', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ organization: 'org' });
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { organization: 'org' }
+  });
 
   shallowRender();
   await new Promise(setImmediate);

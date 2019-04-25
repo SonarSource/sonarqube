@@ -719,9 +719,9 @@ function defaultLoadComponent(component: string, branchLike: T.BranchLike | unde
   return Promise.all([
     getComponentForSourceViewer({ component, ...getBranchLikeQuery(branchLike) }),
     getComponentData({ component, ...getBranchLikeQuery(branchLike) })
-  ]).then(([component, data]) => ({
-    ...component,
-    leakPeriodDate: data.leakPeriodDate
+  ]).then(([sourceViewerComponent, { component }]) => ({
+    ...sourceViewerComponent,
+    leakPeriodDate: component.leakPeriodDate
   }));
 }
 

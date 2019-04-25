@@ -123,7 +123,7 @@ function retrieveComponentBase(componentKey: string, qualifier: string, branchLi
     component: componentKey,
     metricKeys: metrics.join(),
     ...getBranchLikeQuery(branchLike)
-  }).then(component => {
+  }).then(({ component }) => {
     addComponent(component);
     return component;
   });

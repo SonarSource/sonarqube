@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getStore from './getStore';
-import { parseError } from '../../helpers/request';
-import { addGlobalErrorMessage } from '../../store/globalMessages';
+import throwGlobalError from '../throwGlobalError';
+import getStore from '../getStore';
 
-export default function throwGlobalError(error: { response: Response }): Promise<Response> {
-  const store = getStore();
+it('should put the error message in the store', async () => {
+  const response: any = { json: jest.fn().mockResolvedValue({ errors: [{ msg: 'error 1' }] }) };
+  await throwGlobalError({ response }).catch(() => {});
+  expect(getStore().getState().globalMessages[0]).toMatchObject({
+    level: 'ERROR',
+    message: 'error 1'
+  });
+});
 
-  // eslint-disable-next-line promise/no-promise-in-callback
-  parseError(error).then(
-    message => {
-      store.dispatch(addGlobalErrorMessage(message));
-    },
-    () => {}
-  );
-  return Promise.reject(error.response);
-}
+it('should put a default error messsage in the store', async () => {
+  const response: any = { json: jest.fn().mockResolvedValue({}) };
+  await throwGlobalError({ response }).catch(() => {});
+  expect(getStore().getState().globalMessages[0]).toMatchObject({
+    level: 'ERROR',
+    message: 'default_error_message'
+  });
+});

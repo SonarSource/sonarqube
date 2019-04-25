@@ -122,8 +122,8 @@ export function getComponentLeaves(
 
 export function getComponent(
   data: { component: string; metricKeys: string } & T.BranchParameters
-): Promise<any> {
-  return getJSON('/api/measures/component', data).then(r => r.component, throwGlobalError);
+): Promise<{ component: T.ComponentMeasure }> {
+  return getJSON('/api/measures/component', data);
 }
 
 export interface TreeComponent extends T.LightComponent {
@@ -151,17 +151,18 @@ export function getTree(data: {
   return getJSON('/api/components/tree', data).catch(throwGlobalError);
 }
 
+export function getComponentData(data: { component: string } & T.BranchParameters): Promise<any> {
+  return getJSON('/api/components/show', data);
+}
+
 export function doesComponentExists(
   data: { component: string } & T.BranchParameters
 ): Promise<boolean> {
-  return getJSON('/api/components/show', data).then(
-    ({ component }) => component !== undefined,
-    () => false
-  );
+  return getComponentData(data).then(({ component }) => component !== undefined, () => false);
 }
 
 export function getComponentShow(data: { component: string } & T.BranchParameters): Promise<any> {
-  return getJSON('/api/components/show', data).catch(throwGlobalError);
+  return getComponentData(data).catch(throwGlobalError);
 }
 
 export function getParents(component: string): Promise<any> {
@@ -173,10 +174,6 @@ export function getBreadcrumbs(data: { component: string } & T.BranchParameters)
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
   });
-}
-
-export function getComponentData(data: { component: string } & T.BranchParameters): Promise<any> {
-  return getComponentShow(data).then(r => r.component);
 }
 
 export function getMyProjects(data: {
