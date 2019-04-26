@@ -21,6 +21,7 @@ package org.sonar.server.security;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -46,34 +47,33 @@ public class SecurityStandardHelper {
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
   private static final Set<String> RISKY_CWE = new HashSet<>(asList("120", "22", "494", "829", "676", "131", "134", "190"));
   private static final Set<String> POROUS_CWE = new HashSet<>(asList("306", "862", "798", "311", "807", "250", "863", "732", "327", "307", "759"));
-
-  public static final Map<String, List<String>> SONARSOURCE_CWE_MAPPING = ImmutableMap.<String, List<String>>builder()
-    .put("sql-injection", asList("89", "564"))
-    .put("command-injection", asList("78", "77"))
-    .put("path-traversal-injection", singletonList("22"))
-    .put("ldap-injection", singletonList("90"))
-    .put("xpath-injection", singletonList("643"))
-    .put("expression-lang-injection", singletonList("917"))
-    .put("rce", singletonList("94"))
-    .put("dos", singletonList("400"))
-    .put("ssrf", singletonList("918"))
-    .put("csrf", singletonList("352"))
-    .put("xss", asList("79", "80", "81", "82", "83", "84", "85", "86", "87"))
-    .put("log-injection", singletonList("117"))
-    .put("http-response-splitting", singletonList("113"))
-    .put("open-redirect", singletonList("601"))
-    .put("xxe", asList("611", "827"))
-    .put("object-injection", singletonList("470"))
-    .put("weak-cryptography", asList("326", "295", "326", "327", "297", "780", "328", "327"))
-    .put("auth", asList("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284"))
-    .put("insecure-conf", asList("102", "489"))
-    .put("file-manipulation", asList("97", "73"))
-    .build();
-
   public static final Map<String, Set<String>> SANS_TOP_25_CWE_MAPPING = ImmutableMap.of(
     SANS_TOP_25_INSECURE_INTERACTION, INSECURE_CWE,
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
+
+  public static final Map<String, Set<String>> SONARSOURCE_CWE_MAPPING = ImmutableMap.<String, Set<String>>builder()
+    .put("sql-injection", ImmutableSet.of("89", "564"))
+    .put("command-injection", ImmutableSet.of("78", "77"))
+    .put("path-traversal-injection", ImmutableSet.of("22"))
+    .put("ldap-injection", ImmutableSet.of("90"))
+    .put("xpath-injection", ImmutableSet.of("643"))
+    .put("expression-lang-injection", ImmutableSet.of("917"))
+    .put("rce", ImmutableSet.of("94"))
+    .put("dos", ImmutableSet.of("400"))
+    .put("ssrf", ImmutableSet.of("918"))
+    .put("csrf", ImmutableSet.of("352"))
+    .put("xss", ImmutableSet.of("79", "80", "81", "82", "83", "84", "85", "86", "87"))
+    .put("log-injection", ImmutableSet.of("117"))
+    .put("http-response-splitting", ImmutableSet.of("113"))
+    .put("open-redirect", ImmutableSet.of("601"))
+    .put("xxe", ImmutableSet.of("611", "827"))
+    .put("object-injection", ImmutableSet.of("470"))
+    .put("weak-cryptography", ImmutableSet.of("326", "295", "326", "327", "297", "780", "328", "327"))
+    .put("auth", ImmutableSet.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284"))
+    .put("insecure-conf", ImmutableSet.of("102", "489"))
+    .put("file-manipulation", ImmutableSet.of("97", "73"))
+    .build();
 
   private static final Splitter SECURITY_STANDARDS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
