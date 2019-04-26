@@ -44,6 +44,7 @@ exports[`should display the hotspot tooltip helper only 1`] = `
           className="spacer-top spacer-bottom"
         />
         <Link
+          onClick={[Function]}
           onlyActiveOnIndex={false}
           style={Object {}}
           target="_blank"
@@ -78,6 +79,7 @@ exports[`should display the hotspot tooltip helper only 2`] = `
           className="spacer-top spacer-bottom"
         />
         <Link
+          onClick={[Function]}
           onlyActiveOnIndex={false}
           style={Object {}}
           target="_blank"

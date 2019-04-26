@@ -89,6 +89,10 @@ export class TypeFacet extends React.PureComponent<Props> {
     return this.props.types.includes(type);
   }
 
+  stopPropagation = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
+  };
+
   renderItem = (type: string) => {
     const active = this.isFacetItemActive(type);
     const stat = this.getStat(type);
@@ -109,7 +113,10 @@ export class TypeFacet extends React.PureComponent<Props> {
                   <>
                     <p>{translate('issues.hotspots.helper')}</p>
                     <hr className="spacer-top spacer-bottom" />
-                    <Link target="_blank" to="/documentation/user-guide/security-hotspots/">
+                    <Link
+                      onClick={this.stopPropagation}
+                      target="_blank"
+                      to="/documentation/user-guide/security-hotspots/">
                       {translate('learn_more')}
                     </Link>
                   </>
