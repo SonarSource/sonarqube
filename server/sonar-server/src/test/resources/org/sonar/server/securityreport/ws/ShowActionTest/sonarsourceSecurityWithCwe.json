@@ -137,16 +137,6 @@
           "wontFixSecurityHotspots": 1,
           "activeRules": 1,
           "totalRules": 1
-        },
-        {
-          "cwe": "123",
-          "vulnerabilities": 1,
-          "vulnerabilityRating": 3,
-          "toReviewSecurityHotspots": 1,
-          "openSecurityHotspots": 1,
-          "wontFixSecurityHotspots": 1,
-          "activeRules": 1,
-          "totalRules": 1
         }
       ],
       "activeRules": 1,
@@ -209,8 +199,8 @@
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
       "distribution": [],
-      "activeRules": 0,
-      "totalRules": 0
+      "activeRules": 1,
+      "totalRules": 1
     },
     {
       "category": "http-response-splitting",

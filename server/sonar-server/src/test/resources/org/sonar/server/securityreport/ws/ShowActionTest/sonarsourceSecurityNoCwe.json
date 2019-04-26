@@ -188,8 +188,8 @@
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
       "distribution": [],
-      "activeRules": 0,
-      "totalRules": 0
+      "activeRules": 1,
+      "totalRules": 1
     },
     {
       "category": "http-response-splitting",

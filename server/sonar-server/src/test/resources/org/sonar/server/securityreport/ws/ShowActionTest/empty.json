@@ -107,8 +107,8 @@
       "openSecurityHotspots": 0,
       "wontFixSecurityHotspots": 0,
       "distribution": [],
-      "activeRules": 0,
-      "totalRules": 1
+      "activeRules": 1,
+      "totalRules": 2
     }
   ]
 }

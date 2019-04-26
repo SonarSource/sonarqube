@@ -90,6 +90,7 @@ public class ShowActionTest {
   private RuleDefinitionDto rule2;
   private RuleDefinitionDto rule3;
   private RuleDefinitionDto rule4;
+  private RuleDefinitionDto rule5;
   private MetricDto qpMetric;
 
   @Before
@@ -99,15 +100,18 @@ public class ShowActionTest {
     project = insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_ID").setDbKey("PROJECT_KEY"));
     qualityProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("java"));
     // owasp : a2 and TopSans25 insecure
-    rule1 = newRule(newHashSet("owaspTop10:a2", "cwe:123", "cwe:89"));
+    rule1 = newRule(newHashSet("owaspTop10:a2", "cwe:123", "cwe:89"), RuleType.SECURITY_HOTSPOT);
     // owasp : a1 and TopSans25 risky
-    rule2 = newRule(newHashSet("owaspTop10:a1", "cwe:22", "cwe:190"));
+    rule2 = newRule(newHashSet("owaspTop10:a1", "cwe:22", "cwe:190"), RuleType.SECURITY_HOTSPOT);
     // owasp : a4 and TopSans25 porous, not activated
-    rule3 = newRule(newHashSet("owaspTop10:a3", "cwe:759", "cwe:000"));
-    // cwe with unknown
-    rule4 = newRule(newHashSet("cwe:999"));
+    rule3 = newRule(newHashSet("owaspTop10:a3", "cwe:759", "cwe:000"), RuleType.SECURITY_HOTSPOT);
+    // cwe with unknown, not activated
+    rule4 = newRule(newHashSet("cwe:999"), RuleType.SECURITY_HOTSPOT);
+    // TopSans25 insecure
+    rule5 = newRule(newHashSet("cwe:78"), RuleType.VULNERABILITY);
     db.qualityProfiles().activateRule(qualityProfile, rule1);
     db.qualityProfiles().activateRule(qualityProfile, rule2);
+    db.qualityProfiles().activateRule(qualityProfile, rule5);
     qpMetric = db.measures().insertMetric(m -> m.setValueType(STRING.name()).setKey(QUALITY_PROFILES_KEY));
 
     insertQPLiveMeasure(project);
@@ -242,11 +246,11 @@ public class ShowActionTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setSeverity("MAJOR")
       .setType(RuleType.SECURITY_HOTSPOT);
-    IssueDto issue4 = newIssue(rule1, project, file)
+    IssueDto issue4 = newIssue(rule5, project, file)
       .setStatus(Issue.STATUS_RESOLVED)
       .setResolution(Issue.RESOLUTION_WONT_FIX)
       .setSeverity("MAJOR")
-      .setType(RuleType.SECURITY_HOTSPOT);
+      .setType(RuleType.VULNERABILITY);
     dbClient.issueDao().insert(session, issue1, issue2, issue3, issue4);
     session.commit();
     indexIssues();
@@ -287,11 +291,11 @@ public class ShowActionTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setSeverity("MAJOR")
       .setType(RuleType.SECURITY_HOTSPOT);
-    IssueDto issue4 = newIssue(rule1, project1Branch1, fileOnProject1Branch1)
+    IssueDto issue4 = newIssue(rule5, project1Branch1, fileOnProject1Branch1)
       .setStatus(Issue.STATUS_RESOLVED)
       .setResolution(Issue.RESOLUTION_WONT_FIX)
       .setSeverity("MAJOR")
-      .setType(RuleType.SECURITY_HOTSPOT);
+      .setType(RuleType.VULNERABILITY);
     dbClient.issueDao().insert(session, issue1, issue2, issue3, issue4);
     session.commit();
     indexIssues();
@@ -378,11 +382,11 @@ public class ShowActionTest {
       .isSimilarTo(this.getClass().getResource("ShowActionTest/sonarsourceSecurityWithCwe.json"));
   }
 
-  private RuleDefinitionDto newRule(Set tags) {
+  private RuleDefinitionDto newRule(Set<String> standards, RuleType type) {
     RuleDefinitionDto rule = RuleTesting.newRule()
-      .setType(RuleType.SECURITY_HOTSPOT)
+      .setType(type)
       .setLanguage("java")
-      .setSecurityStandards(tags);
+      .setSecurityStandards(standards);
     db.rules().insert(rule);
     return rule;
   }
