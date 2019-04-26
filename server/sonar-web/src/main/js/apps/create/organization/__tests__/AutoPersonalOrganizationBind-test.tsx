@@ -56,7 +56,7 @@ it('should allow to cancel org import', () => {
     handleCancelImport
   });
 
-  click(wrapper.find('DeleteButton'));
+  click(wrapper.find('ButtonIcon'));
   expect(handleCancelImport).toBeCalled();
 });
 
