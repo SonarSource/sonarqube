@@ -1,5 +1,5 @@
 ---
-title: Developing a plugin
+title: Plugin basics
 url: /extend/developing-plugin/
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Extending the Web App
+title: Adding pages to the webapp
 url: /extend/extend-web-app/
 ---
 SonarQube provides the ability to add a new JavaScript page. A page (or page extension) is a JavaScript application that runs in the SonarQube environment. You can find the example of page extensions in the SonarQube or [sonar-custom-plugin-example](https://github.com/SonarSource/sonar-custom-plugin-example/tree/6.x/) repositories on GitHub. 
