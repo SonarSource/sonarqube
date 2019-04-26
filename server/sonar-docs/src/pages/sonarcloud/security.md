@@ -37,7 +37,8 @@ All communications are done over TLS 1.2:
 
 ## SonarCloud Webhook IPs
 
-**Note**: You can use secret tokens to secure webhooks and ensure they are coming from SonarCloud (see the "Securing your webhooks" section of the [Webhooks](/instance-administration/github-application/) page for more information). Because of this, we will be deprecating the SonarCloud Webhook IP list on June 1st, 2019.
+[[warning]]
+| ![Warning](/images/exclamation.svg) You can use secrets to secure webhooks and ensure they are coming from SonarCloud (see the "Securing your webhooks" section of the [Webhooks](/project-administration/webhooks/#securing-your-webhooks) page for more information). Because of this, we are deprecating the Webhook IP list and it will be removed on June 1st, 2019.
 
 SonarCloud performs webhook calls from the following list of IPs:
 ```
