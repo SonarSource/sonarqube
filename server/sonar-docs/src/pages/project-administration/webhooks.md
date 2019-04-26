@@ -96,6 +96,34 @@ The Payload is a JSON document which includes:
 }
 ```
 
+## Securing your webhooks
+
+After you've configured your server to receive payloads, you want to be sure that the payloads you receive are initiated by {instance} and not by hackers. You can do this by validating a hash signature that ensures that requests originate from {instance}. 
+
+### Setting your secret
+
+To set your secret in {instance}:
+
+1. From the project or organization where you're securing your webhooks, navigate to the webhooks settings at **Administration > webhooks**
+1. You can either click **Create** to create a new webhook or click an existing webhook's settings drop-down and click **Update**.
+1. Enter a random string in the **Secret** text box. This is used as the key to generate the HMAC hex digest value in the `X-Sonar-Webhook-HMAC-SHA256` header.
+1. Click **Update**. 
+
+### Validating {instance} Payloads
+
+After setting your secret, it's used by {instance} to create a hash signature with each payload that's passed using the `X-Sonar-Webhook-HMAC-SHA256` HTTP header. The header value needs to match the signature you are expecting to receive. {instance} uses a HMAC lower-case SHA256 digest to compute the signature of the request body. Here's some sample Java code for your server:
+
+```
+private static boolean isValidSignature(YourHttpRequest request) {
+  String receivedSignature = request.getHeader("X-Sonar-Webhook-HMAC-SHA256");
+  // See Apache commons-codec
+  String expectedSignature = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, "your_secret").hmacHex(request.getBody())
+  return Objects.equals(expectedSignature, receivedSignature);  
+}
+```
+
+If the signatures don't match, then the payload should be ignored.
+
 ## Additional parameters
 
 A basic authentication mechanism is supported by providing user/password in the URL of the Webhook such as `https://myLogin:myPassword@my_server/foo`.
