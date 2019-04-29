@@ -137,8 +137,9 @@ function checkContentUrl(files) {
         !node.url.startsWith('http') &&
         !node.url.startsWith('/#')
       ) {
-        // Check markdown file path validity
-        if (!urlExists(parsedFiles, node.url)) {
+        // Check markdown file path validity, and ignore anchors
+        const url = node.url.split('#')[0];
+        if (!urlExists(parsedFiles, url)) {
           console.log('[', node.url, '] is not a valid link, in', file.path + '.md');
           hasErrors = true;
         }
