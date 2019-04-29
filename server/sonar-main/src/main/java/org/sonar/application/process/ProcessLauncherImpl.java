@@ -79,7 +79,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     if (esInstallation != null) {
       cleanupOutdatedEsData(esInstallation);
       writeConfFiles(esInstallation);
-      ensureTempDirExists(esInstallation);
     }
 
     Process process;
@@ -148,15 +147,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       esInstallation.getLog4j2Properties().store(new FileOutputStream(esInstallation.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
-    }
-  }
-
-  private static void ensureTempDirExists(EsInstallation esInstallation) {
-    File tmpDirectory = esInstallation.getTmpDirectory();
-    if (!tmpDirectory.exists() && !tmpDirectory.mkdirs()) {
-      String error = format("Failed to create ES temporary directory [%s]", tmpDirectory.getAbsolutePath());
-      LOG.error(error);
-      throw new IllegalStateException(error);
     }
   }
 

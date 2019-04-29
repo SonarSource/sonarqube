@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.sonar.application.es.EsInstallation;
 import org.sonar.process.System2;
 import org.sonar.test.ExceptionCauseMatcher;
 
@@ -48,12 +47,7 @@ public class EsJvmOptionsTest {
   @UseDataProvider("java8or11")
   public void constructor_sets_mandatory_JVM_options_on_Java_8_and_11(System2 system2) throws IOException {
     File tmpDir = temporaryFolder.newFolder();
-    File logDir = temporaryFolder.newFolder();
-    EsInstallation esInstallation = mock(EsInstallation.class);
-    when(esInstallation.getTmpDirectory()).thenReturn(tmpDir);
-    when(esInstallation.getLogDirectory()).thenReturn(logDir);
-
-    EsJvmOptions underTest = new EsJvmOptions(system2, esInstallation);
+    EsJvmOptions underTest = new EsJvmOptions(system2, tmpDir);
 
     assertThat(underTest.getAll())
       .containsExactly(
@@ -74,7 +68,7 @@ public class EsJvmOptionsTest {
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
-        "-XX:ErrorFile=" + new File(logDir, "es_hs_err_pid%p.log").getAbsolutePath());
+        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log");
   }
 
   @DataProvider
@@ -98,12 +92,7 @@ public class EsJvmOptionsTest {
     when(java9.isJava10()).thenReturn(false);
 
     File tmpDir = temporaryFolder.newFolder();
-    File logDir = temporaryFolder.newFolder();
-    EsInstallation esInstallation = mock(EsInstallation.class);
-    when(esInstallation.getTmpDirectory()).thenReturn(tmpDir);
-    when(esInstallation.getLogDirectory()).thenReturn(logDir);
-
-    EsJvmOptions underTest = new EsJvmOptions(java9, esInstallation);
+    EsJvmOptions underTest = new EsJvmOptions(java9, tmpDir);
 
     assertThat(underTest.getAll())
       .containsExactly(
@@ -124,7 +113,7 @@ public class EsJvmOptionsTest {
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
-        "-XX:ErrorFile=" + new File(logDir, "es_hs_err_pid%p.log").getAbsolutePath(),
+        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log",
         "-Djava.locale.providers=COMPAT");
   }
 
@@ -135,12 +124,7 @@ public class EsJvmOptionsTest {
     when(java10.isJava10()).thenReturn(true);
 
     File tmpDir = temporaryFolder.newFolder();
-    File logDir = temporaryFolder.newFolder();
-    EsInstallation esInstallation = mock(EsInstallation.class);
-    when(esInstallation.getTmpDirectory()).thenReturn(tmpDir);
-    when(esInstallation.getLogDirectory()).thenReturn(logDir);
-
-    EsJvmOptions underTest = new EsJvmOptions(java10, esInstallation);
+    EsJvmOptions underTest = new EsJvmOptions(java10, tmpDir);
 
     assertThat(underTest.getAll())
       .containsExactly(
@@ -161,7 +145,7 @@ public class EsJvmOptionsTest {
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
-        "-XX:ErrorFile=" + new File(logDir, "es_hs_err_pid%p.log").getAbsolutePath(),
+        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log",
         "-XX:UseAVX=2");
   }
 
@@ -171,13 +155,8 @@ public class EsJvmOptionsTest {
   @Test
   public void writeToJvmOptionFile_writes_all_JVM_options_to_file_with_warning_header() throws IOException {
     File tmpDir = temporaryFolder.newFolder("with space");
-    File logDir = temporaryFolder.newFolder();
-    EsInstallation esInstallation = mock(EsInstallation.class);
-    when(esInstallation.getTmpDirectory()).thenReturn(tmpDir);
-    when(esInstallation.getLogDirectory()).thenReturn(logDir);
     File file = temporaryFolder.newFile();
-
-    EsJvmOptions underTest = new EsJvmOptions(esInstallation)
+    EsJvmOptions underTest = new EsJvmOptions(tmpDir)
       .add("-foo")
       .add("-bar");
 
@@ -206,7 +185,7 @@ public class EsJvmOptionsTest {
         "-Dlog4j.shutdownHookEnabled=false\n" +
         "-Dlog4j2.disable.jmx=true\n" +
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
-        "-XX:ErrorFile=" + new File(logDir, "es_hs_err_pid%p.log").getAbsolutePath() + "\n" +
+        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log\n" +
         "-foo\n" +
         "-bar");
 
@@ -215,13 +194,7 @@ public class EsJvmOptionsTest {
   @Test
   public void writeToJvmOptionFile_throws_ISE_in_case_of_IOException() throws IOException {
     File notAFile = temporaryFolder.newFolder();
-    File tmpDir = temporaryFolder.newFolder();
-    File logDir = temporaryFolder.newFolder();
-    EsInstallation esInstallation = mock(EsInstallation.class);
-    when(esInstallation.getTmpDirectory()).thenReturn(tmpDir);
-    when(esInstallation.getLogDirectory()).thenReturn(logDir);
-
-    EsJvmOptions underTest = new EsJvmOptions(esInstallation);
+    EsJvmOptions underTest = new EsJvmOptions(temporaryFolder.newFolder());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot write Elasticsearch jvm options file");

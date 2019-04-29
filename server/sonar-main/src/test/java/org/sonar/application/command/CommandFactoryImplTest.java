@@ -152,7 +152,7 @@ public class CommandFactoryImplTest {
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
 
     assertThat(esConfig.getEsJvmOptions().getAll())
-      .contains("-Djava.io.tmpdir=" + new File(tempDir, "es6").getAbsolutePath());
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
   }
 
   @Test
@@ -190,7 +190,7 @@ public class CommandFactoryImplTest {
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS", "ES_JAVA_OPTS");
 
     assertThat(esConfig.getEsJvmOptions().getAll())
-      .contains("-Djava.io.tmpdir=" + new File(tempDir, "es6").getAbsolutePath());
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
     assertThat(esCommand.getJvmOptions().getAll())
       .containsAll(esConfig.getEsJvmOptions().getAll())
       .contains("-Delasticsearch")
@@ -216,7 +216,7 @@ public class CommandFactoryImplTest {
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
       .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
-      .contains("-Djava.io.tmpdir=" + new File(tempDir, "es6").getAbsolutePath())
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath())
       // user settings
       .contains("-Xms10G", "-Xmx10G")
       // default values disabled
