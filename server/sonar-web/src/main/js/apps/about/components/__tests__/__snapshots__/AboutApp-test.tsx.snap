@@ -188,7 +188,7 @@ exports[`should render correctly 1`] = `
                       <span
                         className="little-spacer-right"
                       >
-                        <BugIcon />
+                        <MOCKBugIcon />
                       </span>
                       issue.type.BUG.plural
                     </td>
@@ -225,7 +225,7 @@ exports[`should render correctly 1`] = `
                       <span
                         className="little-spacer-right"
                       >
-                        <VulnerabilityIcon />
+                        <MOCKVulnerabilityIcon />
                       </span>
                       issue.type.VULNERABILITY.plural
                     </td>
@@ -262,7 +262,7 @@ exports[`should render correctly 1`] = `
                       <span
                         className="little-spacer-right"
                       >
-                        <CodeSmellIcon />
+                        <MOCKCodeSmellIcon />
                       </span>
                       issue.type.CODE_SMELL.plural
                     </td>
@@ -299,7 +299,7 @@ exports[`should render correctly 1`] = `
                       <span
                         className="little-spacer-right"
                       >
-                        <SecurityHotspotIcon />
+                        <MOCKSecurityHotspotIcon />
                       </span>
                       issue.type.SECURITY_HOTSPOT.plural
                     </td>
@@ -522,7 +522,7 @@ exports[`should render correctly 1`] = `
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <BugIcon />
+                  <MOCKBugIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -543,7 +543,7 @@ exports[`should render correctly 1`] = `
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <VulnerabilityIcon />
+                  <MOCKVulnerabilityIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -558,7 +558,7 @@ exports[`should render correctly 1`] = `
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <SecurityHotspotIcon />
+                  <MOCKSecurityHotspotIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -579,7 +579,7 @@ exports[`should render correctly 1`] = `
                 <div
                   className="pull-left little-spacer-right"
                 >
-                  <CodeSmellIcon />
+                  <MOCKCodeSmellIcon />
                 </div>
                 <p
                   className="about-page-text overflow-hidden"
@@ -778,7 +778,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon />
+                          <MOCKTagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -806,7 +806,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon />
+                          <MOCKTagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -834,7 +834,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon />
+                          <MOCKTagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -862,7 +862,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon />
+                          <MOCKTagsIcon />
                           <span
                             className="little-spacer-left"
                           >
@@ -890,7 +890,7 @@ exports[`should render correctly 1`] = `
                           onClick={[Function]}
                           style={Object {}}
                         >
-                          <TagsIcon />
+                          <MOCKTagsIcon />
                           <span
                             className="little-spacer-left"
                           >

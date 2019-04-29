@@ -18,45 +18,61 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow, mount } from 'enzyme';
-import SysInfoItem from '../SysInfoItem';
-
-jest.mock('../../../../../components/icons-components/AlertSuccessIcon');
+import { shallow } from 'enzyme';
+import SysInfoItem, { Props } from '../SysInfoItem';
 
 it('should render string', () => {
-  const wrapper = shallow(<SysInfoItem name="foo" value="/some/path/as/an/example" />);
-  expect(wrapper.find('code').text()).toBe('/some/path/as/an/example');
+  expect(
+    shallowRender('/some/path/as/an/example')
+      .find('code')
+      .text()
+  ).toBe('/some/path/as/an/example');
 });
 
 it('should render object', () => {
-  const wrapper = shallow(<SysInfoItem name="foo" value={{ bar: 'baz' }} />);
-  expect(wrapper.find('ObjectItem').prop('value')).toEqual({ bar: 'baz' });
+  expect(
+    shallowRender({ bar: 'baz' })
+      .find('ObjectItem')
+      .prop('value')
+  ).toEqual({ bar: 'baz' });
 });
 
 it('should render boolean', () => {
-  const wrapper = shallow(<SysInfoItem name="foo" value={true} />);
-  expect(wrapper.find('BooleanItem').prop('value')).toBe(true);
+  expect(
+    shallowRender(true)
+      .find('BooleanItem')
+      .prop('value')
+  ).toBe(true);
 });
 
 it('should render health item', () => {
-  const wrapper = shallow(<SysInfoItem name="Health" value="GREEN" />);
-  expect(wrapper.find('HealthItem').prop('health')).toBe('GREEN');
+  expect(
+    shallowRender('GREEN', 'Health')
+      .find('HealthItem')
+      .prop('health')
+  ).toBe('GREEN');
+});
+
+it('should render `true`', () => {
+  const wrapper = shallowRender(true);
+  expect(wrapper.find('BooleanItem').exists()).toBe(true);
+  expect(wrapper.dive()).toMatchSnapshot();
+});
+
+it('should render `false`', () => {
+  const wrapper = shallowRender(false);
+  expect(wrapper.find('BooleanItem').exists()).toBe(true);
+  expect(wrapper.dive()).toMatchSnapshot();
 });
 
 it('should render object correctly', () => {
   expect(
-    mount(
-      <SysInfoItem name="test" value={{ foo: 'Far', bar: { a: 1, b: 'b' }, baz: true }} />
-    ).find('ObjectItem')
+    shallowRender({ foo: 'Far', bar: { a: 1, b: 'b' }, baz: true })
+      .find('ObjectItem')
+      .dive()
   ).toMatchSnapshot();
 });
 
-it('should render `true`', () => {
-  const wrapper = mount(<SysInfoItem name="test" value={true} />);
-  expect(wrapper.find('AlertSuccessIcon').exists()).toBeTruthy();
-});
-
-it('should render `false`', () => {
-  const wrapper = mount(<SysInfoItem name="test" value={false} />);
-  expect(wrapper.find('AlertErrorIcon').exists()).toBeTruthy();
-});
+function shallowRender(value: Props['value'], name: Props['name'] = 'foo') {
+  return shallow(<SysInfoItem name={name} value={value} />);
+}

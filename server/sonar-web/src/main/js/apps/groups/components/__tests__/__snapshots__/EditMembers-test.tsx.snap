@@ -36,7 +36,7 @@ exports[`should edit members 1`] = `
         }
         type="button"
       >
-        <BulletListIcon />
+        <MOCKBulletListIcon />
       </button>
     </Button>
   </ButtonIcon>
@@ -79,7 +79,7 @@ exports[`should edit members 2`] = `
         }
         type="button"
       >
-        <BulletListIcon />
+        <MOCKBulletListIcon />
       </button>
     </Button>
   </ButtonIcon>
@@ -441,7 +441,7 @@ exports[`should edit members 2`] = `
                                 loading={false}
                                 timeout={100}
                               >
-                                <SearchIcon
+                                <MOCKSearchIcon
                                   className="search-box-magnifier"
                                 />
                               </DeferredSpinner>
@@ -553,7 +553,7 @@ exports[`should edit members 3`] = `
         }
         type="button"
       >
-        <BulletListIcon />
+        <MOCKBulletListIcon />
       </button>
     </Button>
   </ButtonIcon>

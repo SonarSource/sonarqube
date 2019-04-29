@@ -25,7 +25,7 @@ import AlertSuccessIcon from '../../../../components/icons-components/AlertSucce
 import { HealthType, SysValue, SysValueObject } from '../../../../api/system';
 import { HEALTH_FIELD } from '../../utils';
 
-interface Props {
+export interface Props {
   name: string;
   value: SysValue;
 }
@@ -39,9 +39,9 @@ export default function SysInfoItem({ name, value }: Props): JSX.Element {
   }
   switch (typeof value) {
     case 'boolean':
-      return <BooleanItem value={value as boolean} />;
+      return <BooleanItem value={value} />;
     case 'object':
-      return <ObjectItem value={value as SysValueObject} />;
+      return <ObjectItem value={value} />;
     default:
       return <code>{value}</code>;
   }
