@@ -30,8 +30,8 @@ if (process.env.NODE_ENV === 'development') {
   const { createLogger } = require('redux-logger');
   middlewares.push(createLogger());
 
-  const { devToolsExtension } = window as any;
-  composed.push(devToolsExtension ? devToolsExtension() : (f: Function) => f);
+  const { __REDUX_DEVTOOLS_EXTENSION__ } = window as any;
+  composed.push(__REDUX_DEVTOOLS_EXTENSION__ ? __REDUX_DEVTOOLS_EXTENSION__() : (f: Function) => f);
 }
 
 const finalCreateStore = compose(

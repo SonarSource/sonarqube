@@ -111,3 +111,16 @@
   border-color: var(--sonarcloudBlue600);
   background-color: var(--sonarcloudBlue600);
 }
+
+.create-project-actions {
+  min-width: 500px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 8px 16px;
+  border-left: 1px solid transparent;
+}
+
+.create-project-actions .icon-checkbox {
+  margin-right: 8px;
+}

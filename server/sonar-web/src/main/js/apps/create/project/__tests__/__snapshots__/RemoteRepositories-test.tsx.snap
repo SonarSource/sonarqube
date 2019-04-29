@@ -7,6 +7,11 @@ exports[`should display the list of repositories 1`] = `
   <div
     className="flex-1 huge-spacer-right"
   >
+    <div
+      className="spacer-bottom create-project-actions"
+    >
+      <div />
+    </div>
     <DeferredSpinner
       loading={true}
       timeout={100}
@@ -55,6 +60,20 @@ exports[`should display the list of repositories 2`] = `
   <div
     className="flex-1 huge-spacer-right"
   >
+    <div
+      className="spacer-bottom create-project-actions"
+    >
+      <div>
+        <Checkbox
+          checked={false}
+          disabled={false}
+          onCheck={[Function]}
+          thirdState={false}
+        >
+          onboarding.create_project.select_all_repositories
+        </Checkbox>
+      </div>
+    </div>
     <DeferredSpinner
       loading={false}
       timeout={100}
@@ -77,8 +96,6 @@ exports[`should display the list of repositories 2`] = `
             Object {
               "installationKey": "github/cool",
               "label": "Cool Project",
-              "linkedProjectKey": "proj_cool",
-              "linkedProjectName": "Proj Cool",
             }
           }
           selected={false}
@@ -157,4 +174,33 @@ exports[`should display the organization upgrade box 1`] = `
     }
   }
 />
+`;
+
+exports[`should select all repositories 1`] = `
+Object {
+  "key-0": Object {
+    "installationKey": "key-0",
+    "label": "Project 0",
+  },
+  "key-1": Object {
+    "installationKey": "key-1",
+    "label": "Project 1",
+  },
+  "key-2": Object {
+    "installationKey": "key-2",
+    "label": "Project 2",
+  },
+  "key-3": Object {
+    "installationKey": "key-3",
+    "label": "Project 3",
+  },
+  "key-4": Object {
+    "installationKey": "key-4",
+    "label": "Project 4",
+  },
+  "key-5": Object {
+    "installationKey": "key-5",
+    "label": "Project 5",
+  },
+}
 `;

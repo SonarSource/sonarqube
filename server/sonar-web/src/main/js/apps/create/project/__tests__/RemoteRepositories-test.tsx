@@ -33,9 +33,7 @@ jest.mock('../../../../api/alm-integration', () => ({
     repositories: [
       {
         label: 'Cool Project',
-        installationKey: 'github/cool',
-        linkedProjectKey: 'proj_cool',
-        linkedProjectName: 'Proj Cool'
+        installationKey: 'github/cool'
       },
       { label: 'Awesome Project', installationKey: 'github/awesome' }
     ]
@@ -100,6 +98,41 @@ it('should display a search box to filter repositories', async () => {
   expect(wrapper.find('AlmRepositoryItem')).toHaveLength(6);
   wrapper.find('SearchBox').prop<Function>('onChange')('3');
   expect(wrapper.find('AlmRepositoryItem')).toHaveLength(1);
+});
+
+it('should allow to select all repositories', async () => {
+  (getRepositories as jest.Mock<any>).mockResolvedValueOnce({
+    repositories: times(6, i => ({ label: `Project ${i}`, installationKey: `key-${i}` }))
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.find('Checkbox')).toHaveLength(1);
+  expect(wrapper.state('checkAllRepositories')).toBe(false);
+  expect(wrapper.state('selectedRepositories')).toEqual({});
+});
+
+it('should select all repositories', async () => {
+  (getRepositories as jest.Mock<any>).mockResolvedValueOnce({
+    repositories: times(6, i => ({ label: `Project ${i}`, installationKey: `key-${i}` }))
+  });
+
+  const wrapper = shallowRender();
+  const instance = wrapper.instance() as RemoteRepositories;
+  await waitAndUpdate(wrapper);
+
+  instance.onCheckAllRepositories();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state('checkAllRepositories')).toBe(true);
+  expect(wrapper.state('selectedRepositories')).toMatchSnapshot();
+
+  instance.onCheckAllRepositories();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state('checkAllRepositories')).toBe(false);
+  expect(wrapper.state('selectedRepositories')).toEqual({});
 });
 
 function shallowRender(props: Partial<RemoteRepositories['props']> = {}) {

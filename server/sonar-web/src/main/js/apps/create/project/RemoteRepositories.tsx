@@ -19,15 +19,18 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { keyBy } from 'lodash';
 import AlmRepositoryItem from './AlmRepositoryItem';
 import SetupProjectBox from './SetupProjectBox';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import Checkbox from '../../../components/controls/Checkbox';
 import SearchBox from '../../../components/controls/SearchBox';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
 import { Alert } from '../../../components/ui/Alert';
 import { getRepositories } from '../../../api/alm-integration';
-import { isDefined } from '../../../helpers/types';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
+import { isPaidOrganization } from '../../../helpers/organizations';
+import { isDefined } from '../../../helpers/types';
 
 interface Props {
   almApplication: T.AlmApplication;
@@ -39,6 +42,7 @@ interface Props {
 type SelectedRepositories = T.Dict<T.AlmRepository | undefined>;
 
 interface State {
+  checkAllRepositories: boolean;
   highlight: boolean;
   loading: boolean;
   repositories: T.AlmRepository[];
@@ -50,6 +54,7 @@ interface State {
 export default class RemoteRepositories extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
+    checkAllRepositories: false,
     highlight: false,
     loading: true,
     repositories: [],
@@ -91,6 +96,9 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
     );
   };
 
+  filterBySearch = (repo: T.AlmRepository) =>
+    repo.label.toLowerCase().includes(this.state.search.toLowerCase());
+
   handleHighlightUpgradeBox = (highlight: boolean) => {
     this.setState({ highlight });
   };
@@ -120,7 +128,31 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
   };
 
   handleSearch = (search: string) => {
-    this.setState({ search });
+    this.setState({ search, checkAllRepositories: false, selectedRepositories: {} });
+  };
+
+  onCheckAllRepositories = () => {
+    this.setState(({ checkAllRepositories, repositories, search }) => {
+      const { organization } = this.props;
+
+      const isPaidOrg = isPaidOrganization(organization);
+      const filterByPlan = (repo: T.AlmRepository) => (isPaidOrg ? true : !repo.private);
+
+      const nextState = {
+        selectedRepositories: {},
+        checkAllRepositories: !checkAllRepositories
+      };
+
+      if (nextState.checkAllRepositories) {
+        const validRepositories = (search
+          ? repositories.filter(this.filterBySearch)
+          : repositories
+        ).filter(filterByPlan);
+        nextState.selectedRepositories = keyBy(validRepositories, 'installationKey');
+      }
+
+      return nextState;
+    });
   };
 
   toggleRepository = (repository: T.AlmRepository) => {
@@ -137,27 +169,38 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
   render() {
     const { highlight, loading, repositories, search, selectedRepositories } = this.state;
     const { almApplication, organization } = this.props;
-    const isPaidOrg = organization.subscription === 'PAID';
+    const isPaidOrg = isPaidOrganization(organization);
     const hasPrivateRepositories = repositories.some(repository => Boolean(repository.private));
     const showSearchBox = repositories.length > 5;
+    const showCheckAll = repositories.length > 1;
     const showUpgradebox =
       !isPaidOrg && hasPrivateRepositories && organization.actions && organization.actions.admin;
-    const filteredRepositories = repositories.filter(
-      repo => !search || repo.label.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredRepositories = search ? repositories.filter(this.filterBySearch) : repositories;
+
     return (
       <div className="create-project">
         <div className="flex-1 huge-spacer-right">
-          {showSearchBox && (
-            <div className="spacer-bottom">
+          <div className="spacer-bottom create-project-actions">
+            <div>
+              {showCheckAll && (
+                <Checkbox
+                  checked={this.state.checkAllRepositories}
+                  disabled={filteredRepositories.length === 0}
+                  onCheck={this.onCheckAllRepositories}>
+                  {translate('onboarding.create_project.select_all_repositories')}
+                </Checkbox>
+              )}
+            </div>
+            {showSearchBox && (
               <SearchBox
                 minLength={1}
                 onChange={this.handleSearch}
                 placeholder={translate('search.search_for_repositories')}
                 value={this.state.search}
               />
-            </div>
-          )}
+            )}
+          </div>
+
           {this.state.successfullyUpgraded && (
             <Alert variant="success">
               {translateWithParameters(
