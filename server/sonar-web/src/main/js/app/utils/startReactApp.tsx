@@ -230,10 +230,6 @@ export default function startReactApp(
                     )}
                   />
                   <Route path="project/issues" component={Issues} />
-                  <Route
-                    path="project/security_reports/:type"
-                    component={lazyLoad(() => import('../../apps/securityReports/components/App'))}
-                  />
                   <RouteWithChildRoutes
                     path="project/quality_gate"
                     childRoutes={projectQualityGateRoutes}

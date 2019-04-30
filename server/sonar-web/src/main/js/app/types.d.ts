@@ -331,19 +331,6 @@ declare namespace T {
     name: string;
   }
 
-  export interface SecurityHotspot {
-    activeRules: number;
-    category?: string;
-    cwe?: string;
-    distribution?: Array<SecurityHotspot>;
-    openSecurityHotspots: number;
-    toReviewSecurityHotspots: number;
-    totalRules: number;
-    vulnerabilities: number;
-    vulnerabilityRating?: number;
-    wontFixSecurityHotspots: number;
-  }
-
   export interface Issue {
     actions: string[];
     assignee?: string;

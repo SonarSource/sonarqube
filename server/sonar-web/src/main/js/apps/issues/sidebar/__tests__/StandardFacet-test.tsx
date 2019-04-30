@@ -25,6 +25,7 @@ import { Query } from '../../utils';
 import { getStandards } from '../../../../helpers/security-standard';
 
 jest.mock('../../../../helpers/security-standard', () => ({
+  ...require.requireActual('../../../../helpers/security-standard'),
   getStandards: jest.fn().mockResolvedValue({
     owaspTop10: {
       a1: {

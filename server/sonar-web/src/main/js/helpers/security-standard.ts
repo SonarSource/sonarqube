@@ -20,3 +20,55 @@
 export function getStandards(): Promise<T.Standards> {
   return import('./standards.json').then(x => x.default);
 }
+
+export function renderCWECategory(standards: T.Standards, category: string): string {
+  const record = standards.cwe[category];
+  if (!record) {
+    return `CWE-${category}`;
+  } else if (category === 'unknown') {
+    return record.title;
+  } else {
+    return `CWE-${category} - ${record.title}`;
+  }
+}
+
+export function renderOwaspTop10Category(
+  standards: T.Standards,
+  category: string,
+  withPrefix = false
+): string {
+  const record = standards.owaspTop10[category];
+  if (!record) {
+    return addPrefix(category.toUpperCase(), 'OWASP', withPrefix);
+  } else if (category === 'unknown') {
+    return record.title;
+  } else {
+    return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
+  }
+}
+
+export function renderSansTop25Category(
+  standards: T.Standards,
+  category: string,
+  withPrefix = false
+): string {
+  const record = standards.sansTop25[category];
+  return addPrefix(record ? record.title : category, 'SANS', withPrefix);
+}
+
+export function renderSonarSourceSecurityCategory(
+  standards: T.Standards,
+  category: string,
+  withPrefix = false
+): string {
+  const record = standards.sonarsourceSecurity[category];
+  if (category === 'others') {
+    return record.title;
+  } else {
+    return addPrefix(record ? record.title : category, 'SONAR', withPrefix);
+  }
+}
+
+function addPrefix(title: string, prefix: string, withPrefix: boolean) {
+  return withPrefix ? `${prefix} ${title}` : title;
+}

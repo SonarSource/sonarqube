@@ -19,23 +19,23 @@
  */
 import * as React from 'react';
 import { sortBy, without, omit } from 'lodash';
-import { Query, STANDARDS, formatFacetStat, Facet } from '../utils';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
-import { translate } from '../../../helpers/l10n';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
 import FacetItem from '../../../components/facet/FacetItem';
-import {
-  renderOwaspTop10Category,
-  renderSansTop25Category,
-  renderCWECategory,
-  renderSonarSourceSecurityCategory
-} from '../../securityReports/utils';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import FacetItemsList from '../../../components/facet/FacetItemsList';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { getStandards } from '../../../helpers/security-standard';
+import {
+  getStandards,
+  renderCWECategory,
+  renderOwaspTop10Category,
+  renderSansTop25Category,
+  renderSonarSourceSecurityCategory
+} from '../../../helpers/security-standard';
+import { Query, STANDARDS, formatFacetStat, Facet } from '../utils';
 
 interface Props {
   cwe: string[];
