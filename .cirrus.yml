@@ -105,6 +105,10 @@ validate_task:
     - ./private/cirrus/cirrus-validate.sh postgres106
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -154,6 +158,10 @@ qa_task:
     - ./private/cirrus/cirrus-qa.sh postgres106
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -212,6 +220,10 @@ test_sql_mysql57_task:
     - ./private/cirrus/cirrus-db-unit-test.sh mysql57
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -245,6 +257,10 @@ test_sql_mssql2017_task:
     - ./private/cirrus/cirrus-db-unit-test.sh mssql2017
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -278,6 +294,10 @@ test_sql_mssql2019_task:
     - ./private/cirrus/cirrus-db-unit-test.sh mssql2019
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -311,6 +331,10 @@ test_sql_postgres93_task:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres93
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -341,6 +365,10 @@ test_sql_oracle12_task:
     - ./private/cirrus/cirrus-db-unit-test.sh oracle12
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -384,6 +412,10 @@ test_upgrade_mysql57_task:
     - ./private/cirrus/cirrus-qa.sh mysql57
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -426,6 +458,10 @@ test_upgrade_mssql2017_task:
     - ./private/cirrus/cirrus-qa.sh mssql2017
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
@@ -466,6 +502,10 @@ test_upgrade_oracle12_task:
     - ./private/cirrus/cirrus-qa.sh oracle12
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
+  always:
+    junit_artifacts:
+      path: "**/test-results/**/*.xml"
+      format: junit
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
