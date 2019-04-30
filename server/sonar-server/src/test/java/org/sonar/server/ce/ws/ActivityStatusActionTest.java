@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -61,6 +62,15 @@ public class ActivityStatusActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, TestComponentFinder.from(db)));
+
+  @Test
+  public void test_definition() {
+    WebService.Action def = ws.getDef();
+    assertThat(def.key()).isEqualTo("activity_status");
+    assertThat(def.isInternal()).isFalse();
+    assertThat(def.isPost()).isFalse();
+    assertThat(def.params()).extracting(WebService.Param::key).containsOnly("componentId", "componentKey");
+  }
 
   @Test
   public void json_example() {

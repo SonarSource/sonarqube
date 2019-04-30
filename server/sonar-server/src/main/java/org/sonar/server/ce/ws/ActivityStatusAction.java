@@ -59,7 +59,6 @@ public class ActivityStatusAction implements CeWsAction {
         "Requires 'Administer System' permission or 'Administer' rights on the specified project.")
       .setSince("5.5")
       .setResponseExample(getClass().getResource("activity_status-example.json"))
-      .setInternal(true)
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
