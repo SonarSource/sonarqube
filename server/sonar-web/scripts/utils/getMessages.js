@@ -29,7 +29,8 @@ const extensionsFilenames = [
   '../../../../private/core-extension-billing/src/main/resources/org/sonar/l10n/billing.properties',
   '../../../../private/core-extension-governance/src/main/resources/org/sonar/l10n/governance.properties',
   '../../../../private/core-extension-license/src/main/resources/org/sonar/l10n/license.properties',
-  '../../../../private/core-extension-developer-server/src/main/resources/org/sonar/l10n/developer-server.properties'
+  '../../../../private/core-extension-developer-server/src/main/resources/org/sonar/l10n/developer-server.properties',
+  '../../../../private/core-extension-securityreport/src/main/resources/org/sonar/l10n/securityreport.properties'
 ];
 
 function getFileMessage(filename) {

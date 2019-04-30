@@ -25,6 +25,20 @@ import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import Suggestions from '../embed-docs-modal/Suggestions';
 import * as measures from '../../../helpers/measures';
 import * as request from '../../../helpers/request';
+import {
+  getBranchLikeQuery,
+  isBranch,
+  isLongLivingBranch,
+  isPullRequest
+} from '../../../helpers/branches';
+import { getComponentIssuesUrl, getRulesUrl } from '../../../helpers/urls';
+import {
+  getStandards,
+  renderCWECategory,
+  renderOwaspTop10Category,
+  renderSansTop25Category,
+  renderSonarSourceSecurityCategory
+} from '../../../helpers/security-standard';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -50,13 +64,18 @@ import AlertSuccessIcon from '../../../components/icons-components/AlertSuccessI
 import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
 import CheckIcon from '../../../components/icons-components/CheckIcon';
 import ClearIcon from '../../../components/icons-components/ClearIcon';
+import SecurityHotspotIcon from '../../../components/icons-components/SecurityHotspotIcon';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
+import PlusCircleIcon from '../../../components/icons-components/PlusCircleIcon';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import LockIcon from '../../../components/icons-components/LockIcon';
+import DetachIcon from '../../../components/icons-components/DetachIcon';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import Rating from '../../../components/ui/Rating';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
 import LongLivingBranchIcon from '../../../components/icons-components/LongLivingBranchIcon';
+import NotFound from '../../../app/components/NotFound';
 import PullRequestIcon from '../../../components/icons-components/PullRequestIcon';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
@@ -71,6 +90,19 @@ const exposeLibraries = () => {
 
   global.ReactRedux = ReactRedux;
   global.ReactRouter = ReactRouter;
+  global.SonarHelpers = {
+    getBranchLikeQuery,
+    isBranch,
+    isLongLivingBranch,
+    isPullRequest,
+    getStandards,
+    renderCWECategory,
+    renderOwaspTop10Category,
+    renderSansTop25Category,
+    renderSonarSourceSecurityCategory,
+    getComponentIssuesUrl,
+    getRulesUrl
+  };
   global.SonarMeasures = measures;
   global.SonarRequest = { ...request, throwGlobalError, addGlobalSuccessMessage };
   global.SonarComponents = {
@@ -92,6 +124,7 @@ const exposeLibraries = () => {
     DateFromNow,
     DateTimeFormatter,
     DeferredSpinner,
+    DetachIcon,
     Dropdown,
     DropdownIcon,
     DuplicationsRating,
@@ -106,6 +139,8 @@ const exposeLibraries = () => {
     LockIcon,
     LongLivingBranchIcon,
     Modal,
+    NotFound,
+    PlusCircleIcon,
     PullRequestIcon,
     QualifierIcon,
     RadioToggle,
@@ -114,12 +149,14 @@ const exposeLibraries = () => {
     ResetButtonLink,
     SearchBox,
     SearchSelect,
+    SecurityHotspotIcon,
     Select,
     SelectList,
     SimpleModal,
     SubmitButton,
     Suggestions,
-    Tooltip
+    Tooltip,
+    VulnerabilityIcon
   };
 };
 
