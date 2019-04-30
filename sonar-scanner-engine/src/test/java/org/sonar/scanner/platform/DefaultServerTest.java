@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.platform;
 
+import org.sonar.api.SonarEdition;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarQubeSide;
@@ -42,7 +43,8 @@ public class DefaultServerTest {
     ScannerWsClient client = mock(ScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com");
 
-    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client, SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER));
+    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client,
+      SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
 
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");

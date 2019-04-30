@@ -17,35 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.internal;
+package org.sonar.api;
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.Version;
+public enum SonarEdition {
+  COMMUNITY("Community"),
+  DEVELOPER("Developer"),
+  ENTERPRISE("Enterprise"),
+  DATACENTER("Data Center"),
+  SONARCLOUD("SonarCloud");
 
-/**
- * For internal use
- *
- * @since 6.0
- */
-public class ApiVersion {
+  private final String label;
 
-  private static final String FILE_PATH = "/sonar-api-version.txt";
-
-  private ApiVersion() {
-    // only static methods
+  SonarEdition(String label) {
+    this.label = label;
   }
 
-  public static Version load(System2 system) {
-    try {
-      URL url = system.getResource(FILE_PATH);
-      String versionInFile = Resources.toString(url, StandardCharsets.UTF_8);
-      return Version.parse(versionInFile);
-    } catch (IOException e) {
-      throw new IllegalStateException("Can not load " + FILE_PATH + " from classpath", e);
-    }
+  public String getLabel() {
+    return label;
   }
 }

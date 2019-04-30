@@ -20,6 +20,7 @@
 package org.sonar.xoo;
 
 import java.util.List;
+import org.sonar.api.SonarEdition;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarQubeSide;
@@ -30,7 +31,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.XooBuiltInQualityProfilesDefinition;
-import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooIgnoreCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ public class XooPluginTest {
 
   @Test
   public void provide_extensions_for_6_6() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.6"), SonarQubeSide.SCANNER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.6"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
     assertThat(getExtensions(context))
@@ -59,7 +59,7 @@ public class XooPluginTest {
 
   @Test
   public void provide_extensions_for_7_2() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.2"), SonarQubeSide.SCANNER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.2"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
     assertThat(getExtensions(context))
@@ -69,7 +69,7 @@ public class XooPluginTest {
 
   @Test
   public void provide_extensions_for_7_3() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.3"), SonarQubeSide.SCANNER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.3"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
     assertThat(getExtensions(context))
@@ -79,7 +79,7 @@ public class XooPluginTest {
 
   @Test
   public void provide_extensions_for_7_6() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.6"), SonarQubeSide.SCANNER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("7.6"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     new XooPlugin().define(context);
     assertThat(getExtensions(context))

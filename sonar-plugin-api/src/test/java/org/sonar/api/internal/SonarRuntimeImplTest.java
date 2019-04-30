@@ -19,6 +19,7 @@
  */
 package org.sonar.api.internal;
 
+import org.sonar.api.SonarEdition;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +31,6 @@ import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class SonarRuntimeImplTest {
 
   private static final Version A_VERSION = Version.parse("6.0");
@@ -40,7 +40,7 @@ public class SonarRuntimeImplTest {
 
   @Test
   public void sonarQube_environment() {
-    SonarRuntime apiVersion = SonarRuntimeImpl.forSonarQube(A_VERSION, SonarQubeSide.SCANNER);
+    SonarRuntime apiVersion = SonarRuntimeImpl.forSonarQube(A_VERSION, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     assertThat(apiVersion.getApiVersion()).isEqualTo(A_VERSION);
     assertThat(apiVersion.getProduct()).isEqualTo(SonarProduct.SONARQUBE);
     assertThat(apiVersion.getSonarQubeSide()).isEqualTo(SonarQubeSide.SCANNER);
@@ -60,10 +60,8 @@ public class SonarRuntimeImplTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void sonarqube_requires_side() throws Exception {
-    SonarRuntimeImpl.forSonarQube(A_VERSION, null);
+  public void sonarqube_requires_side() {
+    SonarRuntimeImpl.forSonarQube(A_VERSION, null, null);
   }
-
-
 
 }

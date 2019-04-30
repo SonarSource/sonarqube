@@ -23,10 +23,11 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.internal.ApiVersion;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
@@ -265,13 +266,14 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   private static void populateLevel1(ComponentContainer container, Props props, ComputeEngineStatus computeEngineStatus) {
-    Version apiVersion = ApiVersion.load(System2.INSTANCE);
+    Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
+    SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     container.add(
       props.rawProperties(),
       ThreadLocalSettings.class,
       new ConfigurationProvider(),
       new SonarQubeVersion(apiVersion),
-      SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.COMPUTE_ENGINE),
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.COMPUTE_ENGINE, edition),
       CeProcessLogging.class,
       UuidFactoryImpl.INSTANCE,
       NetworkUtilsImpl.INSTANCE,

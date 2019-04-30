@@ -25,6 +25,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.SonarEdition;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class WebServiceFilterTest {
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
   private ServletOutputStream responseOutput = mock(ServletOutputStream.class);
-  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse(RUNTIME_VERSION), SonarQubeSide.SERVER);
+  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse(RUNTIME_VERSION), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
   private WebServiceFilter underTest;
 
   @Before

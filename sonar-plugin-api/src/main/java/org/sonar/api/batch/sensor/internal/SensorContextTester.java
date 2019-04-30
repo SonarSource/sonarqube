@@ -80,7 +80,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.ApiVersion;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.scanner.fs.InputProject;
@@ -121,7 +121,7 @@ public class SensorContextTester implements SensorContext {
     this.sensorStorage = new InMemorySensorStorage();
     this.project = new DefaultInputProject(ProjectDefinition.create().setKey("projectKey").setBaseDir(moduleBaseDir.toFile()).setWorkDir(moduleBaseDir.resolve(".sonar").toFile()));
     this.module = new DefaultInputModule(ProjectDefinition.create().setKey("projectKey").setBaseDir(moduleBaseDir.toFile()).setWorkDir(moduleBaseDir.resolve(".sonar").toFile()));
-    this.runtime = SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.SCANNER);
+    this.runtime = SonarRuntimeImpl.forSonarQube(MetadataLoader.loadVersion(System2.INSTANCE), SonarQubeSide.SCANNER, MetadataLoader.loadEdition(System2.INSTANCE));
   }
 
   public static SensorContextTester create(File moduleBaseDir) {

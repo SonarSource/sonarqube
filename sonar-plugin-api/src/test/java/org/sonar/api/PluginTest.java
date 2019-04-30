@@ -34,7 +34,7 @@ public class PluginTest {
 
   @Test
   public void test_context() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_5_6, SonarQubeSide.SERVER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_5_6, SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     MapSettings settings = new MapSettings().setProperty("foo", "bar");
     Plugin.Context context = new PluginContextImpl.Builder()
       .setSonarRuntime(runtime)

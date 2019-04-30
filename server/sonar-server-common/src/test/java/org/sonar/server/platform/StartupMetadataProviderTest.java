@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.api.SonarEdition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -54,7 +55,7 @@ public class StartupMetadataProviderTest {
   @Test
   public void generate_SERVER_STARTIME_but_do_not_persist_it_if_server_is_startup_leader() {
     when(system.now()).thenReturn(A_DATE);
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     when(webServer.isStartupLeader()).thenReturn(true);
 
     StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
@@ -69,7 +70,7 @@ public class StartupMetadataProviderTest {
 
   @Test
   public void load_from_database_if_server_is_startup_follower() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     when(webServer.isStartupLeader()).thenReturn(false);
 
     testLoadingFromDatabase(runtime, false);
@@ -77,21 +78,21 @@ public class StartupMetadataProviderTest {
 
   @Test
   public void load_from_database_if_compute_engine_of_startup_leader_server() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE, SonarEdition.COMMUNITY);
 
     testLoadingFromDatabase(runtime, true);
   }
 
   @Test
   public void load_from_database_if_compute_engine_of_startup_follower_server() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE, SonarEdition.COMMUNITY);
 
     testLoadingFromDatabase(runtime, false);
   }
 
   @Test
   public void fail_to_load_from_database_if_properties_are_not_persisted() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE, SonarEdition.COMMUNITY);
     when(webServer.isStartupLeader()).thenReturn(false);
 
     expectedException.expect(IllegalStateException.class);

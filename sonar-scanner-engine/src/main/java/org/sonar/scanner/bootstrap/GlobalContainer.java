@@ -22,12 +22,13 @@ package org.sonar.scanner.bootstrap;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.SonarEdition;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
-import org.sonar.api.internal.ApiVersion;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -78,7 +79,9 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   private void addBootstrapComponents() {
-    Version apiVersion = ApiVersion.load(System2.INSTANCE);
+    Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
+    SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
+    LOG.debug("{} {}", edition.getLabel(), apiVersion);
     add(
       // plugins
       ScannerPluginRepository.class,
@@ -88,7 +91,7 @@ public class GlobalContainer extends ComponentContainer {
       ExtensionInstaller.class,
 
       new SonarQubeVersion(apiVersion),
-      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, edition),
       new GlobalServerSettingsProvider(),
       new GlobalConfigurationProvider(),
       new ScannerWsClientProvider(),

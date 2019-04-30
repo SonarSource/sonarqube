@@ -20,6 +20,7 @@
 package org.sonar.xoo.rule;
 
 import java.io.IOException;
+import org.sonar.api.SonarEdition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -115,7 +116,7 @@ public class OneIssuePerLineSensorTest {
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
     context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
-    context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.parse("5.4"), SonarQubeSide.SCANNER));
+    context.setRuntime(SonarRuntimeImpl.forSonarQube(Version.parse("5.4"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
 
     sensor.execute(context);
 

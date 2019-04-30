@@ -22,9 +22,10 @@ package org.sonar.server.platform.platformlevel;
 import java.time.Clock;
 import java.util.Properties;
 import javax.annotation.Nullable;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
-import org.sonar.api.internal.ApiVersion;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
@@ -82,10 +83,12 @@ public class PlatformLevel1 extends PlatformLevel {
   public void configureLevel() {
     add(platform, properties);
     addExtraRootComponents();
-    Version apiVersion = ApiVersion.load(System2.INSTANCE);
+    Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
+    SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
+
     add(
       new SonarQubeVersion(apiVersion),
-      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER),
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition),
       ThreadLocalSettings.class,
       new ConfigurationProvider(),
       LogServerVersion.class,

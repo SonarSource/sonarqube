@@ -19,6 +19,7 @@
  */
 package org.sonar.xoo.rule;
 
+import org.sonar.api.SonarEdition;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.SonarQubeSide;
@@ -34,7 +35,7 @@ public class XooRulesDefinitionTest {
 
   @Before
   public void setUp() {
-    XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SCANNER));
+    XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
     context = new RulesDefinition.Context();
     def.define(context);
   }
@@ -54,7 +55,7 @@ public class XooRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().baseEffort()).isNull();
     assertThat(rule.gapDescription()).isNotEmpty();
   }
-  
+
   @Test
   public void define_xoo_hotspot_rule() {
     RulesDefinition.Repository repo = context.repository("xoo");

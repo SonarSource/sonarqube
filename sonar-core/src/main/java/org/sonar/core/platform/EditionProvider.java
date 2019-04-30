@@ -21,10 +21,12 @@ package org.sonar.core.platform;
 
 import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
 @ComputeEngineSide
+@ScannerSide
 public interface EditionProvider {
   enum Edition {
     COMMUNITY("Community"),

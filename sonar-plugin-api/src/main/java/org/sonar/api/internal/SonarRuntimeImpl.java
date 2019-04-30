@@ -21,6 +21,7 @@ package org.sonar.api.internal;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -38,10 +39,13 @@ public class SonarRuntimeImpl implements SonarRuntime {
   private final Version version;
   private final SonarProduct product;
   private final SonarQubeSide sonarQubeSide;
+  private final SonarEdition edition;
 
-  private SonarRuntimeImpl(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
+  private SonarRuntimeImpl(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide, @Nullable SonarEdition edition) {
+    this.edition = edition;
     requireNonNull(product);
     checkArgument((product == SonarProduct.SONARQUBE) == (sonarQubeSide != null), "sonarQubeSide should be provided only for SonarQube product");
+    checkArgument((product == SonarProduct.SONARQUBE) == (edition != null), "edition should be provided only for SonarQube product");
     this.version = requireNonNull(version);
     this.product = product;
     this.sonarQubeSide = sonarQubeSide;
@@ -65,18 +69,26 @@ public class SonarRuntimeImpl implements SonarRuntime {
     return sonarQubeSide;
   }
 
+  @Override
+  public SonarEdition getEdition() {
+    if (sonarQubeSide == null) {
+      throw new UnsupportedOperationException("Can only be called in SonarQube");
+    }
+    return edition;
+  }
+
   /**
    * Create an instance for SonarQube runtime environment.
    */
-  public static SonarRuntime forSonarQube(Version version, SonarQubeSide side) {
-    return new SonarRuntimeImpl(version, SonarProduct.SONARQUBE, side);
+  public static SonarRuntime forSonarQube(Version version, SonarQubeSide side, SonarEdition edition) {
+    return new SonarRuntimeImpl(version, SonarProduct.SONARQUBE, side, edition);
   }
 
   /**
    * Create an instance for SonarLint runtime environment.
    */
   public static SonarRuntime forSonarLint(Version version) {
-    return new SonarRuntimeImpl(version, SonarProduct.SONARLINT, null);
+    return new SonarRuntimeImpl(version, SonarProduct.SONARLINT, null, null);
   }
 
 }

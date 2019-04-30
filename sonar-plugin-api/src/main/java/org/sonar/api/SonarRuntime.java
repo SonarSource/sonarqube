@@ -20,11 +20,10 @@
 package org.sonar.api;
 
 import javax.annotation.concurrent.Immutable;
-
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -53,7 +52,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *   // @since 6.1
  *   public void bar();
  * }
- * 
+ *
  * // Plugin extension
  * public class MyExtension {
  *   private final SonarRuntime sonarRuntime;
@@ -77,7 +76,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  *
  *
  * <p>
- *   Note that {@link Sensor} extensions can directly get {@link SonarRuntime} through
+ * Note that {@link Sensor} extensions can directly get {@link SonarRuntime} through
  * {@link SensorContext#runtime()}, without using constructor injection:
  * </p>
  * <pre>
@@ -127,16 +126,17 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * </pre>
  *
  * <p>
- *   As this component was introduced in version 6.0, the pattern described above can't be
- *   exactly applied when plugin must support version 5.6 Long Term Support. In this case plugin
- *   should use {@link SonarQubeVersion}, for example through {@link Plugin.Context#getSonarQubeVersion()} or
- *   {@link SensorContext#getSonarQubeVersion()}.
+ * As this component was introduced in version 6.0, the pattern described above can't be
+ * exactly applied when plugin must support version 5.6 Long Term Support. In this case plugin
+ * should use {@link SonarQubeVersion}, for example through {@link Plugin.Context#getSonarQubeVersion()} or
+ * {@link SensorContext#getSonarQubeVersion()}.
  * </p>
  *
  * <p>
  * Unit tests of plugin extensions can create instances of {@link SonarRuntime}
  * via {@link org.sonar.api.internal.SonarRuntimeImpl}.
  * </p>
+ *
  * @since 6.0
  */
 @ScannerSide
@@ -153,19 +153,29 @@ public interface SonarRuntime {
    * <br/>
    * Since 6.3, the returned version includes the build number in the fourth field, for
    * example {@code "6.3.0.12345"}.
-  */
+   */
   Version getApiVersion();
 
   /**
    * The product being executed at runtime. It targets analysers so that they can implement
-   * different behaviours in SonarQube and SonarLint.
+   * different behaviours in SonarQube/SonarCloud and SonarLint.
    */
   SonarProduct getProduct();
 
   /**
-   * The SonarQube stack being executed at runtime.
+   * The SonarQube/SonarCloud stack being executed at runtime.
+   *
    * @throws UnsupportedOperationException if {@link #getProduct()} is not equal to {@link SonarProduct#SONARQUBE}
    */
   SonarQubeSide getSonarQubeSide();
+
+  /**
+   * The SonarQube/SonarCloud edition being executed at runtime.
+   * Note that there is a specific edition for SonarCloud.
+   *
+   * @throws UnsupportedOperationException if {@link #getProduct()} is not equal to {@link SonarProduct#SONARQUBE}
+   * @since 7.8
+   */
+  SonarEdition getEdition();
 
 }

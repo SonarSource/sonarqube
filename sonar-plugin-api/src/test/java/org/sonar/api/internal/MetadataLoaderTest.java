@@ -20,6 +20,8 @@
 package org.sonar.api.internal;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import org.sonar.api.SonarEdition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,19 +30,41 @@ import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ApiVersionTest {
+public class MetadataLoaderTest {
+  private System2 system = mock(System2.class);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void load_version_from_file_in_classpath() {
-    Version version = ApiVersion.load(System2.INSTANCE);
+    Version version = MetadataLoader.loadVersion(System2.INSTANCE);
     assertThat(version).isNotNull();
     assertThat(version.major()).isGreaterThanOrEqualTo(5);
+  }
+
+  @Test
+  public void load_edition_from_file_in_classpath() {
+    SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
+    assertThat(edition).isNotNull();
+  }
+
+  @Test
+  public void load_edition_defaults_to_community_if_file_not_found() throws MalformedURLException {
+    when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
+    SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
+    assertThat(edition).isEqualTo(SonarEdition.COMMUNITY);
+  }
+
+  @Test
+  public void throw_ISE_if_edition_is_invalid() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Invalid edition found in '/sonar-edition.txt': 'TRASH'");
+
+    MetadataLoader.parseEdition("trash");
   }
 
   @Test
@@ -48,9 +72,8 @@ public class ApiVersionTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can not load /sonar-api-version.txt from classpath");
 
-    System2 system = spy(System2.class);
     when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
-    ApiVersion.load(system);
+    MetadataLoader.loadVersion(system);
   }
 
 }

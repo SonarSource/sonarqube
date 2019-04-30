@@ -28,6 +28,7 @@ import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.sonar.api.SonarEdition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.SonarQubeSide;
@@ -41,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OkHttpClientProviderTest {
 
   private MapSettings settings = new MapSettings();
-  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER);
+  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
   private final OkHttpClientProvider underTest = new OkHttpClientProvider();
 
   @Rule

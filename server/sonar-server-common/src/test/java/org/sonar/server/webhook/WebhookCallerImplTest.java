@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.internal.MapSettings;
@@ -233,7 +234,7 @@ public class WebhookCallerImplTest {
   }
 
   private WebhookCaller newSender() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER);
+    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
     return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime));
   }
 }

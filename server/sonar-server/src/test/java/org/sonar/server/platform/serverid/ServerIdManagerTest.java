@@ -22,6 +22,7 @@ package org.sonar.server.platform.serverid;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.sonar.api.SonarEdition;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -355,7 +356,8 @@ public class ServerIdManagerTest {
   }
 
   private void test(SonarQubeSide side) {
-    underTest = new ServerIdManager(serverIdChecksum, serverIdFactory, dbClient, SonarRuntimeImpl.forSonarQube(Version.create(6, 7), side), webServer);
+    underTest = new ServerIdManager(serverIdChecksum, serverIdFactory, dbClient, SonarRuntimeImpl
+      .forSonarQube(Version.create(6, 7), side, SonarEdition.COMMUNITY), webServer);
     underTest.start();
   }
 }
