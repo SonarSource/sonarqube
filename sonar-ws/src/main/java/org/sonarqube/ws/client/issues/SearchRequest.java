@@ -66,6 +66,7 @@ public class SearchRequest {
   private List<String> sansTop25;
   private List<String> severities;
   private String sinceLeakPeriod;
+  private List<String> sonarsourceSecurity;
   private List<String> statuses;
   private List<String> tags;
   private List<String> types;
@@ -318,6 +319,7 @@ public class SearchRequest {
    *   <li>"sansTop25"</li>
    *   <li>"cwe"</li>
    *   <li>"createdAt"</li>
+   *   <li>"sonarsourceSecurity"</li>
    * </ul>
    */
   public SearchRequest setFacets(List<String> facets) {
@@ -610,6 +612,40 @@ public class SearchRequest {
 
   public String getSinceLeakPeriod() {
     return sinceLeakPeriod;
+  }
+
+  /**
+   * Possible values:
+   * <ul>
+   *   <li>"sql-injection"</li>
+   *   <li>"command-injection"</li>
+   *   <li>"path-traversal-injection"</li>
+   *   <li>"ldap-injection"</li>
+   *   <li>"xpath-injection"</li>
+   *   <li>"expression-lang-injection"</li>
+   *   <li>"rce"</li>
+   *   <li>"dos"</li>
+   *   <li>"ssrf"</li>
+   *   <li>"csrf"</li>
+   *   <li>"xss"</li>
+   *   <li>"log-injection"</li>
+   *   <li>"http-response-splitting"</li>
+   *   <li>"open-redirect"</li>
+   *   <li>"xxe"</li>
+   *   <li>"object-injection"</li>
+   *   <li>"weak-cryptography"</li>
+   *   <li>"auth"</li>
+   *   <li>"insecure-conf"</li>
+   *   <li>"file-manipulation"</li>
+   * </ul>
+   */
+  public SearchRequest setSonarsourceSecurity(List<String> sonarsourceSecurity) {
+    this.sonarsourceSecurity = sonarsourceSecurity;
+    return this;
+  }
+
+  public List<String> getSonarsourceSecurity() {
+    return sonarsourceSecurity;
   }
 
   /**
