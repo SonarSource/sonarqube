@@ -157,6 +157,8 @@ qa_task:
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
+    screenshots_artifacts:
+      path: "**/build/screenshots/**/*"
 
 promote_task:
   depends_on:
