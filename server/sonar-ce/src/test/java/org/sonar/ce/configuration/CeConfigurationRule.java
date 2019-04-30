@@ -30,8 +30,8 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   private int workerThreadCount = 1;
   private int workerCount = 1;
   private long queuePollingDelay = 2 * 1000L;
-  private long cancelWornOutsInitialDelay = 1L;
-  private long cancelWornOutsDelay = 10L;
+  private long cleanTasksInitialDelay = 1L;
+  private long cleanTasksDelay = 10L;
 
   @Override
   public int getWorkerMaxCount() {
@@ -65,27 +65,27 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   }
 
   @Override
-  public long getCleanCeTasksInitialDelay() {
-    return cancelWornOutsInitialDelay;
+  public long getCleanTasksInitialDelay() {
+    return cleanTasksInitialDelay;
   }
 
-  public void setCleanCeTasksInitialDelay(long cancelWornOutsInitialDelay) {
-    checkArgument(cancelWornOutsInitialDelay > 0, "cancel worn-outs polling initial delay must be >= 1");
-    this.cancelWornOutsInitialDelay = cancelWornOutsInitialDelay;
+  public void setCleanTasksInitialDelay(long cleanTasksInitialDelay) {
+    checkArgument(cleanTasksInitialDelay > 0, "cancel worn-outs polling initial delay must be >= 1");
+    this.cleanTasksInitialDelay = cleanTasksInitialDelay;
   }
 
   @Override
-  public long getCleanCeTasksDelay() {
-    return cancelWornOutsDelay;
+  public long getCleanTasksDelay() {
+    return cleanTasksDelay;
+  }
+
+  public void setCleanTasksDelay(long cleanTasksDelay) {
+    checkArgument(cleanTasksDelay > 0, "cancel worn-outs polling delay must be >= 1");
+    this.cleanTasksDelay = cleanTasksDelay;
   }
 
   @Override
   public int getGracefulStopTimeoutInMs() {
     return 40_000;
-  }
-
-  public void setCleanCeTasksDelay(long cancelWornOutsDelay) {
-    checkArgument(cancelWornOutsDelay > 0, "cancel worn-outs polling delay must be >= 1");
-    this.cancelWornOutsDelay = cancelWornOutsDelay;
   }
 }

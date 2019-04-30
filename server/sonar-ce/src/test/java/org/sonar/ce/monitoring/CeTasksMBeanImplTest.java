@@ -224,12 +224,12 @@ public class CeTasksMBeanImplTest {
     }
 
     @Override
-    public long getCleanCeTasksInitialDelay() {
+    public long getCleanTasksInitialDelay() {
       throw new UnsupportedOperationException("getCleanCeTasksInitialDelay is not implemented");
     }
 
     @Override
-    public long getCleanCeTasksDelay() {
+    public long getCleanTasksDelay() {
       throw new UnsupportedOperationException("getCleanCeTasksDelay is not implemented");
     }
 

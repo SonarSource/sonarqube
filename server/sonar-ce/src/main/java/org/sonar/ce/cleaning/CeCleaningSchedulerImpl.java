@@ -47,8 +47,8 @@ public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
   @Override
   public void startScheduling() {
     executorService.scheduleWithFixedDelay(this::cleanCeQueue,
-      ceConfiguration.getCleanCeTasksInitialDelay(),
-      ceConfiguration.getCleanCeTasksDelay(),
+      ceConfiguration.getCleanTasksInitialDelay(),
+      ceConfiguration.getCleanTasksDelay(),
       MINUTES);
   }
 

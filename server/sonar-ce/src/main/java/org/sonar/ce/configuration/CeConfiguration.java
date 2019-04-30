@@ -40,12 +40,12 @@ public interface CeConfiguration {
   /**
    * Delay before running job that cleans CE tasks for the first time (in minutes).
    */
-  long getCleanCeTasksInitialDelay();
+  long getCleanTasksInitialDelay();
 
   /**
    * Delay between the end of a run and the start of the next one of the job that cleans CE tasks (in minutes).
    */
-  long getCleanCeTasksDelay();
+  long getCleanTasksDelay();
 
   /**
    * Delay before stopping workers during a graceful timeout using milliseconds unit.

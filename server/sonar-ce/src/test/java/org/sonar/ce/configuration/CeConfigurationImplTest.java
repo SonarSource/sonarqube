@@ -100,19 +100,19 @@ public class CeConfigurationImplTest {
 
   @Test
   public void getCleanCeTasksInitialDelay_returns_0() {
-    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanCeTasksInitialDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanTasksInitialDelay())
       .isEqualTo(0L);
     workerCountProvider.set(1);
-    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanCeTasksInitialDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanTasksInitialDelay())
       .isEqualTo(0L);
   }
 
   @Test
   public void getCleanCeTasksDelay_returns_2() {
-    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanCeTasksDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanTasksDelay())
       .isEqualTo(2L);
     workerCountProvider.set(1);
-    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanCeTasksDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanTasksDelay())
       .isEqualTo(2L);
   }
 

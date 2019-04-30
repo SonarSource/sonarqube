@@ -143,8 +143,8 @@ public class CeCleaningSchedulerImplTest {
 
   private CeConfiguration mockCeConfiguration(long cleanCeTasksInitialDelay, long cleanCeTasksDelay) {
     CeConfiguration mockedCeConfiguration = mock(CeConfiguration.class);
-    when(mockedCeConfiguration.getCleanCeTasksInitialDelay()).thenReturn(cleanCeTasksInitialDelay);
-    when(mockedCeConfiguration.getCleanCeTasksDelay()).thenReturn(cleanCeTasksDelay);
+    when(mockedCeConfiguration.getCleanTasksInitialDelay()).thenReturn(cleanCeTasksInitialDelay);
+    when(mockedCeConfiguration.getCleanTasksDelay()).thenReturn(cleanCeTasksDelay);
     return mockedCeConfiguration;
   }
 
