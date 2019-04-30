@@ -20,6 +20,7 @@
 package org.sonar.server.securityreport.ws;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,6 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
@@ -52,6 +54,8 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.view.index.ViewDoc;
+import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -77,9 +81,11 @@ public class ShowActionTest {
   public ExpectedException expectedException = none();
 
   private DbClient dbClient = db.getDbClient();
+  private ComponentDbTester componentDbTester = db.components();
   private DbSession session = db.getSession();
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private WsActionTester ws = new WsActionTester(new ShowAction(userSessionRule, TestComponentFinder.from(db), issueIndex, dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
@@ -97,7 +103,7 @@ public class ShowActionTest {
   public void setUp() {
     user = db.users().insertUser("john");
     userSessionRule.logIn(user);
-    project = insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_ID").setDbKey("PROJECT_KEY"));
+    project = componentDbTester.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_ID").setDbKey("PROJECT_KEY"));
     qualityProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("java"));
     // owasp : a2 and TopSans25 insecure
     rule1 = newRule(newHashSet("owaspTop10:a2", "cwe:123", "cwe:89"), RuleType.SECURITY_HOTSPOT);
@@ -132,7 +138,7 @@ public class ShowActionTest {
   public void owasp_empty() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
-    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     IssueDto issue1 = newIssue(rule1, project, file)
       .setStatus("OPEN")
       .setSeverity("MAJOR")
@@ -161,7 +167,7 @@ public class ShowActionTest {
   public void owasp_without_cwe() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
-    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     IssueDto issue1 = newIssue(rule1, project, file)
       .setStatus("OPEN")
       .setSeverity("MAJOR")
@@ -196,7 +202,7 @@ public class ShowActionTest {
   public void owasp_with_cwe__matching_json_example() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
-    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     IssueDto issue1 = newIssue(rule1, project, file)
       .setStatus("OPEN")
       .setSeverity("MAJOR")
@@ -232,7 +238,7 @@ public class ShowActionTest {
   public void sans_with_cwe() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
-    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     IssueDto issue1 = newIssue(rule1, project, file)
       .setStatus("OPEN")
       .setSeverity("MAJOR")
@@ -314,7 +320,7 @@ public class ShowActionTest {
   public void sonarsource_security_without_cwe() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
-    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     IssueDto issue1 = newIssue(rule1, project, file)
       .setStatus("OPEN")
       .setSeverity("MAJOR")
@@ -350,7 +356,7 @@ public class ShowActionTest {
   public void sonarsource_security_with_cwe() {
     userSessionRule.addProjectPermission(UserRole.USER, project);
     indexPermissions();
-    ComponentDto file = insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     IssueDto issue1 = newIssue(rule1, project, file)
       .setStatus("OPEN")
       .setSeverity("MAJOR")
@@ -382,6 +388,44 @@ public class ShowActionTest {
       .isSimilarTo(this.getClass().getResource("ShowActionTest/sonarsourceSecurityWithCwe.json"));
   }
 
+  @Test
+  public void dont_return_rules_on_application() {
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
+    indexView(application.uuid(), singletonList(project.uuid()));
+    userSessionRule.addProjectPermission(UserRole.USER, application);
+    indexPermissions();
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    IssueDto issue1 = newIssue(rule1, project, file)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.VULNERABILITY);
+    IssueDto issue2 = newIssue(rule1, project, file)
+      .setStatus("OPEN")
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue3 = newIssue(rule1, project, file)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    IssueDto issue4 = newIssue(rule1, project, file)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_WONT_FIX)
+      .setSeverity("MAJOR")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    dbClient.issueDao().insert(session, issue1, issue2, issue3, issue4);
+    session.commit();
+    indexIssues();
+
+    assertJson(ws.newRequest()
+      .setParam("standard", "sonarsourceSecurity")
+      .setParam("project", application.getKey())
+      .setParam("includeDistribution", "true")
+      .execute().getInput())
+      .withStrictArrayOrder()
+      .isSimilarTo(this.getClass().getResource("ShowActionTest/sonarsourceSecurityOnApplication.json"));
+  }
+
   private RuleDefinitionDto newRule(Set<String> standards, RuleType type) {
     RuleDefinitionDto rule = RuleTesting.newRule()
       .setType(type)
@@ -399,14 +443,13 @@ public class ShowActionTest {
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
   }
 
+  private void indexView(String viewUuid, List<String> projects) {
+    viewIndexer.index(new ViewDoc().setUuid(viewUuid).setProjects(projects));
+  }
+
   private void insertQPLiveMeasure(ComponentDto project) {
     QualityProfile qp = new QualityProfile(qualityProfile.getKee(), qualityProfile.getName(), qualityProfile.getLanguage(), new Date());
     db.measures().insertLiveMeasure(project, qpMetric, lm -> lm.setData(QPMeasureData.toJson(new QPMeasureData(singletonList(qp)))));
   }
 
-  private ComponentDto insertComponent(ComponentDto component) {
-    dbClient.componentDao().insert(session, component);
-    session.commit();
-    return component;
-  }
 }

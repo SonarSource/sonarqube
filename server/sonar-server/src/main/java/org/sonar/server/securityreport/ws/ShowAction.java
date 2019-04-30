@@ -38,9 +38,9 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.SecurityStandardCategoryStatistics;
-import org.sonar.server.security.SecurityStandardHelper;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
+import org.sonar.server.security.SecurityStandardHelper;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.SecurityReports;
 
@@ -132,31 +132,31 @@ public class ShowAction implements SecurityReportsWsAction {
     }
     String standard = request.mandatoryParam(PARAM_STANDARD);
     boolean includeCwe = request.mandatoryParamAsBoolean(PARAM_INCLUDE_DISTRIBUTION);
+    List<SecurityStandardCategoryStatistics> statistics;
     switch (standard) {
       case PARAM_OWASP_TOP_10:
-        List<SecurityStandardCategoryStatistics> owaspCategories = issueIndex.getOwaspTop10Report(projectDto.uuid(), isViewOrApp, includeCwe)
+        statistics = issueIndex.getOwaspTop10Report(projectDto.uuid(), isViewOrApp, includeCwe)
           .stream()
           .sorted(comparing(ShowAction::index))
           .collect(toList());
-        completeStatistics(owaspCategories, projectDto, standard, includeCwe);
-        writeResponse(request, response, owaspCategories);
         break;
       case PARAM_SANS_TOP_25:
-        List<SecurityStandardCategoryStatistics> sansTop25Report = issueIndex.getSansTop25Report(projectDto.uuid(), isViewOrApp, includeCwe);
-        completeStatistics(sansTop25Report, projectDto, standard, includeCwe);
-        writeResponse(request, response, sansTop25Report);
+        statistics = issueIndex.getSansTop25Report(projectDto.uuid(), isViewOrApp, includeCwe);
         break;
       case PARAM_SONARSOURCE_SECURITY:
-        List<SecurityStandardCategoryStatistics> sonarSourceReport = issueIndex.getSonarSourceReport(projectDto.uuid(), isViewOrApp, includeCwe);
-        completeStatistics(sonarSourceReport, projectDto, standard, includeCwe);
-        writeResponse(request, response, sonarSourceReport);
+        statistics = issueIndex.getSonarSourceReport(projectDto.uuid(), isViewOrApp, includeCwe);
         break;
       default:
         throw new IllegalArgumentException(String.format(UNSUPPORTED_STANDARD_MSG, standard));
     }
+    if (!isViewOrApp) {
+      // App and Portfolios don't have a quality profile
+      completeRulesStatistics(statistics, projectDto, standard, includeCwe);
+    }
+    writeResponse(request, response, statistics, isViewOrApp);
   }
 
-  private void completeStatistics(List<SecurityStandardCategoryStatistics> input, ComponentDto project, String standard, boolean includeCwe) {
+  private void completeRulesStatistics(List<SecurityStandardCategoryStatistics> input, ComponentDto project, String standard, boolean includeCwe) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Set<QualityProfile> qualityProfiles = dbClient.liveMeasureDao().selectMeasure(dbSession, project.projectUuid(), QUALITY_PROFILES_KEY)
         .map(LiveMeasureDto::getDataAsString)
@@ -239,7 +239,7 @@ public class ShowAction implements SecurityReportsWsAction {
     return 11;
   }
 
-  private static void writeResponse(Request request, Response response, List<SecurityStandardCategoryStatistics> categories) {
+  private static void writeResponse(Request request, Response response, List<SecurityStandardCategoryStatistics> categories, boolean isViewOrApp) {
     SecurityReports.ShowWsResponse.Builder builder = SecurityReports.ShowWsResponse.newBuilder();
     categories.forEach(cat -> {
       SecurityReports.SecurityStandardCategoryStatistics.Builder catBuilder = SecurityReports.SecurityStandardCategoryStatistics.newBuilder();
@@ -250,9 +250,11 @@ public class ShowAction implements SecurityReportsWsAction {
       catBuilder
         .setOpenSecurityHotspots(cat.getOpenSecurityHotspots())
         .setToReviewSecurityHotspots(cat.getToReviewSecurityHotspots())
-        .setWontFixSecurityHotspots(cat.getWontFixSecurityHotspots())
-        .setTotalRules(cat.getTotalRules())
-        .setActiveRules(cat.getActiveRules());
+        .setWontFixSecurityHotspots(cat.getWontFixSecurityHotspots());
+      if (!isViewOrApp) {
+        catBuilder.setTotalRules(cat.getTotalRules())
+          .setActiveRules(cat.getActiveRules());
+      }
       if (cat.getChildren() != null) {
         cat.getChildren().stream()
           .sorted(comparing(cweIndex()))
@@ -265,9 +267,11 @@ public class ShowAction implements SecurityReportsWsAction {
             cweBuilder
               .setOpenSecurityHotspots(cwe.getOpenSecurityHotspots())
               .setToReviewSecurityHotspots(cwe.getToReviewSecurityHotspots())
-              .setWontFixSecurityHotspots(cwe.getWontFixSecurityHotspots())
-              .setActiveRules(cwe.getActiveRules())
-              .setTotalRules(cwe.getTotalRules());
+              .setWontFixSecurityHotspots(cwe.getWontFixSecurityHotspots());
+            if (!isViewOrApp) {
+              cweBuilder.setActiveRules(cwe.getActiveRules())
+                .setTotalRules(cwe.getTotalRules());
+            }
             catBuilder.addDistribution(cweBuilder);
           });
       }
