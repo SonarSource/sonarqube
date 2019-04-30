@@ -161,24 +161,30 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
           <Link
             activeClassName="active"
             to={{
-              pathname: '/project/security_reports/sonarsource_security',
+              pathname: '/project/extension/securityreport/sonarsource_security',
               query: this.getQuery()
             }}>
-            {translate('security_reports.sonarsourceSecurity.page')}
+            {translate('securityreport.sonarsourceSecurity.page')}
           </Link>
         </li>
         <li>
           <Link
             activeClassName="active"
-            to={{ pathname: '/project/security_reports/owasp_top_10', query: this.getQuery() }}>
-            {translate('security_reports.owaspTop10.page')}
+            to={{
+              pathname: '/project/extension/securityreport/owasp_top_10',
+              query: this.getQuery()
+            }}>
+            {translate('securityreport.owaspTop10.page')}
           </Link>
         </li>
         <li>
           <Link
             activeClassName="active"
-            to={{ pathname: '/project/security_reports/sans_top_25', query: this.getQuery() }}>
-            {translate('security_reports.sansTop25.page')}
+            to={{
+              pathname: '/project/extension/securityreport/sans_top_25',
+              query: this.getQuery()
+            }}>
+            {translate('securityreport.sansTop25.page')}
           </Link>
         </li>
       </ul>
@@ -186,16 +192,25 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderSecurityReports() {
-    const { branchLike } = this.props;
+    const { branchLike, component } = this.props;
+    const { extensions = [] } = component;
 
     if (isShortLivingBranch(branchLike) || isPullRequest(branchLike)) {
       return null;
     }
 
+    const hasSecurityReportsEnabled = extensions.some(extension =>
+      extension.key.startsWith('securityreport/')
+    );
+
+    if (!hasSecurityReportsEnabled) {
+      return null;
+    }
+
     const { location = { pathname: '' } } = this.props;
-    const isActive = location.pathname.startsWith('/project/security_reports');
+    const isActive = location.pathname.startsWith('/project/extension/securityreport');
     return (
-      <Dropdown overlay={this.renderSecurityReportsLink()} tagName="li">
+      <Dropdown data-test="security" overlay={this.renderSecurityReportsLink()} tagName="li">
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
@@ -462,14 +477,24 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
 
   renderExtensions() {
     const extensions = this.props.component.extensions || [];
-    if (!extensions.length || (this.props.branchLike && !isMainBranch(this.props.branchLike))) {
+    const withoutSecurityExtension = extensions.filter(
+      extension => !extension.key.startsWith('securityreport/')
+    );
+    if (
+      withoutSecurityExtension.length === 0 ||
+      (this.props.branchLike && !isMainBranch(this.props.branchLike))
+    ) {
       return null;
     }
 
     return (
       <Dropdown
         data-test="extensions"
-        overlay={<ul className="menu">{extensions.map(e => this.renderExtension(e, false))}</ul>}
+        overlay={
+          <ul className="menu">
+            {withoutSecurityExtension.map(e => this.renderExtension(e, false))}
+          </ul>
+        }
         tagName="li">
         {({ onToggleClick, open }) => (
           <a

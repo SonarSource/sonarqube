@@ -71,6 +71,29 @@ it('should work with multiple extensions', () => {
   expect(wrapper.find('Dropdown[data-test="administration"]')).toMatchSnapshot();
 });
 
+it('should render correctly for security extensions', () => {
+  const component = {
+    ...baseComponent,
+    configuration: {
+      showSettings: true,
+      extensions: [{ key: 'securityreport/foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+    },
+    extensions: [
+      { key: 'securityreport/foo', name: 'ComponentFoo' },
+      { key: 'component-bar', name: 'ComponentBar' }
+    ]
+  };
+  const wrapper = shallow(
+    <ComponentNavMenu
+      appState={{ branchesEnabled: true }}
+      branchLike={mainBranch}
+      component={component}
+    />
+  );
+  expect(wrapper.find('Dropdown[data-test="extensions"]')).toMatchSnapshot();
+  expect(wrapper.find('Dropdown[data-test="security"]')).toMatchSnapshot();
+});
+
 it('should work for short-living branches', () => {
   const branch: T.ShortLivingBranch = {
     isMain: false,
