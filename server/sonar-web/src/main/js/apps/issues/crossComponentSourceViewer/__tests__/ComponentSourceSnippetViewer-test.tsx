@@ -19,28 +19,25 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { times } from 'lodash';
 import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
 import {
   mockMainBranch,
   mockIssue,
   mockSourceViewerFile,
   mockFlowLocation,
-  mockSnippetsByComponent
+  mockSnippetsByComponent,
+  mockSourceLine
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { getSources } from '../../../../api/components';
 
-jest.mock('../../../../api/components', () => {
-  const { mockSnippetsByComponent } = require.requireActual('../../../../helpers/testMocks');
+jest.mock('../../../../api/components', () => ({
+  getSources: jest.fn().mockResolvedValue([])
+}));
 
-  return {
-    getSources: jest
-      .fn()
-      .mockResolvedValue(
-        Object.values(
-          mockSnippetsByComponent('a', [22, 23, 24, 25, 26, 27, 28, 29, 30, 31]).sources
-        )
-      )
-  };
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 it('should render correctly', () => {
@@ -48,6 +45,9 @@ it('should render correctly', () => {
 });
 
 it('should expand block', async () => {
+  (getSources as jest.Mock).mockResolvedValueOnce(
+    Object.values(mockSnippetsByComponent('a', [22, 23, 24, 25, 26, 27, 28, 29, 30, 31]).sources)
+  );
   const snippetGroup: T.SnippetGroup = {
     locations: [
       mockFlowLocation({
@@ -67,9 +67,55 @@ it('should expand block', async () => {
   wrapper.instance().expandBlock(0, 'up');
   await waitAndUpdate(wrapper);
 
+  expect(getSources).toHaveBeenCalledWith({ from: 19, key: 'a', to: 31 });
   expect(wrapper.state('snippets')).toHaveLength(2);
   expect(wrapper.state('snippets')[0]).toHaveLength(15);
   expect(Object.keys(wrapper.state('additionalLines'))).toHaveLength(10);
+});
+
+it('should expand full component', async () => {
+  (getSources as jest.Mock).mockResolvedValueOnce(
+    Object.values(mockSnippetsByComponent('a', times(14)).sources)
+  );
+  const snippetGroup: T.SnippetGroup = {
+    locations: [
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 3, endLine: 3, startOffset: 0, endOffset: 0 }
+      }),
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 }
+      })
+    ],
+    ...mockSnippetsByComponent('a', [1, 2, 3, 4, 5, 10, 11, 12, 13, 14])
+  };
+
+  const wrapper = shallowRender({ snippetGroup });
+
+  wrapper.instance().expandComponent();
+  await waitAndUpdate(wrapper);
+
+  expect(getSources).toHaveBeenCalledWith({ key: 'a' });
+  expect(wrapper.state('snippets')).toHaveLength(1);
+  expect(wrapper.state('snippets')[0]).toHaveLength(14);
+});
+
+it('should handle correctly open/close issue', () => {
+  const wrapper = shallowRender();
+  const sourceLine = mockSourceLine();
+  expect(wrapper.state('openIssuesByLine')).toEqual({});
+  wrapper.instance().handleOpenIssues(sourceLine);
+  expect(wrapper.state('openIssuesByLine')).toEqual({ [sourceLine.line]: true });
+  wrapper.instance().handleCloseIssues(sourceLine);
+  expect(wrapper.state('openIssuesByLine')).toEqual({ [sourceLine.line]: false });
+});
+
+it('should handle symbol highlighting', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.state('highlightedSymbols')).toEqual([]);
+  wrapper.instance().handleSymbolClick(['foo']);
+  expect(wrapper.state('highlightedSymbols')).toEqual(['foo']);
 });
 
 function shallowRender(props: Partial<ComponentSourceSnippetViewer['props']> = {}) {

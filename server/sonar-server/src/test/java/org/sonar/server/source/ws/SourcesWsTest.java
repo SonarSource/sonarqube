@@ -41,7 +41,7 @@ public class SourcesWsTest {
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class), userSessionRule, mock(ComponentFinder.class));
   LinesAction linesAction = new LinesAction(mock(ComponentFinder.class), mock(DbClient.class), mock(SourceService.class), mock(LinesJsonWriter.class), userSessionRule);
   HashAction hashAction = new HashAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
-  IssueSnippetsAction issueSnippetsAction = new IssueSnippetsAction(mock(SourceService.class), mock(DbClient.class), userSessionRule, mock(IssueFinder.class),
+  IssueSnippetsAction issueSnippetsAction = new IssueSnippetsAction(mock(SourceService.class), mock(DbClient.class), mock(IssueFinder.class),
     mock(LinesJsonWriter.class), mock(ComponentViewerJsonWriter.class));
   WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, issueSnippetsAction));
 

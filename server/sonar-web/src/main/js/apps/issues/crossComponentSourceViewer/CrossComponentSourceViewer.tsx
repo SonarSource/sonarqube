@@ -19,8 +19,9 @@
  */
 import { lazyLoad } from '../../../components/lazyLoad';
 
-const CrossComponentSourceViewer = lazyLoad(() =>
-  import(/* webpackPrefetch: true */ './CrossComponentSourceViewerWrapper')
+const CrossComponentSourceViewer = lazyLoad(
+  () => import(/* webpackPrefetch: true */ './CrossComponentSourceViewerWrapper'),
+  'CrossComponentSourceViewer'
 );
 
 export default CrossComponentSourceViewer;

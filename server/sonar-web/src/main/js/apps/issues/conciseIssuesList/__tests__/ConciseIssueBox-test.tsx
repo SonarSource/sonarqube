@@ -21,14 +21,18 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssueBox from '../ConciseIssueBox';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate, click } from '../../../../helpers/testUtils';
 
 it('should render correctly', async () => {
-  const wrapper = shallowRender();
+  const onClick = jest.fn();
+  const wrapper = shallowRender({ onClick });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  expect(shallowRender({ issue: mockIssue(true) })).toMatchSnapshot();
+  const issue = mockIssue(true);
+  expect(shallowRender({ issue })).toMatchSnapshot();
+  click(wrapper.find('.concise-issue-box-message'));
+  expect(onClick).toBeCalledWith(issue.key);
 });
 
 const shallowRender = (props: Partial<ConciseIssueBox['props']> = {}) => {

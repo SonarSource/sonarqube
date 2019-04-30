@@ -217,11 +217,8 @@ export default class LineCode extends React.PureComponent<Props, State> {
       leadingMarker = (index === 0 ? true : leadingMarker) && !token.text.trim().length;
     });
 
-    const style = padding
-      ? {
-          paddingBottom: padding + 'px'
-        }
-      : undefined;
+    const style = padding ? { paddingBottom: `${padding}px` } : undefined;
+    const filteredSelectedIssues = issues.filter(i => i.key === selectedIssue);
 
     return (
       <td className={className} data-line-number={line.line} style={style}>
@@ -243,7 +240,7 @@ export default class LineCode extends React.PureComponent<Props, State> {
           <LineIssuesList
             branchLike={this.props.branchLike}
             issuePopup={this.props.issuePopup}
-            issues={issues.filter(i => i.key === selectedIssue)}
+            issues={filteredSelectedIssues}
             onIssueChange={this.props.onIssueChange}
             onIssueClick={onIssueSelect}
             onIssuePopupToggle={this.props.onIssuePopupToggle}

@@ -3,7 +3,7 @@
 exports[`render code 1`] = `
 <td
   className="source-line-code code has-issues"
-  data-line-number={3}
+  data-line-number={16}
 >
   <div
     className="source-line-code-inner"
@@ -13,34 +13,41 @@ exports[`render code 1`] = `
         className="k source-line-code-issue"
         key="0"
       >
-        class
+        impor
       </span>
       <span
-        className=""
+        className="k"
         key="1"
       >
-         
-      </span>
-      <span
-        className="sym sym-1"
-        key="2"
-      >
-        Foo
+        t
       </span>
       <span
         className=""
+        key="2"
+      >
+         java.util.
+      </span>
+      <span
+        className="sym-9 sym highlighted"
         key="3"
       >
-         {
+        ArrayList
+      </span>
+      <span
+        className=""
+        key="4"
+      >
+        ;
       </span>
     </pre>
   </div>
   <LineIssuesList
     branchLike={
       Object {
+        "analysisDate": "2018-01-01",
         "isMain": false,
         "mergeBranch": "master",
-        "name": "feature",
+        "name": "feature/foo",
         "type": "SHORT",
       }
     }
@@ -48,49 +55,63 @@ exports[`render code 1`] = `
       Array [
         Object {
           "actions": Array [],
-          "component": "",
-          "componentLongName": "",
-          "componentQualifier": "",
-          "componentUuid": "",
-          "creationDate": "",
+          "component": "main.js",
+          "componentLongName": "main.js",
+          "componentQualifier": "FIL",
+          "componentUuid": "foo1234",
+          "creationDate": "2017-03-01T09:36:01+0100",
           "flows": Array [],
           "fromHotspot": false,
           "key": "issue-1",
-          "message": "",
-          "organization": "",
-          "project": "",
-          "projectKey": "",
-          "projectName": "",
-          "projectOrganization": "",
-          "rule": "",
-          "ruleName": "",
+          "line": 25,
+          "message": "Reduce the number of conditional operators (4) used in the expression",
+          "organization": "myorg",
+          "project": "myproject",
+          "projectKey": "foo",
+          "projectName": "Foo",
+          "projectOrganization": "org",
+          "rule": "javascript:S1067",
+          "ruleName": "foo",
           "secondaryLocations": Array [],
-          "severity": "",
-          "status": "",
+          "severity": "MAJOR",
+          "status": "OPEN",
+          "textRange": Object {
+            "endLine": 26,
+            "endOffset": 15,
+            "startLine": 25,
+            "startOffset": 0,
+          },
           "transitions": Array [],
           "type": "BUG",
         },
         Object {
           "actions": Array [],
-          "component": "",
-          "componentLongName": "",
-          "componentQualifier": "",
-          "componentUuid": "",
-          "creationDate": "",
+          "component": "main.js",
+          "componentLongName": "main.js",
+          "componentQualifier": "FIL",
+          "componentUuid": "foo1234",
+          "creationDate": "2017-03-01T09:36:01+0100",
           "flows": Array [],
           "fromHotspot": false,
           "key": "issue-2",
-          "message": "",
-          "organization": "",
-          "project": "",
-          "projectKey": "",
-          "projectName": "",
-          "projectOrganization": "",
-          "rule": "",
-          "ruleName": "",
+          "line": 25,
+          "message": "Reduce the number of conditional operators (4) used in the expression",
+          "organization": "myorg",
+          "project": "myproject",
+          "projectKey": "foo",
+          "projectName": "Foo",
+          "projectOrganization": "org",
+          "rule": "javascript:S1067",
+          "ruleName": "foo",
           "secondaryLocations": Array [],
-          "severity": "",
-          "status": "",
+          "severity": "MAJOR",
+          "status": "OPEN",
+          "textRange": Object {
+            "endLine": 26,
+            "endOffset": 15,
+            "startLine": 25,
+            "startOffset": 0,
+          },
           "transitions": Array [],
           "type": "BUG",
         },

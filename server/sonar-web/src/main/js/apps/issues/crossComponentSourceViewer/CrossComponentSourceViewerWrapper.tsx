@@ -121,7 +121,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
             issue={this.props.issue}
             issuePopup={this.state.issuePopup}
             issuesByLine={issuesByComponent[g.component.key] || {}}
-            key={this.props.issue.key + '-' + this.props.selectedFlowIndex + '-' + i}
+            key={`${this.props.issue.key}-${this.props.selectedFlowIndex}-${i}`}
             last={i === locationsByComponent.length - 1}
             locations={g.locations || []}
             onIssueChange={this.props.onIssueChange}

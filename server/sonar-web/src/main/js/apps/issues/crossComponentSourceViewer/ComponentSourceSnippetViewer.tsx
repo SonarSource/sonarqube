@@ -59,6 +59,7 @@ interface Props {
 interface State {
   additionalLines: { [line: number]: T.SourceLine };
   highlightedSymbols: string[];
+  linePopup?: { index?: number; line: number; name: string };
   loading: boolean;
   openIssuesByLine: T.Dict<boolean>;
   snippets: T.SourceLine[][];
@@ -139,6 +140,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
 
               return {
                 additionalLines: combinedLines,
+                linePopup: undefined,
                 snippets: expandSnippet({
                   direction,
                   lines: { ...combinedLines, ...this.props.snippetGroup.sources },
@@ -149,7 +151,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
             });
           }
         },
-        () => null
+        () => {}
       );
   };
 
@@ -161,7 +163,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     getSources({ key }).then(
       lines => {
         if (this.mounted) {
-          this.setState({ loading: false, snippets: [lines] });
+          this.setState({ linePopup: undefined, loading: false, snippets: [lines] });
         }
       },
       () => {
@@ -170,6 +172,32 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         }
       }
     );
+  };
+
+  handleLinePopupToggle = ({
+    index,
+    line,
+    name,
+    open
+  }: {
+    index?: number;
+    line: number;
+    name: string;
+    open?: boolean;
+  }) => {
+    this.setState((state: State) => {
+      const samePopup =
+        state.linePopup !== undefined &&
+        state.linePopup.name === name &&
+        state.linePopup.line === line &&
+        state.linePopup.index === index;
+      if (open !== false && !samePopup) {
+        return { linePopup: { index, line, name } };
+      } else if (open !== true && samePopup) {
+        return { linePopup: undefined };
+      }
+      return null;
+    });
   };
 
   handleOpenIssues = (line: T.SourceLine) => {
@@ -182,6 +210,10 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
     }));
+  };
+
+  handleSymbolClick = (highlightedSymbols: string[]) => {
+    this.setState({ highlightedSymbols });
   };
 
   renderLine({
@@ -231,7 +263,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         key={line.line}
         last={false}
         line={line}
-        linePopup={undefined}
+        linePopup={this.state.linePopup}
         loadDuplications={noop}
         onIssueChange={this.props.onIssueChange}
         onIssuePopupToggle={this.props.onIssuePopupToggle}
@@ -239,9 +271,9 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         onIssueUnselect={noop}
         onIssuesClose={this.handleCloseIssues}
         onIssuesOpen={this.handleOpenIssues}
-        onLinePopupToggle={noop}
+        onLinePopupToggle={this.handleLinePopupToggle}
         onLocationSelect={this.props.onLocationSelect}
-        onSymbolClick={highlightedSymbols => this.setState({ highlightedSymbols })}
+        onSymbolClick={this.handleSymbolClick}
         openIssues={openIssuesByLine[line.line]}
         previousLine={index > 0 ? snippet[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}

@@ -22,12 +22,17 @@ import { shallow } from 'enzyme';
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 import { mockIssue, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { getIssueFlowSnippets } from '../../../../api/issues';
 
 jest.mock('../../../../api/issues', () => {
   const { mockSourceViewerFile } = require.requireActual('../../../../helpers/testMocks');
   return {
     getIssueFlowSnippets: jest.fn().mockResolvedValue([mockSourceViewerFile()])
   };
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 it('should render correctly', () => {
@@ -38,8 +43,12 @@ it('Should fetch data', async () => {
   const wrapper = shallowRender();
   wrapper.instance().fetchIssueFlowSnippets('124');
   await waitAndUpdate(wrapper);
-
+  expect(getIssueFlowSnippets).toBeCalled();
   expect(wrapper.state('components')).toEqual([mockSourceViewerFile()]);
+
+  (getIssueFlowSnippets as jest.Mock).mockClear();
+  wrapper.setProps({ issue: mockIssue(true, { key: 'foo' }) });
+  expect(getIssueFlowSnippets).toBeCalledWith('foo');
 });
 
 it('should handle issue popup', () => {

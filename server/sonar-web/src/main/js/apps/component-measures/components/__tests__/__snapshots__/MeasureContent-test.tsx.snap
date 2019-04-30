@@ -95,7 +95,7 @@ exports[`should render correctly for a file 1`] = `
     <div
       className="measure-details-viewer"
     >
-      <LazyLoader
+      <SourceViewer
         component="foo:src/index.tsx"
       />
     </div>

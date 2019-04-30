@@ -28,7 +28,7 @@ import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { isMainBranch } from '../../helpers/branches';
 import './SourceViewerHeaderSlim.css';
 
-interface Props {
+export interface Props {
   branchLike: T.BranchLike | undefined;
   expandable?: boolean;
   loading?: boolean;
@@ -57,9 +57,9 @@ export default function SourceViewerHeaderSlim({
         </div>
 
         {subProject !== undefined && (
-          <div className="">
+          <>
             <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
-          </div>
+          </>
         )}
 
         <div className="spacer-left">

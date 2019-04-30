@@ -19,5 +19,8 @@
  */
 import { lazyLoad } from '../lazyLoad';
 
-const SourceViewer = lazyLoad(() => import(/* webpackPrefetch: true */ './SourceViewerBase'));
+const SourceViewer = lazyLoad(
+  () => import(/* webpackPrefetch: true */ './SourceViewerBase'),
+  'SourceViewer'
+);
 export default SourceViewer;

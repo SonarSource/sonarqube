@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+>
+  <div
+    className="display-flex-row flex-1"
+  >
+    <div>
+      <a
+        className="link-with-icon"
+        href="/dashboard?id=my-project"
+      >
+        <QualifierIcon
+          qualifier="TRK"
+        />
+         
+        <span>
+          MyProject
+        </span>
+      </a>
+    </div>
+    <div
+      className="spacer-left"
+    >
+      <QualifierIcon
+        qualifier="FIL"
+      />
+       
+      <span>
+        foo/
+      </span>
+      <span
+        className="component-name-file"
+      >
+        bar.ts
+      </span>
+    </div>
+  </div>
+  <DeferredSpinner
+    className="little-spacer-right"
+    timeout={100}
+  >
+    <div
+      className="source-viewer-header-slim-actions flex-0"
+    >
+      <ButtonIcon
+        className="js-actions"
+        onClick={[MockFunction]}
+      >
+        <ExpandSnippetIcon />
+      </ButtonIcon>
+    </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly for subproject 1`] = `
+<div
+  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+>
+  <div
+    className="display-flex-row flex-1"
+  >
+    <div>
+      <a
+        className="link-with-icon"
+        href="/dashboard?id=my-project"
+      >
+        <QualifierIcon
+          qualifier="TRK"
+        />
+         
+        <span>
+          MyProject
+        </span>
+      </a>
+    </div>
+    <QualifierIcon
+      qualifier="BRC"
+    />
+     
+    <span>
+      Foo
+    </span>
+    <div
+      className="spacer-left"
+    >
+      <QualifierIcon
+        qualifier="FIL"
+      />
+       
+      <span>
+        foo/
+      </span>
+      <span
+        className="component-name-file"
+      >
+        bar.ts
+      </span>
+    </div>
+  </div>
+  <DeferredSpinner
+    className="little-spacer-right"
+    timeout={100}
+  >
+    <div
+      className="source-viewer-header-slim-actions flex-0"
+    >
+      <ButtonIcon
+        className="js-actions"
+        onClick={[MockFunction]}
+      >
+        <ExpandSnippetIcon />
+      </ButtonIcon>
+    </div>
+  </DeferredSpinner>
+</div>
+`;

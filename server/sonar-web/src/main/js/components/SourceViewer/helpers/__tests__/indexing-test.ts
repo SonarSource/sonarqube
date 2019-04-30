@@ -17,7 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { symbolsByLine } from '../indexing';
+import { issuesByComponentAndLine, symbolsByLine } from '../indexing';
+import { mockIssue } from '../../../../helpers/testMocks';
+
+describe('issuesByComponentAndLine', () => {
+  it('should map issues by lines and components', () => {
+    const issues = [
+      mockIssue(true, { component: 'foo.js' }),
+      mockIssue(false, {
+        component: 'foo.js',
+        textRange: { startLine: 5, endLine: 5, startOffset: 0, endOffset: 0 }
+      }),
+      mockIssue(false, { component: 'bar.js' }),
+      mockIssue(),
+      mockIssue()
+    ];
+    const result = issuesByComponentAndLine(issues);
+    expect(Object.keys(result['foo.js'])).toHaveLength(2);
+    expect(Object.keys(result['foo.js'])).toEqual(['5', '26']);
+    expect(result['foo.js'][5]).toHaveLength(1);
+
+    expect(Object.keys(result['bar.js'])).toHaveLength(1);
+
+    expect(Object.keys(result['main.js'])).toHaveLength(1);
+    expect(result['main.js'][26]).toHaveLength(2);
+  });
+});
 
 describe('symbolsByLine', () => {
   it('should highlight symbols marked twice', () => {

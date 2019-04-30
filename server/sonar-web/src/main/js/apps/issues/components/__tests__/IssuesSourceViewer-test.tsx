@@ -19,32 +19,32 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import LineCode from '../LineCode';
-import { mockShortLivingBranch, mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
+import IssuesSourceViewer from '../IssuesSourceViewer';
+import { mockMainBranch, mockIssue } from '../../../../helpers/testMocks';
 
-it('render code', () => {
+it('should render SourceViewer correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<LineCode['props']> = {}) {
+it('should render CrossComponentSourceViewer correctly', () => {
+  expect(
+    shallowRender({ issues: [mockIssue(true)], openIssue: mockIssue(true) })
+  ).toMatchSnapshot();
+});
+
+function shallowRender(props: Partial<IssuesSourceViewer['props']> = {}) {
   return shallow(
-    <LineCode
-      branchLike={mockShortLivingBranch()}
-      displayLocationMarkers={true}
-      highlightedLocationMessage={{ index: 0, text: 'location description' }}
-      highlightedSymbols={['sym-9']}
-      issueLocations={[{ from: 0, to: 5, line: 16 }]}
-      issuePopup={undefined}
-      issues={[mockIssue(false, { key: 'issue-1' }), mockIssue(false, { key: 'issue-2' })]}
-      line={mockSourceLine()}
+    <IssuesSourceViewer
+      branchLike={mockMainBranch()}
+      issues={[mockIssue()]}
+      loadIssues={jest.fn()}
+      locationsNavigator={true}
       onIssueChange={jest.fn()}
-      onIssuePopupToggle={jest.fn()}
       onIssueSelect={jest.fn()}
       onLocationSelect={jest.fn()}
-      onSymbolClick={jest.fn()}
-      secondaryIssueLocations={[]}
-      selectedIssue="issue-1"
-      showIssues={true}
+      openIssue={mockIssue()}
+      selectedFlowIndex={undefined}
+      selectedLocationIndex={undefined}
       {...props}
     />
   );
