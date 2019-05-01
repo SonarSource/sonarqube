@@ -33,16 +33,16 @@
       "/analysis/generic-issue/",
       "/analysis/generic-test/",
       "/analysis/pull-request/",
+      {
+        "title": "Branches",
+        "children": [
+          "/branches/overview/",
+          "/branches/short-lived-branches/",
+          "/branches/long-lived-branches/",
+          "/branches/branches-faq/"
+        ]
+      },
       "/analysis/scm-integration/"
-    ]
-  },
-  {
-    "title": "Branches",
-    "children": [
-      "/branches/overview/",
-      "/branches/short-lived-branches/",
-      "/branches/long-lived-branches/",
-      "/branches/branches-faq/"
     ]
   },
   {
