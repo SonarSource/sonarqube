@@ -62,7 +62,7 @@ public class UserSessionInitializer {
     LOGIN_URL, LOGOUT_URL, VALIDATE_URL);
 
   private static final Set<String> URL_USING_PASSCODE = ImmutableSet.of(
-    "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics");
+    "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics", "/api/system/migrate_es");
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")

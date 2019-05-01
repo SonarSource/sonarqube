@@ -18,42 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.platform.db.migration.version.v77;
+package org.sonar.server.platform.db.migration.version.v78;
 
+import com.google.common.collect.ImmutableMap;
 import java.sql.SQLException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.db.CoreDbTester;
+import org.mockito.Mockito;
+import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class AddSonarsourceSecurityElasticsearchMappingTest {
-
-  @Rule
-  public final CoreDbTester db = CoreDbTester.createEmpty();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+public class AddSecurityFieldsToElasticsearchIndicesTest {
 
   private MigrationEsClient esClient = mock(MigrationEsClient.class);
-  private AddSonarsourceSecurityElasticsearchMapping underTest = new AddSonarsourceSecurityElasticsearchMapping(db.database(), esClient);
+  private Database database = mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
+  private DdlChange underTest = new AddSecurityFieldsToElasticsearchIndices(database, esClient);
 
   @Test
   public void migration_adds_new_issues_mapping() throws SQLException {
     underTest.execute();
 
-    verify(esClient).addMappingToExistingIndex("issues", "auth", "sonarsourceSecurity", "keyword");
+    verify(esClient).addMappingToExistingIndex("issues", "auth", "sonarsourceSecurity", "keyword",
+      ImmutableMap.of("norms", "false"));
+    verify(esClient).addMappingToExistingIndex("rules", "rule", "cwe", "keyword",
+      ImmutableMap.of("norms", "false"));
+    verify(esClient).addMappingToExistingIndex("rules", "rule", "owaspTop10", "keyword",
+      ImmutableMap.of("norms", "false"));
+    verify(esClient).addMappingToExistingIndex("rules", "rule", "sansTop25", "keyword",
+      ImmutableMap.of("norms", "false"));
+    verify(esClient).addMappingToExistingIndex("rules", "rule", "sonarsourceSecurity", "keyword",
+      ImmutableMap.of("norms", "false"));
+    verifyNoMoreInteractions(esClient);
   }
-
-  public void migration_is_reentrant() throws SQLException {
-    underTest.execute();
-
-    underTest.execute();
-
-    verify(esClient).addMappingToExistingIndex("issues", "auth", "sonarsourceSecurity", "keyword");
-  }
-
 }

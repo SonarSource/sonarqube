@@ -19,19 +19,21 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.Maps;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
-import static java.lang.String.format;
-
 public class MigrationEsClientImpl implements MigrationEsClient {
   private final EsClient client;
+  private final Set<String> updatedIndices = new HashSet<>();
 
   public MigrationEsClientImpl(EsClient client) {
     this.client = client;
@@ -48,15 +50,24 @@ public class MigrationEsClientImpl implements MigrationEsClient {
   }
 
   @Override
-  public void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType) {
+  public void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType, Map<String, String> options) {
     IndexStats stats = client.nativeClient().admin().indices().prepareStats().get().getIndex(index);
     if (stats != null) {
       Loggers.get(getClass()).info("Add mapping [{}] to Elasticsearch index [{}]", mappingName, index);
+      String mappingOptions = Stream.concat(Stream.of(Maps.immutableEntry("type", mappingType)), options.entrySet().stream())
+        .map(e -> e.getKey() + "=" + e.getValue())
+        .collect(Collectors.joining(","));
       client.nativeClient().admin().indices().preparePutMapping(index)
         .setType(type)
-        .setSource(mappingName, format("type=%s", mappingType))
+        .setSource(mappingName, mappingOptions)
         .get();
+      updatedIndices.add(index);
     }
+  }
+
+  @Override
+  public Set<String> getUpdatedIndices() {
+    return updatedIndices;
   }
 
   private void deleteIndex(String index) {

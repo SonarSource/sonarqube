@@ -19,8 +19,12 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -55,7 +59,7 @@ public class MigrationEsClientImplTest {
   }
 
   @Test
-  public void ignore_indices_that_do_not_exist() {
+  public void delete_index_that_does_not_exist() {
     underTest.deleteIndexes("as", "xxx", "cs");
 
     assertThat(loadExistingIndices())
@@ -68,40 +72,38 @@ public class MigrationEsClientImplTest {
   }
 
   @Test
-  public void add_mapping_to_existing_index() {
-    underTest.addMappingToExistingIndex("as", "s", "newMapping", "keyword");
+  public void addMappingToExistingIndex() {
+    Map<String, String> mappingOptions = ImmutableMap.of("norms", "false");
+    underTest.addMappingToExistingIndex("as", "s", "new_field", "keyword", mappingOptions);
 
-    GetFieldMappingsResponse response = es.client().nativeClient().admin().indices().prepareGetFieldMappings("as")
-      .setTypes("s")
-      .setFields("newMapping")
-      .get();
-    assertThat(response).isNotNull();
-    assertThat(response.mappings()).hasSize(1);
-    assertThat(response.mappings().get("as")).isNotNull();
-    assertThat(response.mappings().get("as").get("s")).isNotNull();
-    assertThat(response.mappings().get("as").get("s").get("newMapping").fullName()).isEqualTo("newMapping");
+    assertThat(loadExistingIndices()).toIterable().contains("as");
+    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
+    MappingMetaData mapping = mappings.get("as").get("s");
+    assertThat(countMappingFields(mapping)).isEqualTo(1);
+    assertThat(field(mapping, "new_field")).isNotNull();
+
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("Add mapping [newMapping] to Elasticsearch index [as]");
-  }
-
-  @Test
-  public void add_mapping_to_non_existing_index() {
-    underTest.addMappingToExistingIndex("yyyy", "s", "newMapping", "keyword");
-
-    GetFieldMappingsResponse response = es.client().nativeClient().admin().indices().prepareGetFieldMappings("as")
-      .setTypes("s")
-      .setFields("newMapping")
-      .get();
-    assertThat(response).isNotNull();
-    assertThat(response.mappings()).hasSize(1);
-    assertThat(response.mappings().get("as")).isNotNull();
-    assertThat(response.mappings().get("as").get("s")).isNotNull();
-    assertThat(response.mappings().get("as").get("s").get("newMapping").fullName()).isEqualTo("");
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+      .contains("Add mapping [new_field] to Elasticsearch index [as]");
+    assertThat(underTest.getUpdatedIndices()).containsExactly("as");
   }
 
   private Iterator<String> loadExistingIndices() {
     return es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings().keysIt();
+  }
+
+  private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings() {
+    return es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings();
+  }
+
+  @CheckForNull
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> field(MappingMetaData mapping, String field) {
+    Map<String, Object> props = (Map<String, Object>) mapping.getSourceAsMap().get("properties");
+    return (Map<String, Object>) props.get(field);
+  }
+
+  private int countMappingFields(MappingMetaData mapping) {
+    return ((Map) mapping.getSourceAsMap().get("properties")).size();
   }
 
   private static class SimpleIndexDefinition implements IndexDefinition {

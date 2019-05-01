@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
@@ -33,11 +34,13 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.newindex.BuiltIndex;
 import org.sonar.server.es.newindex.NewIndex;
+import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.DESCRIPTOR;
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
@@ -53,16 +56,18 @@ public class IndexCreator implements Startable {
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
   private final EsClient client;
+  private final MigrationEsClient migrationEsClient;
   private final IndexDefinitions definitions;
   private final EsDbCompatibility esDbCompatibility;
   private final Configuration configuration;
 
   public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition,
-    MetadataIndex metadataIndex, EsDbCompatibility esDbCompatibility, Configuration configuration) {
+    MetadataIndex metadataIndex, MigrationEsClient migrationEsClient, EsDbCompatibility esDbCompatibility, Configuration configuration) {
     this.client = client;
     this.definitions = definitions;
     this.metadataIndexDefinition = metadataIndexDefinition;
     this.metadataIndex = metadataIndex;
+    this.migrationEsClient = migrationEsClient;
     this.esDbCompatibility = esDbCompatibility;
     this.configuration = configuration;
   }
@@ -81,13 +86,16 @@ public class IndexCreator implements Startable {
     checkDbCompatibility(definitions.getIndices().values());
 
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
-    for (BuiltIndex<?> builtIndex : definitions.getIndices().values()) {
-      Index index = builtIndex.getMainType().getIndex();
-      boolean exists = client.prepareIndicesExist(index).get().isExists();
-      if (!exists) {
-        createIndex(builtIndex, true);
-      }
-    }
+    definitions.getIndices().values().stream()
+      .filter(i -> !i.getMainType().equals(metadataMainType))
+      .forEach(index -> {
+        boolean exists = client.prepareIndicesExist(index.getMainType().getIndex()).get().isExists();
+        if (!exists) {
+          createIndex(index, true);
+        } else if (hasDefinitionChange(index)) {
+          updateIndex(index);
+        }
+      });
   }
 
   @Override
@@ -97,7 +105,7 @@ public class IndexCreator implements Startable {
 
   private void createIndex(BuiltIndex<?> builtIndex, boolean useMetadata) {
     Index index = builtIndex.getMainType().getIndex();
-    LOGGER.info(String.format("Create index %s", index.getName()));
+    LOGGER.info(String.format("Create index [%s]", index.getName()));
     Settings.Builder settings = Settings.builder();
     settings.put(builtIndex.getSettings());
     if (useMetadata) {
@@ -110,7 +118,7 @@ public class IndexCreator implements Startable {
       .setSettings(settings)
       .get();
     if (!indexResponse.isAcknowledged()) {
-      throw new IllegalStateException("Failed to create index " + index.getName());
+      throw new IllegalStateException("Failed to create index [" + index.getName() + "]");
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
@@ -128,6 +136,34 @@ public class IndexCreator implements Startable {
 
   private void deleteIndex(String indexName) {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
+  }
+
+  private void updateIndex(BuiltIndex<?> index) {
+    boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
+    String indexName = index.getMainType().getIndex().getName();
+
+    if (blueGreen) {
+      // SonarCloud
+      if (migrationEsClient.getUpdatedIndices().contains(indexName)) {
+        LOGGER.info("Resetting definition hash of Elasticsearch index [{}]", indexName);
+        metadataIndex.setHash(index.getMainType().getIndex(), IndexDefinitionHash.of(index));
+      } else {
+        throw new IllegalStateException("Blue/green deployment is not supported. Elasticsearch index [" + indexName + "] changed and needs to be dropped.");
+      }
+    } else {
+      // SonarQube
+      LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
+      deleteIndex(indexName);
+      createIndex(index, true);
+    }
+  }
+
+  private boolean hasDefinitionChange(BuiltIndex<?> index) {
+    return metadataIndex.getHash(index.getMainType().getIndex())
+      .map(hash -> {
+        String defHash = IndexDefinitionHash.of(index);
+        return !StringUtils.equals(hash, defHash);
+      }).orElse(true);
   }
 
   private void checkDbCompatibility(Collection<BuiltIndex> definitions) {
