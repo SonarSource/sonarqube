@@ -27,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.application.FileSystem;
-import org.sonar.application.Scheduler;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
@@ -50,32 +49,32 @@ public class StopRequestWatcherImplTest {
 
   private AppSettings settings = mock(AppSettings.class, RETURNS_DEEP_STUBS);
   private ProcessCommands commands = mock(ProcessCommands.class);
-  private Scheduler scheduler = mock(Scheduler.class);
+  private Runnable listener = mock(Runnable.class);
 
   @Test
   public void do_not_watch_command_if_disabled() {
     enableSetting(false);
-    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, scheduler, commands);
+    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, listener, commands);
 
     underTest.startWatching();
     assertThat(underTest.isAlive()).isFalse();
 
     underTest.stopWatching();
-    verifyZeroInteractions(commands, scheduler);
+    verifyZeroInteractions(commands, listener);
   }
 
   @Test
   public void watch_stop_command_if_enabled() throws Exception {
     enableSetting(true);
-    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, scheduler, commands);
+    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, listener, commands);
     underTest.setDelayMs(1L);
 
     underTest.startWatching();
     assertThat(underTest.isAlive()).isTrue();
-    verify(scheduler, never()).terminate();
+    verify(listener, never()).run();
 
     when(commands.askedForStop()).thenReturn(true);
-    verify(scheduler, timeout(1_000L)).terminate();
+    verify(listener, timeout(1_000L)).run();
 
     underTest.stopWatching();
     while (underTest.isAlive()) {
@@ -88,7 +87,7 @@ public class StopRequestWatcherImplTest {
     FileSystem fs = mock(FileSystem.class);
     when(fs.getTempDir()).thenReturn(temp.newFolder());
 
-    StopRequestWatcherImpl underTest = StopRequestWatcherImpl.create(settings, scheduler, fs);
+    StopRequestWatcherImpl underTest = StopRequestWatcherImpl.create(settings, listener, fs);
 
     assertThat(underTest.getDelayMs()).isEqualTo(500L);
   }
@@ -96,7 +95,7 @@ public class StopRequestWatcherImplTest {
   @Test
   public void stop_watching_commands_if_thread_is_interrupted() throws Exception {
     enableSetting(true);
-    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, scheduler, commands);
+    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, listener, commands);
 
     underTest.startWatching();
     underTest.interrupt();

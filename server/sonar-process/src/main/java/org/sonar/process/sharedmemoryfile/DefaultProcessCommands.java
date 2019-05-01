@@ -38,14 +38,14 @@ public class DefaultProcessCommands implements ProcessCommands {
   /**
    * Main DefaultProcessCommands will clear the shared memory space of the specified process number when created and will
    * then write and/or read to it.
-   * Therefor there should be only one main DefaultProcessCommands.
+   * Therefore there should be only one main DefaultProcessCommands.
    */
   public static DefaultProcessCommands main(File directory, int processNumber) {
     return new DefaultProcessCommands(directory, processNumber, true);
   }
 
   /**
-   * Secondary DefaultProcessCommands will read and write to the shared memory space but will not clear it. Therefor, there
+   * Secondary DefaultProcessCommands will read and write to the shared memory space but will not clear it. Therefore, there
    * can be any number of them.
    */
   public static DefaultProcessCommands secondary(File directory, int processNumber) {

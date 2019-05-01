@@ -20,7 +20,6 @@
 package org.sonar.application.process;
 
 import org.sonar.application.FileSystem;
-import org.sonar.application.Scheduler;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
@@ -33,24 +32,24 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
   private static final long DEFAULT_WATCHER_DELAY_MS = 500L;
 
   private final ProcessCommands commands;
-  private final Scheduler scheduler;
+  private final Runnable listener;
   private final AppSettings settings;
   private long delayMs = DEFAULT_WATCHER_DELAY_MS;
 
-  StopRequestWatcherImpl(AppSettings settings, Scheduler scheduler, ProcessCommands commands) {
+  StopRequestWatcherImpl(AppSettings settings, Runnable listener, ProcessCommands commands) {
     super("StopRequestWatcherImpl");
     this.settings = settings;
     this.commands = commands;
-    this.scheduler = scheduler;
+    this.listener = listener;
 
     // safeguard, do not block the JVM if thread is not interrupted
     // (method stopWatching() never called).
     setDaemon(true);
   }
 
-  public static StopRequestWatcherImpl create(AppSettings settings, Scheduler scheduler, FileSystem fs) {
+  public static StopRequestWatcherImpl create(AppSettings settings, Runnable listener, FileSystem fs) {
     DefaultProcessCommands commands = DefaultProcessCommands.secondary(fs.getTempDir(), ProcessId.APP.getIpcIndex());
-    return new StopRequestWatcherImpl(settings, scheduler, commands);
+    return new StopRequestWatcherImpl(settings, listener, commands);
   }
 
   long getDelayMs() {
@@ -66,7 +65,7 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
     try {
       while (true) {
         if (commands.askedForStop()) {
-          scheduler.terminate();
+          listener.run();
           return;
         }
         Thread.sleep(delayMs);
@@ -86,7 +85,7 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
 
   @Override
   public void stopWatching() {
-    // does nothing is not started
+    // does nothing if not started
     interrupt();
   }
 }

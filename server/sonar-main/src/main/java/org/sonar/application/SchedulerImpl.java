@@ -51,7 +51,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final AppState appState;
   private final NodeLifecycle nodeLifecycle = new NodeLifecycle();
 
-  private final CountDownLatch keepAlive = new CountDownLatch(1);
+  private final CountDownLatch awaitTermination = new CountDownLatch(1);
   private final AtomicBoolean firstWaitingEsLog = new AtomicBoolean(true);
   private final AtomicBoolean restartRequested = new AtomicBoolean(false);
   private final AtomicBoolean restartDisabled = new AtomicBoolean(false);
@@ -63,8 +63,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private long processWatcherDelayMs = SQProcess.DEFAULT_WATCHER_DELAY_MS;
 
   public SchedulerImpl(AppSettings settings, AppReloader appReloader, CommandFactory commandFactory,
-    ProcessLauncher processLauncher,
-    AppState appState) {
+    ProcessLauncher processLauncher, AppState appState) {
     this.settings = settings;
     this.appReloader = appReloader;
     this.commandFactory = commandFactory;
@@ -203,13 +202,13 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     if (restarterThread != null) {
       restarterThread.interrupt();
     }
-    keepAlive.countDown();
+    awaitTermination.countDown();
   }
 
   @Override
   public void awaitTermination() {
     try {
-      keepAlive.await();
+      awaitTermination.await();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }

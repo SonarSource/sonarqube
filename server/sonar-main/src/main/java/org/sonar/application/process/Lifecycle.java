@@ -66,7 +66,7 @@ public class Lifecycle {
     res.put(STARTED, toSet(STOPPING, STOPPED));
     res.put(STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet());
-    return res;
+    return Collections.unmodifiableMap(res);
   }
 
   private static Set<State> toSet(State... states) {

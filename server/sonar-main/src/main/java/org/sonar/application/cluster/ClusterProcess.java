@@ -20,6 +20,7 @@
 package org.sonar.application.cluster;
 
 import java.io.Serializable;
+import java.util.Objects;
 import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;
@@ -58,8 +59,6 @@ public class ClusterProcess implements Serializable {
 
   @Override
   public int hashCode() {
-    int result = processId.hashCode();
-    result = 31 * result + nodeUuid.hashCode();
-    return result;
+    return Objects.hash(processId, nodeUuid);
   }
 }

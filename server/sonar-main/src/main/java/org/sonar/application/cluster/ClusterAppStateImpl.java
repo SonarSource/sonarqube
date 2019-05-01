@@ -34,7 +34,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,21 +121,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
   @Override
   public boolean tryToLockWebLeader() {
     IAtomicReference<String> leader = hzMember.getAtomicReference(LEADER);
-    if (leader.get() == null) {
-      Lock lock = hzMember.getLock(LEADER);
-      lock.lock();
-      try {
-        if (leader.get() == null) {
-          leader.set(hzMember.getUuid());
-          return true;
-        }
-        return false;
-      } finally {
-        lock.unlock();
-      }
-    } else {
-      return false;
-    }
+    return leader.compareAndSet(null, hzMember.getUuid());
   }
 
   @Override
@@ -147,44 +132,28 @@ public class ClusterAppStateImpl implements ClusterAppState {
   @Override
   public void registerSonarQubeVersion(String sonarqubeVersion) {
     IAtomicReference<String> sqVersion = hzMember.getAtomicReference(SONARQUBE_VERSION);
-    if (sqVersion.get() == null) {
-      Lock lock = hzMember.getLock(SONARQUBE_VERSION);
-      lock.lock();
-      try {
-        if (sqVersion.get() == null) {
-          sqVersion.set(sonarqubeVersion);
-        }
-      } finally {
-        lock.unlock();
-      }
-    }
+    boolean wasSet = sqVersion.compareAndSet(null, sonarqubeVersion);
 
-    String clusterVersion = sqVersion.get();
-    if (!sqVersion.get().equals(sonarqubeVersion)) {
-      throw new IllegalStateException(
-        format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion));
+    if (!wasSet) {
+      String clusterVersion = sqVersion.get();
+      if (!sqVersion.get().equals(sonarqubeVersion)) {
+        throw new IllegalStateException(
+          format("The local version %s is not the same as the cluster %s", sonarqubeVersion, clusterVersion));
+      }
     }
   }
 
   @Override
   public void registerClusterName(String clusterName) {
     IAtomicReference<String> property = hzMember.getAtomicReference(CLUSTER_NAME);
-    if (property.get() == null) {
-      Lock lock = hzMember.getLock(CLUSTER_NAME);
-      lock.lock();
-      try {
-        if (property.get() == null) {
-          property.set(clusterName);
-        }
-      } finally {
-        lock.unlock();
-      }
-    }
+    boolean wasSet = property.compareAndSet(null, clusterName);
 
-    String clusterValue = property.get();
-    if (!property.get().equals(clusterName)) {
-      throw new MessageException(
-        format("This node has a cluster name [%s], which does not match [%s] from the cluster", clusterName, clusterValue));
+    if (!wasSet) {
+      String clusterValue = property.get();
+      if (!property.get().equals(clusterName)) {
+        throw new MessageException(
+          format("This node has a cluster name [%s], which does not match [%s] from the cluster", clusterName, clusterValue));
+      }
     }
   }
 

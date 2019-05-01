@@ -19,31 +19,29 @@
  */
 package org.sonar.process;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * Calls {@link System#exit(int)} except from shutdown hooks, to prevent
  * deadlocks. See http://stackoverflow.com/a/19552359/229031
  */
 public class SystemExit {
 
-  private final AtomicBoolean inShutdownHook = new AtomicBoolean(false);
+  private volatile boolean inShutdownHook = false;
 
   public void exit(int code) {
-    if (!inShutdownHook.get()) {
+    if (!inShutdownHook) {
       doExit(code);
     }
   }
 
   public boolean isInShutdownHook() {
-    return inShutdownHook.get();
+    return inShutdownHook;
   }
 
   /**
    * Declarative approach. I don't know how to get this lifecycle state from Java API.
    */
   public void setInShutdownHook() {
-    inShutdownHook.set(true);
+    inShutdownHook = true;
   }
 
   void doExit(int code) {

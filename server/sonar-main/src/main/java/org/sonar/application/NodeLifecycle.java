@@ -69,7 +69,7 @@ class NodeLifecycle {
     res.put(OPERATIONAL, toSet(STOPPING, STOPPED));
     res.put(STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet(STARTING));
-    return res;
+    return Collections.unmodifiableMap(res);
   }
 
   private static Set<State> toSet(State... states) {

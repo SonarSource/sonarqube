@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nonnull;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 
@@ -36,7 +35,7 @@ public class AppStateImpl implements AppState {
   private final AtomicBoolean webLeaderLocked = new AtomicBoolean(false);
 
   @Override
-  public void addListener(@Nonnull AppStateListener listener) {
+  public void addListener(AppStateListener listener) {
     this.listeners.add(listener);
   }
 
