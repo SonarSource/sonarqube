@@ -2,177 +2,289 @@
 
 exports[`should render correctly 1`] = `
 <div
-  class="overview-card"
+  className="overview-card"
   id="overview-code-smells"
 >
   <div
-    class="overview-card-header"
+    className="overview-card-header"
   >
     <div
-      class="overview-title"
+      className="overview-title"
     >
       <span>
         metric_domain.Maintainability
       </span>
-      <a
-        class="spacer-left small"
+      <Link
+        className="spacer-left small"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "query": Object {
+              "id": "my-project",
+              "metric": "Maintainability",
+            },
+          }
+        }
       >
         layout.measures
-      </a>
+      </Link>
     </div>
   </div>
   <div
-    class="overview-domain-panel"
+    className="overview-domain-panel"
   >
     <div
-      class="overview-domain-nutshell"
+      className="overview-domain-nutshell"
     >
       <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <span
-              class="offset-left"
+              className="offset-left"
             >
-              <a>
-                work_duration.x_days.2
-              </a>
-            </span>
-            <div
-              class="overview-domain-measure-sup"
-            >
-              <a
-                class="link-no-underline"
+              <DrilldownLink
+                branchLike={
+                  Object {
+                    "analysisDate": "2018-01-01",
+                    "isMain": true,
+                    "name": "master",
+                  }
+                }
+                component="my-project"
+                metric="sqale_index"
               >
-                <span
-                  aria-label="metric.has_rating_X.B"
-                  class="rating rating-B"
+                work_duration.x_days.2
+              </DrilldownLink>
+            </span>
+            <Tooltip
+              overlay="metric.sqale_rating.tooltip.B.0.0%"
+            >
+              <div
+                className="overview-domain-measure-sup"
+              >
+                <DrilldownLink
+                  branchLike={
+                    Object {
+                      "analysisDate": "2018-01-01",
+                      "isMain": true,
+                      "name": "master",
+                    }
+                  }
+                  className="link-no-underline"
+                  component="my-project"
+                  metric="sqale_rating"
                 >
-                  B
-                </span>
-              </a>
-            </div>
+                  <Rating
+                    value="2.0"
+                  />
+                </DrilldownLink>
+              </div>
+            </Tooltip>
           </div>
           <div
-            class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+            className="overview-domain-measure-label display-flex-center display-flex-justify-center"
           >
             overview.metric.effort
-          </div>
-          <a
-            class="overview-domain-measure-history-link"
-          >
-            <svg
-              data-mocked-icon="HistoryIcon"
+            <DocTooltip
+              className="little-spacer-left"
+              doc={Promise {}}
             />
+          </div>
+          <Link
+            className="overview-domain-measure-history-link"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/activity",
+                "query": Object {
+                  "custom_metrics": "sqale_index",
+                  "graph": "custom",
+                  "id": "my-project",
+                },
+              }
+            }
+          >
+            <HistoryIcon />
             <span>
               project_activity.page
             </span>
-          </a>
+          </Link>
         </div>
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
-            <a>
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/issues",
+                  "query": Object {
+                    "id": "my-project",
+                    "resolved": "false",
+                    "types": "CODE_SMELL",
+                  },
+                }
+              }
+            >
               15
-            </a>
+            </Link>
           </div>
           <div
-            class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+            className="overview-domain-measure-label display-flex-center display-flex-justify-center"
           >
-            <svg
-              class="little-spacer-right "
-              data-mocked-icon="CodeSmellIcon"
+            <CodeSmellIcon
+              className="little-spacer-right "
             />
             overview.metric.code_smells
-          </div>
-          <a
-            class="overview-domain-measure-history-link"
-          >
-            <svg
-              data-mocked-icon="HistoryIcon"
+            <DocTooltip
+              className="little-spacer-left"
+              doc={Promise {}}
             />
+          </div>
+          <Link
+            className="overview-domain-measure-history-link"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/activity",
+                "query": Object {
+                  "custom_metrics": "code_smells",
+                  "graph": "custom",
+                  "id": "my-project",
+                },
+              }
+            }
+          >
+            <HistoryIcon />
             <span>
               project_activity.page
             </span>
-          </a>
+          </Link>
         </div>
       </div>
       <div
-        class="overview-domain-timeline"
-      />
+        className="overview-domain-timeline"
+      >
+        <Timeline
+          history={Array []}
+        />
+      </div>
     </div>
     <div
-      class="overview-domain-leak"
+      className="overview-domain-leak"
     >
       <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <span
-              class="offset-left"
+              className="offset-left"
             >
-              <a>
-                work_duration.x_hours.1
-              </a>
-            </span>
-            <div
-              class="overview-domain-measure-sup"
-            >
-              <a
-                class="link-no-underline"
+              <DrilldownLink
+                branchLike={
+                  Object {
+                    "analysisDate": "2018-01-01",
+                    "isMain": true,
+                    "name": "master",
+                  }
+                }
+                component="my-project"
+                metric="new_technical_debt"
               >
-                <span
-                  aria-label="metric.has_rating_X.A"
-                  class="rating rating-A"
+                work_duration.x_hours.1
+              </DrilldownLink>
+            </span>
+            <Tooltip
+              overlay="metric.sqale_rating.tooltip.A.0.0%"
+            >
+              <div
+                className="overview-domain-measure-sup"
+              >
+                <DrilldownLink
+                  branchLike={
+                    Object {
+                      "analysisDate": "2018-01-01",
+                      "isMain": true,
+                      "name": "master",
+                    }
+                  }
+                  className="link-no-underline"
+                  component="my-project"
+                  metric="new_maintainability_rating"
                 >
-                  A
-                </span>
-              </a>
-            </div>
+                  <Rating
+                    value="1.0"
+                  />
+                </DrilldownLink>
+              </div>
+            </Tooltip>
           </div>
           <div
-            class="overview-domain-measure-label"
+            className="overview-domain-measure-label"
           >
             overview.metric.new_effort
           </div>
         </div>
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
-            <a>
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/issues",
+                  "query": Object {
+                    "id": "my-project",
+                    "resolved": "false",
+                    "sinceLeakPeriod": "true",
+                    "types": "CODE_SMELL",
+                  },
+                }
+              }
+            >
               52
-            </a>
+            </Link>
           </div>
           <div
-            class="overview-domain-measure-label"
+            className="overview-domain-measure-label"
           >
-            <svg
-              class="little-spacer-right"
-              data-mocked-icon="CodeSmellIcon"
+            <CodeSmellIcon
+              className="little-spacer-right"
             />
             overview.metric.new_code_smells
           </div>
         </div>
       </div>
       <div
-        class="overview-domain-timeline"
-      />
+        className="overview-domain-timeline"
+      >
+        <Timeline
+          history={Array []}
+        />
+      </div>
     </div>
   </div>
 </div>

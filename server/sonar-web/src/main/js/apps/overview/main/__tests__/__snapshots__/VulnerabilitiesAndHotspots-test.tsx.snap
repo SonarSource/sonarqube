@@ -2,186 +2,303 @@
 
 exports[`should render correctly 1`] = `
 <div
-  class="overview-card"
+  className="overview-card"
 >
   <div
-    class="overview-card-header"
+    className="overview-card-header"
   >
     <div
-      class="overview-title"
+      className="overview-title"
     >
       <span>
         metric_domain.Security
       </span>
-      <a
-        class="spacer-left small"
+      <Link
+        className="spacer-left small"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "query": Object {
+              "id": "my-project",
+              "metric": "Security",
+            },
+          }
+        }
       >
         layout.measures
-      </a>
+      </Link>
     </div>
   </div>
   <div
-    class="overview-domain-panel"
+    className="overview-domain-panel"
   >
     <div
-      class="overview-domain-nutshell"
+      className="overview-domain-nutshell"
     >
       <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <span
-              class="offset-left"
+              className="offset-left"
             >
-              <a>
-                0
-              </a>
-            </span>
-            <div
-              class="overview-domain-measure-sup"
-            >
-              <a
-                class="link-no-underline"
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/project/issues",
+                    "query": Object {
+                      "id": "my-project",
+                      "resolved": "false",
+                      "types": "VULNERABILITY",
+                    },
+                  }
+                }
               >
-                <span
-                  aria-label="metric.has_rating_X.A"
-                  class="rating rating-A"
+                0
+              </Link>
+            </span>
+            <Tooltip
+              overlay="metric.security_rating.tooltip.A"
+            >
+              <div
+                className="overview-domain-measure-sup"
+              >
+                <DrilldownLink
+                  branchLike={
+                    Object {
+                      "analysisDate": "2018-01-01",
+                      "isMain": true,
+                      "name": "master",
+                    }
+                  }
+                  className="link-no-underline"
+                  component="my-project"
+                  metric="security_rating"
                 >
-                  A
-                </span>
-              </a>
-            </div>
+                  <Rating
+                    value="1.0"
+                  />
+                </DrilldownLink>
+              </div>
+            </Tooltip>
           </div>
           <div
-            class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+            className="overview-domain-measure-label display-flex-center display-flex-justify-center"
           >
-            <svg
-              class="little-spacer-right"
-              data-mocked-icon="VulnerabilityIcon"
+            <VulnerabilityIcon
+              className="little-spacer-right"
             />
             overview.metric.vulnerabilities
-          </div>
-          <a
-            class="overview-domain-measure-history-link"
-          >
-            <svg
-              data-mocked-icon="HistoryIcon"
+            <DocTooltip
+              className="little-spacer-left"
+              doc={Promise {}}
             />
+          </div>
+          <Link
+            className="overview-domain-measure-history-link"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/activity",
+                "query": Object {
+                  "custom_metrics": "vulnerabilities",
+                  "graph": "custom",
+                  "id": "my-project",
+                },
+              }
+            }
+          >
+            <HistoryIcon />
             <span>
               project_activity.page
             </span>
-          </a>
+          </Link>
         </div>
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value overview-domain-measure-value-small"
+            className="overview-domain-measure-value overview-domain-measure-value-small"
           >
-            <a>
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/issues",
+                  "query": Object {
+                    "id": "my-project",
+                    "resolved": "false",
+                    "types": "SECURITY_HOTSPOT",
+                  },
+                }
+              }
+            >
               0
-            </a>
+            </Link>
           </div>
           <div
-            class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+            className="overview-domain-measure-label display-flex-center display-flex-justify-center"
           >
-            <svg
-              class="little-spacer-right"
-              data-mocked-icon="SecurityHotspotIcon"
+            <SecurityHotspotIcon
+              className="little-spacer-right"
             />
             overview.metric.security_hotspots
-          </div>
-          <a
-            class="overview-domain-measure-history-link"
-          >
-            <svg
-              data-mocked-icon="HistoryIcon"
+            <DocTooltip
+              className="little-spacer-left"
+              doc={Promise {}}
             />
+          </div>
+          <Link
+            className="overview-domain-measure-history-link"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/activity",
+                "query": Object {
+                  "custom_metrics": "security_hotspots",
+                  "graph": "custom",
+                  "id": "my-project",
+                },
+              }
+            }
+          >
+            <HistoryIcon />
             <span>
               project_activity.page
             </span>
-          </a>
+          </Link>
         </div>
       </div>
       <div
-        class="overview-domain-timeline"
-      />
+        className="overview-domain-timeline"
+      >
+        <Timeline
+          history={Array []}
+        />
+      </div>
     </div>
     <div
-      class="overview-domain-leak"
+      className="overview-domain-leak"
     >
       <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <span
-              class="offset-left"
+              className="offset-left"
             >
-              <a>
-                1
-              </a>
-            </span>
-            <div
-              class="overview-domain-measure-sup"
-            >
-              <a
-                class="link-no-underline"
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/project/issues",
+                    "query": Object {
+                      "id": "my-project",
+                      "resolved": "false",
+                      "sinceLeakPeriod": "true",
+                      "types": "VULNERABILITY",
+                    },
+                  }
+                }
               >
-                <span
-                  aria-label="metric.has_rating_X.E"
-                  class="rating rating-E"
+                1
+              </Link>
+            </span>
+            <Tooltip
+              overlay="metric.security_rating.tooltip.E"
+            >
+              <div
+                className="overview-domain-measure-sup"
+              >
+                <DrilldownLink
+                  branchLike={
+                    Object {
+                      "analysisDate": "2018-01-01",
+                      "isMain": true,
+                      "name": "master",
+                    }
+                  }
+                  className="link-no-underline"
+                  component="my-project"
+                  metric="new_security_rating"
                 >
-                  E
-                </span>
-              </a>
-            </div>
+                  <Rating
+                    value="5.0"
+                  />
+                </DrilldownLink>
+              </div>
+            </Tooltip>
           </div>
           <div
-            class="overview-domain-measure-label"
+            className="overview-domain-measure-label"
           >
-            <svg
-              class="little-spacer-right"
-              data-mocked-icon="VulnerabilityIcon"
+            <VulnerabilityIcon
+              className="little-spacer-right"
             />
             overview.metric.new_vulnerabilities
           </div>
         </div>
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value overview-domain-measure-value-small"
+            className="overview-domain-measure-value overview-domain-measure-value-small"
           >
             <span>
-              <a>
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/project/issues",
+                    "query": Object {
+                      "id": "my-project",
+                      "resolved": "false",
+                      "sinceLeakPeriod": "true",
+                      "types": "SECURITY_HOTSPOT",
+                    },
+                  }
+                }
+              >
                 10
-              </a>
+              </Link>
             </span>
           </div>
           <div
-            class="overview-domain-measure-label"
+            className="overview-domain-measure-label"
           >
-            <svg
-              class="little-spacer-right"
-              data-mocked-icon="SecurityHotspotIcon"
+            <SecurityHotspotIcon
+              className="little-spacer-right"
             />
             overview.metric.new_security_hotspots
           </div>
         </div>
       </div>
       <div
-        class="overview-domain-timeline"
-      />
+        className="overview-domain-timeline"
+      >
+        <Timeline
+          history={Array []}
+        />
+      </div>
     </div>
   </div>
 </div>

@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IntlProvider } from 'react-intl';
-import { render } from 'enzyme';
+import { shallow } from 'enzyme';
 import Bugs from '../Bugs';
 import { ComposedProps } from '../enhance';
 import {
@@ -29,67 +28,57 @@ import {
   mockMetric
 } from '../../../../helpers/testMocks';
 
-jest.mock('../../../../components/icons-components/BugIcon', () => ({
-  default: ({ className }: any) => <svg className={className} data-mocked-icon="BugIcon" />
-}));
-
-jest.mock('../../../../components/icons-components/HistoryIcon', () => ({
-  default: ({ className }: any) => <svg className={className} data-mocked-icon="HistoryIcon" />
-}));
-
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<ComposedProps> = {}) {
-  return render(
-    <IntlProvider locale="en" messages={{}}>
-      <Bugs
-        branchLike={mockMainBranch()}
-        component={mockComponent()}
-        history={{ bugs: [] }}
-        historyStartDate={new Date('2019-01-14T15:44:51.000Z')}
-        leakPeriod={{ index: 1, mode: 'days' } as T.Period}
-        measures={[
-          mockMeasureEnhanced({
-            metric: mockMetric({
-              id: 'bugs',
-              key: 'bugs',
-              name: 'Bugs',
-              type: 'INT'
-            }),
-            value: '5'
+  return shallow(
+    <Bugs
+      branchLike={mockMainBranch()}
+      component={mockComponent()}
+      history={{ bugs: [] }}
+      historyStartDate={new Date('2019-01-14T15:44:51.000Z')}
+      leakPeriod={{ index: 1, mode: 'days' } as T.Period}
+      measures={[
+        mockMeasureEnhanced({
+          metric: mockMetric({
+            id: 'bugs',
+            key: 'bugs',
+            name: 'Bugs',
+            type: 'INT'
           }),
-          mockMeasureEnhanced({
-            metric: mockMetric({
-              id: 'new_bugs',
-              key: 'new_bugs',
-              name: 'New Bugs',
-              type: 'INT'
-            }),
-            value: '2'
+          value: '5'
+        }),
+        mockMeasureEnhanced({
+          metric: mockMetric({
+            id: 'new_bugs',
+            key: 'new_bugs',
+            name: 'New Bugs',
+            type: 'INT'
           }),
-          mockMeasureEnhanced({
-            metric: mockMetric({
-              id: 'reliability_rating',
-              key: 'reliability_rating',
-              name: 'Reliability',
-              type: 'RATING'
-            }),
-            value: '1.0'
+          value: '2'
+        }),
+        mockMeasureEnhanced({
+          metric: mockMetric({
+            id: 'reliability_rating',
+            key: 'reliability_rating',
+            name: 'Reliability',
+            type: 'RATING'
           }),
-          mockMeasureEnhanced({
-            metric: mockMetric({
-              id: 'new_reliability_rating',
-              key: 'new_reliability_rating',
-              name: 'New Reliability',
-              type: 'RATING'
-            }),
-            value: '2.0'
-          })
-        ]}
-        {...props}
-      />
-    </IntlProvider>
-  );
+          value: '1.0'
+        }),
+        mockMeasureEnhanced({
+          metric: mockMetric({
+            id: 'new_reliability_rating',
+            key: 'new_reliability_rating',
+            name: 'New Reliability',
+            type: 'RATING'
+          }),
+          value: '2.0'
+        })
+      ]}
+      {...props}
+    />
+  ).dive();
 }

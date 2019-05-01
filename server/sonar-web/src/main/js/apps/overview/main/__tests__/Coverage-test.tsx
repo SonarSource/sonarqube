@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { render } from 'enzyme';
+import { shallow } from 'enzyme';
 import Coverage from '../Coverage';
 import { ComposedProps } from '../enhance';
 import {
@@ -28,20 +28,12 @@ import {
   mockMetric
 } from '../../../../helpers/testMocks';
 
-jest.mock('../../../../components/ui/CoverageRating', () => ({
-  default: () => <svg data-mocked-element="CoverageRating" />
-}));
-
-jest.mock('../../../../components/icons-components/HistoryIcon', () => ({
-  default: ({ className }: any) => <svg className={className} data-mocked-icon="HistoryIcon" />
-}));
-
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<ComposedProps> = {}) {
-  return render(
+  return shallow(
     <Coverage
       branchLike={mockMainBranch()}
       component={mockComponent()}
@@ -77,5 +69,5 @@ function shallowRender(props: Partial<ComposedProps> = {}) {
       ]}
       {...props}
     />
-  );
+  ).dive();
 }

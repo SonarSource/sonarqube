@@ -2,138 +2,217 @@
 
 exports[`should render correctly 1`] = `
 <div
-  class="overview-card"
+  className="overview-card"
 >
   <div
-    class="overview-card-header"
+    className="overview-card-header"
   >
     <div
-      class="overview-title"
+      className="overview-title"
     >
       <span>
         overview.domain.duplications
       </span>
-      <a
-        class="spacer-left small"
+      <Link
+        className="spacer-left small"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "query": Object {
+              "id": "my-project",
+              "metric": "Duplications",
+            },
+          }
+        }
       >
         layout.measures
-      </a>
+      </Link>
     </div>
   </div>
   <div
-    class="overview-domain-panel"
+    className="overview-domain-panel"
   >
     <div
-      class="overview-domain-nutshell"
+      className="overview-domain-nutshell"
     >
       <div
-        class="overview-domain-measures overview-domain-measures-big"
+        className="overview-domain-measures overview-domain-measures-big"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="display-inline-block text-middle big-spacer-right neg-offset-left"
+            className="display-inline-block text-middle big-spacer-right neg-offset-left"
           >
-            <svg
-              data-mocked-element="DuplicationsRating"
+            <DuplicationsRating
+              size="big"
+              value={0.5}
             />
           </div>
           <div
-            class="display-inline-block text-middle"
+            className="display-inline-block text-middle"
           >
             <div
-              class="overview-domain-measure-value"
+              className="overview-domain-measure-value"
             >
-              <a>
+              <DrilldownLink
+                branchLike={
+                  Object {
+                    "analysisDate": "2018-01-01",
+                    "isMain": true,
+                    "name": "master",
+                  }
+                }
+                component="my-project"
+                metric="duplicated_lines_density"
+              >
                 0.5%
-              </a>
+              </DrilldownLink>
             </div>
             <div
-              class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+              className="overview-domain-measure-label display-flex-center display-flex-justify-center"
             >
               overview.metric.duplications
-            </div>
-            <a
-              class="overview-domain-measure-history-link"
-            >
-              <svg
-                data-mocked-icon="HistoryIcon"
+              <DocTooltip
+                className="little-spacer-left"
+                doc={Promise {}}
               />
+            </div>
+            <Link
+              className="overview-domain-measure-history-link"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/activity",
+                  "query": Object {
+                    "custom_metrics": "duplicated_lines_density",
+                    "graph": "custom",
+                    "id": "my-project",
+                  },
+                }
+              }
+            >
+              <HistoryIcon />
               <span>
                 project_activity.page
               </span>
-            </a>
+            </Link>
           </div>
         </div>
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
-            <a>
+            <DrilldownLink
+              branchLike={
+                Object {
+                  "analysisDate": "2018-01-01",
+                  "isMain": true,
+                  "name": "master",
+                }
+              }
+              component="my-project"
+              metric="duplicated_blocks"
+            >
               <span
-                class="js-overview-main-tests"
+                className="js-overview-main-tests"
               >
                 1
               </span>
-            </a>
+            </DrilldownLink>
           </div>
           <div
-            class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+            className="overview-domain-measure-label display-flex-center display-flex-justify-center"
           >
             Duplicated Blocks
-            <a
-              class="overview-domain-measure-history-link"
+            <DocTooltip
+              className="little-spacer-left"
+              doc={Promise {}}
+            />
+            <Link
+              className="overview-domain-measure-history-link"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/activity",
+                  "query": Object {
+                    "custom_metrics": "duplicated_blocks",
+                    "graph": "custom",
+                    "id": "my-project",
+                  },
+                }
+              }
             >
-              <svg
-                data-mocked-icon="HistoryIcon"
-              />
+              <HistoryIcon />
               <span>
                 project_activity.page
               </span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
     </div>
     <div
-      class="overview-domain-leak"
+      className="overview-domain-leak"
     >
       <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <div>
-              <a>
+              <DrilldownLink
+                branchLike={
+                  Object {
+                    "analysisDate": "2018-01-01",
+                    "isMain": true,
+                    "name": "master",
+                  }
+                }
+                component="my-project"
+                metric="new_duplicated_lines_density"
+              >
                 <span
-                  class="js-overview-main-new-duplications"
+                  className="js-overview-main-new-duplications"
                 >
                   1.5%
                 </span>
-              </a>
+              </DrilldownLink>
             </div>
           </div>
           <div
-            class="overview-domain-measure-label"
+            className="overview-domain-measure-label"
           >
             overview.duplications_on
             <br />
-            <a
-              class="spacer-right overview-domain-secondary-measure-value"
+            <DrilldownLink
+              branchLike={
+                Object {
+                  "analysisDate": "2018-01-01",
+                  "isMain": true,
+                  "name": "master",
+                }
+              }
+              className="spacer-right overview-domain-secondary-measure-value"
+              component="my-project"
+              metric="new_lines"
             >
               <span
-                class="js-overview-main-new-lines"
+                className="js-overview-main-new-lines"
               >
                 1
               </span>
-            </a>
+            </DrilldownLink>
             overview.metric.new_lines
           </div>
         </div>

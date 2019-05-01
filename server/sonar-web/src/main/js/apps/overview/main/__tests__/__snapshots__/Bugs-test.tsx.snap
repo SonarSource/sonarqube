@@ -2,145 +2,225 @@
 
 exports[`should render correctly 1`] = `
 <div
-  class="overview-card"
+  className="overview-card"
 >
   <div
-    class="overview-card-header"
+    className="overview-card-header"
   >
     <div
-      class="overview-title"
+      className="overview-title"
     >
       <span>
         metric_domain.Reliability
       </span>
-      <a
-        class="spacer-left small"
+      <Link
+        className="spacer-left small"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "query": Object {
+              "id": "my-project",
+              "metric": "Reliability",
+            },
+          }
+        }
       >
         layout.measures
-      </a>
+      </Link>
     </div>
   </div>
   <div
-    class="overview-domain-panel"
+    className="overview-domain-panel"
   >
     <div
-      class="overview-domain-nutshell"
+      className="overview-domain-nutshell"
     >
       <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <span
-              class="offset-left"
+              className="offset-left"
             >
-              <a>
-                5
-              </a>
-            </span>
-            <div
-              class="overview-domain-measure-sup"
-            >
-              <a
-                class="link-no-underline"
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/project/issues",
+                    "query": Object {
+                      "id": "my-project",
+                      "resolved": "false",
+                      "types": "BUG",
+                    },
+                  }
+                }
               >
-                <span
-                  aria-label="metric.has_rating_X.A"
-                  class="rating rating-A"
+                5
+              </Link>
+            </span>
+            <Tooltip
+              overlay="metric.reliability_rating.tooltip.A"
+            >
+              <div
+                className="overview-domain-measure-sup"
+              >
+                <DrilldownLink
+                  branchLike={
+                    Object {
+                      "analysisDate": "2018-01-01",
+                      "isMain": true,
+                      "name": "master",
+                    }
+                  }
+                  className="link-no-underline"
+                  component="my-project"
+                  metric="reliability_rating"
                 >
-                  A
-                </span>
-              </a>
-            </div>
+                  <Rating
+                    value="1.0"
+                  />
+                </DrilldownLink>
+              </div>
+            </Tooltip>
           </div>
           <div
-            class="overview-domain-measure-label display-flex-center display-flex-justify-center"
+            className="overview-domain-measure-label display-flex-center display-flex-justify-center"
           >
-            <svg
-              class="little-spacer-right "
-              data-mocked-icon="BugIcon"
+            <BugIcon
+              className="little-spacer-right "
             />
             overview.metric.bugs
-          </div>
-          <a
-            class="overview-domain-measure-history-link"
-          >
-            <svg
-              data-mocked-icon="HistoryIcon"
+            <DocTooltip
+              className="little-spacer-left"
+              doc={Promise {}}
             />
+          </div>
+          <Link
+            className="overview-domain-measure-history-link"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/project/activity",
+                "query": Object {
+                  "custom_metrics": "bugs",
+                  "graph": "custom",
+                  "id": "my-project",
+                },
+              }
+            }
+          >
+            <HistoryIcon />
             <span>
               project_activity.page
             </span>
-          </a>
+          </Link>
         </div>
       </div>
       <div
-        class="overview-domain-timeline"
+        className="overview-domain-timeline"
       >
-        <span
-          class="overview-domain-timeline-date"
+        <Timeline
+          history={Array []}
+        />
+        <DateFromNow
+          date={2019-01-14T15:44:51.000Z}
         >
-          overview.started_x.3 months ago
-        </span>
+          <Component />
+        </DateFromNow>
       </div>
     </div>
     <div
-      class="overview-domain-leak"
+      className="overview-domain-leak"
     >
+      <InjectIntl(LeakPeriodLegend)
+        period={
+          Object {
+            "index": 1,
+            "mode": "days",
+          }
+        }
+      />
       <div
-        class="overview-legend overview-legend-spaced-line"
-      >
-        overview.new_code_period_x.overview.period.days.
-      </div>
-      <div
-        class="overview-domain-measures"
+        className="overview-domain-measures"
       >
         <div
-          class="overview-domain-measure"
+          className="overview-domain-measure"
         >
           <div
-            class="overview-domain-measure-value"
+            className="overview-domain-measure-value"
           >
             <span
-              class="offset-left"
+              className="offset-left"
             >
-              <a>
-                1
-              </a>
-            </span>
-            <div
-              class="overview-domain-measure-sup"
-            >
-              <a
-                class="link-no-underline"
+              <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/project/issues",
+                    "query": Object {
+                      "id": "my-project",
+                      "resolved": "false",
+                      "sinceLeakPeriod": "true",
+                      "types": "BUG",
+                    },
+                  }
+                }
               >
-                <span
-                  aria-label="metric.has_rating_X.A"
-                  class="rating rating-A"
+                1
+              </Link>
+            </span>
+            <Tooltip
+              overlay="metric.reliability_rating.tooltip.A"
+            >
+              <div
+                className="overview-domain-measure-sup"
+              >
+                <DrilldownLink
+                  branchLike={
+                    Object {
+                      "analysisDate": "2018-01-01",
+                      "isMain": true,
+                      "name": "master",
+                    }
+                  }
+                  className="link-no-underline"
+                  component="my-project"
+                  metric="new_reliability_rating"
                 >
-                  A
-                </span>
-              </a>
-            </div>
+                  <Rating
+                    value="1.0"
+                  />
+                </DrilldownLink>
+              </div>
+            </Tooltip>
           </div>
           <div
-            class="overview-domain-measure-label"
+            className="overview-domain-measure-label"
           >
-            <svg
-              class="little-spacer-right"
-              data-mocked-icon="BugIcon"
+            <BugIcon
+              className="little-spacer-right"
             />
             overview.metric.new_bugs
           </div>
         </div>
       </div>
       <div
-        class="overview-domain-timeline"
-      />
+        className="overview-domain-timeline"
+      >
+        <Timeline
+          history={Array []}
+        />
+      </div>
     </div>
   </div>
 </div>
