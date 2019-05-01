@@ -175,7 +175,7 @@ public class XooRulesDefinition implements RulesDefinition {
     if (version != null && version.isGreaterThanOrEqual(Version.create(7, 3))) {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
-        .addCwe(1, 123, 863);
+        .addCwe(1, 89, 123, 863);
     }
 
     repo.done();
