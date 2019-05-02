@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as classNames from 'classnames';
 import {
   createSnippets,
   expandSnippet,
@@ -26,11 +27,11 @@ import {
   LINES_BELOW_LAST,
   MERGE_DISTANCE
 } from './utils';
-import { getSources } from '../../../api/components';
 import ExpandSnippetIcon from '../../../components/icons-components/ExpandSnippetIcon';
 import Line from '../../../components/SourceViewer/components/Line';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
+import { getSources } from '../../../api/components';
 import { symbolsByLine, locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
 import {
@@ -42,16 +43,25 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branchLike: T.BranchLike | undefined;
+  duplications?: T.Duplication[];
+  duplicationsByLine?: { [line: number]: number[] };
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   issue: T.Issue;
   issuePopup?: { issue: string; name: string };
   issuesByLine: T.IssuesByLine;
   last: boolean;
+  linePopup?: T.LinePopup;
+  loadDuplications: (component: string, line: T.SourceLine) => void;
   locations: T.FlowLocation[];
   onIssueChange: (issue: T.Issue) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
+  onLinePopupToggle: (linePopup: T.LinePopup & { component: string }) => void;
   onLocationSelect: (index: number) => void;
-  renderDuplicationPopup: (index: number, line: number) => JSX.Element;
+  renderDuplicationPopup: (
+    component: T.SourceViewerFile,
+    index: number,
+    line: number
+  ) => React.ReactNode;
   scroll?: (element: HTMLElement) => void;
   snippetGroup: T.SnippetGroup;
 }
@@ -59,7 +69,6 @@ interface Props {
 interface State {
   additionalLines: { [line: number]: T.SourceLine };
   highlightedSymbols: string[];
-  linePopup?: { index?: number; line: number; name: string };
   loading: boolean;
   openIssuesByLine: T.Dict<boolean>;
   snippets: T.SourceLine[][];
@@ -140,7 +149,6 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
 
               return {
                 additionalLines: combinedLines,
-                linePopup: undefined,
                 snippets: expandSnippet({
                   direction,
                   lines: { ...combinedLines, ...this.props.snippetGroup.sources },
@@ -163,7 +171,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     getSources({ key }).then(
       lines => {
         if (this.mounted) {
-          this.setState({ linePopup: undefined, loading: false, snippets: [lines] });
+          this.setState({ loading: false, snippets: [lines] });
         }
       },
       () => {
@@ -174,29 +182,10 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     );
   };
 
-  handleLinePopupToggle = ({
-    index,
-    line,
-    name,
-    open
-  }: {
-    index?: number;
-    line: number;
-    name: string;
-    open?: boolean;
-  }) => {
-    this.setState((state: State) => {
-      const samePopup =
-        state.linePopup !== undefined &&
-        state.linePopup.name === name &&
-        state.linePopup.line === line &&
-        state.linePopup.index === index;
-      if (open !== false && !samePopup) {
-        return { linePopup: { index, line, name } };
-      } else if (open !== true && samePopup) {
-        return { linePopup: undefined };
-      }
-      return null;
+  handleLinePopupToggle = (linePopup: T.LinePopup) => {
+    this.props.onLinePopupToggle({
+      ...linePopup,
+      component: this.props.snippetGroup.component.key
     });
   };
 
@@ -214,6 +203,14 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
 
   handleSymbolClick = (highlightedSymbols: string[]) => {
     this.setState({ highlightedSymbols });
+  };
+
+  loadDuplications = (line: T.SourceLine) => {
+    this.props.loadDuplications(this.props.snippetGroup.component.key, line);
+  };
+
+  renderDuplicationPopup = (index: number, line: number) => {
+    return this.props.renderDuplicationPopup(this.props.snippetGroup.component, index, line);
   };
 
   renderLine({
@@ -234,10 +231,12 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     verticalBuffer: number;
   }) {
     const { openIssuesByLine } = this.state;
-
     const secondaryIssueLocations = getSecondaryIssueLocationsForLine(line, this.props.locations);
 
-    const noop = () => {};
+    const { duplications, duplicationsByLine } = this.props;
+    const duplicationsCount = duplications ? duplications.length : 0;
+    const lineDuplications =
+      (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
 
     const isSinkLine = issuesForLine.some(i => i.key === this.props.issue.key);
 
@@ -246,11 +245,11 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         branchLike={undefined}
         displayAllIssues={false}
         displayCoverage={true}
-        displayDuplications={false}
+        displayDuplications={!!line.duplicated}
         displayIssues={!isSinkLine || issuesForLine.length > 1}
         displayLocationMarkers={true}
-        duplications={[]}
-        duplicationsCount={0}
+        duplications={lineDuplications}
+        duplicationsCount={duplicationsCount}
         highlighted={false}
         highlightedLocationMessage={optimizeLocationMessage(
           this.props.highlightedLocationMessage,
@@ -263,12 +262,12 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         key={line.line}
         last={false}
         line={line}
-        linePopup={this.state.linePopup}
-        loadDuplications={noop}
+        linePopup={this.props.linePopup}
+        loadDuplications={this.loadDuplications}
         onIssueChange={this.props.onIssueChange}
         onIssuePopupToggle={this.props.onIssuePopupToggle}
-        onIssueSelect={noop}
-        onIssueUnselect={noop}
+        onIssueSelect={() => {}}
+        onIssueUnselect={() => {}}
         onIssuesClose={this.handleCloseIssues}
         onIssuesOpen={this.handleOpenIssues}
         onLinePopupToggle={this.handleLinePopupToggle}
@@ -276,7 +275,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
         onSymbolClick={this.handleSymbolClick}
         openIssues={openIssuesByLine[line.line]}
         previousLine={index > 0 ? snippet[index - 1] : undefined}
-        renderDuplicationPopup={this.props.renderDuplicationPopup}
+        renderDuplicationPopup={this.renderDuplicationPopup}
         scroll={this.props.scroll}
         secondaryIssueLocations={secondaryIssueLocations}
         selectedIssue={optimizeSelectedIssue(this.props.issue.key, issuesForLine)}
@@ -359,7 +358,7 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   render() {
-    const { branchLike, issue, issuesByLine, last, snippetGroup } = this.props;
+    const { branchLike, duplications, issue, issuesByLine, last, snippetGroup } = this.props;
     const { loading, snippets } = this.state;
     const locations = locationsByLine([issue]);
 
@@ -369,7 +368,10 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
       snippets[0].length === parseInt(snippetGroup.component.measures.lines || '', 10);
 
     return (
-      <div className="component-source-container">
+      <div
+        className={classNames('component-source-container', {
+          'source-duplications-expanded': duplications && duplications.length > 0
+        })}>
         <SourceViewerHeaderSlim
           branchLike={branchLike}
           expandable={!fullyShown}

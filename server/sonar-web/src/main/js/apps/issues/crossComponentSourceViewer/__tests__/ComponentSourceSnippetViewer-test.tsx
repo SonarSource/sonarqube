@@ -118,6 +118,55 @@ it('should handle symbol highlighting', () => {
   expect(wrapper.state('highlightedSymbols')).toEqual(['foo']);
 });
 
+it('should correctly handle lines actions', () => {
+  const snippetGroup: T.SnippetGroup = {
+    locations: [
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+      }),
+      mockFlowLocation({
+        component: 'a',
+        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
+      })
+    ],
+    ...mockSnippetsByComponent('a', [32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
+  };
+  const loadDuplications = jest.fn();
+  const onLinePopupToggle = jest.fn();
+  const renderDuplicationPopup = jest.fn();
+
+  const wrapper = shallowRender({
+    loadDuplications,
+    onLinePopupToggle,
+    renderDuplicationPopup,
+    snippetGroup
+  });
+
+  const line = mockSourceLine();
+  wrapper
+    .find('Line')
+    .first()
+    .prop<Function>('loadDuplications')(line);
+  expect(loadDuplications).toHaveBeenCalledWith('a', line);
+
+  wrapper
+    .find('Line')
+    .first()
+    .prop<Function>('onLinePopupToggle')({ line: 13, name: 'foo' });
+  expect(onLinePopupToggle).toHaveBeenCalledWith({ component: 'a', line: 13, name: 'foo' });
+
+  wrapper
+    .find('Line')
+    .first()
+    .prop<Function>('renderDuplicationPopup')(1, 13);
+  expect(renderDuplicationPopup).toHaveBeenCalledWith(
+    mockSourceViewerFile({ key: 'a', path: 'a' }),
+    1,
+    13
+  );
+});
+
 function shallowRender(props: Partial<ComponentSourceSnippetViewer['props']> = {}) {
   const snippetGroup: T.SnippetGroup = {
     component: mockSourceViewerFile(),
@@ -127,13 +176,18 @@ function shallowRender(props: Partial<ComponentSourceSnippetViewer['props']> = {
   return shallow<ComponentSourceSnippetViewer>(
     <ComponentSourceSnippetViewer
       branchLike={mockMainBranch()}
+      duplications={undefined}
+      duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
       last={false}
+      linePopup={undefined}
+      loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
       onIssuePopupToggle={jest.fn()}
+      onLinePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}

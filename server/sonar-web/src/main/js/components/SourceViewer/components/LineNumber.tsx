@@ -23,7 +23,7 @@ import Toggler from '../../controls/Toggler';
 
 interface Props {
   line: T.SourceLine;
-  onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
+  onPopupToggle: (linePopup: T.LinePopup) => void;
   popupOpen: boolean;
 }
 

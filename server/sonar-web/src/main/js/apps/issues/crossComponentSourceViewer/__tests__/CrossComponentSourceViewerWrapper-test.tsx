@@ -20,31 +20,46 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
-import { mockIssue, mockSourceViewerFile } from '../../../../helpers/testMocks';
+import {
+  mockFlowLocation,
+  mockIssue,
+  mockSnippetsByComponent,
+  mockSourceLine,
+  mockSourceViewerFile
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getIssueFlowSnippets } from '../../../../api/issues';
+import { getDuplications } from '../../../../api/components';
 
 jest.mock('../../../../api/issues', () => {
-  const { mockSourceViewerFile } = require.requireActual('../../../../helpers/testMocks');
+  const { mockSnippetsByComponent } = require.requireActual('../../../../helpers/testMocks');
   return {
-    getIssueFlowSnippets: jest.fn().mockResolvedValue([mockSourceViewerFile()])
+    getIssueFlowSnippets: jest.fn().mockResolvedValue({ 'main.js': mockSnippetsByComponent() })
   };
 });
+
+jest.mock('../../../../api/components', () => ({
+  getDuplications: jest.fn().mockResolvedValue({})
+}));
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should render correctly', async () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('Should fetch data', async () => {
   const wrapper = shallowRender();
   wrapper.instance().fetchIssueFlowSnippets('124');
   await waitAndUpdate(wrapper);
-  expect(getIssueFlowSnippets).toBeCalled();
-  expect(wrapper.state('components')).toEqual([mockSourceViewerFile()]);
+  expect(getIssueFlowSnippets).toHaveBeenCalledWith('1');
+  expect(wrapper.state('components')).toEqual({ 'main.js': mockSnippetsByComponent() });
 
   (getIssueFlowSnippets as jest.Mock).mockClear();
   wrapper.setProps({ issue: mockIssue(true, { key: 'foo' }) });
@@ -62,18 +77,68 @@ it('should handle issue popup', () => {
   expect(wrapper.state('issuePopup')).toBeUndefined();
 });
 
+it('should handle line popup', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  const linePopup = { component: 'foo', index: 0, line: 16, name: 'b.tsx' };
+  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(linePopup);
+  expect(wrapper.state('linePopup')).toEqual(linePopup);
+
+  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(linePopup);
+  expect(wrapper.state('linePopup')).toEqual(undefined);
+
+  const openLinePopup = { ...linePopup, open: true };
+  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(openLinePopup);
+  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(openLinePopup);
+  expect(wrapper.state('linePopup')).toEqual(linePopup);
+});
+
+it('should handle duplication popup', async () => {
+  const files = { b: { key: 'b', name: 'B.tsx', project: 'foo', projectName: 'Foo' } };
+  const duplications = [{ blocks: [{ _ref: '1', from: 1, size: 2 }] }];
+  (getDuplications as jest.Mock).mockResolvedValueOnce({ duplications, files });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('loadDuplications')(
+    'foo',
+    mockSourceLine()
+  );
+
+  await waitAndUpdate(wrapper);
+  expect(getDuplications).toHaveBeenCalledWith({ key: 'foo' });
+  expect(wrapper.state('duplicatedFiles')).toEqual(files);
+  expect(wrapper.state('duplications')).toEqual(duplications);
+  expect(wrapper.state('duplicationsByLine')).toEqual({ '1': [0], '2': [0] });
+  expect(wrapper.state('linePopup')).toEqual({
+    component: 'foo',
+    index: 0,
+    line: 16,
+    name: 'duplications'
+  });
+
+  expect(
+    wrapper.find('ComponentSourceSnippetViewer').prop<Function>('renderDuplicationPopup')(
+      mockSourceViewerFile(),
+      0,
+      16
+    )
+  ).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<CrossComponentSourceViewerWrapper['props']> = {}) {
   return shallow<CrossComponentSourceViewerWrapper>(
     <CrossComponentSourceViewerWrapper
       branchLike={undefined}
       highlightedLocationMessage={undefined}
-      issue={mockIssue(true)}
+      issue={mockIssue(true, { key: '1' })}
       issues={[]}
-      locations={[]}
+      locations={[mockFlowLocation()]}
       onIssueChange={jest.fn()}
       onLoaded={jest.fn()}
       onLocationSelect={jest.fn()}
-      renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
       selectedFlowIndex={0}
       {...props}

@@ -56,7 +56,7 @@ interface Props {
   issuePopup: { issue: string; name: string } | undefined;
   issues: T.Issue[] | undefined;
   issuesByLine: { [line: number]: T.Issue[] };
-  linePopup: { index?: number; line: number; name: string } | undefined;
+  linePopup: T.LinePopup | undefined;
   loadDuplications: (line: T.SourceLine) => void;
   loadingSourcesAfter: boolean;
   loadingSourcesBefore: boolean;
@@ -68,11 +68,11 @@ interface Props {
   onIssueSelect: (issueKey: string) => void;
   onIssuesOpen: (line: T.SourceLine) => void;
   onIssueUnselect: () => void;
-  onLinePopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
+  onLinePopupToggle: (linePopup: T.LinePopup) => void;
   onLocationSelect: ((index: number) => void) | undefined;
   onSymbolClick: (symbols: string[]) => void;
   openIssuesByLine: { [line: number]: boolean };
-  renderDuplicationPopup: (index: number, line: number) => JSX.Element;
+  renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scroll?: (element: HTMLElement) => void;
   selectedIssue: string | undefined;
   sources: T.SourceLine[];

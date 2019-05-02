@@ -31,6 +31,7 @@
 
 .issue.selected {
   box-shadow: none;
+  outline: none;
   border: 2px solid var(--blue) !important;
 }
 

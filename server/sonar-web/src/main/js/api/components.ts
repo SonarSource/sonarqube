@@ -276,8 +276,10 @@ export function getSources(
   return getJSON('/api/sources/lines', data).then(r => r.sources);
 }
 
-export function getDuplications(data: { key: string } & T.BranchParameters): Promise<any> {
-  return getJSON('/api/duplications/show', data);
+export function getDuplications(
+  data: { key: string } & T.BranchParameters
+): Promise<{ duplications: T.Duplication[]; files: T.Dict<T.DuplicatedFile> }> {
+  return getJSON('/api/duplications/show', data).catch(throwGlobalError);
 }
 
 export function getTests(

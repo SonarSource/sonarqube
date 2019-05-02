@@ -254,8 +254,11 @@
   text-align: left;
   cursor: pointer;
 }
-.snippet > .expand-block:hover {
+.snippet > .expand-block:hover,
+.snippet > .expand-block:focus,
+.snippet > .expand-block:active {
   color: var(--darkBlue);
+  outline: none;
 }
 .snippet > .expand-block-above {
   background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAADdJREFUCB1dzMEKADAIAlBd1v9/bcc2YgRjHh8qq2qTxCQzsX4wM6y30RARF3sy0Es1SIK7Y64OpCES1W69JS4AAAAASUVORK5CYII=');

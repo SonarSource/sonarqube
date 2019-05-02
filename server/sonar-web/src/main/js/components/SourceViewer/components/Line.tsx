@@ -46,9 +46,9 @@ interface Props {
   issues: T.Issue[];
   last: boolean;
   line: T.SourceLine;
-  linePopup: { index?: number; line: number; name: string } | undefined;
+  linePopup: T.LinePopup | undefined;
   loadDuplications: (line: T.SourceLine) => void;
-  onLinePopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
+  onLinePopupToggle: (linePopup: T.LinePopup) => void;
   onIssueChange: (issue: T.Issue) => void;
   onIssuePopupToggle: (issueKey: string, popupName: string, open?: boolean) => void;
   onIssuesClose: (line: T.SourceLine) => void;
@@ -59,7 +59,7 @@ interface Props {
   onSymbolClick: (symbols: string[]) => void;
   openIssues: boolean;
   previousLine: T.SourceLine | undefined;
-  renderDuplicationPopup: (index: number, line: number) => JSX.Element;
+  renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scroll?: (element: HTMLElement) => void;
   secondaryIssueLocations: T.LinearIssueLocation[];
   selectedIssue: string | undefined;

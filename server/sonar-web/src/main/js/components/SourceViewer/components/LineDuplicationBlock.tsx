@@ -27,9 +27,9 @@ interface Props {
   duplicated: boolean;
   index: number;
   line: T.SourceLine;
-  onPopupToggle: (x: { index?: number; line: number; name: string; open?: boolean }) => void;
+  onPopupToggle: (linePopup: T.LinePopup) => void;
   popupOpen: boolean;
-  renderDuplicationPopup: (index: number, line: number) => JSX.Element;
+  renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
 }
 
 export default class LineDuplicationBlock extends React.PureComponent<Props> {

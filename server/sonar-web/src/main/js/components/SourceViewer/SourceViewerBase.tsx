@@ -28,11 +28,17 @@ import DuplicationPopup from './components/DuplicationPopup';
 import defaultLoadIssues from './helpers/loadIssues';
 import getCoverageStatus from './helpers/getCoverageStatus';
 import {
+  filterDuplicationBlocksByLine,
+  getDuplicationBlocksForIndex,
+  isDuplicationBlockInRemovedComponent
+} from './helpers/duplications';
+import {
   duplicationsByLine,
   issuesByLine,
   locationsByLine,
   symbolsByLine
 } from './helpers/indexing';
+import { Alert } from '../ui/Alert';
 import {
   getComponentData,
   getComponentForSourceViewer,
@@ -41,7 +47,6 @@ import {
 } from '../../api/components';
 import { isSameBranchLike, getBranchLikeQuery } from '../../helpers/branches';
 import { translate } from '../../helpers/l10n';
-import { Alert } from '../ui/Alert';
 import { WorkspaceContext } from '../workspace/context';
 import './styles.css';
 
@@ -97,7 +102,7 @@ interface State {
   issuePopup?: { issue: string; name: string };
   issues?: T.Issue[];
   issuesByLine: { [line: number]: T.Issue[] };
-  linePopup?: { index?: number; line: number; name: string };
+  linePopup?: T.LinePopup;
   loading: boolean;
   loadingSourcesAfter: boolean;
   loadingSourcesBefore: boolean;
@@ -495,17 +500,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   };
 
-  handleLinePopupToggle = ({
-    index,
-    line,
-    name,
-    open
-  }: {
-    index?: number;
-    line: number;
-    name: string;
-    open?: boolean;
-  }) => {
+  handleLinePopupToggle = ({ index, line, name, open }: T.LinePopup) => {
     this.setState((state: State) => {
       const samePopup =
         state.linePopup !== undefined &&
@@ -587,34 +582,20 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
   renderDuplicationPopup = (index: number, line: number) => {
     const { component, duplicatedFiles, duplications } = this.state;
 
-    if (!component || !duplicatedFiles) return <></>;
+    if (!component || !duplicatedFiles) {
+      return null;
+    }
 
-    const duplication = duplications && duplications[index];
-    let blocks = (duplication && duplication.blocks) || [];
-    /* eslint-disable no-underscore-dangle */
-    const inRemovedComponent = blocks.some(b => b._ref === undefined);
-    let foundOne = false;
-    blocks = blocks.filter(b => {
-      const outOfBounds = b.from > line || b.from + b.size < line;
-      const currentFile = b._ref === '1';
-      const shouldDisplayForCurrentFile = outOfBounds || foundOne;
-      const shouldDisplay = !currentFile || shouldDisplayForCurrentFile;
-      const isOk = b._ref !== undefined && shouldDisplay;
-      if (b._ref === '1' && !outOfBounds) {
-        foundOne = true;
-      }
-      return isOk;
-    });
-    /* eslint-enable no-underscore-dangle */
+    const blocks = getDuplicationBlocksForIndex(duplications, index);
 
     return (
       <WorkspaceContext.Consumer>
         {({ openComponent }) => (
           <DuplicationPopup
-            blocks={blocks}
+            blocks={filterDuplicationBlocksByLine(blocks, line)}
             branchLike={this.props.branchLike}
             duplicatedFiles={duplicatedFiles}
-            inRemovedComponent={inRemovedComponent}
+            inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
             onClose={this.closeLinePopup}
             openComponent={openComponent}
             sourceViewerFile={component}

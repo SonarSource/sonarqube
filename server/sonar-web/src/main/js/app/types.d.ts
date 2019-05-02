@@ -257,7 +257,7 @@ declare namespace T {
   }
 
   export interface DuplicationBlock {
-    _ref: string;
+    _ref?: string;
     from: number;
     size: number;
   }
@@ -417,6 +417,13 @@ declare namespace T {
 
   export interface LineMap {
     [line: number]: SourceLine;
+  }
+
+  export interface LinePopup {
+    index?: number;
+    line: number;
+    name: string;
+    open?: boolean;
   }
 
   export interface LoggedInUser extends CurrentUser {
