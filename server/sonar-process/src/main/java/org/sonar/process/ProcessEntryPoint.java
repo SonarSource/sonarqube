@@ -165,13 +165,15 @@ public class ProcessEntryPoint implements Stoppable {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
+    commands.endWatch();
     exit.exit(0);
   }
 
   @Override
   public void hardStopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
-      hardStopperThread = new HardStopperThread(monitored, commands, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS)));
+      long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS));
+      hardStopperThread = new HardStopperThread(monitored, terminationTimeoutMs);
       hardStopperThread.start();
       hardStopWatcher.stopWatching();
     }

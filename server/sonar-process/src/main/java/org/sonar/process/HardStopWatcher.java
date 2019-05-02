@@ -45,24 +45,20 @@ public class HardStopWatcher extends Thread {
 
   @Override
   public void run() {
-    try {
-      while (watching) {
-        if (commands.askedForHardStop()) {
-          LoggerFactory.getLogger(getClass()).info("Hard stopping process");
-          stoppable.hardStopAsync();
+    while (watching) {
+      if (commands.askedForHardStop()) {
+        LoggerFactory.getLogger(getClass()).info("Hard stopping process");
+        stoppable.hardStopAsync();
+        watching = false;
+      } else {
+        try {
+          Thread.sleep(delayMs);
+        } catch (InterruptedException ignored) {
           watching = false;
-        } else {
-          try {
-            Thread.sleep(delayMs);
-          } catch (InterruptedException ignored) {
-            watching = false;
-            // restore interrupted flag
-            Thread.currentThread().interrupt();
-          }
+          // restore interrupted flag
+          Thread.currentThread().interrupt();
         }
       }
-    } finally {
-      commands.endWatch();
     }
   }
 

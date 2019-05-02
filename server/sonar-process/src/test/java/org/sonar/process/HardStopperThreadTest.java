@@ -22,19 +22,20 @@ package org.sonar.process;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 public class HardStopperThreadTest {
-  ProcessCommands commands = mock(ProcessCommands.class);
-  Monitored monitored = mock(Monitored.class);
+  private Monitored monitored = mock(Monitored.class);
 
   @Test
   public void stop_in_a_timely_fashion() {
     // max stop timeout is 5 seconds, but test fails after 3 seconds
     // -> guarantees that stop is immediate
-    HardStopperThread stopper = new HardStopperThread(monitored, commands, 5000L);
+    HardStopperThread stopper = new HardStopperThread(monitored, 5000L);
     stopper.start();
 
     verify(monitored, timeout(3000)).hardStop();
@@ -51,7 +52,7 @@ public class HardStopperThreadTest {
     }).when(monitored).hardStop();
 
     // max stop timeout is 100 milliseconds
-    HardStopperThread stopper = new HardStopperThread(monitored, commands, 100L);
+    HardStopperThread stopper = new HardStopperThread(monitored, 100L);
     stopper.start();
 
     verify(monitored, timeout(3000)).hardStop();

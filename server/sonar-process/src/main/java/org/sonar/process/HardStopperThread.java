@@ -19,13 +19,11 @@
  */
 package org.sonar.process;
 
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.sonar.process.sharedmemoryfile.ProcessCommands;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stops process in a short time fashion
@@ -34,13 +32,11 @@ class HardStopperThread extends Thread {
 
   private final Monitored monitored;
   private final long terminationTimeoutMs;
-  private final ProcessCommands commands;
 
-  HardStopperThread(Monitored monitored, ProcessCommands commands, long terminationTimeoutMs) {
+  HardStopperThread(Monitored monitored, long terminationTimeoutMs) {
     super("HardStopper");
     this.monitored = monitored;
     this.terminationTimeoutMs = terminationTimeoutMs;
-    this.commands = commands;
   }
 
   @Override
@@ -53,6 +49,5 @@ class HardStopperThread extends Thread {
       LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
     }
     executor.shutdownNow();
-    commands.endWatch();
   }
 }
