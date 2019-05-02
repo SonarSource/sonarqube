@@ -69,8 +69,7 @@ export default class RemoteRepositories extends React.PureComponent<Props, State
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { organization } = this.props;
-    if (prevProps.organization !== organization) {
+    if (prevProps.organization.key !== this.props.organization.key) {
       this.setState({ loading: true, selectedRepositories: {} });
       this.fetchRepositories();
     }
