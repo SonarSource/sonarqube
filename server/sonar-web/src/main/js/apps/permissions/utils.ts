@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { translate } from '../../helpers/l10n';
+import { hasMessage, translate } from '../../helpers/l10n';
+import { isSonarCloud } from '../../helpers/system';
 
 export const PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE = [
   'user',
@@ -55,10 +56,20 @@ export const PERMISSIONS_ORDER_BY_QUALIFIER: T.Dict<string[]> = {
 };
 
 function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
+  const getMessage = (messageKey: string) => {
+    const cloudMessageKey = `${messageKey}.sonarcloud`;
+    return isSonarCloud() && hasMessage(cloudMessageKey)
+      ? translate(cloudMessageKey)
+      : translate(messageKey);
+  };
+
+  const name = getMessage(`${l10nPrefix}.${permission}`);
+  const description = getMessage(`${l10nPrefix}.${permission}.desc`);
+
   return {
     key: permission,
-    name: translate(l10nPrefix, permission),
-    description: translate(l10nPrefix, permission, 'desc')
+    name,
+    description
   };
 }
 
