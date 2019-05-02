@@ -26,12 +26,12 @@ When PR decoration is enabled, {instance} publishes the status of the analysis (
 PR analyses on {instance} are deleted automatically after 30 days with no analysis. This can be updated in **Configuration > General > Number of days before purging inactive short living branches**. 
 
 <!-- sonarcloud -->
-## Integrations for GitHub, Bitbucket Cloud and Azure DevOps
-If your repositories are hosted on GitHub, Bitbucket Cloud or Azure DevOps, check out first the dedicated Integrations for: [BitBucketCloud](/integrations/bitbucketcloud/), [GitHub](/integrations/github/), and [Azure DevOps](/integrations/vsts/). Chances are that you do not need to read this page further since those integrations handle the configuration and analysis parameters for you.
+## Integrations for GitHub, Bitbucket Cloud, and Azure DevOps
+If your repositories are hosted on GitHub, Bitbucket Cloud, or Azure DevOps, first check out the dedicated integrations for: [BitBucket Cloud](/integrations/bitbucketcloud/), [GitHub](/integrations/github/), and [Azure DevOps](/integrations/vsts/). Chances are that you don't need to read this page further since those integrations handle the configuration and analysis parameters for you.
 <!-- /sonarcloud -->
 
 ## Analysis Parameters
-### Pull Request Analysis in {instance}
+
 These parameters enable PR analysis:
 
 | Parameter Name        | Description |
@@ -40,49 +40,68 @@ These parameters enable PR analysis:
 | `sonar.pullrequest.branch` | The name of the branch that contains the changes to be merged.<br/> Ex: `sonar.pullrequest.branch=feature/my-new-feature`|
 | `sonar.pullrequest.base` | The long-lived branch into which the PR will be merged. <br/> Default: master <br/> E.G.: `sonar.pullrequest.base=master`|
 
-### Pull Request Decoration
-To activate PR decoration, you need to:
+## PR Decoration
+This section details how to decorate your PRs with {instance} issues in your SCM provider's interface.
 
-* (For GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube -->) Specify your pull request provider<!-- sonarqube -->, create a GitHub App and configure your SonarQube instance,<!-- /sonarqube --> and set your GitHub parameters.
-* (For Azure DevOps and Bitbucket) Specify your pull request provider and set an authentication token/personal access token.
+### Specifying Your PR Provider
 
-#### Specifying Your Pull Request Provider
-| Parameter Name        | Description |
-| --------------------- | ------------------ |
-| `sonar.pullrequest.provider` | `github` or `vsts` <!-- sonarcloud -->or `bitbucketcloud`<!-- /sonarcloud -->. This is the name of the system managing your PR. In Azure DevOps, when the {instance} Extension for Azure DevOps is used, `sonar.pullrequest.provider` is automatically populated with "vsts". <!-- sonarcloud -->Same on GitHub if you are using the Travis CI Add-on, and on Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->|
+Specify your PR provider in your global settings at [**Administration > General Settings > Pull Requests > General > Provider**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/). This is the name of the system managing your PR. When using the {instance} Extension for Azure DevOps, the provider is automatically populated. <!-- sonarcloud -->It's the same for GitHub if you are using the Travis CI Add-on and Bitbucket Cloud if you are building with Bitbucket Pipelines.<!-- /sonarcloud -->
 
-Note: if you were relying on the GitHub Plugin, its properties are no longer required and they must be removed from your configuration: `sonar.analysis.mode`, `sonar.github.repository`, `sonar.github.pullRequest`, `sonar.github.oauth`.
+### GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube --> PR Decoration
+
+To add PR decoration to Checks on GitHub <!-- sonarqube -->Enterprise<!-- /sonarqube -->, you need to <!-- sonarqube -->create a GitHub App and configure your SonarQube instance and<!-- /sonarqube --> update your project-level settings.
 
 <!-- sonarqube -->
 #### Creating Your GitHub App
-To add PR decoration to Checks in GitHub Enterprise, an instance administrator needs to create a GitHub App and configure your SonarQube instance. See [GitHub Enterprise Integration](/instance-administration/github-application/) for more information.
+An instance administrator needs to create a GitHub App and configure your SonarQube instance. See [GitHub Enterprise Integration](/instance-administration/github-application/) for instructions.
 <!-- /sonarqube -->
 
-#### Setting Your GitHub Parameters
-| Parameter Name        | Description |
-| --------------------- | ------------------ |
-| `sonar.pullrequest.github.repository` | SLUG of the GitHub Repo |
+#### Updating Your GitHub Project Settings
+In your project settings, set your project repository identifier (for example, SonarSource/sonarqube) at **Administration > General Settings > Pull Requests > Integration with GitHub > Repository identifier**.
 
-#### Setting Your Authentication Token/Personal Access Token
+### Bitbucket <!-- sonarqube -->Server<!-- /sonarqube --> PR Decoration
 
-If you are using Azure DevOps or Bitbucket, you need to configure the authentication token/personal access token that will be used by {instance} to decorate the PRs. This can be configured in **Administration > General Settings > Pull Requests > VSTS > Personal access token**.
+To add PR decoration on Bitbucket <!-- sonarqube -->Server<!-- /sonarqube -->, you need to <!-- sonarqube -->set a personal access token and<!-- /sonarqube --> update some settings. 
+
+<!-- sonarqube -->
+#### Setting Your Personal Access Token
+
+In your global settings, set the personal access token of the user that will be used to decorate the PRs in the SonarQube UI:
+
+* Set the token at [**Administration > General Settings > Pull Requests > Integration with Bitbucket Server > Personal access token**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/)
+* The user that will be used to decorate PRs needs write permission.
+
+
+#### Updating Your Bitbucket Server Settings
+
+In your global settings, set your Bitbucket Server URL (for example, `https://myinstance.mycompany.com/`) at [**Administration > General Settings > Pull Requests > Integration with Bitbucket Server > The URL of the Bitbucket Server**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/). This is the base URL for your Bitbucket Server instance.
+
+In your project settings at **Administration > General Settings > Pull Requests > Integration with Bitbucket Server** update the following Bitbucket Server settings:
+
+* Bitbucket Server project key. You can find it in the Bitbucket Server repository URL (.../projects/**{KEY}**/repos/{SLUG}/browse).
+For projects in a personal space, the project key is "~" followed by your username (for example,  `~YourUsername`).
+* Bitbucket Server repository slug. You can find it in the Bitbucket Server repository URL (.../projects/{KEY}/repos/**{SLUG}**/browse).
+<!-- /sonarqube -->
 
 <!-- sonarcloud -->
-#### Bitbucket Cloud Parameters
-| Parameter Name        | Description | Example value |
+#### Updating Your Bitbucket Cloud Settings
+| Setting Name        | Description | Example value |
 | --------------------- | ------------------ |------------------ |
 | `sonar.pullrequest.bitbucketcloud.repository` | UUID of the Bitbucket Cloud Repo | `{d2615dd4-550d-43e5-80c4-665f951e5d6e}` |
 | `sonar.pullrequest.bitbucketcloud.owner` | UUID of the Bitbucket Cloud Owner | `{4f9fd128-1b08-49ec-bf2c-f094163cff4d}` |
 <!-- /sonarcloud -->
 
-<!-- sonarqube -->
-#### Bitbucket Server Parameters
-| Parameter Name        | Description |
-| --------------------- | ------------------ |
-| `sonar.pullrequest.bitbucketserver.serverUrl` | The base URL for your Bitbucket Server instance. Usually defined in global server settings.<br/> Ex.: `https://bitbucket.company.com/` |
-| `sonar.pullrequest.bitbucketserver.project` | Bitbucket project key. Can be set in project settings, or passed through scanner properties.<br/> Ex.: `MYPRJ` |
-| `sonar.pullrequest.bitbucketserver.repository` | SLUG of the Bitbucket repository. Can be set in project settings, or passed through scanner properties.<br/> Ex.: `my-repo` |
+### Azure DevOps <!-- sonarqube -->Server<!-- /sonarqube --> PR Decoration
 
-#### Issue links
+To add PR decoration on Azure DevOps <!-- sonarqube -->Server<!-- /sonarqube -->, you need to set a personal access token.
+
+#### Setting Your Personal Access Token
+
+In <!-- sonarqube -->global and<!-- /sonarqube --> project settings, set the personal access token of the user that will be used to decorate the PRs in the SonarQube UI at [**Administration > General Settings > Pull Requests > Integration with VSTS / TFS > Personal access token**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/). 
+
+The user that will be used to decorate PRs needs to be authorized for the scope: 'Code (read and write)'.	
+
+<!-- sonarqube -->
+### Issue links
 During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > General](/#sonarqube-admin#/admin/settings)**) must be set correctly. Otherwise the links will default to `localhost`.
 <!-- /sonarqube -->

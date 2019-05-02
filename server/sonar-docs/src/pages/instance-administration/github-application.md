@@ -16,23 +16,19 @@ From the "Register new GitHub App" page, follow these steps to create your GitHu
 
 1. Under **GitHub App name**, give your app a name (such as SonarQubePRChecks).
 2. GitHub requires a **Homepage URL** and a **Webhook URL**. These values aren't important for Pull Request decoration, so you can use any URL (such as https://www.sonarqube.org/).
-3. Set the following "Permissions" to **Read & write**:
-	* Checks
-	* _Developer Edition v7.2+ Only_: Pull requests (Note: This is only needed to clean up PR decoration in GitHub Conversation. PR decoration in Checks is replacing PR decoration in Conversation.)
-	* Commit statuses
+3. Under "Permissions" set **Checks** to **Read & write**.
 4. Under "Where can this GitHub App be installed?," select **Any account**.
 5. Click **Create GitHub App**.
 
 ### Generating and Setting Your Private Key
 
-After creating your app, you'll be prompted with a link to "generate a private key" at the top of the page. Click the link to download your .pem private key file. You can also download your .pem file by scrolling down to "Private Key" and clicking **Generate Private Key**.
+After creating your app, you'll be prompted with a link to "generate a private key" at the top of the page. Click the link to download your `.pem` private key file. You can also download your `.pem` file by scrolling down to "Private Key" and clicking **Generate Private Key**.
 
-After downloading your .pem file, you'll need to set your private key at a global level in SonarQube.
-Simply copy and paste the content of your private key file into the text box at [**Administration > Pull Requests > GitHub > GitHub App private key**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
+After downloading your `.pem` file, you'll need to set your private key in SonarQube global settings by copying and pasting the content of your private key file into the text box at [**Administration > Pull Requests > GitHub > GitHub App private key**](/#sonarqube-admin#/sonarqube/admin/settings?category=pull_request/).
 
 ### Configuring Your SonarQube Instance
 
-You'll need to configure the following settings at a global level in SonarQube.
+You'll need to configure the following global settings in SonarQube.
 
 #### Setting Your GitHub Enterprise Instance API URL
 
