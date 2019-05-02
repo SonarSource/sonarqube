@@ -23,22 +23,21 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 /**
- * This watchdog asks for graceful termination of process when the file
- * &lt;process_key&gt;.stop is created in temp directory.
+ * This watchdog is looking for hard stop to be requested via {@link ProcessCommands#askedForHardStop()}.
  */
-public class StopWatcher extends Thread {
+public class HardStopWatcher extends Thread {
 
   private final ProcessCommands commands;
   private final Stoppable stoppable;
   private final long delayMs;
   private boolean watching = true;
 
-  public StopWatcher(ProcessCommands commands, Stoppable stoppable) {
+  public HardStopWatcher(ProcessCommands commands, Stoppable stoppable) {
     this(commands, stoppable, 500L);
   }
 
-  StopWatcher(ProcessCommands commands, Stoppable stoppable, long delayMs) {
-    super("Stop Watcher");
+  HardStopWatcher(ProcessCommands commands, Stoppable stoppable, long delayMs) {
+    super("HardStop Watcher");
     this.commands = commands;
     this.stoppable = stoppable;
     this.delayMs = delayMs;
@@ -48,9 +47,9 @@ public class StopWatcher extends Thread {
   public void run() {
     try {
       while (watching) {
-        if (commands.askedForStop()) {
-          LoggerFactory.getLogger(getClass()).info("Stopping process");
-          stoppable.stopAsync();
+        if (commands.askedForHardStop()) {
+          LoggerFactory.getLogger(getClass()).info("Hard stopping process");
+          stoppable.hardStopAsync();
           watching = false;
         } else {
           try {

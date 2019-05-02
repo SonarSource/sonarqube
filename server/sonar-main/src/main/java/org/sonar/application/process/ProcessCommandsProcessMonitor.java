@@ -42,11 +42,11 @@ class ProcessCommandsProcessMonitor extends AbstractProcessMonitor {
   }
 
   /**
-   * Send request to gracefully stop to the process (via ipc shared memory)
+   * Send request to quickly stop to the process (via ipc shared memory)
    */
   @Override
-  public void askForStop() {
-    commands.askForStop();
+  public void askForHardStop() {
+    commands.askForHardStop();
   }
 
   /**

@@ -53,7 +53,7 @@ public class ComputeEngineImpl implements ComputeEngine, ComputeEngineStatus {
     checkStateAsShutdown(this.status);
 
     try {
-      this.status = Status.STOPPING;
+      this.status = Status.HARD_STOPPING;
       this.computeEngineContainer.stop();
     } finally {
       this.status = Status.STOPPED;
@@ -62,7 +62,7 @@ public class ComputeEngineImpl implements ComputeEngine, ComputeEngineStatus {
 
   private static void checkStateAsShutdown(Status currentStatus) {
     checkState(currentStatus.ordinal() >= Status.STARTED.ordinal(), "shutdown() must not be called before startup()");
-    checkState(currentStatus.ordinal() <= Status.STOPPING.ordinal(), "shutdown() can not be called multiple times");
+    checkState(currentStatus.ordinal() <= Status.HARD_STOPPING.ordinal(), "shutdown() can not be called multiple times");
   }
 
   @Override

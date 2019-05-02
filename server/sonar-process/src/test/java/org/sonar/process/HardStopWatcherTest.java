@@ -31,7 +31,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class StopWatcherTest {
+public class HardStopWatcherTest {
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
@@ -39,31 +39,31 @@ public class StopWatcherTest {
   @Test
   public void stop_if_receive_command() throws Exception {
     ProcessCommands commands = mock(ProcessCommands.class);
-    when(commands.askedForStop()).thenReturn(false, true);
+    when(commands.askedForHardStop()).thenReturn(false, true);
     Stoppable stoppable = mock(Stoppable.class);
 
-    StopWatcher underTest = new StopWatcher(commands, stoppable, 1L);
+    HardStopWatcher underTest = new HardStopWatcher(commands, stoppable, 1L);
     underTest.start();
 
     while (underTest.isAlive()) {
       Thread.sleep(1L);
     }
-    verify(stoppable).stopAsync();
+    verify(stoppable).hardStopAsync();
   }
 
   @Test
   public void stop_watching_on_interruption() throws Exception {
     ProcessCommands commands = mock(ProcessCommands.class);
-    when(commands.askedForStop()).thenReturn(false);
+    when(commands.askedForHardStop()).thenReturn(false);
     Stoppable stoppable = mock(Stoppable.class);
 
-    StopWatcher underTest = new StopWatcher(commands, stoppable, 1L);
+    HardStopWatcher underTest = new HardStopWatcher(commands, stoppable, 1L);
     underTest.start();
     underTest.interrupt();
 
     while (underTest.isAlive()) {
       Thread.sleep(1L);
     }
-    verify(stoppable, never()).stopAsync();
+    verify(stoppable, never()).hardStopAsync();
   }
 }

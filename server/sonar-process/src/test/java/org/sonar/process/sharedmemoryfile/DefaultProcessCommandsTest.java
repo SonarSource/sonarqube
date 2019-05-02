@@ -122,10 +122,10 @@ public class DefaultProcessCommandsTest {
     File dir = temp.newFolder();
 
     try (DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER)) {
-      assertThat(commands.askedForStop()).isFalse();
+      assertThat(commands.askedForHardStop()).isFalse();
 
-      commands.askForStop();
-      assertThat(commands.askedForStop()).isTrue();
+      commands.askForHardStop();
+      assertThat(commands.askedForHardStop()).isTrue();
     }
   }
 

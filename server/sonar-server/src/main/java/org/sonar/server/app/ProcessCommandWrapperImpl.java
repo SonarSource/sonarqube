@@ -38,8 +38,8 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
     processCommands.askForRestart();
     return null;
   };
-  private static final ProcessMethod<Void> ASK_FOR_STOP = processCommands -> {
-    processCommands.askForStop();
+  private static final ProcessMethod<Void> ASK_FOR_HARD_STOP = processCommands -> {
+    processCommands.askForHardStop();
     return null;
   };
   private static final ProcessMethod<Boolean> IS_OPERATIONAL = ProcessCommands::isOperational;
@@ -56,8 +56,8 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
   }
 
   @Override
-  public void requestStop() {
-    call(ASK_FOR_STOP, selfProcessNumber());
+  public void requestHardStop() {
+    call(ASK_FOR_HARD_STOP, selfProcessNumber());
   }
 
   @Override

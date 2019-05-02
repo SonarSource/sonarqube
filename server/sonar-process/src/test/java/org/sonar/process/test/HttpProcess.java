@@ -109,7 +109,7 @@ public class HttpProcess implements Monitored {
   }
 
   @Override
-  public void stop() {
+  public void hardStop() {
     try {
       if (!server.isStopped()) {
         server.stop();

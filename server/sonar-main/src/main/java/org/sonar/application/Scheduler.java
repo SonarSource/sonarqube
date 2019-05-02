@@ -26,7 +26,7 @@ public interface Scheduler {
   /**
    * Stops all processes and waits for them to be down.
    */
-  void terminate();
+  void hardStop();
 
   /**
    * Blocks until all processes are down

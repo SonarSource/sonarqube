@@ -128,7 +128,7 @@ public class SchedulerImplTest {
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
 
     // processes are stopped in reverse order of startup
-    underTest.terminate();
+    underTest.hardStop();
     assertThat(orderedStops).containsExactly(COMPUTE_ENGINE, WEB_SERVER, ELASTICSEARCH);
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
 
@@ -147,7 +147,7 @@ public class SchedulerImplTest {
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
 
     // following does nothing
-    underTest.terminate();
+    underTest.hardStop();
     underTest.awaitTermination();
   }
 
@@ -170,11 +170,11 @@ public class SchedulerImplTest {
   public void terminate_can_be_called_multiple_times() throws Exception {
     Scheduler underTest = startAll();
 
-    underTest.terminate();
+    underTest.hardStop();
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
 
     // does nothing
-    underTest.terminate();
+    underTest.hardStop();
   }
 
   @Test
@@ -185,7 +185,7 @@ public class SchedulerImplTest {
     awaitingTermination.start();
     assertThat(awaitingTermination.isAlive()).isTrue();
 
-    underTest.terminate();
+    underTest.hardStop();
     // the thread is being stopped
     awaitingTermination.join();
     assertThat(awaitingTermination.isAlive()).isFalse();
@@ -218,7 +218,7 @@ public class SchedulerImplTest {
     processLauncher.waitForProcessAlive(ProcessId.ELASTICSEARCH);
     assertThat(processLauncher.processes).hasSize(1);
 
-    underTest.terminate();
+    underTest.hardStop();
   }
 
   @Test
@@ -234,7 +234,7 @@ public class SchedulerImplTest {
     processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
     assertThat(processLauncher.processes).hasSize(2);
 
-    underTest.terminate();
+    underTest.hardStop();
   }
 
   @Test
@@ -252,7 +252,7 @@ public class SchedulerImplTest {
     processLauncher.waitForProcessAlive(ProcessId.ELASTICSEARCH);
     assertThat(processLauncher.processes).hasSize(1);
 
-    underTest.terminate();
+    underTest.hardStop();
   }
 
   @Test
@@ -274,7 +274,7 @@ public class SchedulerImplTest {
     processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
     assertThat(processLauncher.processes).hasSize(2);
 
-    underTest.terminate();
+    underTest.hardStop();
   }
 
   @Test
@@ -292,7 +292,7 @@ public class SchedulerImplTest {
     processLauncher.waitForProcessAlive(WEB_SERVER);
     assertThat(processLauncher.processes).hasSize(1);
 
-    underTest.terminate();
+    underTest.hardStop();
   }
 
   private SchedulerImpl newScheduler(boolean clustered) {
@@ -429,7 +429,7 @@ public class SchedulerImplTest {
     }
 
     @Override
-    public void askForStop() {
+    public void askForHardStop() {
       destroyForcibly();
     }
 

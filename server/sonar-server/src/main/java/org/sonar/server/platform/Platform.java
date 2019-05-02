@@ -390,7 +390,7 @@ public class Platform {
     @Override
     public void failure(Throwable t) {
       LOGGER.error("Background initialization failed. Stopping SonarQube", t);
-      processCommandWrapper.requestStop();
+      processCommandWrapper.requestHardStop();
       this.running = false;
     }
 

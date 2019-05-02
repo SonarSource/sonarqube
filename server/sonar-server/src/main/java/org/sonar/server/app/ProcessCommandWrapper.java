@@ -28,7 +28,7 @@ public interface ProcessCommandWrapper {
   /**
    * Requests to the main process that the WebServer is stopped.
    */
-  void requestStop();
+  void requestHardStop();
 
   /**
    * Notifies any listening process that the WebServer is operational.

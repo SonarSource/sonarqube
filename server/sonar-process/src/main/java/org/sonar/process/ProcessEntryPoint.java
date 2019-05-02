@@ -39,16 +39,16 @@ public class ProcessEntryPoint implements Stoppable {
   private final Lifecycle lifecycle = new Lifecycle();
   private final ProcessCommands commands;
   private final SystemExit exit;
+  private final HardStopWatcher hardStopWatcher;
   private volatile Monitored monitored;
-  private volatile StopperThread stopperThread;
-  private final StopWatcher stopWatcher;
+  private volatile HardStopperThread hardStopperThread;
 
   // new Runnable() is important to avoid conflict of call to ProcessEntryPoint#stop() with Thread#stop()
   private Thread shutdownHook = new Thread(new Runnable() {
     @Override
     public void run() {
       exit.setInShutdownHook();
-      stop();
+      hardStop();
     }
   });
 
@@ -63,7 +63,7 @@ public class ProcessEntryPoint implements Stoppable {
     this.sharedDir = sharedDir;
     this.exit = exit;
     this.commands = commands;
-    this.stopWatcher = new StopWatcher(commands, this);
+    this.hardStopWatcher = new HardStopWatcher(commands, this);
   }
 
   public ProcessCommands getCommands() {
@@ -101,14 +101,14 @@ public class ProcessEntryPoint implements Stoppable {
     } catch (Exception e) {
       logger.warn("Fail to start {}", getKey(), e);
     } finally {
-      stop();
+      hardStop();
     }
   }
 
   private void launch(Logger logger) throws InterruptedException {
     logger.info("Starting {}", getKey());
     Runtime.getRuntime().addShutdownHook(shutdownHook);
-    stopWatcher.start();
+    hardStopWatcher.start();
 
     monitored.start();
     Monitored.Status status = waitForNotDownStatus();
@@ -125,7 +125,7 @@ public class ProcessEntryPoint implements Stoppable {
         monitored.awaitStop();
       }
     } else {
-      stop();
+      hardStop();
     }
   }
 
@@ -153,14 +153,14 @@ public class ProcessEntryPoint implements Stoppable {
   }
 
   /**
-   * Blocks until stopped in a timely fashion (see {@link org.sonar.process.StopperThread})
+   * Blocks until stopped in a timely fashion (see {@link HardStopperThread})
    */
-  void stop() {
-    stopAsync();
+  void hardStop() {
+    hardStopAsync();
     try {
-      // stopperThread is not null for sure
+      // hardStopperThread is not null for sure
       // join() does nothing if thread already finished
-      stopperThread.join();
+      hardStopperThread.join();
       lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -169,11 +169,11 @@ public class ProcessEntryPoint implements Stoppable {
   }
 
   @Override
-  public void stopAsync() {
-    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
-      stopperThread = new StopperThread(monitored, commands, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS)));
-      stopperThread.start();
-      stopWatcher.stopWatching();
+  public void hardStopAsync() {
+    if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
+      hardStopperThread = new HardStopperThread(monitored, commands, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS)));
+      hardStopperThread.start();
+      hardStopWatcher.stopWatching();
     }
   }
 

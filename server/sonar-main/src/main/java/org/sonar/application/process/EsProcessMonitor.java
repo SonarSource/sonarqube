@@ -115,7 +115,7 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   }
 
   @Override
-  public void askForStop() {
+  public void askForHardStop() {
     process.destroy();
   }
 

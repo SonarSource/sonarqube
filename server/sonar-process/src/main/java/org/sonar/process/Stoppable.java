@@ -21,6 +21,6 @@ package org.sonar.process;
 
 public interface Stoppable {
 
-  void stopAsync();
+  void hardStopAsync();
 
 }

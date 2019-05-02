@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
-import org.sonar.application.process.Lifecycle;
-import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.process.ProcessId;
 
 import static java.util.Arrays.asList;
@@ -33,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.application.process.Lifecycle.State.INIT;
 import static org.sonar.application.process.Lifecycle.State.STARTED;
 import static org.sonar.application.process.Lifecycle.State.STARTING;
-import static org.sonar.application.process.Lifecycle.State.STOPPING;
+import static org.sonar.application.process.Lifecycle.State.HARD_STOPPING;
 
 public class LifecycleTest {
 
@@ -70,10 +68,10 @@ public class LifecycleTest {
   public void can_move_to_STOPPING_from_STARTING_STARTED_only() {
     for (Lifecycle.State state : Lifecycle.State.values()) {
       TestLifeCycleListener listener = new TestLifeCycleListener();
-      boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(STOPPING);
+      boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(HARD_STOPPING);
       if (state == STARTING || state == STARTED) {
         assertThat(tryToMoveTo).as("from state " + state).isTrue();
-        assertThat(listener.states).containsOnly(STOPPING);
+        assertThat(listener.states).containsOnly(HARD_STOPPING);
       } else {
         assertThat(tryToMoveTo).as("from state " + state).isFalse();
         assertThat(listener.states).isEmpty();

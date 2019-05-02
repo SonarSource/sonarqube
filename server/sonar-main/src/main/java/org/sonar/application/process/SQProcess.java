@@ -95,13 +95,13 @@ public class SQProcess {
    * Sends kill signal and awaits termination. No guarantee that process is gracefully terminated (=shutdown hooks
    * executed). It depends on OS.
    */
-  public void stop(long timeout, TimeUnit timeoutUnit) {
-    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
-      stopGracefully(timeout, timeoutUnit);
+  public void hardStop(long timeout, TimeUnit timeoutUnit) {
+    if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
+      hardStopImpl(timeout, timeoutUnit);
       if (process != null && process.isAlive()) {
-        LOG.info("{} failed to stop in a timely fashion. Killing it.", processId.getKey());
+        LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getKey());
       }
-      // enforce stop and clean-up even if process has been gracefully stopped
+      // enforce stop and clean-up even if process has been quickly stopped
       stopForcibly();
     } else {
       // already stopping or stopped
@@ -120,20 +120,19 @@ public class SQProcess {
     }
   }
 
-  private void stopGracefully(long timeout, TimeUnit timeoutUnit) {
+  private void hardStopImpl(long timeout, TimeUnit timeoutUnit) {
     if (process == null) {
       return;
     }
     try {
-      // request graceful stop
-      process.askForStop();
+      process.askForHardStop();
       process.waitFor(timeout, timeoutUnit);
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
-      LOG.warn("Interrupted while stopping process {}", processId, e);
+      LOG.warn("Interrupted while hard stopping process {}", processId, e);
       Thread.currentThread().interrupt();
     } catch (Throwable e) {
-      LOG.error("Can not ask for graceful stop of process {}", processId, e);
+      LOG.error("Failed while asking for hard stop of process {}", processId, e);
     }
   }
 
@@ -190,7 +189,7 @@ public class SQProcess {
       // this name is different than Thread#toString(), which includes name, priority
       // and thread group
       // -> do not override toString()
-      super(format("StopWatcher[%s]", processId.getKey()));
+      super(format("HardStopWatcher[%s]", processId.getKey()));
     }
 
     @Override

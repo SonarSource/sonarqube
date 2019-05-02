@@ -68,9 +68,9 @@ public interface ProcessMonitor {
   boolean isOperational();
 
   /**
-   * Send request to gracefully stop to the process
+   * Send request to quick stop to the process
    */
-  void askForStop();
+  void askForHardStop();
 
   /**
    * Whether the process asked for a full restart

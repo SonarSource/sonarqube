@@ -71,8 +71,8 @@ public class ProcessCommandsProcessMonitorTest {
 
     ProcessCommandsProcessMonitor underTest = new ProcessCommandsProcessMonitor(process, null, commands);
 
-    underTest.askForStop();
-    verify(commands).askForStop();
+    underTest.askForHardStop();
+    verify(commands).askForHardStop();
 
     underTest.acknowledgeAskForRestart();
     verify(commands).acknowledgeAskForRestart();

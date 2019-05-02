@@ -170,7 +170,7 @@ public class SQProcessTest {
 
       underTest.stopForcibly();
       assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
-      assertThat(testProcess.askedForStop).isFalse();
+      assertThat(testProcess.askedForHardStop).isFalse();
       assertThat(testProcess.destroyedForcibly).isTrue();
 
       // second execution of stopForcibly does nothing. It's still stopped.
@@ -189,18 +189,18 @@ public class SQProcessTest {
     try (TestProcess testProcess = new TestProcess()) {
       underTest.start(() -> testProcess);
 
-      Thread stopperThread = new Thread(() -> underTest.stop(1, TimeUnit.HOURS));
+      Thread stopperThread = new Thread(() -> underTest.hardStop(1, TimeUnit.HOURS));
       stopperThread.start();
 
       // thread is blocked until process stopped
       assertThat(stopperThread.isAlive()).isTrue();
 
       // wait for the stopper thread to ask graceful stop
-      while (!testProcess.askedForStop) {
+      while (!testProcess.askedForHardStop) {
         Thread.sleep(1L);
       }
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPING);
-      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.STOPPING);
+      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.HARD_STOPPING);
+      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.HARD_STOPPING);
 
       // process stopped
       testProcess.close();
@@ -223,10 +223,10 @@ public class SQProcessTest {
     try (TestProcess testProcess = new TestProcess()) {
       underTest.start(() -> testProcess);
 
-      underTest.stop(1L, TimeUnit.MILLISECONDS);
+      underTest.hardStop(1L, TimeUnit.MILLISECONDS);
 
       testProcess.waitFor();
-      assertThat(testProcess.askedForStop).isTrue();
+      assertThat(testProcess.askedForHardStop).isTrue();
       assertThat(testProcess.destroyedForcibly).isTrue();
       assertThat(testProcess.isAlive()).isFalse();
       assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
@@ -265,7 +265,7 @@ public class SQProcessTest {
     private boolean streamsClosed = false;
     private boolean operational = false;
     private boolean askedForRestart = false;
-    private boolean askedForStop = false;
+    private boolean askedForHardStop = false;
     private boolean destroyedForcibly = false;
 
     @Override
@@ -289,8 +289,8 @@ public class SQProcessTest {
     }
 
     @Override
-    public void askForStop() {
-      askedForStop = true;
+    public void askForHardStop() {
+      askedForHardStop = true;
       // do not stop, just asking
     }
 

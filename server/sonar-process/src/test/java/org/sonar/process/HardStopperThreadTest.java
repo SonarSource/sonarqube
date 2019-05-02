@@ -26,7 +26,7 @@ import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.mockito.Mockito.*;
 
-public class StopperThreadTest {
+public class HardStopperThreadTest {
   ProcessCommands commands = mock(ProcessCommands.class);
   Monitored monitored = mock(Monitored.class);
 
@@ -34,10 +34,10 @@ public class StopperThreadTest {
   public void stop_in_a_timely_fashion() {
     // max stop timeout is 5 seconds, but test fails after 3 seconds
     // -> guarantees that stop is immediate
-    StopperThread stopper = new StopperThread(monitored, commands, 5000L);
+    HardStopperThread stopper = new HardStopperThread(monitored, commands, 5000L);
     stopper.start();
 
-    verify(monitored, timeout(3000)).stop();
+    verify(monitored, timeout(3000)).hardStop();
   }
 
   @Test
@@ -48,12 +48,12 @@ public class StopperThreadTest {
         Thread.sleep(10000L);
         return null;
       }
-    }).when(monitored).stop();
+    }).when(monitored).hardStop();
 
     // max stop timeout is 100 milliseconds
-    StopperThread stopper = new StopperThread(monitored, commands, 100L);
+    HardStopperThread stopper = new HardStopperThread(monitored, commands, 100L);
     stopper.start();
 
-    verify(monitored, timeout(3000)).stop();
+    verify(monitored, timeout(3000)).hardStop();
   }
 }

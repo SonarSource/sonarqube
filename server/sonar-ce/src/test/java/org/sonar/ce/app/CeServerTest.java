@@ -54,7 +54,7 @@ public class CeServerTest {
   @After
   public void tearDown() throws Exception {
     if (underTest != null) {
-      underTest.stop();
+      underTest.hardStop();
     }
     Thread waitingThread = this.waitingThread;
     this.waitingThread = null;
@@ -190,7 +190,7 @@ public class CeServerTest {
       assertThat(waitingThread.isAlive()).isTrue();
     }
 
-    ceServer.stop();
+    ceServer.hardStop();
     // wait for waiting thread to stop because we stopped ceServer
     // if it does not, the test will fail with timeout
     waitingThread.join();
@@ -232,7 +232,7 @@ public class CeServerTest {
 
     ceServer.start();
     waitingThread.start();
-    ceServer.stop();
+    ceServer.hardStop();
     // wait for waiting thread to stop because we stopped ceServer
     // if it does not, the test will fail with timeout
     waitingThread.join();

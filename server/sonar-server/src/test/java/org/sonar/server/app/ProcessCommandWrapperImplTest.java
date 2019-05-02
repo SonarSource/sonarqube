@@ -86,7 +86,7 @@ public class ProcessCommandWrapperImplTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property process.sharedDir is not set");
 
-    processCommandWrapper.requestStop();
+    processCommandWrapper.requestHardStop();
   }
 
   @Test
@@ -96,10 +96,10 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);
 
     ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
-    underTest.requestStop();
+    underTest.requestHardStop();
 
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {
-      assertThat(processCommands.askedForStop()).isTrue();
+      assertThat(processCommands.askedForHardStop()).isTrue();
     }
   }
 

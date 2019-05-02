@@ -29,10 +29,10 @@ import org.sonar.application.command.JavaVersion;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.AppSettingsLoaderImpl;
+import org.sonar.application.process.HardStopRequestWatcherImpl;
 import org.sonar.application.process.ProcessLauncher;
 import org.sonar.application.process.ProcessLauncherImpl;
 import org.sonar.application.process.StopRequestWatcher;
-import org.sonar.application.process.StopRequestWatcherImpl;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.System2;
 import org.sonar.process.SystemExit;
@@ -44,7 +44,7 @@ public class App {
 
   private final SystemExit systemExit = new SystemExit();
   private final JavaVersion javaVersion;
-  private StopRequestWatcher stopRequestWatcher;
+  private StopRequestWatcher hardStopRequestWatcher;
 
   public App(JavaVersion javaVersion) {
     this.javaVersion = javaVersion;
@@ -74,11 +74,11 @@ public class App {
 
         scheduler.schedule();
 
-        stopRequestWatcher = StopRequestWatcherImpl.create(settings, scheduler::terminate, fileSystem);
-        stopRequestWatcher.startWatching();
+        hardStopRequestWatcher = HardStopRequestWatcherImpl.create(settings, scheduler::hardStop, fileSystem);
+        hardStopRequestWatcher.startWatching();
 
         scheduler.awaitTermination();
-        stopRequestWatcher.stopWatching();
+        hardStopRequestWatcher.stopWatching();
       }
     }
 
@@ -111,12 +111,12 @@ public class App {
     public void run() {
       systemExit.setInShutdownHook();
 
-      if (stopRequestWatcher != null) {
-        stopRequestWatcher.stopWatching();
+      if (hardStopRequestWatcher != null) {
+        hardStopRequestWatcher.stopWatching();
       }
 
       // blocks until everything is corrected terminated
-      scheduler.terminate();
+      scheduler.hardStop();
     }
   }
 }

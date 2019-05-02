@@ -34,12 +34,12 @@ import static org.sonar.application.process.Lifecycle.State.INIT;
 import static org.sonar.application.process.Lifecycle.State.STARTED;
 import static org.sonar.application.process.Lifecycle.State.STARTING;
 import static org.sonar.application.process.Lifecycle.State.STOPPED;
-import static org.sonar.application.process.Lifecycle.State.STOPPING;
+import static org.sonar.application.process.Lifecycle.State.HARD_STOPPING;
 
 public class Lifecycle {
 
   public enum State {
-    INIT, STARTING, STARTED, STOPPING, STOPPED
+    INIT, STARTING, STARTED, HARD_STOPPING, STOPPED
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(Lifecycle.class);
@@ -62,9 +62,9 @@ public class Lifecycle {
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(STARTED, STOPPING, STOPPED));
-    res.put(STARTED, toSet(STOPPING, STOPPED));
-    res.put(STOPPING, toSet(STOPPED));
+    res.put(STARTING, toSet(STARTED, HARD_STOPPING, STOPPED));
+    res.put(STARTED, toSet(HARD_STOPPING, STOPPED));
+    res.put(HARD_STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet());
     return Collections.unmodifiableMap(res);
   }

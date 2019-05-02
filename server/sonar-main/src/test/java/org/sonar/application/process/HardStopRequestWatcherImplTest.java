@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.ENABLE_STOP_COMMAND;
 
-public class StopRequestWatcherImplTest {
+public class HardStopRequestWatcherImplTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -54,7 +54,7 @@ public class StopRequestWatcherImplTest {
   @Test
   public void do_not_watch_command_if_disabled() {
     enableSetting(false);
-    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, listener, commands);
+    HardStopRequestWatcherImpl underTest = new HardStopRequestWatcherImpl(settings, listener, commands);
 
     underTest.startWatching();
     assertThat(underTest.isAlive()).isFalse();
@@ -66,14 +66,14 @@ public class StopRequestWatcherImplTest {
   @Test
   public void watch_stop_command_if_enabled() throws Exception {
     enableSetting(true);
-    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, listener, commands);
+    HardStopRequestWatcherImpl underTest = new HardStopRequestWatcherImpl(settings, listener, commands);
     underTest.setDelayMs(1L);
 
     underTest.startWatching();
     assertThat(underTest.isAlive()).isTrue();
     verify(listener, never()).run();
 
-    when(commands.askedForStop()).thenReturn(true);
+    when(commands.askedForHardStop()).thenReturn(true);
     verify(listener, timeout(1_000L)).run();
 
     underTest.stopWatching();
@@ -87,7 +87,7 @@ public class StopRequestWatcherImplTest {
     FileSystem fs = mock(FileSystem.class);
     when(fs.getTempDir()).thenReturn(temp.newFolder());
 
-    StopRequestWatcherImpl underTest = StopRequestWatcherImpl.create(settings, listener, fs);
+    HardStopRequestWatcherImpl underTest = HardStopRequestWatcherImpl.create(settings, listener, fs);
 
     assertThat(underTest.getDelayMs()).isEqualTo(500L);
   }
@@ -95,7 +95,7 @@ public class StopRequestWatcherImplTest {
   @Test
   public void stop_watching_commands_if_thread_is_interrupted() throws Exception {
     enableSetting(true);
-    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(settings, listener, commands);
+    HardStopRequestWatcherImpl underTest = new HardStopRequestWatcherImpl(settings, listener, commands);
 
     underTest.startWatching();
     underTest.interrupt();

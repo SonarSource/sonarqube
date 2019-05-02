@@ -27,7 +27,7 @@ import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.sonar.process.ProcessProperties.Property.ENABLE_STOP_COMMAND;
 
-public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher {
+public class HardStopRequestWatcherImpl extends Thread implements StopRequestWatcher {
 
   private static final long DEFAULT_WATCHER_DELAY_MS = 500L;
 
@@ -36,8 +36,8 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
   private final AppSettings settings;
   private long delayMs = DEFAULT_WATCHER_DELAY_MS;
 
-  StopRequestWatcherImpl(AppSettings settings, Runnable listener, ProcessCommands commands) {
-    super("StopRequestWatcherImpl");
+  HardStopRequestWatcherImpl(AppSettings settings, Runnable listener, ProcessCommands commands) {
+    super("HardStopRequestWatcherImpl");
     this.settings = settings;
     this.commands = commands;
     this.listener = listener;
@@ -47,9 +47,9 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
     setDaemon(true);
   }
 
-  public static StopRequestWatcherImpl create(AppSettings settings, Runnable listener, FileSystem fs) {
+  public static HardStopRequestWatcherImpl create(AppSettings settings, Runnable listener, FileSystem fs) {
     DefaultProcessCommands commands = DefaultProcessCommands.secondary(fs.getTempDir(), ProcessId.APP.getIpcIndex());
-    return new StopRequestWatcherImpl(settings, listener, commands);
+    return new HardStopRequestWatcherImpl(settings, listener, commands);
   }
 
   long getDelayMs() {
@@ -64,7 +64,7 @@ public class StopRequestWatcherImpl extends Thread implements StopRequestWatcher
   public void run() {
     try {
       while (true) {
-        if (commands.askedForStop()) {
+        if (commands.askedForHardStop()) {
           listener.run();
           return;
         }

@@ -34,7 +34,7 @@ import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 public class AllProcessesCommandsTest {
 
   private static final int PROCESS_NUMBER = 1;
-  private static final byte STOP = (byte) 0xFF;
+  private static final byte HARD_STOP = (byte) 0xFF;
   private static final byte RESTART = (byte) 0xAA;
   private static final byte UP = (byte) 0x01;
   private static final byte OPERATIONAL = (byte) 0x59;
@@ -100,7 +100,7 @@ public class AllProcessesCommandsTest {
   }
 
   @Test
-  public void write_and_read_jmx_url() throws IOException {
+  public void write_and_read_system_info_url() throws IOException {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
 
       int offset = 12;
@@ -115,16 +115,16 @@ public class AllProcessesCommandsTest {
   }
 
   @Test
-  public void ask_for_stop() throws Exception {
+  public void ask_for_hard_stop() throws Exception {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
       int offset = 1;
 
-      assertThat(readByte(commands, offset)).isNotEqualTo(STOP);
-      assertThat(commands.askedForStop(PROCESS_NUMBER)).isFalse();
+      assertThat(readByte(commands, offset)).isNotEqualTo(HARD_STOP);
+      assertThat(commands.askedForHardStop(PROCESS_NUMBER)).isFalse();
 
-      commands.askForStop(PROCESS_NUMBER);
-      assertThat(commands.askedForStop(PROCESS_NUMBER)).isTrue();
-      assertThat(readByte(commands, offset)).isEqualTo(STOP);
+      commands.askForHardStop(PROCESS_NUMBER);
+      assertThat(commands.askedForHardStop(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(HARD_STOP);
     }
   }
 

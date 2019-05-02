@@ -105,7 +105,7 @@ public class CeServer implements Monitored {
   }
 
   @Override
-  public void stop() {
+  public void hardStop() {
     if (ceMainThread != null) {
       // signal main Thread to stop
       ceMainThread.stopIt();

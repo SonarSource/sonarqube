@@ -62,7 +62,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
-import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.HARD_STOPPING;
 
 public class InternalCeQueueImplTest {
 
@@ -407,7 +407,7 @@ public class InternalCeQueueImplTest {
   @Test
   public void peek_nothing_if_application_status_stopping() {
     submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
-    when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
+    when(computeEngineStatus.getStatus()).thenReturn(HARD_STOPPING);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     assertThat(peek.isPresent()).isFalse();

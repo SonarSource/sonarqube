@@ -68,7 +68,7 @@ public class StandardProcess implements Monitored {
    * Blocks until stopped
    */
   @Override
-  public void stop() {
+  public void hardStop() {
     state = State.STOPPING;
     daemon.interrupt();
     state = State.STOPPED;

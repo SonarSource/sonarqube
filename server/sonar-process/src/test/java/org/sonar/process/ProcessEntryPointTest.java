@@ -89,7 +89,7 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void launch_then_request_graceful_stop() throws Exception {
+  public void launch_then_request_hard_stop() throws Exception {
     Props props = createProps();
     final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
     final StandardProcess process = new StandardProcess();
@@ -109,7 +109,7 @@ public class ProcessEntryPointTest {
 
     // requests for graceful stop -> waits until down
     // Should terminate before the timeout of 30s
-    entryPoint.stop();
+    entryPoint.hardStop();
 
     assertThat(process.getState()).isEqualTo(State.STOPPED);
   }
@@ -181,7 +181,7 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public void stop() {
+    public void hardStop() {
 
     }
   }
@@ -204,7 +204,7 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public void stop() {
+    public void hardStop() {
 
     }
   }
