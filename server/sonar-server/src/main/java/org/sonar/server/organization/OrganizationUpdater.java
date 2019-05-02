@@ -33,7 +33,7 @@ import static java.util.Objects.requireNonNull;
 
 public interface OrganizationUpdater {
   String OWNERS_GROUP_NAME = "Owners";
-  String OWNERS_GROUP_DESCRIPTION_PATTERN = "Owners of organization %s";
+  String OWNERS_GROUP_DESCRIPTION = "Owners of organization";
   String PERM_TEMPLATE_NAME = "Default template";
   String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
   String PERSONAL_ORGANIZATION_DESCRIPTION_PATTERN = "%s's personal organization";

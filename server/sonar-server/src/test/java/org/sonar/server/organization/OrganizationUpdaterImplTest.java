@@ -559,7 +559,7 @@ public class OrganizationUpdaterImplTest {
     Optional<GroupDto> groupOpt = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
     assertThat(groupOpt).isPresent();
     GroupDto groupDto = groupOpt.get();
-    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + organizationName);
+    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization");
 
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));

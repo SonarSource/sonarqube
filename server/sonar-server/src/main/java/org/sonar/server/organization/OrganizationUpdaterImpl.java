@@ -323,7 +323,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     GroupDto group = dbClient.groupDao().insert(dbSession, new GroupDto()
       .setOrganizationUuid(organization.getUuid())
       .setName(OWNERS_GROUP_NAME)
-      .setDescription(format(OWNERS_GROUP_DESCRIPTION_PATTERN, organization.getName())));
+      .setDescription(OWNERS_GROUP_DESCRIPTION));
     permissionService.getAllOrganizationPermissions().forEach(p -> addPermissionToGroup(dbSession, group, p));
     return group;
   }

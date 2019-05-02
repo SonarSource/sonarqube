@@ -159,7 +159,7 @@ public class CreateActionTest {
     Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
     assertThat(groupDtoOptional).isNotEmpty();
     GroupDto groupDto = groupDtoOptional.get();
-    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization orgFoo");
+    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization");
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
