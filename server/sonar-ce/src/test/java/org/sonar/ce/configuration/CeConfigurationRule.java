@@ -85,7 +85,7 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   }
 
   @Override
-  public int getGracefulStopTimeoutInMs() {
-    return 40_000;
+  public long getGracefulStopTimeoutInMs() {
+    return 6 * 60 * 60 * 1_000L;
   }
 }

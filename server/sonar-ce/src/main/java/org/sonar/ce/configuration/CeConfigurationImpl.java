@@ -21,19 +21,18 @@ package org.sonar.ce.configuration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
 
 /**
- * Immutable implementation of {@link CeConfiguration} which takes value returned by an implementation of
- * {@link WorkerCountProvider}, if any is available, or use the {@link #DEFAULT_WORKER_COUNT default worker count}.
- * In addition, it always returns {@link #DEFAULT_QUEUE_POLLING_DELAY} when
- * {@link CeConfiguration#getQueuePollingDelay()} is called.
+ * Immutable implementation of {@link CeConfiguration} initialized at startup from {@link Configuration}.
  */
-public class CeConfigurationImpl implements CeConfiguration, Startable {
+public class CeConfigurationImpl implements CeConfiguration {
+  private static final String SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS = "sonar.ce.gracefulStopTimeOutInMs";
+  // 6 hours
+  private static final long DEFAULT_TASK_TIMEOUT_IN_MS = 6 * 60 * 60 * 1_000L;
   private static final int DEFAULT_WORKER_THREAD_COUNT = 1;
   private static final int MAX_WORKER_THREAD_COUNT = 10;
   private static final int DEFAULT_WORKER_COUNT = 1;
@@ -43,14 +42,11 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   private static final long CANCEL_WORN_OUTS_INITIAL_DELAY = 0;
   // 2 minutes
   private static final long CANCEL_WORN_OUTS_DELAY = 2;
-  // 40 seconds
-  private static final int GRACEFUL_STOP_TIMEOUT = 40;
-  public static final String SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS = "sonar.ce.gracefulStopTimeOutInMs";
 
   @CheckForNull
   private final WorkerCountProvider workerCountProvider;
   private final int workerThreadCount;
-  private final int gracefultStopTimeoutInMs;
+  private final long gracefulStopTimeoutInMs;
   private int workerCount;
 
   public CeConfigurationImpl(Configuration configuration) {
@@ -59,7 +55,8 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   public CeConfigurationImpl(Configuration configuration, @Nullable WorkerCountProvider workerCountProvider) {
     this.workerCountProvider = workerCountProvider;
-    this.gracefultStopTimeoutInMs = configuration.getInt(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS).orElse(GRACEFUL_STOP_TIMEOUT);
+    this.gracefulStopTimeoutInMs = configuration.getLong(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS)
+      .orElse(DEFAULT_TASK_TIMEOUT_IN_MS);
     if (workerCountProvider == null) {
       this.workerCount = DEFAULT_WORKER_COUNT;
       this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;
@@ -81,16 +78,6 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
     return MessageException.of(format(
       "Worker count '%s' is invalid. It must be an integer strictly greater than 0 and less or equal to 10",
       value));
-  }
-
-  @Override
-  public void start() {
-    // nothing to do
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
   }
 
   @Override
@@ -122,8 +109,8 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   }
 
   @Override
-  public int getGracefulStopTimeoutInMs() {
-    return gracefultStopTimeoutInMs;
+  public long getGracefulStopTimeoutInMs() {
+    return gracefulStopTimeoutInMs;
   }
 
 }

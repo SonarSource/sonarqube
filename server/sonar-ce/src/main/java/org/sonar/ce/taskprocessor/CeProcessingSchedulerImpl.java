@@ -35,14 +35,15 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
-  private static final long DELAY_BETWEEN_DISABLED_TASKS = 30 * 1000L; // 30 seconds
+  // 30 seconds
+  private static final long DELAY_BETWEEN_DISABLED_TASKS = 30 * 1000L;
 
   private final CeProcessingSchedulerExecutorService executorService;
   private final long delayBetweenEnabledTasks;
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
   private final CeWorkerController ceWorkerController;
-  private final int gracefulStopTimeoutInMs;
+  private final long gracefulStopTimeoutInMs;
 
   public CeProcessingSchedulerImpl(CeConfiguration ceConfiguration,
     CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory,
