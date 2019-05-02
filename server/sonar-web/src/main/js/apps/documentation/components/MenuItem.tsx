@@ -20,7 +20,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import { testPathAgainstUrl } from 'Docs/components/navTreeUtils';
+import { testPathAgainstUrl } from '../navTreeUtils';
 import { DocumentationEntry } from '../utils';
 
 interface Props {

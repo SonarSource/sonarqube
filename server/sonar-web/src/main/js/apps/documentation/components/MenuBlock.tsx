@@ -20,11 +20,11 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { DocsNavigationBlock, DocNavigationItem } from 'Docs/@types/types';
-import { isDocsNavigationBlock } from 'Docs/components/navTreeUtils';
 import { MenuItem } from './MenuItem';
+import { isDocsNavigationBlock } from '../navTreeUtils';
+import { DocumentationEntry, getNodeFromUrl } from '../utils';
 import OpenCloseIcon from '../../../components/icons-components/OpenCloseIcon';
 import { ButtonLink } from '../../../components/ui/buttons';
-import { DocumentationEntry, getNodeFromUrl } from '../utils';
 
 interface Props {
   block: DocsNavigationBlock;

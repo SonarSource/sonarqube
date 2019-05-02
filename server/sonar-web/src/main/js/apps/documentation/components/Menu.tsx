@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { DocNavigationItem } from 'Docs/@types/types';
+import MenuBlock from './MenuBlock';
+import { MenuItem } from './MenuItem';
+import { MenuExternalLink } from './MenuExternalLink';
 import {
   isDocsNavigationBlock,
   isDocsNavigationExternalLink,
   getOpenChainFromPath
-} from 'Docs/components/navTreeUtils';
-import MenuBlock from './MenuBlock';
-import { MenuItem } from './MenuItem';
-import { MenuExternalLink } from './MenuExternalLink';
+} from '../navTreeUtils';
 import { DocumentationEntry, getNodeFromUrl } from '../utils';
 
 interface Props {
