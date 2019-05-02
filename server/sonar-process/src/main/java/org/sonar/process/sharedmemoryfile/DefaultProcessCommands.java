@@ -102,6 +102,16 @@ public class DefaultProcessCommands implements ProcessCommands, AutoCloseable {
   }
 
   @Override
+  public void askForStop() {
+    delegate.askForStop();
+  }
+
+  @Override
+  public boolean askedForStop() {
+    return delegate.askedForStop();
+  }
+
+  @Override
   public void askForHardStop() {
     delegate.askForHardStop();
   }

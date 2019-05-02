@@ -35,6 +35,7 @@ public class AllProcessesCommandsTest {
 
   private static final int PROCESS_NUMBER = 1;
   private static final byte HARD_STOP = (byte) 0xFF;
+  private static final byte STOP = (byte) 0xD2;
   private static final byte RESTART = (byte) 0xAA;
   private static final byte UP = (byte) 0x01;
   private static final byte OPERATIONAL = (byte) 0x59;
@@ -75,7 +76,7 @@ public class AllProcessesCommandsTest {
   @Test
   public void write_and_read_operational() throws IOException {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
-      int offset = 3;
+      int offset = 4;
 
       assertThat(commands.isOperational(PROCESS_NUMBER)).isFalse();
       assertThat(readByte(commands, offset)).isEqualTo(EMPTY);
@@ -89,8 +90,8 @@ public class AllProcessesCommandsTest {
   @Test
   public void write_and_read_ping() throws IOException {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 5;
 
-      int offset = 4;
       assertThat(readLong(commands, offset)).isEqualTo(0L);
 
       long currentTime = System.currentTimeMillis();
@@ -102,8 +103,8 @@ public class AllProcessesCommandsTest {
   @Test
   public void write_and_read_system_info_url() throws IOException {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 13;
 
-      int offset = 12;
       for (int i = 0; i < 500; i++) {
         assertThat(readByte(commands, offset + i)).isEqualTo(EMPTY);
       }
@@ -129,9 +130,23 @@ public class AllProcessesCommandsTest {
   }
 
   @Test
-  public void ask_for_restart() throws Exception {
+  public void ask_for_stop() throws Exception {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
       int offset = 2;
+
+      assertThat(readByte(commands, offset)).isNotEqualTo(STOP);
+      assertThat(commands.askedForStop(PROCESS_NUMBER)).isFalse();
+
+      commands.askForStop(PROCESS_NUMBER);
+      assertThat(commands.askedForStop(PROCESS_NUMBER)).isTrue();
+      assertThat(readByte(commands, offset)).isEqualTo(STOP);
+    }
+  }
+
+  @Test
+  public void ask_for_restart() throws Exception {
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 3;
 
       assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
       assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
@@ -145,7 +160,7 @@ public class AllProcessesCommandsTest {
   @Test
   public void acknowledgeAskForRestart_has_no_effect_when_no_restart_asked() throws Exception {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
-      int offset = 2;
+      int offset = 3;
 
       assertThat(readByte(commands, offset)).isNotEqualTo(RESTART);
       assertThat(commands.askedForRestart(PROCESS_NUMBER)).isFalse();
@@ -159,7 +174,7 @@ public class AllProcessesCommandsTest {
   @Test
   public void acknowledgeAskForRestart_resets_askForRestart_has_no_effect_when_no_restart_asked() throws Exception {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
-      int offset = 2;
+      int offset = 3;
 
       commands.askForRestart(PROCESS_NUMBER);
       assertThat(commands.askedForRestart(PROCESS_NUMBER)).isTrue();

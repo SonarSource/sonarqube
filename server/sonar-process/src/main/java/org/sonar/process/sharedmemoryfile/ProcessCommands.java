@@ -60,6 +60,13 @@ public interface ProcessCommands {
   String getHttpUrl();
 
   /**
+   * To be executed by monitor process to ask for graceful child process termination
+   */
+  void askForStop();
+
+  boolean askedForStop();
+
+  /**
    * To be executed by monitor process to ask for quick child process termination
    */
   void askForHardStop();

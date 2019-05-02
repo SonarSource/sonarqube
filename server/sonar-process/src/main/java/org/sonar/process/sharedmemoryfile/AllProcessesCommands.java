@@ -54,11 +54,12 @@ import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
  * Each group of byte is used as follow:
  * <ul>
  *   <li>First byte contains {@link #EMPTY} until process is UP and writes {@link #UP}</li>
- *   <li>Second byte contains {@link #EMPTY} until any process requests current one to stop by writing value {@link #HARD_STOP}</li>
- *   <li>Third byte contains {@link #EMPTY} until any process requests current one to restart by writing value {@link #RESTART}.
+ *   <li>Second byte contains {@link #EMPTY} until any process requests current one to hard stop by writing value {@link #HARD_STOP}</li>
+ *   <li>Third byte contains {@link #EMPTY} until any process requests current one to stop by writing value {@link #STOP}</li>
+ *   <li>Fourth byte contains {@link #EMPTY} until any process requests current one to restart by writing value {@link #RESTART}.
  *       Process acknowledges restart by writing back {@link #EMPTY}</li>
- *   <li>Fourth byte will always contain {@link #EMPTY} unless process declares that it is operational by writing {@link #OPERATIONAL}.
- *       This does not imply that is done starting.</li>
+ *   <li>Fifth byte will always contain {@link #EMPTY} unless process declares that it is operational by writing {@link #OPERATIONAL}.
+ *       This does not imply that it is done starting.</li>
  *   <li>The next 8 bytes contains a long (value of {@link System#currentTimeMillis()}) which represents the date of the last ping</li>
  * </ul>
  * </p>
@@ -66,19 +67,21 @@ import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 public class AllProcessesCommands implements AutoCloseable {
   private static final int UP_BYTE_OFFSET = 0;
   private static final int HARD_STOP_BYTE_OFFSET = 1;
-  private static final int RESTART_BYTE_OFFSET = 2;
-  private static final int OPERATIONAL_BYTE_OFFSET = 3;
-  private static final int PING_BYTE_OFFSET = 4;
+  private static final int STOP_BYTE_OFFSET = 2;
+  private static final int RESTART_BYTE_OFFSET = 3;
+  private static final int OPERATIONAL_BYTE_OFFSET = 4;
+  private static final int PING_BYTE_OFFSET = 5;
   private static final int SYSTEM_INFO_URL_BYTE_OFFSET = PING_BYTE_OFFSET + 8;
 
   private static final int SYSTEM_INFO_URL_SIZE_IN_BYTES = 500;
 
-  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 8 + SYSTEM_INFO_URL_SIZE_IN_BYTES;
+  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 1 + 8 + SYSTEM_INFO_URL_SIZE_IN_BYTES;
 
   // With this shared memory we can handle up to MAX_PROCESSES processes
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
 
   private static final byte HARD_STOP = (byte) 0xFF;
+  private static final byte STOP = (byte) 0xD2;
   private static final byte RESTART = (byte) 0xAA;
   private static final byte OPERATIONAL = (byte) 0x59;
   private static final byte UP = (byte) 0x01;
@@ -165,6 +168,17 @@ public class AllProcessesCommands implements AutoCloseable {
       throw new IllegalArgumentException(format("System Info URL is too long. Max is %d bytes. Got: %s", SYSTEM_INFO_URL_SIZE_IN_BYTES, url));
     }
     writeBytes(processNumber, SYSTEM_INFO_URL_BYTE_OFFSET, urlBytes);
+  }
+
+  /**
+   * To be executed by monitor process to ask for graceful child process termination
+   */
+  void askForStop(int processNumber) {
+    writeByte(processNumber, STOP_BYTE_OFFSET, STOP);
+  }
+
+  boolean askedForStop(int processNumber) {
+    return readByte(processNumber, STOP_BYTE_OFFSET) == STOP;
   }
 
   /**
@@ -290,6 +304,16 @@ public class AllProcessesCommands implements AutoCloseable {
     @Override
     public String getHttpUrl() {
       return AllProcessesCommands.this.getSystemInfoUrl(processNumber);
+    }
+
+    @Override
+    public void askForStop() {
+      AllProcessesCommands.this.askForStop(processNumber);
+    }
+
+    @Override
+    public boolean askedForStop() {
+      return AllProcessesCommands.this.askedForStop(processNumber);
     }
 
     @Override
