@@ -56,7 +56,7 @@ public class Lifecycle {
     res.put(STARTED, toSet(OPERATIONAL, RESTARTING, STOPPING, HARD_STOPPING));
     res.put(OPERATIONAL, toSet(RESTARTING, STOPPING, HARD_STOPPING));
     res.put(RESTARTING, toSet(STARTING, HARD_STOPPING));
-    res.put(STOPPING, toSet(STOPPED));
+    res.put(STOPPING, toSet(HARD_STOPPING, STOPPED));
     res.put(HARD_STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet());
     return res;

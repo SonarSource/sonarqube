@@ -19,16 +19,17 @@
  */
 package org.sonar.process;
 
-import java.util.Objects;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.Lifecycle.State;
+import static org.sonar.process.Lifecycle.State.HARD_STOPPING;
 import static org.sonar.process.Lifecycle.State.INIT;
 import static org.sonar.process.Lifecycle.State.OPERATIONAL;
 import static org.sonar.process.Lifecycle.State.RESTARTING;
 import static org.sonar.process.Lifecycle.State.STARTED;
 import static org.sonar.process.Lifecycle.State.STARTING;
+import static org.sonar.process.Lifecycle.State.STOPPED;
 import static org.sonar.process.Lifecycle.State.STOPPING;
 import static org.sonar.process.Lifecycle.State.values;
 
@@ -97,6 +98,34 @@ public class LifecycleTest {
     assertThat(newLifeCycle(RESTARTING).tryToMoveTo(STARTING)).isTrue();
   }
 
+  @Test
+  public void can_move_to_STOPPING_only_from_STARTING_STARTED_and_OPERATIONAL() {
+    for (State state : values()) {
+      boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(STOPPING);
+      if (state == STARTING || state == STARTED || state == OPERATIONAL) {
+        assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
+      } else {
+        assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
+      }
+    }
+  }
+
+  @Test
+  public void can_move_to_HARD_STOPPING_from_any_step_but_from_INIT_HARD_STOPPING_and_STOPPED() {
+    for (State state : values()) {
+      boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(HARD_STOPPING);
+      if (state == INIT || state == STOPPED || state == HARD_STOPPING) {
+        assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
+      } else {
+        assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
+      }
+    }
+  }
+
+  /**
+   * Creates a Lifecycle object in the specified state emulating that the shortest path to this state has been followed
+   * to reach it.
+   */
   private static Lifecycle newLifeCycle(State state) {
     switch (state) {
       case INIT:
@@ -127,35 +156,4 @@ public class LifecycleTest {
     return lifecycle;
   }
 
-  private static final class Transition {
-    private final State from;
-    private final State to;
-
-    private Transition(State from, State to) {
-      this.from = from;
-      this.to = to;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Transition that = (Transition) o;
-      return from == that.from && to == that.to;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(from, to);
-    }
-
-    @Override
-    public String toString() {
-      return "Transition{" + from + " => " + to + '}';
-    }
-  }
 }
