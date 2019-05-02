@@ -31,7 +31,7 @@ import java.io.File;
  * @see DefaultProcessCommands#main(File, int)
  * @see DefaultProcessCommands#secondary(File, int)
  */
-public interface ProcessCommands extends AutoCloseable {
+public interface ProcessCommands {
 
   int MAX_PROCESSES = 5;
 

@@ -322,9 +322,5 @@ public class AllProcessesCommands implements AutoCloseable {
       throw new UnsupportedOperationException("ProcessCommands created from AllProcessesCommands can not be closed directly. Close AllProcessesCommands instead");
     }
 
-    @Override
-    public void close() {
-      endWatch();
-    }
   }
 }

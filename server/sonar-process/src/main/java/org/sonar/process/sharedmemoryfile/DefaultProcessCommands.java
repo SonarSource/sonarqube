@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * Default implementation of {@link ProcessCommands} based on a {@link AllProcessesCommands} of which will request a
  * single {@link ProcessCommands} to use as delegate for the specified processNumber.
  */
-public class DefaultProcessCommands implements ProcessCommands {
+public class DefaultProcessCommands implements ProcessCommands, AutoCloseable {
   private final AllProcessesCommands allProcessesCommands;
   private final ProcessCommands delegate;
 
