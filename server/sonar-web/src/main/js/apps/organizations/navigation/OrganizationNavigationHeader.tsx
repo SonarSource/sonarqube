@@ -45,6 +45,7 @@ export default function OrganizationNavigationHeader({
   organizations
 }: Props) {
   const other = organizations.filter(o => o.key !== organization.key);
+  const isAdmin = organization.actions && organization.actions.admin;
 
   let almKey;
   let tooltipContent;
@@ -66,10 +67,14 @@ export default function OrganizationNavigationHeader({
     tooltipContent = (
       <>
         <p>{translateWithParameters('organization.not_bound_to_x', translate(almKey))}</p>
-        <hr className="spacer-top spacer-bottom" />
-        <Link to={`/organizations/${organization.key}/edit`}>
-          {translate('organization.go_to_settings_to_bind')}
-        </Link>
+        {isAdmin && (
+          <>
+            <hr className="spacer-top spacer-bottom" />
+            <Link to={`/organizations/${organization.key}/edit`}>
+              {translate('organization.go_to_settings_to_bind')}
+            </Link>
+          </>
+        )}
       </>
     );
     tooltipIconSrc = `${getBaseUrl()}/images/sonarcloud/${almKey}-unbound.svg`;

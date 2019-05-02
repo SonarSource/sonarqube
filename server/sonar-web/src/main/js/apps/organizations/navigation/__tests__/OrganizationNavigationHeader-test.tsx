@@ -42,6 +42,38 @@ it('renders for external user w/o alm integration', () => {
   ).toMatchSnapshot();
 });
 
+it('renders with the organization tooltip for an admin user of an organization', () => {
+  expect(
+    shallowRender({
+      currentUser: mockLoggedInUser({
+        externalProvider: 'github'
+      }),
+      organization: {
+        actions: { admin: true },
+        key: 'org1',
+        name: 'org1',
+        projectVisibility: 'public'
+      }
+    }).find('Tooltip')
+  ).toMatchSnapshot();
+});
+
+it('renders without the organization tooltip for a non-admin user of an organization', () => {
+  expect(
+    shallowRender({
+      currentUser: mockLoggedInUser({
+        externalProvider: 'github'
+      }),
+      organization: {
+        actions: { admin: false },
+        key: 'org1',
+        name: 'org1',
+        projectVisibility: 'public'
+      }
+    }).find('Tooltip')
+  ).toMatchSnapshot();
+});
+
 it('renders dropdown', () => {
   const organizations: T.Organization[] = [
     { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: 'public' },

@@ -92,16 +92,6 @@ exports[`renders for external user w/o alm integration 1`] = `
         <p>
           organization.not_bound_to_x.github
         </p>
-        <hr
-          className="spacer-top spacer-bottom"
-        />
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to="/organizations/foo/edit"
-        >
-          organization.go_to_settings_to_bind
-        </Link>
       </React.Fragment>
     }
   >
@@ -168,4 +158,58 @@ exports[`renders with alm integration 1`] = `
     />
   </Tooltip>
 </header>
+`;
+
+exports[`renders with the organization tooltip for an admin user of an organization 1`] = `
+<Tooltip
+  mouseLeaveDelay={0.25}
+  overlay={
+    <React.Fragment>
+      <p>
+        organization.not_bound_to_x.github
+      </p>
+      <React.Fragment>
+        <hr
+          className="spacer-top spacer-bottom"
+        />
+        <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/organizations/org1/edit"
+        >
+          organization.go_to_settings_to_bind
+        </Link>
+      </React.Fragment>
+    </React.Fragment>
+  }
+>
+  <img
+    alt="github"
+    className="text-middle spacer-left"
+    height={16}
+    src="/images/sonarcloud/github-unbound.svg"
+    width={16}
+  />
+</Tooltip>
+`;
+
+exports[`renders without the organization tooltip for a non-admin user of an organization 1`] = `
+<Tooltip
+  mouseLeaveDelay={0.25}
+  overlay={
+    <React.Fragment>
+      <p>
+        organization.not_bound_to_x.github
+      </p>
+    </React.Fragment>
+  }
+>
+  <img
+    alt="github"
+    className="text-middle spacer-left"
+    height={16}
+    src="/images/sonarcloud/github-unbound.svg"
+    width={16}
+  />
+</Tooltip>
 `;
