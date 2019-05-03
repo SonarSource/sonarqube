@@ -179,10 +179,10 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       .selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));
 
     data.setProjects(projects)
-            .setProjectLinks(projectLinks)
-            .setSnapshots(snapshots)
-            .setQualityGates(qualityGates)
-            .setTotalNbOfProjects(searchResult.total);
+      .setProjectLinks(projectLinks)
+      .setSnapshots(snapshots)
+      .setQualityGates(qualityGates)
+      .setTotalNbOfProjects(searchResult.total);
 
     return data.build();
   }
@@ -193,13 +193,13 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
 
     List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
     ComponentQuery dbQuery = ComponentQuery.builder()
-            .setQualifiers(Qualifiers.PROJECT)
-            .setComponentIds(ImmutableSet.copyOf(componentIds.subList(0, Math.min(componentIds.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE))))
-            .build();
+      .setQualifiers(Qualifiers.PROJECT)
+      .setComponentIds(ImmutableSet.copyOf(componentIds.subList(0, Math.min(componentIds.size(), DatabaseUtils.PARTITION_SIZE_FOR_ORACLE))))
+      .build();
 
     return new ProjectsResult(
-            dbClient.componentDao().selectByQuery(dbSession, dbQuery, offset(request.getPage(), request.getPageSize()), request.getPageSize()),
-            dbClient.componentDao().countByQuery(dbSession, dbQuery));
+      dbClient.componentDao().selectByQuery(dbSession, dbQuery, offset(request.getPage(), request.getPageSize()), request.getPageSize()),
+      dbClient.componentDao().countByQuery(dbSession, dbQuery));
   }
 
   private static class ProjectsResult {

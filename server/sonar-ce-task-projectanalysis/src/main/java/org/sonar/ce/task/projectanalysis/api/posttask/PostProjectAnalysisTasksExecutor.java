@@ -76,17 +76,17 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
    * Constructor used by Pico when there is no {@link PostProjectAnalysisTask} in the container.
    */
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.task.CeTask ceTask,
-                                          AnalysisMetadataHolder analysisMetadataHolder,
-                                          QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
-                                          BatchReportReader reportReader, System2 system2) {
+    AnalysisMetadataHolder analysisMetadataHolder,
+    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+    BatchReportReader reportReader, System2 system2) {
     this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, system2, null);
   }
 
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.task.CeTask ceTask,
-                                          AnalysisMetadataHolder analysisMetadataHolder,
-                                          QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
-                                          BatchReportReader reportReader, System2 system2,
-                                          @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
+    AnalysisMetadataHolder analysisMetadataHolder,
+    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder,
+    BatchReportReader reportReader, System2 system2,
+    @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.qualityGateHolder = qualityGateHolder;
     this.qualityGateStatusHolder = qualityGateStatusHolder;
@@ -126,8 +126,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       ScannerContextImpl.from(reportReader.readContextProperties()),
       status == SUCCESS ? createQualityGate() : null,
       createBranch(),
-      reportReader.readMetadata().getScmRevisionId()
-    );
+      reportReader.readMetadata().getScmRevisionId());
   }
 
   @CheckForNull
@@ -144,9 +143,8 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     if (analysisDate != null) {
       return of(new AnalysisImpl(analysisMetadataHolder.getUuid(), analysisDate));
-    } else {
-      return empty();
     }
+    return empty();
   }
 
   private static Project createProject(org.sonar.ce.task.CeTask ceTask) {

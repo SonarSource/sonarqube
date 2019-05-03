@@ -143,10 +143,7 @@ public class JwtHttpHandler {
     }
 
     Optional<UserDto> user = selectUserFromUuid(token.getSubject());
-    if (!user.isPresent()) {
-      return Optional.empty();
-    }
-    return Optional.of(new Token(user.get(), claims.get()));
+    return user.map(userDto -> new Token(userDto, claims.get()));
   }
 
   private static Date getLastRefreshDate(Claims token) {
