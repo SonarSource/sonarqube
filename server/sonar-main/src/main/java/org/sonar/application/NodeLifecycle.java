@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.sonar.application.NodeLifecycle.State.INIT;
 import static org.sonar.application.NodeLifecycle.State.OPERATIONAL;
+import static org.sonar.application.NodeLifecycle.State.RESTARTING;
 import static org.sonar.application.NodeLifecycle.State.STARTING;
 import static org.sonar.application.NodeLifecycle.State.STOPPED;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
@@ -51,6 +52,9 @@ class NodeLifecycle {
     // all the processes are started and operational
     OPERATIONAL,
 
+    // at least one process is still stopping as part of a node restart
+    RESTARTING,
+
     // at least one process is still stopping
     STOPPING,
 
@@ -65,8 +69,9 @@ class NodeLifecycle {
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(OPERATIONAL, STOPPING, STOPPED));
-    res.put(OPERATIONAL, toSet(STOPPING, STOPPED));
+    res.put(STARTING, toSet(OPERATIONAL, RESTARTING, STOPPING, STOPPED));
+    res.put(OPERATIONAL, toSet(RESTARTING, STOPPING, STOPPED));
+    res.put(RESTARTING, toSet(STOPPING, STOPPED));
     res.put(STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet(STARTING));
     return Collections.unmodifiableMap(res);

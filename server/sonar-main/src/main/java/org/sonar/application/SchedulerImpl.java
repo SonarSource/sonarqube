@@ -32,11 +32,11 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
-import org.sonar.application.process.ManagedProcessLifecycle;
-import org.sonar.application.process.ManagedProcessEventListener;
-import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.application.process.ManagedProcess;
+import org.sonar.application.process.ManagedProcessEventListener;
 import org.sonar.application.process.ManagedProcessHandler;
+import org.sonar.application.process.ManagedProcessLifecycle;
+import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.process.ProcessId;
 
 import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
@@ -54,8 +54,6 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private final CountDownLatch awaitTermination = new CountDownLatch(1);
   private final AtomicBoolean firstWaitingEsLog = new AtomicBoolean(true);
-  private final AtomicBoolean restartRequested = new AtomicBoolean(false);
-  private final AtomicBoolean restarting = new AtomicBoolean(false);
   private final EnumMap<ProcessId, ManagedProcessHandler> processesById = new EnumMap<>(ProcessId.class);
   private final AtomicInteger operationalCountDown = new AtomicInteger();
   private final AtomicInteger stopCountDown = new AtomicInteger(0);
@@ -190,17 +188,14 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
    */
   @Override
   public void hardStop() {
-    restartRequested.set(false);
-    restarting.set(false);
-
     if (nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPING)) {
       LOG.info("Stopping SonarQube");
     }
     hardStopAll();
-    if (hardStopperThread != null) {
+    if (hardStopperThread != null && Thread.currentThread() != hardStopperThread) {
       hardStopperThread.interrupt();
     }
-    if (restarterThread != null) {
+    if (restarterThread != null && Thread.currentThread() != restarterThread) {
       restarterThread.interrupt();
     }
     awaitTermination.countDown();
@@ -219,8 +214,8 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   public void onManagedProcessEvent(ProcessId processId, Type type) {
     if (type == Type.OPERATIONAL) {
       onProcessOperational(processId);
-    } else if (type == Type.ASK_FOR_RESTART && restartRequested.compareAndSet(false, true)) {
-      restarting.set(true);
+    } else if (type == Type.ASK_FOR_RESTART && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.RESTARTING)) {
+      LOG.info("SQ restart requested by Process[{}]", processId.getKey());
       hardStopAsync();
     }
   }
@@ -256,21 +251,25 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private void onProcessStop(ProcessId processId) {
-    LOG.info("Process [{}] is stopped", processId.getKey());
-    if (stopCountDown.decrementAndGet() == 0 && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPED)) {
-      if (restarting.get() && restartRequested.compareAndSet(true, false)) {
-        LOG.info("SonarQube is restarting");
-        restartAsync();
-      } else {
-        LOG.info("SonarQube is stopped");
-        // all processes are stopped, no restart requested
-        // Let's clean-up resources
-        hardStop();
-      }
-
-    } else if (nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPING)) {
-      // this is the first process stopping
-      hardStopAsync();
+    LOG.info("Process[{}] is stopped", processId.getKey());
+    boolean lastProcessStopped = stopCountDown.decrementAndGet() == 0;
+    switch (nodeLifecycle.getState()) {
+      case RESTARTING:
+        if (lastProcessStopped && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPED)) {
+          LOG.info("SonarQube is restarting");
+          restartAsync();
+        }
+        break;
+      case STOPPING:
+        if (lastProcessStopped && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPED)) {
+          // all processes are stopped, no restart requested
+          // Let's clean-up resources
+          hardStop();
+        }
+        break;
+      default:
+        // a sub process disappeared while this wasn't requested, SQ should be shutdown completely
+        hardStopAsync();
     }
   }
 
