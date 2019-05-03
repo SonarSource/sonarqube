@@ -56,7 +56,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final CountDownLatch awaitTermination = new CountDownLatch(1);
   private final AtomicBoolean firstWaitingEsLog = new AtomicBoolean(true);
   private final AtomicBoolean restartRequested = new AtomicBoolean(false);
-  private final AtomicBoolean restartDisabled = new AtomicBoolean(false);
+  private final AtomicBoolean restarting = new AtomicBoolean(false);
   private final EnumMap<ProcessId, SQProcess> processesById = new EnumMap<>(ProcessId.class);
   private final AtomicInteger operationalCountDown = new AtomicInteger();
   private final AtomicInteger stopCountDown = new AtomicInteger(0);
@@ -191,9 +191,8 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
    */
   @Override
   public void hardStop() {
-    // disable ability to request for restart
     restartRequested.set(false);
-    restartDisabled.set(true);
+    restarting.set(false);
 
     if (nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPING)) {
       LOG.info("Stopping SonarQube");
@@ -222,6 +221,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     if (type == Type.OPERATIONAL) {
       onProcessOperational(processId);
     } else if (type == Type.ASK_FOR_RESTART && restartRequested.compareAndSet(false, true)) {
+      restarting.set(true);
       hardStopAsync();
     }
   }
@@ -245,7 +245,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   public void onProcessState(ProcessId processId, Lifecycle.State to) {
     switch (to) {
       case STOPPED:
-        onProcessHardStop(processId);
+        onProcessStop(processId);
         break;
       case STARTING:
         stopCountDown.incrementAndGet();
@@ -256,11 +256,10 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     }
   }
 
-  private void onProcessHardStop(ProcessId processId) {
+  private void onProcessStop(ProcessId processId) {
     LOG.info("Process [{}] is stopped", processId.getKey());
     if (stopCountDown.decrementAndGet() == 0 && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPED)) {
-      if (!restartDisabled.get() &&
-        restartRequested.compareAndSet(true, false)) {
+      if (restarting.get() && restartRequested.compareAndSet(true, false)) {
         LOG.info("SonarQube is restarting");
         restartAsync();
       } else {
