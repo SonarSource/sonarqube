@@ -36,6 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.application.process.SQProcess.Timeout.newTimeout;
 
 public class SQProcessTest {
 
@@ -184,12 +185,13 @@ public class SQProcessTest {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
     SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
+      .setHardStopTimeout(newTimeout(1, TimeUnit.HOURS))
       .build();
 
     try (TestProcess testProcess = new TestProcess()) {
       underTest.start(() -> testProcess);
 
-      Thread stopperThread = new Thread(() -> underTest.hardStop(1, TimeUnit.HOURS));
+      Thread stopperThread = new Thread(underTest::hardStop);
       stopperThread.start();
 
       // thread is blocked until process stopped
@@ -218,12 +220,13 @@ public class SQProcessTest {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
     SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
+      .setHardStopTimeout(newTimeout(1, TimeUnit.MILLISECONDS))
       .build();
 
     try (TestProcess testProcess = new TestProcess()) {
       underTest.start(() -> testProcess);
 
-      underTest.hardStop(1L, TimeUnit.MILLISECONDS);
+      underTest.hardStop();
 
       testProcess.waitFor();
       assertThat(testProcess.askedForHardStop).isTrue();

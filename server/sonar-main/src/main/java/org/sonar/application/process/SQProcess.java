@@ -21,6 +21,7 @@ package org.sonar.application.process;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -39,6 +40,7 @@ public class SQProcess {
   private final ProcessId processId;
   private final Lifecycle lifecycle;
   private final List<ProcessEventListener> eventListeners;
+  private final Timeout hardStopTimeout;
   private final long watcherDelayMs;
 
   private ProcessMonitor process;
@@ -54,6 +56,7 @@ public class SQProcess {
     this.processId = requireNonNull(builder.processId, "processId can't be null");
     this.lifecycle = new Lifecycle(this.processId, builder.lifecycleListeners);
     this.eventListeners = builder.eventListeners;
+    this.hardStopTimeout = builder.hardStopTimeout;
     this.watcherDelayMs = builder.watcherDelayMs;
     this.stopWatcher = new StopWatcher();
     this.eventWatcher = new EventWatcher();
@@ -95,9 +98,9 @@ public class SQProcess {
    * Sends kill signal and awaits termination. No guarantee that process is gracefully terminated (=shutdown hooks
    * executed). It depends on OS.
    */
-  public void hardStop(long timeout, TimeUnit timeoutUnit) {
+  public void hardStop() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
-      hardStopImpl(timeout, timeoutUnit);
+      hardStopImpl();
       if (process != null && process.isAlive()) {
         LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getKey());
       }
@@ -120,13 +123,13 @@ public class SQProcess {
     }
   }
 
-  private void hardStopImpl(long timeout, TimeUnit timeoutUnit) {
+  private void hardStopImpl() {
     if (process == null) {
       return;
     }
     try {
       process.askForHardStop();
-      process.waitFor(timeout, timeoutUnit);
+      process.waitFor(hardStopTimeout.getDuration(), hardStopTimeout.getUnit());
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
       LOG.warn("Interrupted while hard stopping process {}", processId, e);
@@ -237,6 +240,7 @@ public class SQProcess {
     private final List<ProcessEventListener> eventListeners = new ArrayList<>();
     private final List<ProcessLifecycleListener> lifecycleListeners = new ArrayList<>();
     private long watcherDelayMs = DEFAULT_WATCHER_DELAY_MS;
+    private Timeout hardStopTimeout = new Timeout(1, TimeUnit.MINUTES);
 
     private Builder(ProcessId processId) {
       this.processId = processId;
@@ -260,8 +264,52 @@ public class SQProcess {
       return this;
     }
 
+    public Builder setHardStopTimeout(Timeout hardStopTimeout) {
+      this.hardStopTimeout = requireNonNull(hardStopTimeout, "hardStopTimeout can't be null");
+      return this;
+    }
+
     public SQProcess build() {
       return new SQProcess(this);
+    }
+  }
+
+  public static final class Timeout {
+    private final long duration;
+    private final TimeUnit timeoutUnit;
+
+    private Timeout(long duration, TimeUnit unit) {
+      this.duration = duration;
+      this.timeoutUnit = Objects.requireNonNull(unit, "unit can't be null");
+    }
+
+    public static Timeout newTimeout(long duration, TimeUnit unit) {
+      return new Timeout(duration, unit);
+    }
+
+    public long getDuration() {
+      return duration;
+    }
+
+    public TimeUnit getUnit() {
+      return timeoutUnit;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Timeout timeout = (Timeout) o;
+      return duration == timeout.duration && timeoutUnit == timeout.timeoutUnit;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(duration, timeoutUnit);
     }
   }
 }

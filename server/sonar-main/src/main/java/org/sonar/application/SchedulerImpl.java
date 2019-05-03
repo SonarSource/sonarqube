@@ -40,6 +40,8 @@ import org.sonar.application.process.ProcessMonitor;
 import org.sonar.application.process.SQProcess;
 import org.sonar.process.ProcessId;
 
+import static org.sonar.application.process.SQProcess.Timeout.newTimeout;
+
 public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerImpl.class);
@@ -89,6 +91,8 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
         .addProcessLifecycleListener(this)
         .addEventListener(this)
         .setWatcherDelayMs(processWatcherDelayMs)
+        // FIXME MMF-1673 timeout here must be changed to sonar.ce.task.timeout + 5 minutes if CE
+        .setHardStopTimeout(newTimeout(1, TimeUnit.MINUTES))
         .build();
       processesById.put(process.getProcessId(), process);
     }
@@ -178,8 +182,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void hardStopProcess(ProcessId processId) {
     SQProcess process = processesById.get(processId);
     if (process != null) {
-      // FIXME MMF-1673 timeout here must be changed to sonar.ce.task.timeout + 5 minutes if CE
-      process.hardStop(1, TimeUnit.MINUTES);
+      process.hardStop();
     }
   }
 
