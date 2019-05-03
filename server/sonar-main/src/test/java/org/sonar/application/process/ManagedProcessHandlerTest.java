@@ -191,7 +191,13 @@ public class ManagedProcessHandlerTest {
     try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
-      Thread stopperThread = new Thread(underTest::hardStop);
+      Thread stopperThread = new Thread(() -> {
+        try {
+          underTest.hardStop();
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+      });
       stopperThread.start();
 
       // thread is blocked until process stopped

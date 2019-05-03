@@ -46,7 +46,7 @@ public class App {
     this.javaVersion = javaVersion;
   }
 
-  public void start(String[] cliArguments) throws IOException {
+  public void start(String[] cliArguments) throws IOException, InterruptedException {
     AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(cliArguments, new ServiceLoaderWrapper());
     AppSettings settings = settingsLoader.load();
     // order is important - logging must be configured before any other components (AppFileSystem, ...)
@@ -91,7 +91,7 @@ public class App {
     }
   }
 
-  public static void main(String... args) throws IOException {
+  public static void main(String... args) throws Exception {
     new App(JavaVersion.INSTANCE).start(args);
   }
 

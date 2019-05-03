@@ -32,7 +32,6 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
-import org.sonar.application.process.ManagedProcess;
 import org.sonar.application.process.ManagedProcessEventListener;
 import org.sonar.application.process.ManagedProcessHandler;
 import org.sonar.application.process.ManagedProcessLifecycle;
@@ -77,7 +76,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   @Override
-  public void schedule() {
+  public void schedule() throws InterruptedException {
     if (!nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STARTING)) {
       return;
     }
@@ -98,20 +97,20 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     tryToStartAll();
   }
 
-  private void tryToStartAll() {
+  private void tryToStartAll() throws InterruptedException {
     tryToStartEs();
     tryToStartWeb();
     tryToStartCe();
   }
 
-  private void tryToStartEs() {
+  private void tryToStartEs() throws InterruptedException {
     ManagedProcessHandler process = processesById.get(ProcessId.ELASTICSEARCH);
     if (process != null) {
       tryToStartProcess(process, commandFactory::createEsCommand);
     }
   }
 
-  private void tryToStartWeb() {
+  private void tryToStartWeb() throws InterruptedException {
     ManagedProcessHandler process = processesById.get(ProcessId.WEB_SERVER);
     if (process == null) {
       return;
@@ -136,7 +135,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     }
   }
 
-  private void tryToStartCe() {
+  private void tryToStartCe() throws InterruptedException {
     ManagedProcessHandler process = processesById.get(ProcessId.COMPUTE_ENGINE);
     if (process != null && appState.isOperational(ProcessId.WEB_SERVER, true) && isEsClientStartable()) {
       tryToStartProcess(process, commandFactory::createCeCommand);
@@ -148,16 +147,17 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
   }
 
-  private void tryToStartProcess(ManagedProcessHandler process, Supplier<AbstractCommand> commandSupplier) {
-    tryToStart(process, () -> {
+  private void tryToStartProcess(ManagedProcessHandler processHandler, Supplier<AbstractCommand> commandSupplier) throws InterruptedException {
+    // starter or restarter thread was interrupted, we should not proceed with starting the process
+    if (Thread.currentThread().isInterrupted()) {
+      throw new InterruptedException();
+    }
+
+    try {
+      processHandler.start(() -> {
       AbstractCommand command = commandSupplier.get();
       return processLauncher.launch(command);
     });
-  }
-
-  private void tryToStart(ManagedProcessHandler process, Supplier<ManagedProcess> processMonitorSupplier) {
-    try {
-      process.start(processMonitorSupplier);
     } catch (RuntimeException e) {
       // failed to start command -> stop everything
       hardStop();
@@ -165,7 +165,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     }
   }
 
-  private void hardStopAll() {
+  private void hardStopAll() throws InterruptedException {
     // order is important for non-cluster mode
     hardStopProcess(ProcessId.COMPUTE_ENGINE);
     hardStopProcess(ProcessId.WEB_SERVER);
@@ -175,8 +175,10 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   /**
    * Request for quick stop then blocks until process is stopped.
    * Returns immediately if the process is disabled in configuration.
+   *
+   * @throws InterruptedException if {@link ManagedProcessHandler#hardStop()} throws a {@link InterruptedException}
    */
-  private void hardStopProcess(ProcessId processId) {
+  private void hardStopProcess(ProcessId processId) throws InterruptedException {
     ManagedProcessHandler process = processesById.get(processId);
     if (process != null) {
       process.hardStop();
@@ -191,12 +193,19 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     if (nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPING)) {
       LOG.info("Stopping SonarQube");
     }
-    hardStopAll();
-    if (hardStopperThread != null && Thread.currentThread() != hardStopperThread) {
-      hardStopperThread.interrupt();
-    }
-    if (restarterThread != null && Thread.currentThread() != restarterThread) {
-      restarterThread.interrupt();
+    try {
+      hardStopAll();
+      if (hardStopperThread != null && Thread.currentThread() != hardStopperThread) {
+        hardStopperThread.interrupt();
+      }
+      if (restarterThread != null && Thread.currentThread() != restarterThread) {
+        restarterThread.interrupt();
+      }
+    } catch (InterruptedException e) {
+      // ignore and assume SQ stop is handled by another thread
+      LOG.debug("Stopping all processes was interrupted in the middle of a hard stop" +
+        " (current thread name is \"{}\")", Thread.currentThread().getName());
+      Thread.currentThread().interrupt();
     }
     awaitTermination.countDown();
   }
@@ -231,7 +240,14 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   @Override
   public void onAppStateOperational(ProcessId processId) {
     if (nodeLifecycle.getState() == NodeLifecycle.State.STARTING) {
-      tryToStartAll();
+      try {
+        tryToStartAll();
+      } catch (InterruptedException e) {
+        // startup process was interrupted, let's assume it means shutdown was requested
+        LOG.debug("Startup process was interrupted on notification that process [{}] was operation", processId.getKey(), e);
+        hardStopAsync();
+        Thread.currentThread().interrupt();
+      }
     }
   }
 
@@ -293,6 +309,10 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       try {
         appReloader.reload(settings);
         schedule();
+      } catch (InterruptedException e) {
+        // restart was interrupted, most likely by a stop thread, restart must be aborted
+        LOG.debug("{} thread was interrupted", getName(), e);
+        super.interrupt();
       } catch (Exception e) {
         LOG.error("Fail to restart", e);
         hardStop();
@@ -307,7 +327,12 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
     @Override
     public void run() {
-      hardStopAll();
+      try {
+        hardStopAll();
+      } catch (InterruptedException e) {
+        LOG.debug("{} thread was interrupted", getName(), e);
+        interrupt();
+      }
     }
   }
 }

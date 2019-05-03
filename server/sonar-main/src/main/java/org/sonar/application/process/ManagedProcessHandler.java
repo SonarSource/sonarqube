@@ -98,7 +98,7 @@ public class ManagedProcessHandler {
    * Sends kill signal and awaits termination. No guarantee that process is gracefully terminated (=shutdown hooks
    * executed). It depends on OS.
    */
-  public void hardStop() {
+  public void hardStop() throws InterruptedException {
     if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.HARD_STOPPING)) {
       hardStopImpl();
       if (process != null && process.isAlive()) {
@@ -123,7 +123,7 @@ public class ManagedProcessHandler {
     }
   }
 
-  private void hardStopImpl() {
+  private void hardStopImpl() throws InterruptedException {
     if (process == null) {
       return;
     }
@@ -132,8 +132,10 @@ public class ManagedProcessHandler {
       process.waitFor(hardStopTimeout.getDuration(), hardStopTimeout.getUnit());
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
-      LOG.warn("Interrupted while hard stopping process {}", processId, e);
+      String errorMessage = format("Interrupted while hard stopping process %s", processId);
+      LOG.warn(errorMessage, e);
       Thread.currentThread().interrupt();
+      throw new InterruptedException(errorMessage);
     } catch (Throwable e) {
       LOG.error("Failed while asking for hard stop of process {}", processId, e);
     }
