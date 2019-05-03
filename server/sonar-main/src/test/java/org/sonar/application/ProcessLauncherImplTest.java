@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.application;
 
 import java.io.File;
 import java.io.FileReader;
@@ -36,6 +36,7 @@ import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsYmlSettings;
+import org.sonar.application.process.ManagedProcess;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
@@ -71,7 +72,7 @@ public class ProcessLauncherImplTest {
       .add("-Dfoo2=bar2"));
     command.setEsInstallation(createEsInstallation());
 
-    ProcessMonitor monitor = underTest.launch(command);
+    ManagedProcess monitor = underTest.launch(command);
 
     assertThat(monitor).isNotNull();
     assertThat(processBuilder.started).isTrue();

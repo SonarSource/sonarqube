@@ -17,20 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.application;
 
-import java.io.Closeable;
-import org.sonar.application.command.AbstractCommand;
+/**
+ * Background thread that checks if a stop request
+ * is sent, usually by Orchestrator
+ */
+public interface StopRequestWatcher {
 
-public interface ProcessLauncher extends Closeable {
+  void startWatching();
 
-  @Override
-  void close();
+  void stopWatching();
 
-  /**
-   * Launch a command.
-   *
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(AbstractCommand command);
 }

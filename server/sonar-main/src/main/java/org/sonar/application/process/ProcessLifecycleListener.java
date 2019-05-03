@@ -31,6 +31,6 @@ public interface ProcessLifecycleListener {
    * Call blocks the process watcher. Implementations should be asynchronous and
    * fork a new thread if call can be long.
    */
-  void onProcessState(ProcessId processId, Lifecycle.State state);
+  void onProcessState(ProcessId processId, ManagedProcessLifecycle.State state);
 
 }

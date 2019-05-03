@@ -36,9 +36,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.application.process.SQProcess.Timeout.newTimeout;
+import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
 
-public class SQProcessTest {
+public class ManagedProcessHandlerTest {
 
   private static final ProcessId A_PROCESS_ID = ProcessId.ELASTICSEARCH;
 
@@ -49,91 +49,91 @@ public class SQProcessTest {
 
   @Test
   public void initial_state_is_INIT() {
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
 
     assertThat(underTest.getProcessId()).isEqualTo(A_PROCESS_ID);
-    assertThat(underTest.getState()).isEqualTo(Lifecycle.State.INIT);
+    assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.INIT);
   }
 
   @Test
   public void start_and_stop_process() {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       assertThat(underTest.start(() -> testProcess)).isTrue();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STARTED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STARTED);
       assertThat(testProcess.isAlive()).isTrue();
       assertThat(testProcess.streamsClosed).isFalse();
-      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.STARTED);
+      verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STARTED);
 
       testProcess.close();
       // do not wait next run of watcher threads
       underTest.refreshState();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
       assertThat(testProcess.isAlive()).isFalse();
       assertThat(testProcess.streamsClosed).isTrue();
-      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.STOPPED);
+      verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STOPPED);
     }
   }
 
   @Test
   public void start_does_not_nothing_if_already_started_once() {
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       assertThat(underTest.start(() -> testProcess)).isTrue();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STARTED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STARTED);
 
       assertThat(underTest.start(() -> {throw new IllegalStateException();})).isFalse();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STARTED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STARTED);
     }
   }
 
   @Test
   public void start_throws_exception_and_move_to_state_STOPPED_if_execution_of_command_fails() {
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("error");
 
     underTest.start(() -> {throw new IllegalStateException("error");});
-    assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
+    assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
   }
 
   @Test
   public void send_event_when_process_is_operational() {
-    ProcessEventListener listener = mock(ProcessEventListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addEventListener(listener)
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
       testProcess.operational = true;
       underTest.refreshState();
 
-      verify(listener).onProcessEvent(A_PROCESS_ID, ProcessEventListener.Type.OPERATIONAL);
+      verify(listener).onManagedProcessEvent(A_PROCESS_ID, ManagedProcessEventListener.Type.OPERATIONAL);
     }
     verifyNoMoreInteractions(listener);
   }
 
   @Test
   public void operational_event_is_sent_once() {
-    ProcessEventListener listener = mock(ProcessEventListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addEventListener(listener)
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
       testProcess.operational = true;
 
       underTest.refreshState();
-      verify(listener).onProcessEvent(A_PROCESS_ID, ProcessEventListener.Type.OPERATIONAL);
+      verify(listener).onManagedProcessEvent(A_PROCESS_ID, ManagedProcessEventListener.Type.OPERATIONAL);
 
       // second run
       underTest.refreshState();
@@ -143,17 +143,17 @@ public class SQProcessTest {
 
   @Test
   public void send_event_when_process_requests_for_restart() {
-    ProcessEventListener listener = mock(ProcessEventListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addEventListener(listener)
       .setWatcherDelayMs(1L)
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
       testProcess.askedForRestart = true;
-      verify(listener, timeout(10_000)).onProcessEvent(A_PROCESS_ID, ProcessEventListener.Type.ASK_FOR_RESTART);
+      verify(listener, timeout(10_000)).onManagedProcessEvent(A_PROCESS_ID, ManagedProcessEventListener.Type.ASK_FOR_RESTART);
 
       // flag is reset so that next run does not trigger again the event
       underTest.refreshState();
@@ -164,31 +164,31 @@ public class SQProcessTest {
 
   @Test
   public void stopForcibly_stops_the_process_without_graceful_request_for_stop() {
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
       underTest.stopForcibly();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
       assertThat(testProcess.askedForHardStop).isFalse();
       assertThat(testProcess.destroyedForcibly).isTrue();
 
       // second execution of stopForcibly does nothing. It's still stopped.
       underTest.stopForcibly();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
     }
   }
 
   @Test
   public void process_stops_after_graceful_request_for_stop() throws Exception {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
       .setHardStopTimeout(newTimeout(1, TimeUnit.HOURS))
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
       Thread stopperThread = new Thread(underTest::hardStop);
@@ -201,8 +201,8 @@ public class SQProcessTest {
       while (!testProcess.askedForHardStop) {
         Thread.sleep(1L);
       }
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.HARD_STOPPING);
-      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.HARD_STOPPING);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.HARD_STOPPING);
+      verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.HARD_STOPPING);
 
       // process stopped
       testProcess.close();
@@ -210,20 +210,20 @@ public class SQProcessTest {
       // waiting for stopper thread to detect and handle the stop
       stopperThread.join();
 
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
-      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.STOPPED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
+      verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STOPPED);
     }
   }
 
   @Test
   public void process_is_stopped_forcibly_if_graceful_stop_is_too_long() throws Exception {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
       .setHardStopTimeout(newTimeout(1, TimeUnit.MILLISECONDS))
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
       underTest.hardStop();
@@ -232,35 +232,35 @@ public class SQProcessTest {
       assertThat(testProcess.askedForHardStop).isTrue();
       assertThat(testProcess.destroyedForcibly).isTrue();
       assertThat(testProcess.isAlive()).isFalse();
-      assertThat(underTest.getState()).isEqualTo(Lifecycle.State.STOPPED);
-      verify(listener).onProcessState(A_PROCESS_ID, Lifecycle.State.STOPPED);
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
+      verify(listener).onProcessState(A_PROCESS_ID, ManagedProcessLifecycle.State.STOPPED);
     }
   }
 
   @Test
   public void process_requests_are_listened_on_regular_basis() {
-    ProcessEventListener listener = mock(ProcessEventListener.class);
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID)
+    ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
       .addEventListener(listener)
       .setWatcherDelayMs(1L)
       .build();
 
-    try (TestProcess testProcess = new TestProcess()) {
+    try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
 
       testProcess.operational = true;
 
-      verify(listener, timeout(1_000L)).onProcessEvent(A_PROCESS_ID, ProcessEventListener.Type.OPERATIONAL);
+      verify(listener, timeout(1_000L)).onManagedProcessEvent(A_PROCESS_ID, ManagedProcessEventListener.Type.OPERATIONAL);
     }
   }
 
   @Test
   public void test_toString() {
-    SQProcess underTest = SQProcess.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
     assertThat(underTest.toString()).isEqualTo("Process[" + A_PROCESS_ID.getKey() + "]");
   }
 
-  private static class TestProcess implements ProcessMonitor, AutoCloseable {
+  private static class TestManagedProcess implements ManagedProcess, AutoCloseable {
 
     private final CountDownLatch alive = new CountDownLatch(1);
     private final InputStream inputStream = mock(InputStream.class, Mockito.RETURNS_MOCKS);

@@ -42,8 +42,7 @@ import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.TestAppSettings;
-import org.sonar.application.process.ProcessLauncher;
-import org.sonar.application.process.ProcessMonitor;
+import org.sonar.application.process.ManagedProcess;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
@@ -104,14 +103,14 @@ public class SchedulerImplTest {
     underTest.schedule();
 
     // elasticsearch does not have preconditions to start
-    TestProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
+    TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
     assertThat(es.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(1);
 
     // elasticsearch becomes operational -> web leader is starting
     es.operational = true;
     waitForAppStateOperational(appState, ELASTICSEARCH);
-    TestProcess web = processLauncher.waitForProcess(WEB_SERVER);
+    TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
     assertThat(web.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(2);
     assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
@@ -119,7 +118,7 @@ public class SchedulerImplTest {
     // web becomes operational -> CE is starting
     web.operational = true;
     waitForAppStateOperational(appState, WEB_SERVER);
-    TestProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
+    TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
     assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
@@ -229,7 +228,7 @@ public class SchedulerImplTest {
     SchedulerImpl underTest = newScheduler(true);
     underTest.schedule();
 
-    TestProcess web = processLauncher.waitForProcessAlive(WEB_SERVER);
+    TestManagedProcess web = processLauncher.waitForProcessAlive(WEB_SERVER);
     web.operational = true;
     processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
     assertThat(processLauncher.processes).hasSize(2);
@@ -342,28 +341,28 @@ public class SchedulerImplTest {
   }
 
   private class TestProcessLauncher implements ProcessLauncher {
-    private final EnumMap<ProcessId, TestProcess> processes = new EnumMap<>(ProcessId.class);
+    private final EnumMap<ProcessId, TestManagedProcess> processes = new EnumMap<>(ProcessId.class);
     private final List<AbstractCommand<?>> commands = synchronizedList(new ArrayList<>());
     private ProcessId makeStartupFail = null;
 
     @Override
-    public ProcessMonitor launch(AbstractCommand command) {
+    public ManagedProcess launch(AbstractCommand command) {
       return launchImpl(command);
     }
 
-    private ProcessMonitor launchImpl(AbstractCommand<?> javaCommand) {
+    private ManagedProcess launchImpl(AbstractCommand<?> javaCommand) {
       commands.add(javaCommand);
       if (makeStartupFail == javaCommand.getProcessId()) {
         throw new IllegalStateException("cannot start " + javaCommand.getProcessId());
       }
-      TestProcess process = new TestProcess(javaCommand.getProcessId());
+      TestManagedProcess process = new TestManagedProcess(javaCommand.getProcessId());
       processes.put(javaCommand.getProcessId(), process);
       return process;
     }
 
-    private TestProcess waitForProcess(ProcessId id) throws InterruptedException {
+    private TestManagedProcess waitForProcess(ProcessId id) throws InterruptedException {
       while (true) {
-        TestProcess p = processes.get(id);
+        TestManagedProcess p = processes.get(id);
         if (p != null) {
           return p;
         }
@@ -371,9 +370,9 @@ public class SchedulerImplTest {
       }
     }
 
-    private TestProcess waitForProcessAlive(ProcessId id) throws InterruptedException {
+    private TestManagedProcess waitForProcessAlive(ProcessId id) throws InterruptedException {
       while (true) {
-        TestProcess p = processes.get(id);
+        TestManagedProcess p = processes.get(id);
         if (p != null && p.isAlive()) {
           return p;
         }
@@ -381,9 +380,9 @@ public class SchedulerImplTest {
       }
     }
 
-    private TestProcess waitForProcessDown(ProcessId id) throws InterruptedException {
+    private TestManagedProcess waitForProcessDown(ProcessId id) throws InterruptedException {
       while (true) {
-        TestProcess p = processes.get(id);
+        TestManagedProcess p = processes.get(id);
         if (p != null && !p.isAlive()) {
           return p;
         }
@@ -393,19 +392,19 @@ public class SchedulerImplTest {
 
     @Override
     public void close() {
-      for (TestProcess process : processes.values()) {
+      for (TestManagedProcess process : processes.values()) {
         process.destroyForcibly();
       }
     }
   }
 
-  private class TestProcess implements ProcessMonitor, AutoCloseable {
+  private class TestManagedProcess implements ManagedProcess, AutoCloseable {
     private final ProcessId processId;
     private final CountDownLatch alive = new CountDownLatch(1);
     private boolean operational = false;
     private boolean askedForRestart = false;
 
-    private TestProcess(ProcessId processId) {
+    private TestManagedProcess(ProcessId processId) {
       this.processId = processId;
     }
 

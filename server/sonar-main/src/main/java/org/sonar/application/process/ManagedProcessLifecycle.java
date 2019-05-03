@@ -30,30 +30,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 
-import static org.sonar.application.process.Lifecycle.State.INIT;
-import static org.sonar.application.process.Lifecycle.State.STARTED;
-import static org.sonar.application.process.Lifecycle.State.STARTING;
-import static org.sonar.application.process.Lifecycle.State.STOPPED;
-import static org.sonar.application.process.Lifecycle.State.HARD_STOPPING;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.INIT;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTED;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTING;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STOPPED;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.HARD_STOPPING;
 
-public class Lifecycle {
+public class ManagedProcessLifecycle {
 
   public enum State {
     INIT, STARTING, STARTED, HARD_STOPPING, STOPPED
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(Lifecycle.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ManagedProcessLifecycle.class);
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
 
   private final ProcessId processId;
   private final List<ProcessLifecycleListener> listeners;
   private State state;
 
-  public Lifecycle(ProcessId processId, List<ProcessLifecycleListener> listeners) {
+  public ManagedProcessLifecycle(ProcessId processId, List<ProcessLifecycleListener> listeners) {
     this(processId, listeners, INIT);
   }
 
-  Lifecycle(ProcessId processId, List<ProcessLifecycleListener> listeners, State initialState) {
+  ManagedProcessLifecycle(ProcessId processId, List<ProcessLifecycleListener> listeners, State initialState) {
     this.processId = processId;
     this.listeners = listeners;
     this.state = initialState;

@@ -32,18 +32,18 @@ import org.sonar.process.ProcessId;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public class SQProcess {
+public class ManagedProcessHandler {
 
   public static final long DEFAULT_WATCHER_DELAY_MS = 500L;
-  private static final Logger LOG = LoggerFactory.getLogger(SQProcess.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ManagedProcessHandler.class);
 
   private final ProcessId processId;
-  private final Lifecycle lifecycle;
-  private final List<ProcessEventListener> eventListeners;
+  private final ManagedProcessLifecycle lifecycle;
+  private final List<ManagedProcessEventListener> eventListeners;
   private final Timeout hardStopTimeout;
   private final long watcherDelayMs;
 
-  private ProcessMonitor process;
+  private ManagedProcess process;
   private StreamGobbler stdOutGobbler;
   private StreamGobbler stdErrGobbler;
   private final StopWatcher stopWatcher;
@@ -52,9 +52,9 @@ public class SQProcess {
   // to listeners
   private final AtomicBoolean operational = new AtomicBoolean(false);
 
-  private SQProcess(Builder builder) {
+  private ManagedProcessHandler(Builder builder) {
     this.processId = requireNonNull(builder.processId, "processId can't be null");
-    this.lifecycle = new Lifecycle(this.processId, builder.lifecycleListeners);
+    this.lifecycle = new ManagedProcessLifecycle(this.processId, builder.lifecycleListeners);
     this.eventListeners = builder.eventListeners;
     this.hardStopTimeout = builder.hardStopTimeout;
     this.watcherDelayMs = builder.watcherDelayMs;
@@ -62,8 +62,8 @@ public class SQProcess {
     this.eventWatcher = new EventWatcher();
   }
 
-  public boolean start(Supplier<ProcessMonitor> commandLauncher) {
-    if (!lifecycle.tryToMoveTo(Lifecycle.State.STARTING)) {
+  public boolean start(Supplier<ManagedProcess> commandLauncher) {
+    if (!lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STARTING)) {
       // has already been started
       return false;
     }
@@ -71,7 +71,7 @@ public class SQProcess {
       this.process = commandLauncher.get();
     } catch (RuntimeException e) {
       LOG.error("Fail to launch process [{}]", processId.getKey(), e);
-      lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
+      lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPED);
       throw e;
     }
     this.stdOutGobbler = new StreamGobbler(process.getInputStream(), processId.getKey());
@@ -82,7 +82,7 @@ public class SQProcess {
     this.eventWatcher.start();
     // Could be improved by checking the status "up" in shared memory.
     // Not a problem so far as this state is not used by listeners.
-    lifecycle.tryToMoveTo(Lifecycle.State.STARTED);
+    lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STARTED);
     return true;
   }
 
@@ -90,7 +90,7 @@ public class SQProcess {
     return processId;
   }
 
-  Lifecycle.State getState() {
+  ManagedProcessLifecycle.State getState() {
     return lifecycle.getState();
   }
 
@@ -99,7 +99,7 @@ public class SQProcess {
    * executed). It depends on OS.
    */
   public void hardStop() {
-    if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
+    if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.HARD_STOPPING)) {
       hardStopImpl();
       if (process != null && process.isAlive()) {
         LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getKey());
@@ -155,18 +155,18 @@ public class SQProcess {
       StreamGobbler.waitUntilFinish(stdErrGobbler);
       stdErrGobbler.interrupt();
     }
-    lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
+    lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPED);
   }
 
   void refreshState() {
     if (process.isAlive()) {
       if (!operational.get() && process.isOperational()) {
         operational.set(true);
-        eventListeners.forEach(l -> l.onProcessEvent(processId, ProcessEventListener.Type.OPERATIONAL));
+        eventListeners.forEach(l -> l.onManagedProcessEvent(processId, ManagedProcessEventListener.Type.OPERATIONAL));
       }
       if (process.askedForRestart()) {
         process.acknowledgeAskForRestart();
-        eventListeners.forEach(l -> l.onProcessEvent(processId, ProcessEventListener.Type.ASK_FOR_RESTART));
+        eventListeners.forEach(l -> l.onManagedProcessEvent(processId, ManagedProcessEventListener.Type.ASK_FOR_RESTART));
       }
     } else {
       stopForcibly();
@@ -237,7 +237,7 @@ public class SQProcess {
 
   public static class Builder {
     private final ProcessId processId;
-    private final List<ProcessEventListener> eventListeners = new ArrayList<>();
+    private final List<ManagedProcessEventListener> eventListeners = new ArrayList<>();
     private final List<ProcessLifecycleListener> lifecycleListeners = new ArrayList<>();
     private long watcherDelayMs = DEFAULT_WATCHER_DELAY_MS;
     private Timeout hardStopTimeout = new Timeout(1, TimeUnit.MINUTES);
@@ -246,7 +246,7 @@ public class SQProcess {
       this.processId = processId;
     }
 
-    public Builder addEventListener(ProcessEventListener listener) {
+    public Builder addEventListener(ManagedProcessEventListener listener) {
       this.eventListeners.add(listener);
       return this;
     }
@@ -269,8 +269,8 @@ public class SQProcess {
       return this;
     }
 
-    public SQProcess build() {
-      return new SQProcess(this);
+    public ManagedProcessHandler build() {
+      return new ManagedProcessHandler(this);
     }
   }
 

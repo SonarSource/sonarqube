@@ -38,13 +38,13 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class EsProcessMonitorTest {
+public class EsManagedProcessTest {
 
   @Test
   public void isOperational_should_return_false_if_Elasticsearch_is_RED() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus()).thenReturn(ClusterHealthStatus.RED);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isFalse();
   }
 
@@ -52,7 +52,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_true_if_Elasticsearch_is_YELLOW() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus()).thenReturn(ClusterHealthStatus.YELLOW);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -60,7 +60,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_true_if_Elasticsearch_is_GREEN() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus()).thenReturn(ClusterHealthStatus.GREEN);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -68,7 +68,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_true_if_Elasticsearch_was_GREEN_once() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus()).thenReturn(ClusterHealthStatus.GREEN);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isTrue();
 
     when(esConnector.getClusterHealthStatus()).thenReturn(ClusterHealthStatus.RED);
@@ -81,7 +81,7 @@ public class EsProcessMonitorTest {
     when(esConnector.getClusterHealthStatus())
       .thenThrow(new NoNodeAvailableException("test"))
       .thenReturn(ClusterHealthStatus.GREEN);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -90,7 +90,7 @@ public class EsProcessMonitorTest {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
       .thenThrow(new RuntimeException("test"));
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isFalse();
   }
 
@@ -101,13 +101,13 @@ public class EsProcessMonitorTest {
     lc.reset();
     memoryAppender.setContext(lc);
     memoryAppender.start();
-    lc.getLogger(EsProcessMonitor.class).addAppender(memoryAppender);
+    lc.getLogger(EsManagedProcess.class).addAppender(memoryAppender);
 
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
       .thenThrow(new MasterNotDiscoveredException("Master not elected -test-"));
 
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
+    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector);
     assertThat(underTest.isOperational()).isFalse();
     assertThat(memoryAppender.events).isNotEmpty();
     assertThat(memoryAppender.events)

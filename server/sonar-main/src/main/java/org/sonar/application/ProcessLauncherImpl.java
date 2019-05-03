@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.application;
 
 import com.google.common.net.HostAndPort;
 import java.io.File;
@@ -38,6 +38,9 @@ import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsConnectorImpl;
 import org.sonar.application.es.EsInstallation;
+import org.sonar.application.process.EsManagedProcess;
+import org.sonar.application.process.ManagedProcess;
+import org.sonar.application.process.ProcessCommandsManagedProcess;
 import org.sonar.process.FileUtils2;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
@@ -74,7 +77,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     allProcessesCommands.close();
   }
 
-  public ProcessMonitor launch(AbstractCommand command) {
+  public ManagedProcess launch(AbstractCommand command) {
     EsInstallation esInstallation = command.getEsInstallation();
     if (esInstallation != null) {
       cleanupOutdatedEsData(esInstallation);
@@ -95,10 +98,10 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       if (processId == ProcessId.ELASTICSEARCH) {
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
         EsConnectorImpl esConnector = new EsConnectorImpl(esInstallation.getClusterName(), singleton(HostAndPort.fromParts(esInstallation.getHost(), esInstallation.getPort())));
-        return new EsProcessMonitor(process, processId, esConnector);
+        return new EsManagedProcess(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
-        return new ProcessCommandsProcessMonitor(process, processId, commands);
+        return new ProcessCommandsManagedProcess(process, processId, commands);
       }
     } catch (Exception e) {
       // just in case

@@ -22,7 +22,7 @@ package org.sonar.application.process;
 import org.sonar.process.ProcessId;
 
 @FunctionalInterface
-public interface ProcessEventListener {
+public interface ManagedProcessEventListener {
 
   enum Type {
     OPERATIONAL,
@@ -33,11 +33,11 @@ public interface ProcessEventListener {
    * This method is called when the process with the specified {@link ProcessId}
    * sends the event through the ipc shared memory.
    * Note that there can be a delay since the instant the process sets the flag
-   * (see {@link SQProcess#WATCHER_DELAY_MS}).
+   * (see {@link ManagedProcessHandler#WATCHER_DELAY_MS}).
    *
    * Call blocks the process watcher. Implementations should be asynchronous and
    * fork a new thread if call can be long.
    */
-  void onProcessEvent(ProcessId processId, Type type);
+  void onManagedProcessEvent(ProcessId processId, Type type);
 
 }

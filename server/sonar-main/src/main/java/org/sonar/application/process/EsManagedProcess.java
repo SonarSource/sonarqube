@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory;
 import org.sonar.application.es.EsConnector;
 import org.sonar.process.ProcessId;
 
-import static org.sonar.application.process.EsProcessMonitor.Status.CONNECTION_REFUSED;
-import static org.sonar.application.process.EsProcessMonitor.Status.GREEN;
-import static org.sonar.application.process.EsProcessMonitor.Status.KO;
-import static org.sonar.application.process.EsProcessMonitor.Status.RED;
-import static org.sonar.application.process.EsProcessMonitor.Status.YELLOW;
+import static org.sonar.application.process.EsManagedProcess.Status.CONNECTION_REFUSED;
+import static org.sonar.application.process.EsManagedProcess.Status.GREEN;
+import static org.sonar.application.process.EsManagedProcess.Status.KO;
+import static org.sonar.application.process.EsManagedProcess.Status.RED;
+import static org.sonar.application.process.EsManagedProcess.Status.YELLOW;
 
-public class EsProcessMonitor extends AbstractProcessMonitor {
-  private static final Logger LOG = LoggerFactory.getLogger(EsProcessMonitor.class);
+public class EsManagedProcess extends AbstractManagedProcess {
+  private static final Logger LOG = LoggerFactory.getLogger(EsManagedProcess.class);
   private static final int WAIT_FOR_UP_DELAY_IN_MILLIS = 100;
   private static final int WAIT_FOR_UP_TIMEOUT = 10 * 60; /* 1min */
 
@@ -44,7 +44,7 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final EsConnector esConnector;
 
 
-  public EsProcessMonitor(Process process, ProcessId processId, EsConnector esConnector) {
+  public EsManagedProcess(Process process, ProcessId processId, EsConnector esConnector) {
     super(process, processId);
     this.esConnector = esConnector;
   }

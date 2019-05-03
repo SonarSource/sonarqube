@@ -28,15 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 
-abstract class AbstractProcessMonitor implements ProcessMonitor {
+abstract class AbstractManagedProcess implements ManagedProcess {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractProcessMonitor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractManagedProcess.class);
   private static final int EXPECTED_EXIT_VALUE = 0;
 
   protected final Process process;
   private final ProcessId processId;
 
-  protected AbstractProcessMonitor(Process process, ProcessId processId) {
+  protected AbstractManagedProcess(Process process, ProcessId processId) {
     this.process = process;
     this.processId = processId;
   }

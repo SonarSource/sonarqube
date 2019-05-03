@@ -32,17 +32,16 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
-import org.sonar.application.process.Lifecycle;
-import org.sonar.application.process.ProcessEventListener;
-import org.sonar.application.process.ProcessLauncher;
+import org.sonar.application.process.ManagedProcessLifecycle;
+import org.sonar.application.process.ManagedProcessEventListener;
 import org.sonar.application.process.ProcessLifecycleListener;
-import org.sonar.application.process.ProcessMonitor;
-import org.sonar.application.process.SQProcess;
+import org.sonar.application.process.ManagedProcess;
+import org.sonar.application.process.ManagedProcessHandler;
 import org.sonar.process.ProcessId;
 
-import static org.sonar.application.process.SQProcess.Timeout.newTimeout;
+import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
 
-public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLifecycleListener, AppStateListener {
+public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerImpl.class);
 
@@ -57,12 +56,12 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final AtomicBoolean firstWaitingEsLog = new AtomicBoolean(true);
   private final AtomicBoolean restartRequested = new AtomicBoolean(false);
   private final AtomicBoolean restarting = new AtomicBoolean(false);
-  private final EnumMap<ProcessId, SQProcess> processesById = new EnumMap<>(ProcessId.class);
+  private final EnumMap<ProcessId, ManagedProcessHandler> processesById = new EnumMap<>(ProcessId.class);
   private final AtomicInteger operationalCountDown = new AtomicInteger();
   private final AtomicInteger stopCountDown = new AtomicInteger(0);
   private HardStopperThread hardStopperThread;
   private RestarterThread restarterThread;
-  private long processWatcherDelayMs = SQProcess.DEFAULT_WATCHER_DELAY_MS;
+  private long processWatcherDelayMs = ManagedProcessHandler.DEFAULT_WATCHER_DELAY_MS;
 
   public SchedulerImpl(AppSettings settings, AppReloader appReloader, CommandFactory commandFactory,
     ProcessLauncher processLauncher, AppState appState) {
@@ -87,7 +86,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     processesById.clear();
 
     for (ProcessId processId : ClusterSettings.getEnabledProcesses(settings)) {
-      SQProcess process = SQProcess.builder(processId)
+      ManagedProcessHandler process = ManagedProcessHandler.builder(processId)
         .addProcessLifecycleListener(this)
         .addEventListener(this)
         .setWatcherDelayMs(processWatcherDelayMs)
@@ -108,14 +107,14 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   }
 
   private void tryToStartEs() {
-    SQProcess process = processesById.get(ProcessId.ELASTICSEARCH);
+    ManagedProcessHandler process = processesById.get(ProcessId.ELASTICSEARCH);
     if (process != null) {
       tryToStartProcess(process, commandFactory::createEsCommand);
     }
   }
 
   private void tryToStartWeb() {
-    SQProcess process = processesById.get(ProcessId.WEB_SERVER);
+    ManagedProcessHandler process = processesById.get(ProcessId.WEB_SERVER);
     if (process == null) {
       return;
     }
@@ -140,7 +139,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   }
 
   private void tryToStartCe() {
-    SQProcess process = processesById.get(ProcessId.COMPUTE_ENGINE);
+    ManagedProcessHandler process = processesById.get(ProcessId.COMPUTE_ENGINE);
     if (process != null && appState.isOperational(ProcessId.WEB_SERVER, true) && isEsClientStartable()) {
       tryToStartProcess(process, commandFactory::createCeCommand);
     }
@@ -151,14 +150,14 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
   }
 
-  private void tryToStartProcess(SQProcess process, Supplier<AbstractCommand> commandSupplier) {
+  private void tryToStartProcess(ManagedProcessHandler process, Supplier<AbstractCommand> commandSupplier) {
     tryToStart(process, () -> {
       AbstractCommand command = commandSupplier.get();
       return processLauncher.launch(command);
     });
   }
 
-  private void tryToStart(SQProcess process, Supplier<ProcessMonitor> processMonitorSupplier) {
+  private void tryToStart(ManagedProcessHandler process, Supplier<ManagedProcess> processMonitorSupplier) {
     try {
       process.start(processMonitorSupplier);
     } catch (RuntimeException e) {
@@ -180,7 +179,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
    * Returns immediately if the process is disabled in configuration.
    */
   private void hardStopProcess(ProcessId processId) {
-    SQProcess process = processesById.get(processId);
+    ManagedProcessHandler process = processesById.get(processId);
     if (process != null) {
       process.hardStop();
     }
@@ -217,7 +216,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   }
 
   @Override
-  public void onProcessEvent(ProcessId processId, Type type) {
+  public void onManagedProcessEvent(ProcessId processId, Type type) {
     if (type == Type.OPERATIONAL) {
       onProcessOperational(processId);
     } else if (type == Type.ASK_FOR_RESTART && restartRequested.compareAndSet(false, true)) {
@@ -242,7 +241,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   }
 
   @Override
-  public void onProcessState(ProcessId processId, Lifecycle.State to) {
+  public void onProcessState(ProcessId processId, ManagedProcessLifecycle.State to) {
     switch (to) {
       case STOPPED:
         onProcessStop(processId);

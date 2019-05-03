@@ -28,23 +28,23 @@ import org.sonar.process.ProcessId;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.application.process.Lifecycle.State.INIT;
-import static org.sonar.application.process.Lifecycle.State.STARTED;
-import static org.sonar.application.process.Lifecycle.State.STARTING;
-import static org.sonar.application.process.Lifecycle.State.HARD_STOPPING;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.INIT;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTED;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTING;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.HARD_STOPPING;
 
-public class LifecycleTest {
+public class ManagedProcessLifecycleTest {
 
   @Test
   public void initial_state_is_INIT() {
-    Lifecycle lifecycle = new Lifecycle(ProcessId.ELASTICSEARCH, Collections.emptyList());
+    ManagedProcessLifecycle lifecycle = new ManagedProcessLifecycle(ProcessId.ELASTICSEARCH, Collections.emptyList());
     assertThat(lifecycle.getState()).isEqualTo(INIT);
   }
 
   @Test
   public void try_to_move_does_not_support_jumping_states() {
     TestLifeCycleListener listener = new TestLifeCycleListener();
-    Lifecycle lifecycle = new Lifecycle(ProcessId.ELASTICSEARCH, asList(listener));
+    ManagedProcessLifecycle lifecycle = new ManagedProcessLifecycle(ProcessId.ELASTICSEARCH, asList(listener));
     assertThat(lifecycle.getState()).isEqualTo(INIT);
     assertThat(listener.states).isEmpty();
 
@@ -59,14 +59,14 @@ public class LifecycleTest {
 
   @Test
   public void no_state_can_not_move_to_itself() {
-    for (Lifecycle.State state : Lifecycle.State.values()) {
+    for (ManagedProcessLifecycle.State state : ManagedProcessLifecycle.State.values()) {
       assertThat(newLifeCycle(state).tryToMoveTo(state)).isFalse();
     }
   }
 
   @Test
   public void can_move_to_STOPPING_from_STARTING_STARTED_only() {
-    for (Lifecycle.State state : Lifecycle.State.values()) {
+    for (ManagedProcessLifecycle.State state : ManagedProcessLifecycle.State.values()) {
       TestLifeCycleListener listener = new TestLifeCycleListener();
       boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(HARD_STOPPING);
       if (state == STARTING || state == STARTED) {
@@ -81,7 +81,7 @@ public class LifecycleTest {
 
   @Test
   public void can_move_to_STARTED_from_STARTING_only() {
-    for (Lifecycle.State state : Lifecycle.State.values()) {
+    for (ManagedProcessLifecycle.State state : ManagedProcessLifecycle.State.values()) {
       TestLifeCycleListener listener = new TestLifeCycleListener();
       boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(STARTED);
       if (state == STARTING) {
@@ -94,15 +94,15 @@ public class LifecycleTest {
     }
   }
 
-  private static Lifecycle newLifeCycle(Lifecycle.State state, TestLifeCycleListener... listeners) {
-    return new Lifecycle(ProcessId.ELASTICSEARCH, Arrays.asList(listeners), state);
+  private static ManagedProcessLifecycle newLifeCycle(ManagedProcessLifecycle.State state, TestLifeCycleListener... listeners) {
+    return new ManagedProcessLifecycle(ProcessId.ELASTICSEARCH, Arrays.asList(listeners), state);
   }
 
   private static final class TestLifeCycleListener implements ProcessLifecycleListener {
-    private final List<Lifecycle.State> states = new ArrayList<>();
+    private final List<ManagedProcessLifecycle.State> states = new ArrayList<>();
 
     @Override
-    public void onProcessState(ProcessId processId, Lifecycle.State state) {
+    public void onProcessState(ProcessId processId, ManagedProcessLifecycle.State state) {
       this.states.add(state);
     }
   }

@@ -24,11 +24,11 @@ import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static java.util.Objects.requireNonNull;
 
-class ProcessCommandsProcessMonitor extends AbstractProcessMonitor {
+public class ProcessCommandsManagedProcess extends AbstractManagedProcess {
 
   private final ProcessCommands commands;
 
-  ProcessCommandsProcessMonitor(Process process, ProcessId processId, ProcessCommands commands) {
+  public ProcessCommandsManagedProcess(Process process, ProcessId processId, ProcessCommands commands) {
     super(process, processId);
     this.commands = requireNonNull(commands, "commands can't be null");
   }

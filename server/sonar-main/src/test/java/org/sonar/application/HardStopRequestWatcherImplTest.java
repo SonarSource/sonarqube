@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.process;
+package org.sonar.application;
 
 import java.io.IOException;
 import org.junit.Rule;
@@ -26,7 +26,6 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.application.FileSystem;
 import org.sonar.application.config.AppSettings;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 

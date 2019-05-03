@@ -35,7 +35,7 @@ import static org.sonar.application.NodeLifecycle.State.STOPPED;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
 
 /**
- * Lifecycle of the cluster node, consolidating the states
+ * ManagedProcessLifecycle of the cluster node, consolidating the states
  * of child processes.
  */
 class NodeLifecycle {

@@ -22,7 +22,7 @@ package org.sonar.application.process;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
-public interface ProcessMonitor {
+public interface ManagedProcess {
 
   /**
    * @see Process#getInputStream()
