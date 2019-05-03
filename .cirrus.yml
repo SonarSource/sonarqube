@@ -151,6 +151,7 @@ qa_task:
       QA_CATEGORY: License
       QA_CATEGORY: Branch
       QA_CATEGORY: Upgrade
+      QA_CATEGORY: HA
   gradle_cache:
     folder: ~/.gradle/caches
   script:

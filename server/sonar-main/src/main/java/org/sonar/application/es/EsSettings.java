@@ -45,6 +45,7 @@ public class EsSettings {
   private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
   private static final String STANDALONE_NODE_NAME = "sonarqube";
   private static final String SECCOMP_PROPERTY = "bootstrap.system_call_filter";
+  private static final String ALLOW_MMAP = "node.store.allow_mmapfs";
 
   private final Props props;
   private final EsInstallation fileSystem;
@@ -150,6 +151,11 @@ public class EsSettings {
     builder.put("action.auto_create_index", String.valueOf(false));
     if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + SECCOMP_PROPERTY + "=false")) {
       builder.put(SECCOMP_PROPERTY, "false");
+    }
+
+    // to be used with HA QA, where we can't easily set mmap size when running with docker.
+    if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + ALLOW_MMAP + "=false")) {
+      builder.put(ALLOW_MMAP, "false");
     }
   }
 }

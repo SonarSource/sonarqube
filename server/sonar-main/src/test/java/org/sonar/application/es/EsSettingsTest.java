@@ -330,6 +330,15 @@ public class EsSettingsTest {
     assertThat(settings.get("bootstrap.system_call_filter")).isEqualTo("false");
   }
 
+  @Test
+  public void disable_mmap_if_configured_in_search_additional_props() throws Exception {
+    Props props = minProps(CLUSTER_DISABLED);
+    props.set("sonar.search.javaAdditionalOpts", "-Dnode.store.allow_mmapfs=false");
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("node.store.allow_mmapfs")).isEqualTo("false");
+  }
+
   private Props minProps(boolean cluster) throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
