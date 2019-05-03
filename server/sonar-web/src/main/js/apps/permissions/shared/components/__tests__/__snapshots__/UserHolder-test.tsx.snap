@@ -25,7 +25,9 @@ exports[`should render correctly 1`] = `
       </div>
       <div
         className="little-spacer-top"
-      />
+      >
+        john.doe@sonarsource.com
+      </div>
     </div>
   </td>
   <PermissionCell
@@ -51,6 +53,7 @@ exports[`should render correctly 1`] = `
     }
     permissionItem={
       Object {
+        "email": "john.doe@sonarsource.com",
         "login": "john doe",
         "name": "John Doe",
         "permissions": Array [
@@ -73,6 +76,7 @@ exports[`should render correctly 1`] = `
     }
     permissionItem={
       Object {
+        "email": "john.doe@sonarsource.com",
         "login": "john doe",
         "name": "John Doe",
         "permissions": Array [
@@ -83,4 +87,43 @@ exports[`should render correctly 1`] = `
     selectedPermission="bar"
   />
 </tr>
+`;
+
+exports[`should show user details for SonarCloud 1`] = `
+<div
+  className="display-inline-block text-middle"
+>
+  <div>
+    <strong>
+      John Doe
+    </strong>
+  </div>
+  <div
+    className="note little-spacer-top"
+  >
+    john doe
+  </div>
+</div>
+`;
+
+exports[`should show user details for SonarQube 1`] = `
+<div
+  className="display-inline-block text-middle"
+>
+  <div>
+    <strong>
+      John Doe
+    </strong>
+    <span
+      className="note spacer-left"
+    >
+      john doe
+    </span>
+  </div>
+  <div
+    className="little-spacer-top"
+  >
+    john.doe@sonarsource.com
+  </div>
+</div>
 `;

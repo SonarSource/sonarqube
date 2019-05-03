@@ -108,11 +108,22 @@ export default class UserHolder extends React.PureComponent<Props, State> {
             size={36}
           />
           <div className="display-inline-block text-middle">
-            <div>
-              <strong>{user.name}</strong>
-              <span className="note spacer-left">{user.login}</span>
-            </div>
-            <div className="little-spacer-top">{user.email}</div>
+            {isSonarCloud() ? (
+              <>
+                <div>
+                  <strong>{user.name}</strong>
+                </div>
+                <div className="note little-spacer-top">{user.login}</div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <strong>{user.name}</strong>
+                  <span className="note spacer-left">{user.login}</span>
+                </div>
+                <div className="little-spacer-top">{user.email}</div>
+              </>
+            )}
           </div>
         </td>
         {permissionCells}
