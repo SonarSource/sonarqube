@@ -77,7 +77,7 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
     }
 
     // Check if remaining number of lines exceeds threshold. It avoids processing too many combinations.
-    if (basesByLine.keySet().size() * rawsByLine.keySet().size() >= 250_000) {
+    if (isOverLimit(basesByLine.keySet().size(), rawsByLine.keySet().size())) {
       return;
     }
 
@@ -95,6 +95,10 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
       // High probability that baseLine has been moved to rawLine, so we can map all issues on baseLine to all issues on rawLine
       map(rawsByLine.get(linePair.rawLine), basesByLine.get(linePair.baseLine), tracking);
     }
+  }
+
+  static boolean isOverLimit(long a, long b) {
+    return Math.multiplyExact(a, b) >= 250_000;
   }
 
   /**

@@ -41,6 +41,15 @@ public class BlockRecognizerTest {
     assertThat(compute(seq("bcde"), seq("abcde"), 3, 4)).isEqualTo(4);
   }
 
+  @Test
+  public void isOverLimit() {
+    assertThat(BlockRecognizer.isOverLimit(20, 40)).isFalse();
+    assertThat(BlockRecognizer.isOverLimit(3, 100_000)).isTrue();
+
+    // multiplication of these two ints is higher than Integer.MAX_VALUE
+    assertThat(BlockRecognizer.isOverLimit(50_000, 60_000)).isTrue();
+  }
+
   private int compute(LineHashSequence seqA, LineHashSequence seqB, int ai, int bi) {
     return BlockRecognizer.lengthOfMaximalBlock(seqA, ai, seqB, bi);
   }
