@@ -99,7 +99,7 @@ export default class ApplicationQualityGate extends React.PureComponent<Props, S
           {status === 'WARN' && (
             <HelpTooltip
               className="little-spacer-left"
-              overlay={translate('quality_gates.conditions.warning.tootlip')}
+              overlay={translate('quality_gates.conditions.warning.tooltip')}
             />
           )}
         </h2>

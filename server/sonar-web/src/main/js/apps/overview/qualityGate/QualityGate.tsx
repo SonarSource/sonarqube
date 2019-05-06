@@ -62,7 +62,7 @@ export default function QualityGate({ branchLike, component, measures }: Props) 
         {level === 'WARN' && (
           <HelpTooltip
             className="little-spacer-left"
-            overlay={translate('quality_gates.conditions.warning.tootlip')}
+            overlay={translate('quality_gates.conditions.warning.tooltip')}
           />
         )}
       </div>

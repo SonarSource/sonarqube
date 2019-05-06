@@ -46,7 +46,7 @@ export default function ProjectCardQualityGate({ status }: Props) {
           {status === 'WARN' && (
             <HelpTooltip
               className="little-spacer-left"
-              overlay={translate('quality_gates.conditions.warning.tootlip')}
+              overlay={translate('quality_gates.conditions.warning.tooltip')}
             />
           )}
         </div>
