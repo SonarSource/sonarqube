@@ -10,6 +10,7 @@
       "date": "2016-12-12T17:12:45+0100",
       "projectVersion": "1.2.1",
       "buildString": "1.2.1.423",
+      "revision": "be6c75b85da526349c44e3978374c95e0b80a96d",
       "manualNewCodePeriodBaseline": false,
       "events": [
         {
@@ -29,6 +30,7 @@
       "date": "2016-12-11T17:12:45+0100",
       "projectVersion": "1.2",
       "buildString": "1.2.0.322",
+      "revision": "bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf",
       "manualNewCodePeriodBaseline": true,
       "events": [
         {

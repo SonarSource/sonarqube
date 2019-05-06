@@ -85,6 +85,7 @@ class SearchResponseBuilder {
       .setManualNewCodePeriodBaseline(searchData.getManualBaseline().filter(dbAnalysis.getUuid()::equals).isPresent());
     ofNullable(dbAnalysis.getProjectVersion()).ifPresent(builder::setProjectVersion);
     ofNullable(dbAnalysis.getBuildString()).ifPresent(builder::setBuildString);
+    ofNullable(dbAnalysis.getRevision()).ifPresent(builder::setRevision);
 
     return builder;
   }

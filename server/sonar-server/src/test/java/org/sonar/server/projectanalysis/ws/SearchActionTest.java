@@ -124,16 +124,24 @@ public class SearchActionTest {
 
     userSession.addProjectPermission(UserRole.USER, project);
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project)
-      .setUuid("A1").setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
-      .setProjectVersion("1.2").setBuildString("1.2.0.322")
+      .setUuid("A1")
+      .setCreatedAt(parseDateTime("2016-12-11T17:12:45+0100").getTime())
+      .setProjectVersion("1.2")
+      .setBuildString("1.2.0.322")
+      .setRevision("bfe36592eb7f9f2708b5d358b5b5f33ed535c8cf")
     );
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project)
-      .setUuid("A2").setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
-      .setProjectVersion("1.2.1").setBuildString("1.2.1.423")
+      .setUuid("A2")
+      .setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
+      .setProjectVersion("1.2.1")
+      .setBuildString("1.2.1.423")
+      .setRevision("be6c75b85da526349c44e3978374c95e0b80a96d")
     );
     SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project)
-      .setUuid("P1").setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
-      .setProjectVersion("1.2").setBuildString("1.2.0.321"));
+      .setUuid("P1")
+      .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
+      .setProjectVersion("1.2")
+      .setBuildString("1.2.0.321"));
     db.getDbClient().branchDao().insert(db.getSession(), newBranchDto(project, LONG)
       .setManualBaseline(a1.getUuid()));
     db.commit();

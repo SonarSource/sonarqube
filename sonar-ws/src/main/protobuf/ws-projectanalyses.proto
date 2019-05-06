@@ -59,6 +59,7 @@ message Analysis {
   optional string projectVersion = 4;
   optional string buildString = 5;
   optional bool manualNewCodePeriodBaseline = 6;
+  optional string revision = 7;
 }
 
 message QualityGate {

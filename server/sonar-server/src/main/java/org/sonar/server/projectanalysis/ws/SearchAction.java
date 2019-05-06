@@ -120,7 +120,6 @@ public class SearchAction implements ProjectAnalysesWsAction {
         "Either a date (server timezone) or datetime can be provided")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200")
       .setSince("6.5");
-
   }
 
   @Override
