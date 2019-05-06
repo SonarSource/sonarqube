@@ -31,7 +31,10 @@ const statusIcons: T.Dict<(props: IconProps) => React.ReactElement<any>> = {
   confirmed: ConfirmedStatusIcon,
   reopened: ReopenedStatusIcon,
   resolved: ResolvedStatusIcon,
-  closed: ClosedStatusIcon
+  closed: ClosedStatusIcon,
+  to_review: OpenStatusIcon,
+  in_review: ConfirmedStatusIcon,
+  reviewed: ResolvedStatusIcon
 };
 
 export default function StatusIcon(props: Props) {

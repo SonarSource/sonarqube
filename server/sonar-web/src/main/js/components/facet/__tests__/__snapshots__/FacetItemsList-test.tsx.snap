@@ -7,3 +7,16 @@ exports[`should render 1`] = `
   <div />
 </div>
 `;
+
+exports[`should render with title 1`] = `
+<div
+  className="search-navigator-facet-list"
+>
+  <div
+    className="search-navigator-facet-list-title"
+  >
+    title test
+  </div>
+  <div />
+</div>
+`;

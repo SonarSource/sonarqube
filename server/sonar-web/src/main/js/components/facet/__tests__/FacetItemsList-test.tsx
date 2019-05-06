@@ -30,3 +30,13 @@ it('should render', () => {
     )
   ).toMatchSnapshot();
 });
+
+it('should render with title', () => {
+  expect(
+    shallow(
+      <FacetItemsList title="title test">
+        <div />
+      </FacetItemsList>
+    )
+  ).toMatchSnapshot();
+});

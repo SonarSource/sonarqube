@@ -38,7 +38,7 @@ interface Props {
   stats: T.Dict<number> | undefined;
 }
 
-const RESOLUTIONS = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
+const RESOLUTIONS = ['', 'FALSE-POSITIVE', 'FIXED', 'REMOVED', 'WONTFIX'];
 
 export default class ResolutionFacet extends React.PureComponent<Props> {
   property = 'resolutions';

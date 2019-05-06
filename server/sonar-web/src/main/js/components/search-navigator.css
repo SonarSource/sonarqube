@@ -358,6 +358,17 @@ a.search-navigator-facet:focus,
   font-size: 0;
 }
 
+.search-navigator-facet-list-title {
+  margin: 0 var(--gridSize) calc(var(--gridSize) / 2);
+  font-size: var(--smallFontSize);
+  font-weight: bold;
+}
+
+.search-navigator-facet-list + .search-navigator-facet-list > .search-navigator-facet-list-title {
+  border-top: 1px solid var(--barBorderColor);
+  padding-top: var(--gridSize);
+}
+
 .search-navigator-facet-empty {
   margin: 0 0 0 0;
   padding: 0 10px 10px;

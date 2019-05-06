@@ -38,14 +38,14 @@ interface Props {
   statuses: string[];
 }
 
-const STATUSES = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];
+const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED'];
+const HOTSPOT_STATUSES = ['TO_REVIEW', 'REVIEWED', 'IN_REVIEW'];
+const COMMON_STATUSES = ['CLOSED'];
 
 export default class StatusFacet extends React.PureComponent<Props> {
   property = 'statuses';
 
-  static defaultProps = {
-    open: true
-  };
+  static defaultProps = { open: true };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
     const { statuses } = this.props;
@@ -110,7 +110,15 @@ export default class StatusFacet extends React.PureComponent<Props> {
         <DeferredSpinner loading={this.props.fetching} />
         {this.props.open && (
           <>
-            <FacetItemsList>{STATUSES.map(this.renderItem)}</FacetItemsList>
+            <FacetItemsList title={translate('issues')}>
+              {STATUSES.map(this.renderItem)}
+            </FacetItemsList>
+            <FacetItemsList title={translate('issue.type.SECURITY_HOTSPOT.plural')}>
+              {HOTSPOT_STATUSES.map(this.renderItem)}
+            </FacetItemsList>
+            <FacetItemsList title={translate('issues.issues_and_hotspots')}>
+              {COMMON_STATUSES.map(this.renderItem)}
+            </FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
           </>
         )}
