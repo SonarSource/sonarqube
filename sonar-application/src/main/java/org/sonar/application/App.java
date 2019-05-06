@@ -40,7 +40,8 @@ public class App {
 
   private final SystemExit systemExit = new SystemExit();
   private final JavaVersion javaVersion;
-  private StopRequestWatcher hardStopRequestWatcher;
+  private StopRequestWatcher stopRequestWatcher = null;
+  private StopRequestWatcher hardStopRequestWatcher = null;
 
   public App(JavaVersion javaVersion) {
     this.javaVersion = javaVersion;
@@ -65,12 +66,15 @@ public class App {
       try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {
         Scheduler scheduler = new SchedulerImpl(settings, appReloader, commandFactory, processLauncher, appState);
 
+        scheduler.schedule();
+
+        stopRequestWatcher = StopRequestWatcherImpl.create(settings, scheduler, fileSystem);
+        hardStopRequestWatcher = HardStopRequestWatcherImpl.create(scheduler, fileSystem);
+
         // intercepts CTRL-C
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(scheduler));
 
-        scheduler.schedule();
-
-        hardStopRequestWatcher = HardStopRequestWatcherImpl.create(settings, scheduler::hardStop, fileSystem);
+        stopRequestWatcher.startWatching();
         hardStopRequestWatcher.startWatching();
 
         scheduler.awaitTermination();
@@ -91,7 +95,7 @@ public class App {
     }
   }
 
-  public static void main(String... args) throws Exception {
+  public static void main(String[] args) throws Exception {
     new App(JavaVersion.INSTANCE).start(args);
   }
 
@@ -99,17 +103,15 @@ public class App {
     private final Scheduler scheduler;
 
     public ShutdownHook(Scheduler scheduler) {
-      super("SonarQube Shutdown Hook");
+      super("Shutdown Hook");
       this.scheduler = scheduler;
     }
 
     @Override
     public void run() {
       systemExit.setInShutdownHook();
-
-      if (hardStopRequestWatcher != null) {
-        hardStopRequestWatcher.stopWatching();
-      }
+      stopRequestWatcher.stopWatching();
+      hardStopRequestWatcher.stopWatching();
 
       // blocks until everything is corrected terminated
       scheduler.stop();

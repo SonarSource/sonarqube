@@ -19,25 +19,31 @@
  */
 package org.sonar.application;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
-public class HardStopRequestWatcherImpl extends AbstractStopRequestWatcher {
+import static org.sonar.process.ProcessProperties.Property.ENABLE_STOP_COMMAND;
 
-  HardStopRequestWatcherImpl(Scheduler scheduler, ProcessCommands commands) {
-    super("SQ Hard stop request watcher", commands::askedForHardStop, scheduler::hardStop);
+public class StopRequestWatcherImpl extends AbstractStopRequestWatcher {
+  private final AppSettings settings;
+
+  StopRequestWatcherImpl(AppSettings settings, Scheduler scheduler, ProcessCommands commands) {
+    super("SQ stop request watcher", commands::askedForStop, scheduler::stop);
+
+    this.settings = settings;
   }
 
-  @VisibleForTesting
-  HardStopRequestWatcherImpl(Scheduler scheduler, ProcessCommands commands, long delayMs) {
-    super("SQ Hard stop request watcher", commands::askedForHardStop, scheduler::hardStop, delayMs);
-  }
-
-  public static HardStopRequestWatcherImpl create(Scheduler scheduler, FileSystem fs) {
+  public static StopRequestWatcherImpl create(AppSettings settings, Scheduler scheduler, FileSystem fs) {
     DefaultProcessCommands commands = DefaultProcessCommands.secondary(fs.getTempDir(), ProcessId.APP.getIpcIndex());
-    return new HardStopRequestWatcherImpl(scheduler, commands);
+    return new StopRequestWatcherImpl(settings, scheduler, commands);
   }
 
+  @Override
+  public void startWatching() {
+    if (settings.getProps().valueAsBoolean(ENABLE_STOP_COMMAND.getKey())) {
+      super.startWatching();
+    }
+  }
 }

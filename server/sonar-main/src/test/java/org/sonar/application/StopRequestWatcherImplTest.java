@@ -26,6 +26,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,27 +36,38 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.ENABLE_STOP_COMMAND;
 
-public class HardStopRequestWatcherImplTest {
+public class StopRequestWatcherImplTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
+  private TestAppSettings appSettings = new TestAppSettings();
   private ProcessCommands commands = mock(ProcessCommands.class);
   private Scheduler scheduler = mock(Scheduler.class);
 
   @Test
-  public void watch_hard_stop_command() {
-    HardStopRequestWatcherImpl underTest = new HardStopRequestWatcherImpl(scheduler, commands, 1);
+  public void startWatching_does_not_start_thread_if_stop_command_is_disabled() {
+    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(appSettings, scheduler, commands);
+
+    underTest.startWatching();
+    assertThat(underTest.isAlive()).isFalse();
+  }
+
+  @Test
+  public void watch_stop_command_if_stop_command_is_enabled() {
+    appSettings.set(ENABLE_STOP_COMMAND.getKey(), "true");
+    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(appSettings, scheduler, commands);
 
     underTest.startWatching();
     assertThat(underTest.isAlive()).isTrue();
-    verify(scheduler, never()).hardStop();
+    verify(scheduler, never()).stop();
 
-    when(commands.askedForHardStop()).thenReturn(true);
-    verify(scheduler, timeout(1_000L)).hardStop();
+    when(commands.askedForStop()).thenReturn(true);
+    verify(scheduler, timeout(1_000L)).stop();
 
     underTest.stopWatching();
 
@@ -68,14 +80,14 @@ public class HardStopRequestWatcherImplTest {
     FileSystem fs = mock(FileSystem.class);
     when(fs.getTempDir()).thenReturn(temp.newFolder());
 
-    HardStopRequestWatcherImpl underTest = HardStopRequestWatcherImpl.create(scheduler, fs);
+    StopRequestWatcherImpl underTest = StopRequestWatcherImpl.create(appSettings, scheduler, fs);
 
     assertThat(underTest.getDelayMs()).isEqualTo(500L);
   }
 
   @Test
   public void stop_watching_commands_if_thread_is_interrupted() {
-    HardStopRequestWatcherImpl underTest = new HardStopRequestWatcherImpl(scheduler, commands);
+    StopRequestWatcherImpl underTest = new StopRequestWatcherImpl(appSettings, scheduler, commands);
 
     underTest.startWatching();
     underTest.interrupt();
