@@ -31,11 +31,9 @@ import org.sonar.api.ce.ComputeEngineSide;
  *
  * <p>
  * If more then one implementation of {@link PostProjectAnalysisTask} is found, they will be executed in no specific order.
- * 
  *
  * <p>
  * Class {@link PostProjectAnalysisTaskTester} is provided to write unit tests of implementations of this interface.
- * 
  *
  * @since 5.5
  * @see PostProjectAnalysisTaskTester
@@ -124,7 +122,10 @@ public interface PostProjectAnalysisTask {
     ScannerContext getScannerContext();
 
     /**
-     * Revision Id that has been analysed
+     * Revision Id that has been analysed. May return null.
+     * @since 7.6
+     * @deprecated in 7.8, replaced by {@code Analysis#getRevision()}
+     * @see #getAnalysis()
      */
     String getScmRevisionId();
   }

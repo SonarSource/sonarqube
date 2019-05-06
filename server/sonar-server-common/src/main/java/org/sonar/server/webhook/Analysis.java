@@ -19,27 +19,34 @@
  */
 package org.sonar.server.webhook;
 
-import com.google.common.base.Objects;
-import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
 public final class Analysis {
   private final String uuid;
   private final long date;
+  @Nullable
+  private final String revision;
 
-  public Analysis(String uuid, long date) {
-    requireNonNull(uuid, "uuid must not be null");
-    this.uuid = uuid;
+  public Analysis(String uuid, long date, @Nullable String revision) {
+    this.uuid = requireNonNull(uuid, "uuid must not be null");
     this.date = date;
+    this.revision = revision;
   }
 
   public String getUuid() {
     return uuid;
   }
 
-  public Date getDate() {
-    return new Date(date);
+  public long getDate() {
+    return date;
+  }
+
+  public Optional<String> getRevision() {
+    return Optional.ofNullable(revision);
   }
 
   @Override
@@ -47,17 +54,18 @@ public final class Analysis {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Analysis)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     Analysis analysis = (Analysis) o;
-    return Objects.equal(uuid, analysis.uuid) &&
-      Objects.equal(date, analysis.date);
+    return date == analysis.date &&
+      uuid.equals(analysis.uuid) &&
+      Objects.equals(revision, analysis.revision);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(uuid, date);
+    return Objects.hash(uuid, date, revision);
   }
 
   @Override
@@ -65,6 +73,7 @@ public final class Analysis {
     return "Analysis{" +
       "uuid='" + uuid + '\'' +
       ", date=" + date +
+      ", revision=" + revision +
       '}';
   }
 }

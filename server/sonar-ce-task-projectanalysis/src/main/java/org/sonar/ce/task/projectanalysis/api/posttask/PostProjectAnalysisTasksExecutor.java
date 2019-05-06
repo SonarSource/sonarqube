@@ -142,7 +142,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     Long analysisDate = getAnalysisDate();
 
     if (analysisDate != null) {
-      return of(new AnalysisImpl(analysisMetadataHolder.getUuid(), analysisDate));
+      return of(new AnalysisImpl(analysisMetadataHolder.getUuid(), analysisDate, analysisMetadataHolder.getScmRevisionId()));
     }
     return empty();
   }
@@ -305,10 +305,12 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
     private final String analysisUuid;
     private final long date;
+    private final Optional<String> revision;
 
-    private AnalysisImpl(String analysisUuid, long date) {
+    private AnalysisImpl(String analysisUuid, long date, Optional<String> revision) {
       this.analysisUuid = analysisUuid;
       this.date = date;
+      this.revision = revision;
     }
 
     @Override
@@ -319,6 +321,11 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     @Override
     public Date getDate() {
       return new Date(date);
+    }
+
+    @Override
+    public Optional<String> getRevision() {
+      return revision;
     }
   }
 

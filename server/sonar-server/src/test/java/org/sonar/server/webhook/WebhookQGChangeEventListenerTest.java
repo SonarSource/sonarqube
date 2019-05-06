@@ -166,7 +166,7 @@ public class WebhookQGChangeEventListenerTest {
       new ProjectAnalysis(
         new Project(project.uuid(), project.getKey(), project.name()),
         null,
-        new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
+        new Analysis(analysis.getUuid(), analysis.getCreatedAt(), analysis.getRevision()),
         new Branch(false, "foo", Branch.Type.SHORT),
         newQualityGate,
         null,

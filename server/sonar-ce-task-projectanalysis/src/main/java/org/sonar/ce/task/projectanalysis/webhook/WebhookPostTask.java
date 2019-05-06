@@ -52,7 +52,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
   private static org.sonar.server.webhook.ProjectAnalysis convert(ProjectAnalysis projectAnalysis) {
     CeTask ceTask = new CeTask(projectAnalysis.getCeTask().getId(), CeTask.Status.valueOf(projectAnalysis.getCeTask().getStatus().name()));
-    Analysis analysis = projectAnalysis.getAnalysis().map(a -> new Analysis(a.getAnalysisUuid(), a.getDate().getTime())).orElse(null);
+    Analysis analysis = projectAnalysis.getAnalysis().map(a -> new Analysis(a.getAnalysisUuid(), a.getDate().getTime(), a.getRevision().orElse(null))).orElse(null);
     Branch branch = projectAnalysis.getBranch().map(b -> new Branch(b.isMain(), b.getName().orElse(null), Branch.Type.valueOf(b.getType().name()))).orElse(null);
     EvaluatedQualityGate qualityGate = Optional.ofNullable(projectAnalysis.getQualityGate())
       .map(QGToEvaluatedQG.INSTANCE)

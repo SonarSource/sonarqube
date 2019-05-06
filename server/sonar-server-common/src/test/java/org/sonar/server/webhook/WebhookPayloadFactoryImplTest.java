@@ -73,6 +73,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"SUCCESS\"," +
         "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"revision\": \"sha1\"," +
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
@@ -117,6 +118,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"SUCCESS\"," +
         "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"revision\": \"sha1\"," +
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
@@ -146,7 +148,7 @@ public class WebhookPayloadFactoryImplTest {
       .setStatus(Metric.Level.ERROR)
       .build();
     Map<String, String> scannerProperties = ImmutableMap.of(
-      "sonar.analysis.revision", "ab45d24",
+      "sonar.analysis.foo", "bar",
       "sonar.analysis.buildNumber", "B123",
       "not.prefixed.with.sonar.analysis", "should be ignored",
       "ignored", "should be ignored too");
@@ -159,6 +161,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"SUCCESS\"," +
         "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"revision\": \"sha1\"," +
         "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
@@ -172,7 +175,7 @@ public class WebhookPayloadFactoryImplTest {
         "    ]" +
         "  }," +
         "  \"properties\": {" +
-        "    \"sonar.analysis.revision\": \"ab45d24\"," +
+        "    \"sonar.analysis.foo\": \"bar\"," +
         "    \"sonar.analysis.buildNumber\": \"B123\"" +
         "  }" +
         "}");
@@ -318,7 +321,7 @@ public class WebhookPayloadFactoryImplTest {
 
   private static ProjectAnalysis newAnalysis(@Nullable CeTask task, @Nullable EvaluatedQualityGate gate,
     @Nullable Branch branch, @Nullable Long analysisDate, Map<String, String> scannerProperties) {
-    return new ProjectAnalysis(new Project("P1_UUID", PROJECT_KEY, "Project One"), task, analysisDate == null ? null : new Analysis("A_UUID1", analysisDate), branch,
+    return new ProjectAnalysis(new Project("P1_UUID", PROJECT_KEY, "Project One"), task, analysisDate == null ? null : new Analysis("A_UUID1", analysisDate, "sha1"), branch,
       gate, analysisDate, scannerProperties);
   }
 }

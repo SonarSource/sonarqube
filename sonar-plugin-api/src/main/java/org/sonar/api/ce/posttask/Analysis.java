@@ -20,6 +20,7 @@
 package org.sonar.api.ce.posttask;
 
 import java.util.Date;
+import java.util.Optional;
 
 public interface Analysis {
   /**
@@ -31,4 +32,10 @@ public interface Analysis {
    * Date of the analysis.
    */
   Date getDate();
+
+  /**
+   * SCM revision, if declared during analysis
+   * @since 7.8
+   */
+  Optional<String> getRevision();
 }

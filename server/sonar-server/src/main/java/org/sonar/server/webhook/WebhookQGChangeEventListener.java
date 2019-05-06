@@ -94,7 +94,7 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
     ProjectAnalysis projectAnalysis = new ProjectAnalysis(
       new Project(projectUuid, project.getKey(), project.name()),
       null,
-      new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
+      new Analysis(analysis.getUuid(), analysis.getCreatedAt(), analysis.getRevision()),
       new Branch(branch.isMain(), branch.getKey(), Type.valueOf(branch.getBranchType().name())),
       evaluatedQualityGate,
       null,

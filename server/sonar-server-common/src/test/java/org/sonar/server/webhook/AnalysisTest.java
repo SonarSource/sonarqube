@@ -19,13 +19,10 @@
  */
 package org.sonar.server.webhook;
 
-import java.util.Date;
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnalysisTest {
@@ -38,32 +35,17 @@ public class AnalysisTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("uuid must not be null");
 
-    new Analysis(null, 1_990L);
+    new Analysis(null, 1_990L, "abcde");
   }
 
   @Test
-  public void test_equality() {
-    String uuid = randomAlphanumeric(35);
-    long date = new Random().nextLong();
-    Analysis underTest = new Analysis(uuid, date);
+  public void test_bean() {
+    Analysis analysis = new Analysis("u1", 1_990L, "abcde");
+    assertThat(analysis.getUuid()).isEqualTo("u1");
+    assertThat(analysis.getDate()).isEqualTo(1_990L);
+    assertThat(analysis.getRevision()).hasValue("abcde");
 
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest.getUuid()).isEqualTo(uuid);
-    assertThat(underTest.getDate()).isEqualTo(new Date(date));
-
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Analysis(uuid + "1", date));
-    assertThat(underTest).isNotEqualTo(new Analysis(uuid, date + 1_000L));
-  }
-
-  @Test
-  public void test_hashcode() {
-    String uuid = randomAlphanumeric(35);
-    long date = new Random().nextLong();
-    Analysis underTest = new Analysis(uuid, date);
-
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Analysis(uuid + "1", date).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Analysis(uuid, date + 1_000).hashCode());
+    analysis = new Analysis("u1", 1_990L, null);
+    assertThat(analysis.getRevision()).isEmpty();
   }
 }

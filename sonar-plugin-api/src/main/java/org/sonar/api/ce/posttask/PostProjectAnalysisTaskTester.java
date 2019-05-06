@@ -31,7 +31,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -815,6 +814,8 @@ public class PostProjectAnalysisTaskTester {
   public static final class AnalysisBuilder {
     private String analysisUuid;
     private Date date;
+    @Nullable
+    private String revision;
 
     private AnalysisBuilder() {
       // prevents instantiation outside PostProjectAnalysisTaskTester
@@ -830,6 +831,11 @@ public class PostProjectAnalysisTaskTester {
       return this;
     }
 
+    public AnalysisBuilder setRevision(@Nullable String s) {
+      this.revision = s;
+      return this;
+    }
+
     public Analysis build() {
       return new Analysis() {
 
@@ -841,6 +847,11 @@ public class PostProjectAnalysisTaskTester {
         @Override
         public Date getDate() {
           return date;
+        }
+
+        @Override
+        public Optional<String> getRevision() {
+          return Optional.ofNullable(revision);
         }
       };
     }

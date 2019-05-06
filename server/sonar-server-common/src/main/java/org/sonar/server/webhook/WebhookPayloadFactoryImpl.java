@@ -58,7 +58,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writer.beginObject();
       writeServer(writer);
       writeTask(writer, analysis.getCeTask());
-      writeDates(writer, analysis, system2);
+      writeAnalysis(writer, analysis, system2);
       writeProject(analysis, writer, analysis.getProject());
       analysis.getBranch().ifPresent(b -> writeBranch(writer, analysis.getProject(), b));
       analysis.getQualityGate().ifPresent(qualityGate -> writeQualityGate(writer, qualityGate));
@@ -72,8 +72,11 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
     writer.prop("serverUrl", server.getPublicRootUrl());
   }
 
-  private static void writeDates(JsonWriter writer, ProjectAnalysis analysis, System2 system2) {
-    analysis.getAnalysis().ifPresent(a -> writer.propDateTime("analysedAt", a.getDate()));
+  private static void writeAnalysis(JsonWriter writer, ProjectAnalysis analysis, System2 system2) {
+    analysis.getAnalysis().ifPresent(a -> {
+      writer.propDateTime("analysedAt", new Date(a.getDate()));
+      a.getRevision().ifPresent(rev -> writer.prop("revision", rev));
+    });
     writer.propDateTime("changedAt", new Date(analysis.getUpdatedAt().orElse(system2.now())));
   }
 
