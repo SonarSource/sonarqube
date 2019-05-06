@@ -62,7 +62,7 @@ it('should allow to cancel org import', () => {
   const handleCancelImport = jest.fn().mockResolvedValue({ key: 'foo' });
   const wrapper = shallowRender({ handleCancelImport });
 
-  click(wrapper.find('ButtonIcon'));
+  click(wrapper.find('ClearButton'));
   expect(handleCancelImport).toBeCalled();
 });
 

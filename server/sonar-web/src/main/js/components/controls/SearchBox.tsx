@@ -20,11 +20,9 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { debounce, Cancelable } from 'lodash';
-import ClearIcon from '../icons-components/ClearIcon';
 import SearchIcon from '../icons-components/SearchIcon';
 import DeferredSpinner from '../common/DeferredSpinner';
-import { ButtonIcon } from '../ui/buttons';
-import * as theme from '../../app/theme';
+import { ClearButton } from '../ui/buttons';
 import { translateWithParameters, translate } from '../../helpers/l10n';
 import './SearchBox.css';
 
@@ -156,12 +154,11 @@ export default class SearchBox extends React.PureComponent<Props, State> {
         </DeferredSpinner>
 
         {value && (
-          <ButtonIcon
+          <ClearButton
             className="button-tiny search-box-clear"
-            color={theme.gray60}
-            onClick={this.handleResetClick}>
-            <ClearIcon size={12} />
-          </ButtonIcon>
+            iconProps={{ size: 12 }}
+            onClick={this.handleResetClick}
+          />
         )}
 
         {tooShort && (

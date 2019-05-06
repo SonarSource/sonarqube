@@ -24,14 +24,14 @@ exports[`renders 1`] = `
       className="search-box-magnifier"
     />
   </DeferredSpinner>
-  <ButtonIcon
+  <ClearButton
     className="button-tiny search-box-clear"
-    color="#999"
+    iconProps={
+      Object {
+        "size": 12,
+      }
+    }
     onClick={[Function]}
-  >
-    <ClearIcon
-      size={12}
-    />
-  </ButtonIcon>
+  />
 </div>
 `;

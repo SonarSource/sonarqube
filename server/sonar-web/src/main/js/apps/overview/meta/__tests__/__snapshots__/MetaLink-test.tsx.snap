@@ -36,7 +36,7 @@ exports[`should expand and collapse dangerous link 2`] = `
     Dangerous
   </a>
   <div
-    className="little-spacer-top"
+    className="little-spacer-top display-flex-center"
   >
     <input
       className="overview-key width-80"
@@ -45,12 +45,10 @@ exports[`should expand and collapse dangerous link 2`] = `
       type="text"
       value="javascript:alert(\\"hi\\")"
     />
-    <ButtonIcon
+    <ClearButton
       className="little-spacer-left"
       onClick={[Function]}
-    >
-      <ClearIcon />
-    </ButtonIcon>
+    />
   </div>
 </li>
 `;

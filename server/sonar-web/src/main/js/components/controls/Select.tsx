@@ -19,9 +19,7 @@
  */
 import * as React from 'react';
 import { ReactSelectProps, ReactCreatableSelectProps, ReactAsyncSelectProps } from 'react-select';
-import * as theme from '../../app/theme';
-import ClearIcon from '../icons-components/ClearIcon';
-import { ButtonIcon } from '../ui/buttons';
+import { ClearButton } from '../ui/buttons';
 import { lazyLoad } from '../lazyLoad';
 import './react-select.css';
 
@@ -31,11 +29,7 @@ const ReactCreatable = lazyLoad(() => ReactSelectLib.then(lib => ({ default: lib
 const ReactAsync = lazyLoad(() => ReactSelectLib.then(lib => ({ default: lib.Async })));
 
 function renderInput() {
-  return (
-    <ButtonIcon className="button-tiny spacer-left text-middle" color={theme.gray60}>
-      <ClearIcon size={12} />
-    </ButtonIcon>
-  );
+  return <ClearButton className="button-tiny spacer-left text-middle" iconProps={{ size: 12 }} />;
 }
 
 interface WithInnerRef {

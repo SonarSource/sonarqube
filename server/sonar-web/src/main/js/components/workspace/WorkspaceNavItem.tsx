@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ClearIcon from '../icons-components/ClearIcon';
-import { ButtonIcon } from '../ui/buttons';
+import { ClearButton } from '../ui/buttons';
 
 export interface Props {
   children: React.ReactNode;
@@ -40,12 +39,12 @@ export default class WorkspaceNavItem extends React.PureComponent<Props> {
         <a className="workspace-nav-item-link" href="#" onClick={this.handleNameClick}>
           {this.props.children}
         </a>
-        <ButtonIcon
+        <ClearButton
           className="js-close workspace-nav-item-close workspace-header-icon button-small little-spacer-left"
           color="#fff"
-          onClick={this.props.onClose}>
-          <ClearIcon fill={undefined} size={12} />
-        </ButtonIcon>
+          iconProps={{ size: 12 }}
+          onClick={this.props.onClose}
+        />
       </li>
     );
   }

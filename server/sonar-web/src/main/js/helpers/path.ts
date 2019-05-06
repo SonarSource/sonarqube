@@ -95,6 +95,13 @@ export function splitPath(path: string) {
   };
 }
 
+export function cutLongWords(str: string, limit = 30) {
+  return str
+    .split(' ')
+    .map(word => (word.length > limit ? word.substr(0, limit) + '...' : word))
+    .join(' ');
+}
+
 export function limitComponentName(str: string, limit = 30): string {
   if (typeof str === 'string') {
     return str.length > limit ? str.substr(0, limit) + '...' : str;

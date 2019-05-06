@@ -31,12 +31,10 @@ exports[`should display choice between import or creation 1`] = `
             }
           }
         />
-        <ButtonIcon
+        <ClearButton
           className="little-spacer-left"
           onClick={[MockFunction]}
-        >
-          <ClearIcon />
-        </ButtonIcon>
+        />
       </p>
       <RadioToggle
         disabled={false}
@@ -132,12 +130,10 @@ exports[`should render prefilled and create org 1`] = `
             }
           }
         />
-        <ButtonIcon
+        <ClearButton
           className="little-spacer-left"
           onClick={[MockFunction]}
-        >
-          <ClearIcon />
-        </ButtonIcon>
+        />
       </p>
     </div>
     <OrganizationDetailsForm

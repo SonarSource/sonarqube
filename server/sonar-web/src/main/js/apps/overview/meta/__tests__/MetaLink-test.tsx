@@ -67,6 +67,6 @@ it('should expand and collapse dangerous link', () => {
   // collapse with button
   click(wrapper.find('a'));
   expect(wrapper.state('expanded')).toBe(true);
-  click(wrapper.find('ButtonIcon'));
+  click(wrapper.find('ClearButton'));
   expect(wrapper.state('expanded')).toBe(false);
 });

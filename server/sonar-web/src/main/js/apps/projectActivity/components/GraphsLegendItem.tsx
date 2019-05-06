@@ -19,11 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import * as theme from '../../../app/theme';
 import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
-import { ButtonIcon } from '../../../components/ui/buttons';
-import ClearIcon from '../../../components/icons-components/ClearIcon';
+import { ClearButton } from '../../../components/ui/buttons';
 
 interface Props {
   className?: string;
@@ -56,12 +54,11 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
         )}
         <span className="text-middle">{this.props.name}</span>
         {isActionable && (
-          <ButtonIcon
+          <ClearButton
             className="button-tiny spacer-left text-middle"
-            color={theme.gray60}
-            onClick={this.handleClick}>
-            <ClearIcon size={12} />
-          </ButtonIcon>
+            iconProps={{ size: 12 }}
+            onClick={this.handleClick}
+          />
         )}
       </span>
     );

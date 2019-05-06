@@ -19,9 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { ButtonIcon } from './buttons';
-import ClearIcon from '../icons-components/ClearIcon';
-import * as theme from '../../app/theme';
+import { ClearButton } from './buttons';
 import { translate } from '../../helpers/l10n';
 import './NewsBox.css';
 
@@ -40,9 +38,11 @@ export default function NewsBox({ children, className, onClose, title }: Props) 
           <span className="badge badge-new spacer-right">{translate('new')}</span>
           <strong>{title}</strong>
         </div>
-        <ButtonIcon className="button-tiny" color={theme.gray80} onClick={onClose}>
-          <ClearIcon fill={theme.baseFontColor} size={12} thin={true} />
-        </ButtonIcon>
+        <ClearButton
+          className="button-tiny"
+          iconProps={{ size: 12, then: true }}
+          onClick={onClose}
+        />
       </div>
       <div className="big-spacer-top note">{children}</div>
     </div>

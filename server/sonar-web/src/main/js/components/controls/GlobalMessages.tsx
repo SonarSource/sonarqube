@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import ClearIcon from '../icons-components/ClearIcon';
-import { ButtonIcon } from '../ui/buttons';
+import { ClearButton } from '../ui/buttons';
+import { cutLongWords } from '../../helpers/path';
 import './GlobalMessages.css';
 
 interface Message {
@@ -29,44 +29,49 @@ interface Message {
   message: string;
 }
 
-interface Props {
+export interface Props {
   closeGlobalMessage: (id: string) => void;
   messages: Message[];
 }
 
-export default class GlobalMessages extends React.PureComponent<Props> {
-  cutLongWords = (message: string) => {
-    return message
-      .split(' ')
-      .map(word => (word.length > 35 ? word.substr(0, 35) + '...' : word))
-      .join(' ');
-  };
+export default function GlobalMessages({ closeGlobalMessage, messages }: Props) {
+  if (messages.length === 0) {
+    return null;
+  }
 
-  renderMessage = (message: Message) => {
-    const className = classNames('process-spinner', 'shown', {
-      'process-spinner-failed': message.level === 'ERROR',
-      'process-spinner-success': message.level === 'SUCCESS'
-    });
-    return (
-      <div className={className} key={message.id}>
-        {this.cutLongWords(message.message)}
-        <ButtonIcon
-          className="button-small process-spinner-close"
-          color="#fff"
-          onClick={() => this.props.closeGlobalMessage(message.id)}>
-          <ClearIcon />
-        </ButtonIcon>
-      </div>
-    );
+  return (
+    <div className="processes-container">
+      {messages.map(message => (
+        <GlobalMessage closeGlobalMessage={closeGlobalMessage} key={message.id} message={message} />
+      ))}
+    </div>
+  );
+}
+
+export class GlobalMessage extends React.PureComponent<{
+  closeGlobalMessage: (id: string) => void;
+  message: Message;
+}> {
+  handleClose = () => {
+    this.props.closeGlobalMessage(this.props.message.id);
   };
 
   render() {
-    const { messages } = this.props;
-
-    if (messages.length === 0) {
-      return null;
-    }
-
-    return <div className="processes-container">{messages.map(this.renderMessage)}</div>;
+    const { message } = this.props;
+    return (
+      <div
+        className={classNames('process-spinner', 'shown', {
+          'process-spinner-failed': message.level === 'ERROR',
+          'process-spinner-success': message.level === 'SUCCESS'
+        })}
+        key={message.id}>
+        {cutLongWords(message.message)}
+        <ClearButton
+          className="button-small process-spinner-close"
+          color="#fff"
+          onClick={this.handleClose}
+        />
+      </div>
+    );
   }
 }

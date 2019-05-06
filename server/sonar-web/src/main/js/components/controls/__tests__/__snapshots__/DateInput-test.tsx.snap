@@ -43,15 +43,15 @@ exports[`should render 2`] = `
       className="date-input-control-icon"
       fill=""
     />
-    <ButtonIcon
+    <ClearButton
       className="button-tiny date-input-control-reset"
-      color="#999"
+      iconProps={
+        Object {
+          "size": 12,
+        }
+      }
       onClick={[Function]}
-    >
-      <ClearIcon
-        size={12}
-      />
-    </ButtonIcon>
+    />
   </span>
 </OutsideClickHandler>
 `;
@@ -76,15 +76,15 @@ exports[`should render 3`] = `
       className="date-input-control-icon"
       fill=""
     />
-    <ButtonIcon
+    <ClearButton
       className="button-tiny date-input-control-reset"
-      color="#999"
+      iconProps={
+        Object {
+          "size": 12,
+        }
+      }
       onClick={[Function]}
-    >
-      <ClearIcon
-        size={12}
-      />
-    </ButtonIcon>
+    />
     <div
       className="date-input-calendar"
     >

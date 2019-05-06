@@ -23,9 +23,8 @@ import OrganizationDetailsForm from './OrganizationDetailsForm';
 import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { Step } from './utils';
-import ClearIcon from '../../../components/icons-components/ClearIcon';
+import { ClearButton } from '../../../components/ui/buttons';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
-import { ButtonIcon } from '../../../components/ui/buttons';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeAlmId } from '../../../helpers/almIntegrations';
@@ -98,9 +97,7 @@ export default class AutoPersonalOrganizationBind extends React.PureComponent<Pr
                 personalName: importPersonalOrg && <strong>{importPersonalOrg.name}</strong>
               }}
             />
-            <ButtonIcon className="little-spacer-left" onClick={this.props.handleCancelImport}>
-              <ClearIcon />
-            </ButtonIcon>
+            <ClearButton className="little-spacer-left" onClick={this.props.handleCancelImport} />
           </div>
           <OrganizationDetailsForm
             keyReadOnly={true}

@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ClearIcon from '../../../components/icons-components/ClearIcon';
 import ProjectLinkIcon from '../../../components/icons-components/ProjectLinkIcon';
 import isValidUri from '../../../app/utils/isValidUri';
-import { ButtonIcon } from '../../../components/ui/buttons';
+import { ClearButton } from '../../../components/ui/buttons';
 import { getLinkName } from '../../projectLinks/utils';
 
 interface Props {
@@ -65,7 +64,7 @@ export default class MetaLink extends React.PureComponent<Props, State> {
           {!iconOnly && linkTitle}
         </a>
         {this.state.expanded && (
-          <div className="little-spacer-top">
+          <div className="little-spacer-top display-flex-center">
             <input
               className="overview-key width-80"
               onClick={this.handleSelect}
@@ -73,9 +72,7 @@ export default class MetaLink extends React.PureComponent<Props, State> {
               type="text"
               value={link.url}
             />
-            <ButtonIcon className="little-spacer-left" onClick={this.handleCollapse}>
-              <ClearIcon />
-            </ButtonIcon>
+            <ClearButton className="little-spacer-left" onClick={this.handleCollapse} />
           </div>
         )}
       </li>

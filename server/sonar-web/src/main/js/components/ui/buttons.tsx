@@ -21,10 +21,12 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import * as theme from '../../app/theme';
 import ChevronRightIcon from '../icons-components/ChevronRightcon';
+import ClearIcon from '../icons-components/ClearIcon';
 import DeleteIcon from '../icons-components/DeleteIcon';
 import EditIcon from '../icons-components/EditIcon';
 import Tooltip from '../controls/Tooltip';
 import './buttons.css';
+import { IconProps } from '../icons-components/Icon';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -90,12 +92,11 @@ export function ResetButtonLink(props: T.Omit<ButtonProps, 'type'>) {
   return <ButtonLink {...props} type="reset" />;
 }
 
-interface ButtonIconProps {
+interface ButtonIconProps extends ButtonProps {
   className?: string;
   color?: string;
   onClick?: () => void;
   tooltip?: string;
-  [x: string]: any;
 }
 
 export function ButtonIcon(props: ButtonIconProps) {
@@ -118,24 +119,32 @@ export function ButtonIcon(props: ButtonIconProps) {
   return buttonComponent;
 }
 
-interface ActionButtonProps {
+interface ActionButtonProps extends ButtonIconProps {
   className?: string;
+  iconProps?: IconProps;
   onClick?: () => void;
-  [x: string]: any;
 }
 
-export function DeleteButton(props: ActionButtonProps) {
+export function ClearButton({ color = theme.gray60, iconProps = {}, ...props }: ActionButtonProps) {
   return (
-    <ButtonIcon color={theme.red} {...props}>
-      <DeleteIcon />
+    <ButtonIcon color={color} {...props}>
+      <ClearIcon {...iconProps} />
     </ButtonIcon>
   );
 }
 
-export function EditButton(props: ActionButtonProps) {
+export function DeleteButton({ iconProps = {}, ...props }: ActionButtonProps) {
+  return (
+    <ButtonIcon color={theme.red} {...props}>
+      <DeleteIcon {...iconProps} />
+    </ButtonIcon>
+  );
+}
+
+export function EditButton({ iconProps = {}, ...props }: ActionButtonProps) {
   return (
     <ButtonIcon {...props}>
-      <EditIcon />
+      <EditIcon {...iconProps} />
     </ButtonIcon>
   );
 }

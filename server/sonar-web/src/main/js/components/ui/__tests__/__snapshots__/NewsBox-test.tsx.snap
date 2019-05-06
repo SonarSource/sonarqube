@@ -20,17 +20,16 @@ exports[`should render correctly 1`] = `
         title
       </strong>
     </div>
-    <ButtonIcon
+    <ClearButton
       className="button-tiny"
-      color="#cdcdcd"
+      iconProps={
+        Object {
+          "size": 12,
+          "then": true,
+        }
+      }
       onClick={[MockFunction]}
-    >
-      <ClearIcon
-        fill="#444"
-        size={12}
-        thin={true}
-      />
-    </ButtonIcon>
+    />
   </div>
   <div
     className="big-spacer-top note"

@@ -29,15 +29,15 @@ exports[`should render correctly an actionable legend 1`] = `
   >
     Foo
   </span>
-  <ButtonIcon
+  <ClearButton
     className="button-tiny spacer-left text-middle"
-    color="#999"
+    iconProps={
+      Object {
+        "size": 12,
+      }
+    }
     onClick={[Function]}
-  >
-    <ClearIcon
-      size={12}
-    />
-  </ButtonIcon>
+  />
 </span>
 `;
 

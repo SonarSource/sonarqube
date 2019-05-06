@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { collapsedDirFromPath, fileFromPath } from '../path';
+import { collapsedDirFromPath, cutLongWords, fileFromPath } from '../path';
 
 describe('#collapsedDirFromPath()', () => {
   it('should return null when pass null', () => {
@@ -64,5 +64,17 @@ describe('#fileFromPath()', () => {
 
   it('should return file name when pass file name without extension', () => {
     expect(fileFromPath('src/main/file')).toBe('file');
+  });
+});
+
+describe('#cutLongWords', () => {
+  it('should cut the long work in the middle', () => {
+    expect(cutLongWords('This is a reallylongwordthatdontexistforthe test')).toBe(
+      'This is a reallylongwordthatdontexistfor... test'
+    );
+  });
+
+  it('should not cut anything', () => {
+    expect(cutLongWords('This is a test')).toBe('This is a test');
   });
 });

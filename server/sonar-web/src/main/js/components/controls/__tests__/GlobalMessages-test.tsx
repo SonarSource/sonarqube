@@ -19,31 +19,32 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import WorkspaceNavItem, { Props } from '../WorkspaceNavItem';
-import { click } from '../../../helpers/testUtils';
+import GlobalMessages, { Props } from '../GlobalMessages';
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
+it('should not render when no message', () => {
+  expect(shallowRender({ messages: [] }).type()).toBeNull();
 });
 
-it('should close', () => {
-  const onClose = jest.fn();
-  const wrapper = shallowRender({ onClose });
-  click(wrapper.find('ClearButton'));
-  expect(onClose).toBeCalled();
+it('should render correctly with a message', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+  expect(
+    wrapper
+      .find('GlobalMessage')
+      .first()
+      .dive()
+  ).toMatchSnapshot();
 });
 
-it('should open', () => {
-  const onOpen = jest.fn();
-  const wrapper = shallowRender({ onOpen });
-  click(wrapper.find('.workspace-nav-item-link'));
-  expect(onOpen).toBeCalled();
-});
-
-function shallowRender(props?: Partial<Props>) {
+function shallowRender(props: Partial<Props> = {}) {
   return shallow(
-    <WorkspaceNavItem onClose={jest.fn()} onOpen={jest.fn()} {...props}>
-      <div id="workspace-nav-item" />
-    </WorkspaceNavItem>
+    <GlobalMessages
+      closeGlobalMessage={jest.fn()}
+      messages={[
+        { id: '1', level: 'ERROR', message: 'Test' },
+        { id: '2', level: 'ERROR', message: 'Test 2' }
+      ]}
+      {...props}
+    />
   );
 }

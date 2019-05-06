@@ -29,7 +29,7 @@ it('should render correctly', () => {
 it('should call onClose', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
-  click(wrapper.find('ButtonIcon'));
+  click(wrapper.find('ClearButton'));
   expect(onClose).toBeCalled();
 });
 

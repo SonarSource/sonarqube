@@ -13,14 +13,15 @@ exports[`should render 1`] = `
       id="workspace-nav-item"
     />
   </a>
-  <ButtonIcon
+  <ClearButton
     className="js-close workspace-nav-item-close workspace-header-icon button-small little-spacer-left"
     color="#fff"
+    iconProps={
+      Object {
+        "size": 12,
+      }
+    }
     onClick={[MockFunction]}
-  >
-    <ClearIcon
-      size={12}
-    />
-  </ButtonIcon>
+  />
 </li>
 `;

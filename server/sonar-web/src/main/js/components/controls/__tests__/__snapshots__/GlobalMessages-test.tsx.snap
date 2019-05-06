@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with a message 1`] = `
+<div
+  className="processes-container"
+>
+  <GlobalMessage
+    closeGlobalMessage={[MockFunction]}
+    key="1"
+    message={
+      Object {
+        "id": "1",
+        "level": "ERROR",
+        "message": "Test",
+      }
+    }
+  />
+  <GlobalMessage
+    closeGlobalMessage={[MockFunction]}
+    key="2"
+    message={
+      Object {
+        "id": "2",
+        "level": "ERROR",
+        "message": "Test 2",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly with a message 2`] = `
+<div
+  className="process-spinner shown process-spinner-failed"
+  key="1"
+>
+  Test
+  <ClearButton
+    className="button-small process-spinner-close"
+    color="#fff"
+    onClick={[Function]}
+  />
+</div>
+`;

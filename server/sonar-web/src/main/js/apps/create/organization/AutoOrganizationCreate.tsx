@@ -25,8 +25,7 @@ import OrganizationDetailsStep from './OrganizationDetailsStep';
 import PlanStep from './PlanStep';
 import { Step } from './utils';
 import { Alert } from '../../../components/ui/Alert';
-import { ButtonIcon } from '../../../components/ui/buttons';
-import ClearIcon from '../../../components/icons-components/ClearIcon';
+import { ClearButton } from '../../../components/ui/buttons';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { bindAlmOrganization } from '../../../api/alm-integration';
 import { sanitizeAlmId, getAlmMembersUrl, isGithub } from '../../../helpers/almIntegrations';
@@ -137,9 +136,7 @@ export default class AutoOrganizationCreate extends React.PureComponent<Props, S
                   name: <strong>{almOrganization.name}</strong>
                 }}
               />
-              <ButtonIcon className="little-spacer-left" onClick={this.props.handleCancelImport}>
-                <ClearIcon />
-              </ButtonIcon>
+              <ClearButton className="little-spacer-left" onClick={this.props.handleCancelImport} />
             </p>
 
             {hasUnboundOrgs && (

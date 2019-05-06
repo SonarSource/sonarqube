@@ -40,12 +40,10 @@ exports[`should render correctly 1`] = `
           }
         }
       />
-      <ButtonIcon
+      <ClearButton
         className="little-spacer-left"
         onClick={[MockFunction]}
-      >
-        <ClearIcon />
-      </ButtonIcon>
+      />
     </div>
     <OrganizationDetailsForm
       keyReadOnly={true}

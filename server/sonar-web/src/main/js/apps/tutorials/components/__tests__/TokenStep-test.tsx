@@ -28,8 +28,6 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: () => Promise.resolve()
 }));
 
-jest.mock('../../../../components/icons-components/ClearIcon');
-
 const currentUser = { login: 'user' };
 
 it('generates token', async () => {
