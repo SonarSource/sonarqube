@@ -23,6 +23,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableScheduledFuture;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -72,41 +73,77 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   }
 
   /**
-   * This method is stopping all the workers giving them a delay before killing them.
+   * This method is stopping all the workers and giving them a very large delay before killing them.
+   * <p>
+   * It supports being interrupted (eg. by a hard stop).
    */
-  @Override
-  public void stopScheduling() {
-    LOG.debug("Stopping compute engine");
-    // Requesting all workers to stop
-    for (ChainingCallback chainingCallback : chainingCallbacks) {
-      chainingCallback.stop(false);
+  public void gracefulStopScheduling() {
+    LOG.info("Gracefully stopping workers...");
+    requestAllWorkersToStop();
+    try {
+      waitForInProgressWorkersToFinish(gracefulStopTimeoutInMs);
+
+      if (ceWorkerController.hasAtLeastOneProcessingWorker()) {
+        LOG.info("Graceful stop period ended but some in-progress task did not finish. Tasks will be interrupted.");
+      }
+
+      interruptAllWorkers();
+    } catch (InterruptedException e) {
+      LOG.debug("Graceful stop was interrupted");
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * This method is stopping all the workers and hardly giving them a delay before killing them.
+   * <p>
+   * If interrupted, it will interrupt any worker still in-progress before returning.
+   */
+  public void hardStopScheduling() {
+    // nothing to do if graceful stop went through
+    if (Arrays.stream(chainingCallbacks).allMatch(ChainingCallback::isInterrupted)) {
+      return;
     }
 
-    // Workers have 40s to gracefully stop processing tasks
-    long until = System.currentTimeMillis() + gracefulStopTimeoutInMs;
-    LOG.info("Waiting for workers to finish in-progress tasks");
-    while (System.currentTimeMillis() < until && ceWorkerController.hasAtLeastOneProcessingWorker()) {
-      try {
-        Thread.sleep(200L);
-      } catch (InterruptedException e) {
-        LOG.debug("Graceful stop period has been interrupted: {}", e);
-        Thread.currentThread().interrupt();
-        break;
-      }
+    LOG.info("Hard stopping workers...");
+    requestAllWorkersToStop();
+    try {
+      waitForInProgressWorkersToFinish(350);
+    } catch (InterruptedException e) {
+      LOG.debug("Grace period of hard stop has been interrupted: {}", e);
+      Thread.currentThread().interrupt();
     }
 
     if (ceWorkerController.hasAtLeastOneProcessingWorker()) {
-      LOG.info("Some in-progress tasks did not finish in due time. Tasks will be stopped.");
+      LOG.info("Some in-progress tasks are getting killed.");
     }
 
     // Interrupting the tasks
-    for (ChainingCallback chainingCallback : chainingCallbacks) {
-      chainingCallback.stop(true);
+    interruptAllWorkers();
+  }
+
+  private void interruptAllWorkers() {
+    // Interrupting the tasks
+    Arrays.stream(chainingCallbacks).forEach(t -> t.stop(true));
+  }
+
+  private void waitForInProgressWorkersToFinish(long shutdownTimeoutInMs) throws InterruptedException {
+    // Workers have some time to complete their in progress tasks
+    long until = System.currentTimeMillis() + shutdownTimeoutInMs;
+    LOG.debug("Waiting for workers to finish in-progress tasks for at most {}ms", shutdownTimeoutInMs);
+    while (System.currentTimeMillis() < until && ceWorkerController.hasAtLeastOneProcessingWorker()) {
+      Thread.sleep(200L);
     }
+  }
+
+  private void requestAllWorkersToStop() {
+    // Requesting all workers to stop
+    Arrays.stream(chainingCallbacks).forEach(t -> t.stop(false));
   }
 
   private class ChainingCallback implements FutureCallback<CeWorker.Result> {
     private volatile boolean keepRunning = true;
+    private volatile boolean interrupted = false;
     private final CeWorker worker;
 
     @CheckForNull
@@ -170,8 +207,13 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     public void stop(boolean interrupt) {
       keepRunning = false;
       if (workerFuture != null) {
+        interrupted = true;
         workerFuture.cancel(interrupt);
       }
+    }
+
+    public boolean isInterrupted() {
+      return interrupted;
     }
   }
 }

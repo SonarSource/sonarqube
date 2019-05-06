@@ -164,6 +164,44 @@ public class CeProcessingSchedulerImplTest {
   }
 
   @Test
+  public void gracefulStopScheduling_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
+    when(ceWorker.call())
+      .thenReturn(NO_TASK)
+      .thenReturn(TASK_PROCESSED)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+
+    underTest.startScheduling();
+
+    int cancelledTaskFutureCount = 0;
+    int i = 0;
+    while (processingExecutorService.futures.peek() != null) {
+      Future<?> future = processingExecutorService.futures.poll();
+      if (future.isCancelled()) {
+        cancelledTaskFutureCount++;
+      } else {
+        future.get();
+      }
+      // call for graceful after second delayed polling
+      if (i == 1) {
+        underTest.gracefulStopScheduling();
+      }
+      i++;
+    }
+
+    assertThat(cancelledTaskFutureCount).isEqualTo(1);
+    assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
+      regularDelayedPoll,
+      regularDelayedPoll,
+      notDelayedPoll,
+      regularDelayedPoll);
+  }
+
+  @Test
   public void stopScheduling_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
     when(ceWorker.call())
       .thenReturn(NO_TASK)
@@ -188,7 +226,7 @@ public class CeProcessingSchedulerImplTest {
       }
       // call stop after second delayed polling
       if (i == 1) {
-        underTest.stopScheduling();
+        underTest.hardStopScheduling();
       }
       i++;
     }

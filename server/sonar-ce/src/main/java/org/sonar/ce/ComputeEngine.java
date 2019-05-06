@@ -30,6 +30,17 @@ public interface ComputeEngine {
   void startup();
 
   /**
+   * Terminates all CE workers and blocks until then.
+   *
+   * @throws IllegalStateException if {@link #startup()} has never been called
+   * @throws IllegalStateException if called after {@link #shutdown()}
+   * @throws IllegalStateException when called more than once
+   */
+  void stopProcessing();
+
+  /**
+   * Terminates all CE workers and stops the Compute Engine releasing all resources, and blocks until then.
+   *
    * @throws IllegalStateException if {@link #startup()} has never been called
    * @throws IllegalStateException when called more than once
    */

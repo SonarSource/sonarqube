@@ -20,7 +20,6 @@
 package org.sonar.ce.app;
 
 import com.google.common.base.MoreObjects;
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -64,7 +63,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void constructor_does_not_start_a_new_Thread() throws IOException {
+  public void constructor_does_not_start_a_new_Thread() {
     int activeCount = Thread.activeCount();
 
     newCeServer();
@@ -73,7 +72,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void start_starts_a_new_Thread() throws IOException {
+  public void start_starts_a_new_Thread() {
     int activeCount = Thread.activeCount();
 
     newCeServer().start();
@@ -82,7 +81,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void start_throws_ISE_when_called_twice() throws IOException {
+  public void start_throws_ISE_when_called_twice() {
     CeServer ceServer = newCeServer();
 
     ceServer.start();
@@ -94,7 +93,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void getStatus_throws_ISE_when_called_before_start() throws IOException {
+  public void getStatus_throws_ISE_when_called_before_start() {
     CeServer ceServer = newCeServer();
 
     expectedException.expect(IllegalStateException.class);
@@ -104,7 +103,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void getStatus_does_not_return_OPERATIONAL_until_ComputeEngine_startup_returns() throws IOException {
+  public void getStatus_does_not_return_OPERATIONAL_until_ComputeEngine_startup_returns() {
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(null);
     CeServer ceServer = newCeServer(computeEngine);
 
@@ -122,7 +121,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void getStatus_returns_OPERATIONAL_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws IOException {
+  public void getStatus_returns_OPERATIONAL_when_ComputeEngine_startup_throws_any_Exception_or_Error() {
     Throwable startupException = new Throwable("Faking failing ComputeEngine#startup()");
 
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(startupException);
@@ -142,7 +141,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_throws_ISE_if_called_before_start() throws IOException {
+  public void awaitStop_throws_ISE_if_called_before_start() {
     CeServer ceServer = newCeServer();
 
     expectedException.expect(IllegalStateException.class);
@@ -152,7 +151,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_throws_ISE_if_called_twice() throws IOException {
+  public void awaitStop_throws_ISE_if_called_twice() {
     final CeServer ceServer = newCeServer();
     ExceptionCatcherWaitingThread waitingThread1 = new ExceptionCatcherWaitingThread(ceServer);
     ExceptionCatcherWaitingThread waitingThread2 = new ExceptionCatcherWaitingThread(ceServer);
@@ -197,7 +196,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_unblocks_when_waiting_for_ComputeEngine_startup_fails() throws IOException {
+  public void awaitStop_unblocks_when_waiting_for_ComputeEngine_startup_fails() {
     CeServer ceServer = newCeServer(new ComputeEngine() {
       @Override
       public void startup() {
@@ -205,8 +204,13 @@ public class CeServerTest {
       }
 
       @Override
+      public void stopProcessing() {
+        throw new UnsupportedOperationException("stopProcessing() should never be called in this test");
+      }
+
+      @Override
       public void shutdown() {
-        throw new UnsupportedOperationException("shutdown() should never be called in this context");
+        throw new UnsupportedOperationException("shutdown() should never be called in this test");
       }
     });
 
@@ -216,11 +220,16 @@ public class CeServerTest {
   }
 
   @Test
-  public void stop_releases_thread_in_awaitStop_even_when_ComputeEngine_shutdown_fails() throws InterruptedException, IOException {
+  public void stop_releases_thread_in_awaitStop_even_when_ComputeEngine_shutdown_fails() throws InterruptedException {
     final CeServer ceServer = newCeServer(new ComputeEngine() {
       @Override
       public void startup() {
         // nothing to do at startup
+      }
+
+      @Override
+      public void stopProcessing() {
+        throw new UnsupportedOperationException("stopProcessing should not be called in this test");
       }
 
       @Override
@@ -238,7 +247,7 @@ public class CeServerTest {
     waitingThread.join();
   }
 
-  private CeServer newCeServer() throws IOException {
+  private CeServer newCeServer() {
     return newCeServer(DoNothingComputeEngine.INSTANCE);
   }
 
@@ -282,6 +291,11 @@ public class CeServerTest {
     }
 
     @Override
+    public void stopProcessing() {
+      // do nothing
+    }
+
+    @Override
     public void shutdown() {
       // do nothing
     }
@@ -320,6 +334,11 @@ public class CeServerTest {
 
     @Override
     public void startup() {
+      // do nothing
+    }
+
+    @Override
+    public void stopProcessing() {
       // do nothing
     }
 

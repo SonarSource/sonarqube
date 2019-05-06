@@ -45,6 +45,36 @@ public class ComputeEngineImplTest {
   }
 
   @Test
+  public void stopProcessing_throws_ISE_if_startup_was_not_called_before() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("stopProcessing() must not be called before startup()");
+
+    underTest.stopProcessing();
+  }
+
+  @Test
+  public void stopProcessing_throws_ISE_if_called_after_shutdown() {
+    underTest.startup();
+    underTest.shutdown();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("stopProcessing() can not be called after shutdown()");
+
+    underTest.stopProcessing();
+  }
+
+  @Test
+  public void stopProcessing_throws_ISE_if_called_twice() {
+    underTest.startup();
+    underTest.stopProcessing();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("stopProcessing() can not be called multiple times");
+
+    underTest.stopProcessing();
+  }
+
+  @Test
   public void shutdown_throws_ISE_if_startup_was_not_called_before() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("shutdown() must not be called before startup()");
@@ -70,6 +100,11 @@ public class ComputeEngineImplTest {
 
     @Override
     public ComputeEngineContainer start(Props props) {
+      return this;
+    }
+
+    @Override
+    public ComputeEngineContainer stopWorkers() {
       return this;
     }
 

@@ -23,5 +23,7 @@ public interface CeProcessingScheduler {
 
   void startScheduling();
 
-  void stopScheduling();
+  void gracefulStopScheduling();
+
+  void hardStopScheduling();
 }

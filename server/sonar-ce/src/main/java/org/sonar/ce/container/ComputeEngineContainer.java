@@ -26,5 +26,7 @@ public interface ComputeEngineContainer {
 
   ComputeEngineContainer start(Props props);
 
+  ComputeEngineContainer stopWorkers();
+
   ComputeEngineContainer stop();
 }

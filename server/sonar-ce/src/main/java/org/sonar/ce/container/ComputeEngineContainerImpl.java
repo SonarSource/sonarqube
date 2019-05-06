@@ -250,11 +250,21 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   @Override
-  public ComputeEngineContainer stop() {
+  public ComputeEngineContainer stopWorkers() {
     if (level4 != null) {
       // try to graceful stop in-progress tasks
       CeProcessingScheduler ceProcessingScheduler = level4.getComponentByType(CeProcessingScheduler.class);
-      ceProcessingScheduler.stopScheduling();
+      ceProcessingScheduler.gracefulStopScheduling();
+    }
+    return this;
+  }
+
+  @Override
+  public ComputeEngineContainer stop() {
+    if (level4 != null) {
+      // try to graceful but quick stop in-progress tasks
+      CeProcessingScheduler ceProcessingScheduler = level4.getComponentByType(CeProcessingScheduler.class);
+      ceProcessingScheduler.hardStopScheduling();
     }
     this.level1.stopComponents();
     return this;

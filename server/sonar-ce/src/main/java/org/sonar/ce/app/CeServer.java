@@ -106,7 +106,7 @@ public class CeServer implements Monitored {
 
   @Override
   public void stop() {
-    // FIXME MMF-1673 implement graceful stop in CE: eg. call computeEngine.stopProcessing();
+    computeEngine.stopProcessing();
     hardStop();
   }
 
