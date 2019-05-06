@@ -118,6 +118,8 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
           return QGChangeEventListener.Status.CONFIRMED;
         case Issue.STATUS_REOPENED:
           return QGChangeEventListener.Status.REOPENED;
+        case Issue.STATUS_TO_REVIEW:
+          return QGChangeEventListener.Status.TO_REVIEW;
         case Issue.STATUS_RESOLVED:
           return statusOfResolved(issue);
         default:

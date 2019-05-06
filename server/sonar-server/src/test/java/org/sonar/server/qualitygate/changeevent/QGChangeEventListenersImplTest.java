@@ -284,6 +284,12 @@ public class QGChangeEventListenersImplTest {
     }
   }
 
+  @Test
+  public void test_status_mapping_on_security_hotspots() {
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW)))
+      .isEqualTo(QGChangeEventListener.Status.TO_REVIEW);
+  }
+
   private void verifyListenerCalled(QGChangeEventListener listener, QGChangeEvent changeEvent, DefaultIssue... issues) {
     ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
     verify(listener).onIssueChanges(same(changeEvent), changedIssuesCaptor.capture());

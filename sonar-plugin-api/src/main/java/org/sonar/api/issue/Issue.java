@@ -76,6 +76,11 @@ public interface Issue extends Serializable {
   List<String> RESOLUTIONS = asList(RESOLUTION_FALSE_POSITIVE, RESOLUTION_WONT_FIX, RESOLUTION_FIXED, RESOLUTION_REMOVED);
 
   /**
+   * @since 7.8
+   */
+  String STATUS_TO_REVIEW = "TOREVIEW";
+
+  /**
    * Return all available statuses
    *
    * @since 4.4

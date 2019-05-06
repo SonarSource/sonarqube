@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -53,6 +52,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
@@ -111,7 +111,8 @@ public class IssueLifecycleTest {
     assertThat(issue.key()).isNotNull();
     assertThat(issue.creationDate()).isNotNull();
     assertThat(issue.updateDate()).isNotNull();
-    assertThat(issue.status()).isEqualTo(STATUS_OPEN);
+    assertThat(issue.status()).isEqualTo(STATUS_TO_REVIEW);
+    assertThat(issue.resolution()).isNull();
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
@@ -419,7 +420,7 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void mergeExistingOpenIssue_vulnerability_changed_to_hotspot_should_reopen() {
+  public void mergeExistingOpenIssue_vulnerability_changed_to_hotspot_should_be_to_review() {
     rule.setType(RuleType.SECURITY_HOTSPOT);
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
@@ -473,7 +474,7 @@ public class IssueLifecycleTest {
     assertThat(raw.isChanged()).isTrue();
 
     verify(updater).setType(raw, RuleType.SECURITY_HOTSPOT, issueChangeContext);
-    verify(updater).setStatus(raw, Issue.STATUS_REOPENED, issueChangeContext);
+    verify(updater).setStatus(raw, STATUS_TO_REVIEW, issueChangeContext);
     verify(updater).setResolution(raw, null, issueChangeContext);
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);

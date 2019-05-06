@@ -55,7 +55,8 @@ public interface QGChangeEventListener {
     REOPENED,
     RESOLVED_FP,
     RESOLVED_WF,
-    RESOLVED_FIXED;
+    RESOLVED_FIXED,
+    TO_REVIEW;
 
     protected static final Set<Status> CLOSED_STATUSES = EnumSet.of(CONFIRMED, RESOLVED_FIXED, RESOLVED_FP, RESOLVED_WF);
   }
