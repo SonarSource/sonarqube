@@ -33,19 +33,20 @@ import org.sonar.db.measure.LiveMeasureDto;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static java.util.function.Function.identity;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 class SearchMyProjectsData {
   private final List<ComponentDto> projects;
   private final ListMultimap<String, ProjectLinkDto> projectLinksByProjectUuid;
-  private final Map<String, String> lastAnalysisDates;
+  private final Map<String, SnapshotDto> snapshotsByComponentUuid;
   private final Map<String, String> qualityGateStatuses;
   private final int totalNbOfProject;
 
   private SearchMyProjectsData(Builder builder) {
     this.projects = copyOf(builder.projects);
     this.projectLinksByProjectUuid = buildProjectLinks(builder.projectLinks);
-    this.lastAnalysisDates = buildAnalysisDates(builder.snapshots);
+    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, identity()));
     this.qualityGateStatuses = buildQualityGateStatuses(builder.qualityGates);
     this.totalNbOfProject = builder.totalNbOfProjects;
   }
@@ -62,8 +63,8 @@ class SearchMyProjectsData {
     return projectLinksByProjectUuid.get(projectUuid);
   }
 
-  Optional<String> lastAnalysisDateFor(String componentUuid) {
-    return Optional.ofNullable(lastAnalysisDates.get(componentUuid));
+  Optional<SnapshotDto> lastSnapshot(String componentUuid) {
+    return Optional.ofNullable(snapshotsByComponentUuid.get(componentUuid));
   }
 
   Optional<String> qualityGateStatusFor(String componentUuid) {
@@ -78,12 +79,6 @@ class SearchMyProjectsData {
     ImmutableListMultimap.Builder<String, ProjectLinkDto> projectLinks = ImmutableListMultimap.builder();
     dtos.forEach(projectLink -> projectLinks.put(projectLink.getProjectUuid(), projectLink));
     return projectLinks.build();
-  }
-
-  private static Map<String, String> buildAnalysisDates(List<SnapshotDto> snapshots) {
-    return ImmutableMap.copyOf(snapshots.stream().collect(Collectors.toMap(
-      SnapshotDto::getComponentUuid,
-      snapshot -> formatDateTime(snapshot.getCreatedAt()))));
   }
 
   private static Map<String, String> buildQualityGateStatuses(List<LiveMeasureDto> measures) {

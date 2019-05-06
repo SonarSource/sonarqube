@@ -22,6 +22,7 @@ package org.sonar.server.project.ws;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -45,6 +46,7 @@ import org.sonarqube.ws.Projects.SearchWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static java.util.function.Function.identity;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -179,10 +181,11 @@ public class SearchAction implements ProjectsWsAction {
       ComponentQuery query = buildDbQuery(request);
       Paging paging = buildPaging(dbSession, request, organization, query);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
-      Map<String, Long> analysisDateByComponentUuid = dbClient.snapshotDao()
-        .selectLastAnalysesByRootComponentUuids(dbSession, components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList())).stream()
-        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid, SnapshotDto::getCreatedAt));
-      return buildResponse(components, organization, analysisDateByComponentUuid, paging);
+      Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(MoreCollectors.toHashSet(components.size()));
+      Map<String, SnapshotDto> snapshotsByComponentUuid = dbClient.snapshotDao()
+        .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
+        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid, identity()));
+      return buildResponse(components, organization, snapshotsByComponentUuid, paging);
     }
   }
 
@@ -211,7 +214,7 @@ public class SearchAction implements ProjectsWsAction {
       .andTotal(total);
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, Long> analysisDateByComponentUuid, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, SnapshotDto> snapshotsByComponentUuid, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -220,12 +223,12 @@ public class SearchAction implements ProjectsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToProject(organization, dto, analysisDateByComponentUuid.get(dto.uuid())))
+      .map(dto -> dtoToProject(organization, dto, snapshotsByComponentUuid.get(dto.uuid())))
       .forEach(responseBuilder::addComponents);
     return responseBuilder.build();
   }
 
-  private static Component dtoToProject(OrganizationDto organization, ComponentDto dto, @Nullable Long analysisDate) {
+  private static Component dtoToProject(OrganizationDto organization, ComponentDto dto, @Nullable SnapshotDto snapshot) {
     checkArgument(
       organization.getUuid().equals(dto.getOrganizationUuid()),
       "No Organization found for uuid '%s'",
@@ -238,7 +241,11 @@ public class SearchAction implements ProjectsWsAction {
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
-    ofNullable(analysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
+    if (snapshot != null) {
+      // FIXME created_at should not be nullable
+      ofNullable(snapshot.getCreatedAt()).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
+      ofNullable(snapshot.getRevision()).ifPresent(builder::setRevision);
+    }
 
     return builder.build();
   }

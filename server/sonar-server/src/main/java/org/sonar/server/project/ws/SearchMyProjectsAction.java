@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -52,6 +51,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.project.ws.SearchMyProjectsData.builder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -137,7 +137,10 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
         .setId(dto.uuid())
         .setKey(dto.getDbKey())
         .setName(dto.name());
-      data.lastAnalysisDateFor(dto.uuid()).ifPresent(project::setLastAnalysisDate);
+      data.lastSnapshot(dto.uuid()).ifPresent(s -> {
+        project.setLastAnalysisDate(formatDateTime(s.getCreatedAt()));
+        ofNullable(s.getRevision()).ifPresent(project::setRevision);
+      });
       data.qualityGateStatusFor(dto.uuid()).ifPresent(project::setQualityGate);
       ofNullable(emptyToNull(dto.description())).ifPresent(project::setDescription);
 
@@ -168,7 +171,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     }
   }
 
-  SearchMyProjectsData load(DbSession dbSession, SearchMyProjectsRequest request) {
+  private SearchMyProjectsData load(DbSession dbSession, SearchMyProjectsRequest request) {
     SearchMyProjectsData.Builder data = builder();
     ProjectsResult searchResult = searchProjects(dbSession, request);
     List<ComponentDto> projects = searchResult.projects;
@@ -187,8 +190,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     return data.build();
   }
 
-  @VisibleForTesting
-  ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
+  private ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
     int userId = requireNonNull(userSession.getUserId(), "Current user must be authenticated");
 
     List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);

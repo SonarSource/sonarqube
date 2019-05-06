@@ -35,6 +35,7 @@ message SearchMyProjectsWsResponse {
     optional string lastAnalysisDate = 6;
     optional string qualityGate = 7;
     repeated Link links = 8;
+    optional string revision = 9;
   }
 
   message Link {
@@ -71,6 +72,7 @@ message SearchWsResponse {
     optional string qualifier = 5;
     optional string visibility = 6;
     optional string lastAnalysisDate = 7;
+    optional string revision = 8;
   }
 }
 

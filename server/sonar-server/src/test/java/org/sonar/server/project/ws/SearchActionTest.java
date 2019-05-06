@@ -413,8 +413,12 @@ public class SearchActionTest {
     db.components().insertComponents(
       publicProject,
       privateProject);
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject).setCreatedAt(parseDateTime("2017-03-01T11:39:03+0300").getTime()));
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(privateProject).setCreatedAt(parseDateTime("2017-03-02T15:21:47+0300").getTime()));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject)
+      .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0300").getTime())
+      .setRevision("cfb82f55c6ef32e61828c4cb3db2da12795fd767"));
+    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(privateProject)
+      .setCreatedAt(parseDateTime("2017-03-02T15:21:47+0300").getTime())
+      .setRevision("7be96a94ac0c95a61ee6ee0ef9c6f808d386a355"));
     db.commit();
 
     String response = ws.newRequest()
