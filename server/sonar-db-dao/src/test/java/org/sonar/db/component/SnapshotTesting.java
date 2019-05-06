@@ -35,6 +35,7 @@ public class SnapshotTesting {
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
       .setBuildDate(System.currentTimeMillis())
+      .setRevision(randomAlphanumeric(50))
       .setLast(true);
   }
 

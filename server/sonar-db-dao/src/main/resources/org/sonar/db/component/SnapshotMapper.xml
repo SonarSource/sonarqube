@@ -14,7 +14,8 @@
     s.build_string as buildString,
     s.period1_mode as periodMode,
     s.period1_param as periodParam,
-    s.period1_date as periodDate
+    s.period1_date as periodDate,
+    s.revision as revision
   </sql>
 
   <sql id="viewsSnapshotColumns">
@@ -168,7 +169,8 @@
       build_string,
       period1_mode,
       period1_param,
-      period1_date
+      period1_date,
+      revision
     )
     values (
       #{uuid, jdbcType=VARCHAR},
@@ -181,7 +183,8 @@
       #{buildString, jdbcType=VARCHAR},
       #{periodMode, jdbcType=VARCHAR},
       #{periodParam, jdbcType=VARCHAR},
-      #{periodDate, jdbcType=BIGINT}
+      #{periodDate, jdbcType=BIGINT},
+      #{revision, jdbcType=VARCHAR}
     )
   </insert>
 </mapper>

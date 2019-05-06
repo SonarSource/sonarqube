@@ -50,6 +50,12 @@ public final class SnapshotDto {
   private String periodParam;
   private Long periodDate;
 
+  /**
+   * SCM revision is provided by scanner and is optional.
+   */
+  @Nullable
+  private String revision;
+
   public Long getId() {
     return id;
   }
@@ -187,6 +193,17 @@ public final class SnapshotDto {
    */
   public Long getCreatedAt() {
     return createdAt;
+  }
+
+  @Nullable
+  public String getRevision() {
+    return revision;
+  }
+
+  public SnapshotDto setRevision(@Nullable String revision) {
+    checkLength(100, revision, "revision");
+    this.revision = revision;
+    return this;
   }
 
   @Override

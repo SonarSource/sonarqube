@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -48,7 +47,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
@@ -86,7 +84,8 @@ public class SnapshotDaoTest {
       .setProjectVersion("2.1.0")
       .setBuildString("2.1.0.2336")
       .setBuildDate(1500000000006L)
-      .setCreatedAt(1403042400000L));
+      .setCreatedAt(1403042400000L)
+      .setRevision("sha1"));
 
     SnapshotDto result = underTest.selectByUuid(db.getSession(), "ABCD").get();
     assertThat(result.getId()).isNotNull();
@@ -101,6 +100,7 @@ public class SnapshotDaoTest {
     assertThat(result.getPeriodDate()).isEqualTo(1500000000001L);
     assertThat(result.getBuildDate()).isEqualTo(1500000000006L);
     assertThat(result.getCreatedAt()).isEqualTo(1403042400000L);
+    assertThat(result.getRevision()).isEqualTo("sha1");
 
     assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
   }
