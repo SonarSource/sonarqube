@@ -56,6 +56,7 @@ import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.plugin.PluginDao;
+import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
@@ -96,6 +97,7 @@ public class DbClient {
   private final PropertiesDao propertiesDao;
   private final AlmAppInstallDao almAppInstallDao;
   private final ProjectAlmBindingDao projectAlmBindingDao;
+  private final InternalComponentPropertiesDao internalComponentPropertiesDao;
   private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
   private final ComponentDao componentDao;
@@ -218,6 +220,7 @@ public class DbClient {
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
     projectMappingsDao = getDao(map, ProjectMappingsDao.class);
     organizationAlmBindingDao = getDao(map, OrganizationAlmBindingDao.class);
+    internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -476,5 +479,9 @@ public class DbClient {
 
   public OrganizationAlmBindingDao organizationAlmBindingDao() {
     return organizationAlmBindingDao;
+  }
+
+  public InternalComponentPropertiesDao internalComponentPropertiesDao() {
+    return internalComponentPropertiesDao;
   }
 }

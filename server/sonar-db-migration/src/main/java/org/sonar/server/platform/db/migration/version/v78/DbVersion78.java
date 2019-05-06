@@ -30,6 +30,7 @@ public class DbVersion78 implements DbVersion {
       .add(2700, "Drop overall subscriptions on notifications about new and resolved issues", DeleteOverallSubscriptionsOnNewAndResolvedIssuesNotifications.class)
       .add(2701, "Add index to org_qprofile.parent_uuid", AddIndexToOrgQProfileParentUuid.class)
       .add(2702, "Add column webhooks.secret", AddWebhooksSecret.class)
-      .add(2703, "Add security fields to Elasticsearch indices", AddSecurityFieldsToElasticsearchIndices.class);
+      .add(2703, "Add security fields to Elasticsearch indices", AddSecurityFieldsToElasticsearchIndices.class)
+      .add(2704, "Add InternalComponentProperties table", CreateInternalComponentPropertiesTable.class);
   }
 }

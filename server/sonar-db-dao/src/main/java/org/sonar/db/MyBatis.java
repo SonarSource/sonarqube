@@ -99,6 +99,8 @@ import org.sonar.db.permission.template.PermissionTemplateMapper;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginMapper;
+import org.sonar.db.property.InternalComponentPropertiesMapper;
+import org.sonar.db.property.InternalComponentPropertyDto;
 import org.sonar.db.property.InternalPropertiesMapper;
 import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
@@ -180,6 +182,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("GroupPermission", GroupPermissionDto.class);
     confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
+    confBuilder.loadAlias("InternalComponentProperty", InternalComponentPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
@@ -241,6 +244,7 @@ public class MyBatis implements Startable {
       GroupMapper.class,
       GroupMembershipMapper.class,
       GroupPermissionMapper.class,
+      InternalComponentPropertiesMapper.class,
       InternalPropertiesMapper.class,
       IsAliveMapper.class,
       IssueChangeMapper.class,
