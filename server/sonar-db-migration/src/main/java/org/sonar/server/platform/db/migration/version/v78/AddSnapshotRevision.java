@@ -19,23 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v78;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.SupportsBlueGreen;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class DbVersion78Test {
-  private DbVersion underTest = new DbVersion78();
+@SupportsBlueGreen
+public class AddSnapshotRevision extends DdlChange {
 
-  @Test
-  public void migrationNumber_starts_at_2700() {
-    verifyMinimumMigrationNumber(underTest, 2700);
+  public AddSnapshotRevision(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "snapshots")
+      .addColumn(newVarcharColumnDefBuilder()
+        .setColumnName("revision")
+        .setIsNullable(true)
+        .setLimit(100)
+        .build())
+      .build());
   }
-
 }

@@ -32,6 +32,7 @@ public class DbVersion78 implements DbVersion {
       .add(2702, "Add column webhooks.secret", AddWebhooksSecret.class)
       .add(2703, "Add security fields to Elasticsearch indices", AddSecurityFieldsToElasticsearchIndices.class)
       .add(2704, "Add InternalComponentProperties table", CreateInternalComponentPropertiesTable.class)
+      .add(2705, "Add column snapshots.revision", AddSnapshotRevision.class)
       .add(2707, "Update statuses of Security Hotspots", UpdateSecurityHotspotsStatuses.class);
   }
 }
