@@ -71,6 +71,12 @@ public class WebServer implements Monitored {
   }
 
   @Override
+  public void stop() {
+    // hard stop is as graceful as stop for the WebServer
+    hardStop();
+  }
+
+  @Override
   public void hardStop() {
     tomcat.terminate();
   }

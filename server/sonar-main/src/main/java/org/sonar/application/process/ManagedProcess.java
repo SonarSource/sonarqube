@@ -67,6 +67,8 @@ public interface ManagedProcess {
    */
   boolean isOperational();
 
+  void askForStop();
+
   /**
    * Send request to quick stop to the process
    */
@@ -84,5 +86,4 @@ public interface ManagedProcess {
    * Child process will typically stop sending the signal requesting restart from now on.
    */
   void acknowledgeAskForRestart();
-
 }

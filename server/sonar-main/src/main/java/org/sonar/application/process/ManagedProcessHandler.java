@@ -40,6 +40,7 @@ public class ManagedProcessHandler {
   private final ProcessId processId;
   private final ManagedProcessLifecycle lifecycle;
   private final List<ManagedProcessEventListener> eventListeners;
+  private final Timeout stopTimeout;
   private final Timeout hardStopTimeout;
   private final long watcherDelayMs;
 
@@ -56,6 +57,7 @@ public class ManagedProcessHandler {
     this.processId = requireNonNull(builder.processId, "processId can't be null");
     this.lifecycle = new ManagedProcessLifecycle(this.processId, builder.lifecycleListeners);
     this.eventListeners = builder.eventListeners;
+    this.stopTimeout = builder.stopTimeout;
     this.hardStopTimeout = builder.hardStopTimeout;
     this.watcherDelayMs = builder.watcherDelayMs;
     this.stopWatcher = new StopWatcher();
@@ -94,6 +96,20 @@ public class ManagedProcessHandler {
     return lifecycle.getState();
   }
 
+  public void stop() throws InterruptedException {
+    if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING)) {
+      stopImpl();
+      if (process != null && process.isAlive()) {
+        LOG.info("{} failed to stop in a graceful fashion. Hard stopping it.", processId.getKey());
+      }
+      // enforce stop and clean-up even if process has been quickly stopped
+      stopForcibly();
+    } else {
+      // already stopping or stopped
+      waitForDown();
+    }
+  }
+
   /**
    * Sends kill signal and awaits termination. No guarantee that process is gracefully terminated (=shutdown hooks
    * executed). It depends on OS.
@@ -123,6 +139,21 @@ public class ManagedProcessHandler {
     }
   }
 
+  private void stopImpl() throws InterruptedException {
+    if (process == null) {
+      return;
+    }
+    try {
+      process.askForStop();
+      process.waitFor(stopTimeout.getDuration(), stopTimeout.getUnit());
+    } catch (InterruptedException e) {
+      // can't wait for the termination of process. Let's assume it's down.
+      throw rethrowWithWarn(e, format("Interrupted while stopping process %s", processId));
+    } catch (Throwable e) {
+      LOG.error("Failed asking for graceful stop of process {}", processId, e);
+    }
+  }
+
   private void hardStopImpl() throws InterruptedException {
     if (process == null) {
       return;
@@ -132,13 +163,16 @@ public class ManagedProcessHandler {
       process.waitFor(hardStopTimeout.getDuration(), hardStopTimeout.getUnit());
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
-      String errorMessage = format("Interrupted while hard stopping process %s", processId);
-      LOG.warn(errorMessage, e);
-      Thread.currentThread().interrupt();
-      throw new InterruptedException(errorMessage);
+      throw rethrowWithWarn(e, format("Interrupted while hard stopping process %s", processId));
     } catch (Throwable e) {
       LOG.error("Failed while asking for hard stop of process {}", processId, e);
     }
+  }
+
+  private static InterruptedException rethrowWithWarn(InterruptedException e, String errorMessage) {
+    LOG.warn(errorMessage, e);
+    Thread.currentThread().interrupt();
+    return new InterruptedException(errorMessage);
   }
 
   public void stopForcibly() {
@@ -242,7 +276,8 @@ public class ManagedProcessHandler {
     private final List<ManagedProcessEventListener> eventListeners = new ArrayList<>();
     private final List<ProcessLifecycleListener> lifecycleListeners = new ArrayList<>();
     private long watcherDelayMs = DEFAULT_WATCHER_DELAY_MS;
-    private Timeout hardStopTimeout = new Timeout(1, TimeUnit.MINUTES);
+    private Timeout stopTimeout;
+    private Timeout hardStopTimeout;
 
     private Builder(ProcessId processId) {
       this.processId = processId;
@@ -266,12 +301,27 @@ public class ManagedProcessHandler {
       return this;
     }
 
-    public Builder setHardStopTimeout(Timeout hardStopTimeout) {
-      this.hardStopTimeout = requireNonNull(hardStopTimeout, "hardStopTimeout can't be null");
+    public Builder setStopTimeout(Timeout stopTimeout) {
+      this.stopTimeout = ensureStopTimeoutNonNull(stopTimeout);
       return this;
     }
 
+    public Builder setHardStopTimeout(Timeout hardStopTimeout) {
+      this.hardStopTimeout = ensureHardStopTimeoutNonNull(hardStopTimeout);
+      return this;
+    }
+
+    private static Timeout ensureStopTimeoutNonNull(Timeout stopTimeout) {
+      return requireNonNull(stopTimeout, "stopTimeout can't be null");
+    }
+
+    private static Timeout ensureHardStopTimeoutNonNull(Timeout hardStopTimeout) {
+      return requireNonNull(hardStopTimeout, "hardStopTimeout can't be null");
+    }
+
     public ManagedProcessHandler build() {
+      ensureStopTimeoutNonNull(this.stopTimeout);
+      ensureHardStopTimeoutNonNull(this.hardStopTimeout);
       return new ManagedProcessHandler(this);
     }
   }

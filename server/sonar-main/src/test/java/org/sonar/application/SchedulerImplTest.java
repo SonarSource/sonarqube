@@ -127,6 +127,44 @@ public class SchedulerImplTest {
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
 
     // processes are stopped in reverse order of startup
+    underTest.stop();
+    assertThat(orderedStops).containsExactly(COMPUTE_ENGINE, WEB_SERVER, ELASTICSEARCH);
+    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
+
+    // does nothing because scheduler is already terminated
+    underTest.awaitTermination();
+  }
+
+  @Test
+  public void start_and_hard_stop_sequence_of_ES_WEB_CE_in_order() throws Exception {
+    SchedulerImpl underTest = newScheduler(false);
+    underTest.schedule();
+
+    // elasticsearch does not have preconditions to start
+    TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
+    assertThat(es.isAlive()).isTrue();
+    assertThat(processLauncher.processes).hasSize(1);
+
+    // elasticsearch becomes operational -> web leader is starting
+    es.operational = true;
+    waitForAppStateOperational(appState, ELASTICSEARCH);
+    TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
+    assertThat(web.isAlive()).isTrue();
+    assertThat(processLauncher.processes).hasSize(2);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
+
+    // web becomes operational -> CE is starting
+    web.operational = true;
+    waitForAppStateOperational(appState, WEB_SERVER);
+    TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
+    assertThat(ce.isAlive()).isTrue();
+    assertThat(processLauncher.processes).hasSize(3);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
+
+    // all processes are up
+    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
+
+    // processes are stopped in reverse order of startup
     underTest.hardStop();
     assertThat(orderedStops).containsExactly(COMPUTE_ENGINE, WEB_SERVER, ELASTICSEARCH);
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
@@ -353,7 +391,7 @@ public class SchedulerImplTest {
     private ManagedProcess launchImpl(AbstractCommand<?> javaCommand) {
       commands.add(javaCommand);
       if (makeStartupFail == javaCommand.getProcessId()) {
-        throw new IllegalStateException("cannot start " + javaCommand.getProcessId());
+        throw new IllegalStateException("Faking startup of java command failing for " + javaCommand.getProcessId());
       }
       TestManagedProcess process = new TestManagedProcess(javaCommand.getProcessId());
       processes.put(javaCommand.getProcessId(), process);
@@ -402,6 +440,7 @@ public class SchedulerImplTest {
     private final ProcessId processId;
     private final CountDownLatch alive = new CountDownLatch(1);
     private boolean operational = false;
+    private boolean askedForStop = false;
     private boolean askedForRestart = false;
 
     private TestManagedProcess(ProcessId processId) {
@@ -425,6 +464,12 @@ public class SchedulerImplTest {
     @Override
     public boolean isAlive() {
       return alive.getCount() == 1;
+    }
+
+    @Override
+    public void askForStop() {
+      this.askedForStop = true;
+      destroyForcibly();
     }
 
     @Override

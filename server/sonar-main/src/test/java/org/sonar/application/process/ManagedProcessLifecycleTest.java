@@ -32,6 +32,7 @@ import static org.sonar.application.process.ManagedProcessLifecycle.State.INIT;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTED;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTING;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.HARD_STOPPING;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STOPPING;
 
 public class ManagedProcessLifecycleTest {
 
@@ -65,11 +66,11 @@ public class ManagedProcessLifecycleTest {
   }
 
   @Test
-  public void can_move_to_STOPPING_from_STARTING_STARTED_only() {
+  public void can_move_to_STOPPING_from_STARTING_STARTED_and_STOPPING_only() {
     for (ManagedProcessLifecycle.State state : ManagedProcessLifecycle.State.values()) {
       TestLifeCycleListener listener = new TestLifeCycleListener();
       boolean tryToMoveTo = newLifeCycle(state, listener).tryToMoveTo(HARD_STOPPING);
-      if (state == STARTING || state == STARTED) {
+      if (state == STARTING || state == STARTED || state == STOPPING) {
         assertThat(tryToMoveTo).as("from state " + state).isTrue();
         assertThat(listener.states).containsOnly(HARD_STOPPING);
       } else {

@@ -47,6 +47,11 @@ public interface Monitored {
   void awaitStop();
 
   /**
+   * Ask process to gracefully stop and wait until then.
+   */
+  void stop();
+
+  /**
    * Ask process to quickly stop and wait until then.
    */
   void hardStop();

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
@@ -38,11 +39,16 @@ import org.sonar.application.process.ManagedProcessLifecycle;
 import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.process.ProcessId;
 
+import static org.sonar.application.NodeLifecycle.State.HARD_STOPPING;
+import static org.sonar.application.NodeLifecycle.State.RESTARTING;
+import static org.sonar.application.NodeLifecycle.State.STOPPED;
+import static org.sonar.application.NodeLifecycle.State.STOPPING;
 import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
 
 public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerImpl.class);
+  private static final ManagedProcessHandler.Timeout HARD_STOP_TIMEOUT = newTimeout(1, TimeUnit.MINUTES);
 
   private final AppSettings settings;
   private final AppReloader appReloader;
@@ -56,6 +62,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private final EnumMap<ProcessId, ManagedProcessHandler> processesById = new EnumMap<>(ProcessId.class);
   private final AtomicInteger operationalCountDown = new AtomicInteger();
   private final AtomicInteger stopCountDown = new AtomicInteger(0);
+  private RestartStopperThread restartStopperThread;
   private HardStopperThread hardStopperThread;
   private RestarterThread restarterThread;
   private long processWatcherDelayMs = ManagedProcessHandler.DEFAULT_WATCHER_DELAY_MS;
@@ -87,14 +94,29 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         .addProcessLifecycleListener(this)
         .addEventListener(this)
         .setWatcherDelayMs(processWatcherDelayMs)
-        // FIXME MMF-1673 timeout here must be changed to sonar.ce.task.timeout + 5 minutes if CE
-        .setHardStopTimeout(newTimeout(1, TimeUnit.MINUTES))
+        .setStopTimeout(stopTimeoutFor(processId))
+        .setHardStopTimeout(HARD_STOP_TIMEOUT)
         .build();
       processesById.put(process.getProcessId(), process);
     }
     operationalCountDown.set(processesById.size());
 
     tryToStartAll();
+  }
+
+  private static ManagedProcessHandler.Timeout stopTimeoutFor(ProcessId processId) {
+    switch (processId) {
+      case ELASTICSEARCH:
+        return HARD_STOP_TIMEOUT;
+      case WEB_SERVER:
+        return newTimeout(10, TimeUnit.MINUTES);
+      case COMPUTE_ENGINE:
+        // FIXME MMF-1673 make compute engine timeout configurable for ITs
+        return newTimeout(6, TimeUnit.HOURS);
+      case APP:
+      default:
+        throw new IllegalArgumentException("Unsupported processId " + processId);
+    }
   }
 
   private void tryToStartAll() throws InterruptedException {
@@ -155,9 +177,9 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
     try {
       processHandler.start(() -> {
-      AbstractCommand command = commandSupplier.get();
-      return processLauncher.launch(command);
-    });
+        AbstractCommand command = commandSupplier.get();
+        return processLauncher.launch(command);
+      });
     } catch (RuntimeException e) {
       // failed to start command -> stop everything
       hardStop();
@@ -165,15 +187,101 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     }
   }
 
+  @Override
+  public void stop() {
+    if (nodeLifecycle.tryToMoveTo(STOPPING)) {
+      LOG.info("Stopping SonarQube");
+    }
+    stopImpl();
+  }
+
+  private void stopImpl() {
+    try {
+      stopAll();
+      finalizeStop();
+    } catch (InterruptedException e) {
+      LOG.debug("Stop interrupted", e);
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private void stopAll() throws InterruptedException {
+    // order is important for non-cluster mode
+    stopProcess(ProcessId.COMPUTE_ENGINE);
+    stopProcess(ProcessId.WEB_SERVER);
+    stopProcess(ProcessId.ELASTICSEARCH);
+  }
+
+  /**
+   * Request for graceful stop then blocks until process is stopped.
+   * Returns immediately if the process is disabled in configuration.
+   *
+   * @throws InterruptedException if {@link ManagedProcessHandler#hardStop()} throws a {@link InterruptedException}
+   */
+  private void stopProcess(ProcessId processId) throws InterruptedException {
+    ManagedProcessHandler process = processesById.get(processId);
+    if (process != null) {
+      LOG.debug("Stopping [{}]...", process.getProcessId().getKey());
+      process.stop();
+    }
+  }
+
+  /**
+   * Blocks until all processes are quickly stopped. Pending restart, if any, is disabled.
+   */
+  @Override
+  public void hardStop() {
+    if (nodeLifecycle.tryToMoveTo(HARD_STOPPING)) {
+      LOG.info("Hard stopping SonarQube");
+    }
+    hardStopImpl();
+  }
+
+  private void hardStopImpl() {
+    try {
+      hardStopAll();
+      finalizeStop();
+    } catch (InterruptedException e) {
+      // ignore and assume SQ stop is handled by another thread
+      LOG.debug("Stopping all processes was interrupted in the middle of a hard stop" +
+        " (current thread name is \"{}\")", Thread.currentThread().getName());
+      Thread.currentThread().interrupt();
+    }
+    awaitTermination.countDown();
+  }
+
   private void hardStopAll() throws InterruptedException {
     // order is important for non-cluster mode
     hardStopProcess(ProcessId.COMPUTE_ENGINE);
     hardStopProcess(ProcessId.WEB_SERVER);
     hardStopProcess(ProcessId.ELASTICSEARCH);
+
+    // if all process are already stopped (may occur, eg., when stopping because restart of 1st process failed),
+    // node state won't be updated on process stopped callback, so we must ensure
+    // the node's state is updated
+    if (nodeLifecycle.getState() != RESTARTING) {
+      nodeLifecycle.tryToMoveTo(STOPPED);
+    }
+  }
+
+  private void finalizeStop() {
+    if (nodeLifecycle.getState() == STOPPED) {
+      interrupt(restartStopperThread);
+      interrupt(hardStopperThread);
+      interrupt(restarterThread);
+    }
+  }
+
+  private static void interrupt(@Nullable Thread thread) {
+    if (thread != null
+      // do not interrupt oneself
+      && Thread.currentThread() != thread) {
+      thread.interrupt();
+    }
   }
 
   /**
-   * Request for quick stop then blocks until process is stopped.
+   * Request for graceful stop then blocks until process is stopped.
    * Returns immediately if the process is disabled in configuration.
    *
    * @throws InterruptedException if {@link ManagedProcessHandler#hardStop()} throws a {@link InterruptedException}
@@ -183,31 +291,6 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     if (process != null) {
       process.hardStop();
     }
-  }
-
-  /**
-   * Blocks until all processes are quickly stopped. Pending restart, if any, is disabled.
-   */
-  @Override
-  public void hardStop() {
-    if (nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPING)) {
-      LOG.info("Stopping SonarQube");
-    }
-    try {
-      hardStopAll();
-      if (hardStopperThread != null && Thread.currentThread() != hardStopperThread) {
-        hardStopperThread.interrupt();
-      }
-      if (restarterThread != null && Thread.currentThread() != restarterThread) {
-        restarterThread.interrupt();
-      }
-    } catch (InterruptedException e) {
-      // ignore and assume SQ stop is handled by another thread
-      LOG.debug("Stopping all processes was interrupted in the middle of a hard stop" +
-        " (current thread name is \"{}\")", Thread.currentThread().getName());
-      Thread.currentThread().interrupt();
-    }
-    awaitTermination.countDown();
   }
 
   @Override
@@ -223,16 +306,17 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   public void onManagedProcessEvent(ProcessId processId, Type type) {
     if (type == Type.OPERATIONAL) {
       onProcessOperational(processId);
-    } else if (type == Type.ASK_FOR_RESTART && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.RESTARTING)) {
+    } else if (type == Type.ASK_FOR_RESTART && nodeLifecycle.tryToMoveTo(RESTARTING)) {
       LOG.info("SQ restart requested by Process[{}]", processId.getKey());
-      hardStopAsync();
+      stopAsyncForRestart();
     }
   }
 
   private void onProcessOperational(ProcessId processId) {
     LOG.info("Process[{}] is up", processId.getKey());
     appState.setOperational(processId);
-    if (operationalCountDown.decrementAndGet() == 0 && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.OPERATIONAL)) {
+    boolean lastProcessStarted = operationalCountDown.decrementAndGet() == 0;
+    if (lastProcessStarted && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.OPERATIONAL)) {
       LOG.info("SonarQube is up");
     }
   }
@@ -271,13 +355,14 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     boolean lastProcessStopped = stopCountDown.decrementAndGet() == 0;
     switch (nodeLifecycle.getState()) {
       case RESTARTING:
-        if (lastProcessStopped && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPED)) {
+        if (lastProcessStopped) {
           LOG.info("SonarQube is restarting");
           restartAsync();
         }
         break;
-      case STOPPING:
-        if (lastProcessStopped && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.STOPPED)) {
+      case HARD_STOPPING:
+        if (lastProcessStopped && nodeLifecycle.tryToMoveTo(STOPPED)) {
+          LOG.info("SonarQube is stopped");
           // all processes are stopped, no restart requested
           // Let's clean-up resources
           hardStop();
@@ -290,11 +375,31 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private void hardStopAsync() {
+    if (hardStopperThread != null) {
+      LOG.debug("Hard stopper thread was not null (name is \"{}\")", hardStopperThread.getName(), new Exception());
+      hardStopperThread.interrupt();
+    }
+
     hardStopperThread = new HardStopperThread();
     hardStopperThread.start();
   }
 
+  private void stopAsyncForRestart() {
+    if (restartStopperThread != null) {
+      LOG.debug("Restart stopper thread was not null", new Exception());
+      restartStopperThread.interrupt();
+    }
+
+    restartStopperThread = new RestartStopperThread();
+    restartStopperThread.start();
+  }
+
   private void restartAsync() {
+    if (restarterThread != null) {
+      LOG.debug("Restarter thread was not null (name is \"{}\")", restarterThread.getName(), new Exception());
+      restarterThread.interrupt();
+    }
+
     restarterThread = new RestarterThread();
     restarterThread.start();
   }
@@ -314,24 +419,33 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         LOG.debug("{} thread was interrupted", getName(), e);
         super.interrupt();
       } catch (Exception e) {
-        LOG.error("Fail to restart", e);
+        LOG.error("Failed to restart", e);
         hardStop();
       }
     }
   }
 
+  private class RestartStopperThread extends Thread {
+    public RestartStopperThread() {
+      super("Restart stopper");
+    }
+
+    @Override
+    public void run() {
+      stopImpl();
+    }
+  }
+
   private class HardStopperThread extends Thread {
+
     public HardStopperThread() {
       super("Hard stopper");
     }
 
     @Override
     public void run() {
-      try {
-        hardStopAll();
-      } catch (InterruptedException e) {
-        LOG.debug("{} thread was interrupted", getName(), e);
-        interrupt();
+      if (nodeLifecycle.tryToMoveTo(HARD_STOPPING)) {
+        hardStopImpl();
       }
     }
   }

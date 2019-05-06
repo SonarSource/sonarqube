@@ -19,42 +19,60 @@
  */
 package org.sonar.process;
 
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-public class HardStopperThreadTest {
+public class AbstractStopperThreadTest {
   private Monitored monitored = mock(Monitored.class);
 
   @Test
   public void stop_in_a_timely_fashion() {
     // max stop timeout is 5 seconds, but test fails after 3 seconds
     // -> guarantees that stop is immediate
-    HardStopperThread stopper = new HardStopperThread(monitored, 5000L);
+    AbstractStopperThread stopper = new AbstractStopperThread("theThreadName", () -> monitored.hardStop(), 5000L){};
     stopper.start();
 
     verify(monitored, timeout(3000)).hardStop();
+    assertThat(stopper.getName()).isEqualTo("theThreadName");
   }
 
   @Test
   public void stop_timeout() {
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-        Thread.sleep(10000L);
-        return null;
-      }
+    doAnswer(invocationOnMock -> {
+      await().atMost(10, TimeUnit.SECONDS).until(() -> false);
+      return null;
     }).when(monitored).hardStop();
 
     // max stop timeout is 100 milliseconds
-    HardStopperThread stopper = new HardStopperThread(monitored, 100L);
+    AbstractStopperThread stopper = new AbstractStopperThread("theThreadName", () -> monitored.hardStop(), 5000L){};
     stopper.start();
 
     verify(monitored, timeout(3000)).hardStop();
+    assertThat(stopper.getName()).isEqualTo("theThreadName");
+  }
+
+  @Test
+  public void stopIt_interrupts_worker() {
+    doAnswer(invocationOnMock -> {
+      await().atMost(10, TimeUnit.SECONDS).until(() -> false);
+      return null;
+    }).when(monitored).hardStop();
+
+    // max stop timeout is 100 milliseconds
+    AbstractStopperThread stopper = new AbstractStopperThread("theThreadName", () -> monitored.hardStop(), 5000L){};
+    stopper.start();
+
+    verify(monitored, timeout(3_000)).hardStop();
+
+    stopper.stopIt();
+    await().atMost(3, TimeUnit.SECONDS).until(() -> !stopper.isAlive());
+    assertThat(stopper.isAlive()).isFalse();
   }
 }

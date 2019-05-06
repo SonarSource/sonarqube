@@ -30,16 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessId;
 
+import static org.sonar.application.process.ManagedProcessLifecycle.State.HARD_STOPPING;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.INIT;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTED;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.STARTING;
 import static org.sonar.application.process.ManagedProcessLifecycle.State.STOPPED;
-import static org.sonar.application.process.ManagedProcessLifecycle.State.HARD_STOPPING;
+import static org.sonar.application.process.ManagedProcessLifecycle.State.STOPPING;
 
 public class ManagedProcessLifecycle {
 
   public enum State {
-    INIT, STARTING, STARTED, HARD_STOPPING, STOPPED
+    INIT, STARTING, STARTED, STOPPING, HARD_STOPPING, STOPPED
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(ManagedProcessLifecycle.class);
@@ -62,8 +63,9 @@ public class ManagedProcessLifecycle {
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(STARTED, HARD_STOPPING, STOPPED));
-    res.put(STARTED, toSet(HARD_STOPPING, STOPPED));
+    res.put(STARTING, toSet(STARTED, STOPPING, HARD_STOPPING, STOPPED));
+    res.put(STARTED, toSet(STOPPING, HARD_STOPPING, STOPPED));
+    res.put(STOPPING, toSet(HARD_STOPPING, STOPPED));
     res.put(HARD_STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet());
     return Collections.unmodifiableMap(res);

@@ -26,6 +26,7 @@ import org.sonar.process.Lifecycle.State;
 public class StandardProcess implements Monitored {
 
   private State state = State.INIT;
+  private boolean hardStopped = false;
 
   private final Thread daemon = new Thread() {
     @Override
@@ -64,18 +65,30 @@ public class StandardProcess implements Monitored {
     }
   }
 
-  /**
-   * Blocks until stopped
-   */
   @Override
-  public void hardStop() {
+  public void stop() {
     state = State.STOPPING;
     daemon.interrupt();
     state = State.STOPPED;
   }
 
+  /**
+   * Blocks until stopped
+   */
+  @Override
+  public void hardStop() {
+    state = State.HARD_STOPPING;
+    daemon.interrupt();
+    hardStopped = true;
+    state = State.STOPPED;
+  }
+
   public State getState() {
     return state;
+  }
+
+  public boolean wasHardStopped() {
+    return hardStopped;
   }
 
   public static void main(String[] args) {

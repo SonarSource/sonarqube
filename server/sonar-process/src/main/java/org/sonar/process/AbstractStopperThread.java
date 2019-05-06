@@ -28,14 +28,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Stops process in a short time fashion
  */
-class HardStopperThread extends Thread {
+abstract class AbstractStopperThread extends Thread {
 
-  private final Monitored monitored;
+  private final Runnable stopCode;
   private final long terminationTimeoutMs;
+  private boolean stop = false;
 
-  HardStopperThread(Monitored monitored, long terminationTimeoutMs) {
-    super("HardStopper");
-    this.monitored = monitored;
+  AbstractStopperThread(String threadName, Runnable stopCode, long terminationTimeoutMs) {
+    super(threadName);
+    this.stopCode = stopCode;
     this.terminationTimeoutMs = terminationTimeoutMs;
   }
 
@@ -43,11 +44,18 @@ class HardStopperThread extends Thread {
   public void run() {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     try {
-      Future future = executor.submit(monitored::hardStop);
+      Future future = executor.submit(stopCode);
       future.get(terminationTimeoutMs, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
+      if (!stop) {
+        LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
+      }
     }
     executor.shutdownNow();
+  }
+
+  public void stopIt() {
+    this.stop = true;
+    super.interrupt();
   }
 }

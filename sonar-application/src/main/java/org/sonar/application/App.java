@@ -112,7 +112,7 @@ public class App {
       }
 
       // blocks until everything is corrected terminated
-      scheduler.hardStop();
+      scheduler.stop();
     }
   }
 }

@@ -19,36 +19,32 @@
  */
 package org.sonar.process;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.process.sharedmemoryfile.ProcessCommands;
+import com.google.common.annotations.VisibleForTesting;
+import java.util.function.BooleanSupplier;
 
-/**
- * This watchdog is looking for hard stop to be requested via {@link ProcessCommands#askedForHardStop()}.
- */
-public class HardStopWatcher extends Thread {
-
-  private final ProcessCommands commands;
-  private final Stoppable stoppable;
+abstract class AbstractStopWatcher extends Thread {
+  private final Runnable stopCommand;
+  private final BooleanSupplier shouldStopTest;
   private final long delayMs;
-  private boolean watching = true;
+  private volatile boolean watching = true;
 
-  public HardStopWatcher(ProcessCommands commands, Stoppable stoppable) {
-    this(commands, stoppable, 500L);
+  public AbstractStopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest) {
+    this(threadName, stopCommand, shouldStopTest, 500L);
   }
 
-  HardStopWatcher(ProcessCommands commands, Stoppable stoppable, long delayMs) {
-    super("HardStop Watcher");
-    this.commands = commands;
-    this.stoppable = stoppable;
+  @VisibleForTesting
+  AbstractStopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest, long delayMs) {
+    super(threadName);
+    this.stopCommand = stopCommand;
+    this.shouldStopTest = shouldStopTest;
     this.delayMs = delayMs;
   }
 
   @Override
   public void run() {
     while (watching) {
-      if (commands.askedForHardStop()) {
-        LoggerFactory.getLogger(getClass()).info("Hard stopping process");
-        stoppable.hardStopAsync();
+      if (shouldStopTest.getAsBoolean()) {
+        stopCommand.run();
         watching = false;
       } else {
         try {
@@ -63,6 +59,7 @@ public class HardStopWatcher extends Thread {
   }
 
   public void stopWatching() {
+    super.interrupt();
     watching = false;
   }
 }

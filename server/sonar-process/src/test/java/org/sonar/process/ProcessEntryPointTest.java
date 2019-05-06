@@ -19,7 +19,9 @@
  */
 package org.sonar.process;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,9 +32,6 @@ import org.junit.rules.Timeout;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import org.sonar.process.test.StandardProcess;
-
-import java.io.File;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -89,7 +88,7 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void launch_then_request_hard_stop() throws Exception {
+  public void launch_then_request_graceful_stop() throws Exception {
     Props props = createProps();
     final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
     final StandardProcess process = new StandardProcess();
@@ -109,9 +108,36 @@ public class ProcessEntryPointTest {
 
     // requests for graceful stop -> waits until down
     // Should terminate before the timeout of 30s
+    entryPoint.stop();
+
+    assertThat(process.getState()).isEqualTo(State.STOPPED);
+    assertThat(process.wasHardStopped()).isEqualTo(false);
+  }
+
+  @Test
+  public void launch_then_request_hard_stop() throws Exception {
+    Props props = createProps();
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
+    final StandardProcess process = new StandardProcess();
+
+    Thread runner = new Thread() {
+      @Override
+      public void run() {
+        // starts and waits until terminated
+        entryPoint.launch(process);
+      }
+    };
+    runner.start();
+
+    while (process.getState() != State.STARTED) {
+      Thread.sleep(10L);
+    }
+
+    // requests for stop hardly waiting
     entryPoint.hardStop();
 
     assertThat(process.getState()).isEqualTo(State.STOPPED);
+    assertThat(process.wasHardStopped()).isEqualTo(true);
   }
 
   @Test
@@ -181,6 +207,11 @@ public class ProcessEntryPointTest {
     }
 
     @Override
+    public void stop() {
+
+    }
+
+    @Override
     public void hardStop() {
 
     }
@@ -200,6 +231,11 @@ public class ProcessEntryPointTest {
 
     @Override
     public void awaitStop() {
+
+    }
+
+    @Override
+    public void stop() {
 
     }
 

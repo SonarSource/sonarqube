@@ -24,6 +24,11 @@ public interface Scheduler {
   void schedule() throws InterruptedException;
 
   /**
+   * Gracefully stops all processes and waits for them to be down.
+   */
+  void stop();
+
+  /**
    * Stops all processes and waits for them to be down.
    */
   void hardStop();

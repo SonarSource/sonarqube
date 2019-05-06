@@ -115,6 +115,11 @@ public class EsManagedProcess extends AbstractManagedProcess {
   }
 
   @Override
+  public void askForStop() {
+    askForHardStop();
+  }
+
+  @Override
   public void askForHardStop() {
     process.destroy();
   }

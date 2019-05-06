@@ -42,6 +42,14 @@ public class ProcessCommandsManagedProcess extends AbstractManagedProcess {
   }
 
   /**
+   * Send request to gracefully stop to the process (via ipc shared memory)
+   */
+  @Override
+  public void askForStop() {
+    commands.askForStop();
+  }
+
+  /**
    * Send request to quickly stop to the process (via ipc shared memory)
    */
   @Override

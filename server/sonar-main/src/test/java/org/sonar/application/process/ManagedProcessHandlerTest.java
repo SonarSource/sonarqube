@@ -49,7 +49,7 @@ public class ManagedProcessHandlerTest {
 
   @Test
   public void initial_state_is_INIT() {
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
 
     assertThat(underTest.getProcessId()).isEqualTo(A_PROCESS_ID);
     assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.INIT);
@@ -58,7 +58,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void start_and_stop_process() {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
       .build();
 
@@ -79,34 +79,44 @@ public class ManagedProcessHandlerTest {
     }
   }
 
+  public ManagedProcessHandler.Builder newHanderBuilder(ProcessId aProcessId) {
+    return ManagedProcessHandler.builder(aProcessId)
+      .setStopTimeout(newTimeout(1, TimeUnit.SECONDS))
+      .setHardStopTimeout(newTimeout(1, TimeUnit.SECONDS));
+  }
+
   @Test
   public void start_does_not_nothing_if_already_started_once() {
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
 
     try (TestManagedProcess testProcess = new TestManagedProcess()) {
       assertThat(underTest.start(() -> testProcess)).isTrue();
       assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STARTED);
 
-      assertThat(underTest.start(() -> {throw new IllegalStateException();})).isFalse();
+      assertThat(underTest.start(() -> {
+        throw new IllegalStateException();
+      })).isFalse();
       assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STARTED);
     }
   }
 
   @Test
   public void start_throws_exception_and_move_to_state_STOPPED_if_execution_of_command_fails() {
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("error");
 
-    underTest.start(() -> {throw new IllegalStateException("error");});
+    underTest.start(() -> {
+      throw new IllegalStateException("error");
+    });
     assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
   }
 
   @Test
   public void send_event_when_process_is_operational() {
     ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addEventListener(listener)
       .build();
 
@@ -124,7 +134,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void operational_event_is_sent_once() {
     ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addEventListener(listener)
       .build();
 
@@ -144,7 +154,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void send_event_when_process_requests_for_restart() {
     ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addEventListener(listener)
       .setWatcherDelayMs(1L)
       .build();
@@ -164,7 +174,7 @@ public class ManagedProcessHandlerTest {
 
   @Test
   public void stopForcibly_stops_the_process_without_graceful_request_for_stop() {
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
 
     try (TestManagedProcess testProcess = new TestManagedProcess()) {
       underTest.start(() -> testProcess);
@@ -183,7 +193,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void process_stops_after_graceful_request_for_stop() throws Exception {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
       .setHardStopTimeout(newTimeout(1, TimeUnit.HOURS))
       .build();
@@ -224,7 +234,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void process_is_stopped_forcibly_if_graceful_stop_is_too_long() throws Exception {
     ProcessLifecycleListener listener = mock(ProcessLifecycleListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addProcessLifecycleListener(listener)
       .setHardStopTimeout(newTimeout(1, TimeUnit.MILLISECONDS))
       .build();
@@ -246,7 +256,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void process_requests_are_listened_on_regular_basis() {
     ManagedProcessEventListener listener = mock(ManagedProcessEventListener.class);
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID)
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID)
       .addEventListener(listener)
       .setWatcherDelayMs(1L)
       .build();
@@ -262,7 +272,7 @@ public class ManagedProcessHandlerTest {
 
   @Test
   public void test_toString() {
-    ManagedProcessHandler underTest = ManagedProcessHandler.builder(A_PROCESS_ID).build();
+    ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
     assertThat(underTest.toString()).isEqualTo("Process[" + A_PROCESS_ID.getKey() + "]");
   }
 
@@ -274,6 +284,7 @@ public class ManagedProcessHandlerTest {
     private boolean streamsClosed = false;
     private boolean operational = false;
     private boolean askedForRestart = false;
+    private boolean askedForStop = false;
     private boolean askedForHardStop = false;
     private boolean destroyedForcibly = false;
 
@@ -295,6 +306,12 @@ public class ManagedProcessHandlerTest {
     @Override
     public boolean isAlive() {
       return alive.getCount() == 1;
+    }
+
+    @Override
+    public void askForStop() {
+      askedForStop = true;
+      // do not stop, just asking
     }
 
     @Override

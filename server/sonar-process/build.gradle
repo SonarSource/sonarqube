@@ -27,5 +27,6 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.eclipse.jetty:jetty-server'
   testCompile 'org.mockito:mockito-core'
+  testCompile 'org.awaitility:awaitility'
   testCompile project(':sonar-testing-harness')
 }
