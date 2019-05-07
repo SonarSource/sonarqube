@@ -52,7 +52,6 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
   private final Map<String, InputFile> globalInputFileCache = new HashMap<>();
   private final Table<String, String, InputFile> inputFileByModuleCache = TreeBasedTable.create();
   private final Map<InputFile, String> inputModuleKeyByFileCache = new HashMap<>();
-  // indexed by key with branch
   private final Map<String, DefaultInputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
@@ -126,24 +125,18 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
     return globalInputFileCache.get(relativePath);
   }
 
-  @CheckForNull
-  public DefaultInputModule getModule(String moduleKeyWithBranch) {
-    return inputModuleCache.get(moduleKeyWithBranch);
-  }
-
   public DefaultInputModule findModule(DefaultInputFile file) {
-    return Optional.ofNullable(inputModuleKeyByFileCache.get(file)).map(this::getModule)
+    return Optional.ofNullable(inputModuleKeyByFileCache.get(file)).map(inputModuleCache::get)
       .orElseThrow(() -> new IllegalStateException("No modules for file '" + file.toString() + "'"));
   }
 
   public void put(DefaultInputModule inputModule) {
     String key = inputModule.key();
-    String keyWithBranch = inputModule.getKeyWithBranch();
     Preconditions.checkNotNull(inputModule);
     Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
-    Preconditions.checkState(!inputModuleCache.containsKey(keyWithBranch), "Module '%s' already indexed", keyWithBranch);
+    Preconditions.checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
     inputComponents.put(key, inputModule);
-    inputModuleCache.put(keyWithBranch, inputModule);
+    inputModuleCache.put(key, inputModule);
   }
 
   @Override
