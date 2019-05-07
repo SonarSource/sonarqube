@@ -90,17 +90,17 @@ exports[`should render correctly 1`] = `
       active={false}
       disabled={false}
       halfWidth={true}
-      key="TO_REVIEW"
+      key="TOREVIEW"
       loading={false}
       name={
         <StatusHelper
-          status="TO_REVIEW"
+          status="TOREVIEW"
         />
       }
       onClick={[Function]}
       stat="150"
-      tooltip="issue.status.TO_REVIEW"
-      value="TO_REVIEW"
+      tooltip="issue.status.TOREVIEW"
+      value="TOREVIEW"
     />
     <FacetItem
       active={false}
@@ -122,17 +122,17 @@ exports[`should render correctly 1`] = `
       active={false}
       disabled={false}
       halfWidth={true}
-      key="IN_REVIEW"
+      key="INREVIEW"
       loading={false}
       name={
         <StatusHelper
-          status="IN_REVIEW"
+          status="INREVIEW"
         />
       }
       onClick={[Function]}
       stat="7"
-      tooltip="issue.status.IN_REVIEW"
-      value="IN_REVIEW"
+      tooltip="issue.status.INREVIEW"
+      value="INREVIEW"
     />
   </FacetItemsList>
   <FacetItemsList

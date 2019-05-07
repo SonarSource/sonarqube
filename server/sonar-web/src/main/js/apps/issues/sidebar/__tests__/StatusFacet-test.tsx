@@ -35,7 +35,7 @@ it('should toggle status facet', () => {
 
 it('should clear status facet', () => {
   const onChange = jest.fn();
-  const wrapper = shallowRender({ onChange, statuses: ['TO_REVIEW'] });
+  const wrapper = shallowRender({ onChange, statuses: ['TOREVIEW'] });
   wrapper.children('FacetHeader').prop<Function>('onClear')();
   expect(onChange).toBeCalledWith({ statuses: [] });
 });
@@ -43,8 +43,8 @@ it('should clear status facet', () => {
 it('should select a status', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange });
-  clickAndCheck('TO_REVIEW');
-  clickAndCheck('OPEN', true, ['OPEN', 'TO_REVIEW']);
+  clickAndCheck('TOREVIEW');
+  clickAndCheck('OPEN', true, ['OPEN', 'TOREVIEW']);
   clickAndCheck('CONFIRMED');
 
   function clickAndCheck(status: string, multiple = false, expected = [status]) {
@@ -70,8 +70,8 @@ function shallowRender(props: Partial<StatusFacet['props']> = {}) {
         REOPENED: 0,
         RESOLVED: 0,
         CLOSED: 8,
-        TO_REVIEW: 150,
-        IN_REVIEW: 7,
+        TOREVIEW: 150,
+        INREVIEW: 7,
         REVIEWED: 1105
       }}
       statuses={[]}

@@ -39,7 +39,7 @@ interface Props {
 }
 
 const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED'];
-const HOTSPOT_STATUSES = ['TO_REVIEW', 'REVIEWED', 'IN_REVIEW'];
+const HOTSPOT_STATUSES = ['TOREVIEW', 'REVIEWED', 'INREVIEW'];
 const COMMON_STATUSES = ['CLOSED'];
 
 export default class StatusFacet extends React.PureComponent<Props> {
