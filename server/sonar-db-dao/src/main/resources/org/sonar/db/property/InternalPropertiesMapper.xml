@@ -75,5 +75,13 @@
       kee=#{key,jdbcType=VARCHAR}
   </delete>
 
+  <update id="replaceValue" parameterType="Map">
+    UPDATE internal_properties
+    set
+      text_value = #{newValue,jdbcType=VARCHAR}
+    where
+      kee = #{key,jdbcType=VARCHAR}
+      and text_value = #{oldValue,jdbcType=VARCHAR}
+  </update>
 
 </mapper>

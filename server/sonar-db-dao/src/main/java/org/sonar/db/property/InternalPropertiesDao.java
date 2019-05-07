@@ -43,6 +43,12 @@ import static java.util.Collections.singletonList;
 
 public class InternalPropertiesDao implements Dao {
 
+  /**
+   * A common prefix used by locks. {@see InternalPropertiesDao#tryLock}
+   */
+  public static final String LOCK_PREFIX = "lock.";
+
+  static final int KEY_MAX_LENGTH = 20;
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");
 
@@ -172,6 +178,48 @@ public class InternalPropertiesDao implements Dao {
     int size = rows.size();
     checkState(size <= 1, "%s rows retrieved for single property %s", size, key);
     return rows.iterator().next();
+  }
+
+  /**
+   * Try to acquire a lock with the specified name, for specified duration.
+   *
+   * Returns false if the lock exists with a timestamp > now - duration,
+   * or if the atomic replacement of the timestamp fails (another process replaced first).
+   *
+   * Returns true if the lock does not exist, or if exists with a timestamp <= now - duration,
+   * and the atomic replacement of the timestamp succeeds.
+   *
+   * The lock is considered released when the specified duration has elapsed.
+   */
+  public boolean tryLock(DbSession dbSession, String name, int maxAgeInSeconds) {
+    String key = LOCK_PREFIX + '.' + name;
+    if (key.length() > KEY_MAX_LENGTH) {
+      throw new IllegalArgumentException("lock name is too long");
+    }
+
+    long now = system2.now();
+
+    Optional<String> timestampAsStringOpt = selectByKey(dbSession, key);
+    if (!timestampAsStringOpt.isPresent()) {
+      return tryCreateLock(dbSession, key, String.valueOf(now));
+    }
+
+    String oldTimestampString = timestampAsStringOpt.get();
+    long oldTimestamp = Long.parseLong(oldTimestampString);
+    if (oldTimestamp > now - maxAgeInSeconds * 1000) {
+      return false;
+    }
+
+    return getMapper(dbSession).replaceValue(key, oldTimestampString, String.valueOf(now)) == 1;
+  }
+
+  private boolean tryCreateLock(DbSession dbSession, String name, String value) {
+    try {
+      getMapper(dbSession).insertAsText(name, value, system2.now());
+      return true;
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 
   private static void checkKey(@Nullable String key) {

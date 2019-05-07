@@ -43,12 +43,19 @@ import org.sonar.db.DbTester;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.property.InternalPropertiesDao.KEY_MAX_LENGTH;
+import static org.sonar.db.property.InternalPropertiesDao.LOCK_PREFIX;
 
 public class InternalPropertiesDaoTest {
 
@@ -394,6 +401,100 @@ public class InternalPropertiesDaoTest {
     verify(mapperMock).selectAsText(ImmutableList.copyOf(keys));
     verify(mapperMock).selectAsClob(ImmutableList.of("key3"));
     verifyNoMoreInteractions(mapperMock);
+  }
+
+  @Test
+  public void tryLock_succeeds_if_lock_did_not_exist() {
+    long now = new Random().nextInt();
+    when(system2.now()).thenReturn(now);
+    assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isTrue();
+
+    assertThat(underTest.selectByKey(dbSession, key(A_KEY))).contains(String.valueOf(now));
+  }
+
+  @Test
+  public void tryLock_succeeds_if_lock_acquired_before_lease_duration() {
+    int lockDurationSeconds = 60;
+
+    long before = new Random().nextInt();
+    when(system2.now()).thenReturn(before);
+    assertThat(underTest.tryLock(dbSession, A_KEY, lockDurationSeconds)).isTrue();
+
+    long now = before + lockDurationSeconds * 1000;
+    when(system2.now()).thenReturn(now);
+    assertThat(underTest.tryLock(dbSession, A_KEY, lockDurationSeconds)).isTrue();
+
+    assertThat(underTest.selectByKey(dbSession, key(A_KEY))).contains(String.valueOf(now));
+  }
+
+  @Test
+  public void tryLock_fails_if_lock_acquired_within_lease_duration() {
+    long now = new Random().nextInt();
+    when(system2.now()).thenReturn(now);
+    assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isTrue();
+    assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isFalse();
+
+    assertThat(underTest.selectByKey(dbSession, key(A_KEY))).contains(String.valueOf(now));
+  }
+
+  @Test
+  public void tryLock_fails_if_it_would_insert_concurrently() {
+    String name = randomAlphabetic(5);
+    String key = key(name);
+
+    long now = new Random().nextInt();
+    when(system2.now()).thenReturn(now);
+    assertThat(underTest.tryLock(dbSession, name, 60)).isTrue();
+
+    InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
+    DbSession dbSessionMock = mock(DbSession.class);
+    when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
+    when(mapperMock.selectAsText(ImmutableList.of(key)))
+      .thenReturn(ImmutableList.of());
+    doThrow(RuntimeException.class).when(mapperMock).insertAsText(eq(key), anyString(), anyLong());
+
+    assertThat(underTest.tryLock(dbSessionMock, name, 60)).isFalse();
+
+    assertThat(underTest.selectByKey(dbSession, key)).contains(String.valueOf(now));
+  }
+
+  @Test
+  public void tryLock_fails_if_concurrent_caller_succeeded_first() {
+    int lockDurationSeconds = 60;
+    String name = randomAlphabetic(5);
+    String key = key(name);
+
+    long now = 123456;//new Random().nextInt();
+    long oldTimestamp = now - lockDurationSeconds * 1000;
+    when(system2.now()).thenReturn(oldTimestamp);
+    assertThat(underTest.tryLock(dbSession, name, lockDurationSeconds)).isTrue();
+    when(system2.now()).thenReturn(now);
+
+    InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
+    DbSession dbSessionMock = mock(DbSession.class);
+    when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
+    InternalPropertyDto dto = new InternalPropertyDto();
+    dto.setKey(key);
+    dto.setValue(String.valueOf(oldTimestamp - 1));
+    when(mapperMock.selectAsText(ImmutableList.of(key)))
+      .thenReturn(ImmutableList.of(dto));
+
+    assertThat(underTest.tryLock(dbSessionMock, name, lockDurationSeconds)).isFalse();
+
+    assertThat(underTest.selectByKey(dbSession, key)).contains(String.valueOf(oldTimestamp));
+  }
+
+  @Test
+  public void tryLock_throws_if_lock_name_would_produce_too_long_key() {
+    String tooLongName = randomAlphabetic(KEY_MAX_LENGTH - LOCK_PREFIX.length());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("lock name is too long");
+    underTest.tryLock(dbSession, tooLongName, 60);
+  }
+
+  private String key(String name) {
+    return LOCK_PREFIX + '.' + name;
   }
 
   private void expectKeyNullOrEmptyIAE() {

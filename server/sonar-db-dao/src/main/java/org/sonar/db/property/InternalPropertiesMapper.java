@@ -34,4 +34,10 @@ public interface InternalPropertiesMapper {
   void insertAsClob(@Param("key") String key, @Param("value") String value, @Param("createdAt") long createdAt);
 
   void deleteByKey(@Param("key") String key);
+
+  /**
+   * Replace the value of the specified key, only if the existing value matches the expected old value.
+   * Returns 1 if the replacement succeeded, or 0 if failed (old value different, or record does not exist).
+   */
+  int replaceValue(@Param("key") String key, @Param("oldValue") String oldValue, @Param("newValue") String newValue);
 }
