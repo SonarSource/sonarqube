@@ -19,14 +19,18 @@
  */
 package org.sonar.process.test;
 
+import java.util.concurrent.atomic.AtomicReference;
+import org.sonar.process.Lifecycle.State;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.Lifecycle.State;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class StandardProcess implements Monitored {
 
-  private State state = State.INIT;
-  private boolean hardStopped = false;
+  private AtomicReference<State> state = new AtomicReference<>(State.INIT);
+  private volatile boolean stopped = false;
+  private volatile boolean hardStopped = false;
 
   private final Thread daemon = new Thread() {
     @Override
@@ -36,7 +40,7 @@ public class StandardProcess implements Monitored {
           Thread.sleep(100L);
         }
       } catch (InterruptedException e) {
-        // return
+        Thread.currentThread().interrupt();
       }
     }
   };
@@ -46,14 +50,14 @@ public class StandardProcess implements Monitored {
    */
   @Override
   public void start() {
-    state = State.STARTING;
+    state.compareAndSet(State.INIT, State.STARTING);
     daemon.start();
-    state = State.STARTED;
+    state.compareAndSet(State.STARTING, State.STARTED);
   }
 
   @Override
   public Status getStatus() {
-    return state == State.STARTED ? Status.OPERATIONAL : Status.DOWN;
+    return state.get() == State.STARTED ? Status.OPERATIONAL : Status.DOWN;
   }
 
   @Override
@@ -61,15 +65,16 @@ public class StandardProcess implements Monitored {
     try {
       daemon.join();
     } catch (InterruptedException e) {
-      // interrupted by call to terminate()
+      Thread.currentThread().interrupt();
     }
   }
 
   @Override
   public void stop() {
-    state = State.STOPPING;
+    checkState(state.compareAndSet(State.STARTED, State.STOPPING), "not started?!! what?");
     daemon.interrupt();
-    state = State.STOPPED;
+    stopped = true;
+    state.compareAndSet(State.STOPPING, State.STOPPED);
   }
 
   /**
@@ -77,14 +82,18 @@ public class StandardProcess implements Monitored {
    */
   @Override
   public void hardStop() {
-    state = State.HARD_STOPPING;
+    state.set(State.HARD_STOPPING);
     daemon.interrupt();
     hardStopped = true;
-    state = State.STOPPED;
+    state.compareAndSet(State.HARD_STOPPING, State.STOPPED);
   }
 
   public State getState() {
-    return state;
+    return state.get();
+  }
+
+  public boolean wasStopped() {
+    return stopped;
   }
 
   public boolean wasHardStopped() {

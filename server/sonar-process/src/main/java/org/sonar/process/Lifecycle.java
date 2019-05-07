@@ -25,6 +25,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class Lifecycle {
 
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
 
-  private State state = INIT;
+  private AtomicReference<State> state = new AtomicReference<>(INIT);
 
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
@@ -72,19 +73,26 @@ public class Lifecycle {
     return EnumSet.copyOf(Arrays.asList(states));
   }
 
-  public State getState() {
-    return state;
+  public boolean isCurrentState(State candidateState) {
+    State currentState = this.state.get();
+    boolean res = currentState == candidateState;
+    LOG.trace("isCurrentState({}): {} ({})", candidateState, res, currentState);
+    return res;
   }
 
-  public synchronized boolean tryToMoveTo(State to) {
-    boolean res = false;
-    State currentState = state;
-    if (TRANSITIONS.get(currentState).contains(to)) {
-      this.state = to;
-      res = true;
-    }
-    LOG.trace("tryToMoveTo from {} to {} => {}", currentState, to, res);
-    return res;
+  public boolean tryToMoveTo(State to) {
+    AtomicReference<State> lastFrom = new AtomicReference<>();
+    State newState = this.state.updateAndGet(from -> {
+      lastFrom.set(from);
+      if (TRANSITIONS.get(from).contains(to)) {
+        return to;
+      }
+      return from;
+    });
+
+    boolean updated = newState == to && lastFrom.get() != to;
+    LOG.trace("tryToMoveTo from {} to {} => {}", lastFrom.get(), to, updated);
+    return updated;
   }
 
   @Override
@@ -96,11 +104,11 @@ public class Lifecycle {
       return false;
     }
     Lifecycle lifecycle = (Lifecycle) o;
-    return state == lifecycle.state;
+    return state.get() == lifecycle.state.get();
   }
 
   @Override
   public int hashCode() {
-    return state.hashCode();
+    return state.get().hashCode();
   }
 }

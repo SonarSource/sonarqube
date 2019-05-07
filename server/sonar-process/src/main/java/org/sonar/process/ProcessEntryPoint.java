@@ -29,6 +29,7 @@ import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static org.sonar.process.Lifecycle.State.STOPPED;
 
 public class ProcessEntryPoint {
 
@@ -108,6 +109,7 @@ public class ProcessEntryPoint {
     } catch (Exception e) {
       logger.warn("Fail to start {}", getKey(), e);
     } finally {
+      logger.trace("Hard stopping to clean any resource...");
       hardStop();
     }
   }
@@ -133,6 +135,7 @@ public class ProcessEntryPoint {
         monitored.awaitStop();
       }
     } else {
+      logger.trace("Timeout waiting for process to go UP or OPERATIONAL. Hard stopping...");
       hardStop();
     }
   }
@@ -157,7 +160,7 @@ public class ProcessEntryPoint {
   }
 
   boolean isStarted() {
-    return lifecycle.getState() == Lifecycle.State.STARTED;
+    return lifecycle.isCurrentState(Lifecycle.State.STARTED);
   }
 
   void stop() {
@@ -166,7 +169,6 @@ public class ProcessEntryPoint {
         try {
           // join() does nothing if thread already finished
           stoppingThread.join();
-          lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
           commands.endWatch();
           exit.exit(0);
         } catch (InterruptedException e) {
@@ -179,7 +181,7 @@ public class ProcessEntryPoint {
   private Optional<StopperThread> stopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
       long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS));
-      stopperThread = new StopperThread(monitored, terminationTimeoutMs);
+      stopperThread = new StopperThread(monitored, lifecycle, terminationTimeoutMs);
       stopperThread.start();
       stopWatcher.stopWatching();
       return of(stopperThread);
@@ -197,7 +199,6 @@ public class ProcessEntryPoint {
         try {
           // join() does nothing if thread already finished
           stoppingThread.join();
-          lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
         }
@@ -209,7 +210,7 @@ public class ProcessEntryPoint {
   private Optional<HardStopperThread> hardStopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
       long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS));
-      hardStopperThread = new HardStopperThread(monitored, terminationTimeoutMs, stopperThread);
+      hardStopperThread = new HardStopperThread(monitored, lifecycle, terminationTimeoutMs, stopperThread);
       hardStopperThread.start();
       hardStopWatcher.stopWatching();
       stopWatcher.stopWatching();
@@ -219,8 +220,8 @@ public class ProcessEntryPoint {
     return ofNullable(hardStopperThread);
   }
 
-  Lifecycle.State getState() {
-    return lifecycle.getState();
+  boolean isCurrentState(Lifecycle.State candidateState) {
+    return lifecycle.isCurrentState(candidateState);
   }
 
   Thread getShutdownHook() {
@@ -282,8 +283,13 @@ public class ProcessEntryPoint {
    */
   private static class StopperThread extends AbstractStopperThread {
 
-    private StopperThread(Monitored monitored, long terminationTimeoutMs) {
-      super("Stopper", monitored::stop, terminationTimeoutMs);
+    private StopperThread(Monitored monitored, Lifecycle lifecycle, long terminationTimeoutMs) {
+      super("Stopper", () -> {
+        if (!lifecycle.isCurrentState(STOPPED)) {
+          monitored.stop();
+          lifecycle.tryToMoveTo(STOPPED);
+        }
+      }, terminationTimeoutMs);
     }
 
   }
@@ -293,7 +299,7 @@ public class ProcessEntryPoint {
    */
   private static class HardStopperThread extends AbstractStopperThread {
 
-    private HardStopperThread(Monitored monitored, long terminationTimeoutMs, @Nullable StopperThread stopperThread) {
+    private HardStopperThread(Monitored monitored, Lifecycle lifecycle, long terminationTimeoutMs, @Nullable StopperThread stopperThread) {
       super(
         "HardStopper",
         () -> {
@@ -301,6 +307,7 @@ public class ProcessEntryPoint {
             stopperThread.stopIt();
           }
           monitored.hardStop();
+          lifecycle.tryToMoveTo(STOPPED);
         },
         terminationTimeoutMs);
     }

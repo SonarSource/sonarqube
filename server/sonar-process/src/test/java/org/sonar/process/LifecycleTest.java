@@ -53,13 +53,13 @@ public class LifecycleTest {
   @Test
   public void try_to_move_does_not_support_jumping_states() {
     Lifecycle lifecycle = new Lifecycle();
-    assertThat(lifecycle.getState()).isEqualTo(INIT);
+    assertThat(lifecycle.isCurrentState(INIT)).isTrue();
 
     assertThat(lifecycle.tryToMoveTo(STARTED)).isFalse();
-    assertThat(lifecycle.getState()).isEqualTo(INIT);
+    assertThat(lifecycle.isCurrentState(INIT)).isTrue();
 
     assertThat(lifecycle.tryToMoveTo(STARTING)).isTrue();
-    assertThat(lifecycle.getState()).isEqualTo(STARTING);
+    assertThat(lifecycle.isCurrentState(STARTING)).isTrue();
   }
 
   @Test

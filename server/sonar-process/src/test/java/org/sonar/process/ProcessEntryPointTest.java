@@ -22,6 +22,7 @@ package org.sonar.process;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class ProcessEntryPointTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  ProcessCommands commands = mock(ProcessCommands.class);
+  private ProcessCommands commands = new OperationalFlagOnlyProcessCommands();
 
   @Test
   public void load_properties_from_file() throws Exception {
@@ -70,7 +71,7 @@ public class ProcessEntryPointTest {
 
     assertThat(entryPoint.getProps()).isSameAs(props);
     assertThat(entryPoint.isStarted()).isFalse();
-    assertThat(entryPoint.getState()).isEqualTo(State.INIT);
+    assertThat(entryPoint.isCurrentState(State.INIT)).isTrue();
   }
 
   @Test
@@ -102,15 +103,14 @@ public class ProcessEntryPointTest {
     };
     runner.start();
 
-    while (process.getState() != State.STARTED) {
-      Thread.sleep(10L);
-    }
+    waitForOperational(process, commands);
 
     // requests for graceful stop -> waits until down
     // Should terminate before the timeout of 30s
     entryPoint.stop();
 
     assertThat(process.getState()).isEqualTo(State.STOPPED);
+    assertThat(process.wasStopped()).isEqualTo(true);
     assertThat(process.wasHardStopped()).isEqualTo(false);
   }
 
@@ -129,9 +129,7 @@ public class ProcessEntryPointTest {
     };
     runner.start();
 
-    while (process.getState() != State.STARTED) {
-      Thread.sleep(10L);
-    }
+    waitForOperational(process, commands);
 
     // requests for stop hardly waiting
     entryPoint.hardStop();
@@ -154,9 +152,8 @@ public class ProcessEntryPointTest {
       }
     };
     runner.start();
-    while (process.getState() != State.STARTED) {
-      Thread.sleep(10L);
-    }
+
+    waitForOperational(process, commands);
 
     // emulate signal to shutdown process
     entryPoint.getShutdownHook().start();
@@ -177,7 +174,13 @@ public class ProcessEntryPointTest {
     final Monitored process = new StartupErrorProcess();
 
     entryPoint.launch(process);
-    assertThat(entryPoint.getState()).isEqualTo(State.STOPPED);
+    assertThat(entryPoint.isCurrentState(State.STOPPED)).isTrue();
+  }
+
+  private static void waitForOperational(StandardProcess process, ProcessCommands commands) throws InterruptedException {
+    while (!(process.getState() == State.STARTED && commands.isOperational())) {
+      Thread.sleep(10L);
+    }
   }
 
   private Props createProps() throws IOException {
@@ -241,6 +244,90 @@ public class ProcessEntryPointTest {
 
     @Override
     public void hardStop() {
+
+    }
+  }
+
+  private static class OperationalFlagOnlyProcessCommands implements ProcessCommands {
+    private final AtomicBoolean operational = new AtomicBoolean(false);
+
+    @Override
+    public boolean isUp() {
+      return false;
+    }
+
+    @Override
+    public void setUp() {
+
+    }
+
+    @Override
+    public boolean isOperational() {
+      return operational.get();
+    }
+
+    @Override
+    public void setOperational() {
+      operational.set(true);
+    }
+
+    @Override
+    public void ping() {
+
+    }
+
+    @Override
+    public long getLastPing() {
+      return 0;
+    }
+
+    @Override
+    public void setHttpUrl(String s) {
+
+    }
+
+    @Override
+    public String getHttpUrl() {
+      return null;
+    }
+
+    @Override
+    public void askForStop() {
+
+    }
+
+    @Override
+    public boolean askedForStop() {
+      return false;
+    }
+
+    @Override
+    public void askForHardStop() {
+
+    }
+
+    @Override
+    public boolean askedForHardStop() {
+      return false;
+    }
+
+    @Override
+    public void askForRestart() {
+
+    }
+
+    @Override
+    public boolean askedForRestart() {
+      return false;
+    }
+
+    @Override
+    public void acknowledgeAskForRestart() {
+
+    }
+
+    @Override
+    public void endWatch() {
 
     }
   }
