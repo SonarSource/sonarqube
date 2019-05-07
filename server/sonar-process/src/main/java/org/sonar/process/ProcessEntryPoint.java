@@ -35,8 +35,10 @@ public class ProcessEntryPoint {
 
   public static final String PROPERTY_PROCESS_KEY = "process.key";
   public static final String PROPERTY_PROCESS_INDEX = "process.index";
-  public static final String PROPERTY_TERMINATION_TIMEOUT_MS = "process.terminationTimeout";
+  public static final String PROPERTY_GRACEFUL_STOP_TIMEOUT_MS = "process.gracefulStopTimeout";
   public static final String PROPERTY_SHARED_PATH = "process.sharedDir";
+  // 1 second
+  private static final long HARD_STOP_TIMEOUT_MS = 1_000L;
 
   private final Props props;
   private final String processKey;
@@ -180,7 +182,7 @@ public class ProcessEntryPoint {
 
   private Optional<StopperThread> stopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
-      long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS));
+      long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_GRACEFUL_STOP_TIMEOUT_MS));
       stopperThread = new StopperThread(monitored, lifecycle, terminationTimeoutMs);
       stopperThread.start();
       stopWatcher.stopWatching();
@@ -209,8 +211,7 @@ public class ProcessEntryPoint {
 
   private Optional<HardStopperThread> hardStopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.HARD_STOPPING)) {
-      long terminationTimeoutMs = Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT_MS));
-      hardStopperThread = new HardStopperThread(monitored, lifecycle, terminationTimeoutMs, stopperThread);
+      hardStopperThread = new HardStopperThread(monitored, lifecycle, HARD_STOP_TIMEOUT_MS, stopperThread);
       hardStopperThread.start();
       hardStopWatcher.stopWatching();
       stopWatcher.stopWatching();

@@ -25,14 +25,12 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
 
 /**
  * Immutable implementation of {@link CeConfiguration} initialized at startup from {@link Configuration}.
  */
 public class CeConfigurationImpl implements CeConfiguration {
-  private static final String SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS = "sonar.ce.gracefulStopTimeOutInMs";
-  // 6 hours
-  private static final long DEFAULT_TASK_TIMEOUT_IN_MS = 6 * 60 * 60 * 1_000L;
   private static final int DEFAULT_WORKER_THREAD_COUNT = 1;
   private static final int MAX_WORKER_THREAD_COUNT = 10;
   private static final int DEFAULT_WORKER_COUNT = 1;
@@ -55,8 +53,8 @@ public class CeConfigurationImpl implements CeConfiguration {
 
   public CeConfigurationImpl(Configuration configuration, @Nullable WorkerCountProvider workerCountProvider) {
     this.workerCountProvider = workerCountProvider;
-    this.gracefulStopTimeoutInMs = configuration.getLong(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS)
-      .orElse(DEFAULT_TASK_TIMEOUT_IN_MS);
+    this.gracefulStopTimeoutInMs = configuration.getLong(CE_GRACEFUL_STOP_TIMEOUT.getKey())
+      .orElse(Long.parseLong(CE_GRACEFUL_STOP_TIMEOUT.getDefaultValue()));
     if (workerCountProvider == null) {
       this.workerCount = DEFAULT_WORKER_COUNT;
       this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;

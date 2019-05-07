@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -95,11 +96,13 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
-    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
-    command.setReadsArgumentsFromFile(true);
-    command.setArgument("foo", "bar");
-    command.setArgument("baz", "woo");
-    command.setJvmOptions(new JvmOptions<>());
+    long gracefulStopTimeoutMs = 1 + new Random().nextInt(10_000);
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder())
+      .setReadsArgumentsFromFile(true)
+      .setArgument("foo", "bar")
+      .setArgument("baz", "woo")
+      .setJvmOptions(new JvmOptions<>())
+      .setGracefulStopTimeoutMs(gracefulStopTimeoutMs);
 
     underTest.launch(command);
 
@@ -112,7 +115,7 @@ public class ProcessLauncherImplTest {
       assertThat(props).containsOnly(
         entry("foo", "bar"),
         entry("baz", "woo"),
-        entry("process.terminationTimeout", "60000"),
+        entry("process.gracefulStopTimeout", gracefulStopTimeoutMs + ""),
         entry("process.key", ProcessId.WEB_SERVER.getKey()),
         entry("process.index", String.valueOf(ProcessId.WEB_SERVER.getIpcIndex())),
         entry("process.sharedDir", tempDir.getAbsolutePath()));
@@ -209,12 +212,12 @@ public class ProcessLauncherImplTest {
       .set("sonar.path.data", this.temp.newFolder("data").getAbsolutePath())
       .set("sonar.path.temp", tempFolder.getAbsolutePath())
       .set("sonar.path.logs", this.temp.newFolder("logs").getAbsolutePath()))
-      .setClusterName("cluster")
-      .setPort(9001)
-      .setHost("localhost")
-      .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
-      .setEsJvmOptions(new EsJvmOptions(new Props(new Properties()), tempFolder))
-      .setLog4j2Properties(new Properties());
+        .setClusterName("cluster")
+        .setPort(9001)
+        .setHost("localhost")
+        .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
+        .setEsJvmOptions(new EsJvmOptions(new Props(new Properties()), tempFolder))
+        .setLog4j2Properties(new Properties());
   }
 
   private static class TestProcessBuilder implements ProcessLauncherImpl.ProcessBuilder {

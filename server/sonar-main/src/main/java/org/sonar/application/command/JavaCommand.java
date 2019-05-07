@@ -29,6 +29,8 @@ import javax.annotation.Nullable;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
+import static java.util.Objects.requireNonNull;
+
 public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaCommand<T>> {
   // program arguments
   private final Map<String, String> arguments = new LinkedHashMap<>();
@@ -38,18 +40,22 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
   // relative path to JAR files
   private final List<String> classpath = new ArrayList<>();
   private boolean readsArgumentsFromFile;
+  private Long gracefulStopTimeoutMs;
 
   public JavaCommand(ProcessId id, File workDir) {
     super(id, workDir, System2.INSTANCE);
   }
 
-  public JvmOptions<T> getJvmOptions() {
-    return jvmOptions;
+  public Map<String, String> getArguments() {
+    return arguments;
   }
 
-  public JavaCommand<T> setJvmOptions(JvmOptions<T> jvmOptions) {
-    this.jvmOptions = jvmOptions;
-
+  public JavaCommand<T> setArgument(String key, @Nullable String value) {
+    if (value == null) {
+      arguments.remove(key);
+    } else {
+      arguments.put(key, value);
+    }
     return this;
   }
 
@@ -59,6 +65,16 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
 
   public JavaCommand<T> setClassName(String className) {
     this.className = className;
+    return this;
+  }
+
+  public JvmOptions<T> getJvmOptions() {
+    return jvmOptions;
+  }
+
+  public JavaCommand<T> setJvmOptions(JvmOptions<T> jvmOptions) {
+    this.jvmOptions = jvmOptions;
+
     return this;
   }
 
@@ -80,19 +96,6 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
     return this;
   }
 
-  public Map<String, String> getArguments() {
-    return arguments;
-  }
-
-  public JavaCommand<T> setArgument(String key, @Nullable String value) {
-    if (value == null) {
-      arguments.remove(key);
-    } else {
-      arguments.put(key, value);
-    }
-    return this;
-  }
-
   public JavaCommand<T> setArguments(Properties args) {
     for (Map.Entry<Object, Object> entry : args.entrySet()) {
       setArgument(entry.getKey().toString(), entry.getValue() != null ? entry.getValue().toString() : null);
@@ -100,13 +103,25 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
     return this;
   }
 
+  public long getGracefulStopTimeoutMs() {
+    requireNonNull(gracefulStopTimeoutMs, "gracefulStopTimeoutMs has not been set");
+    return gracefulStopTimeoutMs;
+  }
+
+  public JavaCommand<T> setGracefulStopTimeoutMs(long gracefulStopTimeoutMs) {
+    this.gracefulStopTimeoutMs = gracefulStopTimeoutMs;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "JavaCommand{" + "workDir=" + getWorkDir() +
-      ", jvmOptions=" + jvmOptions +
+      ", arguments=" + arguments +
       ", className='" + className + '\'' +
+      ", jvmOptions=" + jvmOptions +
       ", classpath=" + classpath +
-      ", arguments=" + getArguments() +
+      ", readsArgumentsFromFile=" + readsArgumentsFromFile +
+      ", gracefulStopTimeoutMs=" + gracefulStopTimeoutMs +
       ", envVariables=" + getEnvVariables() +
       ", suppressedEnvVariables=" + getSuppressedEnvVariables() +
       '}';

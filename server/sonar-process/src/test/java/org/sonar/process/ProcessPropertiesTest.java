@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,14 +34,14 @@ import org.sonar.core.extension.ServiceLoaderWrapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class ProcessPropertiesTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
   private ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void completeDefaults_adds_default_values() {
@@ -172,5 +173,37 @@ public class ProcessPropertiesTest {
         "sonar.some.property4", "abc",
         "sonar.some.property5", "def");
     }
+  }
+
+  @Test
+  public void parseTimeoutMs_throws_NumberFormat_exception_if_value_is_not_long() {
+    expectedException.expect(NumberFormatException.class);
+
+    parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, "tru");
+  }
+
+  @Test
+  public void parseTimeoutMs_returns_long_from_value() {
+    long expected = 1 + new Random().nextInt(5_999_663);
+
+    long res = parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, expected + "");
+
+    assertThat(res).isEqualTo(expected);
+  }
+
+  @Test
+  public void parseTimeoutMs_throws_ISE_if_value_is_0() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");
+
+    parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, 0 + "");
+  }
+
+  @Test
+  public void parseTimeoutMs_throws_ISE_if_value_is_less_than_0() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("value of WEB_GRACEFUL_STOP_TIMEOUT must be >= 1");
+
+    parseTimeoutMs(ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT, -(1 + new Random().nextInt(5_999_663)) + "");
   }
 }

@@ -44,6 +44,8 @@ import static org.sonar.application.NodeLifecycle.State.RESTARTING;
 import static org.sonar.application.NodeLifecycle.State.STOPPED;
 import static org.sonar.application.NodeLifecycle.State.STOPPING;
 import static org.sonar.application.process.ManagedProcessHandler.Timeout.newTimeout;
+import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
+import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, ProcessLifecycleListener, AppStateListener {
 
@@ -94,7 +96,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         .addProcessLifecycleListener(this)
         .addEventListener(this)
         .setWatcherDelayMs(processWatcherDelayMs)
-        .setStopTimeout(stopTimeoutFor(processId))
+        .setStopTimeout(stopTimeoutFor(processId, settings))
         .setHardStopTimeout(HARD_STOP_TIMEOUT)
         .build();
       processesById.put(process.getProcessId(), process);
@@ -104,15 +106,16 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     tryToStartAll();
   }
 
-  private static ManagedProcessHandler.Timeout stopTimeoutFor(ProcessId processId) {
+  private static ManagedProcessHandler.Timeout stopTimeoutFor(ProcessId processId, AppSettings settings) {
     switch (processId) {
       case ELASTICSEARCH:
         return HARD_STOP_TIMEOUT;
       case WEB_SERVER:
         return newTimeout(10, TimeUnit.MINUTES);
       case COMPUTE_ENGINE:
-        // FIXME MMF-1673 make compute engine timeout configurable for ITs
-        return newTimeout(6, TimeUnit.HOURS);
+        String timeoutMs = settings.getValue(CE_GRACEFUL_STOP_TIMEOUT.getKey())
+          .orElse(CE_GRACEFUL_STOP_TIMEOUT.getDefaultValue());
+        return newTimeout(parseTimeoutMs(CE_GRACEFUL_STOP_TIMEOUT, timeoutMs), TimeUnit.MILLISECONDS);
       case APP:
       default:
         throw new IllegalArgumentException("Unsupported processId " + processId);

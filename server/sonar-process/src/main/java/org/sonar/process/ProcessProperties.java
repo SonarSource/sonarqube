@@ -35,6 +35,8 @@ import org.sonar.core.extension.ServiceLoaderWrapper;
 
 import static java.lang.String.format;
 
+import static com.google.common.base.Preconditions.checkState;
+
 /**
  * Constants shared by search, web server and app processes.
  * They are almost all the properties defined in conf/sonar.properties.
@@ -74,9 +76,11 @@ public class ProcessProperties {
     WEB_JAVA_OPTS("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     WEB_JAVA_ADDITIONAL_OPTS("sonar.web.javaAdditionalOpts", ""),
     WEB_PORT("sonar.web.port"),
+    WEB_GRACEFUL_STOP_TIMEOUT("sonar.web.gracefulStopTimeOutInMs", "" + 4 * 60 * 1_000L),
 
     CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     CE_JAVA_ADDITIONAL_OPTS("sonar.ce.javaAdditionalOpts", ""),
+    CE_GRACEFUL_STOP_TIMEOUT("sonar.ce.gracefulStopTimeOutInMs", "" + 6 * 60 * 60 * 1_000L),
 
     HTTP_PROXY_HOST("http.proxyHost"),
     HTTPS_PROXY_HOST("https.proxyHost"),
@@ -205,5 +209,11 @@ public class ProcessProperties {
         throw new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]", e);
       }
     }
+  }
+
+  public static long parseTimeoutMs(Property property, String value) {
+    long l = Long.parseLong(value);
+    checkState(l >= 1, "value of %s must be >= 1", property);
+    return l;
   }
 }

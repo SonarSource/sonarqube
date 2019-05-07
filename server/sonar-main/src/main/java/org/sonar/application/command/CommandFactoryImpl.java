@@ -28,9 +28,13 @@ import org.sonar.application.es.EsLogging;
 import org.sonar.application.es.EsSettings;
 import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
+import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
+import static org.sonar.process.ProcessProperties.parseTimeoutMs;
+import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
 import static org.sonar.process.ProcessProperties.Property.HTTPS_PROXY_HOST;
@@ -158,6 +162,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setReadsArgumentsFromFile(true)
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
+      .setGracefulStopTimeoutMs(readTimeout(props, WEB_GRACEFUL_STOP_TIMEOUT))
       // required for logback tomcat valve
       .setEnvVariable(PATH_LOGS.getKey(), props.nonNullValue(PATH_LOGS.getKey()))
       .setArgument("sonar.cluster.web.startupLeader", Boolean.toString(leader))
@@ -184,6 +189,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setReadsArgumentsFromFile(true)
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
+      .setGracefulStopTimeoutMs(readTimeout(props, CE_GRACEFUL_STOP_TIMEOUT))
       .setClassName("org.sonar.ce.app.CeServer")
       .addClasspath("./lib/common/*");
     String driverPath = props.value(JDBC_DRIVER_PATH.getKey());
@@ -192,6 +198,12 @@ public class CommandFactoryImpl implements CommandFactory {
     }
     command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
+  }
+
+  private static long readTimeout(Props props, ProcessProperties.Property property) {
+    String value = Optional.ofNullable(props.value(property.getKey()))
+      .orElse(property.getDefaultValue());
+    return parseTimeoutMs(property, value);
   }
 
   private <T extends JvmOptions> void addProxyJvmOptions(JvmOptions<T> jvmOptions) {
