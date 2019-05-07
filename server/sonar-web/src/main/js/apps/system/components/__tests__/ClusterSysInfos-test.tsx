@@ -20,78 +20,74 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ClusterSysInfos from '../ClusterSysInfos';
-import { ClusterSysInfo, HealthType } from '../../../../api/system';
-
-const sysInfoData: ClusterSysInfo = {
-  Health: HealthType.RED,
-  'Health Causes': ['Database down'],
-  'Application Nodes': [
-    {
-      Name: 'Bar',
-      Health: HealthType.GREEN,
-      'Health Causes': [],
-      'Compute Engine Logging': { 'Logs Level': 'INFO' },
-      'Web Logging': { 'Logs Level': 'INFO' }
-    }
-  ],
-  'Search Nodes': [
-    {
-      Name: 'Baz',
-      Health: HealthType.YELLOW,
-      'Health Causes': [],
-      'Compute Engine Logging': { 'Logs Level': 'INFO' },
-      'Web Logging': { 'Logs Level': 'INFO' }
-    }
-  ],
-  System: {
-    'High Availability': true,
-    'Logs Level': 'INFO',
-    'Server ID': 'MyServerId'
-  }
-};
+import { mockClusterSysInfo } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   expect(
-    getWrapper({
-      sysInfoData: {
-        ...sysInfoData,
-        'Application Nodes': [
-          {
-            Name: 'Foo',
-            Health: HealthType.GREEN,
-            'Health Causes': [],
-            'Compute Engine Logging': { 'Logs Level': 'INFO' },
-            'Web Logging': { 'Logs Level': 'INFO' }
-          },
-          {
-            Name: 'Bar',
-            Health: HealthType.RED,
-            'Health Causes': [],
-            'Compute Engine Logging': { 'Logs Level': 'INFO' },
-            'Web Logging': { 'Logs Level': 'DEBUG' }
-          },
-          {
-            Name: 'Baz',
-            Health: HealthType.YELLOW,
-            'Health Causes': [],
-            'Compute Engine Logging': { 'Logs Level': 'TRACE' },
-            'Web Logging': { 'Logs Level': 'DEBUG' }
-          }
-        ]
-      }
-    }).find('HealthCard')
-  ).toHaveLength(5);
+    shallowRender(
+      mockClusterSysInfo({
+        sysInfoData: {
+          Health: 'RED',
+          'Health Causes': ['Database down'],
+          'Application Nodes': [
+            {
+              Name: 'Foo',
+              Health: 'GREEN',
+              'Health Causes': [],
+              'Compute Engine Logging': { 'Logs Level': 'INFO' },
+              'Web Logging': { 'Logs Level': 'INFO' }
+            },
+            {
+              Name: 'Bar',
+              Health: 'RED',
+              'Health Causes': [],
+              'Compute Engine Logging': { 'Logs Level': 'INFO' },
+              'Web Logging': { 'Logs Level': 'DEBUG' }
+            },
+            {
+              Name: 'Baz',
+              Health: 'YELLOW',
+              'Health Causes': [],
+              'Compute Engine Logging': { 'Logs Level': 'TRACE' },
+              'Web Logging': { 'Logs Level': 'DEBUG' }
+            }
+          ]
+        }
+      })
+    ).find('HealthCard')
+  ).toHaveLength(4);
 });
 
 it('should support more than two nodes', () => {
-  expect(getWrapper()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-function getWrapper(props = {}) {
+function shallowRender(props = {}) {
   return shallow(
     <ClusterSysInfos
       expandedCards={['System', 'Foo']}
-      sysInfoData={sysInfoData}
+      sysInfoData={mockClusterSysInfo({
+        Health: 'RED',
+        'Health Causes': ['Database down'],
+        'Application Nodes': [
+          {
+            Name: 'Bar',
+            Health: 'GREEN',
+            'Health Causes': [],
+            'Compute Engine Logging': { 'Logs Level': 'INFO' },
+            'Web Logging': { 'Logs Level': 'INFO' }
+          }
+        ],
+        'Search Nodes': [
+          {
+            Name: 'Baz',
+            Health: 'YELLOW',
+            'Health Causes': [],
+            'Compute Engine Logging': { 'Logs Level': 'INFO' },
+            'Web Logging': { 'Logs Level': 'INFO' }
+          }
+        ]
+      })}
       toggleCard={() => {}}
       {...props}
     />

@@ -15,9 +15,28 @@ exports[`should support more than two nodes 1`] = `
     open={true}
     sysInfoData={
       Object {
+        "Compute Engine Tasks": Object {
+          "Total In Progress": 0,
+          "Total Pending": 0,
+        },
+        "Database": Object {
+          "Database": "PostgreSQL",
+          "Database Version": "10.3",
+          "Driver": "PostgreSQL JDBC Driver",
+          "Driver Version": "42.2.5",
+          "URL": "jdbc:postgresql://localhost/sonar",
+          "Username": "sonar",
+        },
         "High Availability": true,
-        "Logs Level": "INFO",
-        "Server ID": "MyServerId",
+        "Lines of Code": "989,880",
+        "Search Indexes": Object {
+          "Index components - Docs": 30445,
+          "Index components - Shards": 10,
+        },
+        "Search State": Object {
+          "Nodes": 3,
+          "State": "GREEN",
+        },
       }
     }
   />
@@ -50,8 +69,6 @@ exports[`should support more than two nodes 1`] = `
     system.search_nodes_title
   </li>
   <HealthCard
-    health="YELLOW"
-    healthCauses={Array []}
     key="Baz"
     name="Baz"
     onClick={[Function]}

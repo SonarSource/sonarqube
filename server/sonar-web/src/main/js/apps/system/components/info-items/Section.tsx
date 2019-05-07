@@ -20,11 +20,10 @@
 import * as React from 'react';
 import { map } from 'lodash';
 import SysInfoItem from './SysInfoItem';
-import { SysValueObject } from '../../../../api/system';
 
 interface Props {
   name?: string;
-  items: SysValueObject;
+  items: T.SysInfoValueObject;
 }
 
 export default function Section({ name, items }: Props) {

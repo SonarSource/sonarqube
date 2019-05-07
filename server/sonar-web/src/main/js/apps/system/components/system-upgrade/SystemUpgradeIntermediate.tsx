@@ -21,12 +21,11 @@ import * as React from 'react';
 import DateFormatter from '../../../../components/intl/DateFormatter';
 import DropdownIcon from '../../../../components/icons-components/DropdownIcon';
 import { ButtonLink } from '../../../../components/ui/buttons';
-import { SystemUpgrade } from '../../../../api/system';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   className?: string;
-  upgrades: SystemUpgrade[];
+  upgrades: T.SystemUpgrade[];
 }
 
 interface State {

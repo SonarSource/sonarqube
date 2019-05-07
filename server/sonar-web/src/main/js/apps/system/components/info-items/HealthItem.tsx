@@ -22,19 +22,18 @@ import * as classNames from 'classnames';
 import HealthCauseItem from './HealthCauseItem';
 import StatusIndicator from '../../../../components/common/StatusIndicator';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { HealthType } from '../../../../api/system';
 import { translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
   biggerHealth?: boolean;
   name?: string;
   className?: string;
-  health: HealthType;
+  health: T.HealthType;
   healthCauses?: string[];
 }
 
 export default function HealthItem({ biggerHealth, className, name, health, healthCauses }: Props) {
-  const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== HealthType.GREEN;
+  const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== 'GREEN';
   const statusIndicator = (
     <StatusIndicator color={health.toLowerCase()} size={biggerHealth ? 'big' : undefined} />
   );

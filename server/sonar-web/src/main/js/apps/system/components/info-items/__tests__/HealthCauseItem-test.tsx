@@ -20,11 +20,8 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import HealthCauseItem from '../HealthCauseItem';
-import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
-  expect(shallow(<HealthCauseItem health={HealthType.RED} healthCause="foo" />)).toMatchSnapshot();
-  expect(
-    shallow(<HealthCauseItem health={HealthType.YELLOW} healthCause="foo" />)
-  ).toMatchSnapshot();
+  expect(shallow(<HealthCauseItem health="RED" healthCause="foo" />)).toMatchSnapshot();
+  expect(shallow(<HealthCauseItem health="YELLOW" healthCause="foo" />)).toMatchSnapshot();
 });

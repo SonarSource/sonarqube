@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import * as u from '../utils';
-import { ClusterSysInfo, SysInfo, SystemUpgrade } from '../../../api/system';
+import { mockClusterSysInfo, mockStandaloneSysInfo } from '../../../helpers/testMocks';
 
 describe('parseQuery', () => {
   it('should correctly parse the expand array', () => {
@@ -44,44 +45,30 @@ describe('groupSections', () => {
 });
 
 describe('getSystemLogsLevel', () => {
-  it('should correctly return log level for standalone mode', () => {
-    expect(u.getSystemLogsLevel({ System: { 'Logs Level': 'FOO' } } as SysInfo)).toBe('FOO');
-    expect(u.getSystemLogsLevel({} as SysInfo)).toBe('INFO');
-    expect(u.getSystemLogsLevel()).toBe('INFO');
+  it('should correctly return the worst log level for standalone mode', () => {
+    expect(u.getSystemLogsLevel(mockStandaloneSysInfo())).toBe('DEBUG');
   });
 
   it('should return the worst log level for cluster mode', () => {
-    expect(
-      u.getSystemLogsLevel({
-        System: { 'High Availability': true },
-        'Application Nodes': [
-          {
-            'Compute Engine Logging': { 'Logs Level': 'DEBUG' },
-            'Web Logging': { 'Logs Level': 'INFO' }
-          },
-          {
-            'Compute Engine Logging': { 'Logs Level': 'INFO' },
-            'Web Logging': { 'Logs Level': 'INFO' }
-          }
-        ]
-      } as ClusterSysInfo)
-    ).toBe('DEBUG');
+    expect(u.getSystemLogsLevel(mockClusterSysInfo())).toBe('DEBUG');
   });
 
   it('should not fail if the log informations are not there yet', () => {
     expect(
-      u.getSystemLogsLevel({
-        System: { 'High Availability': true },
-        'Application Nodes': [{ Name: 'App 1' }, { Name: 'App 2' }]
-      } as ClusterSysInfo)
+      u.getSystemLogsLevel(
+        mockClusterSysInfo({
+          'Application Nodes': [{ Name: 'App 1' }, { Name: 'App 2' }]
+        })
+      )
     ).toBe('INFO');
     expect(
-      u.getSystemLogsLevel({
-        System: { 'High Availability': true },
-        'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }]
-      } as any)
+      u.getSystemLogsLevel(
+        mockClusterSysInfo({
+          'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }]
+        })
+      )
     ).toBe('INFO');
-    expect(u.getSystemLogsLevel({ System: {} } as SysInfo)).toBe('INFO');
+    expect(u.getSystemLogsLevel({} as T.SysInfoStandalone)).toBe('INFO');
   });
 });
 
@@ -93,7 +80,7 @@ describe('sortUpgrades', () => {
         { version: '5.10' },
         { version: '5.1' },
         { version: '5.4' }
-      ] as SystemUpgrade[])
+      ] as T.SystemUpgrade[])
     ).toEqual([{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]);
     expect(
       u.sortUpgrades([
@@ -101,7 +88,7 @@ describe('sortUpgrades', () => {
         { version: '5.1.2' },
         { version: '6.0' },
         { version: '6.9' }
-      ] as SystemUpgrade[])
+      ] as T.SystemUpgrade[])
     ).toEqual([{ version: '6.9' }, { version: '6.0' }, { version: '5.10' }, { version: '5.1.2' }]);
   });
 });
@@ -114,7 +101,7 @@ describe('groupUpgrades', () => {
         { version: '5.4.2' },
         { version: '5.4' },
         { version: '5.1' }
-      ] as SystemUpgrade[])
+      ] as T.SystemUpgrade[])
     ).toEqual([
       [{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]
     ]);
@@ -125,10 +112,186 @@ describe('groupUpgrades', () => {
         { version: '6.0' },
         { version: '5.10' },
         { version: '5.4.2' }
-      ] as SystemUpgrade[])
+      ] as T.SystemUpgrade[])
     ).toEqual([
       [{ version: '6.9' }, { version: '6.7' }, { version: '6.0' }],
       [{ version: '5.10' }, { version: '5.4.2' }]
     ]);
+  });
+});
+
+describe('isCluster', () => {
+  it('should return the correct information', () => {
+    expect(u.isCluster(mockClusterSysInfo())).toBe(true);
+    expect(u.isCluster(mockStandaloneSysInfo())).toBe(false);
+  });
+});
+
+describe('isLogInfoBlock', () => {
+  it('should return the correct information', () => {
+    expect(u.isLogInfoBlock(mockStandaloneSysInfo().System)).toBe(false);
+    expect(u.isLogInfoBlock(mockStandaloneSysInfo()['Web Logging'])).toBe(true);
+  });
+});
+
+describe('hasLoggingInfo', () => {
+  it('should return the correct information', () => {
+    expect(u.hasLoggingInfo(mockStandaloneSysInfo())).toBe(true);
+    expect(u.hasLoggingInfo(mockClusterSysInfo()['Application Nodes'][0])).toBe(true);
+    expect(u.hasLoggingInfo(mockClusterSysInfo())).toBe(false);
+  });
+});
+
+describe('getStandaloneSecondarySections', () => {
+  it('should return the correct information', () => {
+    expect(Object.keys(u.getStandaloneSecondarySections(mockStandaloneSysInfo()))).toEqual(
+      expect.arrayContaining(['Compute Engine', 'Search Engine', 'Web'])
+    );
+    expect(Object.keys(u.getStandaloneSecondarySections(mockClusterSysInfo()))).toEqual(
+      expect.arrayContaining(['Compute Engine', 'Search Engine', 'Web'])
+    );
+  });
+});
+
+describe('getStandaloneMainSections', () => {
+  it('should return the correct information', () => {
+    expect(Object.keys(u.getStandaloneMainSections(mockStandaloneSysInfo()))).toEqual(
+      expect.arrayContaining([
+        'Server ID',
+        'High Availability',
+        'Health',
+        'Health Causes',
+        'Database'
+      ])
+    );
+  });
+});
+
+describe('getClusterMainCardSection', () => {
+  it('should return the correct information', () => {
+    expect(Object.keys(u.getClusterMainCardSection(mockClusterSysInfo()))).toEqual(
+      expect.arrayContaining([
+        'Server ID',
+        'High Availability',
+        'Lines of Code',
+        'Health',
+        'Health Causes',
+        'Database',
+        'Compute Engine Tasks',
+        'Search State',
+        'Search Indexes'
+      ])
+    );
+  });
+});
+
+describe('getSearchNodes', () => {
+  it('should return the correct information', () => {
+    expect(
+      u.getSearchNodes(
+        mockClusterSysInfo({
+          'Search Nodes': [{ Name: 'searchnode1' }]
+        })
+      )
+    ).toEqual([{ Name: 'searchnode1' }]);
+  });
+});
+
+describe('getAppNodes', () => {
+  it('should return the correct information', () => {
+    expect(
+      u.getAppNodes(
+        mockClusterSysInfo({
+          'Application Nodes': [{ Name: 'appnode1' }]
+        })
+      )
+    ).toEqual([{ Name: 'appnode1' }]);
+  });
+});
+
+describe('getNodeName', () => {
+  it('should return the correct information', () => {
+    expect(u.getNodeName({ Name: 'Foo' })).toEqual('Foo');
+  });
+});
+
+describe('getHealthCauses', () => {
+  it('should return the correct information', () => {
+    expect(u.getHealthCauses({ 'Health Causes': ['Foo'] } as T.SysInfoBase)).toEqual(['Foo']);
+  });
+});
+
+describe('getHealth', () => {
+  it('should return the correct information', () => {
+    expect(u.getHealth({ Health: 'GREEN' } as T.SysInfoBase)).toEqual('GREEN');
+  });
+});
+
+describe('getLogsLevel', () => {
+  it('should return the correct information, if available', () => {
+    expect(u.getLogsLevel({ 'Compute Engine Logging': { 'Logs Level': 'TRACE' } })).toEqual(
+      'TRACE'
+    );
+  });
+
+  it('should return the worst level', () => {
+    expect(
+      u.getLogsLevel({
+        'Web Logging': { 'Logs Level': 'DEBUG' },
+        'Compute Engine Logging': { 'Logs Level': 'TRACE' }
+      })
+    ).toEqual('TRACE');
+  });
+
+  it('should return the default level if no information is provided', () => {
+    expect(u.getLogsLevel()).toEqual('INFO');
+  });
+});
+
+describe('getServerId', () => {
+  it('should return the correct information, if available', () => {
+    expect(u.getServerId(mockStandaloneSysInfo({ System: { 'Server ID': 'foo-bar' } }))).toEqual(
+      'foo-bar'
+    );
+  });
+
+  it('should return undefined if no information is available', () => {
+    expect(u.getServerId(mockStandaloneSysInfo({ System: {} }))).toBeUndefined();
+  });
+});
+
+describe('getVersion', () => {
+  it('should return the correct information, if available', () => {
+    expect(u.getVersion(mockStandaloneSysInfo({ System: { Version: '1.0' } }))).toEqual('1.0');
+  });
+
+  it('should return undefined if no information is available', () => {
+    expect(u.getVersion(mockStandaloneSysInfo({ System: {} }))).toBeUndefined();
+  });
+});
+
+describe('getClusterVersion', () => {
+  it('should return the correct information, if available', () => {
+    expect(
+      u.getClusterVersion(
+        mockClusterSysInfo({
+          'Application Nodes': [{ System: { Version: '1.0' } }]
+        })
+      )
+    ).toEqual('1.0');
+  });
+
+  it('should return undefined if no information is available', () => {
+    expect(
+      u.getClusterVersion(mockClusterSysInfo({ 'Application Nodes': [{ System: {} }] }))
+    ).toBeUndefined();
+    expect(
+      u.getClusterVersion(
+        mockClusterSysInfo({
+          'Application Nodes': [],
+          System: { Version: '1.0' }
+        })
+      )
+    ).toBeUndefined();
   });
 });

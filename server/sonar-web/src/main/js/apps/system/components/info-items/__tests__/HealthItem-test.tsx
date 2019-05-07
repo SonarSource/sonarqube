@@ -20,25 +20,18 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import HealthItem from '../HealthItem';
-import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
   expect(
-    shallow(
-      <HealthItem biggerHealth={true} health={HealthType.RED} healthCauses={['foo']} name="Foo" />
-    )
+    shallow(<HealthItem biggerHealth={true} health="RED" healthCauses={['foo']} name="Foo" />)
   ).toMatchSnapshot();
 });
 
 it('should not render health causes', () => {
-  expect(
-    shallow(<HealthItem health={HealthType.GREEN} healthCauses={['foo']} />)
-  ).toMatchSnapshot();
-  expect(shallow(<HealthItem health={HealthType.YELLOW} healthCauses={[]} />)).toMatchSnapshot();
+  expect(shallow(<HealthItem health="GREEN" healthCauses={['foo']} />)).toMatchSnapshot();
+  expect(shallow(<HealthItem health="YELLOW" healthCauses={[]} />)).toMatchSnapshot();
 });
 
 it('should render multiple health causes', () => {
-  expect(
-    shallow(<HealthItem health={HealthType.YELLOW} healthCauses={['foo', 'bar']} />)
-  ).toMatchSnapshot();
+  expect(shallow(<HealthItem health="YELLOW" healthCauses={['foo', 'bar']} />)).toMatchSnapshot();
 });

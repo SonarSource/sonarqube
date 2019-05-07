@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import HealthCard from '../HealthCard';
-import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
@@ -48,7 +47,7 @@ function getWrapper(props = {}) {
   return shallow(
     <HealthCard
       biggerHealth={false}
-      health={HealthType.RED}
+      health="RED"
       healthCauses={['foo']}
       name="Foobar"
       onClick={() => {}}

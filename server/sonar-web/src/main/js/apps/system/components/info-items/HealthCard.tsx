@@ -21,20 +21,19 @@ import * as React from 'react';
 import { map } from 'lodash';
 import HealthItem from './HealthItem';
 import Section from './Section';
+import { Alert } from '../../../../components/ui/Alert';
 import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
-import { HealthType, SysValueObject } from '../../../../api/system';
 import { LOGS_LEVELS, groupSections, getLogsLevel } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
-import { Alert } from '../../../../components/ui/Alert';
 
 interface Props {
   biggerHealth?: boolean;
-  health?: HealthType;
+  health?: T.HealthType;
   healthCauses?: string[];
   onClick: (toggledCard: string) => void;
   open: boolean;
   name: string;
-  sysInfoData: SysValueObject;
+  sysInfoData: T.SysInfoValueObject;
 }
 
 export default function HealthCard({

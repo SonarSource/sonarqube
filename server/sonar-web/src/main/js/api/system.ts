@@ -20,59 +20,11 @@
 import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export type SysValue = boolean | string | number | HealthType | SysValueObject | SysValueArray;
-export interface SysValueObject {
-  [key: string]: SysValue;
-}
-export interface SysValueArray extends Array<SysValue> {}
-
-export interface SysInfoSection {
-  [sectionName: string]: SysValueObject;
-}
-
-export enum HealthType {
-  RED = 'RED',
-  YELLOW = 'YELLOW',
-  GREEN = 'GREEN'
-}
-
-export interface NodeInfo extends SysValueObject {
-  'Compute Engine Logging': { 'Logs Level': string };
-  Health: HealthType;
-  'Health Causes': string[];
-  Name: string;
-  'Web Logging': { 'Logs Level': string };
-}
-
-export interface SysInfo extends SysValueObject {
-  Health: HealthType;
-  'Health Causes': string[];
-  System: {
-    'High Availability': boolean;
-    'Logs Level': string;
-    'Server ID': string;
-  };
-}
-
-export interface ClusterSysInfo extends SysInfo {
-  'Application Nodes': NodeInfo[];
-  'Search Nodes': NodeInfo[];
-}
-
-export interface SystemUpgrade {
-  version: string;
-  description: string;
-  releaseDate: string;
-  changeLogUrl: string;
-  downloadUrl: string;
-  plugins: any;
-}
-
 export function setLogLevel(level: string): Promise<void | Response> {
   return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
 }
 
-export function getSystemInfo(): Promise<SysInfo> {
+export function getSystemInfo(): Promise<T.SysInfoCluster | T.SysInfoStandalone> {
   return getJSON('/api/system/info').catch(throwGlobalError);
 }
 
@@ -81,7 +33,7 @@ export function getSystemStatus(): Promise<{ id: string; version: string; status
 }
 
 export function getSystemUpgrades(): Promise<{
-  upgrades: SystemUpgrade[];
+  upgrades: T.SystemUpgrade[];
   updateCenterRefresh: string;
 }> {
   return getJSON('/api/system/upgrades');

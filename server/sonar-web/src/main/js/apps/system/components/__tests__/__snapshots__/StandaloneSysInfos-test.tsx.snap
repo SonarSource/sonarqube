@@ -15,9 +15,15 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "High Availability": true,
-        "Logs Level": "DEBUG",
-        "Server ID": "MyServerId",
+        "Database": Object {
+          "Database": "PostgreSQL",
+          "Database Version": "10.3",
+          "Driver": "PostgreSQL JDBC Driver",
+          "Driver Version": "42.2.5",
+          "URL": "jdbc:postgresql://localhost/sonar",
+          "Username": "sonar",
+        },
+        "High Availability": false,
       }
     }
   />
@@ -28,8 +34,21 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "Web JVM": Object {
-          "Max Memory": "2Gb",
+        "Web Database Connection": Object {
+          "Pool Active Connections": 0,
+          "Pool Max Connections": 60,
+        },
+        "Web JVM Properties": Object {
+          "file.encoding": "UTF-8",
+          "file.separator": "/",
+        },
+        "Web JVM State": Object {
+          "Free Memory (MB)": 111,
+          "Max Memory (MB)": 1024,
+        },
+        "Web Logging": Object {
+          "Logs Dir": "/logs",
+          "Logs Level": "INFO",
         },
       }
     }
@@ -41,8 +60,25 @@ exports[`should render correctly 1`] = `
     open={true}
     sysInfoData={
       Object {
-        "Compute Engine": Object {
-          "Pending": 4,
+        "Compute Engine Database Connection": Object {
+          "Pool Active Connections": 0,
+          "Pool Initial Size": 0,
+        },
+        "Compute Engine JVM Properties": Object {
+          "file.encoding": "UTF-8",
+          "file.separator": "/",
+        },
+        "Compute Engine JVM State": Object {
+          "Free Memory (MB)": 89,
+          "Max Memory (MB)": 1024,
+        },
+        "Compute Engine Logging": Object {
+          "Logs Dir": "/logs",
+          "Logs Level": "DEBUG",
+        },
+        "Compute Engine Tasks": Object {
+          "In Progress": 0,
+          "Pending": 0,
         },
       }
     }
@@ -54,8 +90,13 @@ exports[`should render correctly 1`] = `
     open={false}
     sysInfoData={
       Object {
-        "Search": Object {
-          "Number of Nodes": 1,
+        "Search Indexes": Object {
+          "Index components - Docs": 30445,
+          "Index components - Shards": 10,
+        },
+        "Search State": Object {
+          "Nodes": 3,
+          "State": "GREEN",
         },
       }
     }

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { map } from 'lodash';
 import HealthCard from './info-items/HealthCard';
-import { SysInfo } from '../../../api/system';
 import {
   getHealth,
   getHealthCauses,
@@ -31,7 +30,7 @@ import {
 
 interface Props {
   expandedCards: string[];
-  sysInfoData: SysInfo;
+  sysInfoData: T.SysInfoStandalone;
   toggleCard: (toggledCard: string) => void;
 }
 

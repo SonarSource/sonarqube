@@ -44,3 +44,18 @@ exports[`should display correctly 3`] = `
   </Button>
 </Tooltip>
 `;
+
+exports[`should render a custom label if provided 1`] = `
+<Tooltip
+  overlay="copied_action"
+  visible={false}
+>
+  <Button
+    className="js-copy-to-clipboard no-select"
+    data-clipboard-text="foo"
+    innerRef={[Function]}
+  >
+    Foo Bar
+  </Button>
+</Tooltip>
+`;

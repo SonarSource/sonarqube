@@ -19,34 +19,69 @@
  */
 import * as React from 'react';
 import PageActions from './PageActions';
+import ClipboardButton from '../../../components/controls/ClipboardButton';
 import { translate } from '../../../helpers/l10n';
+import { toShortNotSoISOString } from '../../../helpers/dates';
 
-interface Props {
+export interface Props {
   isCluster: boolean;
   loading: boolean;
   logLevel: string;
   onLogLevelChange: () => void;
   serverId?: string;
   showActions: boolean;
+  version?: string;
 }
 
 export default function PageHeader(props: Props) {
+  const { isCluster, loading, logLevel, serverId, showActions, version } = props;
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('system_info.page')}</h1>
-      {props.showActions && (
+      {showActions && (
         <PageActions
-          canDownloadLogs={!props.isCluster}
-          canRestart={!props.isCluster}
-          cluster={props.isCluster}
-          logLevel={props.logLevel}
+          canDownloadLogs={!isCluster}
+          canRestart={!isCluster}
+          cluster={isCluster}
+          logLevel={logLevel}
           onLogLevelChange={props.onLogLevelChange}
-          serverId={props.serverId}
+          serverId={serverId}
         />
       )}
-      {props.loading && (
+      {loading && (
         <div className="page-actions">
           <i className="spinner" />
+        </div>
+      )}
+      {serverId && version && (
+        <div className="system-info-copy-paste-id-info boxed-group display-flex-center">
+          <div className="flex-1">
+            <table className="width-100">
+              <tbody>
+                <tr>
+                  <th>
+                    <strong>{translate('system.server_id')}</strong>
+                  </th>
+                  <td>{serverId}</td>
+                </tr>
+                <tr>
+                  <th>
+                    <strong>{translate('system.version')}</strong>
+                  </th>
+                  <td>{version}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ClipboardButton
+            className="flex-0"
+            copyValue={`SonarQube ID information
+Server ID: ${serverId}
+Version: ${version}
+Date: ${toShortNotSoISOString(Date.now())}
+`}
+            label={translate('system.copy_id_info')}
+          />
         </div>
       )}
     </header>

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { InjectedRouter } from 'react-router';
 import { Store, createStore } from 'redux';
 import { Location } from 'history';
@@ -94,6 +95,169 @@ export function mockAppState(overrides: Partial<T.AppState> = {}): T.AppState {
     qualifiers: ['TRK'],
     settings: {},
     version: '1.0',
+    ...overrides
+  };
+}
+
+export function mockBaseSysInfo(overrides: Partial<any> = {}): T.SysInfoBase {
+  return {
+    Health: 'GREEN' as T.HealthType,
+    'Health Causes': [],
+    System: {
+      Version: '7.8'
+    },
+    Database: {
+      Database: 'PostgreSQL',
+      'Database Version': '10.3',
+      Username: 'sonar',
+      URL: 'jdbc:postgresql://localhost/sonar',
+      Driver: 'PostgreSQL JDBC Driver',
+      'Driver Version': '42.2.5'
+    },
+    'Compute Engine Tasks': {
+      'Total Pending': 0,
+      'Total In Progress': 0
+    },
+    'Search State': { State: 'GREEN', Nodes: 3 },
+    'Search Indexes': {
+      'Index components - Docs': 30445,
+      'Index components - Shards': 10
+    },
+    ...overrides
+  };
+}
+
+export function mockClusterSysInfo(overrides: Partial<any> = {}): T.SysInfoCluster {
+  const baseInfo = mockBaseSysInfo(overrides);
+  return {
+    ...baseInfo,
+    System: {
+      ...baseInfo.System,
+      'High Availability': true,
+      'Server ID': 'asd564-asd54a-5dsfg45'
+    },
+    Settings: {
+      'sonar.cluster.enabled': 'true',
+      'sonar.cluster.node.name': 'server9.example.com'
+    },
+    'Application Nodes': [
+      {
+        Name: 'server9.example.com',
+        Host: '10.0.0.0',
+        Health: 'GREEN' as T.HealthType,
+        'Health Causes': [],
+        System: {
+          Version: '7.8'
+        },
+        Plugins: {
+          java: '5.13.0.17924 [SonarJava]'
+        },
+        'Web JVM State': {
+          'Max Memory (MB)': 1024,
+          'Free Memory (MB)': 122
+        },
+        'Web Database Connection': {
+          'Pool Active Connections': 1
+        },
+        'Web Logging': { 'Logs Level': 'DEBUG' },
+        'Web JVM Properties': {
+          'file.encoding': 'UTF-8',
+          'file.separator': '/'
+        },
+        'Compute Engine Tasks': {
+          Pending: 0,
+          'In Progress': 0
+        },
+        'Compute Engine JVM State': {
+          'Max Memory (MB)': 1024,
+          'Free Memory (MB)': 78
+        },
+        'Compute Engine Database Connection': {
+          'Pool Initial Size': 0,
+          'Pool Active Connections': 0
+        },
+        'Compute Engine Logging': {
+          'Logs Level': 'INFO'
+        },
+        'Compute Engine JVM Properties': {
+          'file.encoding': 'UTF-8',
+          'file.separator': '/'
+        }
+      },
+      {
+        Name: 'server9.example.com',
+        Host: '10.0.0.0',
+        Health: 'GREEN' as T.HealthType,
+        'Health Causes': [],
+        System: {
+          Version: '7.8'
+        },
+        Plugins: {
+          java: '5.13.0.17924 [SonarJava]'
+        },
+        'Web JVM State': {
+          'Max Memory (MB)': 1024,
+          'Free Memory (MB)': 111
+        },
+        'Web Database Connection': {
+          'Pool Active Connections': 0,
+          'Pool Max Connections': 60
+        },
+        'Web Logging': { 'Logs Level': 'INFO' },
+        'Web JVM Properties': {
+          'file.encoding': 'UTF-8',
+          'file.separator': '/'
+        },
+        'Compute Engine Tasks': {
+          Pending: 0,
+          'In Progress': 0
+        },
+        'Compute Engine JVM State': {
+          'Max Memory (MB)': 1024,
+          'Free Memory (MB)': 89
+        },
+        'Compute Engine Database Connection': {
+          'Pool Initial Size': 0,
+          'Pool Active Connections': 0
+        },
+        'Compute Engine Logging': {
+          'Logs Level': 'INFO'
+        },
+        'Compute Engine JVM Properties': {
+          'file.encoding': 'UTF-8',
+          'file.separator': '/'
+        }
+      }
+    ],
+    'Search Nodes': [
+      {
+        Name: 'server.example.com',
+        Host: '10.0.0.0',
+        'Search State': {
+          'CPU Usage (%)': 0,
+          'Disk Available': '93 GB'
+        }
+      },
+      {
+        Name: 'server.example.com',
+        Host: '10.0.0.0',
+        'Search State': {
+          'CPU Usage (%)': 0,
+          'Disk Available': '93 GB'
+        }
+      },
+      {
+        Name: 'server.example.com',
+        Host: '10.0.0.0',
+        'Search State': {
+          'CPU Usage (%)': 0,
+          'Disk Available': '93 GB'
+        }
+      }
+    ],
+    Statistics: {
+      ncloc: 989880
+    },
     ...overrides
   };
 }
@@ -484,6 +648,56 @@ export function mockSourceViewerFile(
     projectName: 'MyProject',
     q: 'FIL',
     uuid: 'foo-bar',
+    ...overrides
+  };
+}
+
+export function mockStandaloneSysInfo(overrides: Partial<any> = {}): T.SysInfoStandalone {
+  const baseInfo = mockBaseSysInfo(overrides);
+  return {
+    ...baseInfo,
+    System: {
+      ...baseInfo.System,
+      'High Availability': false,
+      'Server ID': 'asd564-asd54a-5dsfg45'
+    },
+    Settings: {
+      'sonar.cluster.enabled': 'true',
+      'sonar.cluster.node.name': 'server9.example.com'
+    },
+    'Web JVM State': {
+      'Max Memory (MB)': 1024,
+      'Free Memory (MB)': 111
+    },
+    'Web Database Connection': {
+      'Pool Active Connections': 0,
+      'Pool Max Connections': 60
+    },
+    'Web Logging': { 'Logs Level': 'INFO', 'Logs Dir': '/logs' },
+    'Web JVM Properties': {
+      'file.encoding': 'UTF-8',
+      'file.separator': '/'
+    },
+    'Compute Engine Tasks': {
+      Pending: 0,
+      'In Progress': 0
+    },
+    'Compute Engine JVM State': {
+      'Max Memory (MB)': 1024,
+      'Free Memory (MB)': 89
+    },
+    'Compute Engine Database Connection': {
+      'Pool Initial Size': 0,
+      'Pool Active Connections': 0
+    },
+    'Compute Engine Logging': {
+      'Logs Level': 'DEBUG',
+      'Logs Dir': '/logs'
+    },
+    'Compute Engine JVM Properties': {
+      'file.encoding': 'UTF-8',
+      'file.separator': '/'
+    },
     ...overrides
   };
 }

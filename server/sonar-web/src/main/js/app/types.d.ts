@@ -301,6 +301,8 @@ declare namespace T {
     name: string;
   }
 
+  export type HealthType = 'RED' | 'YELLOW' | 'GREEN';
+
   export type HomePage =
     | { type: 'APPLICATION'; branch: string | undefined; component: string }
     | { type: 'ISSUES' }
@@ -743,8 +745,6 @@ declare namespace T {
 
   export type RuleType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT' | 'UNKNOWN';
 
-  export type Status = 'ERROR' | 'OK';
-
   export type Setting = SettingValue & { definition: SettingDefinition };
 
   export type SettingType =
@@ -850,6 +850,8 @@ declare namespace T {
 
   export type StandardType = 'owaspTop10' | 'sansTop25' | 'cwe' | 'sonarsourceSecurity';
 
+  export type Status = 'ERROR' | 'OK';
+
   export interface SubscriptionPlan {
     maxNcloc: number;
     price: number;
@@ -859,6 +861,80 @@ declare namespace T {
     link: string;
     scope?: 'sonarcloud';
     text: string;
+  }
+
+  export interface SysInfoAppNode extends SysInfoBase {
+    'Compute Engine Logging': SysInfoLogging;
+    Name: string;
+    'Web Logging': SysInfoLogging;
+  }
+
+  export interface SysInfoBase extends SysInfoValueObject {
+    Health: HealthType;
+    'Health Causes': string[];
+    Plugins?: Dict<string>;
+    System: {
+      Version: string;
+    };
+  }
+
+  export interface SysInfoCluster extends SysInfoBase {
+    'Application Nodes': SysInfoAppNode[];
+    'Search Nodes': SysInfoSearchNode[];
+    Settings: Dict<string>;
+    Statistics?: {
+      ncloc: number;
+    };
+    System: {
+      'High Availability': true;
+      'Server ID': string;
+      Version: string;
+    };
+  }
+
+  export interface SysInfoLogging extends Dict<string> {
+    'Logs Level': string;
+  }
+
+  export interface SysInfoSearchNode extends SysInfoValueObject {
+    Name: string;
+  }
+
+  export interface SysInfoSection extends Dict<SysInfoValueObject> {}
+
+  export interface SysInfoStandalone extends SysInfoBase {
+    'Compute Engine Logging': SysInfoLogging;
+    Settings: Dict<string>;
+    Statistics?: {
+      ncloc: number;
+    } & Dict<string | number>;
+    System: {
+      'High Availability': false;
+      'Server ID': string;
+      Version: string;
+    };
+    'Web Logging': SysInfoLogging;
+  }
+
+  export type SysInfoValue =
+    | boolean
+    | string
+    | number
+    | undefined
+    | HealthType
+    | SysInfoValueObject
+    | SysInfoValueArray;
+
+  export interface SysInfoValueArray extends Array<SysInfoValue> {}
+
+  export interface SysInfoValueObject extends Dict<SysInfoValue> {}
+
+  export interface SystemUpgrade {
+    version: string;
+    description: string;
+    releaseDate: string;
+    changeLogUrl: string;
+    downloadUrl: string;
   }
 
   export interface Task {

@@ -18,18 +18,71 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import ClipboardButton from '../ClipboardButton';
+
+const constructor = jest.fn();
+const destroy = jest.fn();
+const on = jest.fn();
+
+jest.mock(
+  'clipboard',
+  () =>
+    function(...args: any) {
+      constructor(...args);
+      return {
+        destroy,
+        on
+      };
+    }
+);
 
 jest.useFakeTimers();
 
 it('should display correctly', () => {
-  const wrapper = shallow(<ClipboardButton copyValue="foo" />);
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  (wrapper.instance() as ClipboardButton).showTooltip();
+  wrapper.instance().showTooltip();
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
   jest.runAllTimers();
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should render a custom label if provided', () => {
+  expect(shallowRender({ label: 'Foo Bar' })).toMatchSnapshot();
+});
+
+it('should allow its content to be copied', () => {
+  const wrapper = mountRender();
+  const button = wrapper.find('button').getDOMNode();
+  const instance = wrapper.instance();
+
+  expect(constructor).toBeCalledWith(button);
+  expect(on).toBeCalledWith('success', instance.showTooltip);
+
+  jest.clearAllMocks();
+
+  wrapper.setProps({ label: 'Some new label' });
+  expect(destroy).toBeCalled();
+  expect(constructor).toBeCalledWith(button);
+  expect(on).toBeCalledWith('success', instance.showTooltip);
+
+  jest.clearAllMocks();
+
+  wrapper.unmount();
+  expect(destroy).toBeCalled();
+});
+
+function shallowRender(props: Partial<ClipboardButton['props']> = {}) {
+  return shallow<ClipboardButton>(createComponent(props));
+}
+
+function mountRender(props: Partial<ClipboardButton['props']> = {}) {
+  return mount<ClipboardButton>(createComponent(props));
+}
+
+function createComponent(props: Partial<ClipboardButton['props']> = {}) {
+  return <ClipboardButton copyValue="foo" {...props} />;
+}

@@ -14,12 +14,12 @@ exports[`should render correctly 1`] = `
     canRestart={false}
     cluster={true}
     logLevel="INFO"
-    onLogLevelChange={[Function]}
+    onLogLevelChange={[MockFunction]}
   />
 </header>
 `;
 
-exports[`should show a loading spinner and no actions 1`] = `
+exports[`should render correctly 2`] = `
 <header
   className="page-header"
 >
@@ -33,6 +33,69 @@ exports[`should show a loading spinner and no actions 1`] = `
   >
     <i
       className="spinner"
+    />
+  </div>
+</header>
+`;
+
+exports[`should render correctly 3`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    system_info.page
+  </h1>
+  <PageActions
+    canDownloadLogs={false}
+    canRestart={false}
+    cluster={true}
+    logLevel="INFO"
+    onLogLevelChange={[MockFunction]}
+    serverId="foo-bar"
+  />
+  <div
+    className="system-info-copy-paste-id-info boxed-group display-flex-center"
+  >
+    <div
+      className="flex-1"
+    >
+      <table
+        className="width-100"
+      >
+        <tbody>
+          <tr>
+            <th>
+              <strong>
+                system.server_id
+              </strong>
+            </th>
+            <td>
+              foo-bar
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <strong>
+                system.version
+              </strong>
+            </th>
+            <td>
+              7.7.0.1234
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ClipboardButton
+      className="flex-0"
+      copyValue="SonarQube ID information
+Server ID: foo-bar
+Version: 7.7.0.1234
+Date: 2019-01-01
+"
+      label="system.copy_id_info"
     />
   </div>
 </header>

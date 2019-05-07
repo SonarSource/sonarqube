@@ -27,6 +27,7 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   className?: string;
   copyValue: string;
+  label?: string;
 }
 
 interface State {
@@ -82,7 +83,7 @@ export default class ClipboardButton extends React.PureComponent<Props, State> {
           className={classNames('js-copy-to-clipboard no-select', this.props.className)}
           data-clipboard-text={this.props.copyValue}
           innerRef={node => (this.copyButton = node)}>
-          {translate('copy')}
+          {this.props.label ? this.props.label : translate('copy')}
         </Button>
       </Tooltip>
     );

@@ -26,14 +26,16 @@ import StandaloneSysInfos from './StandaloneSysInfos';
 import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { ClusterSysInfo, getSystemInfo, SysInfo } from '../../../api/system';
+import { getSystemInfo } from '../../../api/system';
 import {
   getServerId,
   getSystemLogsLevel,
   isCluster,
   parseQuery,
   Query,
-  serializeQuery
+  serializeQuery,
+  getVersion,
+  getClusterVersion
 } from '../utils';
 import '../styles.css';
 
@@ -41,7 +43,7 @@ type Props = WithRouterProps;
 
 interface State {
   loading: boolean;
-  sysInfoData?: SysInfo;
+  sysInfoData?: T.SysInfoCluster | T.SysInfoStandalone;
 }
 
 class App extends React.PureComponent<Props, State> {
@@ -60,7 +62,7 @@ class App extends React.PureComponent<Props, State> {
   fetchSysInfo = () => {
     this.setState({ loading: true });
     getSystemInfo().then(
-      (sysInfoData: SysInfo) => {
+      sysInfoData => {
         if (this.mounted) {
           this.setState({ loading: false, sysInfoData });
         }
@@ -100,7 +102,7 @@ class App extends React.PureComponent<Props, State> {
       return (
         <ClusterSysInfos
           expandedCards={query.expandedCards}
-          sysInfoData={sysInfoData as ClusterSysInfo}
+          sysInfoData={sysInfoData}
           toggleCard={this.toggleSysInfoCards}
         />
       );
@@ -121,14 +123,19 @@ class App extends React.PureComponent<Props, State> {
         <Suggestions suggestions="system_info" />
         <Helmet title={translate('system_info.page')} />
         <SystemUpgradeNotif />
-        <PageHeader
-          isCluster={isCluster(sysInfoData)}
-          loading={loading}
-          logLevel={getSystemLogsLevel(sysInfoData)}
-          onLogLevelChange={this.fetchSysInfo}
-          serverId={getServerId(sysInfoData)}
-          showActions={sysInfoData !== undefined}
-        />
+        {sysInfoData && (
+          <PageHeader
+            isCluster={isCluster(sysInfoData)}
+            loading={loading}
+            logLevel={getSystemLogsLevel(sysInfoData)}
+            onLogLevelChange={this.fetchSysInfo}
+            serverId={getServerId(sysInfoData)}
+            showActions={sysInfoData !== undefined}
+            version={
+              isCluster(sysInfoData) ? getClusterVersion(sysInfoData) : getVersion(sysInfoData)
+            }
+          />
+        )}
         {this.renderSysInfo()}
       </div>
     );

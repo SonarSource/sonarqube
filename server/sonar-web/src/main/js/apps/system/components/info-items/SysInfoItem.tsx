@@ -22,17 +22,16 @@ import { map } from 'lodash';
 import HealthItem from './HealthItem';
 import AlertErrorIcon from '../../../../components/icons-components/AlertErrorIcon';
 import AlertSuccessIcon from '../../../../components/icons-components/AlertSuccessIcon';
-import { HealthType, SysValue, SysValueObject } from '../../../../api/system';
-import { HEALTH_FIELD } from '../../utils';
+import { HEALTH_FIELD, STATE_FIELD } from '../../utils';
 
 export interface Props {
   name: string;
-  value: SysValue;
+  value: T.SysInfoValue;
 }
 
 export default function SysInfoItem({ name, value }: Props): JSX.Element {
-  if (name === HEALTH_FIELD || name === 'State') {
-    return <HealthItem className="no-margin" health={value as HealthType} />;
+  if (name === HEALTH_FIELD || name === STATE_FIELD) {
+    return <HealthItem className="no-margin" health={value as T.HealthType} />;
   }
   if (value instanceof Array) {
     return <code>{JSON.stringify(value)}</code>;
@@ -55,7 +54,7 @@ function BooleanItem({ value }: { value: boolean }) {
   }
 }
 
-function ObjectItem({ value }: { value: SysValueObject }) {
+function ObjectItem({ value }: { value: T.SysInfoValueObject }) {
   return (
     <table className="data">
       <tbody>

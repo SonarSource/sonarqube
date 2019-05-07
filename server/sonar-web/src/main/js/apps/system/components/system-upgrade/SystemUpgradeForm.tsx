@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import SystemUpgradeItem from './SystemUpgradeItem';
-import { SystemUpgrade } from '../../../../api/system';
 import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
 import { ResetButtonLink } from '../../../../components/ui/buttons';
 
 interface Props {
-  systemUpgrades: SystemUpgrade[][];
+  systemUpgrades: T.SystemUpgrade[][];
   onClose: () => void;
 }
 

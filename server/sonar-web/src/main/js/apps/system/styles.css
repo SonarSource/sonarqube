@@ -26,6 +26,13 @@
   margin-top: -12px;
 }
 
+.system-info-copy-paste-id-info {
+  max-width: 550px;
+  padding: var(--gridSize) calc(2 * var(--gridSize));
+  clear: both;
+  line-height: 1.8;
+}
+
 .system-info-health-info .status-indicator {
   position: relative;
   top: 8px;

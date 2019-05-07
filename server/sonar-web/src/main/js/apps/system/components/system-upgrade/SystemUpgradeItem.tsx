@@ -21,12 +21,11 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 import DateFormatter from '../../../../components/intl/DateFormatter';
-import { SystemUpgrade } from '../../../../api/system';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
   type?: string;
-  systemUpgrades: SystemUpgrade[];
+  systemUpgrades: T.SystemUpgrade[];
 }
 
 export default function SystemUpgradeItem({ type, systemUpgrades }: Props) {

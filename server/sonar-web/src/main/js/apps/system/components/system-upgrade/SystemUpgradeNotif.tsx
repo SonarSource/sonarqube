@@ -20,13 +20,13 @@
 import * as React from 'react';
 import SystemUpgradeForm from './SystemUpgradeForm';
 import { sortUpgrades, groupUpgrades } from '../../utils';
-import { getSystemUpgrades, SystemUpgrade } from '../../../../api/system';
+import { getSystemUpgrades } from '../../../../api/system';
 import { Button } from '../../../../components/ui/buttons';
 import { translate } from '../../../../helpers/l10n';
 import { Alert } from '../../../../components/ui/Alert';
 
 interface State {
-  systemUpgrades: SystemUpgrade[][];
+  systemUpgrades: T.SystemUpgrade[][];
   openSystemUpgradeForm: boolean;
 }
 

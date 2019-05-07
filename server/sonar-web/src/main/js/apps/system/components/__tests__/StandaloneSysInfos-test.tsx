@@ -20,20 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import StandaloneSysInfos from '../StandaloneSysInfos';
-import { HealthType, SysInfo } from '../../../../api/system';
-
-const sysInfoData: SysInfo = {
-  Health: HealthType.RED,
-  'Health Causes': ['Database down'],
-  'Web JVM': { 'Max Memory': '2Gb' },
-  'Compute Engine': { Pending: 4 },
-  Search: { 'Number of Nodes': 1 },
-  System: {
-    'High Availability': true,
-    'Logs Level': 'DEBUG',
-    'Server ID': 'MyServerId'
-  }
-};
+import { mockStandaloneSysInfo } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
@@ -43,7 +30,7 @@ function getWrapper(props = {}) {
   return shallow(
     <StandaloneSysInfos
       expandedCards={['Compute Engine', 'Foo']}
-      sysInfoData={sysInfoData}
+      sysInfoData={mockStandaloneSysInfo({ Health: 'RED', 'Health Causes': ['Database down'] })}
       toggleCard={() => {}}
       {...props}
     />
