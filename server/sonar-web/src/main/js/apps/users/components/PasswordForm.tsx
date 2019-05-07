@@ -29,8 +29,8 @@ import { Alert } from '../../../components/ui/Alert';
 
 interface Props {
   isCurrentUser: boolean;
-  user: T.User;
   onClose: () => void;
+  user: T.User;
 }
 
 interface State {
@@ -164,14 +164,10 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
           </div>
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton
-              className="js-confirm"
-              disabled={submitting || !newPassword || newPassword !== confirmPassword}>
+            <SubmitButton disabled={submitting || !newPassword || newPassword !== confirmPassword}>
               {translate('change_verb')}
             </SubmitButton>
-            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
+            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
           </footer>
         </form>
       </Modal>

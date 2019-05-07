@@ -19,33 +19,15 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import CustomRuleFormModal from '../CustomRuleFormModal';
-import { createRule } from '../../../../api/rules';
-import { mockRule } from '../../../../helpers/testMocks';
-import { submit, waitAndUpdate } from '../../../../helpers/testUtils';
-
-jest.mock('../../../../api/rules', () => ({ createRule: jest.fn() }));
+import PasswordForm from '../PasswordForm';
+import { mockUser } from '../../../../helpers/testMocks';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should handle re-activation', async () => {
-  (createRule as jest.Mock).mockRejectedValue({ status: 409 });
-  const wrapper = shallowRender();
-  submit(wrapper.find('form'));
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<CustomRuleFormModal['props']> = {}) {
+function shallowRender(props: Partial<PasswordForm['props']> = {}) {
   return shallow(
-    <CustomRuleFormModal
-      onClose={jest.fn()}
-      onDone={jest.fn()}
-      organization={undefined}
-      templateRule={{ ...mockRule(), createdAt: 'date', repo: 'squid' }}
-      {...props}
-    />
+    <PasswordForm isCurrentUser={true} onClose={jest.fn()} user={mockUser()} {...props} />
   );
 }

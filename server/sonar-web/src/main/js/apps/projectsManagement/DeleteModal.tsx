@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { bulkDeleteProjects } from '../../api/components';
 import Modal from '../../components/controls/Modal';
-import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { ResetButtonLink, SubmitButton } from '../../components/ui/buttons';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { toNotSoISOString } from '../../helpers/dates';
 import { Alert } from '../../components/ui/Alert';
@@ -109,15 +109,13 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
 
         <footer className="modal-foot">
           {this.state.loading && <i className="spinner spacer-right" />}
-          <Button
+          <SubmitButton
             className="button-red"
             disabled={this.state.loading}
             onClick={this.handleConfirmClick}>
             {translate('delete')}
-          </Button>
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-            {translate('cancel')}
-          </ResetButtonLink>
+          </SubmitButton>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </footer>
       </Modal>
     );

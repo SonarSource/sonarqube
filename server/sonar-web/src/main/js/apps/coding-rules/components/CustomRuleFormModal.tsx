@@ -309,33 +309,17 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </div>
   );
 
-  renderSubmitButton = () => {
-    if (this.state.reactivating) {
-      return (
-        <SubmitButton
-          disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-reactivate">
-          {translate('coding_rules.reactivate')}
-        </SubmitButton>
-      );
-    } else {
-      return (
-        <SubmitButton
-          disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-create">
-          {translate(this.props.customRule ? 'save' : 'create')}
-        </SubmitButton>
-      );
-    }
-  };
-
   render() {
     const { customRule, templateRule } = this.props;
     const { reactivating, submitting } = this.state;
     const { params = [] } = templateRule;
-    const header = translate(
-      customRule ? 'coding_rules.update_custom_rule' : 'coding_rules.create_custom_rule'
-    );
+    const header = customRule
+      ? translate('coding_rules.update_custom_rule')
+      : translate('coding_rules.create_custom_rule');
+    let submit = this.props.customRule ? translate('save') : translate('create');
+    if (this.state.reactivating) {
+      submit = translate('coding_rules.reactivate');
+    }
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <form onSubmit={this.handleFormSubmit}>
@@ -362,7 +346,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
           <div className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            {this.renderSubmitButton()}
+            <SubmitButton disabled={this.state.submitting}>{submit}</SubmitButton>
             <ResetButtonLink
               disabled={submitting}
               id="coding-rules-custom-rule-creation-cancel"

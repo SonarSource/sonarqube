@@ -259,12 +259,10 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
           <footer className="modal-foot">
             {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton className="js-confirm" disabled={submitting}>
+            <SubmitButton disabled={submitting}>
               {user ? translate('update_verb') : translate('create')}
             </SubmitButton>
-            <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
+            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
           </footer>
         </form>
       </Modal>

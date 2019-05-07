@@ -504,6 +504,16 @@ export function mockStore(state: any = {}, reducer = (state: any) => state): Sto
   return createStore(reducer, state);
 }
 
+export function mockUser(overrides: Partial<T.User> = {}): T.User {
+  return {
+    active: true,
+    local: true,
+    login: 'john.doe',
+    name: 'John Doe',
+    ...overrides
+  };
+}
+
 export function mockDocumentationEntry(
   overrides: Partial<DocumentationEntry> = {}
 ): DocumentationEntry {

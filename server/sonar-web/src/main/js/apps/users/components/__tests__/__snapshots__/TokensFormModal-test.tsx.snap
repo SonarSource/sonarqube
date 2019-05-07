@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Modal
+  contentLabel="users.tokens"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      users.tokens
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container"
+  >
+    <TokensForm
+      login="john.doe"
+      updateTokensCount={[MockFunction]}
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ResetButtonLink
+      onClick={[MockFunction]}
+    >
+      Done
+    </ResetButtonLink>
+  </footer>
+</Modal>
+`;

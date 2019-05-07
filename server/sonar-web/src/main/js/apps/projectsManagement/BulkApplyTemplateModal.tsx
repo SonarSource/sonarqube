@@ -22,7 +22,7 @@ import { getPermissionTemplates, bulkApplyTemplate } from '../../api/permissions
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
-import { Button, ResetButtonLink } from '../../components/ui/buttons';
+import { ResetButtonLink, SubmitButton } from '../../components/ui/buttons';
 import { toNotSoISOString } from '../../helpers/dates';
 import { Alert } from '../../components/ui/Alert';
 
@@ -171,11 +171,11 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
           {!loading && !done && permissionTemplates && (
-            <Button disabled={submitting} onClick={this.handleConfirmClick}>
+            <SubmitButton disabled={submitting} onClick={this.handleConfirmClick}>
               {translate('apply')}
-            </Button>
+            </SubmitButton>
           )}
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
+          <ResetButtonLink onClick={this.props.onClose}>
             {done ? translate('close') : translate('cancel')}
           </ResetButtonLink>
         </footer>

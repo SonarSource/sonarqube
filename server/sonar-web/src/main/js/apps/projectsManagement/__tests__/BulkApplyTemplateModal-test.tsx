@@ -55,7 +55,7 @@ it('bulk applies template to all results', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('Button'));
+  click(wrapper.find('SubmitButton'));
   expect(bulkApplyTemplate).toBeCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: true,
@@ -82,7 +82,7 @@ it('bulk applies template to selected results', async () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('Button'));
+  click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
   await new Promise(setImmediate);
   expect(bulkApplyTemplate).toBeCalledWith({
@@ -98,7 +98,7 @@ it('bulk applies template to selected results', async () => {
 it('closes', () => {
   const onClose = jest.fn();
   const wrapper = shallow(render({ onClose }));
-  click(wrapper.find('.js-modal-close'));
+  click(wrapper.find('ResetButtonLink'));
   expect(onClose).toBeCalled();
 });
 

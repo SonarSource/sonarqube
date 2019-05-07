@@ -21,6 +21,7 @@ import * as React from 'react';
 import TokensForm from './TokensForm';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { ResetButtonLink } from '../../../components/ui/buttons';
 
 interface Props {
   user: T.User;
@@ -28,31 +29,19 @@ interface Props {
   updateTokensCount: (login: string, tokensCount: number) => void;
 }
 
-export default class TokensFormModal extends React.PureComponent<Props> {
-  handleCloseClick = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
-    evt.preventDefault();
-    this.props.onClose();
-  };
-
-  render() {
-    const header = translate('users.tokens');
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <div className="modal-body modal-container">
-          <TokensForm
-            login={this.props.user.login}
-            updateTokensCount={this.props.updateTokensCount}
-          />
-        </div>
-        <footer className="modal-foot">
-          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
-            {translate('Done')}
-          </a>
-        </footer>
-      </Modal>
-    );
-  }
+export default function TokensFormModal(props: Props) {
+  const header = translate('users.tokens');
+  return (
+    <Modal contentLabel={header} onRequestClose={props.onClose}>
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
+      <div className="modal-body modal-container">
+        <TokensForm login={props.user.login} updateTokensCount={props.updateTokensCount} />
+      </div>
+      <footer className="modal-foot">
+        <ResetButtonLink onClick={props.onClose}>{translate('Done')}</ResetButtonLink>
+      </footer>
+    </Modal>
+  );
 }

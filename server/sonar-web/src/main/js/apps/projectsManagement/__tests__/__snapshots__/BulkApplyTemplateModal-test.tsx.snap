@@ -24,7 +24,6 @@ exports[`bulk applies template to all results 1`] = `
     className="modal-foot"
   >
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -88,14 +87,13 @@ exports[`bulk applies template to all results 2`] = `
   <footer
     className="modal-foot"
   >
-    <Button
+    <SubmitButton
       disabled={false}
       onClick={[Function]}
     >
       apply
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -162,14 +160,13 @@ exports[`bulk applies template to all results 3`] = `
     <i
       className="spinner spacer-right"
     />
-    <Button
+    <SubmitButton
       disabled={true}
       onClick={[Function]}
     >
       apply
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -204,7 +201,6 @@ exports[`bulk applies template to all results 4`] = `
     className="modal-foot"
   >
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       close
@@ -237,7 +233,6 @@ exports[`bulk applies template to selected results 1`] = `
     className="modal-foot"
   >
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -301,14 +296,13 @@ exports[`bulk applies template to selected results 2`] = `
   <footer
     className="modal-foot"
   >
-    <Button
+    <SubmitButton
       disabled={false}
       onClick={[Function]}
     >
       apply
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -375,14 +369,13 @@ exports[`bulk applies template to selected results 3`] = `
     <i
       className="spinner spacer-right"
     />
-    <Button
+    <SubmitButton
       disabled={true}
       onClick={[Function]}
     >
       apply
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -417,7 +410,6 @@ exports[`bulk applies template to selected results 4`] = `
     className="modal-foot"
   >
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       close

@@ -25,15 +25,14 @@ exports[`deletes all projects 1`] = `
   <footer
     className="modal-foot"
   >
-    <Button
+    <SubmitButton
       className="button-red"
       disabled={false}
       onClick={[Function]}
     >
       delete
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -70,15 +69,14 @@ exports[`deletes all projects 2`] = `
     <i
       className="spinner spacer-right"
     />
-    <Button
+    <SubmitButton
       className="button-red"
       disabled={true}
       onClick={[Function]}
     >
       delete
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -112,15 +110,14 @@ exports[`deletes selected projects 1`] = `
   <footer
     className="modal-foot"
   >
-    <Button
+    <SubmitButton
       className="button-red"
       disabled={false}
       onClick={[Function]}
     >
       delete
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel
@@ -157,15 +154,14 @@ exports[`deletes selected projects 2`] = `
     <i
       className="spinner spacer-right"
     />
-    <Button
+    <SubmitButton
       className="button-red"
       disabled={true}
       onClick={[Function]}
     >
       delete
-    </Button>
+    </SubmitButton>
     <ResetButtonLink
-      className="js-modal-close"
       onClick={[MockFunction]}
     >
       cancel

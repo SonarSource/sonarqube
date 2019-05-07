@@ -40,7 +40,7 @@ it('deletes all projects', async () => {
   (wrapper.instance() as DeleteModal).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('Button'));
+  click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
   expect(bulkDeleteProjects).toBeCalledWith({
     analyzedBefore: '2017-04-08T00:00:00+0000',
@@ -60,7 +60,7 @@ it('deletes selected projects', async () => {
   (wrapper.instance() as DeleteModal).mounted = true;
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('Button'));
+  click(wrapper.find('SubmitButton'));
   expect(wrapper).toMatchSnapshot();
   expect(bulkDeleteProjects).toBeCalledWith({ organization: 'org', projects: 'proj1,proj2' });
 
@@ -71,7 +71,7 @@ it('deletes selected projects', async () => {
 it('closes', () => {
   const onClose = jest.fn();
   const wrapper = shallowRender({ onClose });
-  click(wrapper.find('.js-modal-close'));
+  click(wrapper.find('ResetButtonLink'));
   expect(onClose).toBeCalled();
 });
 
