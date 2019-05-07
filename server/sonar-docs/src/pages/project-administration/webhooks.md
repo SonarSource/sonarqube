@@ -133,14 +133,13 @@ If you provide additional properties to your SonarScanner using the pattern `son
 For example these additional parameters:
 
 ```
-sonar-scanner -Dsonar.analysis.scmRevision=628f5175ada0d685fd7164baa7c6382c1f25cab4 -Dsonar.analysis.buildNumber=12345
+sonar-scanner -Dsonar.analysis.buildNumber=12345
 ```
 
 Would add this to the payload:
 
 ```
 "properties": {
-  "sonar.analysis.scmRevision": "628f5175ada0d685fd7164baa7c6382c1f25cab4",
   "sonar.analysis.buildNumber": "12345"
 }
 ```

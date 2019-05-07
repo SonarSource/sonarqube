@@ -70,7 +70,7 @@ public class ReportComponent implements Component {
     this.description = builder.description;
     this.uuid = builder.uuid;
     this.projectAttributes = Optional.ofNullable(builder.projectVersion)
-      .map(v -> new ProjectAttributes(v, builder.buildString))
+      .map(v -> new ProjectAttributes(v, builder.buildString, builder.scmRevisionId))
       .orElse(null);
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
       .build();
@@ -207,6 +207,7 @@ public class ReportComponent implements Component {
     private String shortName;
     private String projectVersion;
     private String buildString;
+    private String scmRevisionId;
     private String description;
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
@@ -259,6 +260,11 @@ public class ReportComponent implements Component {
     public Builder setBuildString(@Nullable String buildString) {
       checkBuildString(buildString);
       this.buildString = buildString;
+      return this;
+    }
+
+    public Builder setScmRevisionId(@Nullable String scmRevisionId) {
+      this.scmRevisionId = scmRevisionId;
       return this;
     }
 

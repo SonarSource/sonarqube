@@ -30,14 +30,19 @@ public class ProjectAttributes {
   @Nullable
   private final String buildString;
 
-  public ProjectAttributes(String projectVersion, @Nullable String buildString) {
+  @Nullable
+  private final String scmRevisionId;
+
+  public ProjectAttributes(String projectVersion, @Nullable String buildString, @Nullable String scmRevisionId) {
     this.projectVersion = requireNonNull(projectVersion, "project version can't be null");
     this.buildString = buildString;
+    this.scmRevisionId = scmRevisionId;
   }
 
   public ProjectAttributes(ProjectAttributes projectAttributes) {
     this.projectVersion = projectAttributes.projectVersion;
     this.buildString = projectAttributes.buildString;
+    this.scmRevisionId = projectAttributes.scmRevisionId;
   }
 
   public String getProjectVersion() {
@@ -48,11 +53,16 @@ public class ProjectAttributes {
     return Optional.ofNullable(buildString);
   }
 
+  public Optional<String> getScmRevisionId() {
+    return Optional.ofNullable(scmRevisionId);
+  }
+
   @Override
   public String toString() {
     return "ProjectAttributes{" +
       "projectVersion='" + projectVersion + '\'' +
       "buildString='" + buildString + '\'' +
+      "scmRevisionId='" + scmRevisionId + '\'' +
       '}';
   }
 }

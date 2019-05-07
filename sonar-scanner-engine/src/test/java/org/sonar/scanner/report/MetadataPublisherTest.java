@@ -143,9 +143,9 @@ public class MetadataPublisherTest {
       .setRulesUpdatedAt(date.getTime())
       .build()));
     assertThat(metadata.getPluginsByKey()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
-        .setKey("java")
-        .setUpdatedAt(12345)
-        .build()),
+      .setKey("java")
+      .setUpdatedAt(12345)
+      .build()),
       entry("php", org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin.newBuilder()
         .setKey("php")
         .setUpdatedAt(45678)
@@ -302,6 +302,19 @@ public class MetadataPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getScmRevisionId()).isEqualTo(revisionId);
+  }
+
+  public void revision_from_scanner_props_overrides_scm_provider_revision_if_specified() throws IOException {
+    String revisionId = "some-sha1";
+    when(scmProvider.revisionId(any(Path.class))).thenReturn(revisionId);
+    when(properties.getScmRevision()).thenReturn(Optional.of("123"));
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getScmRevisionId()).isEqualTo("123");
   }
 
   @Test

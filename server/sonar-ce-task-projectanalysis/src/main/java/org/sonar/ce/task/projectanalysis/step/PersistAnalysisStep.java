@@ -104,7 +104,7 @@ public class PersistAnalysisStep implements ComputationStep {
       String componentUuid = component.getUuid();
       String projectVersion = component.getType() == PROJECT ? component.getProjectAttributes().getProjectVersion() : null;
       String buildString = component.getType() == PROJECT ? component.getProjectAttributes().getBuildString().orElse(null) : null;
-      return new SnapshotDto()
+      SnapshotDto dto = new SnapshotDto()
         .setUuid(snapshotUuid)
         .setProjectVersion(projectVersion)
         .setBuildString(buildString)
@@ -113,6 +113,12 @@ public class PersistAnalysisStep implements ComputationStep {
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)
         .setBuildDate(system2.now());
+
+      if (component.getType() == PROJECT) {
+        component.getProjectAttributes().getScmRevisionId().ifPresent(dto::setRevision);
+      }
+
+      return dto;
     }
 
     private void persist(SnapshotDto snapshotDto, DbSession dbSession) {

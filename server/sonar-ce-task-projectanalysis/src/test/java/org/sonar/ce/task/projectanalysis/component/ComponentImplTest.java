@@ -249,7 +249,7 @@ public class ComponentImplTest {
       .setReportAttributes(ReportAttributes.newBuilder(dbKey.hashCode()).build());
     if (type == PROJECT) {
       String buildString = randomAlphabetic(15);
-      builder.setProjectAttributes(new ProjectAttributes("version_1", buildString));
+      builder.setProjectAttributes(new ProjectAttributes("version_1", buildString, "453def"));
     }
     return builder;
   }

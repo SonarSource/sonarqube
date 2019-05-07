@@ -55,6 +55,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String ANALYSIS_UUID = "U1";
+  private static final String REVISION_ID = "5f6432a1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -77,6 +78,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setAnalysisDate(analysisDate);
+    analysisMetadataHolder.setScmRevisionId(REVISION_ID);
     dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();
@@ -116,6 +118,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
       .setKey(PROJECT_KEY)
       .setProjectVersion(projectVersion)
       .setBuildString(buildString)
+      .setScmRevisionId(REVISION_ID)
       .addChildren(directory)
       .build();
     treeRootHolder.setRoot(project);
@@ -137,6 +140,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getStatus()).isEqualTo("U");
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
+    assertThat(projectSnapshot.getRevision()).isEqualTo(REVISION_ID);
 
     assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
     assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());

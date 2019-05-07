@@ -40,6 +40,7 @@ public class ScanProperties {
   public static final String SONAR_REPORT_EXPORT_PATH = "sonar.report.export.path";
   public static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
+  public static final String SCM_REVISION = "sonar.scm.revision";
 
   private final Configuration configuration;
   private final DefaultInputProject project;
@@ -76,6 +77,10 @@ public class ScanProperties {
     } else {
       return project.getWorkDir().resolve(METADATA_DUMP_FILENAME);
     }
+  }
+
+  public Optional<String> getScmRevision() {
+    return configuration.get(SCM_REVISION);
   }
 
   /**

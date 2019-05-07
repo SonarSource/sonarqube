@@ -64,7 +64,7 @@ public class ComponentTreeBuilderTest {
   private static final String NO_SCM_BASE_PATH = "";
   // both no project as "" or null should be supported
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
-    randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12));
+    randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12), "1def5123");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -131,7 +131,7 @@ public class ComponentTreeBuilderTest {
       .setRef(42)
       .setName(nameInReport)
       .setDescription(descriptionInReport)
-      .build(), NO_SCM_BASE_PATH, new ProjectAttributes("6.5", buildString));
+      .build(), NO_SCM_BASE_PATH, new ProjectAttributes("6.5", buildString, "4124af4"));
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
     assertThat(root.getDbKey()).isEqualTo("generated_K1");

@@ -67,6 +67,7 @@ public class QualityGateEventsStepTest {
     .setKey("key 1")
     .setProjectVersion(PROJECT_VERSION)
     .setBuildString("V1.9")
+    .setScmRevisionId("456def")
     .addChildren(ReportComponent.builder(Component.Type.DIRECTORY, 2).build())
     .build();
   private static final String INVALID_ALERT_STATUS = "trololo";

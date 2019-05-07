@@ -23,6 +23,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
@@ -145,11 +146,21 @@ public class MetadataPublisher implements ReportPublisherStep {
         LOG.debug(e.getMessage());
       }
       try {
-        builder.setScmRevisionId(scmProvider.revisionId(projectBasedir));
+        computeScmRevision().ifPresent(builder::setScmRevisionId);
       } catch (UnsupportedOperationException e) {
         LOG.debug(e.getMessage());
       }
     }
+  }
+
+  private Optional<String> computeScmRevision() {
+    Optional<String> scmRevision = properties.getScmRevision();
+    ScmProvider scmProvider = scmConfiguration.provider();
+    if (!scmRevision.isPresent() && scmProvider != null) {
+      scmRevision = Optional.ofNullable(scmProvider.revisionId(moduleHierarchy.root().getBaseDir()));
+    }
+
+    return scmRevision;
   }
 
   private void addBranchInformation(ScannerReport.Metadata.Builder builder) {
