@@ -38,6 +38,8 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
+import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
@@ -68,12 +70,13 @@ public class DoTransitionAction implements IssuesWsAction {
     WebService.NewAction action = controller.createAction(ACTION_DO_TRANSITION)
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>" +
         "The transitions '" + DefaultTransitions.WONT_FIX + "' and '" + DefaultTransitions.FALSE_POSITIVE + "' require the permission 'Administer Issues'.<br/>" +
-        "The transitions involving security hotspots (except '" + DefaultTransitions.REQUEST_REVIEW + "') require the permission 'Administer Security Hotspot'.")
+        "The transitions involving security hotspots require the permission 'Administer Security Hotspot'.")
       .setSince("3.6")
       .setChangelog(
+        new Change("7.8", format("added transition '%s' for security hotspots ", SET_AS_IN_REVIEW)),
+        new Change("7.3", "added transitions for security hotspots"),
         new Change("6.5", "the database ids of the components are removed from the response"),
-        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."),
-        new Change("7.3", "added transitions for security hotspots"))
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "do_transition-example.json"))
       .setPost(true);

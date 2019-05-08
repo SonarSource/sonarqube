@@ -81,6 +81,11 @@ public interface Issue extends Serializable {
   String STATUS_TO_REVIEW = "TOREVIEW";
 
   /**
+   * @since 7.8
+   */
+  String STATUS_IN_REVIEW = "INREVIEW";
+
+  /**
    * Return all available statuses
    *
    * @since 4.4

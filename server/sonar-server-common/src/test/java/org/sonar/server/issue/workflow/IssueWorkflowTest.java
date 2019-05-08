@@ -24,6 +24,7 @@ import com.google.common.collect.Collections2;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -36,7 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
@@ -52,11 +52,11 @@ import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
-import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowTest {
@@ -68,7 +68,14 @@ public class IssueWorkflowTest {
   @Test
   public void list_statuses() {
     underTest.start();
-    assertThat(underTest.statusKeys()).containsExactly(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED, STATUS_TO_REVIEW);
+
+    List<String> expectedStatus = new ArrayList<>();
+    // issues statuses
+    expectedStatus.addAll(Arrays.asList(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED));
+    // hostpots statuses
+    expectedStatus.addAll(Arrays.asList(STATUS_TO_REVIEW, STATUS_IN_REVIEW));
+
+    assertThat(underTest.statusKeys()).containsExactlyInAnyOrder(expectedStatus.toArray(new String[]{}));
   }
 
   @Test
@@ -117,16 +124,6 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_security_hotspot_in_status_to_review() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue().setType(RuleType.SECURITY_HOTSPOT).setStatus(STATUS_TO_REVIEW);
-
-    List<Transition> transitions = underTest.outTransitions(issue);
-
-    assertThat(keys(transitions)).containsOnly("detect", "clear");
-  }
-
-  @Test
   public void fail_if_unknown_status_when_listing_transitions() {
     underTest.start();
 
@@ -152,27 +149,6 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-    assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
-  }
-
-  @Test
-  public void automatically_close_resolved_security_hotspots_in_to_review() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .setRuleKey(XOO_X1)
-      .setResolution(null)
-      .setStatus(STATUS_TO_REVIEW)
-      .setNew(false)
-      .setBeingClosed(true);
-    Date now = new Date();
-
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
@@ -328,64 +304,6 @@ public class IssueWorkflowTest {
     });
   }
 
-  @Test
-  @UseDataProvider("allStatusesLeadingToClosed")
-  public void do_not_automatically_reopen_closed_issues_of_security_hotspots(String previousStatus) {
-    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
-      .map(resolution -> {
-        DefaultIssue issue = newClosedIssue(resolution);
-        setStatusPreviousToClosed(issue, previousStatus);
-        issue.setType(RuleType.SECURITY_HOTSPOT);
-        return issue;
-      })
-      .toArray(DefaultIssue[]::new);
-    Date now = new Date();
-    underTest.start();
-
-    Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-
-      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-      assertThat(issue.updateDate()).isNull();
-    });
-  }
-
-  @Test
-  public void doAutomaticTransition_does_nothing_on_security_hotspots_in_to_review_status() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(XOO_X1)
-      .setResolution(null)
-      .setStatus(STATUS_TO_REVIEW);
-
-    underTest.start();
-    underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
-
-    assertThat(issue.status()).isEqualTo(STATUS_TO_REVIEW);
-    assertThat(issue.resolution()).isNull();
-  }
-
-  @Test
-  @UseDataProvider("allStatusesLeadingToClosed")
-  public void do_not_automatically_reopen_closed_issues_of_manual_vulnerability(String previousStatus) {
-    DefaultIssue[] issues = Arrays.stream(SUPPORTED_RESOLUTIONS_FOR_UNCLOSING)
-      .map(resolution -> {
-        DefaultIssue issue = newClosedIssue(resolution);
-        setStatusPreviousToClosed(issue, previousStatus);
-        issue.setIsFromHotspot(true);
-        return issue;
-      })
-      .toArray(DefaultIssue[]::new);
-    Date now = new Date();
-    underTest.start();
-
-    Arrays.stream(issues).forEach(issue -> {
-      underTest.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-
-      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-      assertThat(issue.updateDate()).isNull();
-    });
-  }
   private static final String[] ALL_STATUSES_LEADING_TO_CLOSED = new String[] {STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED};
   private static final String[] ALL_RESOLUTIONS_BEFORE_CLOSING = new String[] {
     null,
@@ -509,21 +427,6 @@ public class IssueWorkflowTest {
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
-  }
-
-  @Test
-  public void do_not_allow_to_doManualTransition_when_condition_fails() {
-    underTest.start();
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      // Detect is only available on hotspot
-      .setType(RuleType.VULNERABILITY)
-      .setIsFromHotspot(true)
-      .setStatus(STATUS_RESOLVED)
-      .setResolution(RESOLUTION_WONT_FIX)
-      .setRuleKey(XOO_X1);
-
-    assertThat(underTest.doManualTransition(issue, DefaultTransitions.DETECT, IssueChangeContext.createScan(new Date()))).isFalse();
   }
 
   private static DefaultIssue newClosedIssue(String resolution) {

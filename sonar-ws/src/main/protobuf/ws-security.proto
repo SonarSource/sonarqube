@@ -35,8 +35,8 @@ message SecurityStandardCategoryStatistics {
   optional string category = 1;
   optional int64 vulnerabilities = 2;
   optional int64 vulnerabilityRating = 3;
-  optional int64 toReviewSecurityHotspots = 4;
-  optional int64 openSecurityHotspots = 5;
+  optional int64 inReviewSecurityHotspots = 4;
+  optional int64 toReviewSecurityHotspots = 5;
   optional int64 wontFixSecurityHotspots = 6;
   repeated CweStatistics distribution = 7;
   optional int64 activeRules = 8;
@@ -47,8 +47,8 @@ message CweStatistics {
   optional string cwe = 1;
   optional int64 vulnerabilities = 2;
   optional int64 vulnerabilityRating = 3;
-  optional int64 toReviewSecurityHotspots = 4;
-  optional int64 openSecurityHotspots = 5;
+  optional int64 inReviewSecurityHotspots = 4;
+  optional int64 toReviewSecurityHotspots = 5;
   optional int64 wontFixSecurityHotspots = 6;
   optional int64 activeRules = 7;
   optional int64 totalRules = 8;

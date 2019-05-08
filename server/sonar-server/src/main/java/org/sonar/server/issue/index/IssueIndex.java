@@ -192,20 +192,21 @@ public class IssueIndex {
   private static final int MAX_FACET_SIZE = 100;
   private static final String AGG_VULNERABILITIES = "vulnerabilities";
   private static final String AGG_SEVERITIES = "severities";
-  private static final String AGG_OPEN_SECURITY_HOTSPOTS = "openSecurityHotspots";
   private static final String AGG_TO_REVIEW_SECURITY_HOTSPOTS = "toReviewSecurityHotspots";
+  private static final String AGG_IN_REVIEW_SECURITY_HOTSPOTS = "inReviewSecurityHotspots";
   private static final String AGG_WONT_FIX_SECURITY_HOTSPOTS = "wontFixSecurityHotspots";
   private static final String AGG_CWES = "cwes";
   private static final BoolQueryBuilder NON_RESOLVED_VULNERABILITIES_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name()))
     .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
-  private static final BoolQueryBuilder NON_RESOLVED_HOTSTPOS_FILTER = boolQuery()
+  private static final BoolQueryBuilder IN_REVIEW_HOTSPOTS_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
+    .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_IN_REVIEW))
     .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
   private static final BoolQueryBuilder TO_REVIEW_HOTSPOTS_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
-    .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
-    .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED));
+    .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_TO_REVIEW))
+    .mustNot(existsQuery(FIELD_ISSUE_RESOLUTION));
   private static final BoolQueryBuilder WONT_FIX_HOTSPOTS_FILTER = boolQuery()
     .filter(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name()))
     .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_RESOLVED))
@@ -927,14 +928,14 @@ public class IssueIndex {
       .mapToInt(b -> Severity.ALL.indexOf(b.getKeyAsString()) + 1)
       .max();
 
-    long openSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_OPEN_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
-      .getValue();
     long toReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
+      .getValue();
+    long inReviewSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_IN_REVIEW_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
     long wontFixSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_WONT_FIX_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
 
-    return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots, openSecurityHotspots,
+    return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, inReviewSecurityHotspots, toReviewSecurityHotspots,
       wontFixSecurityHotspots, children);
   }
 
@@ -962,10 +963,10 @@ public class IssueIndex {
             AggregationBuilders.terms(AGG_SEVERITIES).field(FIELD_ISSUE_SEVERITY)
               .subAggregation(
                 AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY))))
-      .subAggregation(AggregationBuilders.filter(AGG_OPEN_SECURITY_HOTSPOTS, NON_RESOLVED_HOTSTPOS_FILTER)
+      .subAggregation(AggregationBuilders.filter(AGG_TO_REVIEW_SECURITY_HOTSPOTS, TO_REVIEW_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)))
-      .subAggregation(AggregationBuilders.filter(AGG_TO_REVIEW_SECURITY_HOTSPOTS, TO_REVIEW_HOTSPOTS_FILTER)
+      .subAggregation(AggregationBuilders.filter(AGG_IN_REVIEW_SECURITY_HOTSPOTS, IN_REVIEW_HOTSPOTS_FILTER)
         .subAggregation(
           AggregationBuilders.count(AGG_COUNT).field(FIELD_ISSUE_KEY)))
       .subAggregation(AggregationBuilders.filter(AGG_WONT_FIX_SECURITY_HOTSPOTS, WONT_FIX_HOTSPOTS_FILTER)
@@ -990,8 +991,8 @@ public class IssueIndex {
       .setQuery(
         componentFilter
           .should(NON_RESOLVED_VULNERABILITIES_FILTER)
-          .should(NON_RESOLVED_HOTSTPOS_FILTER)
           .should(TO_REVIEW_HOTSPOTS_FILTER)
+          .should(IN_REVIEW_HOTSPOTS_FILTER)
           .should(WONT_FIX_HOTSPOTS_FILTER)
           .minimumShouldMatch(1))
       .setSize(0);

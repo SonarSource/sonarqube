@@ -39,6 +39,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
@@ -61,7 +62,7 @@ public class IssueWorkflow implements Startable {
   @Override
   public void start() {
     StateMachine.Builder builder = StateMachine.builder()
-      .states(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED, STATUS_TO_REVIEW);
+      .states(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED, STATUS_TO_REVIEW, STATUS_IN_REVIEW);
     buildManualTransitions(builder);
     buildAutomaticTransitions(builder);
     buildSecurityHotspotTransitions(builder);
@@ -149,6 +150,12 @@ public class IssueWorkflow implements Startable {
 
   private static void buildSecurityHotspotTransitions(StateMachine.Builder builder) {
     builder
+      .transition(Transition.builder(DefaultTransitions.SET_AS_IN_REVIEW)
+        .from(STATUS_TO_REVIEW).to(STATUS_IN_REVIEW)
+        .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
+        .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
+        .build())
+
       .transition(Transition.builder(DefaultTransitions.DETECT)
         .from(STATUS_TO_REVIEW).to(STATUS_OPEN)
         .conditions(new HasType(RuleType.SECURITY_HOTSPOT))
@@ -166,16 +173,6 @@ public class IssueWorkflow implements Startable {
         .conditions(IsManualVulnerability.INSTANCE)
         .functions(new SetType(RuleType.SECURITY_HOTSPOT))
         .requiredProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN)
-        .build())
-      .transition(Transition.builder(DefaultTransitions.REQUEST_REVIEW)
-        .from(STATUS_OPEN).to(STATUS_RESOLVED)
-        .conditions(IsManualVulnerability.INSTANCE)
-        .functions(new SetType(RuleType.SECURITY_HOTSPOT), new SetResolution(RESOLUTION_FIXED))
-        .build())
-      .transition(Transition.builder(DefaultTransitions.REQUEST_REVIEW)
-        .from(STATUS_REOPENED).to(STATUS_RESOLVED)
-        .conditions(IsManualVulnerability.INSTANCE)
-        .functions(new SetType(RuleType.SECURITY_HOTSPOT), new SetResolution(RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.REJECT)
         .from(STATUS_RESOLVED).to(STATUS_REOPENED)
@@ -232,6 +229,12 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(STATUS_TO_REVIEW).to(STATUS_CLOSED)
+        .conditions(IsBeingClosed.INSTANCE, new HasType(RuleType.SECURITY_HOTSPOT))
+        .functions(SetClosed.INSTANCE, SetCloseDate.INSTANCE)
+        .automatic()
+        .build())
+      .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
+        .from(STATUS_IN_REVIEW).to(STATUS_CLOSED)
         .conditions(IsBeingClosed.INSTANCE, new HasType(RuleType.SECURITY_HOTSPOT))
         .functions(SetClosed.INSTANCE, SetCloseDate.INSTANCE)
         .automatic()

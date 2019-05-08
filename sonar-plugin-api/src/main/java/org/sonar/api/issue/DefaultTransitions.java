@@ -22,6 +22,7 @@ package org.sonar.api.issue;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * @since 3.6
@@ -46,13 +47,18 @@ public interface DefaultTransitions {
   String DETECT = "detect";
   String DISMISS = "dismiss";
   String REJECT = "reject";
-  String REQUEST_REVIEW = "requestreview";
   String ACCEPT = "accept";
   String CLEAR = "clear";
   String REOPEN_HOTSPOT = "reopenhotspot";
 
   /**
+   * @since 7.8
+   */
+  String SET_AS_IN_REVIEW = "setinreview";
+
+  /**
    * @since 4.4
    */
-  List<String> ALL = asList(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE, DETECT, DISMISS, REJECT, REQUEST_REVIEW, ACCEPT, CLEAR, REOPEN_HOTSPOT);
+  List<String> ALL = unmodifiableList(asList(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE,
+    DETECT, DISMISS, REJECT, SET_AS_IN_REVIEW, ACCEPT, CLEAR, REOPEN_HOTSPOT));
 }
