@@ -888,7 +888,7 @@ export class App extends React.PureComponent<Props, State> {
       <div className="pull-left">
         <Checkbox
           checked={isChecked}
-          className="spacer-right vertical-middle"
+          className="spacer-right text-middle"
           disabled={issues.length === 0}
           id="issues-selection"
           onCheck={this.handleCheckAll}

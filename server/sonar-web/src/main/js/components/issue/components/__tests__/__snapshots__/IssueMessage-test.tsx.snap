@@ -11,7 +11,7 @@ exports[`should render with the message and a link to open the rule 1`] = `
   </span>
   <Button
     aria-label="issue.rule_details"
-    className="button button-grey button-tiny spacer-right vertical-top"
+    className="button button-grey button-tiny spacer-right text-top"
     onClick={[Function]}
   >
     issue.see_rule

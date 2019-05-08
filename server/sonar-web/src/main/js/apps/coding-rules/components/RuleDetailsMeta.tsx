@@ -223,9 +223,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     return (
       <Tooltip overlay={translateWithParameters('coding_rules.external_rule.engine', engine)}>
         <li className="coding-rules-detail-property">
-          <div className="outline-badge badge-tiny-height spacer-left vertical-text-top">
-            {engine}
-          </div>
+          <div className="outline-badge badge-tiny-height spacer-left text-text-top">{engine}</div>
         </li>
       </Tooltip>
     );

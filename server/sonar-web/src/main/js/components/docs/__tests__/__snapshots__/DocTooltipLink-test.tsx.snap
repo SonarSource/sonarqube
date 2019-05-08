@@ -28,7 +28,7 @@ exports[`should render simple link 1`] = `
     target="_blank"
   />
   <DetachIcon
-    className="little-spacer-left little-spacer-right vertical-baseline"
+    className="little-spacer-left little-spacer-right text-baseline"
     size={12}
   />
 </Fragment>

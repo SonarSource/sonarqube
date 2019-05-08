@@ -78,7 +78,7 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-label-with-icon"
       >
         <BugIcon
-          className="little-spacer-right vertical-bottom"
+          className="little-spacer-right text-bottom"
         />
         metric.bugs.name
       </div>
@@ -108,7 +108,7 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-label-with-icon"
       >
         <VulnerabilityIcon
-          className="little-spacer-right vertical-bottom"
+          className="little-spacer-right text-bottom"
         />
         metric.vulnerabilities.name
       </div>
@@ -138,7 +138,7 @@ exports[`should render correctly with all data 1`] = `
         className="project-card-measure-label-with-icon"
       >
         <CodeSmellIcon
-          className="little-spacer-right vertical-bottom"
+          className="little-spacer-right text-bottom"
         />
         metric.code_smells.name
       </div>

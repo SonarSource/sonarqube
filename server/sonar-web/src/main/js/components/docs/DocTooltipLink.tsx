@@ -58,7 +58,7 @@ export default function DocTooltipLink({ children, customProps, href, ...other }
       <a href={href} rel="noopener noreferrer" target="_blank" {...other}>
         {children}
       </a>
-      <DetachIcon className="little-spacer-left little-spacer-right vertical-baseline" size={12} />
+      <DetachIcon className="little-spacer-left little-spacer-right text-baseline" size={12} />
     </>
   );
 }

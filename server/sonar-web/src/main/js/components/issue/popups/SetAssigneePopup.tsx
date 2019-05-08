@@ -130,9 +130,7 @@ class SetAssigneePopup extends React.PureComponent<Props, State> {
                 {!!user.login && (
                   <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={16} />
                 )}
-                <span
-                  className="vertical-middle"
-                  style={{ marginLeft: !user.login ? 24 : undefined }}>
+                <span className="text-middle" style={{ marginLeft: !user.login ? 24 : undefined }}>
                   {user.name}
                 </span>
               </SelectListItem>

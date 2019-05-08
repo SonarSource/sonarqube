@@ -54,7 +54,7 @@ exports[`should render simple link 1`] = `
     link text
   </a>
   <DetachIcon
-    className="text-muted little-spacer-left little-spacer-right vertical-baseline"
+    className="text-muted little-spacer-left little-spacer-right text-baseline"
     size={12}
   />
 </Fragment>

@@ -81,7 +81,7 @@ export class DocLink extends React.PureComponent<Props> {
           {children}
         </a>
         <DetachIcon
-          className="text-muted little-spacer-left little-spacer-right vertical-baseline"
+          className="text-muted little-spacer-left little-spacer-right text-baseline"
           size={12}
         />
       </>

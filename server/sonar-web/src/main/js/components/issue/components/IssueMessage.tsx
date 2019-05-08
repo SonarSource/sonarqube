@@ -46,21 +46,21 @@ export default class IssueMessage extends React.PureComponent<Props> {
         <span className="little-spacer-right">{this.props.message}</span>
         <Button
           aria-label={translate('issue.rule_details')}
-          className="button button-grey button-tiny spacer-right vertical-top"
+          className="button button-grey button-tiny spacer-right text-top"
           onClick={this.handleClick}>
           {translate('issue.see_rule')}
         </Button>
         {this.props.engine && (
           <Tooltip
             overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>
-            <div className="outline-badge badge-tiny-height spacer-right vertical-top">
+            <div className="outline-badge badge-tiny-height spacer-right text-top">
               {this.props.engine}
             </div>
           </Tooltip>
         )}
         {this.props.manualVulnerability && (
           <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-            <div className="outline-badge badge-tiny-height spacer-right vertical-top">
+            <div className="outline-badge badge-tiny-height spacer-right text-top">
               {translate('issue.manual_vulnerability')}
             </div>
           </Tooltip>

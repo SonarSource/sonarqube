@@ -72,7 +72,7 @@ export default function NotificationsSidebar(props: Props) {
                 {translate('show_more')}
               </a>
               {loadingMore && (
-                <DeferredSpinner className="vertical-bottom spacer-left position-absolute" />
+                <DeferredSpinner className="text-bottom spacer-left position-absolute" />
               )}
             </div>
           </div>

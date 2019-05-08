@@ -43,7 +43,7 @@ export function getActivity(data: RequestData): Promise<{ tasks: T.Task[] }> {
 
 export function getStatus(
   componentId?: string
-): Promise<{ failing: number; inProgress: number; pending: number }> {
+): Promise<{ failing: number; inProgress: number; pending: number; pendingTime?: number }> {
   const data = {};
   if (componentId) {
     Object.assign(data, { componentId });

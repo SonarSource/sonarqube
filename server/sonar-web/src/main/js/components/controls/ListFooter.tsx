@@ -61,9 +61,7 @@ export default function ListFooter({ ready = true, ...props }: Props) {
         formatMeasure(props.total, 'INT', null)
       )}
       {props.loadMore != null && hasMore ? loadMoreLink : null}
-      {props.loading && (
-        <DeferredSpinner className="vertical-bottom spacer-left position-absolute" />
-      )}
+      {props.loading && <DeferredSpinner className="text-bottom spacer-left position-absolute" />}
     </footer>
   );
 }

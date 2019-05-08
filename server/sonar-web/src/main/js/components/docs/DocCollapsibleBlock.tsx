@@ -41,7 +41,7 @@ export default class DocCollapsibleBlock extends React.PureComponent<{}, State> 
         className="link-no-underline"
         href="#"
         onClick={this.handleClick}>
-        <OpenCloseIcon className="vertical-middle little-spacer-right" open={this.state.open} />
+        <OpenCloseIcon className="text-middle little-spacer-right" open={this.state.open} />
         {children.props ? children.props.children : children}
       </a>
     );

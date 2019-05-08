@@ -14,7 +14,7 @@ exports[`should render a collapsible block 1`] = `
     onClick={[Function]}
   >
     <OpenCloseIcon
-      className="vertical-middle little-spacer-right"
+      className="text-middle little-spacer-right"
       open={false}
     />
     Foo
@@ -34,7 +34,7 @@ exports[`should render a collapsible block 2`] = `
     onClick={[Function]}
   >
     <OpenCloseIcon
-      className="vertical-middle little-spacer-right"
+      className="text-middle little-spacer-right"
       open={true}
     />
     Foo

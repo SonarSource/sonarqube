@@ -57,7 +57,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
             <Rating value={measures['reliability_rating']} />
           </div>
           <div className="project-card-measure-label-with-icon">
-            <BugIcon className="little-spacer-right vertical-bottom" />
+            <BugIcon className="little-spacer-right text-bottom" />
             {translate('metric.bugs.name')}
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
             <Rating value={measures['security_rating']} />
           </div>
           <div className="project-card-measure-label-with-icon">
-            <VulnerabilityIcon className="little-spacer-right vertical-bottom" />
+            <VulnerabilityIcon className="little-spacer-right text-bottom" />
             {translate('metric.vulnerabilities.name')}
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
             <Rating value={measures['sqale_rating']} />
           </div>
           <div className="project-card-measure-label-with-icon">
-            <CodeSmellIcon className="little-spacer-right vertical-bottom" />
+            <CodeSmellIcon className="little-spacer-right text-bottom" />
             {translate('metric.code_smells.name')}
           </div>
         </div>

@@ -156,7 +156,7 @@ export class ComponentNavBranch extends React.PureComponent<Props, State> {
           <span className="note">{displayName}</span>
           {configuration && configuration.showSettings && (
             <HelpTooltip className="spacer-left" overlay={this.renderOverlay()}>
-              <PlusCircleIcon className="vertical-middle" fill={theme.blue} size={12} />
+              <PlusCircleIcon className="text-middle" fill={theme.blue} size={12} />
             </HelpTooltip>
           )}
         </div>
