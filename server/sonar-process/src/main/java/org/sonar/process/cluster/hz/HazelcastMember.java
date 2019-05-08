@@ -82,15 +82,28 @@ public interface HazelcastMember extends AutoCloseable {
   /**
    * Runs a distributed query on a set of Hazelcast members.
    *
-   * @param callable the query that is executed on all target members. Be careful of classloader, don't use classes
-   *                 that are not available in classpath of target members.
+   * @param callable       the query that is executed on all target members. Be careful of classloader, don't use classes
+   *                       that are not available in classpath of target members.
    * @param memberSelector the subset of members to target. See {@link com.hazelcast.cluster.memberselector.MemberSelectors}
    *                       for utilities.
-   * @param timeoutMs the total timeout to get responses from all target members, in milliseconds. If timeout is reached, then
-   *                the members that didn't answer on time are marked as timed-out in {@link DistributedAnswer}
+   * @param timeoutMs      the total timeout to get responses from all target members, in milliseconds. If timeout is reached, then
+   *                       the members that didn't answer on time are marked as timed-out in {@link DistributedAnswer}
+   * @throws java.util.concurrent.RejectedExecutionException if no member is selected
    */
   <T> DistributedAnswer<T> call(DistributedCall<T> callable, MemberSelector memberSelector, long timeoutMs)
     throws InterruptedException;
+
+  /**
+   * Runs asynchronously a distributed query on a set of Hazelcast members.
+   *
+   * @param callable       the query that is executed on all target members. Be careful of classloader, don't use classes
+   *                       that are not available in classpath of target members.
+   * @param memberSelector the subset of members to target. See {@link com.hazelcast.cluster.memberselector.MemberSelectors}
+   *                       for utilities.
+   * @param callback       will be called once we get all responses.
+   * @throws java.util.concurrent.RejectedExecutionException if no member is selected
+   */
+  <T> void callAsync(DistributedCall<T> callable, MemberSelector memberSelector, DistributedCallback<T> callback);
 
   @Override
   void close();

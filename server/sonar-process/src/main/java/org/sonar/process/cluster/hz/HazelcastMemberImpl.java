@@ -26,6 +26,7 @@ import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberSelector;
+import com.hazelcast.core.MultiExecutionCallback;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -103,6 +104,24 @@ class HazelcastMemberImpl implements HazelcastMember {
     } finally {
       futures.values().forEach(f -> f.cancel(true));
     }
+  }
+
+  @Override
+  public <T> void callAsync(DistributedCall<T> callable, MemberSelector memberSelector, DistributedCallback<T> callback) {
+    IExecutorService executor = hzInstance.getExecutorService("default");
+
+    // callback doesn't handle failures, so we need to make sure the callable won't fail!
+    executor.submitToMembers(callable, memberSelector, new MultiExecutionCallback() {
+      @Override
+      public void onResponse(Member member, Object value) {
+        // nothing to do when each node responds
+      }
+
+      @Override
+      public void onComplete(Map<Member, Object> values) {
+        callback.onComplete((Map<Member, T>) values);
+      }
+    });
   }
 
   @Override

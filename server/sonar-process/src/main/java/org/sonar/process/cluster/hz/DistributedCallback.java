@@ -17,31 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.config;
+package org.sonar.process.cluster.hz;
 
-import java.util.Optional;
-import org.sonar.process.Props;
+import com.hazelcast.core.Member;
+import java.util.Map;
 
-public class AppSettingsImpl implements AppSettings {
-
-  private volatile Props props;
-
-  AppSettingsImpl(Props props) {
-    this.props = props;
-  }
-
-  @Override
-  public Props getProps() {
-    return props;
-  }
-
-  @Override
-  public Optional<String> getValue(String key) {
-    return Optional.ofNullable(props.value(key));
-  }
-
-  @Override
-  public void reload(Props copy) {
-    this.props = copy;
-  }
+@FunctionalInterface
+public interface DistributedCallback<T> {
+  void onComplete(Map<Member, T> response);
 }

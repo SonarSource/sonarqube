@@ -68,14 +68,14 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private final EsConnector esConnector;
   private HealthStateSharing healthStateSharing = null;
 
-  public ClusterAppStateImpl(AppSettings settings, HazelcastMember hzMember, EsConnector esConnector) {
+  public ClusterAppStateImpl(AppSettings settings, HazelcastMember hzMember, EsConnector esConnector, AppNodesClusterHostsConsistency appNodesClusterHostsConsistency) {
     this.hzMember = hzMember;
 
     // Get or create the replicated map
     operationalProcesses = (ReplicatedMap) hzMember.getReplicatedMap(OPERATIONAL_PROCESSES);
     operationalProcessListenerUUID = operationalProcesses.addEntryListener(new OperationalProcessListener());
     nodeDisconnectedListenerUUID = hzMember.getCluster().addMembershipListener(new NodeDisconnectedListener());
-
+    appNodesClusterHostsConsistency.check();
     if (ClusterSettings.isLocalElasticsearchEnabled(settings)) {
       this.healthStateSharing = new HealthStateSharingImpl(hzMember, new SearchNodeHealthProvider(settings.getProps(), this, NetworkUtilsImpl.INSTANCE));
       this.healthStateSharing.start();

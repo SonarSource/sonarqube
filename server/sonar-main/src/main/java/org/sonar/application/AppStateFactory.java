@@ -23,6 +23,7 @@ import com.google.common.net.HostAndPort;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.application.cluster.AppNodesClusterHostsConsistency;
 import org.sonar.application.cluster.ClusterAppStateImpl;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
@@ -37,12 +38,11 @@ import static java.util.Arrays.asList;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 
 public class AppStateFactory {
-
   private final AppSettings settings;
 
   public AppStateFactory(AppSettings settings) {
@@ -53,7 +53,8 @@ public class AppStateFactory {
     if (ClusterSettings.shouldStartHazelcast(settings)) {
       EsConnector esConnector = createEsConnector(settings.getProps());
       HazelcastMember hzMember = createHzMember(settings.getProps());
-      return new ClusterAppStateImpl(settings, hzMember, esConnector);
+      AppNodesClusterHostsConsistency appNodesClusterHostsConsistency = AppNodesClusterHostsConsistency.setInstance(hzMember, settings);
+      return new ClusterAppStateImpl(settings, hzMember, esConnector, appNodesClusterHostsConsistency);
     }
     return new AppStateImpl();
   }
