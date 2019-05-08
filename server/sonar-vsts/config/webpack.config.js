@@ -62,9 +62,7 @@ module.exports = ({ production = true }) => ({
       },
       {
         test: /\.css$/,
-        use: ['style-loader', utils.cssLoader({ production }), utils.postcssLoader()].filter(
-          Boolean
-        )
+        use: ['style-loader', utils.cssLoader(), utils.postcssLoader(true)]
       }
     ].filter(Boolean)
   },

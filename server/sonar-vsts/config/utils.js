@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const cssMinimizeOptions = {
-  discardComments: { removeAll: true }
-};
-
-const cssLoader = ({ production }) => ({
+const cssLoader = () => ({
   loader: 'css-loader',
   options: {
     importLoaders: 1,
-    minimize: production && cssMinimizeOptions,
+    modules: 'global',
     url: false
   }
 });
@@ -39,17 +35,15 @@ Object.keys(theme).forEach(key => {
   }
 });
 
-const postcssLoader = () => ({
+const postcssLoader = production => ({
   loader: 'postcss-loader',
   options: {
     ident: 'postcss',
     plugins: () => [
       require('autoprefixer'),
-      require('postcss-custom-properties')({
-        importFrom: { customProperties },
-        preserve: false
-      }),
-      require('postcss-calc')
+      require('postcss-custom-properties')({ importFrom: { customProperties }, preserve: false }),
+      require('postcss-calc'),
+      ...(production ? [require('cssnano')({ calc: false, svgo: false })] : [])
     ]
   }
 });

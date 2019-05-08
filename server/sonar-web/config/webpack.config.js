@@ -83,15 +83,15 @@ module.exports = ({ production = true, release = false }) => {
       include: path.resolve(__dirname, '../src/main/js/app/styles'),
       use: [
         production ? MiniCssExtractPlugin.loader : 'style-loader',
-        utils.cssLoader({ production }),
-        utils.postcssLoader()
+        utils.cssLoader(),
+        utils.postcssLoader(production)
       ]
     },
     {
       // inline all other styles
       test: /\.css$/,
       exclude: path.resolve(__dirname, '../src/main/js/app/styles'),
-      use: ['style-loader', utils.cssLoader({ production }), utils.postcssLoader()]
+      use: ['style-loader', utils.cssLoader(), utils.postcssLoader(production)]
     },
     {
       test: /\.md$/,
