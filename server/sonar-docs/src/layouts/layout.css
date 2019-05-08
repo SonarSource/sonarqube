@@ -25,6 +25,11 @@ body,
   height: 100%;
 }
 
+iframe {
+  width: 100%;
+  border: 0;
+}
+
 .blue-bar {
   background: #4c9bd6;
   height: 5px;
@@ -363,7 +368,7 @@ a.search-result .note {
 }
 
 .markdown-container {
-  max-width: 680px;
+  width: 680px;
   margin: 0 auto;
   padding-top: 24px;
   padding-bottom: 24px;
@@ -371,6 +376,7 @@ a.search-result .note {
 
 .headings-container + .markdown-container {
   max-width: 900px;
+  width: auto;
   padding-right: 220px;
 }
 

@@ -272,3 +272,45 @@ You can also put icons inside messages:
 [[danger]]
 | ![](/images/cross.svg) This is a **danger** message.
 ```
+
+#### Iframes
+
+_Note: at this time, iframes are only supported for the static documentation, and will be stripped from the embedded documentation._
+
+You can add iframes directly in the source:
+
+```html
+<iframe src="http://www.sonarsource.com"></iframe>
+
+```
+
+Make sure to leave an empty line _after_ the closing tag, otherwise formatting of the following line could be incorrect:
+
+_Incorrect:_
+```md
+<iframe src="http://www.sonarsource.com"></iframe>
+*Lorem ipsum* dolor sit amet.
+```
+
+_Correct:_
+```md
+<iframe src="http://www.sonarsource.com"></iframe>
+
+*Lorem ipsum* dolor sit amet.
+```
+
+By default, an iframe will have a height of 150px (as per browser specs). You can override this by adding a `height` attribute:
+
+```html
+<iframe src="http://www.sonarsource.com" height="400px"></iframe>
+
+```
+
+You cannot change the width, which is always 100%.
+
+Note that an iframe is **not** a self-closing tag. This means that the following syntax _won't work_ and will break the page in unexpected ways:
+
+```html
+<iframe src="http://www.sonarsource.com" />
+
+```
