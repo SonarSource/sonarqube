@@ -79,32 +79,6 @@ public class PersistAnalysisPropertiesStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(9);
-    List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
-      .analysisPropertiesDao().selectBySnapshotUuid(dbTester.getSession(), SNAPSHOT_UUID);
-
-    assertThat(propertyDtos)
-      .extracting(AnalysisPropertyDto::getSnapshotUuid, AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue)
-      .containsExactlyInAnyOrder(
-        tuple(SNAPSHOT_UUID, "sonar.analysis.branch", SMALL_VALUE2),
-        tuple(SNAPSHOT_UUID, "sonar.analysis.empty_string", ""),
-        tuple(SNAPSHOT_UUID, "sonar.analysis.big_value", BIG_VALUE),
-        tuple(SNAPSHOT_UUID, "sonar.analysis.", SMALL_VALUE3),
-        tuple(SNAPSHOT_UUID, "sonar.analysis.scm_revision_id", SCM_REV_ID),
-        tuple(SNAPSHOT_UUID, "sonar.pullrequest.branch", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE2),
-        tuple(SNAPSHOT_UUID, "sonar.pullrequest.empty_string", ""),
-        tuple(SNAPSHOT_UUID, "sonar.pullrequest.big_value", VALUE_PREFIX_FOR_PR_PROPERTIES + BIG_VALUE),
-        tuple(SNAPSHOT_UUID, "sonar.pullrequest.", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE3));
-  }
-
-  @Test
-  public void persist_should_not_stores_sonarDotAnalysisDotscm_revision_id_properties_when_its_not_available_in_report_metada() {
-    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
-    when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
-    when(analysisMetadataHolder.getScmRevisionId()).thenReturn(Optional.empty());
-
-    underTest.execute(new TestComputationStepContext());
-
     assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(8);
     List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
       .analysisPropertiesDao().selectBySnapshotUuid(dbTester.getSession(), SNAPSHOT_UUID);
@@ -136,24 +110,18 @@ public class PersistAnalysisPropertiesStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
   }
 
   @Test
-  public void persist_should_only_store_scmRevisionId_if_there_is_no_context_properties() {
+  public void persist_should_store_nothing_if_there_are_no_context_properties() {
     when(analysisMetadataHolder.getScmRevisionId()).thenReturn(Optional.of(SCM_REV_ID));
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(1);
-    List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
-      .analysisPropertiesDao().selectBySnapshotUuid(dbTester.getSession(), SNAPSHOT_UUID);
-
-    assertThat(propertyDtos)
-      .extracting(AnalysisPropertyDto::getSnapshotUuid, AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue)
-      .containsExactlyInAnyOrder(tuple(SNAPSHOT_UUID, "sonar.analysis.scm_revision_id", SCM_REV_ID));
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
   }
 
   @Test

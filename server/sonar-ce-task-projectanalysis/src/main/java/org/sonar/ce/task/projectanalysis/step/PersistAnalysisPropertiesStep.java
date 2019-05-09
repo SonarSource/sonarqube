@@ -40,7 +40,6 @@ import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS;
 public class PersistAnalysisPropertiesStep implements ComputationStep {
 
   private static final String SONAR_PULL_REQUEST = "sonar.pullrequest.";
-  private static final String SCM_REVISION_ID = "sonar.analysis.scm_revision_id";
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -71,12 +70,6 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
           }
         });
     }
-
-    analysisMetadataHolder.getScmRevisionId().ifPresent(scmRevisionId -> analysisPropertyDtos.add(new AnalysisPropertyDto()
-      .setUuid(uuidFactory.create())
-      .setKey(SCM_REVISION_ID)
-      .setValue(scmRevisionId)
-      .setSnapshotUuid(analysisMetadataHolder.getUuid())));
 
     if (analysisPropertyDtos.isEmpty()) {
       return;
