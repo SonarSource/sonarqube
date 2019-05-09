@@ -11,6 +11,7 @@ configurations {
   jsw
   scanner
   web
+  shutdowner
   jdbc_mssql {
     transitive = false
   }
@@ -48,6 +49,7 @@ dependencies {
   scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
   web project(':server:sonar-vsts')
   web project(':server:sonar-web')
+  shutdowner project(':sonar-shutdowner')
 
   jdbc_h2 'com.h2database:h2'
   jdbc_mssql 'com.microsoft.sqlserver:mssql-jdbc'
@@ -193,6 +195,9 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
   }
   into("${archiveDir}/lib/jdbc/h2/") {
     from configurations.jdbc_h2
+  }
+  into("${archiveDir}/lib/") {
+    from configurations.shutdowner
   }
 }
 // Create the empty dir required by elasticsearch

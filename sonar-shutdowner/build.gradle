@@ -1,0 +1,22 @@
+sonarqube {
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: Shutdowner"
+  }
+}
+
+dependencies {
+  // please keep list ordered
+  compileOnly 'com.google.code.findbugs:jsr305'
+
+  testCompile 'junit:junit'
+  testCompile 'org.assertj:assertj-core'
+  testCompile 'org.mockito:mockito-core'
+}
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'org.sonar.application.Shutdowner'
+    )
+  }
+}
