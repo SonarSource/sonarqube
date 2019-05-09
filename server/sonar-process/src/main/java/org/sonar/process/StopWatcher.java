@@ -22,18 +22,18 @@ package org.sonar.process;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.function.BooleanSupplier;
 
-abstract class AbstractStopWatcher extends Thread {
+public class StopWatcher extends Thread {
   private final Runnable stopCommand;
   private final BooleanSupplier shouldStopTest;
   private final long delayMs;
   private volatile boolean watching = true;
 
-  public AbstractStopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest) {
+  public StopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest) {
     this(threadName, stopCommand, shouldStopTest, 500L);
   }
 
   @VisibleForTesting
-  AbstractStopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest, long delayMs) {
+  StopWatcher(String threadName, Runnable stopCommand, BooleanSupplier shouldStopTest, long delayMs) {
     super(threadName);
     this.stopCommand = stopCommand;
     this.shouldStopTest = shouldStopTest;

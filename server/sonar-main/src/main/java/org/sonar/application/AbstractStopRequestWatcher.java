@@ -55,7 +55,7 @@ public abstract class AbstractStopRequestWatcher extends Thread implements StopR
         Thread.sleep(delayMs);
       }
     } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+      interrupt();
       // stop watching the commands
     }
   }

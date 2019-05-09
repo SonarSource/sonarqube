@@ -48,32 +48,27 @@ public class ProcessEntryPoint {
   private final ProcessCommands commands;
   private final SystemExit exit;
   private final StopWatcher stopWatcher;
-  private final HardStopWatcher hardStopWatcher;
+  private final StopWatcher hardStopWatcher;
   // new Runnable() is important to avoid conflict of call to ProcessEntryPoint#stop() with Thread#stop()
-  private final Thread shutdownHook = new Thread(new Runnable() {
-    @Override
-    public void run() {
-      exit.setInShutdownHook();
-      stop();
-    }
-  });
+  private final Runtime runtime;
   private volatile Monitored monitored;
   private volatile StopperThread stopperThread;
   private volatile HardStopperThread hardStopperThread;
 
   ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands) {
-    this(props, getProcessNumber(props), getSharedDir(props), exit, commands);
+    this(props, getProcessNumber(props), getSharedDir(props), exit, commands, Runtime.getRuntime());
   }
 
-  private ProcessEntryPoint(Props props, int processNumber, File sharedDir, SystemExit exit, ProcessCommands commands) {
+  private ProcessEntryPoint(Props props, int processNumber, File sharedDir, SystemExit exit, ProcessCommands commands, Runtime runtime) {
     this.props = props;
     this.processKey = props.nonNullValue(PROPERTY_PROCESS_KEY);
     this.processNumber = processNumber;
     this.sharedDir = sharedDir;
     this.exit = exit;
     this.commands = commands;
-    this.stopWatcher = new StopWatcher(commands, this);
-    this.hardStopWatcher = new HardStopWatcher(commands, this);
+    this.stopWatcher = createStopWatcher(commands, this);
+    this.hardStopWatcher = createHardStopWatcher(commands, this);
+    this.runtime = runtime;
   }
 
   public ProcessCommands getCommands() {
@@ -118,7 +113,10 @@ public class ProcessEntryPoint {
 
   private void launch(Logger logger) throws InterruptedException {
     logger.info("Starting {}", getKey());
-    Runtime.getRuntime().addShutdownHook(shutdownHook);
+    runtime.addShutdownHook(new Thread(() -> {
+      exit.setInShutdownHook();
+      stop();
+    }));
     stopWatcher.start();
     hardStopWatcher.start();
 
@@ -225,16 +223,12 @@ public class ProcessEntryPoint {
     return lifecycle.isCurrentState(candidateState);
   }
 
-  Thread getShutdownHook() {
-    return shutdownHook;
-  }
-
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
     File sharedDir = getSharedDir(props);
     int processNumber = getProcessNumber(props);
     ProcessCommands commands = DefaultProcessCommands.main(sharedDir, processNumber);
-    return new ProcessEntryPoint(props, processNumber, sharedDir, new SystemExit(), commands);
+    return new ProcessEntryPoint(props, processNumber, sharedDir, new SystemExit(), commands, Runtime.getRuntime());
   }
 
   private static int getProcessNumber(Props props) {
@@ -248,35 +242,15 @@ public class ProcessEntryPoint {
   /**
    * This watchdog is looking for hard stop to be requested via {@link ProcessCommands#askedForHardStop()}.
    */
-  private static class HardStopWatcher extends AbstractStopWatcher {
-
-    private HardStopWatcher(ProcessCommands commands, ProcessEntryPoint processEntryPoint) {
-      super(
-        "HardStop Watcher",
-        () -> {
-          LoggerFactory.getLogger(HardStopWatcher.class).info("Hard stopping process");
-          processEntryPoint.hardStopAsync();
-        },
-        commands::askedForHardStop);
-    }
-
+  private static StopWatcher createHardStopWatcher(ProcessCommands commands, ProcessEntryPoint processEntryPoint) {
+    return new StopWatcher("HardStop Watcher", processEntryPoint::hardStopAsync, commands::askedForHardStop);
   }
 
   /**
    * This watchdog is looking for graceful stop to be requested via {@link ProcessCommands#askedForStop()} ()}.
    */
-  private static class StopWatcher extends AbstractStopWatcher {
-
-    private StopWatcher(ProcessCommands commands, ProcessEntryPoint processEntryPoint) {
-      super(
-        "Stop Watcher",
-        () -> {
-          LoggerFactory.getLogger(StopWatcher.class).info("Stopping process");
-          processEntryPoint.stopAsync();
-        },
-        commands::askedForStop);
-    }
-
+  private static StopWatcher createStopWatcher(ProcessCommands commands, ProcessEntryPoint processEntryPoint) {
+    return new StopWatcher("Stop Watcher", processEntryPoint::stopAsync, commands::askedForStop);
   }
 
   /**

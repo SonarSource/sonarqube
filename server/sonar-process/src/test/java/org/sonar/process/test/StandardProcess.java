@@ -36,11 +36,9 @@ public class StandardProcess implements Monitored {
     @Override
     public void run() {
       try {
-        while (true) {
-          Thread.sleep(100L);
-        }
+        Thread.sleep(Long.MAX_VALUE);
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        interrupt();
       }
     }
   };

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class AbstractStopWatcherTest {
+public class StopWatcherTest {
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
@@ -44,8 +44,7 @@ public class AbstractStopWatcherTest {
     when(commands.askedForHardStop()).thenReturn(false, true);
     Stoppable stoppable = mock(Stoppable.class);
 
-    AbstractStopWatcher underTest = new AbstractStopWatcher("TheThreadName",
-      stoppable::hardStopAsync, commands::askedForHardStop, 1L) {};
+    StopWatcher underTest = new StopWatcher("TheThreadName", stoppable::hardStopAsync, commands::askedForHardStop, 1L);
     underTest.start();
 
     while (underTest.isAlive()) {
@@ -61,8 +60,7 @@ public class AbstractStopWatcherTest {
     when(commands.askedForHardStop()).thenReturn(false);
     Stoppable stoppable = mock(Stoppable.class);
 
-    AbstractStopWatcher underTest = new AbstractStopWatcher("TheThreadName",
-      stoppable::hardStopAsync, commands::askedForHardStop, 1L) {};
+    StopWatcher underTest = new StopWatcher("TheThreadName", stoppable::hardStopAsync, commands::askedForHardStop, 1L);
     underTest.start();
     underTest.interrupt();
 
