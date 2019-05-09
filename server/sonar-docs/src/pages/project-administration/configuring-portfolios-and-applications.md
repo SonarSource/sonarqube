@@ -12,7 +12,7 @@ Global Administrators  have access to the overall Portfolio and Application admi
 
 Users of either type can edit an individual Portfolio or Application definition from the lower-level **Administration > Edit Definition** interface.
 
-Global Administrators also have access to the Projects Management page at **[Administration > Projects > Management](/#sonarqute-admin#/admin/projects_management)**. Changing the selection mechanism on this page to “Portfolios” or “Applications” lets you manage the Portfolios or Applications of your SonarQube instance. The dropdown menu to the right of each item lets you edit permissions, apply Permission Templates or restore access to a Portfolio or Application.
+Global Administrators also have access to the Projects Management page at **[Administration > Projects > Management](/#sonarqube-admin#/admin/projects_management)**. Changing the selection mechanism on this page to “Portfolios” or “Applications” lets you manage the Portfolios or Applications of your SonarQube instance. The dropdown menu to the right of each item lets you edit permissions, apply Permission Templates or restore access to a Portfolio or Application.
 
 ## Populating Portfolios
 Once your Portfolio exists, you can populate it with any mix of projects, Applications, and sub-portfolios. Applications may only be populated with projects.
@@ -42,4 +42,6 @@ Once your Application exists, you can populate it with manually-selected project
 Once your Application is populated with projects, you can create application branches by choosing long-lived branches from the application's component projects. This option is available in the Application's **Administration > Edit Definition** interface, or from the global administration interface.
 
 ## Calculation
-Applications and Portfolios are queued to be re-calculated after each analysis of an included project. For each relevant Portfolio and Application, a “Background Task” is created, and you can follow the progress on each in the **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)** by looking at the logs available for each item.
+By default, Applications and Portfolios are queued to be recalculated after each analysis of an included project. For each relevant Portfolio and Application, a “Background Task” is created, and you can follow the progress on each in the **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)** by looking at the logs available for each item.
+
+If you're having performance issues related to automatic recalculation of large portfolios, you can specify the hour(s) at which you want them to be recalculated at **[Administration > Portfolios > Recalculation](/#sonarqube-admin#/admin/settings?category=portfolios)**. Portfolios are queued to be recalculated at the beginning of the hour(s) that you specify.
