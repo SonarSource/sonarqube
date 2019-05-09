@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
-import org.sonar.api.web.page.Page;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.OrganizationPermission;
@@ -95,12 +94,12 @@ public class RegisterPermissionTemplatesTest {
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(7);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, OrganizationPermission.APPLICATION_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
     verifyDefaultTemplates();
 
@@ -122,12 +121,12 @@ public class RegisterPermissionTemplatesTest {
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(7);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, OrganizationPermission.APPLICATION_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
     verifyDefaultTemplates();
 
@@ -144,9 +143,11 @@ public class RegisterPermissionTemplatesTest {
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
-    assertThat(groupPermissions).hasSize(2);
+    assertThat(groupPermissions).hasSize(4);
     expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
     verifyDefaultTemplates();
 

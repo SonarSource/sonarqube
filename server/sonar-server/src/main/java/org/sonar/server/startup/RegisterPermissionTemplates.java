@@ -95,8 +95,6 @@ public class RegisterPermissionTemplates {
     Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, template.getOrganizationUuid(), DefaultGroups.ADMINISTRATORS);
     if (admins.isPresent()) {
       insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
-      insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, admins.get());
-      insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, admins.get());
       insertGroupPermission(dbSession, template, OrganizationPermission.APPLICATION_CREATOR.getKey(), admins.get());
       insertGroupPermission(dbSession, template, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), admins.get());
     } else {
@@ -112,6 +110,8 @@ public class RegisterPermissionTemplates {
       .orElseThrow(() -> new IllegalStateException(format("Default group with id %s for organization %s doesn't exist", defaultGroupId, organizationUuid)));
     insertGroupPermission(dbSession, template, UserRole.USER, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, defaultGroup);
+    insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, defaultGroup);
+    insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup);
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {
